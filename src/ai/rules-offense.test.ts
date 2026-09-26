@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { createBoard, createGameState, CURRENT_RULE_VERSION, MODERN_RULE_VERSION, unitLimit, type DeployedUnit, type GameState, type Unit } from '../game';
-import { chooseCpuAction, cpuDifficultyConfig, cpuForceLimit, evaluateCpuPosition, FACILITY_BLOCK_PENALTY, stalemateRelief } from './rules';
+import { chooseCpuAction, cpuDifficultyConfig, cpuForceLimit, difficultyForceLimit, evaluateCpuPosition, FACILITY_BLOCK_PENALTY, MIN_CPU_FORCE, stalemateRelief } from './rules';
 
 const unit = (patch: Partial<Unit> & Pick<Unit, 'id' | 'kind' | 'owner'>): Unit => ({
   position: { x: 0, y: 0 }, hp: 100, hasMoved: false, hasActed: false, ...patch,
@@ -131,20 +131,25 @@ describe('CPU force limit', () => {
     expect(cpuForceLimit(createBoard(10, 8, { kind: 'sea' }))).toBe(8);
   });
 
-  it('stops producing once the CPU force reaches the limit', () => {
-    const board = createBoard(5, 2);
+  it.each(['easy', 'normal', 'hard'] as const)('stops %s production exactly at its difficulty force limit', (difficulty) => {
+    // 8x8 open board: CPU force limit 16, scaled per difficulty (hard 16, normal 11, easy 7).
+    const board = createBoard(8, 8);
     board.terrain[0]![0] = { kind: 'factory', owner: 'blue', capturePoints: 20 };
-    // Ten open tiles give the minimum limit of eight units.
+    const limit = difficultyForceLimit(board, cpuDifficultyConfig[difficulty]);
     const troops = (count: number) => Array.from({ length: count }, (_, index) => unit({
-      id: `b${index}`, kind: 'infantry', owner: 'blue', position: { x: (index + 1) % 5, y: Math.floor((index + 1) / 5) }, hasMoved: true, hasActed: true,
+      id: `b${index}`, kind: 'infantry', owner: 'blue', position: { x: (index + 1) % 8, y: Math.floor((index + 1) / 8) }, hasMoved: true, hasActed: true,
     }));
     const state = (units: Unit[]): GameState => ({
       ...createGameState(board), activePlayer: 'blue', units,
       players: { red: { gold: 0, income: 0 }, blue: { gold: 10_000, income: 0 } },
     });
-    expect(cpuForceLimit(board)).toBe(8);
-    expect(chooseCpuAction(state(troops(7)), 'normal').type).toBe('produce');
-    expect(chooseCpuAction(state(troops(8)), 'normal').type).not.toBe('produce');
+    expect(cpuForceLimit(board)).toBe(16);
+    expect(chooseCpuAction(state(troops(limit - 1)), difficulty).type).toBe('produce');
+    expect(chooseCpuAction(state(troops(limit)), difficulty).type).not.toBe('produce');
+  });
+
+  it('keeps even the easiest CPU at the minimum force on a small map', () => {
+    expect(difficultyForceLimit(createBoard(2, 2), cpuDifficultyConfig.easy)).toBe(MIN_CPU_FORCE);
   });
 
   it('still answers a confirmed threat at the limit', () => {

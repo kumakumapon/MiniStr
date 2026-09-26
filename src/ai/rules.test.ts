@@ -1,6 +1,18 @@
 import { describe, expect, it } from 'vitest';
 import { applyGameCommand, createBoard, createGameState, endTurn, maps, reachablePositions, type DeployedUnit, type GameState } from '../game';
-import { chooseCpuAction, cpuDifficultyConfig, createCpuPlanningContext, evaluateCpuPosition as scoreCpuPosition } from './rules';
+import { chooseCpuAction, cpuDifficultyConfig, createCpuPlanningContext, difficultyForceLimit, evaluateCpuPosition as scoreCpuPosition, type CpuDifficultyConfig } from './rules';
+
+/**
+ * Fixed weights for testing the position-scoring formula itself, independent of
+ * how the difficulty presets are tuned (#119 moved every preset to shared weights).
+ */
+const referenceWeights: CpuDifficultyConfig = {
+  attackSafetyMargin: 0, prioritizeCapital: true, threatAvoidanceWeight: 1, terrainDefenseWeight: 1, objectiveDistanceWeight: 6, lowHpRetreatWeight: 1, forceLimitScale: 1,
+};
+/** Cautious weights that value cover and retreat strongly, for testing those terms. */
+const cautiousWeights: CpuDifficultyConfig = {
+  attackSafetyMargin: -15, prioritizeCapital: true, threatAvoidanceWeight: 1.6, terrainDefenseWeight: 1.35, objectiveDistanceWeight: 4, lowHpRetreatWeight: 2, forceLimitScale: 1,
+};
 
 const stateWith = (state: GameState, patch: Partial<GameState>): GameState => ({ ...state, ...patch });
 
@@ -10,7 +22,7 @@ function evaluatePosition(
   unit: DeployedUnit,
   destination: { x: number; y: number },
   targets: readonly { x: number; y: number }[],
-  config = cpuDifficultyConfig.normal,
+  config: CpuDifficultyConfig = referenceWeights,
 ): number {
   const { visibleEnemies } = createCpuPlanningContext(state, player, config);
   return scoreCpuPosition(state, player, unit, destination, targets, config, visibleEnemies);
@@ -252,28 +264,30 @@ function stateWithVisibleThreat(hp = 100): GameState {
 }
 
 describe('CPU movement difficulty', () => {
-  it('changes threat, terrain, and objective-distance scoring by difficulty', () => {
+  it('shares decision weights across difficulties and ranks them only by force size (#119)', () => {
+    const { forceLimitScale: easyScale, ...easyWeights } = cpuDifficultyConfig.easy;
+    const { forceLimitScale: normalScale, ...normalWeights } = cpuDifficultyConfig.normal;
+    const { forceLimitScale: hardScale, ...hardWeights } = cpuDifficultyConfig.hard;
+    expect(normalWeights).toEqual(easyWeights);
+    expect(hardWeights).toEqual(easyWeights);
+    expect(easyScale).toBeLessThan(normalScale);
+    expect(normalScale).toBeLessThan(hardScale);
+    const board = maps.find(map => map.id === 'siege')!.board;
+    const limits = (['easy', 'normal', 'hard'] as const).map(difficulty => difficultyForceLimit(board, cpuDifficultyConfig[difficulty]));
+    expect(limits[0]).toBeLessThan(limits[1]!);
+    expect(limits[1]).toBeLessThan(limits[2]!);
+  });
+
+  it('still lets the scoring weights trade threat, cover, and distance', () => {
     const state = stateWithVisibleThreat();
     const tank = state.units[0] as DeployedUnit;
     const targets = [{ x: 5, y: 0 }];
-
-    const easyThreatGap = evaluatePosition(state, 'red', tank, { x: 0, y: 0 }, targets, cpuDifficultyConfig.easy)
-      - evaluatePosition(state, 'red', tank, { x: 3, y: 0 }, targets, cpuDifficultyConfig.easy);
-    const hardThreatGap = evaluatePosition(state, 'red', tank, { x: 0, y: 0 }, targets, cpuDifficultyConfig.hard)
-      - evaluatePosition(state, 'red', tank, { x: 3, y: 0 }, targets, cpuDifficultyConfig.hard);
-    expect(hardThreatGap).toBeGreaterThan(easyThreatGap);
-
-    const easyTerrainBonus = evaluatePosition(state, 'red', tank, { x: 0, y: 0 }, [{ x: 1, y: 0 }], cpuDifficultyConfig.easy)
-      - evaluatePosition(state, 'red', tank, { x: 3, y: 0 }, [{ x: 2, y: 0 }], cpuDifficultyConfig.easy);
-    const hardTerrainBonus = evaluatePosition(state, 'red', tank, { x: 0, y: 0 }, [{ x: 1, y: 0 }], cpuDifficultyConfig.hard)
-      - evaluatePosition(state, 'red', tank, { x: 3, y: 0 }, [{ x: 2, y: 0 }], cpuDifficultyConfig.hard);
-    expect(hardTerrainBonus).toBeGreaterThan(easyTerrainBonus);
-
-    const easyDistanceGain = evaluatePosition(state, 'red', tank, { x: 2, y: 0 }, targets, cpuDifficultyConfig.easy)
-      - evaluatePosition(state, 'red', tank, { x: 0, y: 0 }, targets, cpuDifficultyConfig.easy);
-    const hardDistanceGain = evaluatePosition(state, 'red', tank, { x: 2, y: 0 }, targets, cpuDifficultyConfig.hard)
-      - evaluatePosition(state, 'red', tank, { x: 0, y: 0 }, targets, cpuDifficultyConfig.hard);
-    expect(easyDistanceGain).toBeGreaterThan(hardDistanceGain);
+    const threatGap = (config: CpuDifficultyConfig) => evaluatePosition(state, 'red', tank, { x: 0, y: 0 }, targets, config)
+      - evaluatePosition(state, 'red', tank, { x: 3, y: 0 }, targets, config);
+    expect(threatGap(cautiousWeights)).toBeGreaterThan(threatGap(cpuDifficultyConfig.hard));
+    const distanceGain = (config: CpuDifficultyConfig) => evaluatePosition(state, 'red', tank, { x: 2, y: 0 }, targets, config)
+      - evaluatePosition(state, 'red', tank, { x: 0, y: 0 }, targets, config);
+    expect(distanceGain(cpuDifficultyConfig.hard)).toBeGreaterThan(distanceGain(cautiousWeights));
   });
 
   it('makes a damaged unit value a covered retreat more than a healthy unit', () => {
@@ -290,10 +304,8 @@ describe('CPU movement difficulty', () => {
     expect(damagedRetreatGain).toBeGreaterThan(healthyRetreatGain);
   });
 
-  it('chooses a different deterministic move for easy and hard CPUs', () => {
+  it('makes the same deterministic move at every difficulty (difficulty only changes force size)', () => {
     const board = createBoard(6, 1);
-    // Easy advances toward the blue capital, while hard preserves the tank on
-    // the defended red capital instead of approaching the visible counterattack.
     board.terrain[0]![0] = { kind: 'capital', owner: 'red', capturePoints: 20 };
     board.terrain[0]![3] = { kind: 'road' };
     board.terrain[0]![5] = { kind: 'capital', owner: 'blue', capturePoints: 20 };
@@ -306,8 +318,10 @@ describe('CPU movement difficulty', () => {
       ],
     };
 
-    expect(chooseCpuAction(state, 'easy')).toEqual({ type: 'move', unitId: 'red-tank', destination: { x: 2, y: 0 } });
-    expect(chooseCpuAction(state, 'hard')).toEqual({ type: 'move', unitId: 'red-tank', destination: { x: 0, y: 0 } });
+    const easy = chooseCpuAction(state, 'easy');
+    expect(easy).toEqual({ type: 'move', unitId: 'red-tank', destination: { x: 2, y: 0 } });
+    expect(chooseCpuAction(state, 'normal')).toEqual(easy);
+    expect(chooseCpuAction(state, 'hard')).toEqual(easy);
   });
 });
 
@@ -325,12 +339,14 @@ describe('CPU indirect fire rule', () => {
 
 describe('CPU command legality and hidden movement', () => {
   it('can wait in place when the current position has the best score', () => {
-    const board = createBoard(6, 1);
+    // The tank is walled in by a mountain, so staying put is its only (and best) option.
+    const board = createBoard(3, 1);
     board.terrain[0]![0] = { kind: 'capital', owner: 'red', capturePoints: 20 };
-    board.terrain[0]![5] = { kind: 'capital', owner: 'blue', capturePoints: 20 };
+    board.terrain[0]![1] = { kind: 'mountain' };
+    board.terrain[0]![2] = { kind: 'capital', owner: 'blue', capturePoints: 20 };
     const state = stateWith(createGameState(board), { units: [
       { id: 'tank', kind: 'tank', owner: 'red', position: { x: 0, y: 0 }, hp: 20, hasMoved: false, hasActed: false },
-      { id: 'threat', kind: 'tank', owner: 'blue', position: { x: 3, y: 0 }, hp: 100, hasMoved: false, hasActed: false },
+      { id: 'threat', kind: 'infantry', owner: 'blue', position: { x: 2, y: 0 }, hp: 100, hasMoved: false, hasActed: false },
     ] });
 
     const action = chooseCpuAction(state, 'hard');
