@@ -278,7 +278,7 @@ describe('CPU movement difficulty', () => {
     expect(limits[1]).toBeLessThan(limits[2]!);
   });
 
-  it('still lets the scoring weights trade threat, cover, and distance', () => {
+  it('still lets the scoring weights trade threat against distance', () => {
     const state = stateWithVisibleThreat();
     const tank = state.units[0] as DeployedUnit;
     const targets = [{ x: 5, y: 0 }];
@@ -339,15 +339,16 @@ describe('CPU indirect fire rule', () => {
 
 describe('CPU command legality and hidden movement', () => {
   it('can wait in place when the current position has the best score', () => {
-    // The tank is walled in by a mountain, so staying put is its only (and best) option.
-    const board = createBoard(3, 1);
-    board.terrain[0]![0] = { kind: 'capital', owner: 'red', capturePoints: 20 };
-    board.terrain[0]![1] = { kind: 'mountain' };
-    board.terrain[0]![2] = { kind: 'capital', owner: 'blue', capturePoints: 20 };
+    // A low-fuel tank on an owned city (not a production site) can move up to three
+    // tiles toward the blue capital, but staying keeps its resupply and cover, which
+    // outweigh the distance gained under the shared difficulty weights.
+    const board = createBoard(5, 1);
+    board.terrain[0]![0] = { kind: 'city', owner: 'red', capturePoints: 20 };
+    board.terrain[0]![4] = { kind: 'capital', owner: 'blue', capturePoints: 20 };
     const state = stateWith(createGameState(board), { units: [
-      { id: 'tank', kind: 'tank', owner: 'red', position: { x: 0, y: 0 }, hp: 20, hasMoved: false, hasActed: false },
-      { id: 'threat', kind: 'infantry', owner: 'blue', position: { x: 2, y: 0 }, hp: 100, hasMoved: false, hasActed: false },
+      { id: 'tank', kind: 'tank', owner: 'red', position: { x: 0, y: 0 }, hp: 100, fuel: 5, hasMoved: false, hasActed: false },
     ] });
+    expect(reachablePositions(state, 'tank').length).toBeGreaterThan(0);
 
     const action = chooseCpuAction(state, 'hard');
     expect(action).toEqual({ type: 'wait', unitId: 'tank' });
