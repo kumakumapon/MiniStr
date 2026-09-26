@@ -23,7 +23,7 @@ const duel = saved.value;
 afterAll(() => { loadCustomScenarios(new MemoryStorage()); });
 
 const result = (patch: Partial<MatchResult>): MatchResult => ({
-  scenarioId: 'map', difficulty: 'normal', rules: 'modern', seed: 1, winner: 'red', turns: 10, maxUnits: 5, commands: 20,
+  scenarioId: 'map', difficulty: 'normal', blueDifficulty: 'normal', rules: 'modern', seed: 1, winner: 'red', turns: 10, maxUnits: 5, commands: 20,
   produced: { red: {}, blue: {} }, repairCost: { red: 0, blue: 0 }, ...patch,
 });
 
@@ -120,12 +120,28 @@ describe('parseBalanceArgs and runBalance', () => {
     [['--maps', 'skirmish,skirmish']],
     [['--difficulty', 'brutal']],
     [['--rules', 'future']],
+    [['--blue', 'brutal']],
     [['--seeds', '0']],
     [['--rounds', '2.5']],
     [['--rounds']],
     [['--unknown', '1']],
   ])('rejects %j', (args) => {
     expect(parseBalanceArgs(args).ok).toBe(false);
+  });
+
+  it('pits blue at a fixed difficulty against each red difficulty', () => {
+    const parsed = parseBalanceArgs(['--maps', 'outpost', '--difficulty', 'easy,hard', '--blue', 'normal', '--rules', 'modern', '--seeds', '1', '--rounds', '2']);
+    expect(parsed.ok && parsed.value.blueDifficulty).toBe('normal');
+    if (!parsed.ok) return;
+    const { results } = runBalance(parsed.value);
+    expect(results.map(match => `${match.difficulty}/${match.blueDifficulty}`)).toEqual(['easy/normal', 'hard/normal']);
+    expect(formatBalanceReport(summarizeMatches(results))).toContain('| outpost | 赤 easy 対 青 normal | modern |');
+  });
+
+  it('keeps mirror matches as a single difficulty label', () => {
+    const match = simulateMatch(duel, 'normal', 'modern', 1, 30);
+    expect(match.ok && match.value.blueDifficulty).toBe('normal');
+    expect(formatBalanceReport(summarizeMatches([result({})]))).toContain('| map | normal | modern |');
   });
 
   it('runs requested combinations and records skipped ones once', () => {

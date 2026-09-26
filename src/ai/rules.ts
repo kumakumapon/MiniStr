@@ -1,12 +1,12 @@
 import { forecastCombat, terrainDefenseReduction } from '../game/combat';
 import { reachablePositionsForPlayer } from '../game/commands';
-import { canProduceUnit, isPropertyTerrainKind } from '../game/facilities';
+import { canProduceUnit, isPropertyTerrainKind, productionKindsForRule } from '../game/facilities';
 import { visibleEnemies as getVisibleEnemies } from '../game/fog';
 import { scenarioById } from '../game/maps';
 import { manhattanDistance, movementCost, terrainAt } from '../game/terrain';
 import { isDeployedUnit, usesModernRules, type Board, type DeployedUnit, type GameState, type PlayerId, type Position, type Unit, type UnitKind } from '../game/types';
-import { adjacentToSupplyUnit, isGroundUnit, isServiceTile } from '../game/logistics';
-import { isEmbarkableUnit, unitCategory, unitStats } from '../game/units';
+import { adjacentToSupplyUnit, isGroundUnit, isServiceTile, REPAIR_HP_PER_TURN } from '../game/logistics';
+import { isEmbarkableUnit, isSupplyUnit, unitCategory, unitStats } from '../game/units';
 
 /** The CPU does not use hidden randomness: the same state always gives the same order. */
 export type CpuDifficulty = 'easy' | 'normal' | 'hard';
@@ -71,8 +71,34 @@ function favorableAttack(state: GameState, attacker: DeployedUnit, target: Unit,
   // a zero damage multiplier.
   if (!result.ok || result.value.damageToDefender <= 0) return false;
   // A certain destruction is always worthwhile. Otherwise difficulty controls accepted risk.
+  // Long stalemates and sieges may accept extra retaliation, but never more than
+  // MAX_ATTACK_LENIENCY in total, so leniencies cannot stack into suicide attacks.
+  const leniency = Math.min(MAX_ATTACK_LENIENCY,
+    stalemateRelief(state) * 25 + garrisonAllowance(state, attacker, target, result.value.damageToDefender, result.value.damageToAttacker));
   return result.value.damageToDefender >= target.hp
-    || result.value.damageToDefender >= result.value.damageToAttacker + config.attackSafetyMargin;
+    || result.value.damageToDefender >= result.value.damageToAttacker + config.attackSafetyMargin - leniency;
+}
+
+/** Upper bound on the extra retaliation any leniency may accept. */
+export const MAX_ATTACK_LENIENCY = 30;
+
+/**
+ * A defender on a property we need to capture heals and hides behind high cover,
+ * so an even trade never looks favorable and sieges stall forever. Accept worse
+ * trades to dislodge such garrisons, but only when the hit outpaces the garrison's
+ * per-turn healing, costs less than twice what it deals, and one of our capturing
+ * units is close enough to follow up;
+ * otherwise the attacks would only feed units into a garrison that heals back.
+ */
+function garrisonAllowance(state: GameState, attacker: DeployedUnit, target: Unit, damage: number, counter: number): number {
+  // The hit must make net progress against healing and cost less than twice what it deals.
+  if (!isDeployedUnit(target) || damage <= REPAIR_HP_PER_TURN || damage * 2 <= counter) return 0;
+  const tile = terrainAt(state.board, target.position);
+  if (!tile || !isPropertyTerrainKind(tile.kind) || tile.owner === attacker.owner) return 0;
+  const capturerNearby = orderedUnits(state, attacker.owner)
+    .some(ally => unitStats[ally.kind].capturePower > 0 && manhattanDistance(ally.position, target.position) <= 3);
+  if (!capturerNearby) return 0;
+  return tile.kind === 'capital' ? 30 : 15;
 }
 
 function interruptsCapture(state: GameState, player: PlayerId, target: Unit): boolean {
@@ -92,7 +118,9 @@ function attackAction(state: GameState, player: PlayerId, config: CpuDifficultyC
         const aScore = aForecast.ok ? aForecast.value.damageToDefender - aForecast.value.damageToAttacker : -Infinity;
         const bScore = bForecast.ok ? bForecast.value.damageToDefender - bForecast.value.damageToAttacker : -Infinity;
         const interruption = Number(interruptsCapture(state, player, b)) - Number(interruptsCapture(state, player, a));
-        return interruption || bScore - aScore || a.hp - b.hp || a.id.localeCompare(b.id);
+        // Focus fire: finishing a unit removes its future attacks, so certain kills come first.
+        const lethal = Number(bForecast.ok && bForecast.value.damageToDefender >= b.hp) - Number(aForecast.ok && aForecast.value.damageToDefender >= a.hp);
+        return interruption || lethal || bScore - aScore || a.hp - b.hp || a.id.localeCompare(b.id);
       })[0];
     if (target) return { type: 'attack', unitId: attacker.id, targetId: target.id };
   }
@@ -162,6 +190,30 @@ function specialistProduction(state: GameState, player: PlayerId, visibleEnemies
   return undefined;
 }
 
+/** Share of open land a CPU fills before it stops producing (see `cpuForceLimit`). */
+export const CPU_FORCE_LAND_SHARE = 0.25;
+
+/**
+ * Unrestrained production gridlocks the board: in the Phase 10.1 baseline most
+ * open tiles filled up and units could only wait. The CPU therefore stops
+ * producing once its own force reaches a quarter of the non-sea, non-mountain
+ * tiles. This uses only the CPU's own units and the public terrain.
+ */
+const forceLimitCache = new WeakMap<Board, number>();
+export function cpuForceLimit(board: Board): number {
+  const cached = forceLimitCache.get(board);
+  if (cached !== undefined) return cached;
+  const openLand = board.terrain.flat().filter(tile => tile.kind !== 'sea' && tile.kind !== 'mountain').length;
+  const limit = Math.max(8, Math.floor(openLand * CPU_FORCE_LAND_SHARE));
+  forceLimitCache.set(board, limit);
+  return limit;
+}
+
+/** Whether the CPU's own force is at its production limit. */
+function atForceLimit(state: GameState, player: PlayerId): boolean {
+  return state.units.filter(unit => unit.owner === player).length >= cpuForceLimit(state.board);
+}
+
 function productionAction(state: GameState, player: PlayerId, config: CpuDifficultyConfig, context: CpuPlanningContext): CpuAction | undefined {
   const { targets } = context;
   const hasRemoteInfantry = orderedUnits(state, player)
@@ -174,6 +226,9 @@ function productionAction(state: GameState, player: PlayerId, config: CpuDifficu
   }
   const specialist = specialistProduction(state, player, context.visibleEnemies);
   if (specialist) return specialist;
+  // Transports and counters to confirmed threats are bounded one-of-a-kind orders;
+  // only the bulk force mix stops at the limit.
+  if (atForceLimit(state, player)) return undefined;
   const kind = preferredProduction(state, player);
   if (!kind) return undefined;
   const factory = emptyOwnedFacility(state, player, kind);
@@ -251,7 +306,8 @@ function needsSupply(unit: DeployedUnit): boolean {
   const fuelTurnsRemaining = stats.fuelPerTurn > 0 ? Math.ceil(fuel / stats.fuelPerTurn) : Infinity;
   return fuelTurnsRemaining <= 2
     || fuel <= Math.max(6, Math.floor(stats.fuel / 3))
-    || ((unit.ammo ?? stats.ammo) > 0 && (unit.ammo ?? stats.ammo) <= Math.max(1, Math.floor(stats.ammo / 3)));
+    // Only armed kinds track ammunition; an empty magazine needs resupply most of all.
+    || (stats.ammo > 0 && (unit.ammo ?? stats.ammo) <= Math.max(1, Math.floor(stats.ammo / 3)));
 }
 
 /**
@@ -294,10 +350,46 @@ export function evaluateCpuPosition(
   const lowHpRatio = Math.max(0, 50 - unit.hp) / 50;
   const retreatCover = lowHpRatio * config.lowHpRetreatWeight * terrainDefenseReduction(terrain, unit.hp) * 1.2;
   const retreatPressure = lowHpRatio * config.lowHpRetreatWeight * pressure;
-  return defense + supply + response + retreatCover
+  // Parking on an owned factory/airport/port blocks production there. Units that
+  // came to be serviced (low supplies or heavy damage) are exempt.
+  const blocking = !needsSupply(unit) && unit.hp > 50 && blocksProduction(state, player, destination, knownEnemies) ? FACILITY_BLOCK_PENALTY : 0;
+  const logistics = supplyVehicleValue(state, player, unit, destination);
+  return defense + supply + response + retreatCover + logistics
     - distance * config.objectiveDistanceWeight
-    - pressure * config.threatAvoidanceWeight
-    - retreatPressure;
+    - pressure * config.threatAvoidanceWeight * (1 - stalemateRelief(state))
+    - retreatPressure
+    - blocking;
+}
+
+/** Outweighs a three-star facility's cover so idle units step off production sites. */
+export const FACILITY_BLOCK_PENALTY = 45;
+
+/** Whether ending on `position` would occupy one of `player`'s production facilities. */
+function blocksProduction(state: GameState, player: PlayerId, position: Position, knownEnemies: readonly Unit[]): boolean {
+  const tile = terrainAt(state.board, position);
+  if (tile?.owner !== player || atForceLimit(state, player)) return false;
+  const productionRule = scenarioById(state.scenarioId)?.productionRules ?? 'legacy-factory-air';
+  const kinds = productionKindsForRule(productionRule, state.ruleVersion)[tile.kind] ?? [];
+  // Only a facility we could actually use this turn is being blocked.
+  if (!kinds.some(kind => unitStats[kind].cost <= state.players[player].gold)) return false;
+  // Holding the facility is the right call when a visible enemy capturer could take it.
+  return !knownEnemies.some(enemy => isDeployedUnit(enemy) && unitStats[enemy.kind].capturePower > 0 && manhattanDistance(enemy.position, position) <= 2);
+}
+
+/**
+ * Long matches gradually lower the weight of visible counterattack risk so both
+ * sides stop trading turns out of range. It uses only the public round number.
+ */
+export function stalemateRelief(state: Pick<GameState, 'turn'>): number {
+  return Math.min(0.6, Math.max(0, (state.turn - 20) / 25));
+}
+
+/** Modern rules: a supply vehicle is worth more next to allied ground units that need resupply. */
+function supplyVehicleValue(state: GameState, player: PlayerId, unit: DeployedUnit, destination: Position): number {
+  if (!usesModernRules(state) || !isSupplyUnit(unit.kind)) return 0;
+  const served = orderedUnits(state, player).filter(ally => ally.id !== unit.id && isGroundUnit(ally.kind)
+    && manhattanDistance(ally.position, destination) === 1 && needsSupply(ally)).length;
+  return Math.min(2, served) * 30;
 }
 
 /** Choose one transport step before ordinary movement so island objectives are never stranded. */

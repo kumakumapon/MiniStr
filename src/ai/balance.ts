@@ -11,7 +11,10 @@ export type BalanceRules = 'classic' | 'modern';
 
 export interface MatchResult {
   scenarioId: string;
+  /** Red's difficulty. */
   difficulty: CpuDifficulty;
+  /** Blue's difficulty; equal to `difficulty` for mirror matches. */
+  blueDifficulty: CpuDifficulty;
   rules: BalanceRules;
   seed: number;
   winner: PlayerId | 'none';
@@ -43,7 +46,10 @@ export function balanceInitialState(scenario: ScenarioDefinition, rules: Balance
 }
 
 /** Plays one CPU-versus-CPU match. Throws if the CPU issues an illegal command, since that is a bug, not a result. */
-export function simulateMatch(scenario: ScenarioDefinition, difficulty: CpuDifficulty, rules: BalanceRules, seed: number, maxRounds: number): GameResult<MatchResult> {
+export function simulateMatch(
+  scenario: ScenarioDefinition, difficulty: CpuDifficulty, rules: BalanceRules, seed: number, maxRounds: number,
+  blueDifficulty: CpuDifficulty = difficulty,
+): GameResult<MatchResult> {
   // Victory and objectives are resolved through state.scenarioId, so an
   // unregistered scenario would silently never finish.
   if (scenarioById(scenario.id) !== scenario) throw new Error(`Scenario ${scenario.id} is not registered in the catalog`);
@@ -53,12 +59,12 @@ export function simulateMatch(scenario: ScenarioDefinition, difficulty: CpuDiffi
   if (!initial.ok) return initial;
   let state = initial.value;
   const result: MatchResult = {
-    scenarioId: scenario.id, difficulty, rules, seed, winner: 'none', turns: state.turn, maxUnits: state.units.length, commands: 0,
+    scenarioId: scenario.id, difficulty, blueDifficulty, rules, seed, winner: 'none', turns: state.turn, maxUnits: state.units.length, commands: 0,
     produced: { red: {}, blue: {} }, repairCost: { red: 0, blue: 0 },
   };
   let commandsThisTurn = 0;
   while (!state.winner && state.turn <= maxRounds) {
-    const command = chooseCpuAction(state, difficulty);
+    const command = chooseCpuAction(state, state.activePlayer === 'red' ? difficulty : blueDifficulty);
     const applied = applyGameCommand(state, command);
     if (!applied.ok) throw new Error(`${scenario.id}/${difficulty}/${rules}/seed ${seed}: CPU issued an illegal command ${JSON.stringify(command)}: ${applied.error}`);
     if (command.type === 'produce') {
@@ -82,6 +88,7 @@ export function simulateMatch(scenario: ScenarioDefinition, difficulty: CpuDiffi
 export interface BalanceSummary {
   scenarioId: string;
   difficulty: CpuDifficulty;
+  blueDifficulty: CpuDifficulty;
   rules: BalanceRules;
   games: number;
   wins: Record<PlayerId | 'none', number>;
@@ -95,7 +102,7 @@ export interface BalanceSummary {
 export function summarizeMatches(results: readonly MatchResult[]): BalanceSummary[] {
   const groups = new Map<string, MatchResult[]>();
   for (const result of results) {
-    const key = `${result.scenarioId}\u0000${result.difficulty}\u0000${result.rules}`;
+    const key = `${result.scenarioId}\u0000${result.difficulty}\u0000${result.blueDifficulty}\u0000${result.rules}`;
     groups.set(key, [...(groups.get(key) ?? []), result]);
   }
   return [...groups.values()].map(group => {
@@ -113,7 +120,7 @@ export function summarizeMatches(results: readonly MatchResult[]): BalanceSummar
     }
     const decided = group.length - wins.none;
     return {
-      scenarioId: first.scenarioId, difficulty: first.difficulty, rules: first.rules, games: group.length, wins,
+      scenarioId: first.scenarioId, difficulty: first.difficulty, blueDifficulty: first.blueDifficulty, rules: first.rules, games: group.length, wins,
       averageDecidedTurns: decided > 0 ? decidedTurns / decided : undefined,
       maxUnits: Math.max(...group.map(result => result.maxUnits)),
       produced, averageRepairCost: repairCost / group.length,
@@ -133,7 +140,8 @@ export function formatBalanceReport(summaries: readonly BalanceSummary[], skippe
     const topProduction = (Object.entries(summary.produced) as [UnitKind, number][])
       .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])).slice(0, 4)
       .map(([kind, count]) => `${kind} ${count}`).join(', ') || '—';
-    lines.push(`| ${summary.scenarioId} | ${summary.difficulty} | ${summary.rules} | ${summary.games} | ${percent(summary.wins.red, summary.games)} | ${percent(summary.wins.blue, summary.games)} | ${percent(summary.wins.none, summary.games)} | ${summary.averageDecidedTurns === undefined ? '—' : summary.averageDecidedTurns.toFixed(1)} | ${summary.maxUnits} | ${Math.round(summary.averageRepairCost)} | ${topProduction} |`);
+    const matchup = summary.difficulty === summary.blueDifficulty ? summary.difficulty : `赤 ${summary.difficulty} 対 青 ${summary.blueDifficulty}`;
+    lines.push(`| ${summary.scenarioId} | ${matchup} | ${summary.rules} | ${summary.games} | ${percent(summary.wins.red, summary.games)} | ${percent(summary.wins.blue, summary.games)} | ${percent(summary.wins.none, summary.games)} | ${summary.averageDecidedTurns === undefined ? '—' : summary.averageDecidedTurns.toFixed(1)} | ${summary.maxUnits} | ${Math.round(summary.averageRepairCost)} | ${topProduction} |`);
   }
   lines.push('', '最大部隊数は両陣営の合計（輸送中の部隊を含む）。修理費は近代ルールのみ（従来ルールの修理は無料のため 0）。');
   if (skipped.length) {
@@ -149,13 +157,15 @@ export interface BalanceOptions {
   rules: BalanceRules[];
   seeds: number[];
   maxRounds: number;
+  /** When set, blue plays this difficulty against each red difficulty. */
+  blueDifficulty?: CpuDifficulty;
 }
 
 const difficulties: readonly CpuDifficulty[] = ['easy', 'normal', 'hard'];
 const ruleSets: readonly BalanceRules[] = ['classic', 'modern'];
 
 /**
- * Parses `--maps a,b --difficulty easy --rules modern --seeds 3 --rounds 60`.
+ * Parses `--maps a,b --difficulty easy [--blue hard] --rules modern --seeds 3 --rounds 60`.
  * Omitted options cover every built-in map, difficulty, and rule set.
  */
 export function parseBalanceArgs(args: readonly string[]): GameResult<BalanceOptions> {
@@ -163,7 +173,7 @@ export function parseBalanceArgs(args: readonly string[]): GameResult<BalanceOpt
   for (let index = 0; index < args.length; index += 2) {
     const flag = args[index]!;
     const value = args[index + 1];
-    if (!['--maps', '--difficulty', '--rules', '--seeds', '--rounds'].includes(flag) || value === undefined || value.startsWith('--'))
+    if (!['--maps', '--difficulty', '--blue', '--rules', '--seeds', '--rounds'].includes(flag) || value === undefined || value.startsWith('--'))
       return { ok: false, error: `不明な引数、または値がありません: ${flag}` };
     values.set(flag, value);
   }
@@ -178,6 +188,8 @@ export function parseBalanceArgs(args: readonly string[]): GameResult<BalanceOpt
   if (unknownMap) return { ok: false, error: `不明なマップです: ${unknownMap}` };
   const chosenDifficulties = list('--difficulty') ?? [...difficulties];
   if (chosenDifficulties.some(value => !difficulties.includes(value as CpuDifficulty))) return { ok: false, error: '難易度は easy / normal / hard から指定してください。' };
+  const blueDifficulty = values.get('--blue');
+  if (blueDifficulty !== undefined && !difficulties.includes(blueDifficulty as CpuDifficulty)) return { ok: false, error: '--blue は easy / normal / hard から指定してください。' };
   const chosenRules = list('--rules') ?? [...ruleSets];
   if (chosenRules.some(value => !ruleSets.includes(value as BalanceRules))) return { ok: false, error: 'ルールは classic / modern から指定してください。' };
   const seedCount = Number(values.get('--seeds') ?? 3);
@@ -191,6 +203,7 @@ export function parseBalanceArgs(args: readonly string[]): GameResult<BalanceOpt
       // Fixed, spread-out seeds keep reports reproducible across runs and machines.
       seeds: Array.from({ length: seedCount }, (_, index) => (index + 1) * 7919),
       maxRounds,
+      ...(blueDifficulty ? { blueDifficulty: blueDifficulty as CpuDifficulty } : {}),
     },
   };
 }
@@ -203,7 +216,7 @@ export function runBalance(options: BalanceOptions, onMatch?: (result: MatchResu
     const scenario = scenarioById(scenarioId)!;
     for (const rules of options.rules) for (const difficulty of options.difficulties) {
       for (const seed of options.seeds) {
-        const match = simulateMatch(scenario, difficulty, rules, seed, options.maxRounds);
+        const match = simulateMatch(scenario, difficulty, rules, seed, options.maxRounds, options.blueDifficulty ?? difficulty);
         if (!match.ok) {
           if (!skipped.some(entry => entry.scenarioId === scenarioId && entry.rules === rules)) skipped.push({ scenarioId, rules, reason: match.error });
           break;
