@@ -145,6 +145,32 @@ describe('versioned save persistence', () => {
     expect(parseSavedGame(JSON.stringify(raw))).toEqual({ ok: false, error: 'セーブデータの内容が不正です。' });
   });
 
+  it('records the match format and rejects invalid or campaign two-player saves (#116 10.5)', () => {
+    const storage = new MemoryStorage();
+    const initialState = canonicalSkirmish();
+    const base = { mapId: 'skirmish', difficulty: 'normal' as const, initialState, commands: [], gameState: initialState };
+    const hotseat = saveGame(storage, 'hotseat', { ...base, mode: 'hotseat' });
+    expect(hotseat.ok && parseSavedGame(storage.getItem('hotseat')!)).toMatchObject({ ok: true, value: { mode: 'hotseat' } });
+    // Saves written before this field existed are CPU matches.
+    saveGame(storage, 'legacy', base);
+    const legacy = parseSavedGame(storage.getItem('legacy')!);
+    expect(legacy.ok && legacy.value.mode).toBeUndefined();
+    const raw = JSON.parse(storage.getItem('hotseat')!);
+    expect(parseSavedGame(JSON.stringify({ ...raw, mode: 'online' })).ok).toBe(false);
+    expect(parseSavedGame(JSON.stringify({ ...raw, campaignScenarioId: 'skirmish' })).ok).toBe(false);
+    expect(saveGame(storage, 'bad', { ...base, mode: 'hotseat', campaignScenarioId: 'skirmish' }).ok).toBe(false);
+  });
+
+  it('lists the match format of each save slot', () => {
+    const storage = new MemoryStorage();
+    const initialState = canonicalSkirmish();
+    const base = { mapId: 'skirmish', difficulty: 'normal' as const, initialState, commands: [], gameState: initialState };
+    saveGameToSlot(storage, 'two-player', '対戦', { ...base, mode: 'hotseat' });
+    saveGameToSlot(storage, 'versus-cpu', 'CPU戦', base);
+    const modes = Object.fromEntries(listSaveSlots(storage).map(slot => [slot.id, slot.mode]));
+    expect(modes).toEqual({ 'two-player': 'hotseat', 'versus-cpu': 'cpu' });
+  });
+
   it('rejects malformed JSON and unsupported versions without throwing', () => {
     expect(parseSavedGame('{broken')).toEqual({ ok: false, error: 'セーブデータが壊れています。' });
     expect(parseSavedGame(JSON.stringify({ schemaVersion: 999 }))).toEqual({ ok: false, error: '未対応のセーブデータです。' });
