@@ -3,13 +3,13 @@ import { playerOwnedProperties, unitAt } from './state';
 import { isEmbarkableUnit, isMergeableUnit, transportCapacity, unitStats } from './units';
 import { applyDamageVariance, forecastCombat } from './combat';
 import { nextRandom } from './rng';
-import { canProduceUnit, isPropertyTerrainKind } from './facilities';
+import { canProduceUnit, isPropertyTerrainKind, unitLimit } from './facilities';
 import { visibleEnemies, visiblePositions } from './fog';
 import { scenarioById } from './maps';
-import { updateScenarioProgress, updateScenarioScores, withEvaluatedWinner } from './victory';
+import { decisionRound, decisionWinner, updateScenarioProgress, updateScenarioScores, withEvaluatedWinner } from './victory';
 import { experienceAfterCombat } from './experience';
 import { applyModernUpkeep } from './logistics';
-import { isDeployedUnit, otherPlayer, usesModernRules, type GameResult, type GameState, type PlayerId, type Position, type Unit, type UnitKind } from './types';
+import { isDeployedUnit, otherPlayer, usesDecisionRules, usesModernRules, type GameResult, type GameState, type PlayerId, type Position, type Unit, type UnitKind } from './types';
 
 const fail = <T = GameState>(error: string): GameResult<T> => ({ ok: false, error });
 const succeed = <T>(value: T): GameResult<T> => ({ ok: true, value });
@@ -203,6 +203,8 @@ export function produceUnit(state: GameState, facility: Position, kind: UnitKind
   if (!terrain || terrain.owner !== state.activePlayer || !canProduceUnit(terrain.kind, kind, productionRule, state.ruleVersion))
     return fail('An owned compatible production facility is required');
   if (unitAt(state, facility)) return fail('Production facility is occupied');
+  if (usesDecisionRules(state) && state.units.filter(unit => unit.owner === state.activePlayer).length >= unitLimit(state.board))
+    return fail('Unit limit reached');
   const stats = unitStats[kind];
   if (state.players[state.activePlayer].gold < stats.cost) return fail('Insufficient funds');
   const id = `u${state.nextUnitId}`;
@@ -366,7 +368,14 @@ export function endTurn(state: GameState): GameState {
       units: progressed.units.map(unit => unit.owner === activePlayer ? { ...unit, hasMoved: false, hasActed: false } : unit),
     });
     const upkept = applyModernUpkeep(ready, activePlayer);
-    return withEvaluatedWinner({ ...upkept, units: withoutExhaustedUnits(upkept.units, activePlayer) }, [], actor);
+    const settled = withEvaluatedWinner({ ...upkept, units: withoutExhaustedUnits(upkept.units, activePlayer) }, [], actor);
+    // Decision victory at the end of the decision round (blue closes each round).
+    // It is judged on the board as blue left it, before red's income and repairs,
+    // so the first player's start-of-turn upkeep cannot tip the result.
+    const round = decisionRound(state, scenario);
+    if (settled.winner || actor !== 'blue' || round === undefined || state.turn < round) return settled;
+    const winner = decisionWinner(progressed);
+    return winner ? { ...settled, winner } : settled;
   }
   const refreshed = progressed.units.map(unit => {
     if (unit.owner !== activePlayer) return unit;

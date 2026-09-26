@@ -1,10 +1,10 @@
 import { forecastCombat, terrainDefenseReduction } from '../game/combat';
 import { reachablePositionsForPlayer } from '../game/commands';
-import { canProduceUnit, isPropertyTerrainKind, productionKindsForRule } from '../game/facilities';
+import { canProduceUnit, isPropertyTerrainKind, productionKindsForRule, unitLimit } from '../game/facilities';
 import { visibleEnemies as getVisibleEnemies } from '../game/fog';
 import { scenarioById } from '../game/maps';
 import { manhattanDistance, movementCost, terrainAt } from '../game/terrain';
-import { isDeployedUnit, usesModernRules, type Board, type DeployedUnit, type GameState, type PlayerId, type Position, type Unit, type UnitKind } from '../game/types';
+import { isDeployedUnit, usesDecisionRules, usesModernRules, type Board, type DeployedUnit, type GameState, type PlayerId, type Position, type Unit, type UnitKind } from '../game/types';
 import { adjacentToSupplyUnit, isGroundUnit, isServiceTile, REPAIR_HP_PER_TURN } from '../game/logistics';
 import { isEmbarkableUnit, isSupplyUnit, unitCategory, unitStats } from '../game/units';
 
@@ -215,6 +215,8 @@ function atForceLimit(state: GameState, player: PlayerId): boolean {
 }
 
 function productionAction(state: GameState, player: PlayerId, config: CpuDifficultyConfig, context: CpuPlanningContext): CpuAction | undefined {
+  // The rule-version-3 unit limit binds every order, including the exempt ones below.
+  if (usesDecisionRules(state) && state.units.filter(unit => unit.owner === player).length >= unitLimit(state.board)) return undefined;
   const { targets } = context;
   const hasRemoteInfantry = orderedUnits(state, player)
     .filter(unit => isEmbarkableUnit(unit.kind))

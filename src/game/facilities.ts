@@ -1,4 +1,4 @@
-import { isDeployedUnit, MODERN_RULE_VERSION, type GameState, type PlayerId, type Position, type TerrainKind, type UnitKind } from './types';
+import { isDeployedUnit, MODERN_RULE_VERSION, type Board, type GameState, type PlayerId, type Position, type TerrainKind, type UnitKind } from './types';
 import { unitDefinitions, unitKinds, type ProductionTerrain, type UnitDefinition } from './units';
 
 export const propertyTerrainKinds = ['city', 'factory', 'airport', 'capital', 'port'] as const;
@@ -36,7 +36,7 @@ type RuleVersion = GameState['ruleVersion'];
 
 /** Units introduced by the modern rules are unavailable in classic matches, including old saves. */
 export function isUnitKindAvailable(kind: UnitKind, ruleVersion: RuleVersion): boolean {
-  return (unitDefinitions[kind] as UnitDefinition).modernOnly !== true || ruleVersion === MODERN_RULE_VERSION;
+  return (unitDefinitions[kind] as UnitDefinition).modernOnly !== true || ruleVersion !== undefined;
 }
 
 /** Classic facility-v2 production, kept for callers that predate rule versions. */
@@ -54,7 +54,7 @@ const productionTables: Record<ProductionRule, Record<'classic' | 'modern', Prod
  * the UI. Omitting `ruleVersion` selects the classic unit roster.
  */
 export function productionKindsForRule(rule: ProductionRule = defaultProductionRule, ruleVersion?: RuleVersion): ProductionKindsByTerrain {
-  return productionTables[rule][ruleVersion === MODERN_RULE_VERSION ? 'modern' : 'classic'];
+  return productionTables[rule][ruleVersion !== undefined ? 'modern' : 'classic'];
 }
 
 export const allProducibleUnitKinds: readonly UnitKind[] = unitKinds.filter(kind => unitDefinitions[kind].productionTerrain !== undefined);
@@ -81,6 +81,18 @@ export function idleProductionFacilities(state: GameState, player: PlayerId, rul
     }
   }
   return facilities;
+}
+
+/** Share of the board a side may fill with units under rule version 3. */
+export const UNIT_LIMIT_BOARD_SHARE = 0.25;
+
+/**
+ * Per-side unit limit under rule version 3 (#119): a quarter of the board, at
+ * least ten. Counting every tile (sea included) keeps island maps playable.
+ * Embarked cargo counts toward the limit.
+ */
+export function unitLimit(board: Board): number {
+  return Math.max(10, Math.floor(board.width * board.height * UNIT_LIMIT_BOARD_SHARE));
 }
 
 /** Total owned production facilities, regardless of occupancy. */

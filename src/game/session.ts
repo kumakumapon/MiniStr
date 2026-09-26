@@ -2,7 +2,7 @@ import { attackUnit, captureProperty, disembarkUnit, embarkUnit, endTurn, mergeU
 import { MAX_EXPERIENCE } from './experience';
 import { isUnitKindAvailable } from './facilities';
 import { createScenarioInitialState, scenarioById, type ScenarioDefinition } from './maps';
-import { MODERN_RULE_VERSION, terrainKindSet, type GameResult, type GameState, type Position, type UnitKind } from './types';
+import { ruleVersions, terrainKindSet, type GameResult, type GameState, type Position, type UnitKind } from './types';
 import { isEmbarkableUnit, transportCapacity, unitKindSet } from './units';
 
 /**
@@ -160,8 +160,10 @@ function sameValue(left: unknown, right: unknown): boolean {
  */
 export function matchesScenarioInitialState(value: unknown, scenario: ScenarioDefinition): boolean {
   const expected = createScenarioInitialState(scenario);
-  const classic = isRecord(value) && value.ruleVersion === undefined;
-  return sameValue(value, classic ? { ...expected, ruleVersion: undefined } : expected);
+  // Replay older matches with the rule version they recorded (classic or v2).
+  const recorded = isRecord(value) && (value.ruleVersion === undefined || ruleVersions.includes(value.ruleVersion as never))
+    ? value.ruleVersion : expected.ruleVersion;
+  return sameValue(value, { ...expected, ruleVersion: recorded });
 }
 
 export function isGameCommand(value: unknown): value is GameCommand {
@@ -191,8 +193,8 @@ export function isGameState(value: unknown): value is GameState {
     && (tile.owner === undefined || players.has(tile.owner as string))
     && (tile.capturePoints === undefined || (isFiniteNumber(tile.capturePoints) && tile.capturePoints >= 0 && tile.capturePoints <= 20))))) return false;
 
-  if (value.ruleVersion !== undefined && value.ruleVersion !== MODERN_RULE_VERSION) return false;
-  const modern = value.ruleVersion === MODERN_RULE_VERSION;
+  if (value.ruleVersion !== undefined && !ruleVersions.includes(value.ruleVersion as never)) return false;
+  const modern = value.ruleVersion !== undefined;
   if (value.units.length > 4096) return false;
   const ids = new Set<string>();
   const positions = new Set<string>();
@@ -201,7 +203,7 @@ export function isGameState(value: unknown): value is GameState {
     if (!isRecord(unit) || typeof unit.id !== 'string' || ids.has(unit.id)
       || typeof unit.kind !== 'string' || !unitKindSet.has(unit.kind)
       // Modern-only units cannot appear in a classic match, even through a map's initial forces.
-      || !isUnitKindAvailable(unit.kind as UnitKind, modern ? MODERN_RULE_VERSION : undefined)
+      || !isUnitKindAvailable(unit.kind as UnitKind, value.ruleVersion as GameState['ruleVersion'])
       || typeof unit.owner !== 'string' || !players.has(unit.owner)
       || !isFiniteNumber(unit.hp) || unit.hp <= 0 || unit.hp > 100
       || (unit.fuel !== undefined && (!isFiniteNumber(unit.fuel) || unit.fuel < 0))
