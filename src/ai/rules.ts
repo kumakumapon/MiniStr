@@ -73,7 +73,19 @@ function favorableAttack(state: GameState, attacker: DeployedUnit, target: Unit,
   // A certain destruction is always worthwhile. Otherwise difficulty controls accepted risk.
   // Long stalemates accept up to 15 more points of retaliation to force contact.
   return result.value.damageToDefender >= target.hp
-    || result.value.damageToDefender >= result.value.damageToAttacker + config.attackSafetyMargin - stalemateRelief(state) * 25;
+    || result.value.damageToDefender >= result.value.damageToAttacker + config.attackSafetyMargin - stalemateRelief(state) * 25 - garrisonAllowance(state, attacker.owner, target);
+}
+
+/**
+ * A defender on a property we need to capture heals and hides behind high cover,
+ * so an even trade never looks favorable and sieges stall forever. Accept worse
+ * trades to dislodge garrisons, most of all from a capital.
+ */
+function garrisonAllowance(state: GameState, player: PlayerId, target: Unit): number {
+  if (!isDeployedUnit(target)) return 0;
+  const tile = terrainAt(state.board, target.position);
+  if (!tile || !isPropertyTerrainKind(tile.kind) || tile.owner === player) return 0;
+  return tile.kind === 'capital' ? 30 : 15;
 }
 
 function interruptsCapture(state: GameState, player: PlayerId, target: Unit): boolean {
@@ -165,7 +177,22 @@ function specialistProduction(state: GameState, player: PlayerId, visibleEnemies
   return undefined;
 }
 
+/** Share of open land a CPU fills before it stops producing (see `cpuForceLimit`). */
+export const CPU_FORCE_LAND_SHARE = 0.25;
+
+/**
+ * Unrestrained production gridlocks the board: in the Phase 10.1 baseline most
+ * open tiles filled up and units could only wait. The CPU therefore stops
+ * producing once its own force reaches a quarter of the non-sea, non-mountain
+ * tiles. This uses only the CPU's own units and the public terrain.
+ */
+export function cpuForceLimit(board: Board): number {
+  const openLand = board.terrain.flat().filter(tile => tile.kind !== 'sea' && tile.kind !== 'mountain').length;
+  return Math.max(8, Math.floor(openLand * CPU_FORCE_LAND_SHARE));
+}
+
 function productionAction(state: GameState, player: PlayerId, config: CpuDifficultyConfig, context: CpuPlanningContext): CpuAction | undefined {
+  if (state.units.filter(unit => unit.owner === player).length >= cpuForceLimit(state.board)) return undefined;
   const { targets } = context;
   const hasRemoteInfantry = orderedUnits(state, player)
     .filter(unit => isEmbarkableUnit(unit.kind))

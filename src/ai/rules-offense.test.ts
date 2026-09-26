@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { createBoard, createGameState, MODERN_RULE_VERSION, type DeployedUnit, type GameState, type Unit } from '../game';
-import { chooseCpuAction, cpuDifficultyConfig, evaluateCpuPosition, FACILITY_BLOCK_PENALTY, stalemateRelief } from './rules';
+import { chooseCpuAction, cpuDifficultyConfig, cpuForceLimit, evaluateCpuPosition, FACILITY_BLOCK_PENALTY, stalemateRelief } from './rules';
 
 const unit = (patch: Partial<Unit> & Pick<Unit, 'id' | 'kind' | 'owner'>): Unit => ({
   position: { x: 0, y: 0 }, hp: 100, hasMoved: false, hasActed: false, ...patch,
@@ -105,5 +105,46 @@ describe('CPU resupply need', () => {
     const fullTank = unit({ id: 't', kind: 'tank', owner: 'blue', position: { x: 1, y: 0 } }) as DeployedUnit;
     // The +80 resupply incentive applies only to the empty tank.
     expect((score(emptyTank, 0) - score(emptyTank, 1)) - (score(fullTank, 0) - score(fullTank, 1))).toBe(80);
+  });
+});
+
+describe('CPU force limit', () => {
+  it('scales with open land and never drops below eight units', () => {
+    expect(cpuForceLimit(createBoard(10, 8))).toBe(20);
+    expect(cpuForceLimit(createBoard(2, 2))).toBe(8);
+    expect(cpuForceLimit(createBoard(10, 8, { kind: 'sea' }))).toBe(8);
+  });
+
+  it('stops producing once the CPU force reaches the limit', () => {
+    const board = createBoard(5, 2);
+    board.terrain[0]![0] = { kind: 'factory', owner: 'blue', capturePoints: 20 };
+    // Ten open tiles give the minimum limit of eight units.
+    const troops = (count: number) => Array.from({ length: count }, (_, index) => unit({
+      id: `b${index}`, kind: 'infantry', owner: 'blue', position: { x: (index + 1) % 5, y: Math.floor((index + 1) / 5) }, hasMoved: true, hasActed: true,
+    }));
+    const state = (units: Unit[]): GameState => ({
+      ...createGameState(board), activePlayer: 'blue', units,
+      players: { red: { gold: 0, income: 0 }, blue: { gold: 10_000, income: 0 } },
+    });
+    expect(cpuForceLimit(board)).toBe(8);
+    expect(chooseCpuAction(state(troops(7)), 'normal').type).toBe('produce');
+    expect(chooseCpuAction(state(troops(8)), 'normal').type).not.toBe('produce');
+  });
+});
+
+describe('CPU sieges', () => {
+  it('attacks a garrison on a property it must capture even at an even trade', () => {
+    const board = createBoard(2, 1);
+    const attack = (kind: 'capital' | 'forest') => {
+      board.terrain[0]![1] = kind === 'capital' ? { kind: 'capital', owner: 'red', capturePoints: 20 } : { kind: 'forest' };
+      const state: GameState = {
+        ...createGameState(board), activePlayer: 'blue',
+        units: [unit({ id: 'b', kind: 'infantry', owner: 'blue' }), unit({ id: 'r', kind: 'infantry', owner: 'red', position: { x: 1, y: 0 }, hasMoved: true, hasActed: true })],
+      };
+      return chooseCpuAction(state, 'easy');
+    };
+    expect(attack('capital')).toEqual({ type: 'attack', unitId: 'b', targetId: 'r' });
+    // The same exchange in a forest is not worth it for the cautious easy CPU.
+    expect(attack('forest')).not.toEqual({ type: 'attack', unitId: 'b', targetId: 'r' });
   });
 });
