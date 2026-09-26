@@ -38,6 +38,14 @@ export const uiText = {
   unitProduction: 'ユニット生産',
   decisionRule: (round: number) => `${round}ラウンド終了時、拠点数の多い側が判定勝ち（同数なら部隊の価値）`,
   decisionVictory: '判定勝ち',
+  sideVictory: (side: string) => `${side}の勝利`,
+  matchMode: '対戦形式',
+  matchModeCpu: 'CPU対戦',
+  matchModeHotseat: '2人対戦（1台で交代）',
+  hotseatDifficulty: '2人対戦',
+  handoffTitle: (side: string) => `${side}の番です`,
+  handoffBody: '端末を次のプレイヤーに渡してから開始してください。開始するまで盤面は表示されません。',
+  handoffStart: '開始',
 } as const;
 
 const commandErrorMessages: Record<string, string> = {

@@ -38,8 +38,12 @@ export interface SavedGame {
   gameState: GameState;
   /** Present only when this save belongs to an active campaign battle. */
   campaignScenarioId?: string;
+  /** Match format; absent means a CPU match. Older app versions ignore it. */
+  mode?: SavedMatchMode;
   savedAt: string;
 }
+
+export type SavedMatchMode = 'cpu' | 'hotseat';
 
 /** Metadata is kept separately so the save picker never needs to trust or parse arbitrary storage values. */
 export interface SaveSlot {
@@ -52,6 +56,7 @@ export interface SaveSlot {
   bytes: number;
   /** `legacy` entries are the pre-slot manual/auto saves and remain readable. */
   source: 'slot' | 'legacy';
+  mode: SavedMatchMode;
 }
 
 export interface StorageUsage {
@@ -261,6 +266,9 @@ function validateSavedGameShape(value: unknown): value is SavedGame {
     // persisted custom catalog rather than trusting the save payload.
     && matchesScenarioInitialState(value.initialState, scenario)
     && (value.campaignScenarioId === undefined || value.campaignScenarioId === value.mapId)
+    && (value.mode === undefined || value.mode === 'cpu' || value.mode === 'hotseat')
+    // Campaigns are CPU battles only.
+    && !(value.mode === 'hotseat' && value.campaignScenarioId !== undefined)
     && Array.isArray(value.commands) && value.commands.length <= 100_000 && value.commands.every(isGameCommand);
 }
 
@@ -366,7 +374,7 @@ function toSaveSlot(id: string, name: string, source: SaveSlot['source'], raw: s
   const parsed = parseSavedGame(raw);
   if (!parsed.ok) return undefined;
   const saved = parsed.value;
-  return { id, name, source, mapId: saved.mapId, difficulty: saved.difficulty, turn: saved.gameState.turn, savedAt: saved.savedAt, bytes: bytesOf(raw) };
+  return { id, name, source, mode: saved.mode ?? 'cpu', mapId: saved.mapId, difficulty: saved.difficulty, turn: saved.gameState.turn, savedAt: saved.savedAt, bytes: bytesOf(raw) };
 }
 
 /** Lists valid named saves plus compatible pre-v4 manual/auto saves. Invalid records are deliberately hidden. */

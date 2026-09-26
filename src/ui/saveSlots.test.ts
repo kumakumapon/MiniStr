@@ -15,6 +15,7 @@ describe('save slot UI', () => {
           savedAt: '2026-08-04T00:00:00.000Z',
           bytes: 1024,
           source: 'slot',
+          mode: 'cpu',
         },
       ],
       { bytes: 1024, itemCount: 1, warning: false },
@@ -22,6 +23,22 @@ describe('save slot UI', () => {
     expect(document.querySelector('img')).toBeNull();
     expect(document.querySelector('.load-save-slot')?.getAttribute('data-save-slot')).toBe('safe-slot');
     expect(document.body.textContent).toContain('<img src=x onerror=alert(1)>');
+  });
+
+  it('labels two-player saves', () => {
+    const slot = {
+      id: 'hotseat',
+      name: '対戦',
+      mapId: 'skirmish',
+      difficulty: 'normal' as const,
+      turn: 3,
+      savedAt: '2026-09-27T00:00:00.000Z',
+      bytes: 512,
+      source: 'slot' as const,
+    };
+    const usage = { bytes: 512, itemCount: 1, warning: false };
+    expect(renderSaveSlotManager([{ ...slot, mode: 'hotseat' }], usage)).toContain('2人対戦');
+    expect(renderSaveSlotManager([{ ...slot, mode: 'cpu' }], usage)).not.toContain('2人対戦');
   });
 
   it('escapes all HTML-significant characters for other UI renderers', () => {

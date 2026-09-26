@@ -6,7 +6,7 @@ export function renderSaveSlotManager(slots: readonly SaveSlot[], usage: Storage
     ? slots
         .map(
           (slot) =>
-            `<li><div><strong>${escapeHtml(slot.name)}</strong><span>${escapeHtml(slot.mapId)} / ${slot.turn}ターン / ${formatBytes(slot.bytes)}</span><time datetime="${escapeHtml(slot.savedAt)}">${escapeHtml(slot.savedAt)}</time></div><div><button class="save-action load-save-slot" data-save-slot="${escapeHtml(slot.id)}">再開</button>${slot.source === 'slot' ? `<button class="save-action delete-save-slot" data-save-slot="${escapeHtml(slot.id)}">削除</button>` : ''}</div></li>`,
+            `<li><div><strong>${escapeHtml(slot.name)}</strong><span>${escapeHtml(slot.mapId)}${slot.mode === 'hotseat' ? ' / 2人対戦' : ''} / ${slot.turn}ターン / ${formatBytes(slot.bytes)}</span><time datetime="${escapeHtml(slot.savedAt)}">${escapeHtml(slot.savedAt)}</time></div><div><button class="save-action load-save-slot" data-save-slot="${escapeHtml(slot.id)}">再開</button>${slot.source === 'slot' ? `<button class="save-action delete-save-slot" data-save-slot="${escapeHtml(slot.id)}">削除</button>` : ''}</div></li>`,
         )
         .join('')
     : '<li class="save-slot-empty">保存済みの対局はありません。</li>';
