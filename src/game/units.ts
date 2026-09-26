@@ -18,6 +18,10 @@ export interface UnitDefinition {
   transportCapacity?: number;
   /** Under modern rules, refuels and rearms adjacent allied ground units at the start of its turn. */
   supplier?: true;
+  /** Available only in modern-rule matches, so classic saves keep their original roster. */
+  modernOnly?: true;
+  /** Multiplier on damage this unit receives (heavy armour); omitted means 1. */
+  incomingDamageFactor?: number;
   stats: UnitStats;
   effectiveness: Record<UnitCategory, number>;
 }
@@ -83,6 +87,27 @@ export const unitDefinitions = {
     stats: { cost: 7000, movement: 5, attack: 0, defense: 20, capturePower: 0, range: [1, 1], fuel: 99, fuelPerTurn: 2, ammo: 0, vision: 3, indirect: false },
     effectiveness: { soft: 0, armor: 0, air: 0, sea: 0 },
   },
+  // Phase 9 (#114) units, available only under the modern rules.
+  mech: {
+    category: 'soft', movementProfile: 'foot', productionTerrain: 'factory', mergeable: true, embarkable: true, modernOnly: true,
+    stats: { cost: 3000, movement: 2, attack: 60, defense: 15, capturePower: 10, range: [1, 1], fuel: 70, fuelPerTurn: 0, ammo: 3, vision: 2, indirect: false },
+    effectiveness: { soft: 0.9, armor: 1.15, air: 0.35, sea: 0.3 },
+  },
+  heavyTank: {
+    category: 'armor', movementProfile: 'vehicle', productionTerrain: 'factory', mergeable: true, modernOnly: true, incomingDamageFactor: 0.7,
+    stats: { cost: 16000, movement: 4, attack: 100, defense: 55, capturePower: 0, range: [1, 1], fuel: 50, fuelPerTurn: 0, ammo: 5, vision: 2, indirect: false },
+    effectiveness: { soft: 1.0, armor: 1.05, air: 0.3, sea: 0.65 },
+  },
+  helicopter: {
+    category: 'air', movementProfile: 'air', productionTerrain: 'airport', mergeable: true, modernOnly: true,
+    stats: { cost: 9000, movement: 6, attack: 60, defense: 10, capturePower: 0, range: [1, 1], fuel: 99, fuelPerTurn: 2, ammo: 6, vision: 3, indirect: false },
+    effectiveness: { soft: 1.1, armor: 0.9, air: 0.4, sea: 0.6 },
+  },
+  battleship: {
+    category: 'sea', movementProfile: 'sea', productionTerrain: 'port', mergeable: true, modernOnly: true, incomingDamageFactor: 0.8,
+    stats: { cost: 25000, movement: 5, attack: 90, defense: 45, capturePower: 0, range: [2, 6], fuel: 99, fuelPerTurn: 2, ammo: 6, vision: 3, indirect: true },
+    effectiveness: { soft: 1.1, armor: 1.0, air: 0.2, sea: 1.0 },
+  },
 } as const satisfies Record<string, UnitDefinition>;
 
 import type { UnitKind } from './types';
@@ -99,5 +124,6 @@ export const damageMultiplier = valuesByKind(definition => definition.effectiven
 
 export function isEmbarkableUnit(kind: UnitKind): boolean { return (unitDefinitions[kind] as UnitDefinition).embarkable === true; }
 export function transportCapacity(kind: UnitKind): number { return (unitDefinitions[kind] as UnitDefinition).transportCapacity ?? 0; }
+export function incomingDamageFactor(kind: UnitKind): number { return (unitDefinitions[kind] as UnitDefinition).incomingDamageFactor ?? 1; }
 export function isSupplyUnit(kind: UnitKind): boolean { return (unitDefinitions[kind] as UnitDefinition).supplier === true; }
 export function isMergeableUnit(kind: UnitKind): boolean { return (unitDefinitions[kind] as UnitDefinition).mergeable === true; }

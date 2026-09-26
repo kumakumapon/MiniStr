@@ -41,7 +41,7 @@ export function inspectTile(
   const title = `${terrainNames[terrain.kind]}${property ? `（${ownerLabel(terrain.owner, viewer)}）` : ''}`;
   const rows: InspectorRow[] = [{ label: '防御', value: stars(defenseStars(terrain)) }];
   if (property && terrain.capturePoints !== undefined) rows.push({ label: '占領値', value: `${terrain.capturePoints}` });
-  const producible = productionKindsForRule(productionRule)[terrain.kind];
+  const producible = productionKindsForRule(productionRule, state.ruleVersion)[terrain.kind];
   if (producible?.length) rows.push({ label: '生産', value: producible.map(kind => unitNames[kind]).join('・') });
   if (selectedUnitKind) {
     const cost = movementCost(state.board, position, selectedUnitKind);

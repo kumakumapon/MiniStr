@@ -200,7 +200,7 @@ export function produceUnit(state: GameState, facility: Position, kind: UnitKind
   // field, so retain their historical factory-air behavior. Built-in and
   // newly saved scenarios always carry an explicit facility rule.
   const productionRule = scenarioById(state.scenarioId)?.productionRules ?? 'legacy-factory-air';
-  if (!terrain || terrain.owner !== state.activePlayer || !canProduceUnit(terrain.kind, kind, productionRule))
+  if (!terrain || terrain.owner !== state.activePlayer || !canProduceUnit(terrain.kind, kind, productionRule, state.ruleVersion))
     return fail('An owned compatible production facility is required');
   if (unitAt(state, facility)) return fail('Production facility is occupied');
   const stats = unitStats[kind];

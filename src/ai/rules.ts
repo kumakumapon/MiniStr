@@ -6,7 +6,7 @@ import { scenarioById } from '../game/maps';
 import { manhattanDistance, movementCost, terrainAt } from '../game/terrain';
 import { isDeployedUnit, usesModernRules, type Board, type DeployedUnit, type GameState, type PlayerId, type Position, type Unit, type UnitKind } from '../game/types';
 import { adjacentToSupplyUnit, isGroundUnit, isServiceTile } from '../game/logistics';
-import { isEmbarkableUnit, unitStats } from '../game/units';
+import { isEmbarkableUnit, unitCategory, unitStats } from '../game/units';
 
 /** The CPU does not use hidden randomness: the same state always gives the same order. */
 export type CpuDifficulty = 'easy' | 'normal' | 'hard';
@@ -128,7 +128,7 @@ function emptyOwnedFacility(state: GameState, player: PlayerId, kind: UnitKind):
       && unit.position.x === position.x && unit.position.y === position.y);
     if (tile?.owner === player && !occupied) {
       const productionRule = scenarioById(state.scenarioId)?.productionRules ?? 'legacy-factory-air';
-      if (canProduceUnit(tile.kind, kind, productionRule)) return position;
+      if (canProduceUnit(tile.kind, kind, productionRule, state.ruleVersion)) return position;
     }
   }
   return undefined;
@@ -145,6 +145,15 @@ function specialistProduction(state: GameState, player: PlayerId, visibleEnemies
   if (!ownKinds.has('antiAir') && visible.some(unit => unit.kind === 'fighter' || unit.kind === 'bomber')) candidates.push('antiAir');
   if (!ownKinds.has('fighter') && visible.some(unit => unit.kind === 'fighter' || unit.kind === 'bomber')) candidates.push('fighter');
   if (!ownKinds.has('bomber') && visible.some(unit => ['tank', 'artillery', 'rocket', 'destroyer'].includes(unit.kind))) candidates.push('bomber');
+  if (usesModernRules(state)) {
+    const ownCount = (kind: UnitKind) => state.units.filter(unit => unit.owner === player && unit.kind === kind).length;
+    const airDefence = visible.some(unit => unit.kind === 'antiAir' || unit.kind === 'fighter');
+    // Mech infantry answer confirmed armour cheaply and can still capture.
+    if (ownCount('mech') < 2 && visible.some(unit => unitCategory[unit.kind] === 'armor')) candidates.push('mech');
+    if (hasSea && !ownKinds.has('battleship')) candidates.push('battleship');
+    if (!ownKinds.has('heavyTank') && gold >= unitStats.heavyTank.cost + unitStats.infantry.cost) candidates.push('heavyTank');
+    if (!ownKinds.has('helicopter') && !airDefence) candidates.push('helicopter');
+  }
   for (const kind of candidates) {
     if (unitStats[kind].cost > gold) continue;
     const factory = emptyOwnedFacility(state, player, kind);
