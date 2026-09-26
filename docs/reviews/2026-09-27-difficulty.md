@@ -14,7 +14,7 @@
 - **計測環境の確認**: 同じ設定どうし（normal 対 normal）の35組は、陣営を入れ替えても完全に同じ試合になった（組ごとに必ず1勝1敗）。この計測で、赤青の勝敗は赤10・青25 だった。陣営の偏りは設定によって変わる。
 - 対象: 判定勝ちの対象マップ7種（skirmish / islands / canyon / siege / river / marsh / admiralty）、近代ルール（v3）、最大60ラウンド。シードは 7919 の倍数。
 - 実行方法: `simulateMatch`（`src/ai/balance.ts`）を直接呼ぶ一時スクリプトで、組単位の集計を行った。対局の単位の結果は `npm run balance -- --maps <7マップ> --rules modern --seeds 5 --difficulty hard --blue easy`（と、陣営を入れ替えた実行）で再現できる。
-- コミット: `36e751b` 時点の CPU ロジック。
+- コミット: `2443b0e`（本文書を追加したコミット）の CPU ロジック。
 
 ## 結果（新方式）
 
