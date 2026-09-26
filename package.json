@@ -15,7 +15,8 @@
     "lint": "eslint .",
     "format:check": "prettier --check \"src/ui/{strings,saveSlots,saveSlots.test,presentationEffects.test,overlays,overlays.test}.ts\" \"src/ai/cpuSimulation.test.ts\" \"tests/**/*.ts\" \"*.{mjs,ts,json}\" \".github/workflows/*.yml\"",
     "test:coverage": "vitest run --coverage",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "balance": "vite-node scripts/balance-report.ts"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
@@ -29,6 +30,7 @@
     "typescript": "^5.8.3",
     "typescript-eslint": "^8.66.0",
     "vite": "^6.1.0",
+    "vite-node": "^3.2.4",
     "vitest": "^3.2.4"
   }
 }

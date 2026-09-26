@@ -1,0 +1,212 @@
+import { applyGameCommand, createScenarioInitialState, isUnitKindAvailable, maps, scenarioById, summarizeRepairs } from '../game';
+import type { GameResult, GameState, PlayerId, ScenarioDefinition, UnitKind } from '../game';
+import { chooseCpuAction, type CpuDifficulty } from './rules';
+
+/**
+ * CPU-versus-CPU balance measurement (#116 Phase 10.1). Everything here is
+ * deterministic for a given scenario, difficulty, rule set, and seed, and
+ * leaves game rules untouched; it only observes matches.
+ */
+export type BalanceRules = 'classic' | 'modern';
+
+export interface MatchResult {
+  scenarioId: string;
+  difficulty: CpuDifficulty;
+  rules: BalanceRules;
+  seed: number;
+  winner: PlayerId | 'none';
+  /** Completed rounds when the match ended or hit the round limit. */
+  turns: number;
+  /** Peak unit count across both sides, including embarked cargo. */
+  maxUnits: number;
+  commands: number;
+  produced: Record<PlayerId, Partial<Record<UnitKind, number>>>;
+  repairCost: Record<PlayerId, number>;
+}
+
+export interface SkippedMatch { scenarioId: string; rules: BalanceRules; reason: string }
+
+/** Same bound as the CPU regression fixture: exceeding it means the CPU stopped ending its turns. */
+const MAX_COMMANDS_PER_TURN = 120;
+
+/**
+ * The measured match starts from the scenario's turn-one state with a replaced
+ * damage seed. It is not a valid save or replay and must not be persisted.
+ */
+export function balanceInitialState(scenario: ScenarioDefinition, rules: BalanceRules, seed: number): GameResult<GameState> {
+  const initial = createScenarioInitialState(scenario);
+  if (rules === 'classic') {
+    const unavailable = initial.units.find(unit => !isUnitKindAvailable(unit.kind, undefined));
+    if (unavailable) return { ok: false, error: `初期配置に近代ルール専用ユニット（${unavailable.kind}）があるため、従来ルールでは計測できません。` };
+  }
+  return { ok: true, value: { ...initial, rngSeed: seed >>> 0, ...(rules === 'classic' ? { ruleVersion: undefined } : {}) } };
+}
+
+/** Plays one CPU-versus-CPU match. Throws if the CPU issues an illegal command, since that is a bug, not a result. */
+export function simulateMatch(scenario: ScenarioDefinition, difficulty: CpuDifficulty, rules: BalanceRules, seed: number, maxRounds: number): GameResult<MatchResult> {
+  // Victory and objectives are resolved through state.scenarioId, so an
+  // unregistered scenario would silently never finish.
+  if (scenarioById(scenario.id) !== scenario) throw new Error(`Scenario ${scenario.id} is not registered in the catalog`);
+  if (!Number.isSafeInteger(seed) || seed < 0 || seed > 0xffff_ffff) throw new Error(`Invalid seed: ${seed}`);
+  if (!Number.isSafeInteger(maxRounds) || maxRounds < 1) throw new Error(`Invalid round limit: ${maxRounds}`);
+  const initial = balanceInitialState(scenario, rules, seed);
+  if (!initial.ok) return initial;
+  let state = initial.value;
+  const result: MatchResult = {
+    scenarioId: scenario.id, difficulty, rules, seed, winner: 'none', turns: state.turn, maxUnits: state.units.length, commands: 0,
+    produced: { red: {}, blue: {} }, repairCost: { red: 0, blue: 0 },
+  };
+  let commandsThisTurn = 0;
+  while (!state.winner && state.turn <= maxRounds) {
+    const command = chooseCpuAction(state, difficulty);
+    const applied = applyGameCommand(state, command);
+    if (!applied.ok) throw new Error(`${scenario.id}/${difficulty}/${rules}/seed ${seed}: CPU issued an illegal command ${JSON.stringify(command)}: ${applied.error}`);
+    if (command.type === 'produce') {
+      const produced = result.produced[state.activePlayer];
+      produced[command.kind] = (produced[command.kind] ?? 0) + 1;
+    }
+    if (command.type === 'endTurn') {
+      const repairs = summarizeRepairs(state, applied.value, applied.value.activePlayer);
+      result.repairCost[applied.value.activePlayer] += repairs.cost;
+      commandsThisTurn = 0;
+    } else if (++commandsThisTurn > MAX_COMMANDS_PER_TURN) {
+      throw new Error(`${scenario.id}/${difficulty}/${rules}/seed ${seed}: CPU did not end its turn`);
+    }
+    state = applied.value;
+    result.commands += 1;
+    result.maxUnits = Math.max(result.maxUnits, state.units.length);
+  }
+  return { ok: true, value: { ...result, winner: state.winner ?? 'none', turns: state.turn } };
+}
+
+export interface BalanceSummary {
+  scenarioId: string;
+  difficulty: CpuDifficulty;
+  rules: BalanceRules;
+  games: number;
+  wins: Record<PlayerId | 'none', number>;
+  /** Mean completed rounds of decided games; undefined when none were decided. */
+  averageDecidedTurns?: number;
+  maxUnits: number;
+  produced: Partial<Record<UnitKind, number>>;
+  averageRepairCost: number;
+}
+
+export function summarizeMatches(results: readonly MatchResult[]): BalanceSummary[] {
+  const groups = new Map<string, MatchResult[]>();
+  for (const result of results) {
+    const key = `${result.scenarioId}\u0000${result.difficulty}\u0000${result.rules}`;
+    groups.set(key, [...(groups.get(key) ?? []), result]);
+  }
+  return [...groups.values()].map(group => {
+    const first = group[0]!;
+    const wins = { red: 0, blue: 0, none: 0 };
+    const produced: Partial<Record<UnitKind, number>> = {};
+    let decidedTurns = 0;
+    let repairCost = 0;
+    for (const result of group) {
+      wins[result.winner] += 1;
+      if (result.winner !== 'none') decidedTurns += result.turns;
+      repairCost += result.repairCost.red + result.repairCost.blue;
+      for (const side of [result.produced.red, result.produced.blue])
+        for (const [kind, count] of Object.entries(side) as [UnitKind, number][]) produced[kind] = (produced[kind] ?? 0) + count;
+    }
+    const decided = group.length - wins.none;
+    return {
+      scenarioId: first.scenarioId, difficulty: first.difficulty, rules: first.rules, games: group.length, wins,
+      averageDecidedTurns: decided > 0 ? decidedTurns / decided : undefined,
+      maxUnits: Math.max(...group.map(result => result.maxUnits)),
+      produced, averageRepairCost: repairCost / group.length,
+    };
+  });
+}
+
+const percent = (count: number, total: number): string => `${Math.round(count / total * 100)}%`;
+
+/** Markdown report: one row per scenario, difficulty, and rule set. */
+export function formatBalanceReport(summaries: readonly BalanceSummary[], skipped: readonly SkippedMatch[] = []): string {
+  const lines = [
+    '| マップ | 難易度 | ルール | 局数 | 赤勝 | 青勝 | 未決着 | 平均決着ターン | 最大部隊数 | 平均修理費（近代） | 生産上位 |',
+    '| --- | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- |',
+  ];
+  for (const summary of summaries) {
+    const topProduction = (Object.entries(summary.produced) as [UnitKind, number][])
+      .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])).slice(0, 4)
+      .map(([kind, count]) => `${kind} ${count}`).join(', ') || '—';
+    lines.push(`| ${summary.scenarioId} | ${summary.difficulty} | ${summary.rules} | ${summary.games} | ${percent(summary.wins.red, summary.games)} | ${percent(summary.wins.blue, summary.games)} | ${percent(summary.wins.none, summary.games)} | ${summary.averageDecidedTurns === undefined ? '—' : summary.averageDecidedTurns.toFixed(1)} | ${summary.maxUnits} | ${Math.round(summary.averageRepairCost)} | ${topProduction} |`);
+  }
+  lines.push('', '最大部隊数は両陣営の合計（輸送中の部隊を含む）。修理費は近代ルールのみ（従来ルールの修理は無料のため 0）。');
+  if (skipped.length) {
+    lines.push('', '計測対象外:');
+    for (const entry of skipped) lines.push(`- ${entry.scenarioId}（${entry.rules}）: ${entry.reason}`);
+  }
+  return lines.join('\n');
+}
+
+export interface BalanceOptions {
+  scenarioIds: string[];
+  difficulties: CpuDifficulty[];
+  rules: BalanceRules[];
+  seeds: number[];
+  maxRounds: number;
+}
+
+const difficulties: readonly CpuDifficulty[] = ['easy', 'normal', 'hard'];
+const ruleSets: readonly BalanceRules[] = ['classic', 'modern'];
+
+/**
+ * Parses `--maps a,b --difficulty easy --rules modern --seeds 3 --rounds 60`.
+ * Omitted options cover every built-in map, difficulty, and rule set.
+ */
+export function parseBalanceArgs(args: readonly string[]): GameResult<BalanceOptions> {
+  const values = new Map<string, string>();
+  for (let index = 0; index < args.length; index += 2) {
+    const flag = args[index]!;
+    const value = args[index + 1];
+    if (!['--maps', '--difficulty', '--rules', '--seeds', '--rounds'].includes(flag) || value === undefined || value.startsWith('--'))
+      return { ok: false, error: `不明な引数、または値がありません: ${flag}` };
+    values.set(flag, value);
+  }
+  const list = (flag: string) => values.get(flag)?.split(',').map(item => item.trim()).filter(Boolean);
+  const scenarioIds = list('--maps') ?? maps.map(scenario => scenario.id);
+  const unknownMap = scenarioIds.find(id => !scenarioById(id));
+  if (unknownMap) return { ok: false, error: `不明なマップです: ${unknownMap}` };
+  const chosenDifficulties = list('--difficulty') ?? [...difficulties];
+  if (chosenDifficulties.some(value => !difficulties.includes(value as CpuDifficulty))) return { ok: false, error: '難易度は easy / normal / hard から指定してください。' };
+  const chosenRules = list('--rules') ?? [...ruleSets];
+  if (chosenRules.some(value => !ruleSets.includes(value as BalanceRules))) return { ok: false, error: 'ルールは classic / modern から指定してください。' };
+  const seedCount = Number(values.get('--seeds') ?? 3);
+  const maxRounds = Number(values.get('--rounds') ?? 60);
+  if (!Number.isSafeInteger(seedCount) || seedCount < 1 || seedCount > 100) return { ok: false, error: '--seeds は 1〜100 の整数で指定してください。' };
+  if (!Number.isSafeInteger(maxRounds) || maxRounds < 1 || maxRounds > 500) return { ok: false, error: '--rounds は 1〜500 の整数で指定してください。' };
+  return {
+    ok: true,
+    value: {
+      scenarioIds, difficulties: chosenDifficulties as CpuDifficulty[], rules: chosenRules as BalanceRules[],
+      // Fixed, spread-out seeds keep reports reproducible across runs and machines.
+      seeds: Array.from({ length: seedCount }, (_, index) => (index + 1) * 7919),
+      maxRounds,
+    },
+  };
+}
+
+/** Runs every requested combination, reporting progress through the optional callback. */
+export function runBalance(options: BalanceOptions, onMatch?: (result: MatchResult) => void): { results: MatchResult[]; skipped: SkippedMatch[] } {
+  const results: MatchResult[] = [];
+  const skipped: SkippedMatch[] = [];
+  for (const scenarioId of options.scenarioIds) {
+    const scenario = scenarioById(scenarioId)!;
+    for (const rules of options.rules) for (const difficulty of options.difficulties) {
+      for (const seed of options.seeds) {
+        const match = simulateMatch(scenario, difficulty, rules, seed, options.maxRounds);
+        if (!match.ok) {
+          if (!skipped.some(entry => entry.scenarioId === scenarioId && entry.rules === rules)) skipped.push({ scenarioId, rules, reason: match.error });
+          break;
+        }
+        results.push(match.value);
+        onMatch?.(match.value);
+      }
+    }
+  }
+  return { results, skipped };
+}
