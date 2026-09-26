@@ -5,7 +5,7 @@ import { visibleEnemies as getVisibleEnemies } from '../game/fog';
 import { scenarioById } from '../game/maps';
 import { manhattanDistance, movementCost, terrainAt } from '../game/terrain';
 import { isDeployedUnit, usesModernRules, type Board, type DeployedUnit, type GameState, type PlayerId, type Position, type Unit, type UnitKind } from '../game/types';
-import { adjacentToSupplyUnit, isGroundUnit, isServiceTile } from '../game/logistics';
+import { adjacentToSupplyUnit, isGroundUnit, isServiceTile, REPAIR_HP_PER_TURN } from '../game/logistics';
 import { isEmbarkableUnit, isSupplyUnit, unitCategory, unitStats } from '../game/units';
 
 /** The CPU does not use hidden randomness: the same state always gives the same order. */
@@ -71,20 +71,31 @@ function favorableAttack(state: GameState, attacker: DeployedUnit, target: Unit,
   // a zero damage multiplier.
   if (!result.ok || result.value.damageToDefender <= 0) return false;
   // A certain destruction is always worthwhile. Otherwise difficulty controls accepted risk.
-  // Long stalemates accept up to 15 more points of retaliation to force contact.
+  // Long stalemates and sieges may accept extra retaliation, but never more than
+  // MAX_ATTACK_LENIENCY in total, so leniencies cannot stack into suicide attacks.
+  const leniency = Math.min(MAX_ATTACK_LENIENCY,
+    stalemateRelief(state) * 25 + garrisonAllowance(state, attacker, target, result.value.damageToDefender));
   return result.value.damageToDefender >= target.hp
-    || result.value.damageToDefender >= result.value.damageToAttacker + config.attackSafetyMargin - stalemateRelief(state) * 25 - garrisonAllowance(state, attacker.owner, target);
+    || result.value.damageToDefender >= result.value.damageToAttacker + config.attackSafetyMargin - leniency;
 }
+
+/** Upper bound on the extra retaliation any leniency may accept. */
+export const MAX_ATTACK_LENIENCY = 30;
 
 /**
  * A defender on a property we need to capture heals and hides behind high cover,
  * so an even trade never looks favorable and sieges stall forever. Accept worse
- * trades to dislodge garrisons, most of all from a capital.
+ * trades to dislodge such garrisons, but only when the hit outpaces the garrison's
+ * per-turn healing and one of our capturing units is close enough to follow up;
+ * otherwise the attacks would only feed units into a garrison that heals back.
  */
-function garrisonAllowance(state: GameState, player: PlayerId, target: Unit): number {
-  if (!isDeployedUnit(target)) return 0;
+function garrisonAllowance(state: GameState, attacker: DeployedUnit, target: Unit, damage: number): number {
+  if (!isDeployedUnit(target) || damage < REPAIR_HP_PER_TURN) return 0;
   const tile = terrainAt(state.board, target.position);
-  if (!tile || !isPropertyTerrainKind(tile.kind) || tile.owner === player) return 0;
+  if (!tile || !isPropertyTerrainKind(tile.kind) || tile.owner === attacker.owner) return 0;
+  const capturerNearby = orderedUnits(state, attacker.owner)
+    .some(ally => unitStats[ally.kind].capturePower > 0 && manhattanDistance(ally.position, target.position) <= 3);
+  if (!capturerNearby) return 0;
   return tile.kind === 'capital' ? 30 : 15;
 }
 
@@ -186,13 +197,22 @@ export const CPU_FORCE_LAND_SHARE = 0.25;
  * producing once its own force reaches a quarter of the non-sea, non-mountain
  * tiles. This uses only the CPU's own units and the public terrain.
  */
+const forceLimitCache = new WeakMap<Board, number>();
 export function cpuForceLimit(board: Board): number {
+  const cached = forceLimitCache.get(board);
+  if (cached !== undefined) return cached;
   const openLand = board.terrain.flat().filter(tile => tile.kind !== 'sea' && tile.kind !== 'mountain').length;
-  return Math.max(8, Math.floor(openLand * CPU_FORCE_LAND_SHARE));
+  const limit = Math.max(8, Math.floor(openLand * CPU_FORCE_LAND_SHARE));
+  forceLimitCache.set(board, limit);
+  return limit;
+}
+
+/** Whether the CPU's own force is at its production limit. */
+function atForceLimit(state: GameState, player: PlayerId): boolean {
+  return state.units.filter(unit => unit.owner === player).length >= cpuForceLimit(state.board);
 }
 
 function productionAction(state: GameState, player: PlayerId, config: CpuDifficultyConfig, context: CpuPlanningContext): CpuAction | undefined {
-  if (state.units.filter(unit => unit.owner === player).length >= cpuForceLimit(state.board)) return undefined;
   const { targets } = context;
   const hasRemoteInfantry = orderedUnits(state, player)
     .filter(unit => isEmbarkableUnit(unit.kind))
@@ -204,6 +224,9 @@ function productionAction(state: GameState, player: PlayerId, config: CpuDifficu
   }
   const specialist = specialistProduction(state, player, context.visibleEnemies);
   if (specialist) return specialist;
+  // Transports and counters to confirmed threats are bounded one-of-a-kind orders;
+  // only the bulk force mix stops at the limit.
+  if (atForceLimit(state, player)) return undefined;
   const kind = preferredProduction(state, player);
   if (!kind) return undefined;
   const factory = emptyOwnedFacility(state, player, kind);
@@ -327,7 +350,7 @@ export function evaluateCpuPosition(
   const retreatPressure = lowHpRatio * config.lowHpRetreatWeight * pressure;
   // Parking on an owned factory/airport/port blocks production there. Units that
   // came to be serviced (low supplies or heavy damage) are exempt.
-  const blocking = !needsSupply(unit) && unit.hp > 50 && blocksProduction(state, player, destination) ? FACILITY_BLOCK_PENALTY : 0;
+  const blocking = !needsSupply(unit) && unit.hp > 50 && blocksProduction(state, player, destination, knownEnemies) ? FACILITY_BLOCK_PENALTY : 0;
   const logistics = supplyVehicleValue(state, player, unit, destination);
   return defense + supply + response + retreatCover + logistics
     - distance * config.objectiveDistanceWeight
@@ -340,11 +363,15 @@ export function evaluateCpuPosition(
 export const FACILITY_BLOCK_PENALTY = 45;
 
 /** Whether ending on `position` would occupy one of `player`'s production facilities. */
-function blocksProduction(state: GameState, player: PlayerId, position: Position): boolean {
+function blocksProduction(state: GameState, player: PlayerId, position: Position, knownEnemies: readonly Unit[]): boolean {
   const tile = terrainAt(state.board, position);
-  if (tile?.owner !== player) return false;
+  if (tile?.owner !== player || atForceLimit(state, player)) return false;
   const productionRule = scenarioById(state.scenarioId)?.productionRules ?? 'legacy-factory-air';
-  return (productionKindsForRule(productionRule, state.ruleVersion)[tile.kind]?.length ?? 0) > 0;
+  const kinds = productionKindsForRule(productionRule, state.ruleVersion)[tile.kind] ?? [];
+  // Only a facility we could actually use this turn is being blocked.
+  if (!kinds.some(kind => unitStats[kind].cost <= state.players[player].gold)) return false;
+  // Holding the facility is the right call when a visible enemy capturer could take it.
+  return !knownEnemies.some(enemy => isDeployedUnit(enemy) && unitStats[enemy.kind].capturePower > 0 && manhattanDistance(enemy.position, position) <= 2);
 }
 
 /**
