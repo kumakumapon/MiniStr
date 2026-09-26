@@ -53,6 +53,7 @@ describe('scenario export keeps the turn limit single (#116 10.4)', () => {
     // normalized one again; both are the same condition, so the outcome is unchanged.
     const history = resave(timed([{ type: 'survive', untilTurn: 11 }]), 4);
     expect(history.map(conditions => conditions.length)).toEqual([2, 2, 2, 2]);
+    expect(history[3]).toEqual([{ type: 'survive', untilTurn: 11 }, { type: 'survive', untilTurn: 11 }]);
   });
 
   it('round-trips every built-in scenario to equivalent conditions', () => {
