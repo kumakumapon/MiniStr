@@ -1,4 +1,4 @@
-import { otherPlayer, type GameState, type PlayerId } from '../game';
+import type { GameState, PlayerId } from '../game';
 
 /** 'cpu': the player (red) against the CPU (blue). 'hotseat': two people share one device. */
 export type MatchMode = 'cpu' | 'hotseat';
@@ -17,9 +17,6 @@ export interface MatchContext {
 export function viewerFor(mode: MatchMode, activePlayer: PlayerId): PlayerId {
   return mode === 'hotseat' ? activePlayer : 'red';
 }
-
-/** The opposing side from the viewer's perspective. */
-export const opponentOf = (viewer: PlayerId): PlayerId => otherPlayer(viewer);
 
 /** Board commands (moves, attacks, production, end turn) for the side on the device. */
 export function commandAllowed(context: MatchContext): boolean {

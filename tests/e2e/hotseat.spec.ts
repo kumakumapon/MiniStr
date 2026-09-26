@@ -29,6 +29,10 @@ test('plays a two-player hotseat match without revealing either side across hand
   await expect(page.locator('.turn-indicator strong')).toHaveText('青軍');
   await expect(page.locator('.unit.blue').first()).toBeVisible();
   await expect(page.locator('#undo')).toBeDisabled();
+  // Blue's own units carry the 自 marker, and red units in blue's fog are not drawn.
+  await expect(page.locator('.unit.blue .unit-owner-marker').first()).toHaveText('自');
+  await expect(page.locator('.tile.fog .unit.red')).toHaveCount(0);
+  await expect(page.locator('.map-legend')).toContainText('自軍（青軍）');
   await page.locator('.tile[data-x="9"][data-y="6"]').click();
   await expect(page.locator('.status-message')).toContainText('選択しました');
   await page.locator('.tile[data-x="8"][data-y="5"]').click();
