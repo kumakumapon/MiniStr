@@ -7,7 +7,8 @@ import { canProduceUnit, isPropertyTerrainKind } from './facilities';
 import { visibleEnemies, visiblePositions } from './fog';
 import { scenarioById } from './maps';
 import { updateScenarioProgress, updateScenarioScores, withEvaluatedWinner } from './victory';
-import { isDeployedUnit, otherPlayer, type GameResult, type GameState, type PlayerId, type Position, type Unit, type UnitKind } from './types';
+import { applyModernUpkeep } from './logistics';
+import { isDeployedUnit, otherPlayer, usesModernRules, type GameResult, type GameState, type PlayerId, type Position, type Unit, type UnitKind } from './types';
 
 const fail = <T = GameState>(error: string): GameResult<T> => ({ ok: false, error });
 const succeed = <T>(value: T): GameResult<T> => ({ ok: true, value });
@@ -344,6 +345,17 @@ export function endTurn(state: GameState): GameState {
   const scenario = scenarioById(state.scenarioId);
   const progressed = scenario ? updateScenarioProgress(state, scenario, actor) : state;
   const activePlayer = otherPlayer(state.activePlayer);
+  if (usesModernRules(state)) {
+    // Modern order: income, fuel use, supply-vehicle resupply, paid repairs, then fuel exhaustion.
+    const ready = collectIncome({
+      ...progressed,
+      activePlayer,
+      turn: state.turn + (activePlayer === 'red' ? 1 : 0),
+      units: progressed.units.map(unit => unit.owner === activePlayer ? { ...unit, hasMoved: false, hasActed: false } : unit),
+    });
+    const upkept = applyModernUpkeep(ready, activePlayer);
+    return withEvaluatedWinner({ ...upkept, units: withoutExhaustedUnits(upkept.units, activePlayer) }, [], actor);
+  }
   const refreshed = progressed.units.map(unit => {
     if (unit.owner !== activePlayer) return unit;
     if (!isDeployedUnit(unit)) return { ...unit, hasMoved: false, hasActed: false };
@@ -357,17 +369,21 @@ export function endTurn(state: GameState): GameState {
     // a zero rate, so they retain the established "immobile but present" rule.
     return { ...unit, hasMoved: false, hasActed: false, fuel: Math.max(0, (unit.fuel ?? stats.fuel) - stats.fuelPerTurn) };
   });
-  const exhaustedTransportIds = new Set(refreshed
-    .filter((unit): unit is Unit & { position: Position } => unit.owner === activePlayer
-      && isDeployedUnit(unit) && unitStats[unit.kind].fuelPerTurn > 0
-      && (unit.fuel ?? unitStats[unit.kind].fuel) === 0)
-    .map(unit => unit.id));
-  const survivors = refreshed.filter(unit => !exhaustedTransportIds.has(unit.id)
-    && (!unit.embarkedIn || !exhaustedTransportIds.has(unit.embarkedIn)));
   return withEvaluatedWinner(collectIncome({
     ...progressed,
     activePlayer,
     turn: state.turn + (activePlayer === 'red' ? 1 : 0),
-    units: survivors,
+    units: withoutExhaustedUnits(refreshed, activePlayer),
   }), [], actor);
+}
+
+/** Aircraft and ships with no fuel left are lost, together with any cargo they carry. */
+function withoutExhaustedUnits(units: Unit[], player: PlayerId): Unit[] {
+  const exhaustedTransportIds = new Set(units
+    .filter((unit): unit is Unit & { position: Position } => unit.owner === player
+      && isDeployedUnit(unit) && unitStats[unit.kind].fuelPerTurn > 0
+      && (unit.fuel ?? unitStats[unit.kind].fuel) === 0)
+    .map(unit => unit.id));
+  return units.filter(unit => !exhaustedTransportIds.has(unit.id)
+    && (!unit.embarkedIn || !exhaustedTransportIds.has(unit.embarkedIn)));
 }

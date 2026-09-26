@@ -16,6 +16,8 @@ export interface UnitDefinition {
   embarkable?: true;
   /** Number of embarkable units this unit can carry. */
   transportCapacity?: number;
+  /** Under modern rules, refuels and rearms adjacent allied ground units at the start of its turn. */
+  supplier?: true;
   stats: UnitStats;
   effectiveness: Record<UnitCategory, number>;
 }
@@ -57,7 +59,7 @@ export const unitDefinitions = {
     effectiveness: { soft: 0.45, armor: 0.4, air: 1.8, sea: 0.3 },
   },
   apc: {
-    category: 'armor', movementProfile: 'vehicle', productionTerrain: 'factory', transportCapacity: 1,
+    category: 'armor', movementProfile: 'vehicle', productionTerrain: 'factory', transportCapacity: 1, supplier: true,
     stats: { cost: 5000, movement: 6, attack: 25, defense: 30, capturePower: 0, range: [1, 1], fuel: 70, fuelPerTurn: 0, ammo: 6, vision: 3, indirect: false },
     effectiveness: { soft: 0.55, armor: 0.3, air: 0.25, sea: 0.2 },
   },
@@ -97,4 +99,5 @@ export const damageMultiplier = valuesByKind(definition => definition.effectiven
 
 export function isEmbarkableUnit(kind: UnitKind): boolean { return (unitDefinitions[kind] as UnitDefinition).embarkable === true; }
 export function transportCapacity(kind: UnitKind): number { return (unitDefinitions[kind] as UnitDefinition).transportCapacity ?? 0; }
+export function isSupplyUnit(kind: UnitKind): boolean { return (unitDefinitions[kind] as UnitDefinition).supplier === true; }
 export function isMergeableUnit(kind: UnitKind): boolean { return (unitDefinitions[kind] as UnitDefinition).mergeable === true; }

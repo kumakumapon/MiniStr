@@ -27,6 +27,8 @@ export interface Unit {
   ammo?: number;
   hasMoved: boolean;
   hasActed: boolean;
+  /** Combat experience (0-10). Present only in modern-rule games; absent means 0. */
+  experience?: number;
 }
 
 export type DeployedUnit = Unit & { position: Position; embarkedIn?: undefined };
@@ -60,7 +62,17 @@ export interface GameState {
   /** State for the deterministic LCG consumed by commands that resolve random outcomes. */
   rngSeed: number;
   nextUnitId: number;
+  /**
+   * Rule set this match is played with. Absent means the classic rules that
+   * saves and replays written before Phase 9 were recorded with.
+   */
+  ruleVersion?: typeof MODERN_RULE_VERSION;
 }
+
+/** Phase 9 rules: supply vehicles, paid repairs at compatible facilities, experience, and new units. */
+export const MODERN_RULE_VERSION = 2 as const;
+
+export const usesModernRules = (state: Pick<GameState, 'ruleVersion'>): boolean => state.ruleVersion === MODERN_RULE_VERSION;
 
 export type GameResult<T = GameState> =
   | { ok: true; value: T }

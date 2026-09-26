@@ -1,6 +1,6 @@
 import './style.css';
 import { isEmbarkableUnit, isMergeableUnit, transportCapacity } from './game';
-import { allProducibleUnitKinds, applyEditorTool, applyGameCommand, AUTO_SAVE_KEY, availableScenarios, campaignStages, countProductionFacilities, createCampaignProgress, createReplay, createScenarioEditor, createScenarioInitialState, damageRange, deleteSaves, describeVictoryCondition, enemyThreatPreview, exportScenarioEditorJson, forecastCombat, getConditionProgress, gradeCampaignBattle, hasSavedGame, hasStoredSaveData, idleProductionFacilities, importScenarioEditorJson, isCampaignScenarioUnlocked, isDeployedUnit, isPropertyTerrainKind, loadCampaignProgress, loadCustomScenarios, loadGame, MANUAL_SAVE_KEY, maps, MAX_REPLAY_BYTES, parseReplay, productionKindsForRule, productionRules, reachablePositionsForPlayer, recordCampaignVictory, saveCampaignProgress, saveCustomScenario, saveGame, scenarioById, scenarioLoadError, serializeReplay, summarizeReplay, terrainKinds, validateEditorScenario, type CampaignGradeResult, type DeployedUnit, type GameCommand, type GameState, type PlayerId, type Position, type ProductionRule, type ReplayFile, type ScenarioEditorState, type TerrainKind, type UnitKind, type VictoryCondition, unitStats, visibleEnemies, visibleEnemyThreats, visiblePositions } from './game';
+import { allProducibleUnitKinds, applyEditorTool, applyGameCommand, AUTO_SAVE_KEY, availableScenarios, campaignStages, countProductionFacilities, createCampaignProgress, createReplay, createScenarioEditor, createScenarioInitialState, damageRange, deleteSaves, describeVictoryCondition, enemyThreatPreview, exportScenarioEditorJson, forecastCombat, getConditionProgress, gradeCampaignBattle, hasSavedGame, hasStoredSaveData, idleProductionFacilities, importScenarioEditorJson, isCampaignScenarioUnlocked, isDeployedUnit, isPropertyTerrainKind, loadCampaignProgress, loadCustomScenarios, loadGame, MANUAL_SAVE_KEY, maps, MAX_REPLAY_BYTES, parseReplay, productionKindsForRule, productionRules, reachablePositionsForPlayer, recordCampaignVictory, saveCampaignProgress, saveCustomScenario, saveGame, scenarioById, scenarioLoadError, serializeReplay, summarizeRepairs, summarizeReplay, terrainKinds, validateEditorScenario, type CampaignGradeResult, type DeployedUnit, type GameCommand, type GameState, type PlayerId, type Position, type ProductionRule, type ReplayFile, type ScenarioEditorState, type TerrainKind, type UnitKind, type VictoryCondition, unitStats, visibleEnemies, visibleEnemyThreats, visiblePositions } from './game';
 import { chooseCpuAction, type CpuDifficulty } from './ai';
 import { nextBoardPosition } from './ui/boardNavigation';
 import { BOARD_ZOOM_LEVELS, boardAreaWidth, boardTileSize, boardZoomPercent, defaultBoardZoomIndex } from './ui/boardZoom';
@@ -36,6 +36,7 @@ const commandScheduler = new CommandScheduler();
 let cpuInProgress = false;
 let cpuSkipRequested = false;
 let cpuActivity: string[] = [];
+let turnStartNotice = '';
 let cpuSpeed: CommandSpeed = 1;
 let skipCpuImmediately: (() => void) | undefined;
 const CPU_STEP_DELAY_MS = 350;
@@ -190,6 +191,13 @@ function dispatch(command: GameCommand, undoable = false): boolean {
   if (undoable && game.activePlayer === 'red') undoStack.push({ state: game, commandCount: commandHistory.length });
   game = result.value;
   commandHistory.push(command);
+  // Only the player's own upkeep is reported; the CPU's repairs would reveal hidden units and funds.
+  if (command.type === 'endTurn' && game.activePlayer === 'red') {
+    const repairs = summarizeRepairs(before, game, 'red');
+    turnStartNotice = repairs.units === 0 ? '' : repairs.cost > 0
+      ? `${repairs.units}部隊を修理しました（修理費 ${repairs.cost}G）。`
+      : `${repairs.units}部隊を修理しました。`;
+  }
   if (!cpuSkipRequested) pendingPresentationEffects.push(...presentationEffectsForCommand(before, command, game));
   finishCampaignBattle();
   return true;
@@ -988,6 +996,8 @@ function finishCpuTurn(reachedLimit = false): void {
   commandScheduler.cancel();
   undoStack = [];
   message = reachedLimit ? 'CPU の行動上限に達したため、ターンを終了しました。' : 'CPU が行動しました。';
+  if (turnStartNotice) message += ` ${turnStartNotice}`;
+  turnStartNotice = '';
   if (persist(AUTO_SAVE_KEY)) message += ' オートセーブしました。';
   render();
 }

@@ -1,6 +1,6 @@
 import { attackUnit, captureProperty, disembarkUnit, embarkUnit, endTurn, mergeUnits, moveUnit, produceUnit, waitUnit } from './commands';
-import { createScenarioInitialState, scenarioById } from './maps';
-import { terrainKindSet, type GameResult, type GameState, type Position, type UnitKind } from './types';
+import { createScenarioInitialState, scenarioById, type ScenarioDefinition } from './maps';
+import { MODERN_RULE_VERSION, terrainKindSet, type GameResult, type GameState, type Position, type UnitKind } from './types';
 import { isEmbarkableUnit, transportCapacity, unitKindSet } from './units';
 
 /**
@@ -151,6 +151,17 @@ function sameValue(left: unknown, right: unknown): boolean {
   return true;
 }
 
+/**
+ * Whether `value` is the scenario's canonical turn-one state. States recorded
+ * before Phase 9 carry no `ruleVersion`; they still match the same board and
+ * forces and are then replayed with the classic rules they were played with.
+ */
+export function matchesScenarioInitialState(value: unknown, scenario: ScenarioDefinition): boolean {
+  const expected = createScenarioInitialState(scenario);
+  const classic = isRecord(value) && value.ruleVersion === undefined;
+  return sameValue(value, classic ? { ...expected, ruleVersion: undefined } : expected);
+}
+
 export function isGameCommand(value: unknown): value is GameCommand {
   if (!isRecord(value) || typeof value.type !== 'string') return false;
   if (value.type === 'endTurn') return true;
@@ -178,6 +189,8 @@ export function isGameState(value: unknown): value is GameState {
     && (tile.owner === undefined || players.has(tile.owner as string))
     && (tile.capturePoints === undefined || (isFiniteNumber(tile.capturePoints) && tile.capturePoints >= 0 && tile.capturePoints <= 20))))) return false;
 
+  if (value.ruleVersion !== undefined && value.ruleVersion !== MODERN_RULE_VERSION) return false;
+  const modern = value.ruleVersion === MODERN_RULE_VERSION;
   if (value.units.length > 4096) return false;
   const ids = new Set<string>();
   const positions = new Set<string>();
@@ -189,7 +202,8 @@ export function isGameState(value: unknown): value is GameState {
       || !isFiniteNumber(unit.hp) || unit.hp <= 0 || unit.hp > 100
       || (unit.fuel !== undefined && (!isFiniteNumber(unit.fuel) || unit.fuel < 0))
       || (unit.ammo !== undefined && (!isFiniteNumber(unit.ammo) || unit.ammo < 0))
-      || typeof unit.hasMoved !== 'boolean' || typeof unit.hasActed !== 'boolean') return false;
+      || typeof unit.hasMoved !== 'boolean' || typeof unit.hasActed !== 'boolean'
+      || (unit.experience !== undefined && !modern)) return false;
     const deployed = unit.position !== undefined && unit.embarkedIn === undefined;
     const embarked = unit.position === undefined && typeof unit.embarkedIn === 'string';
     if (!deployed && !embarked) return false;
@@ -237,7 +251,7 @@ function validateSavedGameShape(value: unknown): value is SavedGame {
     // A self-consistent edited save/replay must not be able to alter the map's
     // turn-one gold, board, or forces. Custom IDs resolve through the loaded,
     // persisted custom catalog rather than trusting the save payload.
-    && sameValue(value.initialState, createScenarioInitialState(scenario))
+    && matchesScenarioInitialState(value.initialState, scenario)
     && (value.campaignScenarioId === undefined || value.campaignScenarioId === value.mapId)
     && Array.isArray(value.commands) && value.commands.length <= 100_000 && value.commands.every(isGameCommand);
 }

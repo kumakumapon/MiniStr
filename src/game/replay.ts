@@ -1,6 +1,6 @@
-import { createScenarioInitialState, scenarioById } from './maps';
+import { scenarioById } from './maps';
 import {
-  applyGameCommand, isGameCommand, isGameState, replayCommands, type GameCommand,
+  applyGameCommand, isGameCommand, isGameState, matchesScenarioInitialState, replayCommands, type GameCommand,
 } from './session';
 import { countDestroyedDeployedUnits } from './victory';
 import { type GameResult, type GameState, type PlayerId } from './types';
@@ -135,7 +135,7 @@ function validateReplayShape(value: unknown): value is ReplayFile {
     || value.schemaVersion !== REPLAY_SCHEMA_VERSION
     || typeof value.mapId !== 'string' || scenario === undefined
     || typeof value.difficulty !== 'string' || !difficulties.has(value.difficulty as ReplayDifficulty)
-    || !isGameState(value.initialState) || !sameValue(value.initialState, createScenarioInitialState(scenario)) || !isGameState(value.finalState)
+    || !isGameState(value.initialState) || !matchesScenarioInitialState(value.initialState, scenario) || !isGameState(value.finalState)
     || !Array.isArray(value.commands) || value.commands.length > MAX_REPLAY_COMMANDS
     || !value.commands.every(isGameCommand)
     || !isReplaySummary(value.summary)
@@ -151,7 +151,7 @@ export function summarizeReplay(
 ): GameResult<ReplaySummary> {
   const scenario = scenarioById(mapId);
   if (!scenario || !difficulties.has(difficulty) || !isGameState(initialState)
-    || !sameValue(initialState, createScenarioInitialState(scenario))
+    || !matchesScenarioInitialState(initialState, scenario)
     || commands.length > MAX_REPLAY_COMMANDS || !commands.every(isGameCommand))
     return { ok: false, error: 'リプレイデータの内容が不正です。' };
 
@@ -196,7 +196,7 @@ export function createReplay(input: ReplayInput): GameResult<ReplayFile> {
   if (!isRecord(input) || !hasOnlyKeys(input, ['mapId', 'difficulty', 'initialState', 'commands'])
     || typeof input.mapId !== 'string' || scenario === undefined
     || typeof input.difficulty !== 'string' || !difficulties.has(input.difficulty as ReplayDifficulty)
-    || !isGameState(input.initialState) || !sameValue(input.initialState, createScenarioInitialState(scenario)) || !Array.isArray(input.commands)
+    || !isGameState(input.initialState) || !matchesScenarioInitialState(input.initialState, scenario) || !Array.isArray(input.commands)
     || input.commands.length > MAX_REPLAY_COMMANDS || !input.commands.every(isGameCommand))
     return { ok: false, error: 'リプレイデータの内容が不正です。' };
 

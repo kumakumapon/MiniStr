@@ -3,6 +3,7 @@ export * from './state';
 export * from './terrain';
 export * from './units';
 export * from './facilities';
+export * from './logistics';
 export * from './rng';
 export * from './commands';
 export * from './combat';
