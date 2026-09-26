@@ -1,12 +1,12 @@
 import { forecastCombat, terrainDefenseReduction } from '../game/combat';
 import { reachablePositionsForPlayer } from '../game/commands';
-import { canProduceUnit, isPropertyTerrainKind } from '../game/facilities';
+import { canProduceUnit, isPropertyTerrainKind, productionKindsForRule } from '../game/facilities';
 import { visibleEnemies as getVisibleEnemies } from '../game/fog';
 import { scenarioById } from '../game/maps';
 import { manhattanDistance, movementCost, terrainAt } from '../game/terrain';
 import { isDeployedUnit, usesModernRules, type Board, type DeployedUnit, type GameState, type PlayerId, type Position, type Unit, type UnitKind } from '../game/types';
 import { adjacentToSupplyUnit, isGroundUnit, isServiceTile } from '../game/logistics';
-import { isEmbarkableUnit, unitCategory, unitStats } from '../game/units';
+import { isEmbarkableUnit, isSupplyUnit, unitCategory, unitStats } from '../game/units';
 
 /** The CPU does not use hidden randomness: the same state always gives the same order. */
 export type CpuDifficulty = 'easy' | 'normal' | 'hard';
@@ -71,8 +71,9 @@ function favorableAttack(state: GameState, attacker: DeployedUnit, target: Unit,
   // a zero damage multiplier.
   if (!result.ok || result.value.damageToDefender <= 0) return false;
   // A certain destruction is always worthwhile. Otherwise difficulty controls accepted risk.
+  // Long stalemates accept up to 15 more points of retaliation to force contact.
   return result.value.damageToDefender >= target.hp
-    || result.value.damageToDefender >= result.value.damageToAttacker + config.attackSafetyMargin;
+    || result.value.damageToDefender >= result.value.damageToAttacker + config.attackSafetyMargin - stalemateRelief(state) * 25;
 }
 
 function interruptsCapture(state: GameState, player: PlayerId, target: Unit): boolean {
@@ -92,7 +93,9 @@ function attackAction(state: GameState, player: PlayerId, config: CpuDifficultyC
         const aScore = aForecast.ok ? aForecast.value.damageToDefender - aForecast.value.damageToAttacker : -Infinity;
         const bScore = bForecast.ok ? bForecast.value.damageToDefender - bForecast.value.damageToAttacker : -Infinity;
         const interruption = Number(interruptsCapture(state, player, b)) - Number(interruptsCapture(state, player, a));
-        return interruption || bScore - aScore || a.hp - b.hp || a.id.localeCompare(b.id);
+        // Focus fire: finishing a unit removes its future attacks, so certain kills come first.
+        const lethal = Number(bForecast.ok && bForecast.value.damageToDefender >= b.hp) - Number(aForecast.ok && aForecast.value.damageToDefender >= a.hp);
+        return interruption || lethal || bScore - aScore || a.hp - b.hp || a.id.localeCompare(b.id);
       })[0];
     if (target) return { type: 'attack', unitId: attacker.id, targetId: target.id };
   }
@@ -251,7 +254,8 @@ function needsSupply(unit: DeployedUnit): boolean {
   const fuelTurnsRemaining = stats.fuelPerTurn > 0 ? Math.ceil(fuel / stats.fuelPerTurn) : Infinity;
   return fuelTurnsRemaining <= 2
     || fuel <= Math.max(6, Math.floor(stats.fuel / 3))
-    || ((unit.ammo ?? stats.ammo) > 0 && (unit.ammo ?? stats.ammo) <= Math.max(1, Math.floor(stats.ammo / 3)));
+    // Only armed kinds track ammunition; an empty magazine needs resupply most of all.
+    || (stats.ammo > 0 && (unit.ammo ?? stats.ammo) <= Math.max(1, Math.floor(stats.ammo / 3)));
 }
 
 /**
@@ -294,10 +298,42 @@ export function evaluateCpuPosition(
   const lowHpRatio = Math.max(0, 50 - unit.hp) / 50;
   const retreatCover = lowHpRatio * config.lowHpRetreatWeight * terrainDefenseReduction(terrain, unit.hp) * 1.2;
   const retreatPressure = lowHpRatio * config.lowHpRetreatWeight * pressure;
-  return defense + supply + response + retreatCover
+  // Parking on an owned factory/airport/port blocks production there. Units that
+  // came to be serviced (low supplies or heavy damage) are exempt.
+  const blocking = !needsSupply(unit) && unit.hp > 50 && blocksProduction(state, player, destination) ? FACILITY_BLOCK_PENALTY : 0;
+  const logistics = supplyVehicleValue(state, player, unit, destination);
+  return defense + supply + response + retreatCover + logistics
     - distance * config.objectiveDistanceWeight
-    - pressure * config.threatAvoidanceWeight
-    - retreatPressure;
+    - pressure * config.threatAvoidanceWeight * (1 - stalemateRelief(state))
+    - retreatPressure
+    - blocking;
+}
+
+/** Outweighs a three-star facility's cover so idle units step off production sites. */
+export const FACILITY_BLOCK_PENALTY = 45;
+
+/** Whether ending on `position` would occupy one of `player`'s production facilities. */
+function blocksProduction(state: GameState, player: PlayerId, position: Position): boolean {
+  const tile = terrainAt(state.board, position);
+  if (tile?.owner !== player) return false;
+  const productionRule = scenarioById(state.scenarioId)?.productionRules ?? 'legacy-factory-air';
+  return (productionKindsForRule(productionRule, state.ruleVersion)[tile.kind]?.length ?? 0) > 0;
+}
+
+/**
+ * Long matches gradually lower the weight of visible counterattack risk so both
+ * sides stop trading turns out of range. It uses only the public round number.
+ */
+export function stalemateRelief(state: Pick<GameState, 'turn'>): number {
+  return Math.min(0.6, Math.max(0, (state.turn - 20) / 25));
+}
+
+/** Modern rules: a supply vehicle is worth more next to allied ground units that need resupply. */
+function supplyVehicleValue(state: GameState, player: PlayerId, unit: DeployedUnit, destination: Position): number {
+  if (!usesModernRules(state) || !isSupplyUnit(unit.kind)) return 0;
+  const served = orderedUnits(state, player).filter(ally => ally.id !== unit.id && isGroundUnit(ally.kind)
+    && manhattanDistance(ally.position, destination) === 1 && needsSupply(ally)).length;
+  return Math.min(2, served) * 30;
 }
 
 /** Choose one transport step before ordinary movement so island objectives are never stranded. */
