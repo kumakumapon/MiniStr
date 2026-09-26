@@ -19,6 +19,12 @@ export const unitTokens: Record<UnitKind, string> = {
   destroyer: '艦', landingShip: '輸', recon: '偵', rocket: '自', antiAir: '防', apc: '装',
 };
 
+/** Rank titles for experience ranks 0-3 (大戦略-style veterancy). */
+export const rankNames = ['新兵', '古参', '精鋭', '英雄'] as const;
+
+/** Compact rank marker for the board; unranked units show nothing. */
+export const rankStars = (rank: number): string => '★'.repeat(rank);
+
 /** Relative side label: the viewer's own force versus the opposing force. */
 export const sideLabel = (owner: PlayerId, viewer: PlayerId): string => owner === viewer ? '自軍' : '敵軍';
 

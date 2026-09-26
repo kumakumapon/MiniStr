@@ -7,6 +7,7 @@ import { canProduceUnit, isPropertyTerrainKind } from './facilities';
 import { visibleEnemies, visiblePositions } from './fog';
 import { scenarioById } from './maps';
 import { updateScenarioProgress, updateScenarioScores, withEvaluatedWinner } from './victory';
+import { experienceAfterCombat } from './experience';
 import { applyModernUpkeep } from './logistics';
 import { isDeployedUnit, otherPlayer, usesModernRules, type GameResult, type GameState, type PlayerId, type Position, type Unit, type UnitKind } from './types';
 
@@ -250,9 +251,18 @@ export function attackUnit(state: GameState, attackerId: string, defenderId: str
     ? applyDamageVariance(counterForecast.value.damageToDefender, counterRoll.value)
     : 0;
   const rngSeed = counterRoll?.seed ?? attackRoll.seed;
+  const modern = usesModernRules(state);
+  const attackerDestroyed = attacker.hp - damageToAttacker <= 0;
+  const defenderDestroyed = defender.hp - damageToDefender <= 0;
   const damagedUnits = state.units.map(unit => {
-    if (unit.id === attacker.id) return { ...unit, hp: Math.max(0, unit.hp - damageToAttacker), ammo: (unit.ammo ?? unitStats[unit.kind].ammo) - 1, hasActed: true };
-    if (unit.id === defender.id) return { ...unit, hp: Math.max(0, unit.hp - damageToDefender), ammo: canCounter ? (unit.ammo ?? unitStats[unit.kind].ammo) - 1 : unit.ammo };
+    if (unit.id === attacker.id) return {
+      ...unit, hp: Math.max(0, unit.hp - damageToAttacker), ammo: (unit.ammo ?? unitStats[unit.kind].ammo) - 1, hasActed: true,
+      ...(modern ? { experience: experienceAfterCombat(unit, damageToDefender, defenderDestroyed) } : {}),
+    };
+    if (unit.id === defender.id) return {
+      ...unit, hp: Math.max(0, unit.hp - damageToDefender), ammo: canCounter ? (unit.ammo ?? unitStats[unit.kind].ammo) - 1 : unit.ammo,
+      ...(modern ? { experience: experienceAfterCombat(unit, damageToAttacker, attackerDestroyed) } : {}),
+    };
     return unit;
   });
   const destroyedUnitIds = new Set(damagedUnits.filter(unit => unit.hp <= 0).map(unit => unit.id));
@@ -291,10 +301,12 @@ export function mergeUnits(state: GameState, unitId: string, targetId: string): 
   const hp = Math.min(100, unit.hp + target.hp);
   const ammo = Math.min(stats.ammo, (unit.ammo ?? stats.ammo) + (target.ammo ?? stats.ammo));
   const fuel = Math.min(stats.fuel, (unit.fuel ?? stats.fuel) + (target.fuel ?? stats.fuel));
+  // The merged unit keeps the more experienced crew. Classic units never carry experience.
+  const experience = Math.max(unit.experience ?? 0, target.experience ?? 0);
   const units = state.units
     .filter(candidate => candidate.id !== removed.id)
     .map(candidate => candidate.id === survivor.id
-      ? { ...candidate, hp, ammo, fuel, hasMoved: true, hasActed: true }
+      ? { ...candidate, hp, ammo, fuel, hasMoved: true, hasActed: true, ...(experience > 0 ? { experience } : {}) }
       : candidate);
   return succeed({ ...state, units });
 }

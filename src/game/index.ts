@@ -4,6 +4,7 @@ export * from './terrain';
 export * from './units';
 export * from './facilities';
 export * from './logistics';
+export * from './experience';
 export * from './rng';
 export * from './commands';
 export * from './combat';
