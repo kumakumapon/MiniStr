@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { chooseCpuAction } from '../ai/rules';
 import {
-  attackUnit, captureProperty, createBoard, createGameState, embarkUnit, forecastCombat, idleProductionFacilities,
-  isUnitKindAvailable, MODERN_RULE_VERSION, moveUnit, produceUnit, productionKindsForRule, unitStats,
+  attackUnit, captureProperty, createBoard, createGameState, embarkUnit, endTurn, forecastCombat, idleProductionFacilities, isGameState,
+  isUnitKindAvailable, MODERN_RULE_VERSION, moveUnit, produceUnit, productionKindsForRule, reachablePositions, unitStats,
   type Board, type GameState, type Unit,
 } from './index';
 
@@ -105,6 +105,55 @@ describe('new unit behaviour', () => {
     const moved = moveUnit(state, 'b', { x: 0, y: 0 });
     expect(moved.ok).toBe(true);
     if (moved.ok) expect(attackUnit(moved.value, 'b', 't')).toEqual({ ok: false, error: 'Indirect units cannot attack after moving' });
+  });
+});
+
+describe('new unit movement and upkeep', () => {
+  it('limits mech infantry to 2 movement and heavy tanks to 4, with vehicle terrain costs', () => {
+    const board = createBoard(7, 1);
+    board.terrain[0]![1] = { kind: 'forest' };
+    const state = withRules(board, [
+      unit({ id: 'm', kind: 'mech', owner: 'red' }),
+      unit({ id: 'h', kind: 'heavyTank', owner: 'red', position: { x: 2, y: 0 } }),
+    ], true);
+    expect(reachablePositions(state, 'm').map(position => position.x).sort()).toEqual([1]);
+    // 4 movement reaches x=6 to the east; the forest at x=1 costs a vehicle 2 and the mech blocks x=0.
+    expect(reachablePositions(state, 'h').map(position => position.x).sort()).toEqual([1, 3, 4, 5, 6]);
+    // A 5th plain tile would be out of range for the heavy tank's 4 movement.
+    expect(reachablePositions({ ...state, board: createBoard(8, 1), units: [state.units[1]!] }, 'h').map(position => position.x).sort())
+      .toEqual([0, 1, 3, 4, 5, 6]);
+  });
+
+  it('burns 2 fuel per turn on a helicopter and services it only at an airport', () => {
+    const board = createBoard(3, 1);
+    board.terrain[0]![0] = { kind: 'city', owner: 'red', capturePoints: 20 };
+    board.terrain[0]![2] = { kind: 'airport', owner: 'red', capturePoints: 20 };
+    const next = endTurn({
+      ...withRules(board, [
+        unit({ id: 'city-heli', kind: 'helicopter', owner: 'red', hp: 50, fuel: 40 }),
+        unit({ id: 'airport-heli', kind: 'helicopter', owner: 'red', hp: 50, fuel: 40, position: { x: 2, y: 0 } }),
+      ], true),
+      activePlayer: 'blue',
+    });
+    expect(next.units.find(candidate => candidate.id === 'city-heli')).toMatchObject({ hp: 50, fuel: 38 });
+    expect(next.units.find(candidate => candidate.id === 'airport-heli')).toMatchObject({ hp: 70, fuel: unitStats.helicopter.fuel });
+  });
+
+  it('makes anti-air vehicles the counter to helicopters', () => {
+    const board = createBoard(2, 1);
+    const damage = (attacker: 'antiAir' | 'tank') => {
+      const state = withRules(board, [unit({ id: 'a', kind: attacker, owner: 'red' }), unit({ id: 'h', kind: 'helicopter', owner: 'blue', position: { x: 1, y: 0 } })], true);
+      const result = forecastCombat(state, state.units[0]!, state.units[1]!);
+      return result.ok ? result.value.damageToDefender : 0;
+    };
+    expect(damage('antiAir')).toBeGreaterThanOrEqual(100);
+    expect(damage('antiAir')).toBeGreaterThan(damage('tank') * 3);
+  });
+
+  it('rejects classic states that contain modern-only units', () => {
+    const board = createBoard(2, 1);
+    expect(isGameState(withRules(board, [unit({ id: 'm', kind: 'mech', owner: 'red' })], true))).toBe(true);
+    expect(isGameState(withRules(board, [unit({ id: 'm', kind: 'mech', owner: 'red' })], false))).toBe(false);
   });
 });
 

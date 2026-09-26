@@ -1,5 +1,6 @@
 import { attackUnit, captureProperty, disembarkUnit, embarkUnit, endTurn, mergeUnits, moveUnit, produceUnit, waitUnit } from './commands';
 import { MAX_EXPERIENCE } from './experience';
+import { isUnitKindAvailable } from './facilities';
 import { createScenarioInitialState, scenarioById, type ScenarioDefinition } from './maps';
 import { MODERN_RULE_VERSION, terrainKindSet, type GameResult, type GameState, type Position, type UnitKind } from './types';
 import { isEmbarkableUnit, transportCapacity, unitKindSet } from './units';
@@ -199,6 +200,8 @@ export function isGameState(value: unknown): value is GameState {
   for (const unit of value.units) {
     if (!isRecord(unit) || typeof unit.id !== 'string' || ids.has(unit.id)
       || typeof unit.kind !== 'string' || !unitKindSet.has(unit.kind)
+      // Modern-only units cannot appear in a classic match, even through a map's initial forces.
+      || !isUnitKindAvailable(unit.kind as UnitKind, modern ? MODERN_RULE_VERSION : undefined)
       || typeof unit.owner !== 'string' || !players.has(unit.owner)
       || !isFiniteNumber(unit.hp) || unit.hp <= 0 || unit.hp > 100
       || (unit.fuel !== undefined && (!isFiniteNumber(unit.fuel) || unit.fuel < 0))

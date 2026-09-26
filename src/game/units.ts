@@ -105,7 +105,7 @@ export const unitDefinitions = {
   },
   battleship: {
     category: 'sea', movementProfile: 'sea', productionTerrain: 'port', mergeable: true, modernOnly: true, incomingDamageFactor: 0.8,
-    stats: { cost: 25000, movement: 5, attack: 90, defense: 45, capturePower: 0, range: [2, 6], fuel: 99, fuelPerTurn: 2, ammo: 6, vision: 3, indirect: true },
+    stats: { cost: 28000, movement: 5, attack: 90, defense: 45, capturePower: 0, range: [2, 6], fuel: 99, fuelPerTurn: 2, ammo: 6, vision: 3, indirect: true },
     effectiveness: { soft: 1.1, armor: 1.0, air: 0.2, sea: 1.0 },
   },
 } as const satisfies Record<string, UnitDefinition>;
