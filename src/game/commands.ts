@@ -371,7 +371,8 @@ export function endTurn(state: GameState): GameState {
     const settled = withEvaluatedWinner({ ...upkept, units: withoutExhaustedUnits(upkept.units, activePlayer) }, [], actor);
     // Decision victory at the end of the decision round (blue closes each round).
     // It is judged on the board as blue left it, before red's income and repairs,
-    // so the first player's start-of-turn upkeep cannot tip the result.
+    // so the first player's start-of-turn upkeep cannot tip the result. Aircraft
+    // and ships that would run out of fuel at red's turn start still count.
     const round = decisionRound(state, scenario);
     if (settled.winner || actor !== 'blue' || round === undefined || state.turn < round) return settled;
     const winner = decisionWinner(progressed);

@@ -390,7 +390,8 @@ function render(): void {
   // tiles that produce, not only counted in the panel.
   const idleFacilities = idleProductionFacilities(renderedGame, 'red', productionRule);
   const targetFacility = selectedFacility && idleFacilities.find(facility => key(facility.position) === key(selectedFacility!));
-  const idleFacilityKeys = new Set(idleFacilities.map(facility => key(facility.position)));
+  const redAtUnitLimit = usesDecisionRules(renderedGame) && renderedGame.units.filter(unit => unit.owner === 'red').length >= unitLimit(renderedGame.board);
+  const idleFacilityKeys = new Set(redAtUnitLimit ? [] : idleFacilities.map(facility => key(facility.position)));
   const board = renderedGame.board.terrain.flatMap((row, y) => row.map((terrain, x) => {
     const unit = renderedGame.units.find(item => isDeployedUnit(item) && item.position.x === x && item.position.y === y);
     const hidden = !visible.has(`${x},${y}`);

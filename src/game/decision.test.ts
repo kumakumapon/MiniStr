@@ -72,9 +72,12 @@ describe('decision victory (#119)', () => {
     expect(endTurn(blueEnding(DECISION_ROUND, { board: evenBoard, units: units(60) })).winner).toBe('blue');
     const tied = endTurn(blueEnding(DECISION_ROUND, { board: evenBoard, units: units(100) }));
     expect(tied.winner).toBeUndefined();
-    // Sudden death: the next round-end decides again.
-    const unbalanced = { ...tied, activePlayer: 'blue' as const, units: units(100).filter(candidate => candidate.owner === 'red') };
-    expect(endTurn(unbalanced).winner).toBe('red');
+    // Sudden death: the next round-end decides again. Both sides keep units on the
+    // board so no elimination can pre-empt the decision.
+    const nextRoundEnd = endTurn({ ...tied, activePlayer: 'blue', units: units(90) });
+    expect(nextRoundEnd.winner).toBe('blue');
+    expect(nextRoundEnd.turn).toBe(DECISION_ROUND + 2);
+    expect(victoryReason(nextRoundEnd)).toBe('decision');
   });
 
   it('judges before red’s start-of-turn repairs so the first player gains nothing from them', () => {
