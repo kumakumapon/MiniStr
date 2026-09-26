@@ -1,5 +1,5 @@
-import { applyGameCommand, createScenarioInitialState, isUnitKindAvailable, maps, scenarioById, summarizeRepairs } from '../game';
-import type { GameResult, GameState, PlayerId, ScenarioDefinition, UnitKind } from '../game';
+import { applyGameCommand, createScenarioInitialState, isUnitKindAvailable, maps, MODERN_RULE_VERSION, scenarioById, summarizeRepairs, victoryReason } from '../game';
+import type { GameResult, GameState, PlayerId, ScenarioDefinition, UnitKind, VictoryReason } from '../game';
 import { chooseCpuAction, type CpuDifficulty } from './rules';
 
 /**
@@ -7,7 +7,8 @@ import { chooseCpuAction, type CpuDifficulty } from './rules';
  * deterministic for a given scenario, difficulty, rule set, and seed, and
  * leaves game rules untouched; it only observes matches.
  */
-export type BalanceRules = 'classic' | 'modern';
+/** classic: no rule version; v2: Phase 9 modern rules; modern: the current rule version for new matches. */
+export type BalanceRules = 'classic' | 'v2' | 'modern';
 
 export interface MatchResult {
   scenarioId: string;
@@ -18,6 +19,8 @@ export interface MatchResult {
   rules: BalanceRules;
   seed: number;
   winner: PlayerId | 'none';
+  /** Why the match ended; 'none' when undecided, 'unknown' if the ending cannot be explained. */
+  reason: VictoryReason | 'none' | 'unknown';
   /** Round in which the match was decided, or maxRounds + 1 when it stayed undecided. */
   turns: number;
   /** Peak unit count across both sides, including embarked cargo. */
@@ -42,7 +45,8 @@ export function balanceInitialState(scenario: ScenarioDefinition, rules: Balance
     const unavailable = initial.units.find(unit => !isUnitKindAvailable(unit.kind, undefined));
     if (unavailable) return { ok: false, error: `初期配置に近代ルール専用ユニット（${unavailable.kind}）があるため、従来ルールでは計測できません。` };
   }
-  return { ok: true, value: { ...initial, rngSeed: seed >>> 0, ...(rules === 'classic' ? { ruleVersion: undefined } : {}) } };
+  const ruleVersion = rules === 'classic' ? undefined : rules === 'v2' ? MODERN_RULE_VERSION : initial.ruleVersion;
+  return { ok: true, value: { ...initial, rngSeed: seed >>> 0, ruleVersion } };
 }
 
 /** Plays one CPU-versus-CPU match. Throws if the CPU issues an illegal command, since that is a bug, not a result. */
@@ -59,7 +63,7 @@ export function simulateMatch(
   if (!initial.ok) return initial;
   let state = initial.value;
   const result: MatchResult = {
-    scenarioId: scenario.id, difficulty, blueDifficulty, rules, seed, winner: 'none', turns: state.turn, maxUnits: state.units.length, commands: 0,
+    scenarioId: scenario.id, difficulty, blueDifficulty, rules, seed, winner: 'none', reason: 'none', turns: state.turn, maxUnits: state.units.length, commands: 0,
     produced: { red: {}, blue: {} }, repairCost: { red: 0, blue: 0 },
   };
   let commandsThisTurn = 0;
@@ -82,7 +86,8 @@ export function simulateMatch(
     result.commands += 1;
     result.maxUnits = Math.max(result.maxUnits, state.units.length);
   }
-  return { ok: true, value: { ...result, winner: state.winner ?? 'none', turns: state.turn } };
+  const reason = state.winner ? victoryReason(state, scenario) ?? 'unknown' : 'none';
+  return { ok: true, value: { ...result, winner: state.winner ?? 'none', reason, turns: state.turn } };
 }
 
 export interface BalanceSummary {
@@ -97,6 +102,8 @@ export interface BalanceSummary {
   maxUnits: number;
   produced: Partial<Record<UnitKind, number>>;
   averageRepairCost: number;
+  /** Decided games by ending reason. */
+  reasons: Partial<Record<VictoryReason | 'unknown', number>>;
 }
 
 export function summarizeMatches(results: readonly MatchResult[]): BalanceSummary[] {
@@ -110,10 +117,12 @@ export function summarizeMatches(results: readonly MatchResult[]): BalanceSummar
     const wins = { red: 0, blue: 0, none: 0 };
     const produced: Partial<Record<UnitKind, number>> = {};
     let decidedTurns = 0;
+    const reasons: BalanceSummary['reasons'] = {};
     let repairCost = 0;
     for (const result of group) {
       wins[result.winner] += 1;
       if (result.winner !== 'none') decidedTurns += result.turns;
+      if (result.reason !== 'none') reasons[result.reason] = (reasons[result.reason] ?? 0) + 1;
       repairCost += result.repairCost.red + result.repairCost.blue;
       for (const side of [result.produced.red, result.produced.blue])
         for (const [kind, count] of Object.entries(side) as [UnitKind, number][]) produced[kind] = (produced[kind] ?? 0) + count;
@@ -123,25 +132,28 @@ export function summarizeMatches(results: readonly MatchResult[]): BalanceSummar
       scenarioId: first.scenarioId, difficulty: first.difficulty, blueDifficulty: first.blueDifficulty, rules: first.rules, games: group.length, wins,
       averageDecidedTurns: decided > 0 ? decidedTurns / decided : undefined,
       maxUnits: Math.max(...group.map(result => result.maxUnits)),
-      produced, averageRepairCost: repairCost / group.length,
+      produced, averageRepairCost: repairCost / group.length, reasons,
     };
   });
 }
 
 const percent = (count: number, total: number): string => `${Math.round(count / total * 100)}%`;
 
+const formatReasons = (reasons: BalanceSummary['reasons']): string =>
+  (Object.entries(reasons) as [string, number][]).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])).map(([reason, count]) => `${reason} ${count}`).join(', ') || '—';
+
 /** Markdown report: one row per scenario, difficulty, and rule set. */
 export function formatBalanceReport(summaries: readonly BalanceSummary[], skipped: readonly SkippedMatch[] = []): string {
   const lines = [
-    '| マップ | 難易度 | ルール | 局数 | 赤勝 | 青勝 | 未決着 | 平均決着ターン | 最大部隊数 | 平均修理費（近代） | 生産上位 |',
-    '| --- | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- |',
+    '| マップ | 難易度 | ルール | 局数 | 赤勝 | 青勝 | 未決着 | 平均決着ターン | 決着理由 | 最大部隊数 | 平均修理費（近代） | 生産上位 |',
+    '| --- | --- | --- | ---: | ---: | ---: | ---: | ---: | --- | ---: | ---: | --- |',
   ];
   for (const summary of summaries) {
     const topProduction = (Object.entries(summary.produced) as [UnitKind, number][])
       .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])).slice(0, 4)
       .map(([kind, count]) => `${kind} ${count}`).join(', ') || '—';
     const matchup = summary.difficulty === summary.blueDifficulty ? summary.difficulty : `赤 ${summary.difficulty} 対 青 ${summary.blueDifficulty}`;
-    lines.push(`| ${summary.scenarioId} | ${matchup} | ${summary.rules} | ${summary.games} | ${percent(summary.wins.red, summary.games)} | ${percent(summary.wins.blue, summary.games)} | ${percent(summary.wins.none, summary.games)} | ${summary.averageDecidedTurns === undefined ? '—' : summary.averageDecidedTurns.toFixed(1)} | ${summary.maxUnits} | ${Math.round(summary.averageRepairCost)} | ${topProduction} |`);
+    lines.push(`| ${summary.scenarioId} | ${matchup} | ${summary.rules} | ${summary.games} | ${percent(summary.wins.red, summary.games)} | ${percent(summary.wins.blue, summary.games)} | ${percent(summary.wins.none, summary.games)} | ${summary.averageDecidedTurns === undefined ? '—' : summary.averageDecidedTurns.toFixed(1)} | ${formatReasons(summary.reasons)} | ${summary.maxUnits} | ${Math.round(summary.averageRepairCost)} | ${topProduction} |`);
   }
   lines.push('', '最大部隊数は両陣営の合計（輸送中の部隊を含む）。修理費は近代ルールのみ（従来ルールの修理は無料のため 0）。');
   if (skipped.length) {
@@ -162,7 +174,9 @@ export interface BalanceOptions {
 }
 
 const difficulties: readonly CpuDifficulty[] = ['easy', 'normal', 'hard'];
-const ruleSets: readonly BalanceRules[] = ['classic', 'modern'];
+const ruleSets: readonly BalanceRules[] = ['classic', 'v2', 'modern'];
+/** Rule sets measured when --rules is omitted. */
+const defaultRuleSets: readonly BalanceRules[] = ['classic', 'modern'];
 
 /**
  * Parses `--maps a,b --difficulty easy [--blue hard] --rules modern --seeds 3 --rounds 60`.
@@ -190,8 +204,8 @@ export function parseBalanceArgs(args: readonly string[]): GameResult<BalanceOpt
   if (chosenDifficulties.some(value => !difficulties.includes(value as CpuDifficulty))) return { ok: false, error: '難易度は easy / normal / hard から指定してください。' };
   const blueDifficulty = values.get('--blue');
   if (blueDifficulty !== undefined && !difficulties.includes(blueDifficulty as CpuDifficulty)) return { ok: false, error: '--blue は easy / normal / hard から指定してください。' };
-  const chosenRules = list('--rules') ?? [...ruleSets];
-  if (chosenRules.some(value => !ruleSets.includes(value as BalanceRules))) return { ok: false, error: 'ルールは classic / modern から指定してください。' };
+  const chosenRules = list('--rules') ?? [...defaultRuleSets];
+  if (chosenRules.some(value => !ruleSets.includes(value as BalanceRules))) return { ok: false, error: 'ルールは classic / v2 / modern から指定してください。' };
   const seedCount = Number(values.get('--seeds') ?? 3);
   const maxRounds = Number(values.get('--rounds') ?? 60);
   if (!Number.isSafeInteger(seedCount) || seedCount < 1 || seedCount > 100) return { ok: false, error: '--seeds は 1〜100 の整数で指定してください。' };
