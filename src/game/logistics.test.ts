@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { cpuDifficultyConfig, evaluateCpuPosition } from '../ai/rules';
 import {
   affordableRepair, canServiceUnitAt, createBoard, createGameState, createReplay, createScenarioInitialState, endTurn,
-  isGameState, matchesScenarioInitialState, MODERN_RULE_VERSION, parseReplay, parseSavedGame, replayCommands, saveCustomScenario,
+  CURRENT_RULE_VERSION, isGameState, matchesScenarioInitialState, MODERN_RULE_VERSION, parseReplay, parseSavedGame, replayCommands, saveCustomScenario,
   saveGame, serializeReplay, summarizeRepairs, summarizeReplay, unitStats, type Board, type DeployedUnit, type GameCommand, type GameState,
   type ScenarioData, type Unit,
 } from './index';
@@ -174,7 +174,8 @@ describe('rule version persistence compatibility', () => {
   };
 
   it('starts new scenario matches with modern rules', () => {
-    expect(modernInitial().ruleVersion).toBe(MODERN_RULE_VERSION);
+    // New matches use the latest rule version (3 since #119); v2 and classic states still replay.
+    expect(modernInitial().ruleVersion).toBe(CURRENT_RULE_VERSION);
     expect(matchesScenarioInitialState(modernInitial(), scenario)).toBe(true);
     expect(matchesScenarioInitialState(classicInitial(), scenario)).toBe(true);
     expect(matchesScenarioInitialState({ ...modernInitial(), turn: 2 }, scenario)).toBe(false);
@@ -213,7 +214,9 @@ describe('rule version persistence compatibility', () => {
 
   it('rejects unknown rule versions and experience on classic states', () => {
     expect(isGameState(modernInitial())).toBe(true);
-    expect(isGameState({ ...modernInitial(), ruleVersion: 3 })).toBe(false);
+    // Rule version 3 became valid in #119; versions outside the known set are still rejected.
+    expect(isGameState({ ...modernInitial(), ruleVersion: 1 })).toBe(false);
+    expect(isGameState({ ...modernInitial(), ruleVersion: 4 })).toBe(false);
     const classic = classicInitial();
     expect(isGameState({ ...classic, units: classic.units.map(candidate => ({ ...candidate, experience: 1 })) })).toBe(false);
   });

@@ -36,6 +36,8 @@ export const uiText = {
   beginSkirmish: '単体作戦を開始',
   selectedUnitActions: '選択中ユニットの操作',
   unitProduction: 'ユニット生産',
+  decisionRule: (round: number) => `${round}ラウンド終了時、拠点数の多い側が判定勝ち（同数なら部隊の価値）`,
+  decisionVictory: '判定勝ち',
 } as const;
 
 const commandErrorMessages: Record<string, string> = {
@@ -52,6 +54,7 @@ const commandErrorMessages: Record<string, string> = {
   'An owned compatible production facility is required': '対応する自軍の生産施設を選んでください。',
   'Production facility is occupied': '生産施設がユニットで埋まっています。',
   'Insufficient funds': '資金が不足しています。',
+  'Unit limit reached': '部隊数が上限に達しているため生産できません。',
   'An active player unit is required': '自軍の盤上ユニットを選んでください。',
   'No enemy property to capture': 'ここは占領できる敵軍または中立の拠点ではありません。',
   'Unit cannot capture': 'このユニットは占領できません。',

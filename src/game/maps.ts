@@ -1,7 +1,7 @@
 import { defaultProductionRule, isPropertyTerrainKind, productionRuleSet, type ProductionRule } from './facilities';
 import { createBoard, createGameState, playerOwnedProperties } from './state';
 import { unitKindSet, unitStats } from './units';
-import { MODERN_RULE_VERSION, terrainKindSet, type Board, type GameResult, type GameState, type PlayerId, type Position, type TerrainKind, type UnitKind } from './types';
+import { CURRENT_RULE_VERSION, terrainKindSet, type Board, type GameResult, type GameState, type PlayerId, type Position, type TerrainKind, type UnitKind } from './types';
 
 export interface InitialUnit { kind: UnitKind; owner: PlayerId; x: number; y: number }
 export const scenarioThemes = ['temperate', 'desert', 'snow', 'urban', 'coastal'] as const;
@@ -313,7 +313,7 @@ export function createScenarioInitialState(scenario: ScenarioDefinition): GameSt
   // symmetric scenarios symmetric without changing the end-turn phase.
   const redIncome = playerOwnedProperties(base, 'red').length * 1000;
   return {
-    ...base, scenarioId: scenario.id, ruleVersion: MODERN_RULE_VERSION,
+    ...base, scenarioId: scenario.id, ruleVersion: CURRENT_RULE_VERSION,
     players: { red: { gold: scenario.startingGold + redIncome, income: redIncome }, blue: { gold: scenario.startingGold, income: 0 } },
     units: scenario.initialUnits.map(unit => {
       nextId[unit.owner] += 1;

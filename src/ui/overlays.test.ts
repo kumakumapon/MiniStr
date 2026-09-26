@@ -19,6 +19,20 @@ describe('overlay renderers', () => {
     expect(campaign).toContain('<article>safe markup</article>');
   });
 
+  it('shows how the match ended only when a reason is given', () => {
+    const options = {
+      visible: true,
+      winner: 'red' as const,
+      mapName: 'Map',
+      difficultyName: 'normal',
+      campaignResult: '',
+      campaignActions: '',
+    };
+
+    expect(renderGameOverOverlay({ ...options, reasonLabel: '判定勝ち' })).toContain('<p class="result-reason">判定勝ち</p>');
+    expect(renderGameOverOverlay(options)).not.toContain('result-reason');
+  });
+
   it('keeps briefing controls and compact game panels stable', () => {
     const briefing = renderBriefingOverlay({
       visible: true,

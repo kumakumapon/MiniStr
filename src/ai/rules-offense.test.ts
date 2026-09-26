@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { createBoard, createGameState, MODERN_RULE_VERSION, type DeployedUnit, type GameState, type Unit } from '../game';
+import { createBoard, createGameState, CURRENT_RULE_VERSION, MODERN_RULE_VERSION, unitLimit, type DeployedUnit, type GameState, type Unit } from '../game';
 import { chooseCpuAction, cpuDifficultyConfig, cpuForceLimit, evaluateCpuPosition, FACILITY_BLOCK_PENALTY, stalemateRelief } from './rules';
 
 const unit = (patch: Partial<Unit> & Pick<Unit, 'id' | 'kind' | 'owner'>): Unit => ({
@@ -161,6 +161,26 @@ describe('CPU force limit', () => {
     };
     expect(troops.length).toBe(cpuForceLimit(board));
     expect(chooseCpuAction(state, 'normal')).toEqual({ type: 'produce', factory: { x: 0, y: 0 }, kind: 'antiAir' });
+  });
+});
+
+describe('CPU and the rule-version-3 unit limit', () => {
+  it('orders no production at the rule limit, even the counters exempt from its own limit', () => {
+    // 6x6 board: rule limit 10, CPU policy limit 9. A visible bomber would normally
+    // trigger an exempt anti-air order.
+    const board = createBoard(6, 6);
+    board.terrain[0]![0] = { kind: 'factory', owner: 'blue', capturePoints: 20 };
+    const force = (count: number) => Array.from({ length: count }, (_, index) => unit({
+      id: `b${index}`, kind: 'infantry', owner: 'blue', position: { x: 1 + (index % 5), y: Math.floor(index / 5) }, hasMoved: true, hasActed: true,
+    }));
+    const bomber = unit({ id: 'enemy-bomber', kind: 'bomber', owner: 'red', position: { x: 1, y: 2 }, hasMoved: true, hasActed: true });
+    const state = (count: number): GameState => ({
+      ...createGameState(board), ruleVersion: CURRENT_RULE_VERSION, activePlayer: 'blue', units: [...force(count), bomber],
+      players: { red: { gold: 0, income: 0 }, blue: { gold: 20_000, income: 0 } },
+    });
+    expect(unitLimit(board)).toBe(10);
+    expect(chooseCpuAction(state(9), 'normal')).toEqual({ type: 'produce', factory: { x: 0, y: 0 }, kind: 'antiAir' });
+    expect(chooseCpuAction(state(10), 'normal')).not.toMatchObject({ type: 'produce' });
   });
 });
 

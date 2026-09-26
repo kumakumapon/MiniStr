@@ -17,12 +17,14 @@ export function renderGameOverOverlay(options: {
   difficultyName: string;
   campaignResult: string;
   campaignActions: string;
+  /** Shown under the headline when the match ended by decision. */
+  reasonLabel?: string;
 }): string {
   if (!options.visible || !options.winner) return '';
   const summary = options.summary
     ? `<dl class="result-summary"><div><dt>${uiText.resultMap}</dt><dd>${escapeHtml(options.mapName)}</dd></div><div><dt>${uiText.resultDifficulty}</dt><dd>${escapeHtml(options.difficultyName)}</dd></div><div><dt>${uiText.resultWinner}</dt><dd>${options.summary.winner === 'red' ? uiText.player : uiText.cpu}</dd></div><div><dt>${uiText.resultTurns}</dt><dd>${options.summary.turns}</dd></div><div><dt>${uiText.player}</dt><dd>${uiText.resultScore(options.summary.kills.red, options.summary.captures.red)}</dd></div><div><dt>${uiText.cpu}</dt><dd>${uiText.resultScore(options.summary.kills.blue, options.summary.captures.blue)}</dd></div></dl>`
     : `<p class="result-error">${escapeHtml(options.summaryError ?? uiText.resultUnavailable)}</p>`;
-  return `<div class="game-over" role="dialog" aria-modal="true" aria-labelledby="result-title"><div class="game-over-card"><p class="card-kicker">RESULT</p><h2 id="result-title" tabindex="-1">${options.winner === 'red' ? uiText.playerVictory : uiText.cpuVictory}</h2>${summary}${options.campaignResult}<div class="result-actions"><button id="view-replay" class="save-action">${uiText.viewReplay}</button><button id="export-replay" class="save-action">${uiText.exportReplay}</button>${options.campaignActions}</div></div></div>`;
+  return `<div class="game-over" role="dialog" aria-modal="true" aria-labelledby="result-title"><div class="game-over-card"><p class="card-kicker">RESULT</p><h2 id="result-title" tabindex="-1">${options.winner === 'red' ? uiText.playerVictory : uiText.cpuVictory}</h2>${options.reasonLabel ? `<p class="result-reason">${escapeHtml(options.reasonLabel)}</p>` : ''}${summary}${options.campaignResult}<div class="result-actions"><button id="view-replay" class="save-action">${uiText.viewReplay}</button><button id="export-replay" class="save-action">${uiText.exportReplay}</button>${options.campaignActions}</div></div></div>`;
 }
 
 export function renderCampaignOverlay(open: boolean, stageCount: number, notice: string, cards: string): string {

@@ -1,5 +1,7 @@
 import { scenarioById, type ScenarioDefinition, type VictoryCondition } from './maps';
-import { isDeployedUnit, otherPlayer, type GameState, type PlayerId, type Position } from './types';
+import { playerOwnedProperties } from './state';
+import { isDeployedUnit, otherPlayer, usesDecisionRules, type GameState, type PlayerId, type Position } from './types';
+import { unitStats } from './units';
 
 export interface ConditionProgress { current: number; target: number; complete: boolean }
 
@@ -157,4 +159,61 @@ export function withEvaluatedWinner(
     : legacyConditions.some(condition => isVictoryConditionMet(state, condition, state.activePlayer))
       ? state.activePlayer : state.winner;
   return winner === state.winner ? state : { ...state, winner };
+}
+
+/** Round whose end triggers a decision in eligible rule-version-3 matches (#119). */
+export const DECISION_ROUND = 40;
+
+/** Scenarios decided only by elimination or capital capture have no built-in end, so they get a decision. */
+export function isDecisionScenario(scenario: ScenarioDefinition): boolean {
+  return [...scenario.victoryConditions, ...scenario.defeatConditions]
+    .every(condition => condition.type === 'eliminate' || condition.type === 'captureCapital');
+}
+
+/** The decision round for this match, or undefined when no decision victory applies. */
+export function decisionRound(state: GameState, scenario: ScenarioDefinition | undefined = scenarioById(state.scenarioId)): number | undefined {
+  return usesDecisionRules(state) && scenario && isDecisionScenario(scenario) ? DECISION_ROUND : undefined;
+}
+
+export interface DecisionStanding {
+  properties: number;
+  /** Sum of unit price × HP (integer; divide by 100 for funds), including embarked cargo. */
+  unitValue: number;
+}
+
+export function decisionStanding(state: GameState, player: PlayerId): DecisionStanding {
+  return {
+    properties: playerOwnedProperties(state, player).length,
+    unitValue: state.units.filter(unit => unit.owner === player).reduce((total, unit) => total + unitStats[unit.kind].cost * unit.hp, 0),
+  };
+}
+
+/**
+ * Decision victory: more owned properties wins; equal properties fall back to
+ * unit value. A complete tie decides nothing, so the next round-end decides
+ * again (sudden death).
+ */
+export function decisionWinner(state: GameState): PlayerId | undefined {
+  const red = decisionStanding(state, 'red');
+  const blue = decisionStanding(state, 'blue');
+  if (red.properties !== blue.properties) return red.properties > blue.properties ? 'red' : 'blue';
+  if (red.unitValue !== blue.unitValue) return red.unitValue > blue.unitValue ? 'red' : 'blue';
+  return undefined;
+}
+
+export type VictoryReason = VictoryCondition['type'] | 'decision';
+
+/**
+ * Why the match ended. Scenario conditions take precedence, matching how the
+ * engine evaluates them before any decision. 'decision' is reported only for a
+ * rule-version-3 decision scenario past the decision round; anything else that
+ * cannot be explained (e.g. a legacy state without a scenario) is undefined.
+ */
+export function victoryReason(state: GameState, scenario: ScenarioDefinition | undefined = scenarioById(state.scenarioId)): VictoryReason | undefined {
+  if (!state.winner || !scenario) return undefined;
+  const conditions = state.winner === 'red' ? scenario.victoryConditions : scenario.defeatConditions;
+  const met = conditions.find(condition => isVictoryConditionMet(state, condition, state.winner!));
+  if (met) return met.type;
+  const round = decisionRound(state, scenario);
+  return round !== undefined && state.turn > round ? 'decision' : undefined;
 }

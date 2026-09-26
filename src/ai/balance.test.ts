@@ -1,6 +1,6 @@
 import { afterAll, describe, expect, it } from 'vitest';
 import { loadCustomScenarios, loadScenarioDefinitions, saveCustomScenario, scenarioById, type ScenarioData } from '../game';
-import { formatBalanceReport, parseBalanceArgs, runBalance, simulateMatch, summarizeMatches, type MatchResult } from './balance';
+import { balanceInitialState, formatBalanceReport, parseBalanceArgs, runBalance, simulateMatch, summarizeMatches, type MatchResult } from './balance';
 
 class MemoryStorage {
   data = new Map<string, string>();
@@ -23,14 +23,14 @@ const duel = saved.value;
 afterAll(() => { loadCustomScenarios(new MemoryStorage()); });
 
 const result = (patch: Partial<MatchResult>): MatchResult => ({
-  scenarioId: 'map', difficulty: 'normal', blueDifficulty: 'normal', rules: 'modern', seed: 1, winner: 'red', turns: 10, maxUnits: 5, commands: 20,
+  scenarioId: 'map', difficulty: 'normal', blueDifficulty: 'normal', rules: 'modern', seed: 1, winner: 'red', reason: 'eliminate', turns: 10, maxUnits: 5, commands: 20,
   produced: { red: {}, blue: {} }, repairCost: { red: 0, blue: 0 }, ...patch,
 });
 
 describe('simulateMatch', () => {
   it('plays a CPU duel to a decision', () => {
     const match = simulateMatch(duel, 'normal', 'modern', 1, 30);
-    expect(match).toMatchObject({ ok: true, value: { scenarioId: 'balance-duel', winner: 'red', rules: 'modern' } });
+    expect(match).toMatchObject({ ok: true, value: { scenarioId: 'balance-duel', winner: 'red', reason: 'eliminate', rules: 'modern' } });
     expect(match.ok && match.value.commands).toBeGreaterThan(0);
   });
 
@@ -42,7 +42,7 @@ describe('simulateMatch', () => {
   it('stops at the round limit and reports an undecided match', () => {
     const skirmish = scenarioById('skirmish')!;
     const match = simulateMatch(skirmish, 'easy', 'classic', 1, 2);
-    expect(match).toMatchObject({ ok: true, value: { winner: 'none', turns: 3, rules: 'classic' } });
+    expect(match).toMatchObject({ ok: true, value: { winner: 'none', reason: 'none', turns: 3, rules: 'classic' } });
   });
 
   it('records CPU production by side', () => {
@@ -73,6 +73,14 @@ describe('simulateMatch', () => {
     expect(classic.ok && classic.value.repairCost).toEqual({ red: 0, blue: 0 });
   });
 
+  it('runs v2 matches with rule version 2 and current matches with the latest version', () => {
+    const skirmish = scenarioById('skirmish')!;
+    const v2 = balanceInitialState(skirmish, 'v2', 1);
+    const current = balanceInitialState(skirmish, 'modern', 1);
+    expect(v2.ok && v2.value.ruleVersion).toBe(2);
+    expect(current.ok && current.value.ruleVersion).toBe(3);
+  });
+
   it('refuses classic rules on maps whose initial forces need modern rules', () => {
     const match = simulateMatch(scenarioById('admiralty')!, 'normal', 'classic', 1, 5);
     expect(match.ok).toBe(false);
@@ -84,12 +92,13 @@ describe('summarizeMatches and formatBalanceReport', () => {
     const [summary, ...rest] = summarizeMatches([
       result({ winner: 'red', turns: 10, maxUnits: 5, produced: { red: { tank: 2 }, blue: { infantry: 1 } }, repairCost: { red: 700, blue: 300 } }),
       result({ winner: 'blue', turns: 20, maxUnits: 9, produced: { red: { tank: 1 }, blue: {} } }),
-      result({ winner: 'none', turns: 61, maxUnits: 7 }),
+      result({ winner: 'none', reason: 'none', turns: 61, maxUnits: 7 }),
     ]);
     expect(rest).toEqual([]);
     expect(summary).toMatchObject({
       games: 3, wins: { red: 1, blue: 1, none: 1 }, averageDecidedTurns: 15, maxUnits: 9,
       produced: { tank: 3, infantry: 1 },
+      reasons: { eliminate: 2 },
     });
     expect(summary!.averageRepairCost).toBeCloseTo(1000 / 3);
   });
@@ -100,8 +109,8 @@ describe('summarizeMatches and formatBalanceReport', () => {
   });
 
   it('formats a Markdown table and lists skipped combinations', () => {
-    const report = formatBalanceReport(summarizeMatches([result({ winner: 'none' })]), [{ scenarioId: 'admiralty', rules: 'classic', reason: '理由' }]);
-    expect(report).toContain('| map | normal | modern | 1 | 0% | 0% | 100% | — |');
+    const report = formatBalanceReport(summarizeMatches([result({ winner: 'none', reason: 'none' })]), [{ scenarioId: 'admiralty', rules: 'classic', reason: '理由' }]);
+    expect(report).toContain('| map | normal | modern | 1 | 0% | 0% | 100% | — | — |');
     expect(report).toContain('- admiralty（classic）: 理由');
   });
 });
