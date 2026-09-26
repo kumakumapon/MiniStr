@@ -24,15 +24,29 @@ export interface CpuDifficultyConfig {
   objectiveDistanceWeight: number;
   /** Extra preference for cover and safety when the unit is damaged. */
   lowHpRetreatWeight: number;
+  /** Share of the CPU force limit this difficulty fields; the difficulty handicap. */
+  forceLimitScale: number;
 }
 
+/**
+ * Every difficulty uses the same decision weights: in CPU-versus-CPU
+ * measurements (#119) these objective-driven weights beat every more cautious
+ * variant, and weight differences alone produced unstable, even inverted,
+ * difficulty orders. Difficulty is therefore the size of the force the CPU
+ * fields: easy and normal stop producing well below hard.
+ */
+const sharedCpuWeights = {
+  attackSafetyMargin: 20, prioritizeCapital: true, threatAvoidanceWeight: 0.35, terrainDefenseWeight: 0.5, objectiveDistanceWeight: 8, lowHpRetreatWeight: 0.25,
+} as const;
+
 export const cpuDifficultyConfig: Record<CpuDifficulty, CpuDifficultyConfig> = {
-  // Easy CPUs push toward objectives and only weakly account for cover and threat.
-  easy: { attackSafetyMargin: 20, prioritizeCapital: false, threatAvoidanceWeight: 0.35, terrainDefenseWeight: 0.5, objectiveDistanceWeight: 8, lowHpRetreatWeight: 0.25 },
-  normal: { attackSafetyMargin: 0, prioritizeCapital: true, threatAvoidanceWeight: 1, terrainDefenseWeight: 1, objectiveDistanceWeight: 6, lowHpRetreatWeight: 1 },
-  // Hard CPUs take calculated combat risks, but preserve damaged units and value cover.
-  hard: { attackSafetyMargin: -15, prioritizeCapital: true, threatAvoidanceWeight: 1.6, terrainDefenseWeight: 1.35, objectiveDistanceWeight: 4, lowHpRetreatWeight: 2 },
+  easy: { ...sharedCpuWeights, forceLimitScale: 0.45 },
+  normal: { ...sharedCpuWeights, forceLimitScale: 0.7 },
+  hard: { ...sharedCpuWeights, forceLimitScale: 1 },
 };
+
+/** A handicapped CPU still fields at least this many units. */
+export const MIN_CPU_FORCE = 4;
 
 export type CpuAction =
   | { type: 'capture'; unitId: string }
@@ -209,9 +223,14 @@ export function cpuForceLimit(board: Board): number {
   return limit;
 }
 
-/** Whether the CPU's own force is at its production limit. */
-function atForceLimit(state: GameState, player: PlayerId): boolean {
-  return state.units.filter(unit => unit.owner === player).length >= cpuForceLimit(state.board);
+/** The force size at which this difficulty stops its bulk production. */
+export function difficultyForceLimit(board: Board, config: CpuDifficultyConfig): number {
+  return Math.max(MIN_CPU_FORCE, Math.floor(cpuForceLimit(board) * config.forceLimitScale));
+}
+
+/** Whether the CPU's own force is at this difficulty's production limit. */
+function atForceLimit(state: GameState, player: PlayerId, config: CpuDifficultyConfig): boolean {
+  return state.units.filter(unit => unit.owner === player).length >= difficultyForceLimit(state.board, config);
 }
 
 function productionAction(state: GameState, player: PlayerId, config: CpuDifficultyConfig, context: CpuPlanningContext): CpuAction | undefined {
@@ -230,7 +249,7 @@ function productionAction(state: GameState, player: PlayerId, config: CpuDifficu
   if (specialist) return specialist;
   // Transports and counters to confirmed threats are bounded one-of-a-kind orders;
   // only the bulk force mix stops at the limit.
-  if (atForceLimit(state, player)) return undefined;
+  if (atForceLimit(state, player, config)) return undefined;
   const kind = preferredProduction(state, player);
   if (!kind) return undefined;
   const factory = emptyOwnedFacility(state, player, kind);
@@ -354,7 +373,7 @@ export function evaluateCpuPosition(
   const retreatPressure = lowHpRatio * config.lowHpRetreatWeight * pressure;
   // Parking on an owned factory/airport/port blocks production there. Units that
   // came to be serviced (low supplies or heavy damage) are exempt.
-  const blocking = !needsSupply(unit) && unit.hp > 50 && blocksProduction(state, player, destination, knownEnemies) ? FACILITY_BLOCK_PENALTY : 0;
+  const blocking = !needsSupply(unit) && unit.hp > 50 && blocksProduction(state, player, destination, knownEnemies, config) ? FACILITY_BLOCK_PENALTY : 0;
   const logistics = supplyVehicleValue(state, player, unit, destination);
   return defense + supply + response + retreatCover + logistics
     - distance * config.objectiveDistanceWeight
@@ -367,9 +386,9 @@ export function evaluateCpuPosition(
 export const FACILITY_BLOCK_PENALTY = 45;
 
 /** Whether ending on `position` would occupy one of `player`'s production facilities. */
-function blocksProduction(state: GameState, player: PlayerId, position: Position, knownEnemies: readonly Unit[]): boolean {
+function blocksProduction(state: GameState, player: PlayerId, position: Position, knownEnemies: readonly Unit[], config: CpuDifficultyConfig): boolean {
   const tile = terrainAt(state.board, position);
-  if (tile?.owner !== player || atForceLimit(state, player)) return false;
+  if (tile?.owner !== player || atForceLimit(state, player, config)) return false;
   const productionRule = scenarioById(state.scenarioId)?.productionRules ?? 'legacy-factory-air';
   const kinds = productionKindsForRule(productionRule, state.ruleVersion)[tile.kind] ?? [];
   // Only a facility we could actually use this turn is being blocked.
