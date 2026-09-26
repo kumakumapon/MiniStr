@@ -74,7 +74,7 @@ function favorableAttack(state: GameState, attacker: DeployedUnit, target: Unit,
   // Long stalemates and sieges may accept extra retaliation, but never more than
   // MAX_ATTACK_LENIENCY in total, so leniencies cannot stack into suicide attacks.
   const leniency = Math.min(MAX_ATTACK_LENIENCY,
-    stalemateRelief(state) * 25 + garrisonAllowance(state, attacker, target, result.value.damageToDefender));
+    stalemateRelief(state) * 25 + garrisonAllowance(state, attacker, target, result.value.damageToDefender, result.value.damageToAttacker));
   return result.value.damageToDefender >= target.hp
     || result.value.damageToDefender >= result.value.damageToAttacker + config.attackSafetyMargin - leniency;
 }
@@ -86,11 +86,13 @@ export const MAX_ATTACK_LENIENCY = 30;
  * A defender on a property we need to capture heals and hides behind high cover,
  * so an even trade never looks favorable and sieges stall forever. Accept worse
  * trades to dislodge such garrisons, but only when the hit outpaces the garrison's
- * per-turn healing and one of our capturing units is close enough to follow up;
+ * per-turn healing, costs less than twice what it deals, and one of our capturing
+ * units is close enough to follow up;
  * otherwise the attacks would only feed units into a garrison that heals back.
  */
-function garrisonAllowance(state: GameState, attacker: DeployedUnit, target: Unit, damage: number): number {
-  if (!isDeployedUnit(target) || damage < REPAIR_HP_PER_TURN) return 0;
+function garrisonAllowance(state: GameState, attacker: DeployedUnit, target: Unit, damage: number, counter: number): number {
+  // The hit must make net progress against healing and cost less than twice what it deals.
+  if (!isDeployedUnit(target) || damage <= REPAIR_HP_PER_TURN || damage * 2 <= counter) return 0;
   const tile = terrainAt(state.board, target.position);
   if (!tile || !isPropertyTerrainKind(tile.kind) || tile.owner === attacker.owner) return 0;
   const capturerNearby = orderedUnits(state, attacker.owner)

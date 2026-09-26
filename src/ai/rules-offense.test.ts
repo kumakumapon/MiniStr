@@ -181,6 +181,21 @@ describe('CPU sieges', () => {
     expect(attack('forest')).not.toEqual({ type: 'attack', unitId: 'b', targetId: 'r' });
   });
 
+  it('declines a 1:2 trade against a heavy garrison even with a capturer beside it (review regression)', () => {
+    // Tank into a heavy tank on a capital: about 32 dealt for about 64 taken.
+    const board = createBoard(3, 1);
+    board.terrain[0]![1] = { kind: 'capital', owner: 'red', capturePoints: 20 };
+    const state: GameState = {
+      ...createGameState(board), ruleVersion: MODERN_RULE_VERSION, activePlayer: 'blue', turn: 60,
+      units: [
+        unit({ id: 'b', kind: 'tank', owner: 'blue' }),
+        unit({ id: 'capturer', kind: 'infantry', owner: 'blue', position: { x: 2, y: 0 }, hasMoved: true, hasActed: true }),
+        unit({ id: 'r', kind: 'heavyTank', owner: 'red', position: { x: 1, y: 0 }, hasMoved: true, hasActed: true }),
+      ],
+    };
+    expect(chooseCpuAction(state, 'hard')).not.toEqual({ type: 'attack', unitId: 'b', targetId: 'r' });
+  });
+
   it('does not feed units into a garrison it cannot out-damage (review regression)', () => {
     // Infantry against a tank on a capital: 17 damage dealt, 56 taken, and the
     // capital heals 20 per turn. Even hard in a long match must not attack.

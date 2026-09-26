@@ -5,15 +5,15 @@
 ## 結論
 
 - **CPU の不具合は直った**:
-  - hard の CPU が自軍の生産施設を塞いで生産できなかった問題を解消した。hard の平均の最大部隊数は 19 から 42 になった。
+  - hard の CPU が自軍の生産施設を塞いで生産できなかった問題を解消した。hard の平均の最大部隊数は 19.0 から 41.8 になった。
   - 弾薬 0 の部隊を補給対象から外していたバグも直した。
 - **決着率は改善していない**: 未決着は 58% → 59% で、Issue の受け入れ条件（未決着の割合がベースラインより下がる）は**満たしていない**。
 - 途中で決着率が 55% に下がった版もあった。しかしその改善は、回復する守備隊へ不利な攻撃を際限なく繰り返す挙動によるものだった。差分レビューで High と指摘されて修正したところ、改善は消えた。人間の相手にとって突きやすい弱点になるので、採用しなかった。
 
 ## 計測条件
 
-- ブランチ: `feature/116-cpu-offense`。計測時の CPU ロジックはコミット `3c150f3` と同一。
-- 全体: `npm run balance -- --seeds 3 --rounds 60`（ベースラインと同じ。189局、所要163秒）
+- ブランチ: `feature/116-cpu-offense`。計測時の CPU ロジックはコミット `c5f4971` に、取引比率の条件（本文書と同じコミットで追加）を加えたもの。
+- 全体: `npm run balance -- --seeds 3 --rounds 60`（ベースラインと同じ。189局、所要125秒）
 - 難易度の違う対戦: `npm run balance -- --maps skirmish,siege,canyon,river,marsh,islands --rules modern --seeds 2 --rounds 60 --difficulty hard --blue easy`、および `--difficulty easy --blue hard`（陣営を入れ替える）
 
 ## 最終的な変更内容（`src/ai/rules.ts`）
@@ -27,8 +27,9 @@
 3. **膠着時の攻勢**: 21ラウンド目以降、見えている敵の反撃リスクの重みを徐々に下げる（最大 60%）。攻撃の条件も緩める。判断に使うのは公開情報のラウンド数だけ。
 4. **補給車の配置**（近代ルール）: 補給が必要な自軍の地上部隊の隣を高く評価する。
 5. **生産の上限**: 自軍の部隊数が、海と山を除いたマス数の 25%（最低 8）に達したら、通常の生産を控える。輸送艦と、見えている敵への対抗生産は例外。この上限は CPU だけの方針で、人間には適用されない（ゲーム規則の上限は 10.3 で扱う）。
-6. **拠点の守備隊の排除**: 占領が必要な拠点にいる敵には、不利な交換も許容する（司令部 +30、その他の拠点 +15）。ただし次の3条件を満たすときに限る。
-   - 与ダメージが拠点での回復量（20）以上
+6. **拠点の守備隊の排除**: 占領が必要な拠点にいる敵には、不利な交換も許容する（司令部 +30、その他の拠点 +15）。ただし次の4条件を満たすときに限る。
+   - 与ダメージが拠点での回復量（20）を超える
+   - 与ダメージが被ダメージの半分を超える（1:2 以上に不利な交換はしない）
    - 3マス以内に、占領できる味方がいる
    - 許容幅の合計が 30 以下
 7. **不具合の修正**: `needsSupply` が、弾薬 0 の武装ユニットを補給対象から外していた。
@@ -38,10 +39,10 @@
 
 | 指標 | ベースライン | 10.2 最終 |
 | --- | ---: | ---: |
-| 未決着（全189局） | 110局（58%） | 111局（59%） |
-| 未決着（勝敗条件が全滅・司令部占領だけのマップ7種、117局） | 110局（94%） | 111局（95%） |
-| hard の平均の最大部隊数 | 19.0 | 41.6 |
-| 平均の最大部隊数（全体） | 35.2 | 41.4 |
+| 未決着（全189局） | 110局（58%） | 112局（59%） |
+| 未決着（勝敗条件が全滅・司令部占領だけのマップ7種、117局） | 110局（94%） | 112局（96%） |
+| hard の平均の最大部隊数 | 19.0 | 41.8 |
+| 平均の最大部隊数（全体） | 35.2 | 41.5 |
 
 「勝敗条件が全滅・司令部占領だけのマップ」は skirmish / islands / canyon / siege / river / marsh / admiralty の7種。
 
@@ -73,24 +74,27 @@ hard が easy に勝てていない。24局中、決着は1局だけで、標本
 1. **難易度の再設計**: 重みの違いではなく、読みの深さで差を付ける。例えば、数手先の反撃を考慮する、部隊どうしの役割を分担する（前衛・間接攻撃部隊・観測役）。成否は `--blue` を使った難易度の違う対戦で評価する。
 2. **ゲーム規則による決着の促進**: 10.3（部隊数の上限）に加えて、指定ターンで拠点数の多い側が勝つ判定勝ちなど、ルール側で決着を付ける仕組みも候補にする。
 3. **決着理由の記録**: 計測ツールで、決着の理由（全滅・司令部占領・ターン制限・スコア）を記録する。
+4. **差分レビューで残った軽微な課題**:
+   - 「占領できる味方が近くにいる」をマンハッタン距離だけで判定していて、海や山で隔てられていても近いとみなす。
+   - 膠着時の緩和（最大 15）だけでも、hard は「与ダメージ 10・被ダメージ 40」程度の攻撃を採用することがある（例: 歩兵 → 駆逐艦）。
 
 ## 詳細結果（10.2 最終、全189局）
 
-計測条件: 最大 60 ラウンド、シード 3 種（7919, 15838, 23757）、所要 163 秒
+計測条件: 最大 60 ラウンド、シード 3 種（7919, 15838, 23757）、所要 125 秒
 
 | マップ | 難易度 | ルール | 局数 | 赤勝 | 青勝 | 未決着 | 平均決着ターン | 最大部隊数 | 平均修理費（近代） | 生産上位 |
 | --- | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- |
 | skirmish | easy | classic | 3 | 0% | 100% | 0% | 48.7 | 38 | 0 | infantry 125, tank 94, artillery 86, antiAir 11 |
-| skirmish | normal | classic | 3 | 33% | 0% | 67% | 40.0 | 38 | 0 | infantry 160, tank 113, artillery 101, bomber 7 |
-| skirmish | hard | classic | 3 | 0% | 0% | 100% | — | 38 | 0 | infantry 178, tank 149, artillery 131, antiAir 6 |
-| skirmish | easy | modern | 3 | 0% | 67% | 33% | 57.5 | 38 | 53247 | infantry 163, artillery 77, tank 74, mech 48 |
+| skirmish | normal | classic | 3 | 33% | 0% | 67% | 40.0 | 38 | 0 | infantry 164, tank 110, artillery 104, antiAir 6 |
+| skirmish | hard | classic | 3 | 0% | 0% | 100% | — | 38 | 0 | infantry 189, tank 156, artillery 129, antiAir 6 |
+| skirmish | easy | modern | 3 | 0% | 33% | 67% | 57.0 | 38 | 56670 | infantry 160, artillery 77, tank 75, mech 47 |
 | skirmish | normal | modern | 3 | 0% | 0% | 100% | — | 39 | 45877 | infantry 141, artillery 82, tank 82, mech 36 |
 | skirmish | hard | modern | 3 | 0% | 0% | 100% | — | 39 | 54140 | infantry 143, tank 107, artillery 99, mech 39 |
 | islands | easy | classic | 3 | 0% | 0% | 100% | — | 19 | 0 | bomber 20, fighter 18, infantry 18, artillery 12 |
 | islands | normal | classic | 3 | 0% | 0% | 100% | — | 18 | 0 | infantry 18, artillery 9, landingShip 9, tank 9 |
 | islands | hard | classic | 3 | 0% | 0% | 100% | — | 17 | 0 | infantry 18, tank 12, artillery 9, landingShip 9 |
 | islands | easy | modern | 3 | 0% | 0% | 100% | — | 21 | 51173 | bomber 30, landingShip 19, fighter 18, helicopter 14 |
-| islands | normal | modern | 3 | 0% | 0% | 100% | — | 19 | 15973 | infantry 76, landingShip 14, mech 12, antiAir 6 |
+| islands | normal | modern | 3 | 0% | 0% | 100% | — | 19 | 15847 | infantry 46, landingShip 14, mech 12, antiAir 6 |
 | islands | hard | modern | 3 | 0% | 0% | 100% | — | 19 | 10103 | infantry 21, landingShip 14, mech 9, tank 9 |
 | landing | easy | classic | 3 | 0% | 100% | 0% | 19.0 | 19 | 0 | infantry 18, artillery 12, tank 12, destroyer 3 |
 | landing | normal | classic | 3 | 0% | 100% | 0% | 19.0 | 18 | 0 | infantry 18, artillery 12, tank 12 |
@@ -102,11 +106,11 @@ hard が easy に勝てていない。24局中、決着は1局だけで、標本
 | canyon | normal | classic | 3 | 0% | 0% | 100% | — | 55 | 0 | infantry 198, tank 118, artillery 112, antiAir 13 |
 | canyon | hard | classic | 3 | 0% | 0% | 100% | — | 54 | 0 | infantry 137, artillery 96, tank 93, bomber 7 |
 | canyon | easy | modern | 3 | 0% | 0% | 100% | — | 54 | 15187 | infantry 216, artillery 96, tank 93, helicopter 39 |
-| canyon | normal | modern | 3 | 0% | 0% | 100% | — | 55 | 9957 | infantry 151, artillery 85, tank 76, helicopter 25 |
+| canyon | normal | modern | 3 | 0% | 0% | 100% | — | 55 | 8863 | infantry 166, artillery 89, tank 80, helicopter 28 |
 | canyon | hard | modern | 3 | 0% | 0% | 100% | — | 55 | 12227 | infantry 110, artillery 86, tank 84, mech 20 |
 | siege | easy | classic | 3 | 0% | 0% | 100% | — | 52 | 0 | infantry 195, tank 157, artillery 134, antiAir 12 |
 | siege | normal | classic | 3 | 0% | 0% | 100% | — | 67 | 0 | infantry 244, tank 177, artillery 161, antiAir 11 |
-| siege | hard | classic | 3 | 0% | 0% | 100% | — | 62 | 0 | infantry 182, tank 177, artillery 157, antiAir 10 |
+| siege | hard | classic | 3 | 0% | 0% | 100% | — | 65 | 0 | infantry 203, tank 181, artillery 159, antiAir 10 |
 | siege | easy | modern | 3 | 0% | 0% | 100% | — | 54 | 31170 | infantry 199, tank 106, artillery 99, mech 53 |
 | siege | normal | modern | 3 | 0% | 0% | 100% | — | 58 | 48210 | infantry 182, artillery 141, tank 120, mech 30 |
 | siege | hard | modern | 3 | 0% | 0% | 100% | — | 65 | 49550 | infantry 229, tank 153, artillery 150, mech 40 |
@@ -125,7 +129,7 @@ hard が easy に勝てていない。24局中、決着は1局だけで、標本
 | tundra | easy | classic | 3 | 100% | 0% | 0% | 15.0 | 44 | 0 | infantry 68, tank 50, artillery 44, bomber 1 |
 | tundra | normal | classic | 3 | 100% | 0% | 0% | 15.0 | 49 | 0 | infantry 86, tank 55, artillery 37 |
 | tundra | hard | classic | 3 | 100% | 0% | 0% | 15.0 | 45 | 0 | infantry 64, tank 41, artillery 31, bomber 3 |
-| tundra | easy | modern | 3 | 100% | 0% | 0% | 15.0 | 47 | 6147 | infantry 75, tank 36, artillery 27, mech 14 |
+| tundra | easy | modern | 3 | 100% | 0% | 0% | 15.0 | 47 | 6207 | infantry 70, tank 36, artillery 29, mech 14 |
 | tundra | normal | modern | 3 | 100% | 0% | 0% | 15.0 | 50 | 4657 | infantry 64, artillery 35, tank 32, mech 18 |
 | tundra | hard | modern | 3 | 100% | 0% | 0% | 15.0 | 48 | 6353 | infantry 63, tank 33, artillery 24, mech 12 |
 | outpost | easy | classic | 3 | 0% | 100% | 0% | 21.0 | 23 | 0 | infantry 36, artillery 32, tank 29, antiAir 5 |
@@ -133,7 +137,7 @@ hard が easy に勝てていない。24局中、決着は1局だけで、標本
 | outpost | hard | classic | 3 | 0% | 100% | 0% | 21.0 | 22 | 0 | artillery 40, infantry 30, tank 23, antiAir 1 |
 | outpost | easy | modern | 3 | 0% | 100% | 0% | 21.0 | 23 | 11773 | infantry 35, mech 23, tank 23, artillery 15 |
 | outpost | normal | modern | 3 | 0% | 100% | 0% | 21.0 | 22 | 5113 | infantry 22, artillery 19, mech 18, tank 15 |
-| outpost | hard | modern | 3 | 0% | 100% | 0% | 21.0 | 23 | 10750 | infantry 28, artillery 18, tank 18, mech 17 |
+| outpost | hard | modern | 3 | 0% | 100% | 0% | 21.0 | 23 | 10617 | infantry 27, tank 18, mech 17, artillery 16 |
 | marsh | easy | classic | 3 | 0% | 0% | 100% | — | 31 | 0 | infantry 93, tank 48, artillery 33, bomber 19 |
 | marsh | normal | classic | 3 | 0% | 0% | 100% | — | 37 | 0 | infantry 77, artillery 68, tank 67, bomber 13 |
 | marsh | hard | classic | 3 | 0% | 0% | 100% | — | 35 | 0 | infantry 61, tank 46, artillery 36, bomber 14 |
@@ -154,8 +158,8 @@ hard が easy に勝てていない。24局中、決着は1局だけで、標本
 
 | マップ | 難易度 | ルール | 局数 | 赤勝 | 青勝 | 未決着 | 平均決着ターン | 最大部隊数 | 平均修理費（近代） | 生産上位 |
 | --- | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- |
-| skirmish | 赤 hard 対 青 easy | modern | 2 | 0% | 50% | 50% | 36.0 | 39 | 29700 | infantry 81, tank 45, artillery 33, mech 31 |
-| siege | 赤 hard 対 青 easy | modern | 2 | 0% | 0% | 100% | — | 61 | 57195 | infantry 116, tank 71, artillery 64, mech 25 |
+| skirmish | 赤 hard 対 青 easy | modern | 2 | 0% | 50% | 50% | 60.0 | 39 | 43715 | infantry 85, tank 50, artillery 40, mech 32 |
+| siege | 赤 hard 対 青 easy | modern | 2 | 0% | 0% | 100% | — | 61 | 56535 | infantry 115, tank 71, artillery 64, mech 27 |
 | canyon | 赤 hard 対 青 easy | modern | 2 | 0% | 0% | 100% | — | 54 | 25665 | infantry 137, tank 88, artillery 67, mech 20 |
 | river | 赤 hard 対 青 easy | modern | 2 | 0% | 0% | 100% | — | 56 | 24870 | infantry 49, tank 28, artillery 27, destroyer 9 |
 | marsh | 赤 hard 対 青 easy | modern | 2 | 0% | 0% | 100% | — | 33 | 13240 | infantry 39, artillery 17, mech 16, tank 15 |
@@ -163,7 +167,7 @@ hard が easy に勝てていない。24局中、決着は1局だけで、標本
 
 最大部隊数は両陣営の合計（輸送中の部隊を含む）。修理費は近代ルールのみ（従来ルールの修理は無料のため 0）。
 
-| skirmish | 赤 easy 対 青 hard | modern | 2 | 0% | 0% | 100% | — | 38 | 38490 | infantry 155, artillery 73, tank 65, mech 33 |
+| skirmish | 赤 easy 対 青 hard | modern | 2 | 0% | 0% | 100% | — | 38 | 30055 | infantry 139, artillery 70, tank 60, mech 36 |
 | siege | 赤 easy 対 青 hard | modern | 2 | 0% | 0% | 100% | — | 67 | 35445 | infantry 154, artillery 85, tank 82, mech 29 |
 | canyon | 赤 easy 対 青 hard | modern | 2 | 0% | 0% | 100% | — | 54 | 25585 | infantry 131, artillery 71, tank 67, mech 25 |
 | river | 赤 easy 対 青 hard | modern | 2 | 0% | 0% | 100% | — | 55 | 101635 | infantry 66, tank 57, artillery 51, destroyer 21 |
