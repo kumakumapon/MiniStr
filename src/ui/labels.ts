@@ -12,12 +12,20 @@ export const terrainNames: Record<TerrainKind, string> = {
 export const unitNames: Record<UnitKind, string> = {
   infantry: '歩兵', tank: '戦車', artillery: '砲兵', fighter: '戦闘機', bomber: '爆撃機',
   destroyer: '駆逐艦', landingShip: '輸送艦', recon: '偵察車', rocket: '自走砲', antiAir: '対空車両', apc: '装甲兵員輸送車',
+  mech: '対戦車歩兵', heavyTank: '重戦車', helicopter: '戦闘ヘリ', battleship: '戦艦',
 };
 
 export const unitTokens: Record<UnitKind, string> = {
   infantry: '歩', tank: '戦', artillery: '砲', fighter: '空', bomber: '爆',
   destroyer: '艦', landingShip: '輸', recon: '偵', rocket: '自', antiAir: '防', apc: '装',
+  mech: '対', heavyTank: '重', helicopter: 'ヘ', battleship: '巨',
 };
+
+/** Rank titles for experience ranks 0-3 (大戦略-style veterancy). */
+export const rankNames = ['新兵', '古参', '精鋭', '英雄'] as const;
+
+/** Compact rank marker for the board; unranked units show nothing. */
+export const rankStars = (rank: number): string => '★'.repeat(rank);
 
 /** Relative side label: the viewer's own force versus the opposing force. */
 export const sideLabel = (owner: PlayerId, viewer: PlayerId): string => owner === viewer ? '自軍' : '敵軍';

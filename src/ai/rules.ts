@@ -4,8 +4,9 @@ import { canProduceUnit, isPropertyTerrainKind } from '../game/facilities';
 import { visibleEnemies as getVisibleEnemies } from '../game/fog';
 import { scenarioById } from '../game/maps';
 import { manhattanDistance, movementCost, terrainAt } from '../game/terrain';
-import { isDeployedUnit, type Board, type DeployedUnit, type GameState, type PlayerId, type Position, type Unit, type UnitKind } from '../game/types';
-import { unitStats } from '../game/units';
+import { isDeployedUnit, usesModernRules, type Board, type DeployedUnit, type GameState, type PlayerId, type Position, type Unit, type UnitKind } from '../game/types';
+import { adjacentToSupplyUnit, isGroundUnit, isServiceTile } from '../game/logistics';
+import { isEmbarkableUnit, unitCategory, unitStats } from '../game/units';
 
 /** The CPU does not use hidden randomness: the same state always gives the same order. */
 export type CpuDifficulty = 'easy' | 'normal' | 'hard';
@@ -75,7 +76,7 @@ function favorableAttack(state: GameState, attacker: DeployedUnit, target: Unit,
 }
 
 function interruptsCapture(state: GameState, player: PlayerId, target: Unit): boolean {
-  if (!isDeployedUnit(target) || target.kind !== 'infantry') return false;
+  if (!isDeployedUnit(target) || unitStats[target.kind].capturePower <= 0) return false;
   const terrain = terrainAt(state.board, target.position);
   return !!terrain && isPropertyTerrainKind(terrain.kind) && terrain.owner === player && (terrain.capturePoints ?? 20) < 20;
 }
@@ -127,7 +128,7 @@ function emptyOwnedFacility(state: GameState, player: PlayerId, kind: UnitKind):
       && unit.position.x === position.x && unit.position.y === position.y);
     if (tile?.owner === player && !occupied) {
       const productionRule = scenarioById(state.scenarioId)?.productionRules ?? 'legacy-factory-air';
-      if (canProduceUnit(tile.kind, kind, productionRule)) return position;
+      if (canProduceUnit(tile.kind, kind, productionRule, state.ruleVersion)) return position;
     }
   }
   return undefined;
@@ -144,6 +145,15 @@ function specialistProduction(state: GameState, player: PlayerId, visibleEnemies
   if (!ownKinds.has('antiAir') && visible.some(unit => unit.kind === 'fighter' || unit.kind === 'bomber')) candidates.push('antiAir');
   if (!ownKinds.has('fighter') && visible.some(unit => unit.kind === 'fighter' || unit.kind === 'bomber')) candidates.push('fighter');
   if (!ownKinds.has('bomber') && visible.some(unit => ['tank', 'artillery', 'rocket', 'destroyer'].includes(unit.kind))) candidates.push('bomber');
+  if (usesModernRules(state)) {
+    const ownCount = (kind: UnitKind) => state.units.filter(unit => unit.owner === player && unit.kind === kind).length;
+    const airDefence = visible.some(unit => unit.kind === 'antiAir' || unit.kind === 'fighter');
+    // Mech infantry answer confirmed armour cheaply and can still capture.
+    if (ownCount('mech') < 2 && visible.some(unit => unitCategory[unit.kind] === 'armor')) candidates.push('mech');
+    if (hasSea && !ownKinds.has('battleship')) candidates.push('battleship');
+    if (!ownKinds.has('heavyTank') && gold >= unitStats.heavyTank.cost + unitStats.infantry.cost) candidates.push('heavyTank');
+    if (!ownKinds.has('helicopter') && !airDefence) candidates.push('helicopter');
+  }
   for (const kind of candidates) {
     if (unitStats[kind].cost > gold) continue;
     const factory = emptyOwnedFacility(state, player, kind);
@@ -155,7 +165,7 @@ function specialistProduction(state: GameState, player: PlayerId, visibleEnemies
 function productionAction(state: GameState, player: PlayerId, config: CpuDifficultyConfig, context: CpuPlanningContext): CpuAction | undefined {
   const { targets } = context;
   const hasRemoteInfantry = orderedUnits(state, player)
-    .filter(unit => unit.kind === 'infantry')
+    .filter(unit => isEmbarkableUnit(unit.kind))
     .some(unit => targets.some(target => !sameLandComponent(context.landComponents, unit.position, target)));
   const hasLandingShip = state.units.some(unit => unit.owner === player && unit.kind === 'landingShip');
   if (hasRemoteInfantry && !hasLandingShip && state.players[player].gold >= unitStats.landingShip.cost) {
@@ -264,7 +274,10 @@ export function evaluateCpuPosition(
   // Keep the positional value tied to the same HP-scaled mitigation used by combat.
   // At 100 HP, each star is worth 10% mitigation and 9 position points.
   const defense = terrainDefenseReduction(terrain, unit.hp) * 0.9 * config.terrainDefenseWeight;
-  const supply = needsSupply(unit) && isPropertyTerrainKind(terrain.kind) && terrain.owner === player ? 80 : 0;
+  // Under modern rules only compatible facilities (or, for ground units, a supply vehicle) resupply.
+  const resupplied = isServiceTile(state, destination, unit.kind, player)
+    || (usesModernRules(state) && isGroundUnit(unit.kind) && adjacentToSupplyUnit(state, destination, player, unit.id));
+  const supply = needsSupply(unit) && resupplied ? 80 : 0;
   const distance = targets.length ? Math.min(...targets.map(target => manhattanDistance(destination, target))) : 0;
   const deployedEnemies = knownEnemies.filter(isDeployedUnit);
   const pressure = deployedEnemies.reduce((risk, enemy) => {
@@ -307,7 +320,7 @@ function transportAction(state: GameState, player: PlayerId, targets: readonly P
   }
 
   // Board an infantry unit only if an objective lies on a different land component.
-  for (const infantry of units.filter(unit => unit.kind === 'infantry' && !unit.hasActed)) {
+  for (const infantry of units.filter(unit => isEmbarkableUnit(unit.kind) && !unit.hasActed)) {
     const remoteObjective = targets.some(target => !sameLandComponent(components, infantry.position, target));
     if (!remoteObjective) continue;
     const transport = units.find(candidate => candidate.kind === 'landingShip' && !candidate.hasMoved && !candidate.hasActed

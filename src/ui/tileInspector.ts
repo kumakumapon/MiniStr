@@ -1,5 +1,5 @@
-import { defaultProductionRule, defenseStars, isDeployedUnit, isPropertyTerrainKind, movementCost, productionKindsForRule, terrainAt, type ProductionRule, unitStats, type GameState, type PlayerId, type Position, type UnitKind } from '../game';
-import { ownerLabel, sideLabel, terrainNames, unitNames } from './labels';
+import { defaultProductionRule, defenseStars, experienceRank, isDeployedUnit, MAX_EXPERIENCE, usesModernRules, isPropertyTerrainKind, movementCost, productionKindsForRule, terrainAt, type ProductionRule, unitStats, type GameState, type PlayerId, type Position, type UnitKind } from '../game';
+import { ownerLabel, rankNames, rankStars, sideLabel, terrainNames, unitNames } from './labels';
 
 export interface InspectorRow { label: string; value: string }
 export interface TileInspection {
@@ -41,7 +41,7 @@ export function inspectTile(
   const title = `${terrainNames[terrain.kind]}${property ? `（${ownerLabel(terrain.owner, viewer)}）` : ''}`;
   const rows: InspectorRow[] = [{ label: '防御', value: stars(defenseStars(terrain)) }];
   if (property && terrain.capturePoints !== undefined) rows.push({ label: '占領値', value: `${terrain.capturePoints}` });
-  const producible = productionKindsForRule(productionRule)[terrain.kind];
+  const producible = productionKindsForRule(productionRule, state.ruleVersion)[terrain.kind];
   if (producible?.length) rows.push({ label: '生産', value: producible.map(kind => unitNames[kind]).join('・') });
   if (selectedUnitKind) {
     const cost = movementCost(state.board, position, selectedUnitKind);
@@ -59,6 +59,10 @@ export function inspectTile(
     { label: '移動', value: `${stats.movement}` },
     { label: '視界', value: `${stats.vision}` },
   ];
+  if (usesModernRules(state)) {
+    const rank = experienceRank(unit.experience);
+    unitRows.push({ label: '階級', value: `${rank ? `${rankStars(rank)} ` : ''}${rankNames[rank]}（経験 ${unit.experience ?? 0} / ${MAX_EXPERIENCE}）` });
+  }
   const cargo = state.units.find(candidate => candidate.embarkedIn === unit.id);
   if (cargo) unitRows.push({ label: '搭載', value: unitNames[cargo.kind] });
   if (unit.owner === viewer) {

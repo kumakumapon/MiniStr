@@ -1,6 +1,7 @@
+import { rankDamageFactor } from './experience';
 import { defenseStars, manhattanDistance, terrainAt } from './terrain';
 import type { Terrain } from './types';
-import { damageMultiplier, unitCategory, unitStats } from './units';
+import { damageMultiplier, incomingDamageFactor, unitCategory, unitStats } from './units';
 import { isDeployedUnit, type GameResult, type GameState, type Unit } from './types';
 
 export { damageMultiplier };
@@ -41,6 +42,16 @@ export function applyDamageVariance(expectedDamage: number, randomValue: number)
   return Math.max(0, Math.round(expectedDamage * (0.9 + boundedRandom * 0.2)));
 }
 
+/**
+ * Rank bonuses and heavy armour. Returns exactly 1 when neither applies so the
+ * caller can keep the classic arithmetic bit-for-bit.
+ */
+export function combatDamageFactor(state: GameState, attacker: Unit, defender: Unit): number {
+  const rank = rankDamageFactor(state, attacker, defender);
+  const armour = incomingDamageFactor(defender.kind);
+  return armour === 1 ? rank : rank * armour;
+}
+
 export function forecastCombat(state: GameState, attacker: Unit, defender: Unit): GameResult<CombatForecast> {
   if (!isDeployedUnit(attacker) || !isDeployedUnit(defender)) return { ok: false, error: 'Embarked units cannot fight' };
   if (attacker.owner === defender.owner) return { ok: false, error: 'Cannot attack a friendly unit' };
@@ -53,7 +64,9 @@ export function forecastCombat(state: GameState, attacker: Unit, defender: Unit)
   const defenderTerrain = terrainAt(state.board, defender.position);
   const attackerTerrain = terrainAt(state.board, attacker.position);
   if (!defenderTerrain || !attackerTerrain) return { ok: false, error: 'Unit is outside the board' };
-  const raw = unitStats[attacker.kind].attack * attacker.hp / 100 * damageMultiplier[attacker.kind][unitCategory[defender.kind]];
+  const baseRaw = unitStats[attacker.kind].attack * attacker.hp / 100 * damageMultiplier[attacker.kind][unitCategory[defender.kind]];
+  const rankFactor = combatDamageFactor(state, attacker, defender);
+  const raw = rankFactor === 1 ? baseRaw : baseRaw * rankFactor;
   const reduction = terrainDefenseReduction(defenderTerrain, defender.hp);
   const damageToDefender = Math.max(0, Math.round(raw * (1 - reduction / 100)));
   const defenderRemaining = Math.max(0, defender.hp - damageToDefender);
@@ -61,7 +74,9 @@ export function forecastCombat(state: GameState, attacker: Unit, defender: Unit)
   const defenderAmmo = defender.ammo ?? unitStats[defender.kind].ammo;
   const canCounter = !unitStats[attacker.kind].indirect && !unitStats[defender.kind].indirect
     && defenderRemaining > 0 && defenderAmmo > 0 && distance >= counterRange[0] && distance <= counterRange[1];
-  const counterRaw = canCounter ? unitStats[defender.kind].attack * defenderRemaining / 100 * damageMultiplier[defender.kind][unitCategory[attacker.kind]] : 0;
+  const baseCounterRaw = canCounter ? unitStats[defender.kind].attack * defenderRemaining / 100 * damageMultiplier[defender.kind][unitCategory[attacker.kind]] : 0;
+  const counterRankFactor = combatDamageFactor(state, defender, attacker);
+  const counterRaw = counterRankFactor === 1 ? baseCounterRaw : baseCounterRaw * counterRankFactor;
   const counterReduction = terrainDefenseReduction(attackerTerrain, attacker.hp);
   const damageToAttacker = Math.max(0, Math.round(counterRaw * (1 - counterReduction / 100)));
   return { ok: true, value: { damageToDefender, damageToAttacker, canCounter } };

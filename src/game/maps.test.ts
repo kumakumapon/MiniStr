@@ -23,8 +23,8 @@ describe('expanded map roster', () => {
     expect(createScenarioInitialState(catalog.scenarios[0]!).units).toHaveLength(2);
   });
 
-  it('offers ten distinct scenarios with map-owned starting forces', () => {
-    expect(maps.map(map => map.id)).toEqual(['skirmish', 'islands', 'landing', 'canyon', 'siege', 'river', 'industrial', 'tundra', 'outpost', 'marsh']);
+  it('offers eleven distinct scenarios with map-owned starting forces', () => {
+    expect(maps.map(map => map.id)).toEqual(['skirmish', 'islands', 'landing', 'canyon', 'siege', 'river', 'industrial', 'tundra', 'outpost', 'marsh', 'admiralty']);
     for (const map of maps) {
       expect(map.initialUnits.some(unit => unit.owner === 'red')).toBe(true);
       expect(map.initialUnits.some(unit => unit.owner === 'blue')).toBe(true);

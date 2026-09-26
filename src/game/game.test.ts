@@ -26,7 +26,7 @@ describe('JSON scenario definitions', () => {
 
   it.each([
     ['unknown terrain', (data: any) => { data.board.cells[0][2] = 'lava'; }],
-    ['unknown unit', (data: any) => { data.initialUnits[0].kind = 'mech'; }],
+    ['unknown unit', (data: any) => { data.initialUnits[0].kind = 'submarine'; }],
     ['unknown owner', (data: any) => { data.board.cells[0][3] = 'green'; }],
     ['out-of-bounds unit', (data: any) => { data.initialUnits[0].x = 2; }],
     ['out-of-bounds hold target', (data: any) => { data.victoryConditions[0].positions[0].x = 2; }],

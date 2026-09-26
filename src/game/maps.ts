@@ -1,7 +1,7 @@
 import { defaultProductionRule, isPropertyTerrainKind, productionRuleSet, type ProductionRule } from './facilities';
 import { createBoard, createGameState, playerOwnedProperties } from './state';
 import { unitKindSet, unitStats } from './units';
-import { terrainKindSet, type Board, type GameResult, type GameState, type PlayerId, type Position, type TerrainKind, type UnitKind } from './types';
+import { MODERN_RULE_VERSION, terrainKindSet, type Board, type GameResult, type GameState, type PlayerId, type Position, type TerrainKind, type UnitKind } from './types';
 
 export interface InitialUnit { kind: UnitKind; owner: PlayerId; x: number; y: number }
 export const scenarioThemes = ['temperate', 'desert', 'snow', 'urban', 'coastal'] as const;
@@ -240,6 +240,25 @@ const rawBuiltInScenarioData = [
     board: { width: 10, height: 8, cells: [[0, 0, 'capital', 'red'], [1, 0, 'factory', 'red'], [3, 0, 'airport', 'red'], [0, 2, 'city', 'red'], [9, 7, 'capital', 'blue'], [8, 7, 'factory', 'blue'], [6, 7, 'airport', 'blue'], [9, 5, 'city', 'blue'], [4, 1, 'factory'], [5, 6, 'factory'], [4, 6, 'city'], [5, 1, 'city'], [3, 2, 'swamp'], [4, 2, 'swamp'], [2, 3, 'swamp'], [3, 3, 'swamp'], [4, 3, 'swamp'], [5, 4, 'swamp'], [6, 4, 'swamp'], [7, 4, 'swamp'], [6, 5, 'swamp'], [5, 5, 'swamp'], [4, 4, 'road'], [5, 3, 'road'], [2, 4, 'forest'], [7, 3, 'forest'], [1, 3, 'mountain'], [8, 4, 'mountain']] },
     initialUnits: [{ kind: 'infantry', owner: 'red', x: 0, y: 1 }, { kind: 'apc', owner: 'red', x: 1, y: 1 }, { kind: 'tank', owner: 'red', x: 2, y: 1 }, { kind: 'artillery', owner: 'red', x: 1, y: 2 }, { kind: 'infantry', owner: 'blue', x: 9, y: 6 }, { kind: 'apc', owner: 'blue', x: 8, y: 6 }, { kind: 'tank', owner: 'blue', x: 7, y: 6 }, { kind: 'artillery', owner: 'blue', x: 8, y: 5 }],
   },
+  {
+    // Phase 9 (#114): the strait is crossed only through the two central ports,
+    // which also connect the northern and southern channels for warships.
+    id: 'admiralty', name: '海峡総力戦', theme: 'coastal', startingGold: 12000, briefing: '海峡を挟んだ総力戦だ。中央の港湾が唯一の陸路となる。戦艦の艦砲射撃と対戦車歩兵で港湾を突破し、補給車で前線を支えよ。',
+    victoryConditions: standardVictory, defeatConditions: standardVictory,
+    board: { width: 14, height: 9, cells: [
+      [6, 0, 'sea'], [6, 1, 'sea'], [6, 2, 'sea'], [6, 3, 'sea'], [6, 5, 'sea'], [6, 6, 'sea'], [6, 7, 'sea'], [6, 8, 'sea'],
+      [7, 0, 'sea'], [7, 1, 'sea'], [7, 2, 'sea'], [7, 3, 'sea'], [7, 5, 'sea'], [7, 6, 'sea'], [7, 7, 'sea'], [7, 8, 'sea'],
+      [6, 4, 'port'], [7, 4, 'port'],
+      [0, 1, 'capital', 'red'], [1, 0, 'factory', 'red'], [0, 3, 'factory', 'red'], [2, 0, 'airport', 'red'], [5, 1, 'port', 'red'], [1, 2, 'city', 'red'],
+      [13, 7, 'capital', 'blue'], [12, 8, 'factory', 'blue'], [13, 5, 'factory', 'blue'], [11, 8, 'airport', 'blue'], [8, 7, 'port', 'blue'], [12, 6, 'city', 'blue'],
+      [3, 3, 'city'], [10, 5, 'city'], [4, 6, 'city'], [9, 2, 'city'], [2, 6, 'factory'], [11, 2, 'factory'],
+      [3, 1, 'forest'], [10, 7, 'forest'], [1, 5, 'mountain'], [12, 3, 'mountain'], [4, 4, 'road'], [9, 4, 'road'], [5, 4, 'road'], [8, 4, 'road'],
+    ] },
+    initialUnits: [
+      { kind: 'infantry', owner: 'red', x: 0, y: 2 }, { kind: 'tank', owner: 'red', x: 1, y: 1 }, { kind: 'mech', owner: 'red', x: 2, y: 1 }, { kind: 'apc', owner: 'red', x: 1, y: 3 }, { kind: 'destroyer', owner: 'red', x: 6, y: 1 },
+      { kind: 'infantry', owner: 'blue', x: 13, y: 6 }, { kind: 'tank', owner: 'blue', x: 12, y: 7 }, { kind: 'mech', owner: 'blue', x: 11, y: 7 }, { kind: 'apc', owner: 'blue', x: 12, y: 5 }, { kind: 'destroyer', owner: 'blue', x: 7, y: 7 },
+    ],
+  },
 ] satisfies readonly ScenarioData[];
 
 /** Built-in airports are explicit map data so facilities remain balanced and reviewable. */
@@ -294,7 +313,7 @@ export function createScenarioInitialState(scenario: ScenarioDefinition): GameSt
   // symmetric scenarios symmetric without changing the end-turn phase.
   const redIncome = playerOwnedProperties(base, 'red').length * 1000;
   return {
-    ...base, scenarioId: scenario.id,
+    ...base, scenarioId: scenario.id, ruleVersion: MODERN_RULE_VERSION,
     players: { red: { gold: scenario.startingGold + redIncome, income: redIncome }, blue: { gold: scenario.startingGold, income: 0 } },
     units: scenario.initialUnits.map(unit => {
       nextId[unit.owner] += 1;

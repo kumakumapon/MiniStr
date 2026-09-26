@@ -7,7 +7,9 @@ import { canProduceUnit, isPropertyTerrainKind } from './facilities';
 import { visibleEnemies, visiblePositions } from './fog';
 import { scenarioById } from './maps';
 import { updateScenarioProgress, updateScenarioScores, withEvaluatedWinner } from './victory';
-import { isDeployedUnit, otherPlayer, type GameResult, type GameState, type PlayerId, type Position, type Unit, type UnitKind } from './types';
+import { experienceAfterCombat } from './experience';
+import { applyModernUpkeep } from './logistics';
+import { isDeployedUnit, otherPlayer, usesModernRules, type GameResult, type GameState, type PlayerId, type Position, type Unit, type UnitKind } from './types';
 
 const fail = <T = GameState>(error: string): GameResult<T> => ({ ok: false, error });
 const succeed = <T>(value: T): GameResult<T> => ({ ok: true, value });
@@ -198,7 +200,7 @@ export function produceUnit(state: GameState, facility: Position, kind: UnitKind
   // field, so retain their historical factory-air behavior. Built-in and
   // newly saved scenarios always carry an explicit facility rule.
   const productionRule = scenarioById(state.scenarioId)?.productionRules ?? 'legacy-factory-air';
-  if (!terrain || terrain.owner !== state.activePlayer || !canProduceUnit(terrain.kind, kind, productionRule))
+  if (!terrain || terrain.owner !== state.activePlayer || !canProduceUnit(terrain.kind, kind, productionRule, state.ruleVersion))
     return fail('An owned compatible production facility is required');
   if (unitAt(state, facility)) return fail('Production facility is occupied');
   const stats = unitStats[kind];
@@ -249,9 +251,18 @@ export function attackUnit(state: GameState, attackerId: string, defenderId: str
     ? applyDamageVariance(counterForecast.value.damageToDefender, counterRoll.value)
     : 0;
   const rngSeed = counterRoll?.seed ?? attackRoll.seed;
+  const modern = usesModernRules(state);
+  const attackerDestroyed = attacker.hp - damageToAttacker <= 0;
+  const defenderDestroyed = defender.hp - damageToDefender <= 0;
   const damagedUnits = state.units.map(unit => {
-    if (unit.id === attacker.id) return { ...unit, hp: Math.max(0, unit.hp - damageToAttacker), ammo: (unit.ammo ?? unitStats[unit.kind].ammo) - 1, hasActed: true };
-    if (unit.id === defender.id) return { ...unit, hp: Math.max(0, unit.hp - damageToDefender), ammo: canCounter ? (unit.ammo ?? unitStats[unit.kind].ammo) - 1 : unit.ammo };
+    if (unit.id === attacker.id) return {
+      ...unit, hp: Math.max(0, unit.hp - damageToAttacker), ammo: (unit.ammo ?? unitStats[unit.kind].ammo) - 1, hasActed: true,
+      ...(modern ? { experience: experienceAfterCombat(unit, damageToDefender, defenderDestroyed) } : {}),
+    };
+    if (unit.id === defender.id) return {
+      ...unit, hp: Math.max(0, unit.hp - damageToDefender), ammo: canCounter ? (unit.ammo ?? unitStats[unit.kind].ammo) - 1 : unit.ammo,
+      ...(modern ? { experience: experienceAfterCombat(unit, damageToAttacker, attackerDestroyed) } : {}),
+    };
     return unit;
   });
   const destroyedUnitIds = new Set(damagedUnits.filter(unit => unit.hp <= 0).map(unit => unit.id));
@@ -290,10 +301,12 @@ export function mergeUnits(state: GameState, unitId: string, targetId: string): 
   const hp = Math.min(100, unit.hp + target.hp);
   const ammo = Math.min(stats.ammo, (unit.ammo ?? stats.ammo) + (target.ammo ?? stats.ammo));
   const fuel = Math.min(stats.fuel, (unit.fuel ?? stats.fuel) + (target.fuel ?? stats.fuel));
+  // The merged unit keeps the more experienced crew. Classic units never carry experience.
+  const experience = Math.max(unit.experience ?? 0, target.experience ?? 0);
   const units = state.units
     .filter(candidate => candidate.id !== removed.id)
     .map(candidate => candidate.id === survivor.id
-      ? { ...candidate, hp, ammo, fuel, hasMoved: true, hasActed: true }
+      ? { ...candidate, hp, ammo, fuel, hasMoved: true, hasActed: true, ...(experience > 0 ? { experience } : {}) }
       : candidate);
   return succeed({ ...state, units });
 }
@@ -344,6 +357,17 @@ export function endTurn(state: GameState): GameState {
   const scenario = scenarioById(state.scenarioId);
   const progressed = scenario ? updateScenarioProgress(state, scenario, actor) : state;
   const activePlayer = otherPlayer(state.activePlayer);
+  if (usesModernRules(state)) {
+    // Modern order: income, fuel use, supply-vehicle resupply, paid repairs, then fuel exhaustion.
+    const ready = collectIncome({
+      ...progressed,
+      activePlayer,
+      turn: state.turn + (activePlayer === 'red' ? 1 : 0),
+      units: progressed.units.map(unit => unit.owner === activePlayer ? { ...unit, hasMoved: false, hasActed: false } : unit),
+    });
+    const upkept = applyModernUpkeep(ready, activePlayer);
+    return withEvaluatedWinner({ ...upkept, units: withoutExhaustedUnits(upkept.units, activePlayer) }, [], actor);
+  }
   const refreshed = progressed.units.map(unit => {
     if (unit.owner !== activePlayer) return unit;
     if (!isDeployedUnit(unit)) return { ...unit, hasMoved: false, hasActed: false };
@@ -357,17 +381,21 @@ export function endTurn(state: GameState): GameState {
     // a zero rate, so they retain the established "immobile but present" rule.
     return { ...unit, hasMoved: false, hasActed: false, fuel: Math.max(0, (unit.fuel ?? stats.fuel) - stats.fuelPerTurn) };
   });
-  const exhaustedTransportIds = new Set(refreshed
-    .filter((unit): unit is Unit & { position: Position } => unit.owner === activePlayer
-      && isDeployedUnit(unit) && unitStats[unit.kind].fuelPerTurn > 0
-      && (unit.fuel ?? unitStats[unit.kind].fuel) === 0)
-    .map(unit => unit.id));
-  const survivors = refreshed.filter(unit => !exhaustedTransportIds.has(unit.id)
-    && (!unit.embarkedIn || !exhaustedTransportIds.has(unit.embarkedIn)));
   return withEvaluatedWinner(collectIncome({
     ...progressed,
     activePlayer,
     turn: state.turn + (activePlayer === 'red' ? 1 : 0),
-    units: survivors,
+    units: withoutExhaustedUnits(refreshed, activePlayer),
   }), [], actor);
+}
+
+/** Aircraft and ships with no fuel left are lost, together with any cargo they carry. */
+function withoutExhaustedUnits(units: Unit[], player: PlayerId): Unit[] {
+  const exhaustedTransportIds = new Set(units
+    .filter((unit): unit is Unit & { position: Position } => unit.owner === player
+      && isDeployedUnit(unit) && unitStats[unit.kind].fuelPerTurn > 0
+      && (unit.fuel ?? unitStats[unit.kind].fuel) === 0)
+    .map(unit => unit.id));
+  return units.filter(unit => !exhaustedTransportIds.has(unit.id)
+    && (!unit.embarkedIn || !exhaustedTransportIds.has(unit.embarkedIn)));
 }
