@@ -53,6 +53,25 @@ export function presentationEffectsForCommand(before: GameState, command: GameCo
   return [];
 }
 
+/**
+ * Keeps only the effects the viewer can see. A move needs both ends visible,
+ * since its trail would otherwise reveal where a hidden unit came from or went.
+ * Unpositioned cues (an attack on the viewer's unit, the turn change) remain.
+ */
+export function visibleEffects(effects: readonly PresentationEffect[], visible: ReadonlySet<string>): PresentationEffect[] {
+  const seen = (position: Position) => visible.has(`${position.x},${position.y}`);
+  return effects.filter(effect => {
+    if (effect.type === 'move') return seen(effect.from) && seen(effect.to);
+    if (effect.type === 'attack' || effect.type === 'turn') return true;
+    return seen(effect.position);
+  });
+}
+
+/** The viewer's own actions are always animated; the opponent's only where the viewer can see (#125). */
+export function effectsForViewer(effects: readonly PresentationEffect[], actor: PlayerId, viewer: PlayerId, visible: ReadonlySet<string>): PresentationEffect[] {
+  return actor === viewer ? [...effects] : visibleEffects(effects, visible);
+}
+
 function atTile(board: HTMLElement, position: Position): HTMLButtonElement | undefined {
   const escaped = (value: number) => String(value).replace(/"/g, '\\"');
   return board.querySelector<HTMLButtonElement>(`.tile[data-x="${escaped(position.x)}"][data-y="${escaped(position.y)}"]`) ?? undefined;
