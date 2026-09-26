@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { createBoard, createGameState, type GameState } from '../game';
-import { presentationEffectsForCommand, renderPresentationEffects } from './presentationEffects';
+import { presentationEffectsForCommand, renderPresentationEffects, visibleEffects } from './presentationEffects';
 
 function stateWithUnits(): GameState {
   const state = createGameState(createBoard(3, 2));
@@ -10,6 +10,33 @@ function stateWithUnits(): GameState {
   ];
   return state;
 }
+
+describe('visibleEffects (#125)', () => {
+  const visible = new Set(['0,0', '1,0']);
+
+  it('drops opponent effects in fog so hidden captures, production, and moves stay hidden', () => {
+    const effects = visibleEffects(
+      [
+        { type: 'capture', position: { x: 5, y: 5 }, sound: 'capture' },
+        { type: 'produce', position: { x: 5, y: 4 }, sound: 'produce' },
+        { type: 'move', from: { x: 5, y: 5 }, to: { x: 1, y: 0 }, kind: 'tank', owner: 'blue', sound: 'move' },
+        { type: 'move', from: { x: 1, y: 0 }, to: { x: 5, y: 5 }, kind: 'tank', owner: 'blue', sound: 'move' },
+      ],
+      visible,
+    );
+    expect(effects).toEqual([]);
+  });
+
+  it('keeps visible effects and unpositioned cues', () => {
+    const kept = [
+      { type: 'capture', position: { x: 0, y: 0 }, sound: 'capture' },
+      { type: 'move', from: { x: 0, y: 0 }, to: { x: 1, y: 0 }, kind: 'tank', owner: 'blue', sound: 'move' },
+      { type: 'attack', sound: 'attack' },
+      { type: 'turn', sound: 'turn' },
+    ] as const;
+    expect(visibleEffects(kept, visible)).toEqual(kept);
+  });
+});
 
 describe('presentationEffectsForCommand', () => {
   it('shows a moving unit between its resolved positions', () => {

@@ -1,4 +1,5 @@
 import { defaultProductionRule, defenseStars, experienceRank, isDeployedUnit, MAX_EXPERIENCE, usesModernRules, isPropertyTerrainKind, movementCost, productionKindsForRule, terrainAt, type ProductionRule, unitStats, type GameState, type PlayerId, type Position, type UnitKind } from '../game';
+import { capturePointsLabel, observedCapturePoints } from './fogDisplay';
 import { ownerLabel, rankNames, rankStars, sideLabel, terrainNames, unitNames } from './labels';
 
 export interface InspectorRow { label: string; value: string }
@@ -40,7 +41,8 @@ export function inspectTile(
   const property = isPropertyTerrainKind(terrain.kind);
   const title = `${terrainNames[terrain.kind]}${property ? `（${ownerLabel(terrain.owner, viewer)}）` : ''}`;
   const rows: InspectorRow[] = [{ label: '防御', value: stars(defenseStars(terrain)) }];
-  if (property && terrain.capturePoints !== undefined) rows.push({ label: '占領値', value: `${terrain.capturePoints}` });
+  const capturePoints = observedCapturePoints(terrain, visible.has(`${position.x},${position.y}`));
+  if (capturePoints !== undefined) rows.push({ label: '占領値', value: capturePointsLabel(capturePoints) });
   const producible = productionKindsForRule(productionRule, state.ruleVersion)[terrain.kind];
   if (producible?.length) rows.push({ label: '生産', value: producible.map(kind => unitNames[kind]).join('・') });
   if (selectedUnitKind) {

@@ -7,7 +7,8 @@ import { BOARD_ZOOM_LEVELS, boardAreaWidth, boardTileSize, boardZoomPercent, def
 import { rankNames, rankStars, terrainNames, unitNames, unitTokens } from './ui/labels';
 import { describeTileInspection, inspectTile, type InspectorRow } from './ui/tileInspector';
 import { COMMAND_SPEEDS, CommandScheduler, type CommandSpeed } from './ui/commandScheduler';
-import { presentationEffectsForCommand, renderPresentationEffects, type PresentationEffect } from './ui/presentationEffects';
+import { presentationEffectsForCommand, renderPresentationEffects, visibleEffects, type PresentationEffect } from './ui/presentationEffects';
+import { capturePointsLabel, observedCapturePoints } from './ui/fogDisplay';
 import { loadSoundSettings, ProceduralSoundPlayer, saveSoundSettings, type SoundSettings } from './ui/sound';
 import { commandErrorMessage, escapeHtml, uiText } from './ui/strings';
 import { renderSaveSlotManager } from './ui/saveSlots';
@@ -220,7 +221,15 @@ function dispatch(command: GameCommand, undoable = false): boolean {
       ? `${repairs.units}部隊を修理しました（修理費 ${repairs.cost}G）。`
       : `${repairs.units}部隊を修理しました。`;
   }
-  if (!cpuSkipRequested) pendingPresentationEffects.push(...presentationEffectsForCommand(before, command, game));
+  if (!cpuSkipRequested) {
+    const effects = presentationEffectsForCommand(before, command, game);
+    // The opponent's actions are animated only where the viewer can see them;
+    // effects in fog would reveal hidden moves, captures, and production (#125).
+    const actor = before.activePlayer;
+    const me = viewer();
+    const seen = new Set([...visiblePositions(before, me), ...visiblePositions(game, me)].map(key));
+    pendingPresentationEffects.push(...(actor === me ? effects : visibleEffects(effects, seen)));
+  }
   finishCampaignBattle();
   return true;
 }
@@ -430,9 +439,9 @@ function render(): void {
     const terrainName = terrainNames[terrain.kind] ?? terrain.kind;
     const isProperty = isPropertyTerrainKind(terrain.kind);
     const propertyOwner = isProperty ? terrain.owner : undefined;
-    const capturePoints = isProperty ? terrain.capturePoints : undefined;
+    const capturePoints = observedCapturePoints(terrain, !hidden);
     const facilityDetail = terrain.kind === 'port' ? '、補給・艦艇を生産可能' : terrain.kind === 'airport' ? '、補給・航空ユニットを生産可能' : terrain.kind === 'factory' ? '、補給・地上ユニット生産拠点' : '';
-    const propertyLabel = isProperty ? `${terrainName}${propertyOwner ? `（${propertyOwner === me ? '自軍' : '敵軍'}）` : '（中立）'}${capturePoints !== undefined ? `、占領値 ${capturePoints}` : ''}${facilityDetail}` : terrainName;
+    const propertyLabel = isProperty ? `${terrainName}${propertyOwner ? `（${propertyOwner === me ? '自軍' : '敵軍'}）` : '（中立）'}${capturePoints !== undefined ? `、占領値 ${capturePointsLabel(capturePoints)}` : ''}${facilityDetail}` : terrainName;
     const cargo = unit && transportCapacity(unit.kind) > 0 ? renderedGame.units.find(candidate => candidate.embarkedIn === unit.id) : undefined;
     // Fuel data stays private: only warn about the player's own units, never
     // expose an enemy's exact reserve through a visible tile.
