@@ -15,7 +15,7 @@ export interface MatchResult {
   rules: BalanceRules;
   seed: number;
   winner: PlayerId | 'none';
-  /** Completed rounds when the match ended or hit the round limit. */
+  /** Round in which the match was decided, or maxRounds + 1 when it stayed undecided. */
   turns: number;
   /** Peak unit count across both sides, including embarked cargo. */
   maxUnits: number;
@@ -167,7 +167,12 @@ export function parseBalanceArgs(args: readonly string[]): GameResult<BalanceOpt
       return { ok: false, error: `不明な引数、または値がありません: ${flag}` };
     values.set(flag, value);
   }
-  const list = (flag: string) => values.get(flag)?.split(',').map(item => item.trim()).filter(Boolean);
+  const list = (flag: string) => values.get(flag)?.split(',').map(item => item.trim());
+  for (const flag of ['--maps', '--difficulty', '--rules']) {
+    const items = list(flag);
+    if (items && (items.some(item => item === '') || new Set(items).size !== items.length))
+      return { ok: false, error: `${flag} に空の値や重複があります。` };
+  }
   const scenarioIds = list('--maps') ?? maps.map(scenario => scenario.id);
   const unknownMap = scenarioIds.find(id => !scenarioById(id));
   if (unknownMap) return { ok: false, error: `不明なマップです: ${unknownMap}` };

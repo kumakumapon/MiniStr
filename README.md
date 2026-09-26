@@ -277,7 +277,7 @@ npm run check:links
 npm run balance -- --maps skirmish,islands --difficulty normal --rules modern --seeds 3 --rounds 60
 ```
 
-`npm run balance` は引数を省略すると、全マップ × 全難易度 × 従来／近代ルール × 3シードを計測します（数分程度）。結果の例と所見は `docs/reviews/2026-09-26-balance-baseline.md` を参照してください。
+`npm run balance` は引数を省略すると、全マップ × 全難易度 × 従来／近代ルール × 3シードを計測します（約2分）。結果の例と所見は `docs/reviews/2026-09-26-balance-baseline.md` を参照してください。
 
 ### CI
 

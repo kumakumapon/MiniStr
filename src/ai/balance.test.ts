@@ -66,7 +66,7 @@ describe('simulateMatch', () => {
     expect(() => simulateMatch(duel, 'normal', 'modern', seed, rounds)).toThrow('Invalid');
   });
 
-  it('attributes modern repair costs to the side that is repaired', () => {
+  it('records modern repair costs and none under classic rules', () => {
     const match = simulateMatch(scenarioById('outpost')!, 'hard', 'modern', 7919, 20);
     expect(match.ok && match.value.repairCost.red + match.value.repairCost.blue).toBeGreaterThan(0);
     const classic = simulateMatch(scenarioById('outpost')!, 'hard', 'classic', 7919, 20);
@@ -116,6 +116,8 @@ describe('parseBalanceArgs and runBalance', () => {
 
   it.each([
     [['--maps', 'nowhere']],
+    [['--maps', ',']],
+    [['--maps', 'skirmish,skirmish']],
     [['--difficulty', 'brutal']],
     [['--rules', 'future']],
     [['--seeds', '0']],
