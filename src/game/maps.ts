@@ -323,6 +323,24 @@ export function createScenarioInitialState(scenario: ScenarioDefinition): GameSt
   };
 }
 
+/**
+ * Loading normalizes `turnLimit` into blue's `survive untilTurn: turnLimit + 1`
+ * defeat condition. Exporting must drop it again, or every save and reload
+ * appends another copy (#116 10.4). Every matching copy is dropped, which also
+ * heals data saved while that bug existed; an explicitly authored identical
+ * condition is dropped too, but loading recreates an equivalent one. If the
+ * normalized condition is the only defeat condition, one copy is kept because
+ * an empty list is rejected; such data then stays at two identical copies.
+ */
+function exportableDefeatConditions(scenario: ScenarioDefinition): VictoryCondition[] {
+  const conditions = scenario.defeatConditions.map(condition => structuredClone(condition));
+  if (scenario.turnLimit === undefined) return conditions;
+  const limit = scenario.turnLimit;
+  const isNormalizedLimit = (condition: VictoryCondition) => condition.type === 'survive' && condition.untilTurn === limit + 1;
+  const authored = conditions.filter(condition => !isNormalizedLimit(condition));
+  return authored.length > 0 ? authored : conditions.slice(0, 1);
+}
+
 export function scenarioDefinitionToData(scenario: ScenarioDefinition): ScenarioData {
   const cells: [number, number, TerrainKind, PlayerId?][] = [];
   for (let y = 0; y < scenario.board.height; y += 1) for (let x = 0; x < scenario.board.width; x += 1) {
@@ -331,7 +349,7 @@ export function scenarioDefinitionToData(scenario: ScenarioDefinition): Scenario
   }
   return { id: scenario.id, name: scenario.name, briefing: scenario.briefing, startingGold: scenario.startingGold,
     board: { width: scenario.board.width, height: scenario.board.height, cells }, initialUnits: scenario.initialUnits.map(unit => ({ ...unit })),
-    victoryConditions: scenario.victoryConditions.map(condition => structuredClone(condition)), defeatConditions: scenario.defeatConditions.map(condition => structuredClone(condition)), turnLimit: scenario.turnLimit, theme: scenario.theme, productionRules: scenario.productionRules };
+    victoryConditions: scenario.victoryConditions.map(condition => structuredClone(condition)), defeatConditions: exportableDefeatConditions(scenario), turnLimit: scenario.turnLimit, theme: scenario.theme, productionRules: scenario.productionRules };
 }
 
 function replaceCustomScenarios(scenarios: readonly ScenarioDefinition[]): void {
