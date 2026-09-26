@@ -67,6 +67,11 @@ export function visibleEffects(effects: readonly PresentationEffect[], visible: 
   });
 }
 
+/** The viewer's own actions are always animated; the opponent's only where the viewer can see (#125). */
+export function effectsForViewer(effects: readonly PresentationEffect[], actor: PlayerId, viewer: PlayerId, visible: ReadonlySet<string>): PresentationEffect[] {
+  return actor === viewer ? [...effects] : visibleEffects(effects, visible);
+}
+
 function atTile(board: HTMLElement, position: Position): HTMLButtonElement | undefined {
   const escaped = (value: number) => String(value).replace(/"/g, '\\"');
   return board.querySelector<HTMLButtonElement>(`.tile[data-x="${escaped(position.x)}"][data-y="${escaped(position.y)}"]`) ?? undefined;
