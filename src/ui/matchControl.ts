@@ -1,4 +1,4 @@
-import type { GameState, PlayerId, SavedMatchMode } from '../game';
+import type { GameState, PlayerId } from '../game';
 
 /**
  * 'cpu': the player (red) against the CPU (blue). 'hotseat': two people share one device.
@@ -81,8 +81,11 @@ export function showsWholeBoard(mode: MatchMode, wholeBoardRequested: boolean, r
   return mode === 'spectate' && wholeBoardRequested && !replay;
 }
 
-/** Autosaves and manual saves are for matches a person plays; spectating never overwrites them. */
-export function saveAllowed(mode: MatchMode): mode is SavedMatchMode {
+/**
+ * Autosaves belong to matches a person plays; spectating never overwrites them.
+ * Spectated matches are saved only when the viewer asks (manual or slot saves).
+ */
+export function autosaveAllowed(mode: MatchMode): boolean {
   return mode !== 'spectate';
 }
 

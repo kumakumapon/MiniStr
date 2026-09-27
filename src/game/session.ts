@@ -40,10 +40,19 @@ export interface SavedGame {
   campaignScenarioId?: string;
   /** Match format; absent means a CPU match. Older app versions ignore it. */
   mode?: SavedMatchMode;
+  /**
+   * Spectating only: red's CPU difficulty (`difficulty` is blue's). Absent means
+   * red plays at `difficulty` too. Any other match format must not carry it.
+   */
+  redDifficulty?: 'easy' | 'normal' | 'hard';
   savedAt: string;
 }
 
-export type SavedMatchMode = 'cpu' | 'hotseat';
+/**
+ * 'spectate' was added after 'hotseat'. Versions before it reject such saves in
+ * `validateSavedGameShape` (an unknown mode), so they never load a half-understood match.
+ */
+export type SavedMatchMode = 'cpu' | 'hotseat' | 'spectate';
 
 /** Metadata is kept separately so the save picker never needs to trust or parse arbitrary storage values. */
 export interface SaveSlot {
@@ -266,9 +275,11 @@ function validateSavedGameShape(value: unknown): value is SavedGame {
     // persisted custom catalog rather than trusting the save payload.
     && matchesScenarioInitialState(value.initialState, scenario)
     && (value.campaignScenarioId === undefined || value.campaignScenarioId === value.mapId)
-    && (value.mode === undefined || value.mode === 'cpu' || value.mode === 'hotseat')
+    && (value.mode === undefined || value.mode === 'cpu' || value.mode === 'hotseat' || value.mode === 'spectate')
     // Campaigns are CPU battles only.
-    && !(value.mode === 'hotseat' && value.campaignScenarioId !== undefined)
+    && !((value.mode === 'hotseat' || value.mode === 'spectate') && value.campaignScenarioId !== undefined)
+    && (value.redDifficulty === undefined
+      || (value.mode === 'spectate' && ['easy', 'normal', 'hard'].includes(String(value.redDifficulty))))
     && Array.isArray(value.commands) && value.commands.length <= 100_000 && value.commands.every(isGameCommand);
 }
 
