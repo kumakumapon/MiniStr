@@ -48,7 +48,10 @@ let skipCpuImmediately: (() => void) | undefined;
 const CPU_STEP_DELAY_MS = 350;
 /** Spectating: the viewer stopped the CPU loop; menus work until they resume. */
 let spectatePaused = false;
-/** Spectating pauses itself on reaching this turn; resuming moves it another limit ahead. */
+/**
+ * Spectating pauses itself when this turn number begins (the turn count rises
+ * after blue's end turn); resuming moves it another limit ahead.
+ */
 let spectatePauseAtTurn = SPECTATE_TURN_LIMIT;
 let briefingOpen = true;
 let campaignMenuOpen = false;
@@ -618,8 +621,9 @@ function render(): void {
   }).join('')).join('');
   const editorOverlay = editorOpen ? `<div class="editor-overlay" role="dialog" aria-modal="true" aria-labelledby="editor-title"><section class="editor-screen"><div class="editor-heading"><div><p class="card-kicker">SCENARIO EDITOR</p><h2 id="editor-title">最小マップエディタ</h2><p>盤面を選択し、地形・拠点所有者・初期ユニット・勝利条件を設定します。JSONは既存の検証器で確認されます。</p></div><button id="editor-close" class="save-action">閉じる</button></div><div class="editor-layout"><section class="editor-workspace"><div class="editor-toolbar"><label>編集<select id="editor-tool"><option value="terrain" ${editor.tool === 'terrain' ? 'selected' : ''}>地形・拠点</option><option value="unit" ${editor.tool === 'unit' ? 'selected' : ''}>初期ユニット</option><option value="eraseUnit" ${editor.tool === 'eraseUnit' ? 'selected' : ''}>ユニット削除</option></select></label><label>地形<select id="editor-terrain">${terrainKinds.map(kind => `<option value="${kind}" ${kind === editor.terrain ? 'selected' : ''}>${terrainNames[kind]}</option>`).join('')}</select></label><label>所有者<select id="editor-owner"><option value="">中立 / なし</option><option value="red" ${editor.owner === 'red' ? 'selected' : ''}>自軍</option><option value="blue" ${editor.owner === 'blue' ? 'selected' : ''}>敵軍</option></select></label><label>ユニット<select id="editor-unit-kind">${(Object.keys(unitNames) as UnitKind[]).map(kind => `<option value="${kind}" ${kind === editor.unitKind ? 'selected' : ''}>${unitNames[kind]}</option>`).join('')}</select></label><label>陣営<select id="editor-unit-owner"><option value="red" ${editor.unitOwner === 'red' ? 'selected' : ''}>自軍</option><option value="blue" ${editor.unitOwner === 'blue' ? 'selected' : ''}>敵軍</option></select></label></div><div class="editor-board" style="grid-template-columns:repeat(${editor.data.board.width},1fr)">${editorBoard}</div><p class="editor-coordinates">選択中: (${editor.selected.x + 1}, ${editor.selected.y + 1})</p></section><section class="editor-fields"><label>ID<input id="editor-id" value="${escapeHtml(editor.data.id)}"></label><label>作戦名<input id="editor-name" value="${escapeHtml(editor.data.name)}"></label><label>概要<textarea id="editor-briefing">${escapeHtml(editor.data.briefing)}</textarea></label><label>開始資金<input id="editor-gold" type="number" min="0" value="${editor.data.startingGold}"></label><label>勝利条件<select id="editor-victory">${editorVictoryKinds.map(kind => `<option value="${kind}" ${editorVictory.type === kind ? 'selected' : ''}>${kind === 'eliminate' ? '敵軍を全滅' : kind === 'captureCapital' ? '敵司令部を占領' : kind === 'hold' ? '選択地点を保持' : kind === 'survive' ? '規定ターン生存' : 'スコア到達'}</option>`).join('')}</select></label><label>目標値<input id="editor-victory-target" type="number" min="1" value="${editorVictoryTarget}"></label><p class="editor-hint">「保持」は現在選択中のマスを目標にします。敗北条件は敵の司令部占領です。</p></section></div><section class="editor-json"><div><h3>JSON 入出力</h3><p>読み込み時・検証時ともに、通常のシナリオと同じ安全なバリデーションを使います。</p></div><textarea id="editor-json" aria-label="シナリオJSON">${escapeHtml(exportScenarioEditorJson(editor))}</textarea><div class="editor-actions"><button id="editor-export" class="save-action">JSONを書き出す</button><button id="editor-import" class="save-action">JSONを反映</button><button id="editor-validate" class="end-turn">シナリオを検証</button><button id="editor-start" class="end-turn">保存してこのシナリオで開始</button></div>${editorNotice ? `<p class="editor-notice" aria-live="polite">${escapeHtml(editorNotice)}</p>` : ''}</section></section></div>` : '';
   const boardZoomControls = `<div class="board-zoom-controls" aria-label="盤面の拡大率"><button id="board-zoom-out" class="save-action" aria-label="盤面を縮小" title="盤面を縮小" ${boardZoomIndex === 0 ? 'disabled' : ''}>−</button><span aria-live="polite">${boardZoomPercent(boardZoomIndex)}%</span><button id="board-zoom-in" class="save-action" aria-label="盤面を拡大" title="盤面を拡大" ${boardZoomIndex === BOARD_ZOOM_LEVELS.length - 1 ? 'disabled' : ''}>＋</button></div>`;
-  // Spectating starts from the briefing and has nothing to pause once decided.
-  const spectateControl = !replayMode && matchMode === 'spectate' && !briefingOpen && !renderedGame.winner
+  // Spectating starts from the briefing and has nothing to pause once decided;
+  // modal screens hide it so it is not reachable behind them.
+  const spectateControl = !replayMode && matchMode === 'spectate' && !briefingOpen && !campaignMenuOpen && !editorOpen && !renderedGame.winner
     ? `<button id="spectate-toggle" class="save-action" aria-pressed="${spectatePaused}">${spectatePaused ? uiText.spectateResume : uiText.spectatePause}</button>`
     : '';
   const briefing = renderBriefingOverlay({
@@ -669,9 +673,16 @@ function render(): void {
   // screen stay usable after the match ends, whoever's turn it was.
   const guardCommand = (action: () => void) => () => { if (canCommand()) action(); };
   const guardMenu = (action: () => void) => () => { if (menuAllowed(matchContext())) action(); };
-  app.querySelector<HTMLButtonElement>('#spectate-toggle')?.addEventListener('click', () => {
-    if (spectatePaused) resumeSpectate(); else pauseSpectate();
-  });
+  // The header is redrawn after every CPU command, so a pointer press may land on
+  // a button that is replaced before release and never becomes a click. Acting on
+  // pointerdown keeps pause reliable at 4x; keyboard activation arrives as a
+  // click with detail 0, and the redraw keeps focus on the button by its id.
+  const toggleSpectate = () => { if (spectatePaused) resumeSpectate(); else pauseSpectate(); };
+  const spectateToggle = app.querySelector<HTMLButtonElement>('#spectate-toggle');
+  spectateToggle?.addEventListener('pointerdown', event => { if (event.button === 0) { event.preventDefault(); toggleSpectate(); } });
+  spectateToggle?.addEventListener('click', event => { if (event.detail === 0) toggleSpectate(); });
+  // Spectating never saves; the slot manager's save button follows the header's.
+  if (!saveAllowed(matchMode)) app.querySelector<HTMLButtonElement>('#save-new-slot')?.setAttribute('disabled', '');
   app.querySelector<HTMLButtonElement>('#skip-cpu')?.addEventListener('click', () => {
     cpuSkipRequested = true;
     pendingPresentationEffects = [];

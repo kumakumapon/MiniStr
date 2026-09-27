@@ -30,3 +30,21 @@ test('spectates a CPU-versus-CPU match with pause and resume (#129)', async ({ p
   await expect(page.locator('#spectate-toggle')).toHaveText('観戦を一時停止');
   await expect(page.locator('.turn-indicator strong')).toHaveText('赤軍 CPU 行動中', { timeout: 20_000 });
 });
+
+test('spectating leaves the player’s saves untouched and keeps alternating after a skip (#129)', async ({ page }) => {
+  const saveKeys = ['ministr.save.auto', 'ministr.save.manual'];
+  await page.goto('/');
+  await page.evaluate((keys) => keys.forEach((key) => localStorage.setItem(key, `sentinel:${key}`)), saveKeys);
+  await page.reload();
+  await page.locator('input[name="match-mode"][value="spectate"]').check();
+  await page.getByRole('button', { name: /単体作戦を開始/ }).click();
+  await expect(page.locator('#save-new-slot')).toBeDisabled();
+
+  // Skipping finishes red's turn at once; blue then plays on its own and hands back to red.
+  await page.locator('#skip-cpu').click();
+  await expect(page.locator('.turn-indicator strong')).toHaveText('青軍 CPU 行動中', { timeout: 20_000 });
+  await expect(page.locator('.turn-indicator strong')).toHaveText('赤軍 CPU 行動中', { timeout: 20_000 });
+
+  const stored = await page.evaluate((keys) => keys.map((key) => localStorage.getItem(key)), saveKeys);
+  expect(stored).toEqual(saveKeys.map((key) => `sentinel:${key}`));
+});
