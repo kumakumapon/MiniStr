@@ -12,6 +12,7 @@ async function expectConcealed(page: Page, side: string): Promise<void> {
 test('plays a two-player hotseat match without revealing either side across handoffs', async ({ page }) => {
   page.on('dialog', (dialog) => dialog.accept());
   await page.goto('/');
+  await page.locator('.title-map-card[data-map-id="skirmish"]').click();
   await page.locator('input[name="match-mode"][value="hotseat"]').check();
   await expect(page.locator('.briefing-overlay')).toContainText('赤軍の勝利条件');
   await page.getByRole('button', { name: /単体作戦を開始/ }).click();
@@ -42,8 +43,7 @@ test('plays a two-player hotseat match without revealing either side across hand
   await page.locator('#save').click();
   await expect(page.locator('.status-message')).toContainText('セーブしました');
   await page.reload();
-  await page.getByRole('button', { name: /単体作戦を開始/ }).click();
-  await page.locator('#continue').click();
+  await page.locator('#title-continue').click();
   await expectConcealed(page, '青軍');
   await page.locator('#handoff-start').click();
 
