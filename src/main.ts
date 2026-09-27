@@ -668,7 +668,11 @@ function render(): void {
   }
   if (gameOverOverlay || briefing || campaignOverlay || editorOverlay || concealed) {
     app.querySelector('main')?.setAttribute('inert', '');
-    window.setTimeout(() => document.querySelector<HTMLElement>(gameOverOverlay ? '#result-title' : editorOverlay ? '#editor-close' : campaignOverlay ? '#campaign-close' : concealed ? '#handoff-start' : '#begin-operation')?.focus(), 0);
+    // A briefing control the player just changed keeps focus, so a following
+    // Enter or Space does not land on the start button.
+    const briefingFocus = briefing && !gameOverOverlay && !editorOverlay && !campaignOverlay && !concealed && focusSelector?.startsWith('#briefing-') ? focusSelector : undefined;
+    if (briefingFocus) focusSelector = undefined;
+    window.setTimeout(() => document.querySelector<HTMLElement>(gameOverOverlay ? '#result-title' : editorOverlay ? '#editor-close' : campaignOverlay ? '#campaign-close' : concealed ? '#handoff-start' : briefingFocus ?? '#begin-operation')?.focus(), 0);
   }
   else if (focusSelector) {
     const previousSelector = focusSelector;
@@ -725,7 +729,6 @@ function render(): void {
     resetGame(document.querySelector<HTMLSelectElement>('#map')!.value);
     message = '作戦ブリーフィングを確認してください。'; render();
   });
-  document.querySelector<HTMLSelectElement>('#difficulty')!.onchange = guardMenu(() => { difficulty = document.querySelector<HTMLSelectElement>('#difficulty')!.value as CpuDifficulty; render(); });
   // Red's CPU is set from the header while paused, or on the briefing before the CPUs start.
   const bindDifficulty = (selector: string, apply: (level: CpuDifficulty) => void, allowed: () => boolean) => {
     const select = app.querySelector<HTMLSelectElement>(selector);
@@ -736,6 +739,7 @@ function render(): void {
     };
   };
   const menuOpen = () => menuAllowed(matchContext());
+  bindDifficulty('#difficulty', level => { difficulty = level; }, menuOpen);
   bindDifficulty('#red-difficulty', level => { redDifficulty = level; }, menuOpen);
   bindDifficulty('#briefing-red-difficulty', level => { redDifficulty = level; }, () => briefingOpen);
   bindDifficulty('#briefing-blue-difficulty', level => { difficulty = level; }, () => briefingOpen);
