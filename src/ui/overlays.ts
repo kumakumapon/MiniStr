@@ -51,12 +51,28 @@ export function renderBriefingOverlay(options: {
   matchMode?: MatchMode;
   /** Headings for the two condition lists; default to victory and defeat. */
   conditionHeadings?: { victory: string; defeat: string };
+  /** Spectating: each side's CPU difficulty, chosen before the CPUs start. */
+  spectateDifficulties?: SpectateDifficultyChoice;
 }): string {
   if (!options.visible) return '';
   const headings = options.conditionHeadings ?? { victory: uiText.victoryConditions, defeat: uiText.defeatConditions };
   const modeChoice = options.campaignRun || options.matchMode === undefined ? '' : renderMatchModeChoice(options.matchMode);
+  const difficultyChoice =
+    options.campaignRun || options.matchMode !== 'spectate' || !options.spectateDifficulties ? '' : renderSpectateDifficultyChoice(options.spectateDifficulties);
   const list = (conditions: readonly string[]) => conditions.map((condition) => `<li>${escapeHtml(condition)}</li>`).join('');
-  return `<div class="briefing-overlay" role="dialog" aria-modal="true" aria-labelledby="briefing-title" aria-describedby="briefing-copy"><section class="briefing-card"><p class="card-kicker">OPERATION BRIEFING</p><h2 id="briefing-title">${escapeHtml(options.mapName)}</h2><p id="briefing-copy" class="briefing-copy">${escapeHtml(options.briefing)}</p><div class="briefing-objectives"><section><h3>${escapeHtml(headings.victory)}</h3><ul>${list(options.victoryConditions)}</ul></section><section><h3>${escapeHtml(headings.defeat)}</h3><ul>${list(options.defeatConditions)}</ul></section></div><div class="briefing-meta"><span>${uiText.startingGold} <strong>${options.startingGold}G</strong></span><span>${uiText.turnLimit} <strong>${options.turnLimit ?? uiText.none}</strong></span><span>${uiText.difficulty} <strong>${escapeHtml(options.difficultyName)}</strong></span></div>${modeChoice}<div class="briefing-actions"><button id="open-campaign-briefing" class="save-action">${uiText.campaign}</button><button id="begin-operation" class="end-turn">${options.campaignRun ? uiText.beginCampaignOperation : uiText.beginSkirmish} <span aria-hidden="true">→</span></button></div></section></div>`;
+  return `<div class="briefing-overlay" role="dialog" aria-modal="true" aria-labelledby="briefing-title" aria-describedby="briefing-copy"><section class="briefing-card"><p class="card-kicker">OPERATION BRIEFING</p><h2 id="briefing-title">${escapeHtml(options.mapName)}</h2><p id="briefing-copy" class="briefing-copy">${escapeHtml(options.briefing)}</p><div class="briefing-objectives"><section><h3>${escapeHtml(headings.victory)}</h3><ul>${list(options.victoryConditions)}</ul></section><section><h3>${escapeHtml(headings.defeat)}</h3><ul>${list(options.defeatConditions)}</ul></section></div><div class="briefing-meta"><span>${uiText.startingGold} <strong>${options.startingGold}G</strong></span><span>${uiText.turnLimit} <strong>${options.turnLimit ?? uiText.none}</strong></span><span>${uiText.difficulty} <strong>${escapeHtml(options.difficultyName)}</strong></span></div>${modeChoice}${difficultyChoice}<div class="briefing-actions"><button id="open-campaign-briefing" class="save-action">${uiText.campaign}</button><button id="begin-operation" class="end-turn">${options.campaignRun ? uiText.beginCampaignOperation : uiText.beginSkirmish} <span aria-hidden="true">→</span></button></div></section></div>`;
+}
+
+export interface SpectateDifficultyChoice {
+  red: string;
+  blue: string;
+  levels: readonly { value: string; label: string }[];
+}
+
+function renderSpectateDifficultyChoice(choice: SpectateDifficultyChoice): string {
+  const select = (id: string, label: string, current: string) =>
+    `<label>${label}<select id="${id}" aria-label="${label}の難易度を選択">${choice.levels.map((level) => `<option value="${escapeHtml(level.value)}" ${level.value === current ? 'selected' : ''}>${escapeHtml(level.label)}</option>`).join('')}</select></label>`;
+  return `<fieldset class="briefing-mode"><legend>${uiText.spectateDifficultyLegend}</legend>${select('briefing-red-difficulty', uiText.spectateRedDifficulty, choice.red)}${select('briefing-blue-difficulty', uiText.spectateBlueDifficulty, choice.blue)}</fieldset>`;
 }
 
 function renderMatchModeChoice(mode: MatchMode): string {

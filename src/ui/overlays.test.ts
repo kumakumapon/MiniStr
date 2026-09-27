@@ -96,6 +96,33 @@ describe('overlay renderers', () => {
     expect(result).toContain('value="hotseat" ');
   });
 
+  it('offers each side’s CPU difficulty only when spectating outside campaigns (#131)', () => {
+    const levels = [
+      { value: 'easy', label: '易しい' },
+      { value: 'hard', label: '難しい' },
+    ];
+    const briefing = (matchMode: 'cpu' | 'spectate', campaignRun = false) =>
+      renderBriefingOverlay({
+        visible: true,
+        mapName: 'Test',
+        briefing: '',
+        victoryConditions: ['Win'],
+        defeatConditions: ['Lose'],
+        startingGold: 0,
+        difficultyName: '観戦・赤軍易しい / 青軍難しい',
+        campaignRun,
+        matchMode,
+        spectateDifficulties: { red: 'easy', blue: 'hard', levels },
+      });
+
+    const spectating = briefing('spectate');
+    expect(spectating).toMatch(/id="briefing-red-difficulty"[^>]*>.*<option value="easy" selected>/);
+    expect(spectating).toMatch(/id="briefing-blue-difficulty"[^>]*>.*<option value="hard" selected>/);
+    expect(spectating).toContain('観戦・赤軍易しい / 青軍難しい');
+    expect(briefing('cpu')).not.toContain('briefing-red-difficulty');
+    expect(briefing('spectate', true)).not.toContain('briefing-red-difficulty');
+  });
+
   it('keeps briefing controls and compact game panels stable', () => {
     const briefing = renderBriefingOverlay({
       visible: true,

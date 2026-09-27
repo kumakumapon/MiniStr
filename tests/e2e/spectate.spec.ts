@@ -48,3 +48,30 @@ test('spectating leaves the player’s saves untouched and keeps alternating aft
   const stored = await page.evaluate((keys) => keys.map((key) => localStorage.getItem(key)), saveKeys);
   expect(stored).toEqual(saveKeys.map((key) => `sentinel:${key}`));
 });
+
+test('sets each side’s CPU difficulty for spectating (#131)', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.locator('#briefing-red-difficulty')).toHaveCount(0);
+  await page.locator('input[name="match-mode"][value="spectate"]').check();
+  // A keyboard user changes a focused control; it keeps focus instead of jumping to the start button.
+  await page.locator('#briefing-red-difficulty').focus();
+  await page.locator('#briefing-red-difficulty').selectOption('easy');
+  await expect(page.locator('#briefing-red-difficulty')).toBeFocused();
+  await page.locator('#briefing-blue-difficulty').selectOption('hard');
+  await expect(page.locator('.briefing-meta')).toContainText('観戦・赤軍易しい / 青軍難しい');
+  await page.getByRole('button', { name: /単体作戦を開始/ }).click();
+
+  // The header shows both sides; changes are refused while a CPU turn runs.
+  await expect(page.locator('#red-difficulty')).toHaveValue('easy');
+  await expect(page.locator('#difficulty')).toHaveValue('hard');
+  await expect(page.locator('#skip-cpu')).toBeVisible();
+  await page.locator('#red-difficulty').selectOption('hard');
+  await expect(page.locator('#red-difficulty')).toHaveValue('easy');
+
+  // Red can be changed while paused.
+  await page.locator('#spectate-toggle').click();
+  await expect(page.locator('#spectate-toggle')).toHaveText('観戦を再開');
+  await page.locator('#red-difficulty').selectOption('normal');
+  await expect(page.locator('#red-difficulty')).toHaveValue('normal');
+  await expect(page.locator('#difficulty')).toHaveValue('hard');
+});

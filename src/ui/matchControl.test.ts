@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { commandAllowed, cpuShouldRun, handoffAfterEndTurn, menuAllowed, parseMatchMode, saveAllowed, sideName, spectateContinues, SPECTATE_TURN_LIMIT, undoAllowed, viewerFor, type MatchContext } from './matchControl';
+import { commandAllowed, cpuDifficultyFor, cpuShouldRun, handoffAfterEndTurn, menuAllowed, parseMatchMode, saveAllowed, sideName, spectateContinues, SPECTATE_TURN_LIMIT, undoAllowed, viewerFor, type MatchContext } from './matchControl';
 
 const context = (patch: Partial<MatchContext> = {}): MatchContext => ({
   mode: 'cpu', activePlayer: 'red', replay: false, cpuInProgress: false, handoffPending: false, ...patch,
@@ -95,6 +95,15 @@ describe('spectate mode (#129)', () => {
     expect(spectateContinues({ turn: 3, winner: 'red' })).toBe(false);
     // Resuming moves the pause point another limit ahead.
     expect(spectateContinues({ turn: SPECTATE_TURN_LIMIT }, SPECTATE_TURN_LIMIT * 2)).toBe(true);
+  });
+
+  it('plays each spectated side at its own difficulty and keeps one CPU difficulty otherwise (#131)', () => {
+    const difficulties = { red: 'easy', blue: 'hard' } as const;
+    expect(cpuDifficultyFor('spectate', 'red', difficulties)).toBe('easy');
+    expect(cpuDifficultyFor('spectate', 'blue', difficulties)).toBe('hard');
+    expect(cpuDifficultyFor('cpu', 'blue', difficulties)).toBe('hard');
+    expect(cpuDifficultyFor('cpu', 'red', difficulties)).toBe('hard');
+    expect(cpuDifficultyFor('hotseat', 'red', difficulties)).toBe('hard');
   });
 
   it('parses the briefing choice and falls back to a CPU match for unknown input', () => {

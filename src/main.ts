@@ -13,7 +13,7 @@ import { loadSoundSettings, ProceduralSoundPlayer, saveSoundSettings, type Sound
 import { commandErrorMessage, escapeHtml, uiText } from './ui/strings';
 import { renderSaveSlotManager } from './ui/saveSlots';
 import { renderBriefingOverlay, renderCampaignOverlay, renderGameOverOverlay, renderHandoffOverlay, renderProductionCard, renderUnitActionCluster } from './ui/overlays';
-import { commandAllowed, cpuShouldRun, handoffAfterEndTurn, menuAllowed, parseMatchMode, saveAllowed, sideName, spectateContinues, SPECTATE_TURN_LIMIT, undoAllowed, viewerFor, type MatchContext, type MatchMode } from './ui/matchControl';
+import { commandAllowed, cpuDifficultyFor, cpuShouldRun, handoffAfterEndTurn, menuAllowed, parseMatchMode, saveAllowed, sideName, spectateContinues, SPECTATE_TURN_LIMIT, undoAllowed, viewerFor, type MatchContext, type MatchMode } from './ui/matchControl';
 import { deleteSaveSlot, getStorageUsage, listSaveSlots, loadGameFromSlot, saveGameToSlot } from './game';
 
 let selectedMap = maps[0]!;
@@ -23,7 +23,10 @@ let focusedPosition: Position = { x: 0, y: 0 };
 let message: string = uiText.defaultInstruction;
 const loadedCustomScenarios = loadCustomScenarios(localStorage);
 if (!loadedCustomScenarios.ok) message = loadedCustomScenarios.error;
+/** The CPU's difficulty; in spectating it is blue's, and red uses `redDifficulty`. */
 let difficulty: CpuDifficulty = 'normal';
+/** Spectating only: red's CPU difficulty. Saves and replays keep recording `difficulty`. */
+let redDifficulty: CpuDifficulty = 'normal';
 let boardZoomIndex = defaultBoardZoomIndex(boardAreaWidth(window.innerWidth), game.board.width);
 /** Cleared the first time the player uses the zoom controls, so a resize stops overriding them. */
 let boardZoomAuto = true;
@@ -69,6 +72,9 @@ let campaignProgress = loadedCampaign.ok ? loadedCampaign.value : createCampaign
 let campaignNotice = loadedCampaign.ok ? '' : loadedCampaign.error;
 const app = document.querySelector<HTMLDivElement>('#app')!;
 const difficultyNames: Record<CpuDifficulty, string> = { easy: '易しい', normal: '普通', hard: '難しい' };
+const cpuDifficulties: readonly CpuDifficulty[] = ['easy', 'normal', 'hard'];
+/** Form values are checked against the known levels rather than cast. */
+const parseCpuDifficulty = (value: string): CpuDifficulty | undefined => cpuDifficulties.find(level => level === value);
 let soundSettings: SoundSettings = loadSoundSettings(localStorage);
 const soundPlayer = new ProceduralSoundPlayer(soundSettings);
 let pendingPresentationEffects: PresentationEffect[] = [];
@@ -106,7 +112,7 @@ function unactedOwnUnits(state: GameState, player: PlayerId): DeployedUnit[] {
 
 function matchDifficultyName(): string {
   if (matchMode === 'hotseat') return uiText.hotseatDifficulty;
-  return matchMode === 'spectate' ? uiText.spectateDifficulty(difficultyNames[difficulty]) : difficultyNames[difficulty];
+  return matchMode === 'spectate' ? uiText.spectateDifficulty(difficultyNames[redDifficulty], difficultyNames[difficulty]) : difficultyNames[difficulty];
 }
 function matchContext(): MatchContext {
   return { mode: matchMode, activePlayer: game.activePlayer, winner: game.winner, replay: replay !== undefined, cpuInProgress, handoffPending };
@@ -626,6 +632,10 @@ function render(): void {
   const spectateControl = !replayMode && matchMode === 'spectate' && !briefingOpen && !campaignMenuOpen && !editorOpen && !renderedGame.winner
     ? `<button id="spectate-toggle" class="save-action" aria-pressed="${spectatePaused}">${spectatePaused ? uiText.spectateResume : uiText.spectatePause}</button>`
     : '';
+  // Spectating sets each side's CPU; replays record a single difficulty.
+  const spectateDifficulties = !replayMode && matchMode === 'spectate';
+  const difficultyOptions = (current: CpuDifficulty) => cpuDifficulties
+    .map(level => `<option value="${level}" ${level === current ? 'selected' : ''}>${difficultyNames[level]}</option>`).join('');
   const briefing = renderBriefingOverlay({
     visible: !campaignMenuOpen && !replayMode && briefingOpen,
     mapName: renderedMap.name,
@@ -633,6 +643,7 @@ function render(): void {
     victoryConditions: [...renderedMap.victoryConditions.map(describeVictoryCondition), ...(renderedDecisionRound === undefined ? [] : [uiText.decisionRule(renderedDecisionRound)])],
     matchMode: campaignRun ? undefined : matchMode,
     conditionHeadings: matchMode === 'cpu' ? undefined : { victory: '赤軍の勝利条件', defeat: '青軍の勝利条件' },
+    spectateDifficulties: { red: redDifficulty, blue: difficulty, levels: cpuDifficulties.map(level => ({ value: level, label: difficultyNames[level] })) },
     defeatConditions: renderedMap.defeatConditions.map(describeVictoryCondition),
     startingGold: renderedMap.startingGold,
     turnLimit: renderedMap.turnLimit,
@@ -640,7 +651,7 @@ function render(): void {
     campaignRun: campaignRun !== undefined,
   });
   app.innerHTML = `<main class="game-shell">
-    <header class="command-bar"><div class="brand"><span class="brand-mark" aria-hidden="true">✦</span><div><h1>MiniStr</h1><p>TACTICAL COMMAND</p></div></div><label class="map-picker">戦域<select id="map" aria-label="戦域マップを選択" ${replayMode || campaignRun ? 'disabled' : ''}><optgroup label="組み込み">${maps.map(map => `<option value="${escapeHtml(map.id)}" ${map.id === renderedMap.id ? 'selected' : ''}>${escapeHtml(map.name)}</option>`).join('')}</optgroup>${availableScenarios().filter(map => !maps.some(builtIn => builtIn.id === map.id)).length ? `<optgroup label="カスタム">${availableScenarios().filter(map => !maps.some(builtIn => builtIn.id === map.id)).map(map => `<option value="${escapeHtml(map.id)}" ${map.id === renderedMap.id ? 'selected' : ''}>${escapeHtml(map.name)}</option>`).join('')}</optgroup>` : ''}</select></label><label class="map-picker">難易度<select id="difficulty" aria-label="CPUの難易度を選択" ${replayMode ? 'disabled' : ''}>${(['easy', 'normal', 'hard'] as CpuDifficulty[]).map(level => `<option value="${level}" ${level === renderedDifficulty ? 'selected' : ''}>${difficultyNames[level]}</option>`).join('')}</select></label><label class="map-picker">CPU速度<select id="cpu-speed" aria-label="CPUの行動速度を選択" ${replayMode ? 'disabled' : ''}>${COMMAND_SPEEDS.map(speed => `<option value="${speed}" ${speed === cpuSpeed ? 'selected' : ''}>${speed}x</option>`).join('')}</select></label><div class="save-controls"><button id="open-editor" class="save-action" ${replayMode ? 'disabled' : ''}>マップ編集</button><button id="open-campaign" class="save-action" ${replayMode ? 'disabled' : ''}>キャンペーン</button><button id="continue" class="save-action" ${replayMode || !hasSave() ? 'disabled' : ''}>続きから</button><button id="save" class="save-action" ${replayMode || !saveAllowed(matchMode) ? 'disabled' : ''}>手動セーブ</button><button id="delete-save" class="save-action" ${replayMode || !hasStoredSave() ? 'disabled' : ''}>対局セーブ削除</button><button id="undo" class="save-action" ${canAct && undoAllowed(matchMode) && undoStack.length > 0 ? '' : 'disabled'}>1手戻す</button><button id="import-replay" class="save-action" ${replayMode ? 'disabled' : ''}>JSON取込</button><input id="replay-file" class="visually-hidden" type="file" accept=".json,application/json" aria-label="JSONリプレイファイルを選択"></div><div class="turn-indicator ${renderedGame.activePlayer}"><span>${replayMode ? 'REPLAY' : cpuInProgress ? 'CPU THINKING' : campaignRun ? 'CAMPAIGN' : matchMode === 'spectate' ? 'SPECTATE' : 'TURN'}</span><strong>${cpuInProgress ? (matchMode === 'spectate' ? `${activeLabel} CPU 行動中` : 'CPU 行動中') : concealed ? `${activeLabel}の番` : activeLabel}</strong></div>${cpuInProgress ? '<button id="skip-cpu" class="save-action" title="CPUの残りの行動を高速に進める">CPU をスキップ</button>' : ''}${spectateControl}<button id="end" class="end-turn" title="現在のターンを終了" aria-label="ターンを終了する" ${!canAct ? 'disabled' : ''}>ターン終了 <span aria-hidden="true">→</span></button></header>
+    <header class="command-bar"><div class="brand"><span class="brand-mark" aria-hidden="true">✦</span><div><h1>MiniStr</h1><p>TACTICAL COMMAND</p></div></div><label class="map-picker">戦域<select id="map" aria-label="戦域マップを選択" ${replayMode || campaignRun ? 'disabled' : ''}><optgroup label="組み込み">${maps.map(map => `<option value="${escapeHtml(map.id)}" ${map.id === renderedMap.id ? 'selected' : ''}>${escapeHtml(map.name)}</option>`).join('')}</optgroup>${availableScenarios().filter(map => !maps.some(builtIn => builtIn.id === map.id)).length ? `<optgroup label="カスタム">${availableScenarios().filter(map => !maps.some(builtIn => builtIn.id === map.id)).map(map => `<option value="${escapeHtml(map.id)}" ${map.id === renderedMap.id ? 'selected' : ''}>${escapeHtml(map.name)}</option>`).join('')}</optgroup>` : ''}</select></label>${spectateDifficulties ? `<label class="map-picker">${uiText.spectateRedDifficulty}<select id="red-difficulty" aria-label="赤軍CPUの難易度を選択">${difficultyOptions(redDifficulty)}</select></label>` : ''}<label class="map-picker">${spectateDifficulties ? uiText.spectateBlueDifficulty : '難易度'}<select id="difficulty" aria-label="${spectateDifficulties ? '青軍CPU' : 'CPU'}の難易度を選択" ${replayMode ? 'disabled' : ''}>${difficultyOptions(renderedDifficulty)}</select></label><label class="map-picker">CPU速度<select id="cpu-speed" aria-label="CPUの行動速度を選択" ${replayMode ? 'disabled' : ''}>${COMMAND_SPEEDS.map(speed => `<option value="${speed}" ${speed === cpuSpeed ? 'selected' : ''}>${speed}x</option>`).join('')}</select></label><div class="save-controls"><button id="open-editor" class="save-action" ${replayMode ? 'disabled' : ''}>マップ編集</button><button id="open-campaign" class="save-action" ${replayMode ? 'disabled' : ''}>キャンペーン</button><button id="continue" class="save-action" ${replayMode || !hasSave() ? 'disabled' : ''}>続きから</button><button id="save" class="save-action" ${replayMode || !saveAllowed(matchMode) ? 'disabled' : ''}>手動セーブ</button><button id="delete-save" class="save-action" ${replayMode || !hasStoredSave() ? 'disabled' : ''}>対局セーブ削除</button><button id="undo" class="save-action" ${canAct && undoAllowed(matchMode) && undoStack.length > 0 ? '' : 'disabled'}>1手戻す</button><button id="import-replay" class="save-action" ${replayMode ? 'disabled' : ''}>JSON取込</button><input id="replay-file" class="visually-hidden" type="file" accept=".json,application/json" aria-label="JSONリプレイファイルを選択"></div><div class="turn-indicator ${renderedGame.activePlayer}"><span>${replayMode ? 'REPLAY' : cpuInProgress ? 'CPU THINKING' : campaignRun ? 'CAMPAIGN' : matchMode === 'spectate' ? 'SPECTATE' : 'TURN'}</span><strong>${cpuInProgress ? (matchMode === 'spectate' ? `${activeLabel} CPU 行動中` : 'CPU 行動中') : concealed ? `${activeLabel}の番` : activeLabel}</strong></div>${cpuInProgress ? '<button id="skip-cpu" class="save-action" title="CPUの残りの行動を高速に進める">CPU をスキップ</button>' : ''}${spectateControl}<button id="end" class="end-turn" title="現在のターンを終了" aria-label="ターンを終了する" ${!canAct ? 'disabled' : ''}>ターン終了 <span aria-hidden="true">→</span></button></header>
     ${scenarioLoadError ? `<p class="scenario-warning">組み込みシナリオの読み込みに失敗したため、緊急スカーミッシュで起動しています。${escapeHtml(scenarioLoadError)}</p>` : ''}
     <section class="sound-controls" aria-label="効果音設定"><label><input id="sound-muted" type="checkbox" ${soundSettings.muted ? 'checked' : ''}> 効果音</label><label>音量 <input id="sound-volume" type="range" min="0" max="100" value="${Math.round(soundSettings.volume * 100)}" aria-label="効果音の音量"></label></section>
     ${!hasSave() && hasStoredSave() ? '<p class="scenario-warning" role="status">有効なセーブデータを読み込めません。対局セーブ削除で削除して新規対局を開始できます。</p>' : ''}
@@ -657,7 +668,11 @@ function render(): void {
   }
   if (gameOverOverlay || briefing || campaignOverlay || editorOverlay || concealed) {
     app.querySelector('main')?.setAttribute('inert', '');
-    window.setTimeout(() => document.querySelector<HTMLElement>(gameOverOverlay ? '#result-title' : editorOverlay ? '#editor-close' : campaignOverlay ? '#campaign-close' : concealed ? '#handoff-start' : '#begin-operation')?.focus(), 0);
+    // A briefing control the player just changed keeps focus, so a following
+    // Enter or Space does not land on the start button.
+    const briefingFocus = briefing && !gameOverOverlay && !editorOverlay && !campaignOverlay && !concealed && focusSelector?.startsWith('#briefing-') ? focusSelector : undefined;
+    if (briefingFocus) focusSelector = undefined;
+    window.setTimeout(() => document.querySelector<HTMLElement>(gameOverOverlay ? '#result-title' : editorOverlay ? '#editor-close' : campaignOverlay ? '#campaign-close' : concealed ? '#handoff-start' : briefingFocus ?? '#begin-operation')?.focus(), 0);
   }
   else if (focusSelector) {
     const previousSelector = focusSelector;
@@ -714,7 +729,20 @@ function render(): void {
     resetGame(document.querySelector<HTMLSelectElement>('#map')!.value);
     message = '作戦ブリーフィングを確認してください。'; render();
   });
-  document.querySelector<HTMLSelectElement>('#difficulty')!.onchange = guardMenu(() => { difficulty = document.querySelector<HTMLSelectElement>('#difficulty')!.value as CpuDifficulty; render(); });
+  // Red's CPU is set from the header while paused, or on the briefing before the CPUs start.
+  const bindDifficulty = (selector: string, apply: (level: CpuDifficulty) => void, allowed: () => boolean) => {
+    const select = app.querySelector<HTMLSelectElement>(selector);
+    if (select) select.onchange = () => {
+      const level = parseCpuDifficulty(select.value);
+      if (level && allowed()) apply(level);
+      render();
+    };
+  };
+  const menuOpen = () => menuAllowed(matchContext());
+  bindDifficulty('#difficulty', level => { difficulty = level; }, menuOpen);
+  bindDifficulty('#red-difficulty', level => { redDifficulty = level; }, menuOpen);
+  bindDifficulty('#briefing-red-difficulty', level => { redDifficulty = level; }, () => briefingOpen);
+  bindDifficulty('#briefing-blue-difficulty', level => { difficulty = level; }, () => briefingOpen);
   document.querySelector<HTMLSelectElement>('#cpu-speed')?.addEventListener('change', event => {
     cpuSpeed = Number((event.currentTarget as HTMLSelectElement).value) as CommandSpeed;
     message = `CPUの行動速度を ${cpuSpeed}x にしました。`;
@@ -1165,7 +1193,7 @@ function runCpu(initialDelayMs = 0): void {
     if (replay || game.activePlayer !== side || game.winner) { finishCpuTurn(side); return false; }
     if (steps >= maximumSteps) { finishCpuTurn(side, true); return false; }
     steps += 1;
-    const action = chooseCpuAction(game, difficulty);
+    const action = chooseCpuAction(game, cpuDifficultyFor(matchMode, side, { red: redDifficulty, blue: difficulty }));
     if (action.type === 'endTurn') { dispatch(action); finishCpuTurn(side); return false; }
     const before = game;
     if (!dispatch(action)) {
