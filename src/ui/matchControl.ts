@@ -91,6 +91,15 @@ export function manualSaveTarget(mode: MatchMode): 'manual' | 'slot' {
 }
 
 /**
+ * "Delete match saves" clears the player's manual and auto saves. Spectating
+ * never touches them (#139), so it cannot delete them either; named slots stay
+ * individually deletable.
+ */
+export function matchSaveDeletionAllowed(mode: MatchMode): boolean {
+  return mode !== 'spectate';
+}
+
+/**
  * Autosaves belong to matches a person plays; spectating never overwrites them.
  * Spectated matches are saved only when the viewer asks (manual or slot saves).
  */

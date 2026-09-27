@@ -155,3 +155,42 @@ test('saves a paused spectated match to a slot and resumes it paused with both d
   await expect(page.locator('#spectate-toggle')).toHaveText('観戦を一時停止');
   await expect(page.locator('.turn-indicator strong')).toContainText('CPU 行動中');
 });
+
+test('cannot delete the player’s match saves while spectating, but can delete slots (#141)', async ({ page }) => {
+  const saveKeys = ['ministr.save.auto', 'ministr.save.manual'];
+  await page.goto('/');
+  await page.evaluate((keys) => keys.forEach((key) => localStorage.setItem(key, `sentinel:${key}`)), saveKeys);
+  await page.reload();
+  // Outside spectating the button is usable for these (invalid) stored saves.
+  await page.getByRole('button', { name: /単体作戦を開始/ }).click();
+  await expect(page.locator('#delete-save')).toBeEnabled();
+  await expect(page.locator('.scenario-warning[role="status"]')).toContainText('対局セーブ削除で削除して新規対局を開始できます');
+
+  await page.locator('#map').selectOption({ index: 0 });
+  page.on('dialog', (dialog) => dialog.accept('削除テスト'));
+  await page.locator('input[name="match-mode"][value="spectate"]').check();
+  await page.getByRole('button', { name: /単体作戦を開始/ }).click();
+  await page.locator('#spectate-toggle').click();
+  await expect(page.locator('#spectate-toggle')).toHaveText('観戦を再開');
+
+  // Paused, menus work, yet match-save deletion stays off and explains why.
+  await expect(page.locator('#delete-save')).toBeDisabled();
+  await expect(page.locator('#delete-save')).toHaveAttribute('title', '観戦中は対局セーブを削除できません');
+  await expect(page.locator('.scenario-warning[role="status"]')).toContainText('CPU対戦か2人対戦を選んでから');
+  // The handler refuses too: re-enable the button in the page and click it.
+  await page.evaluate(() => {
+    const button = document.querySelector<HTMLButtonElement>('#delete-save')!;
+    button.disabled = false;
+    button.click();
+  });
+  const stored = await page.evaluate((keys) => keys.map((key) => localStorage.getItem(key)), saveKeys);
+  expect(stored).toEqual(saveKeys.map((key) => `sentinel:${key}`));
+
+  // Named slots can still be tidied up one by one.
+  await page.locator('#save').click();
+  const slot = page.locator('.save-slot-manager li', { hasText: '削除テスト' });
+  await expect(slot).toBeVisible();
+  await slot.locator('.delete-save-slot').click();
+  await expect(page.locator('.status-message')).toContainText('セーブスロットを削除しました');
+  await expect(slot).toHaveCount(0);
+});
