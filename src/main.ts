@@ -759,13 +759,14 @@ function render(): void {
     // A briefing control the player just changed keeps focus, so a following
     // Enter or Space does not land on the start button.
     const briefingFocus = briefing && !gameOverOverlay && !editorOverlay && !campaignOverlay && !concealed && focusSelector?.startsWith('#briefing-') ? focusSelector : undefined;
-    if (briefingFocus) focusSelector = undefined;
     // On the title, a redraw keeps focus on the control in use (a failed load's
-    // notice is announced by its status role). Anything else is dropped so it
-    // cannot pull focus once another screen opens.
+    // notice is announced by its status role).
     const titleFocus = titleOverlay && !gameOverOverlay && !editorOverlay && !campaignOverlay
       && (focusSelector?.startsWith('#title-') || focusSelector?.startsWith('.title-map-card')) ? focusSelector : undefined;
-    if (titleOverlay) focusSelector = undefined;
+    // Overlays place focus themselves, so the remembered control is always used
+    // up here. A stale one (say, the title card just chosen) would otherwise stop
+    // the next redraw from remembering the control actually in use.
+    focusSelector = undefined;
     window.setTimeout(() => document.querySelector<HTMLElement>(gameOverOverlay ? '#result-title' : editorOverlay ? '#editor-close' : campaignOverlay ? '#campaign-close' : titleOverlay ? titleFocus ?? (titleResumable ? '#title-resume' : '.title-map-card[aria-current="true"]') : concealed ? '#handoff-start' : briefingFocus ?? '#begin-operation')?.focus(), 0);
   }
   else if (focusSelector) {
