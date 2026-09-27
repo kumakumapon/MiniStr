@@ -1,17 +1,17 @@
 import { describe, expect, it } from 'vitest';
 import { applyGameCommand, createBoard, createGameState, endTurn, maps, reachablePositions, type DeployedUnit, type GameState } from '../game';
-import { chooseCpuAction, cpuDifficultyConfig, createCpuPlanningContext, difficultyForceLimit, evaluateCpuPosition as scoreCpuPosition, type CpuDifficultyConfig } from './rules';
+import { chooseCpuAction, cpuDifficultyConfig, createCpuPlanningContext, difficultyForceLimit, evaluateCpuPosition as scoreCpuPosition, type CpuDifficulty, type CpuDifficultyConfig } from './rules';
 
 /**
  * Fixed weights for testing the position-scoring formula itself, independent of
  * how the difficulty presets are tuned (#119 moved every preset to shared weights).
  */
 const referenceWeights: CpuDifficultyConfig = {
-  attackSafetyMargin: 0, prioritizeCapital: true, threatAvoidanceWeight: 1, terrainDefenseWeight: 1, objectiveDistanceWeight: 6, lowHpRetreatWeight: 1, forceLimitScale: 1,
+  attackSafetyMargin: 0, prioritizeCapital: true, threatAvoidanceWeight: 1, terrainDefenseWeight: 1, objectiveDistanceWeight: 6, lowHpRetreatWeight: 1, forceLimitScale: 1, strikePlanning: 'none',
 };
 /** Cautious weights that value cover and retreat strongly, for testing those terms. */
 const cautiousWeights: CpuDifficultyConfig = {
-  attackSafetyMargin: -15, prioritizeCapital: true, threatAvoidanceWeight: 1.6, terrainDefenseWeight: 1.35, objectiveDistanceWeight: 4, lowHpRetreatWeight: 2, forceLimitScale: 1,
+  attackSafetyMargin: -15, prioritizeCapital: true, threatAvoidanceWeight: 1.6, terrainDefenseWeight: 1.35, objectiveDistanceWeight: 4, lowHpRetreatWeight: 2, forceLimitScale: 1, strikePlanning: 'none',
 };
 
 const stateWith = (state: GameState, patch: Partial<GameState>): GameState => ({ ...state, ...patch });
@@ -264,12 +264,13 @@ function stateWithVisibleThreat(hp = 100): GameState {
 }
 
 describe('CPU movement difficulty', () => {
-  it('shares decision weights across difficulties and ranks them only by force size (#119)', () => {
-    const { forceLimitScale: easyScale, ...easyWeights } = cpuDifficultyConfig.easy;
-    const { forceLimitScale: normalScale, ...normalWeights } = cpuDifficultyConfig.normal;
-    const { forceLimitScale: hardScale, ...hardWeights } = cpuDifficultyConfig.hard;
+  it('shares decision weights across difficulties and ranks them by force size (#119) and strike planning (#122)', () => {
+    const { forceLimitScale: easyScale, strikePlanning: easyStrikes, ...easyWeights } = cpuDifficultyConfig.easy;
+    const { forceLimitScale: normalScale, strikePlanning: normalStrikes, ...normalWeights } = cpuDifficultyConfig.normal;
+    const { forceLimitScale: hardScale, strikePlanning: hardStrikes, ...hardWeights } = cpuDifficultyConfig.hard;
     expect(normalWeights).toEqual(easyWeights);
     expect(hardWeights).toEqual(easyWeights);
+    expect([easyStrikes, normalStrikes, hardStrikes]).toEqual(['none', 'lethal', 'full']);
     expect(easyScale).toBeLessThan(normalScale);
     expect(normalScale).toBeLessThan(hardScale);
     const board = maps.find(map => map.id === 'siege')!.board;
@@ -304,7 +305,7 @@ describe('CPU movement difficulty', () => {
     expect(damagedRetreatGain).toBeGreaterThan(healthyRetreatGain);
   });
 
-  it('makes the same deterministic move at every difficulty (difficulty only changes force size)', () => {
+  it('moves in for a favorable non-lethal strike only on hard (#122); easy and normal advance by position', () => {
     const board = createBoard(6, 1);
     board.terrain[0]![0] = { kind: 'capital', owner: 'red', capturePoints: 20 };
     board.terrain[0]![3] = { kind: 'road' };
@@ -320,8 +321,9 @@ describe('CPU movement difficulty', () => {
 
     const easy = chooseCpuAction(state, 'easy');
     expect(easy).toEqual({ type: 'move', unitId: 'red-tank', destination: { x: 2, y: 0 } });
+    // A full-HP tank cannot be destroyed in one hit, so normal ('lethal') keeps the positional move.
     expect(chooseCpuAction(state, 'normal')).toEqual(easy);
-    expect(chooseCpuAction(state, 'hard')).toEqual(easy);
+    expect(chooseCpuAction(state, 'hard')).toEqual({ type: 'move', unitId: 'red-tank', destination: { x: 3, y: 0 } });
   });
 });
 
@@ -405,7 +407,7 @@ describe('CPU fuel exhaustion recovery', () => {
 });
 
 
-function benchmarkCpuTurnState(): GameState {
+function benchmarkCpuTurnState(redColumn = 2): GameState {
   // Keep this independent from the scenario catalog: it fixes the intended
   // 20×15 scale and exactly 20 deployed units.
   const board = createBoard(20, 15);
@@ -416,18 +418,18 @@ function benchmarkCpuTurnState(): GameState {
   const state = createGameState(board);
   state.activePlayer = 'blue';
   state.units = kinds.flatMap((kind, index) => [
-    { id: `red-${index}`, kind, owner: 'red' as const, position: { x: 2, y: rows[index]! }, hp: 100, hasMoved: false, hasActed: false },
+    { id: `red-${index}`, kind, owner: 'red' as const, position: { x: redColumn, y: rows[index]! }, hp: 100, hasMoved: false, hasActed: false },
     { id: `blue-${index}`, kind, owner: 'blue' as const, position: { x: 17, y: rows[index]! }, hp: 100, hasMoved: false, hasActed: false },
   ]);
   return state;
 }
 
-function playCpuTurnForBenchmark(initial: GameState): { state: GameState; steps: number; error?: string } {
+function playCpuTurnForBenchmark(initial: GameState, difficulty: CpuDifficulty = 'normal'): { state: GameState; steps: number; error?: string } {
   let state = initial;
   let steps = 0;
   const maximumSteps = Math.max(30, state.units.filter(unit => unit.owner === 'blue').length * 3 + 5);
   while (state.activePlayer === 'blue' && !state.winner && steps < maximumSteps) {
-    const applied = applyGameCommand(state, chooseCpuAction(state, 'normal'));
+    const applied = applyGameCommand(state, chooseCpuAction(state, difficulty));
     steps += 1;
     if (!applied.ok) return { state, steps, error: applied.error };
     state = applied.value;
@@ -448,6 +450,19 @@ describe('CPU planning performance', () => {
     expect(result.state.activePlayer).toBe('red');
     // This permits wide shared-CI variance while catching accidental
     // per-candidate full-board recomputation.
+    expect(elapsedMs).toBeLessThan(1_000);
+  });
+
+  it('stays within the same budget when every hard-difficulty unit has strike candidates (#122)', () => {
+    // Five columns apart, every blue unit can reach and hit the red line.
+    const initial = benchmarkCpuTurnState(12);
+
+    const startedAt = performance.now();
+    const result = playCpuTurnForBenchmark(initial, 'hard');
+    const elapsedMs = performance.now() - startedAt;
+
+    expect(result.error).toBeUndefined();
+    expect(result.state.activePlayer).toBe('red');
     expect(elapsedMs).toBeLessThan(1_000);
   });
 });
