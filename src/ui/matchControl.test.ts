@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { commandAllowed, cpuDifficultyFor, cpuShouldRun, handoffAfterEndTurn, menuAllowed, parseMatchMode, autosaveAllowed, showsWholeBoard, sideName, spectateContinues, SPECTATE_TURN_LIMIT, undoAllowed, viewerFor, type MatchContext } from './matchControl';
+import { commandAllowed, cpuDifficultyFor, cpuShouldRun, handoffAfterEndTurn, menuAllowed, parseMatchMode, autosaveAllowed, manualSaveTarget, showsWholeBoard, sideName, spectateContinues, SPECTATE_TURN_LIMIT, undoAllowed, viewerFor, type MatchContext } from './matchControl';
 
 const context = (patch: Partial<MatchContext> = {}): MatchContext => ({
   mode: 'cpu', activePlayer: 'red', replay: false, cpuInProgress: false, handoffPending: false, ...patch,
@@ -76,6 +76,10 @@ describe('spectate mode (#129)', () => {
     expect(autosaveAllowed('spectate')).toBe(false);
     expect(autosaveAllowed('cpu')).toBe(true);
     expect(autosaveAllowed('hotseat')).toBe(true);
+    // The header's save goes to a named slot, never the shared manual save (#139).
+    expect(manualSaveTarget('spectate')).toBe('slot');
+    expect(manualSaveTarget('cpu')).toBe('manual');
+    expect(manualSaveTarget('hotseat')).toBe('manual');
   });
 
   it('keeps menus usable while paused and blocks them while a CPU turn runs', () => {

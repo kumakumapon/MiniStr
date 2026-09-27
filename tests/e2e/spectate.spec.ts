@@ -111,25 +111,34 @@ test('shows the whole board without fog while spectating, and only then (#133)',
   await expect(page.locator('.tile.fog').first()).toBeVisible();
 });
 
-test('saves a paused spectated match and resumes it paused with both difficulties (#135)', async ({ page }) => {
+test('saves a paused spectated match to a slot and resumes it paused with both difficulties (#135, #139)', async ({ page }) => {
+  const saveKeys = ['ministr.save.auto', 'ministr.save.manual'];
   await page.goto('/');
+  // The player's own saves must survive spectating (#139).
+  await page.evaluate((keys) => keys.forEach((key) => localStorage.setItem(key, `sentinel:${key}`)), saveKeys);
+  await page.reload();
+  page.on('dialog', (dialog) => dialog.accept('観戦テスト'));
   await page.locator('input[name="match-mode"][value="spectate"]').check();
   await page.locator('#briefing-red-difficulty').selectOption('easy');
   await page.locator('#briefing-blue-difficulty').selectOption('hard');
   await page.getByRole('button', { name: /単体作戦を開始/ }).click();
 
-  // Blue's first turn is reached, then the viewer pauses and saves.
+  // Blue's first turn is reached, then the viewer pauses and saves to a named slot.
   await expect(page.locator('.turn-indicator strong')).toHaveText('青軍 CPU 行動中', { timeout: 20_000 });
   await page.locator('#spectate-toggle').click();
   await expect(page.locator('#spectate-toggle')).toHaveText('観戦を再開');
+  await expect(page.locator('#save')).toHaveText('スロットにセーブ');
   await page.locator('#save').click();
-  await expect(page.locator('.status-message')).toContainText('セーブしました');
-  expect(await page.evaluate(() => localStorage.getItem('ministr.save.auto'))).toBeNull();
+  await expect(page.locator('.status-message')).toContainText('「観戦テスト」にセーブしました');
+  const stored = await page.evaluate((keys) => keys.map((key) => localStorage.getItem(key)), saveKeys);
+  expect(stored).toEqual(saveKeys.map((key) => `sentinel:${key}`));
 
   // A fresh page resumes the spectated match paused, with both difficulties restored.
   await page.reload();
   await page.getByRole('button', { name: /単体作戦を開始/ }).click();
-  await page.locator('#continue').click();
+  const slot = page.locator('.save-slot-manager li', { hasText: '観戦テスト' });
+  await expect(slot).toContainText('/ 観戦');
+  await slot.locator('.load-save-slot').click();
   await expect(page.locator('.status-message')).toContainText('一時停止した状態で読み込みました');
   await expect(page.locator('#spectate-toggle')).toHaveText('観戦を再開');
   await expect(page.locator('#red-difficulty')).toHaveValue('easy');

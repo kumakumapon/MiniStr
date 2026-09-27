@@ -82,6 +82,15 @@ export function showsWholeBoard(mode: MatchMode, wholeBoardRequested: boolean, r
 }
 
 /**
+ * Where the header's save button writes. The shared manual slot is what
+ * "continue" resumes first, so spectating saves to a named slot instead and
+ * never replaces the player's own match there.
+ */
+export function manualSaveTarget(mode: MatchMode): 'manual' | 'slot' {
+  return mode === 'spectate' ? 'slot' : 'manual';
+}
+
+/**
  * Autosaves belong to matches a person plays; spectating never overwrites them.
  * Spectated matches are saved only when the viewer asks (manual or slot saves).
  */
