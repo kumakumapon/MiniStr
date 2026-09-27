@@ -73,6 +73,7 @@ export const uiText = {
   titleTurnLimit: (turns: number | undefined) => (turns === undefined ? 'ターン制限なし' : `${turns}ターン制限`),
   titleOpen: 'タイトル',
   titleBackFromBriefing: 'マップ選択へ',
+  titleInvalidSave: '有効なセーブデータを読み込めません。対局を始めてから「対局セーブ削除」で削除できます。',
   spectateNoSaveDeletion: '観戦中は対局セーブを削除できません',
   invalidSaveWarning: '有効なセーブデータを読み込めません。対局セーブ削除で削除して新規対局を開始できます。',
   invalidSaveWarningSpectating: '有効なセーブデータを読み込めません。新しい対局でCPU対戦か2人対戦を選んでから、対局セーブ削除で削除できます。',

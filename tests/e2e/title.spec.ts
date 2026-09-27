@@ -79,3 +79,51 @@ test('fits a phone screen without horizontal scrolling (#143)', async ({ page })
   // One column: the cards line up vertically.
   expect(first).toBe(second);
 });
+
+test('keeps the way back to a match through screens opened from the title (#143 review)', async ({ page }) => {
+  await page.goto('/');
+  await page.locator('.title-map-card[data-map-id="skirmish"]').click();
+  await page.getByRole('button', { name: /単体作戦を開始/ }).click();
+  await page.locator('.tile[data-x="0"][data-y="1"]').click();
+  await page.locator('.tile[data-x="0"][data-y="2"]').click();
+
+  await page.locator('#open-title').click();
+  await page.locator('#title-campaign').click();
+  await page.locator('#campaign-close').click();
+  await page.locator('#title-editor').click();
+  await page.locator('#editor-close').click();
+  await expect(page.locator('#title-resume')).toBeVisible();
+  await page.locator('#title-resume').click();
+  await expect(page.locator('.tile[data-x="0"][data-y="2"] .unit.red')).toBeVisible();
+});
+
+test('lands on the start button after going back and forth by keyboard (#143 review)', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.locator('.title-map-card[data-map-id="skirmish"]')).toBeFocused();
+  await page.keyboard.press('Enter');
+  await expect(page.locator('#begin-operation')).toBeFocused();
+  await page.locator('#briefing-back-to-title').focus();
+  await page.keyboard.press('Enter');
+  await expect(page.locator('.title-overlay')).toBeVisible();
+  await page.locator('.title-map-card[data-map-id="islands"]').focus();
+  await page.keyboard.press('Enter');
+  await expect(page.locator('#briefing-title')).toHaveText('群島補給線');
+  await expect(page.locator('#begin-operation')).toBeFocused();
+});
+
+test('explains a rejected replay on the title and keeps focus on the import button (#143 review)', async ({ page }) => {
+  await page.goto('/');
+  await page.locator('#title-import-replay').focus();
+  await page.locator('#title-replay-file').setInputFiles({ name: 'broken.json', mimeType: 'application/json', buffer: Buffer.from('{broken') });
+  await expect(page.locator('.title-notice')).toContainText('リプレイデータが壊れています');
+  await expect(page.locator('.title-overlay')).toBeVisible();
+  await expect(page.locator('#title-import-replay')).toBeFocused();
+});
+
+test('tells why continue is unavailable when the stored save cannot be read (#143 review)', async ({ page }) => {
+  await page.goto('/');
+  await page.evaluate(() => localStorage.setItem('ministr.save.manual', '{broken'));
+  await page.reload();
+  await expect(page.locator('#title-continue')).toBeDisabled();
+  await expect(page.locator('.title-notice')).toContainText('有効なセーブデータを読み込めません');
+});

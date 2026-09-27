@@ -68,6 +68,8 @@ let titleResumable = false;
 let titleNotice = '';
 /** A campaign menu, editor, or replay opened from the title returns to it when closed. */
 let returnToTitle = false;
+/** Whether that title could return to a match, restored along with it. */
+let returnToTitleResumable = false;
 const themeNames: Record<ScenarioTheme, string> = { temperate: '温帯', desert: '砂漠', snow: '雪原', urban: '市街地', coastal: '沿岸' };
 let campaignMenuOpen = false;
 let campaignReturnToBriefing = false;
@@ -372,6 +374,14 @@ function backToTitleIfOpenedThere(): void {
   returnToTitle = false;
   briefingOpen = false;
   titleOpen = true;
+  titleResumable = returnToTitleResumable;
+  returnToTitleResumable = false;
+}
+/** Leaves the title for a screen that comes back to it, keeping its way back to the match. */
+function leaveTitleAndReturn(): void {
+  returnToTitleResumable = titleResumable;
+  leaveTitle();
+  returnToTitle = true;
 }
 
 function openCampaignMenu(): void {
@@ -404,7 +414,7 @@ function completedReplay(): ReturnType<typeof createReplay> {
   });
 }
 function beginReplay(file: ReplayFile): void {
-  if (titleOpen) { leaveTitle(); returnToTitle = true; }
+  if (titleOpen) leaveTitleAndReturn();
   commandScheduler.cancel();
   cpuInProgress = false;
   cpuSkipRequested = false;
@@ -462,7 +472,12 @@ function chooseReplayFile(event: Event): void {
   const file = input.files?.[0];
   input.value = '';
   // A rejected file leaves the title open; say why there.
-  if (file) void importReplay(file).then(() => { if (titleOpen) { titleNotice = message; render(); } });
+  if (file) void importReplay(file).then(() => {
+    if (!titleOpen) return;
+    titleNotice = message;
+    focusSelector = '#title-import-replay';
+    render();
+  });
 }
 async function importReplay(file: File): Promise<void> {
   if (file.size > MAX_REPLAY_BYTES) { message = 'リプレイデータが大きすぎます。'; render(); return; }
@@ -478,6 +493,7 @@ function render(): void {
   if (!focusSelector && activeElement instanceof HTMLElement && app.contains(activeElement)) {
     if (activeElement.id) focusSelector = `#${activeElement.id}`;
     else if (activeElement.matches('.produce[data-kind]')) focusSelector = `.produce[data-kind="${activeElement.dataset.kind}"]`;
+    else if (activeElement.matches('.title-map-card[data-map-id]')) focusSelector = `.title-map-card[data-map-id="${activeElement.dataset.mapId}"]`;
     else if (activeElement.matches('.tile[data-x][data-y]')) focusSelector = `.tile[data-x="${activeElement.dataset.x}"][data-y="${activeElement.dataset.y}"]`;
   }
   const replayMode = replay !== undefined;
@@ -705,7 +721,7 @@ function render(): void {
     })),
     canContinue: hasSave(),
     canResume: titleResumable,
-    notice: titleNotice,
+    notice: titleNotice || (!hasSave() && hasStoredSave() ? uiText.titleInvalidSave : ''),
   });
   const briefing = renderBriefingOverlay({
     visible: !campaignMenuOpen && !titleOpen && !replayMode && briefingOpen,
@@ -744,7 +760,13 @@ function render(): void {
     // Enter or Space does not land on the start button.
     const briefingFocus = briefing && !gameOverOverlay && !editorOverlay && !campaignOverlay && !concealed && focusSelector?.startsWith('#briefing-') ? focusSelector : undefined;
     if (briefingFocus) focusSelector = undefined;
-    window.setTimeout(() => document.querySelector<HTMLElement>(gameOverOverlay ? '#result-title' : editorOverlay ? '#editor-close' : campaignOverlay ? '#campaign-close' : titleOverlay ? (titleResumable ? '#title-resume' : '.title-map-card[aria-current="true"]') : concealed ? '#handoff-start' : briefingFocus ?? '#begin-operation')?.focus(), 0);
+    // On the title, a redraw keeps focus on the control in use (a failed load's
+    // notice is announced by its status role). Anything else is dropped so it
+    // cannot pull focus once another screen opens.
+    const titleFocus = titleOverlay && !gameOverOverlay && !editorOverlay && !campaignOverlay
+      && (focusSelector?.startsWith('#title-') || focusSelector?.startsWith('.title-map-card')) ? focusSelector : undefined;
+    if (titleOverlay) focusSelector = undefined;
+    window.setTimeout(() => document.querySelector<HTMLElement>(gameOverOverlay ? '#result-title' : editorOverlay ? '#editor-close' : campaignOverlay ? '#campaign-close' : titleOverlay ? titleFocus ?? (titleResumable ? '#title-resume' : '.title-map-card[aria-current="true"]') : concealed ? '#handoff-start' : briefingFocus ?? '#begin-operation')?.focus(), 0);
   }
   else if (focusSelector) {
     const previousSelector = focusSelector;
@@ -863,14 +885,15 @@ function render(): void {
   }));
   document.querySelector<HTMLButtonElement>('#title-resume')?.addEventListener('click', () => { leaveTitle(); render(); });
   document.querySelector<HTMLButtonElement>('#title-continue')?.addEventListener('click', () => {
-    if (continueSavedGame()) leaveTitle(); else titleNotice = message;
+    // A failed load may already have reset the match, so there is nothing left to return to.
+    if (continueSavedGame()) leaveTitle(); else { titleNotice = message; titleResumable = false; }
     render();
   });
   document.querySelector<HTMLButtonElement>('#title-campaign')?.addEventListener('click', () => {
-    leaveTitle(); returnToTitle = true; briefingOpen = false; openCampaignMenu();
+    leaveTitleAndReturn(); briefingOpen = false; openCampaignMenu();
   });
   document.querySelector<HTMLButtonElement>('#title-editor')?.addEventListener('click', () => {
-    leaveTitle(); returnToTitle = true; editorOpen = true; editorNotice = '編集したシナリオはJSONとして書き出せます。'; render();
+    leaveTitleAndReturn(); editorOpen = true; editorNotice = '編集したシナリオはJSONとして書き出せます。'; render();
   });
   document.querySelector<HTMLButtonElement>('#title-import-replay')?.addEventListener('click', () => {
     document.querySelector<HTMLInputElement>('#title-replay-file')?.click();

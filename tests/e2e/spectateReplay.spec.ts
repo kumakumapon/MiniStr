@@ -54,3 +54,9 @@ test('keeps the single difficulty for replays without a red difficulty (#137)', 
   await expect(page.locator('#difficulty')).toHaveValue('normal');
   await expect(page.locator('.command-bar')).not.toContainText('赤軍CPU');
 });
+
+test('returns to the title after a replay imported there ends (#143)', async ({ page }) => {
+  await importReplay(page, spectatedReplayJson('easy', 'hard'));
+  await page.locator('#replay-exit').click();
+  await expect(page.locator('.title-overlay')).toBeVisible();
+});
