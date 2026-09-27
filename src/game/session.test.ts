@@ -161,14 +161,38 @@ describe('versioned save persistence', () => {
     expect(saveGame(storage, 'bad', { ...base, mode: 'hotseat', campaignScenarioId: 'skirmish' }).ok).toBe(false);
   });
 
+  it('saves spectated matches with each side’s difficulty and rejects invalid combinations (#135)', () => {
+    const storage = new MemoryStorage();
+    const initialState = canonicalSkirmish();
+    const base = { mapId: 'skirmish', difficulty: 'hard' as const, initialState, commands: [], gameState: initialState };
+    const spectate = saveGame(storage, 'spectate', { ...base, mode: 'spectate', redDifficulty: 'easy' });
+    expect(spectate.ok).toBe(true);
+    expect(parseSavedGame(storage.getItem('spectate')!)).toMatchObject({ ok: true, value: { mode: 'spectate', difficulty: 'hard', redDifficulty: 'easy' } });
+    // Without its own setting, red plays at the saved difficulty.
+    saveGame(storage, 'spectate-one-level', { ...base, mode: 'spectate' });
+    const oneLevel = parseSavedGame(storage.getItem('spectate-one-level')!);
+    expect(oneLevel.ok && oneLevel.value.redDifficulty).toBeUndefined();
+
+    const raw = JSON.parse(storage.getItem('spectate')!);
+    expect(parseSavedGame(JSON.stringify({ ...raw, redDifficulty: 'expert' })).ok).toBe(false);
+    expect(parseSavedGame(JSON.stringify({ ...raw, redDifficulty: 1 })).ok).toBe(false);
+    for (const mode of ['cpu', 'hotseat', undefined]) {
+      expect(parseSavedGame(JSON.stringify({ ...raw, mode })).ok, String(mode)).toBe(false);
+    }
+    expect(parseSavedGame(JSON.stringify({ ...raw, campaignScenarioId: 'skirmish' })).ok).toBe(false);
+    expect(saveGame(storage, 'bad', { ...base, mode: 'cpu', redDifficulty: 'easy' }).ok).toBe(false);
+    expect(saveGame(storage, 'bad', { ...base, mode: 'spectate', campaignScenarioId: 'skirmish' }).ok).toBe(false);
+  });
+
   it('lists the match format of each save slot', () => {
     const storage = new MemoryStorage();
     const initialState = canonicalSkirmish();
     const base = { mapId: 'skirmish', difficulty: 'normal' as const, initialState, commands: [], gameState: initialState };
     saveGameToSlot(storage, 'two-player', '対戦', { ...base, mode: 'hotseat' });
     saveGameToSlot(storage, 'versus-cpu', 'CPU戦', base);
+    saveGameToSlot(storage, 'watching', '観戦', { ...base, mode: 'spectate' });
     const modes = Object.fromEntries(listSaveSlots(storage).map(slot => [slot.id, slot.mode]));
-    expect(modes).toEqual({ 'two-player': 'hotseat', 'versus-cpu': 'cpu' });
+    expect(modes).toEqual({ 'two-player': 'hotseat', 'versus-cpu': 'cpu', watching: 'spectate' });
   });
 
   it('rejects malformed JSON and unsupported versions without throwing', () => {

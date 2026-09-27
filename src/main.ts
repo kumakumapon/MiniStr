@@ -13,8 +13,8 @@ import { loadSoundSettings, ProceduralSoundPlayer, saveSoundSettings, type Sound
 import { commandErrorMessage, escapeHtml, uiText } from './ui/strings';
 import { renderSaveSlotManager } from './ui/saveSlots';
 import { renderBriefingOverlay, renderCampaignOverlay, renderGameOverOverlay, renderHandoffOverlay, renderProductionCard, renderUnitActionCluster } from './ui/overlays';
-import { commandAllowed, cpuDifficultyFor, cpuShouldRun, handoffAfterEndTurn, menuAllowed, parseMatchMode, saveAllowed, showsWholeBoard, sideName, spectateContinues, SPECTATE_TURN_LIMIT, undoAllowed, viewerFor, type MatchContext, type MatchMode } from './ui/matchControl';
-import { deleteSaveSlot, getStorageUsage, listSaveSlots, loadGameFromSlot, saveGameToSlot } from './game';
+import { commandAllowed, cpuDifficultyFor, cpuShouldRun, handoffAfterEndTurn, menuAllowed, parseMatchMode, autosaveAllowed, showsWholeBoard, sideName, spectateContinues, SPECTATE_TURN_LIMIT, undoAllowed, viewerFor, type MatchContext, type MatchMode } from './ui/matchControl';
+import { deleteSaveSlot, getStorageUsage, listSaveSlots, loadGameFromSlot, saveGameToSlot, type SavedGame } from './game';
 
 let selectedMap = maps[0]!;
 let game = start(selectedMap.id);
@@ -282,26 +282,25 @@ function recordVisibleCpuAction(before: GameState, command: GameCommand): void {
   }
   if (entry) cpuActivity = [...cpuActivity, entry].slice(-6);
 }
-function persist(key: string): boolean {
-  const mode = matchMode;
-  if (!saveAllowed(mode)) return false;
-  const result = saveGame(localStorage, key, {
+/** What a save records about the match; `redDifficulty` exists only for spectating. */
+function savedMatch(): Omit<SavedGame, 'schemaVersion' | 'savedAt'> {
+  return {
     mapId: selectedMap.id, difficulty, initialState, commands: commandHistory, gameState: game,
-    campaignScenarioId: campaignRun?.scenarioId, mode,
-  });
+    campaignScenarioId: campaignRun?.scenarioId, mode: matchMode,
+    ...(matchMode === 'spectate' ? { redDifficulty } : {}),
+  };
+}
+function persist(key: string): boolean {
+  if (key === AUTO_SAVE_KEY && !autosaveAllowed(matchMode)) return false;
+  const result = saveGame(localStorage, key, savedMatch());
   message = result.ok ? 'セーブしました。' : result.error;
   return result.ok;
 }
 function saveNamedSlot(): void {
-  const mode = matchMode;
-  if (!saveAllowed(mode)) { message = '観戦中はセーブできません。'; return; }
   const name = window.prompt('セーブ名を入力してください（40文字まで）', selectedMap.name)?.trim();
   if (!name) return;
   const id = `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
-  const result = saveGameToSlot(localStorage, id, name, {
-    mapId: selectedMap.id, difficulty, initialState, commands: commandHistory, gameState: game,
-    campaignScenarioId: campaignRun?.scenarioId, mode,
-  });
+  const result = saveGameToSlot(localStorage, id, name, savedMatch());
   message = result.ok ? `「${name}」にセーブしました。` : result.error;
 }
 function hasSave(): boolean {
@@ -325,6 +324,7 @@ function continueSavedGame(slotId?: string): void {
   selectedMap = map;
   difficulty = loaded.value.difficulty;
   matchMode = loaded.value.mode ?? 'cpu';
+  redDifficulty = loaded.value.redDifficulty ?? difficulty;
   cpuActivity = [];
   turnStartNotice = '';
   initialState = { ...structuredClone(loaded.value.initialState), scenarioId: map.id };
@@ -342,7 +342,10 @@ function continueSavedGame(slotId?: string): void {
   // A resumed two-player match always starts behind the handoff screen.
   handoffPending = matchMode === 'hotseat' && !game.winner;
   syncBoardZoom(game.board.width);
-  message = 'セーブデータから再開しました。';
+  // A spectated match resumes paused, so the viewer chooses when the CPUs continue.
+  spectatePaused = matchMode === 'spectate' && !game.winner;
+  spectatePauseAtTurn = SPECTATE_TURN_LIMIT;
+  message = spectatePaused ? uiText.spectateLoaded : 'セーブデータから再開しました。';
 }
 
 function openCampaignMenu(): void {
@@ -663,7 +666,7 @@ function render(): void {
     campaignRun: campaignRun !== undefined,
   });
   app.innerHTML = `<main class="game-shell">
-    <header class="command-bar"><div class="brand"><span class="brand-mark" aria-hidden="true">✦</span><div><h1>MiniStr</h1><p>TACTICAL COMMAND</p></div></div><label class="map-picker">戦域<select id="map" aria-label="戦域マップを選択" ${replayMode || campaignRun ? 'disabled' : ''}><optgroup label="組み込み">${maps.map(map => `<option value="${escapeHtml(map.id)}" ${map.id === renderedMap.id ? 'selected' : ''}>${escapeHtml(map.name)}</option>`).join('')}</optgroup>${availableScenarios().filter(map => !maps.some(builtIn => builtIn.id === map.id)).length ? `<optgroup label="カスタム">${availableScenarios().filter(map => !maps.some(builtIn => builtIn.id === map.id)).map(map => `<option value="${escapeHtml(map.id)}" ${map.id === renderedMap.id ? 'selected' : ''}>${escapeHtml(map.name)}</option>`).join('')}</optgroup>` : ''}</select></label>${spectateDifficulties ? `<label class="map-picker">${uiText.spectateRedDifficulty}<select id="red-difficulty" aria-label="赤軍CPUの難易度を選択">${difficultyOptions(redDifficulty)}</select></label>` : ''}<label class="map-picker">${spectateDifficulties ? uiText.spectateBlueDifficulty : '難易度'}<select id="difficulty" aria-label="${spectateDifficulties ? '青軍CPU' : 'CPU'}の難易度を選択" ${replayMode ? 'disabled' : ''}>${difficultyOptions(renderedDifficulty)}</select></label><label class="map-picker">CPU速度<select id="cpu-speed" aria-label="CPUの行動速度を選択" ${replayMode ? 'disabled' : ''}>${COMMAND_SPEEDS.map(speed => `<option value="${speed}" ${speed === cpuSpeed ? 'selected' : ''}>${speed}x</option>`).join('')}</select></label><div class="save-controls"><button id="open-editor" class="save-action" ${replayMode ? 'disabled' : ''}>マップ編集</button><button id="open-campaign" class="save-action" ${replayMode ? 'disabled' : ''}>キャンペーン</button><button id="continue" class="save-action" ${replayMode || !hasSave() ? 'disabled' : ''}>続きから</button><button id="save" class="save-action" ${replayMode || !saveAllowed(matchMode) ? 'disabled' : ''}>手動セーブ</button><button id="delete-save" class="save-action" ${replayMode || !hasStoredSave() ? 'disabled' : ''}>対局セーブ削除</button><button id="undo" class="save-action" ${canAct && undoAllowed(matchMode) && undoStack.length > 0 ? '' : 'disabled'}>1手戻す</button><button id="import-replay" class="save-action" ${replayMode ? 'disabled' : ''}>JSON取込</button><input id="replay-file" class="visually-hidden" type="file" accept=".json,application/json" aria-label="JSONリプレイファイルを選択"></div><div class="turn-indicator ${renderedGame.activePlayer}"><span>${replayMode ? 'REPLAY' : cpuInProgress ? 'CPU THINKING' : campaignRun ? 'CAMPAIGN' : matchMode === 'spectate' ? 'SPECTATE' : 'TURN'}</span><strong>${cpuInProgress ? (matchMode === 'spectate' ? `${activeLabel} CPU 行動中` : 'CPU 行動中') : concealed ? `${activeLabel}の番` : activeLabel}</strong></div>${cpuInProgress ? '<button id="skip-cpu" class="save-action" title="CPUの残りの行動を高速に進める">CPU をスキップ</button>' : ''}${spectateControl}${wholeBoardControl}<button id="end" class="end-turn" title="現在のターンを終了" aria-label="ターンを終了する" ${!canAct ? 'disabled' : ''}>ターン終了 <span aria-hidden="true">→</span></button></header>
+    <header class="command-bar"><div class="brand"><span class="brand-mark" aria-hidden="true">✦</span><div><h1>MiniStr</h1><p>TACTICAL COMMAND</p></div></div><label class="map-picker">戦域<select id="map" aria-label="戦域マップを選択" ${replayMode || campaignRun ? 'disabled' : ''}><optgroup label="組み込み">${maps.map(map => `<option value="${escapeHtml(map.id)}" ${map.id === renderedMap.id ? 'selected' : ''}>${escapeHtml(map.name)}</option>`).join('')}</optgroup>${availableScenarios().filter(map => !maps.some(builtIn => builtIn.id === map.id)).length ? `<optgroup label="カスタム">${availableScenarios().filter(map => !maps.some(builtIn => builtIn.id === map.id)).map(map => `<option value="${escapeHtml(map.id)}" ${map.id === renderedMap.id ? 'selected' : ''}>${escapeHtml(map.name)}</option>`).join('')}</optgroup>` : ''}</select></label>${spectateDifficulties ? `<label class="map-picker">${uiText.spectateRedDifficulty}<select id="red-difficulty" aria-label="赤軍CPUの難易度を選択">${difficultyOptions(redDifficulty)}</select></label>` : ''}<label class="map-picker">${spectateDifficulties ? uiText.spectateBlueDifficulty : '難易度'}<select id="difficulty" aria-label="${spectateDifficulties ? '青軍CPU' : 'CPU'}の難易度を選択" ${replayMode ? 'disabled' : ''}>${difficultyOptions(renderedDifficulty)}</select></label><label class="map-picker">CPU速度<select id="cpu-speed" aria-label="CPUの行動速度を選択" ${replayMode ? 'disabled' : ''}>${COMMAND_SPEEDS.map(speed => `<option value="${speed}" ${speed === cpuSpeed ? 'selected' : ''}>${speed}x</option>`).join('')}</select></label><div class="save-controls"><button id="open-editor" class="save-action" ${replayMode ? 'disabled' : ''}>マップ編集</button><button id="open-campaign" class="save-action" ${replayMode ? 'disabled' : ''}>キャンペーン</button><button id="continue" class="save-action" ${replayMode || !hasSave() ? 'disabled' : ''}>続きから</button><button id="save" class="save-action" ${replayMode ? 'disabled' : ''}>手動セーブ</button><button id="delete-save" class="save-action" ${replayMode || !hasStoredSave() ? 'disabled' : ''}>対局セーブ削除</button><button id="undo" class="save-action" ${canAct && undoAllowed(matchMode) && undoStack.length > 0 ? '' : 'disabled'}>1手戻す</button><button id="import-replay" class="save-action" ${replayMode ? 'disabled' : ''}>JSON取込</button><input id="replay-file" class="visually-hidden" type="file" accept=".json,application/json" aria-label="JSONリプレイファイルを選択"></div><div class="turn-indicator ${renderedGame.activePlayer}"><span>${replayMode ? 'REPLAY' : cpuInProgress ? 'CPU THINKING' : campaignRun ? 'CAMPAIGN' : matchMode === 'spectate' ? 'SPECTATE' : 'TURN'}</span><strong>${cpuInProgress ? (matchMode === 'spectate' ? `${activeLabel} CPU 行動中` : 'CPU 行動中') : concealed ? `${activeLabel}の番` : activeLabel}</strong></div>${cpuInProgress ? '<button id="skip-cpu" class="save-action" title="CPUの残りの行動を高速に進める">CPU をスキップ</button>' : ''}${spectateControl}${wholeBoardControl}<button id="end" class="end-turn" title="現在のターンを終了" aria-label="ターンを終了する" ${!canAct ? 'disabled' : ''}>ターン終了 <span aria-hidden="true">→</span></button></header>
     ${scenarioLoadError ? `<p class="scenario-warning">組み込みシナリオの読み込みに失敗したため、緊急スカーミッシュで起動しています。${escapeHtml(scenarioLoadError)}</p>` : ''}
     <section class="sound-controls" aria-label="効果音設定"><label><input id="sound-muted" type="checkbox" ${soundSettings.muted ? 'checked' : ''}> 効果音</label><label>音量 <input id="sound-volume" type="range" min="0" max="100" value="${Math.round(soundSettings.volume * 100)}" aria-label="効果音の音量"></label></section>
     ${!hasSave() && hasStoredSave() ? '<p class="scenario-warning" role="status">有効なセーブデータを読み込めません。対局セーブ削除で削除して新規対局を開始できます。</p>' : ''}
@@ -716,8 +719,6 @@ function render(): void {
     message = spectateWholeBoard ? uiText.spectateWholeBoardOn : uiText.spectateWholeBoardOff;
     render();
   });
-  // Spectating never saves; the slot manager's save button follows the header's.
-  if (!saveAllowed(matchMode)) app.querySelector<HTMLButtonElement>('#save-new-slot')?.setAttribute('disabled', '');
   app.querySelector<HTMLButtonElement>('#skip-cpu')?.addEventListener('click', () => {
     cpuSkipRequested = true;
     pendingPresentationEffects = [];

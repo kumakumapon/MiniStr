@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { commandAllowed, cpuDifficultyFor, cpuShouldRun, handoffAfterEndTurn, menuAllowed, parseMatchMode, saveAllowed, showsWholeBoard, sideName, spectateContinues, SPECTATE_TURN_LIMIT, undoAllowed, viewerFor, type MatchContext } from './matchControl';
+import { commandAllowed, cpuDifficultyFor, cpuShouldRun, handoffAfterEndTurn, menuAllowed, parseMatchMode, autosaveAllowed, showsWholeBoard, sideName, spectateContinues, SPECTATE_TURN_LIMIT, undoAllowed, viewerFor, type MatchContext } from './matchControl';
 
 const context = (patch: Partial<MatchContext> = {}): MatchContext => ({
   mode: 'cpu', activePlayer: 'red', replay: false, cpuInProgress: false, handoffPending: false, ...patch,
@@ -68,13 +68,14 @@ describe('spectate mode (#129)', () => {
     expect(cpuShouldRun({ mode: 'spectate', activePlayer: 'red', replay: true })).toBe(false);
   });
 
-  it('never accepts board commands, undo, or saves from the viewer', () => {
+  it('never accepts board commands or undo from the viewer, and never autosaves', () => {
     expect(commandAllowed(context({ mode: 'spectate' }))).toBe(false);
     expect(commandAllowed(context({ mode: 'spectate', activePlayer: 'blue' }))).toBe(false);
     expect(undoAllowed('spectate')).toBe(false);
-    expect(saveAllowed('spectate')).toBe(false);
-    expect(saveAllowed('cpu')).toBe(true);
-    expect(saveAllowed('hotseat')).toBe(true);
+    // Spectated matches are saved only on request (#135), so the player's autosave survives.
+    expect(autosaveAllowed('spectate')).toBe(false);
+    expect(autosaveAllowed('cpu')).toBe(true);
+    expect(autosaveAllowed('hotseat')).toBe(true);
   });
 
   it('keeps menus usable while paused and blocks them while a CPU turn runs', () => {

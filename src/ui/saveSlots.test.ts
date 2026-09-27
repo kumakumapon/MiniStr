@@ -39,6 +39,8 @@ describe('save slot UI', () => {
     const usage = { bytes: 512, itemCount: 1, warning: false };
     expect(renderSaveSlotManager([{ ...slot, mode: 'hotseat' }], usage)).toContain('2人対戦');
     expect(renderSaveSlotManager([{ ...slot, mode: 'cpu' }], usage)).not.toContain('2人対戦');
+    expect(renderSaveSlotManager([{ ...slot, mode: 'spectate' }], usage)).toContain('/ 観戦');
+    expect(renderSaveSlotManager([{ ...slot, mode: 'cpu' }], usage)).not.toContain('観戦');
   });
 
   it('escapes all HTML-significant characters for other UI renderers', () => {

@@ -6,10 +6,12 @@ test('spectates a CPU-versus-CPU match with pause and resume (#129)', async ({ p
   await expect(page.locator('.briefing-overlay')).toContainText('赤軍の勝利条件');
   await page.getByRole('button', { name: /単体作戦を開始/ }).click();
 
-  // Red's CPU starts on its own; the viewer cannot issue commands or save.
+  // Red's CPU starts on its own; the viewer cannot issue commands.
   await expect(page.locator('.turn-indicator strong')).toHaveText('赤軍 CPU 行動中');
   await expect(page.locator('#end')).toBeDisabled();
-  await expect(page.locator('#save')).toBeDisabled();
+  // Saving waits for a pause (#135): pressing save while a CPU plays writes nothing.
+  await page.locator('#save').click();
+  expect(await page.evaluate(() => localStorage.getItem('ministr.save.manual'))).toBeNull();
 
   // Turns alternate without any input until blue's CPU is playing.
   await expect(page.locator('.turn-indicator strong')).toHaveText('青軍 CPU 行動中', { timeout: 20_000 });
@@ -31,14 +33,13 @@ test('spectates a CPU-versus-CPU match with pause and resume (#129)', async ({ p
   await expect(page.locator('.turn-indicator strong')).toHaveText('赤軍 CPU 行動中', { timeout: 20_000 });
 });
 
-test('spectating leaves the player’s saves untouched and keeps alternating after a skip (#129)', async ({ page }) => {
+test('spectating never autosaves over the player’s saves and keeps alternating after a skip (#129)', async ({ page }) => {
   const saveKeys = ['ministr.save.auto', 'ministr.save.manual'];
   await page.goto('/');
   await page.evaluate((keys) => keys.forEach((key) => localStorage.setItem(key, `sentinel:${key}`)), saveKeys);
   await page.reload();
   await page.locator('input[name="match-mode"][value="spectate"]').check();
   await page.getByRole('button', { name: /単体作戦を開始/ }).click();
-  await expect(page.locator('#save-new-slot')).toBeDisabled();
 
   // Skipping finishes red's turn at once; blue then plays on its own and hands back to red.
   await page.locator('#skip-cpu').click();
@@ -108,4 +109,34 @@ test('shows the whole board without fog while spectating, and only then (#133)',
   await page.getByRole('button', { name: /単体作戦を開始/ }).click();
   await expect(page.locator('#spectate-whole-board')).toHaveCount(0);
   await expect(page.locator('.tile.fog').first()).toBeVisible();
+});
+
+test('saves a paused spectated match and resumes it paused with both difficulties (#135)', async ({ page }) => {
+  await page.goto('/');
+  await page.locator('input[name="match-mode"][value="spectate"]').check();
+  await page.locator('#briefing-red-difficulty').selectOption('easy');
+  await page.locator('#briefing-blue-difficulty').selectOption('hard');
+  await page.getByRole('button', { name: /単体作戦を開始/ }).click();
+
+  // Blue's first turn is reached, then the viewer pauses and saves.
+  await expect(page.locator('.turn-indicator strong')).toHaveText('青軍 CPU 行動中', { timeout: 20_000 });
+  await page.locator('#spectate-toggle').click();
+  await expect(page.locator('#spectate-toggle')).toHaveText('観戦を再開');
+  await page.locator('#save').click();
+  await expect(page.locator('.status-message')).toContainText('セーブしました');
+  expect(await page.evaluate(() => localStorage.getItem('ministr.save.auto'))).toBeNull();
+
+  // A fresh page resumes the spectated match paused, with both difficulties restored.
+  await page.reload();
+  await page.getByRole('button', { name: /単体作戦を開始/ }).click();
+  await page.locator('#continue').click();
+  await expect(page.locator('.status-message')).toContainText('一時停止した状態で読み込みました');
+  await expect(page.locator('#spectate-toggle')).toHaveText('観戦を再開');
+  await expect(page.locator('#red-difficulty')).toHaveValue('easy');
+  await expect(page.locator('#difficulty')).toHaveValue('hard');
+  await expect(page.locator('#skip-cpu')).toHaveCount(0);
+
+  await page.locator('#spectate-toggle').click();
+  await expect(page.locator('#spectate-toggle')).toHaveText('観戦を一時停止');
+  await expect(page.locator('.turn-indicator strong')).toContainText('CPU 行動中');
 });
