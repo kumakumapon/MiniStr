@@ -1,5 +1,14 @@
 import { describe, expect, it } from 'vitest';
-import { renderBriefingOverlay, renderCampaignOverlay, renderGameOverOverlay, renderHandoffOverlay, renderProductionCard, renderUnitActionCluster } from './overlays';
+import {
+  renderBriefingOverlay,
+  renderCampaignOverlay,
+  renderGameOverOverlay,
+  renderHandoffOverlay,
+  renderProductionCard,
+  renderTitleOverlay,
+  renderUnitActionCluster,
+  type TitleMapCard,
+} from './overlays';
 
 describe('overlay renderers', () => {
   it('escapes dynamic game-over and campaign content at the shared UI boundary', () => {
@@ -138,5 +147,74 @@ describe('overlay renderers', () => {
     expect(briefing).toContain('id="begin-operation"');
     expect(renderUnitActionCluster(['<button id="wait">wait</button>'])).toContain('unit-action-cluster');
     expect(renderProductionCard('<p>target</p>', '<p>summary</p>', '<button>unit</button>')).toContain('production-grid');
+  });
+});
+
+describe('title screen (#143)', () => {
+  const card = (patch: Partial<TitleMapCard> = {}): TitleMapCard => ({
+    id: 'skirmish',
+    name: '緑の国境',
+    theme: '温帯',
+    width: 12,
+    height: 8,
+    startingGold: 6000,
+    victory: '敵部隊を全滅させる',
+    custom: false,
+    selected: false,
+    ...patch,
+  });
+  const title = (patch: Partial<Parameters<typeof renderTitleOverlay>[0]> = {}) =>
+    renderTitleOverlay({ visible: true, maps: [card()], canContinue: false, canResume: false, notice: '', ...patch });
+
+  it('lists each map with the facts needed to compare them', () => {
+    const result = title({
+      maps: [card(), card({ id: 'landing', name: '海峡上陸作戦', theme: '沿岸', turnLimit: 18, selected: true })],
+    });
+    expect(result).toContain('data-map-id="skirmish"');
+    expect(result).toContain('12×8');
+    expect(result).toContain('初期資金 6000G');
+    expect(result).toContain('ターン制限なし');
+    expect(result).toContain('18ターン制限');
+    expect(result).toContain('敵部隊を全滅させる');
+    expect(result).toMatch(/data-map-id="landing" aria-current="true"/);
+    expect(result).not.toMatch(/data-map-id="skirmish" aria-current/);
+  });
+
+  it('marks custom maps and escapes their text', () => {
+    const result = title({ maps: [card({ id: 'my-map', name: '<b>自作</b>', custom: true })] });
+    expect(result).toContain('<em>カスタム</em>');
+    expect(result).toContain('&lt;b&gt;自作&lt;/b&gt;');
+    expect(result).not.toContain('<b>自作</b>');
+  });
+
+  it('enables continue only with a save and offers to return only when opened from a match', () => {
+    expect(title()).toMatch(/id="title-continue" class="save-action" disabled/);
+    expect(title({ canContinue: true })).not.toMatch(/id="title-continue" class="save-action" disabled/);
+    expect(title()).not.toContain('title-resume');
+    expect(title({ canResume: true })).toContain('id="title-resume"');
+  });
+
+  it('shows a notice only when there is one, and nothing when hidden', () => {
+    expect(title()).not.toContain('title-notice');
+    expect(title({ notice: '<読込失敗>' })).toContain('&lt;読込失敗&gt;');
+    expect(title({ visible: false })).toBe('');
+  });
+
+  it('offers a way back to the title from skirmish briefings only', () => {
+    const briefing = (campaignRun: boolean, backToTitle?: boolean) =>
+      renderBriefingOverlay({
+        visible: true,
+        mapName: 'Test',
+        briefing: '',
+        victoryConditions: ['Win'],
+        defeatConditions: ['Lose'],
+        startingGold: 0,
+        difficultyName: '普通',
+        campaignRun,
+        backToTitle,
+      });
+    expect(briefing(false, true)).toContain('id="briefing-back-to-title"');
+    expect(briefing(true, true)).not.toContain('briefing-back-to-title');
+    expect(briefing(false)).not.toContain('briefing-back-to-title');
   });
 });

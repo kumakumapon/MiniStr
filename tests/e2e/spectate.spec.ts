@@ -2,6 +2,7 @@ import { expect, test } from '@playwright/test';
 
 test('spectates a CPU-versus-CPU match with pause and resume (#129)', async ({ page }) => {
   await page.goto('/');
+  await page.locator('.title-map-card[data-map-id="skirmish"]').click();
   await page.locator('input[name="match-mode"][value="spectate"]').check();
   await expect(page.locator('.briefing-overlay')).toContainText('赤軍の勝利条件');
   await page.getByRole('button', { name: /単体作戦を開始/ }).click();
@@ -44,6 +45,7 @@ test('spectating never autosaves over the player’s saves and keeps alternating
   await page.goto('/');
   await page.evaluate((keys) => keys.forEach((key) => localStorage.setItem(key, `sentinel:${key}`)), saveKeys);
   await page.reload();
+  await page.locator('.title-map-card[data-map-id="skirmish"]').click();
   await page.locator('input[name="match-mode"][value="spectate"]').check();
   await page.getByRole('button', { name: /単体作戦を開始/ }).click();
 
@@ -58,6 +60,7 @@ test('spectating never autosaves over the player’s saves and keeps alternating
 
 test('sets each side’s CPU difficulty for spectating (#131)', async ({ page }) => {
   await page.goto('/');
+  await page.locator('.title-map-card[data-map-id="skirmish"]').click();
   await expect(page.locator('#briefing-red-difficulty')).toHaveCount(0);
   await page.locator('input[name="match-mode"][value="spectate"]').check();
   // A keyboard user changes a focused control; it keeps focus instead of jumping to the start button.
@@ -85,6 +88,7 @@ test('sets each side’s CPU difficulty for spectating (#131)', async ({ page })
 
 test('shows the whole board without fog while spectating, and only then (#133)', async ({ page }) => {
   await page.goto('/');
+  await page.locator('.title-map-card[data-map-id="skirmish"]').click();
   await page.locator('input[name="match-mode"][value="spectate"]').check();
   await page.getByRole('button', { name: /単体作戦を開始/ }).click();
 
@@ -120,9 +124,11 @@ test('shows the whole board without fog while spectating, and only then (#133)',
 test('saves a paused spectated match to a slot and resumes it paused with both difficulties (#135, #139)', async ({ page }) => {
   const saveKeys = ['ministr.save.auto', 'ministr.save.manual'];
   await page.goto('/');
+  await page.locator('.title-map-card[data-map-id="skirmish"]').click();
   // The player's own saves must survive spectating (#139).
   await page.evaluate((keys) => keys.forEach((key) => localStorage.setItem(key, `sentinel:${key}`)), saveKeys);
   await page.reload();
+  await page.locator('.title-map-card[data-map-id="skirmish"]').click();
   page.on('dialog', (dialog) => dialog.accept('観戦テスト'));
   await page.locator('input[name="match-mode"][value="spectate"]').check();
   await page.locator('#briefing-red-difficulty').selectOption('easy');
@@ -141,6 +147,7 @@ test('saves a paused spectated match to a slot and resumes it paused with both d
 
   // A fresh page resumes the spectated match paused, with both difficulties restored.
   await page.reload();
+  await page.locator('.title-map-card[data-map-id="skirmish"]').click();
   await page.getByRole('button', { name: /単体作戦を開始/ }).click();
   const slot = page.locator('.save-slot-manager li', { hasText: '観戦テスト' });
   await expect(slot).toContainText('/ 観戦');
@@ -161,6 +168,7 @@ test('cannot delete the player’s match saves while spectating, but can delete 
   await page.goto('/');
   await page.evaluate((keys) => keys.forEach((key) => localStorage.setItem(key, `sentinel:${key}`)), saveKeys);
   await page.reload();
+  await page.locator('.title-map-card[data-map-id="skirmish"]').click();
   // Outside spectating the button is usable for these (invalid) stored saves.
   await page.getByRole('button', { name: /単体作戦を開始/ }).click();
   await expect(page.locator('#delete-save')).toBeEnabled();

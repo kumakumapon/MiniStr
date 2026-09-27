@@ -359,3 +359,28 @@ button, select, .tile { touch-action: manipulation; }
 @keyframes tile-pulse { from { opacity: 0; transform: scale(.48); } 38% { opacity: 1; } to { opacity: 0; transform: scale(1.16); } }
 @keyframes turn-pulse { 50% { filter: brightness(1.45); transform: scale(1.03); } }
 @media (prefers-reduced-motion: reduce) { .presentation-effect { display: none; }.turn-feedback { animation: none !important; } }
+
+/* Title screen (#143): the first screen, listing maps to compare before a briefing. */
+.title-overlay { position: fixed; inset: 0; z-index: 125; display: grid; place-items: center; padding: 20px; background: radial-gradient(circle at 50% 18%, #304a40f2, #07100ef7 74%); backdrop-filter: blur(6px); }
+.title-screen { width: min(1040px, 100%); max-height: min(100dvh - 40px, 100vh - 40px); overflow: auto; padding: 28px; border: 1px solid #d2aa49; border-radius: 10px; background: linear-gradient(150deg, #1c2d27, #101a17); box-shadow: 0 28px 80px #000c; }
+.title-hero h2 { margin: 2px 0 6px; color: #fff2bd; font-family: system-ui, -apple-system, 'Segoe UI', sans-serif; font-stretch: condensed; font-size: clamp(40px, 8vw, 64px); letter-spacing: .02em; }
+.title-hero > p:last-child { margin: 0; color: #b8cbbf; font-size: 13px; }
+.title-menu { display: flex; flex-wrap: wrap; gap: 8px; margin: 18px 0; }
+.title-menu button { min-height: 40px; }
+.title-notice { margin: 0 0 14px; padding: 9px 12px; color: #f4e4b1; font-size: 12px; border-left: 3px solid #d2aa49; background: #101b17; }
+.title-screen h3 { margin: 0 0 10px; color: #e5cc79; font-size: 13px; letter-spacing: .08em; }
+.title-map-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 10px; margin: 0; padding: 0; list-style: none; }
+.title-map-card { display: grid; gap: 8px; width: 100%; height: 100%; padding: 14px; color: #f4f0e5; text-align: left; font: inherit; border: 1px solid #4b6559; border-radius: 7px; background: linear-gradient(135deg, #20342c, #15231e); cursor: pointer; }
+.title-map-card:hover, .title-map-card:focus-visible { border-color: #d2aa49; background: linear-gradient(135deg, #2a4238, #182a23); }
+.title-map-card:focus-visible { outline: 3px solid #ffe275; outline-offset: 2px; }
+.title-map-card[aria-current="true"] { border-color: #d2aa49; box-shadow: inset 3px 0 0 #d2aa49; }
+.title-map-name { display: flex; align-items: center; gap: 8px; font-family: system-ui, -apple-system, 'Segoe UI', sans-serif; font-stretch: condensed; font-size: 21px; font-weight: 800; }
+.title-map-name em { padding: 1px 6px; color: #17211e; font-size: 10px; font-style: normal; border-radius: 4px; background: #9bc5e8; }
+.title-map-facts { display: flex; flex-wrap: wrap; gap: 4px 10px; color: #b8cbbf; font-size: 11px; }
+.title-map-victory { color: #e5cc79; font-size: 11px; line-height: 1.45; }
+@media (max-width: 480px) {
+  .title-overlay { padding: 10px; }
+  .title-screen { max-height: min(100dvh - 20px, 100vh - 20px); padding: 20px 16px; }
+  .title-map-list { grid-template-columns: 1fr; }
+  .title-menu { display: grid; grid-template-columns: 1fr 1fr; }
+}

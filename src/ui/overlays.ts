@@ -53,6 +53,8 @@ export function renderBriefingOverlay(options: {
   conditionHeadings?: { victory: string; defeat: string };
   /** Spectating: each side's CPU difficulty, chosen before the CPUs start. */
   spectateDifficulties?: SpectateDifficultyChoice;
+  /** Offers a way back to the title's map list (skirmishes only). */
+  backToTitle?: boolean;
 }): string {
   if (!options.visible) return '';
   const headings = options.conditionHeadings ?? { victory: uiText.victoryConditions, defeat: uiText.defeatConditions };
@@ -60,7 +62,7 @@ export function renderBriefingOverlay(options: {
   const difficultyChoice =
     options.campaignRun || options.matchMode !== 'spectate' || !options.spectateDifficulties ? '' : renderSpectateDifficultyChoice(options.spectateDifficulties);
   const list = (conditions: readonly string[]) => conditions.map((condition) => `<li>${escapeHtml(condition)}</li>`).join('');
-  return `<div class="briefing-overlay" role="dialog" aria-modal="true" aria-labelledby="briefing-title" aria-describedby="briefing-copy"><section class="briefing-card"><p class="card-kicker">OPERATION BRIEFING</p><h2 id="briefing-title">${escapeHtml(options.mapName)}</h2><p id="briefing-copy" class="briefing-copy">${escapeHtml(options.briefing)}</p><div class="briefing-objectives"><section><h3>${escapeHtml(headings.victory)}</h3><ul>${list(options.victoryConditions)}</ul></section><section><h3>${escapeHtml(headings.defeat)}</h3><ul>${list(options.defeatConditions)}</ul></section></div><div class="briefing-meta"><span>${uiText.startingGold} <strong>${options.startingGold}G</strong></span><span>${uiText.turnLimit} <strong>${options.turnLimit ?? uiText.none}</strong></span><span>${uiText.difficulty} <strong>${escapeHtml(options.difficultyName)}</strong></span></div>${modeChoice}${difficultyChoice}<div class="briefing-actions"><button id="open-campaign-briefing" class="save-action">${uiText.campaign}</button><button id="begin-operation" class="end-turn">${options.campaignRun ? uiText.beginCampaignOperation : uiText.beginSkirmish} <span aria-hidden="true">→</span></button></div></section></div>`;
+  return `<div class="briefing-overlay" role="dialog" aria-modal="true" aria-labelledby="briefing-title" aria-describedby="briefing-copy"><section class="briefing-card"><p class="card-kicker">OPERATION BRIEFING</p><h2 id="briefing-title">${escapeHtml(options.mapName)}</h2><p id="briefing-copy" class="briefing-copy">${escapeHtml(options.briefing)}</p><div class="briefing-objectives"><section><h3>${escapeHtml(headings.victory)}</h3><ul>${list(options.victoryConditions)}</ul></section><section><h3>${escapeHtml(headings.defeat)}</h3><ul>${list(options.defeatConditions)}</ul></section></div><div class="briefing-meta"><span>${uiText.startingGold} <strong>${options.startingGold}G</strong></span><span>${uiText.turnLimit} <strong>${options.turnLimit ?? uiText.none}</strong></span><span>${uiText.difficulty} <strong>${escapeHtml(options.difficultyName)}</strong></span></div>${modeChoice}${difficultyChoice}<div class="briefing-actions">${options.backToTitle && !options.campaignRun ? `<button id="briefing-back-to-title" class="save-action">${uiText.titleBackFromBriefing}</button>` : ''}<button id="open-campaign-briefing" class="save-action">${uiText.campaign}</button><button id="begin-operation" class="end-turn">${options.campaignRun ? uiText.beginCampaignOperation : uiText.beginSkirmish} <span aria-hidden="true">→</span></button></div></section></div>`;
 }
 
 export interface SpectateDifficultyChoice {
@@ -78,6 +80,38 @@ function renderSpectateDifficultyChoice(choice: SpectateDifficultyChoice): strin
 function renderMatchModeChoice(mode: MatchMode): string {
   const option = (value: MatchMode, label: string) => `<label><input type="radio" name="match-mode" value="${value}" ${mode === value ? 'checked' : ''}> ${label}</label>`;
   return `<fieldset class="briefing-mode"><legend>${uiText.matchMode}</legend>${option('cpu', uiText.matchModeCpu)}${option('hotseat', uiText.matchModeHotseat)}${option('spectate', uiText.matchModeSpectate)}</fieldset>`;
+}
+
+export interface TitleMapCard {
+  id: string;
+  name: string;
+  /** Display name of the map's theme. */
+  theme: string;
+  width: number;
+  height: number;
+  startingGold: number;
+  turnLimit?: number;
+  /** One line summarising how to win. */
+  victory: string;
+  custom: boolean;
+  /** The map the current or last match used. */
+  selected: boolean;
+}
+
+/**
+ * The first screen: pick a map to see its briefing, or continue, open the
+ * campaign, import a replay, or edit maps. `canResume` is set when it was opened
+ * from a match, which it then returns to unchanged.
+ */
+export function renderTitleOverlay(options: { visible: boolean; maps: readonly TitleMapCard[]; canContinue: boolean; canResume: boolean; notice: string }): string {
+  if (!options.visible) return '';
+  const cards = options.maps
+    .map(
+      (map) =>
+        `<li><button class="title-map-card" data-map-id="${escapeHtml(map.id)}" ${map.selected ? 'aria-current="true"' : ''}><span class="title-map-name">${escapeHtml(map.name)}${map.custom ? `<em>${uiText.titleCustom}</em>` : ''}</span><span class="title-map-facts"><span>${escapeHtml(map.theme)}</span><span>${uiText.titleBoard(map.width, map.height)}</span><span>${uiText.titleGold(map.startingGold)}</span><span>${uiText.titleTurnLimit(map.turnLimit)}</span></span><span class="title-map-victory">${escapeHtml(map.victory)}</span></button></li>`,
+    )
+    .join('');
+  return `<div class="title-overlay" role="dialog" aria-modal="true" aria-labelledby="title-heading"><section class="title-screen"><header class="title-hero"><p class="card-kicker">${uiText.titleKicker}</p><h2 id="title-heading">${uiText.titleHeading}</h2><p>${uiText.titleLead}</p></header><nav class="title-menu" aria-label="${uiText.titleMenu}">${options.canResume ? `<button id="title-resume" class="end-turn">${uiText.titleResume}</button>` : ''}<button id="title-continue" class="save-action" ${options.canContinue ? '' : 'disabled'}>${uiText.titleContinue}</button><button id="title-campaign" class="save-action">${uiText.titleCampaign}</button><button id="title-import-replay" class="save-action">${uiText.titleImportReplay}</button><button id="title-editor" class="save-action">${uiText.titleEditor}</button><input id="title-replay-file" class="visually-hidden" type="file" accept=".json,application/json" aria-label="JSONリプレイファイルを選択"></nav>${options.notice ? `<p class="title-notice" role="status">${escapeHtml(options.notice)}</p>` : ''}<section aria-labelledby="title-maps-heading"><h3 id="title-maps-heading">${uiText.titleMapsHeading}</h3><ol class="title-map-list">${cards}</ol></section></section></div>`;
 }
 
 /**

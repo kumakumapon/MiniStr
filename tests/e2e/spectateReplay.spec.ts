@@ -33,8 +33,8 @@ function spectatedReplayJson(red: CpuDifficulty | undefined, blue: CpuDifficulty
 
 async function importReplay(page: Page, json: string): Promise<void> {
   await page.goto('/');
-  await page.getByRole('button', { name: /単体作戦を開始/ }).click();
-  await page.locator('#replay-file').setInputFiles({ name: 'replay.json', mimeType: 'application/json', buffer: Buffer.from(json) });
+  // Imported from the title screen (#143).
+  await page.locator('#title-replay-file').setInputFiles({ name: 'replay.json', mimeType: 'application/json', buffer: Buffer.from(json) });
   await expect(page.locator('.replay-toolbar')).toBeVisible();
 }
 
