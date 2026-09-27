@@ -19,6 +19,8 @@ const terrainColors: Record<TerrainKind, string> = {
 const themeColors: Partial<Record<ScenarioTheme, Partial<Record<TerrainKind, string>>>> = {
   desert: { plain: '#c18b48', road: '#d0ae76' },
   snow: { plain: '#d6e3e5', road: '#c9d6d9', sea: '#4d9ab8', forest: '#2a4838', mountain: '#8b9caa' },
+  urban: { plain: '#838580', road: '#bdb8a9', sea: '#203840', forest: '#56633f', mountain: '#6b6f77' },
+  coastal: { plain: '#c3cf8f', road: '#c9b47f', sea: '#1aa9bd', forest: '#2f6a48', mountain: '#d6c295' },
 };
 
 const ownerColors: Record<PlayerId | 'neutral', string> = { red: '#e0644f', blue: '#4f8fe0', neutral: '#e4dccb' };
@@ -44,11 +46,19 @@ export function renderMapPreview(board: Board, units: readonly PreviewUnit[], th
   const tiles: string[] = [];
   const properties: string[] = [];
   for (let y = 0; y < height; y += 1) {
-    for (let x = 0; x < width; x += 1) {
-      const tile = board.terrain[y]?.[x];
+    // Runs of one colour along a row share a rect, so a large custom map stays light.
+    let runStart = 0;
+    let runColor = '';
+    for (let x = 0; x <= width; x += 1) {
+      const tile = x < width ? board.terrain[y]?.[x] : undefined;
       const kind = tile && Object.hasOwn(colors, tile.kind) ? tile.kind : 'plain';
-      tiles.push(`<rect x="${x}" y="${y}" width="1" height="1" fill="${colors[kind]}"/>`);
-      if (!tile || !propertyKinds.has(kind)) continue;
+      const color = x < width ? colors[kind] : '';
+      if (color !== runColor) {
+        if (runColor) tiles.push(`<rect x="${runStart}" y="${y}" width="${x - runStart}" height="1" fill="${runColor}"/>`);
+        runStart = x;
+        runColor = color;
+      }
+      if (x === width || !tile || !propertyKinds.has(kind)) continue;
       const fill = ownerColors[tile.owner === 'red' || tile.owner === 'blue' ? tile.owner : 'neutral'];
       const inset = kind === 'capital' ? 0.1 : 0.22;
       properties.push(`<rect class="map-preview-property" x="${x + inset}" y="${y + inset}" width="${1 - inset * 2}" height="${1 - inset * 2}" fill="${fill}"/>`);

@@ -13,6 +13,8 @@ import { loadSoundSettings, ProceduralSoundPlayer, saveSoundSettings, type Sound
 import { commandErrorMessage, escapeHtml, uiText } from './ui/strings';
 import { renderSaveSlotManager } from './ui/saveSlots';
 import { renderMapPreview } from './ui/mapPreview';
+/** Previews per scenario object; a changed custom map is a new object, so it is redrawn. */
+const mapPreviews = new WeakMap<object, string>();
 import { renderBriefingOverlay, renderCampaignOverlay, renderGameOverOverlay, renderHandoffOverlay, renderProductionCard, renderTitleOverlay, renderUnitActionCluster } from './ui/overlays';
 import { commandAllowed, cpuDifficultyFor, cpuShouldRun, handoffAfterEndTurn, menuAllowed, parseMatchMode, autosaveAllowed, manualSaveTarget, matchSaveDeletionAllowed, showsWholeBoard, sideName, spectateContinues, SPECTATE_TURN_LIMIT, undoAllowed, viewerFor, type MatchContext, type MatchMode } from './ui/matchControl';
 import { deleteSaveSlot, getStorageUsage, listSaveSlots, loadGameFromSlot, saveGameToSlot, type SavedGame, type ScenarioTheme } from './game';
@@ -712,14 +714,20 @@ function render(): void {
   const wholeBoardControl = !replayMode && matchMode === 'spectate' && !briefingOpen && !campaignMenuOpen && !editorOpen
     ? `<button id="spectate-whole-board" class="save-action" aria-pressed="${spectateWholeBoard}">${uiText.spectateWholeBoard}</button>`
     : '';
+  const titleVisible = titleOpen && !replayMode && !campaignMenuOpen && !editorOpen;
   const titleOverlay = renderTitleOverlay({
-    visible: titleOpen && !replayMode && !campaignMenuOpen && !editorOpen,
-    maps: availableScenarios().map(map => ({
+    visible: titleVisible,
+    // Built only while the title shows; every other redraw skips the map list.
+    maps: !titleVisible ? [] : availableScenarios().map(map => ({
       id: map.id, name: map.name, theme: themeNames[map.theme], width: map.board.width, height: map.board.height,
       startingGold: map.startingGold, turnLimit: map.turnLimit,
       victory: map.victoryConditions.map(describeVictoryCondition).join(' / '),
       custom: !maps.some(builtIn => builtIn.id === map.id), selected: map.id === selectedMap.id,
-      preview: renderMapPreview(map.board, map.initialUnits, map.theme),
+      preview: mapPreviews.get(map) ?? (() => {
+        const preview = renderMapPreview(map.board, map.initialUnits, map.theme);
+        mapPreviews.set(map, preview);
+        return preview;
+      })(),
     })),
     canContinue: hasSave(),
     canResume: titleResumable,
