@@ -56,6 +56,7 @@ export const uiText = {
   spectateResume: '観戦を再開',
   spectatePaused: '観戦を一時停止しました。メニューを操作できます。',
   spectateResumed: '観戦を再開しました。',
+  spectateSaveToSlot: 'スロットにセーブ',
   spectateLoaded: '観戦のセーブデータを一時停止した状態で読み込みました。「観戦を再開」で続行します。',
   spectateTurnLimit: (turn: number) => `${turn}ターンに達したため観戦を一時停止しました。再開すると続行します。`,
   spectateTurnEnded: (side: string) => `${side}のCPUがターンを終了しました。`,
