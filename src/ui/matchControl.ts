@@ -64,6 +64,14 @@ export function spectateContinues(state: Pick<GameState, 'turn' | 'winner'>, pau
   return state.winner === undefined && state.turn < pauseAtTurn;
 }
 
+/**
+ * The difficulty the CPU plays the given side at. `blue` is the match's usual
+ * CPU difficulty; only a spectated red side uses its own setting.
+ */
+export function cpuDifficultyFor<T>(mode: MatchMode, player: PlayerId, difficulties: { red: T; blue: T }): T {
+  return mode === 'spectate' && player === 'red' ? difficulties.red : difficulties.blue;
+}
+
 /** Autosaves and manual saves are for matches a person plays; spectating never overwrites them. */
 export function saveAllowed(mode: MatchMode): mode is SavedMatchMode {
   return mode !== 'spectate';
