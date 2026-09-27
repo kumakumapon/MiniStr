@@ -315,7 +315,6 @@ function continueSavedGame(slotId?: string): void {
   cpuSkipRequested = false;
   campaignRun = undefined;
   campaignOutcome = undefined;
-  spectatePaused = false;
   const loaded = slotId ? loadGameFromSlot(localStorage, slotId) : loadGame(localStorage);
   if (!loaded) { message = 'セーブデータがありません。'; return; }
   if (!loaded.ok) { resetGame(selectedMap.id); message = loaded.error; return; }
@@ -324,7 +323,8 @@ function continueSavedGame(slotId?: string): void {
   selectedMap = map;
   difficulty = loaded.value.difficulty;
   matchMode = loaded.value.mode ?? 'cpu';
-  redDifficulty = loaded.value.redDifficulty ?? difficulty;
+  // Only a spectated save sets red's CPU; other formats keep the viewer's last choice.
+  if (matchMode === 'spectate') redDifficulty = loaded.value.redDifficulty ?? difficulty;
   cpuActivity = [];
   turnStartNotice = '';
   initialState = { ...structuredClone(loaded.value.initialState), scenarioId: map.id };
