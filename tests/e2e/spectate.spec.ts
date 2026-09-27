@@ -75,3 +75,36 @@ test('sets each side’s CPU difficulty for spectating (#131)', async ({ page })
   await expect(page.locator('#red-difficulty')).toHaveValue('normal');
   await expect(page.locator('#difficulty')).toHaveValue('hard');
 });
+
+test('shows the whole board without fog while spectating, and only then (#133)', async ({ page }) => {
+  await page.goto('/');
+  await page.locator('input[name="match-mode"][value="spectate"]').check();
+  await page.getByRole('button', { name: /単体作戦を開始/ }).click();
+
+  // The acting side's fog is the default view.
+  const toggle = page.locator('#spectate-whole-board');
+  await expect(toggle).toHaveAttribute('aria-pressed', 'false');
+  await expect(page.locator('.tile.fog').first()).toBeVisible();
+
+  // Switching works while the CPUs keep playing and removes every fogged tile.
+  await expect(page.locator('#skip-cpu')).toBeVisible();
+  await toggle.click();
+  await expect(toggle).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.locator('.tile.fog')).toHaveCount(0);
+  await expect(page.locator('.unit.red').first()).toBeVisible();
+  await expect(page.locator('.unit.blue').first()).toBeVisible();
+
+  await toggle.click();
+  await expect(toggle).toHaveAttribute('aria-pressed', 'false');
+  await expect(page.locator('.tile.fog').first()).toBeVisible();
+
+  // A CPU match never offers it, even with the setting left on from spectating.
+  await page.locator('#spectate-whole-board').click();
+  await page.locator('#spectate-toggle').click();
+  await expect(page.locator('#map')).toBeEnabled();
+  await page.locator('#map').selectOption({ index: 0 });
+  await page.locator('input[name="match-mode"][value="cpu"]').check();
+  await page.getByRole('button', { name: /単体作戦を開始/ }).click();
+  await expect(page.locator('#spectate-whole-board')).toHaveCount(0);
+  await expect(page.locator('.tile.fog').first()).toBeVisible();
+});

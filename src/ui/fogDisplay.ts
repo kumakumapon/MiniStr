@@ -1,4 +1,14 @@
-import { isPropertyTerrainKind, type Terrain } from '../game';
+import { isPropertyTerrainKind, visiblePositions, type GameState, type PlayerId, type Position, type Terrain } from '../game';
+
+/**
+ * The tiles the screen may draw for `viewer`: every tile when the whole board is
+ * shown, otherwise the viewer's fog of war. Every fog-dependent view (board,
+ * tile inspector, presentation effects, recon count) goes through this.
+ */
+export function displayedPositions(state: GameState, viewer: PlayerId, wholeBoard: boolean): Position[] {
+  if (!wholeBoard) return visiblePositions(state, viewer);
+  return Array.from({ length: state.board.height }, (_, y) => Array.from({ length: state.board.width }, (_, x) => ({ x, y }))).flat();
+}
 
 /**
  * What the viewer may know about a property's capture progress (#125).

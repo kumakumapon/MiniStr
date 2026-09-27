@@ -72,6 +72,15 @@ export function cpuDifficultyFor<T>(mode: MatchMode, player: PlayerId, difficult
   return mode === 'spectate' && player === 'red' ? difficulties.red : difficulties.blue;
 }
 
+/**
+ * Whether the board is drawn without fog. Only a spectator who asked for it gets
+ * the whole board: CPU matches, hotseat, and replays always keep their fog, so the
+ * setting can never reveal hidden units to a player.
+ */
+export function showsWholeBoard(mode: MatchMode, wholeBoardRequested: boolean, replay: boolean): boolean {
+  return mode === 'spectate' && wholeBoardRequested && !replay;
+}
+
 /** Autosaves and manual saves are for matches a person plays; spectating never overwrites them. */
 export function saveAllowed(mode: MatchMode): mode is SavedMatchMode {
   return mode !== 'spectate';

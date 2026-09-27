@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { commandAllowed, cpuDifficultyFor, cpuShouldRun, handoffAfterEndTurn, menuAllowed, parseMatchMode, saveAllowed, sideName, spectateContinues, SPECTATE_TURN_LIMIT, undoAllowed, viewerFor, type MatchContext } from './matchControl';
+import { commandAllowed, cpuDifficultyFor, cpuShouldRun, handoffAfterEndTurn, menuAllowed, parseMatchMode, saveAllowed, showsWholeBoard, sideName, spectateContinues, SPECTATE_TURN_LIMIT, undoAllowed, viewerFor, type MatchContext } from './matchControl';
 
 const context = (patch: Partial<MatchContext> = {}): MatchContext => ({
   mode: 'cpu', activePlayer: 'red', replay: false, cpuInProgress: false, handoffPending: false, ...patch,
@@ -104,6 +104,14 @@ describe('spectate mode (#129)', () => {
     expect(cpuDifficultyFor('cpu', 'blue', difficulties)).toBe('hard');
     expect(cpuDifficultyFor('cpu', 'red', difficulties)).toBe('hard');
     expect(cpuDifficultyFor('hotseat', 'red', difficulties)).toBe('hard');
+  });
+
+  it('shows the whole board only to a spectator who asked, never to players or in replays (#133)', () => {
+    expect(showsWholeBoard('spectate', true, false)).toBe(true);
+    expect(showsWholeBoard('spectate', false, false)).toBe(false);
+    expect(showsWholeBoard('spectate', true, true)).toBe(false);
+    expect(showsWholeBoard('cpu', true, false)).toBe(false);
+    expect(showsWholeBoard('hotseat', true, false)).toBe(false);
   });
 
   it('parses the briefing choice and falls back to a CPU match for unknown input', () => {
