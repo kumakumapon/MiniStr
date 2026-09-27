@@ -91,6 +91,7 @@ test('shows the whole board without fog while spectating, and only then (#133)',
   await toggle.click();
   await expect(toggle).toHaveAttribute('aria-pressed', 'true');
   await expect(page.locator('.tile.fog')).toHaveCount(0);
+  await expect(page.locator('.map-legend')).not.toContainText('未索敵');
   await expect(page.locator('.unit.red').first()).toBeVisible();
   await expect(page.locator('.unit.blue').first()).toBeVisible();
 
