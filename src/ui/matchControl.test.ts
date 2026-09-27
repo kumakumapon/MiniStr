@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { commandAllowed, cpuDifficultyFor, cpuShouldRun, handoffAfterEndTurn, menuAllowed, parseMatchMode, autosaveAllowed, manualSaveTarget, showsWholeBoard, sideName, spectateContinues, SPECTATE_TURN_LIMIT, undoAllowed, viewerFor, type MatchContext } from './matchControl';
+import { commandAllowed, cpuDifficultyFor, cpuShouldRun, handoffAfterEndTurn, menuAllowed, parseMatchMode, autosaveAllowed, manualSaveTarget, matchSaveDeletionAllowed, showsWholeBoard, sideName, spectateContinues, SPECTATE_TURN_LIMIT, undoAllowed, viewerFor, type MatchContext } from './matchControl';
 
 const context = (patch: Partial<MatchContext> = {}): MatchContext => ({
   mode: 'cpu', activePlayer: 'red', replay: false, cpuInProgress: false, handoffPending: false, ...patch,
@@ -80,6 +80,10 @@ describe('spectate mode (#129)', () => {
     expect(manualSaveTarget('spectate')).toBe('slot');
     expect(manualSaveTarget('cpu')).toBe('manual');
     expect(manualSaveTarget('hotseat')).toBe('manual');
+    // Nor can it delete them (#141).
+    expect(matchSaveDeletionAllowed('spectate')).toBe(false);
+    expect(matchSaveDeletionAllowed('cpu')).toBe(true);
+    expect(matchSaveDeletionAllowed('hotseat')).toBe(true);
   });
 
   it('keeps menus usable while paused and blocks them while a CPU turn runs', () => {
