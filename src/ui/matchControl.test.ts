@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { commandAllowed, cpuShouldRun, handoffAfterEndTurn, menuAllowed, sideName, undoAllowed, viewerFor, type MatchContext } from './matchControl';
+import { commandAllowed, cpuShouldRun, handoffAfterEndTurn, menuAllowed, parseMatchMode, saveAllowed, sideName, spectateContinues, SPECTATE_TURN_LIMIT, undoAllowed, viewerFor, type MatchContext } from './matchControl';
 
 const context = (patch: Partial<MatchContext> = {}): MatchContext => ({
   mode: 'cpu', activePlayer: 'red', replay: false, cpuInProgress: false, handoffPending: false, ...patch,
@@ -52,5 +52,55 @@ describe('match control (#116 10.5)', () => {
     expect(undoAllowed('hotseat')).toBe(false);
     expect(sideName('cpu', 'blue')).toBe('CPU');
     expect(sideName('hotseat', 'blue')).toBe('青軍');
+  });
+});
+
+describe('spectate mode (#129)', () => {
+  it('follows the side whose turn it is', () => {
+    expect(viewerFor('spectate', 'red')).toBe('red');
+    expect(viewerFor('spectate', 'blue')).toBe('blue');
+  });
+
+  it('runs the CPU for both sides until the match ends or a replay is shown', () => {
+    expect(cpuShouldRun({ mode: 'spectate', activePlayer: 'red', replay: false })).toBe(true);
+    expect(cpuShouldRun({ mode: 'spectate', activePlayer: 'blue', replay: false })).toBe(true);
+    expect(cpuShouldRun({ mode: 'spectate', activePlayer: 'red', winner: 'blue', replay: false })).toBe(false);
+    expect(cpuShouldRun({ mode: 'spectate', activePlayer: 'red', replay: true })).toBe(false);
+  });
+
+  it('never accepts board commands, undo, or saves from the viewer', () => {
+    expect(commandAllowed(context({ mode: 'spectate' }))).toBe(false);
+    expect(commandAllowed(context({ mode: 'spectate', activePlayer: 'blue' }))).toBe(false);
+    expect(undoAllowed('spectate')).toBe(false);
+    expect(saveAllowed('spectate')).toBe(false);
+    expect(saveAllowed('cpu')).toBe(true);
+    expect(saveAllowed('hotseat')).toBe(true);
+  });
+
+  it('keeps menus usable while paused and blocks them while a CPU turn runs', () => {
+    expect(menuAllowed(context({ mode: 'spectate', activePlayer: 'blue' }))).toBe(true);
+    expect(menuAllowed(context({ mode: 'spectate', cpuInProgress: true }))).toBe(false);
+  });
+
+  it('never hands the device over and names sides by colour', () => {
+    expect(handoffAfterEndTurn('spectate', {})).toBe(false);
+    expect(sideName('spectate', 'red')).toBe('赤軍');
+    expect(sideName('spectate', 'blue')).toBe('青軍');
+  });
+
+  it('stops chaining turns at the turn limit or when the match is decided', () => {
+    expect(spectateContinues({ turn: 1 })).toBe(true);
+    expect(spectateContinues({ turn: SPECTATE_TURN_LIMIT - 1 })).toBe(true);
+    expect(spectateContinues({ turn: SPECTATE_TURN_LIMIT })).toBe(false);
+    expect(spectateContinues({ turn: 3, winner: 'red' })).toBe(false);
+    // Resuming moves the pause point another limit ahead.
+    expect(spectateContinues({ turn: SPECTATE_TURN_LIMIT }, SPECTATE_TURN_LIMIT * 2)).toBe(true);
+  });
+
+  it('parses the briefing choice and falls back to a CPU match for unknown input', () => {
+    expect(parseMatchMode('spectate')).toBe('spectate');
+    expect(parseMatchMode('hotseat')).toBe('hotseat');
+    expect(parseMatchMode('cpu')).toBe('cpu');
+    expect(parseMatchMode('online')).toBe('cpu');
   });
 });
