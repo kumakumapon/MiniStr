@@ -26,23 +26,34 @@ export interface CpuDifficultyConfig {
   lowHpRetreatWeight: number;
   /** Share of the CPU force limit this difficulty fields; the difficulty handicap. */
   forceLimitScale: number;
+  /** How much move-then-attack planning (#122) this difficulty uses. */
+  strikePlanning: StrikePlanning;
 }
+
+/**
+ * - 'none': units only attack what they happen to end next to.
+ * - 'lethal': units move to deliver finishing blows (and to stop captures).
+ * - 'full': units also move for any favorable trade.
+ */
+export type StrikePlanning = 'none' | 'lethal' | 'full';
 
 /**
  * Every difficulty uses the same decision weights: in CPU-versus-CPU
  * measurements (#119) these objective-driven weights beat every more cautious
  * variant, and weight differences alone produced unstable, even inverted,
- * difficulty orders. Difficulty is therefore the size of the force the CPU
- * fields: easy and normal stop producing well below hard.
+ * difficulty orders. Difficulty is the size of the force the CPU fields
+ * (easy and normal stop producing well below hard) and, since #122, how much
+ * move-then-attack planning it uses (`strikePlanning`), the one decision
+ * improvement that measurably wins for the side that has it.
  */
 const sharedCpuWeights = {
   attackSafetyMargin: 20, prioritizeCapital: true, threatAvoidanceWeight: 0.35, terrainDefenseWeight: 0.5, objectiveDistanceWeight: 8, lowHpRetreatWeight: 0.25,
 } as const;
 
 export const cpuDifficultyConfig: Record<CpuDifficulty, CpuDifficultyConfig> = {
-  easy: { ...sharedCpuWeights, forceLimitScale: 0.45 },
-  normal: { ...sharedCpuWeights, forceLimitScale: 0.7 },
-  hard: { ...sharedCpuWeights, forceLimitScale: 1 },
+  easy: { ...sharedCpuWeights, forceLimitScale: 0.45, strikePlanning: 'none' },
+  normal: { ...sharedCpuWeights, forceLimitScale: 0.7, strikePlanning: 'lethal' },
+  hard: { ...sharedCpuWeights, forceLimitScale: 1, strikePlanning: 'full' },
 };
 
 /** A handicapped CPU still fields at least this many units. */
@@ -478,6 +489,78 @@ function moveAction(state: GameState, player: PlayerId, config: CpuDifficultyCon
 }
 
 /** Build immutable, fog-safe data once for the current CPU order. */
+/**
+ * Move-then-attack planning (#122): picks the unit, destination and visible
+ * target with the best expected trade, and moves there; the next CPU step's
+ * `attackAction` then attacks from the new position. Only visible enemies and
+ * the fog-safe movement preview are used. A move stopped short by a hidden
+ * enemy leaves the unit where it stopped: it attacks only if something is in
+ * range there. Each step re-plans on the updated state, so a unit damaged by
+ * one strike becomes a finishing-blow target for the next.
+ */
+function strikeAction(state: GameState, player: PlayerId, config: CpuDifficultyConfig, visibleTargets: readonly Unit[]): CpuAction | undefined {
+  if (config.strikePlanning === 'none') return undefined;
+  let best: { score: number; unitId: string; destination: Position } | undefined;
+  for (const unit of orderedUnits(state, player)) {
+    const stats = unitStats[unit.kind];
+    if (unit.hasMoved || unit.hasActed || stats.indirect || stats.attack <= 0 || (unit.ammo ?? stats.ammo) <= 0) continue;
+    const [minimumRange, maximumRange] = stats.range;
+    const targets = visibleTargets.filter((target): target is DeployedUnit => isDeployedUnit(target)
+      && manhattanDistance(unit.position, target.position) <= stats.movement + maximumRange);
+    if (!targets.length) continue;
+    // Units with another job (capturing, supplying, resupplying, holding the
+    // capital against a visible capturer) leave it only for a finishing blow.
+    const finishingOnly = config.strikePlanning === 'lethal' || stats.capturePower > 0 || isSupplyUnit(unit.kind) || needsSupply(unit)
+      || guardsCapital(state, player, unit, visibleTargets);
+    for (const destination of reachablePositionsForPlayer(state, unit.id, player)) {
+      const inRange = targets.filter(target => {
+        const distance = manhattanDistance(destination, target.position);
+        return distance >= minimumRange && distance <= maximumRange;
+      });
+      if (!inRange.length) continue;
+      // A capturer on a capturable property would capture instead of attacking.
+      const tile = terrainAt(state.board, destination);
+      if (!tile || (stats.capturePower > 0 && isPropertyTerrainKind(tile.kind) && tile.owner !== player)) continue;
+      if (blocksProduction(state, player, destination, visibleTargets, config)) continue;
+      const moved: DeployedUnit = { ...unit, position: { ...destination }, hasMoved: true };
+      const projected = { ...state, units: state.units.map(candidate => candidate.id === unit.id ? moved : candidate) };
+      for (const target of inRange) {
+        if (!favorableAttack(projected, moved, target, config)) continue;
+        const forecast = forecastCombat(projected, moved, target);
+        if (!forecast.ok) continue;
+        const lethal = forecast.value.damageToDefender >= target.hp;
+        const interruption = interruptsCapture(state, player, target);
+        if (finishingOnly && !lethal && !interruption) continue;
+        const targetCost = unitStats[target.kind].cost;
+        const score = Math.min(target.hp, forecast.value.damageToDefender) * targetCost / 100
+          - forecast.value.damageToAttacker * stats.cost / 100
+          + (lethal ? targetCost * STRIKE_LETHAL_BONUS : 0)
+          + (interruption ? STRIKE_INTERRUPT_BONUS : 0)
+          + terrainDefenseReduction(tile, unit.hp) * STRIKE_COVER_VALUE;
+        // Strictly better only: ties keep the first candidate in unit-id,
+        // movement-preview and unit-list order, which is deterministic.
+        if (!best || score > best.score) best = { score, unitId: unit.id, destination };
+      }
+    }
+  }
+  return best && { type: 'move', unitId: best.unitId, destination: best.destination };
+}
+
+/** Removing a unit is worth half its cost on top of the damage value. */
+const STRIKE_LETHAL_BONUS = 0.5;
+/** Stopping a capture of our property outweighs any ordinary trade. */
+const STRIKE_INTERRUPT_BONUS = 3000;
+/** Value of each percent of terrain mitigation at the attack position. */
+const STRIKE_COVER_VALUE = 10;
+
+/** Whether `unit` holds our capital while a visible enemy capturer could reach it. */
+function guardsCapital(state: GameState, player: PlayerId, unit: DeployedUnit, visibleEnemies: readonly Unit[]): boolean {
+  const tile = terrainAt(state.board, unit.position);
+  if (tile?.kind !== 'capital' || tile.owner !== player) return false;
+  return visibleEnemies.some(enemy => isDeployedUnit(enemy) && unitStats[enemy.kind].capturePower > 0
+    && manhattanDistance(enemy.position, unit.position) <= unitStats[enemy.kind].movement + 1);
+}
+
 export function createCpuPlanningContext(state: GameState, player: PlayerId, config: CpuDifficultyConfig): CpuPlanningContext {
   const visibleEnemies = getVisibleEnemies(state, player);
   return { visibleEnemies, targets: objectives(state, player, config, visibleEnemies), landComponents: landComponents(state.board) };
@@ -491,6 +574,7 @@ export function chooseCpuAction(state: GameState, difficulty: CpuDifficulty = 'n
   if (capture) return { type: 'capture', unitId: capture.id };
   const context = createCpuPlanningContext(state, player, config);
   return attackAction(state, player, config, context.visibleEnemies)
+    ?? strikeAction(state, player, config, context.visibleEnemies)
     ?? transportAction(state, player, context.targets, context.landComponents, context.visibleEnemies)
     ?? productionAction(state, player, config, context)
     ?? moveAction(state, player, config, context)
