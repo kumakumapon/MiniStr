@@ -13,7 +13,7 @@ import { loadSoundSettings, ProceduralSoundPlayer, saveSoundSettings, type Sound
 import { commandErrorMessage, escapeHtml, uiText } from './ui/strings';
 import { renderSaveSlotManager } from './ui/saveSlots';
 import { renderBriefingOverlay, renderCampaignOverlay, renderGameOverOverlay, renderHandoffOverlay, renderProductionCard, renderUnitActionCluster } from './ui/overlays';
-import { commandAllowed, cpuShouldRun, handoffAfterEndTurn, menuAllowed, sideName, undoAllowed, viewerFor, type MatchContext, type MatchMode } from './ui/matchControl';
+import { commandAllowed, cpuShouldRun, handoffAfterEndTurn, menuAllowed, parseMatchMode, saveAllowed, sideName, spectateContinues, SPECTATE_TURN_LIMIT, undoAllowed, viewerFor, type MatchContext, type MatchMode } from './ui/matchControl';
 import { deleteSaveSlot, getStorageUsage, listSaveSlots, loadGameFromSlot, saveGameToSlot } from './game';
 
 let selectedMap = maps[0]!;
@@ -46,6 +46,13 @@ let handoffPending = false;
 let cpuSpeed: CommandSpeed = 1;
 let skipCpuImmediately: (() => void) | undefined;
 const CPU_STEP_DELAY_MS = 350;
+/** Spectating: the viewer stopped the CPU loop; menus work until they resume. */
+let spectatePaused = false;
+/**
+ * Spectating pauses itself when this turn number begins (the turn count rises
+ * after blue's end turn); resuming moves it another limit ahead.
+ */
+let spectatePauseAtTurn = SPECTATE_TURN_LIMIT;
 let briefingOpen = true;
 let campaignMenuOpen = false;
 let campaignReturnToBriefing = false;
@@ -97,10 +104,14 @@ function unactedOwnUnits(state: GameState, player: PlayerId): DeployedUnit[] {
   return state.units.filter((unit): unit is DeployedUnit => isDeployedUnit(unit) && unit.owner === player && !unit.hasActed);
 }
 
+function matchDifficultyName(): string {
+  if (matchMode === 'hotseat') return uiText.hotseatDifficulty;
+  return matchMode === 'spectate' ? uiText.spectateDifficulty(difficultyNames[difficulty]) : difficultyNames[difficulty];
+}
 function matchContext(): MatchContext {
   return { mode: matchMode, activePlayer: game.activePlayer, winner: game.winner, replay: replay !== undefined, cpuInProgress, handoffPending };
 }
-/** The side whose view the screen shows: always red in CPU matches and replays, the active side in hotseat. */
+/** The side whose view the screen shows: always red in CPU matches and replays, the active side otherwise. */
 function viewer(): PlayerId {
   return replay ? 'red' : viewerFor(matchMode, game.activePlayer);
 }
@@ -181,6 +192,8 @@ function resetGame(mapId: string): void {
   focusedPosition = { x: 0, y: 0 };
   briefingOpen = true;
   handoffPending = false;
+  spectatePaused = false;
+  spectatePauseAtTurn = SPECTATE_TURN_LIMIT;
   cpuActivity = [];
   turnStartNotice = '';
   syncBoardZoom(game.board.width);
@@ -215,7 +228,7 @@ function dispatch(command: GameCommand, undoable = false): boolean {
   // Only the upkeep of the side about to play is reported, and only to that side:
   // the CPU's repairs would reveal hidden units and funds. In hotseat the notice
   // is shown after the handoff, once the new player has the device.
-  if (command.type === 'endTurn' && (matchMode === 'hotseat' || game.activePlayer === 'red')) {
+  if (command.type === 'endTurn' && (matchMode === 'hotseat' || (matchMode === 'cpu' && game.activePlayer === 'red'))) {
     const repairs = summarizeRepairs(before, game, game.activePlayer);
     turnStartNotice = repairs.units === 0 ? '' : repairs.cost > 0
       ? `${repairs.units}部隊を修理しました（修理費 ${repairs.cost}G）。`
@@ -258,20 +271,24 @@ function recordVisibleCpuAction(before: GameState, command: GameCommand): void {
   if (entry) cpuActivity = [...cpuActivity, entry].slice(-6);
 }
 function persist(key: string): boolean {
+  const mode = matchMode;
+  if (!saveAllowed(mode)) return false;
   const result = saveGame(localStorage, key, {
     mapId: selectedMap.id, difficulty, initialState, commands: commandHistory, gameState: game,
-    campaignScenarioId: campaignRun?.scenarioId, mode: matchMode,
+    campaignScenarioId: campaignRun?.scenarioId, mode,
   });
   message = result.ok ? 'セーブしました。' : result.error;
   return result.ok;
 }
 function saveNamedSlot(): void {
+  const mode = matchMode;
+  if (!saveAllowed(mode)) { message = '観戦中はセーブできません。'; return; }
   const name = window.prompt('セーブ名を入力してください（40文字まで）', selectedMap.name)?.trim();
   if (!name) return;
   const id = `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
   const result = saveGameToSlot(localStorage, id, name, {
     mapId: selectedMap.id, difficulty, initialState, commands: commandHistory, gameState: game,
-    campaignScenarioId: campaignRun?.scenarioId, mode: matchMode,
+    campaignScenarioId: campaignRun?.scenarioId, mode,
   });
   message = result.ok ? `「${name}」にセーブしました。` : result.error;
 }
@@ -287,6 +304,7 @@ function continueSavedGame(slotId?: string): void {
   cpuSkipRequested = false;
   campaignRun = undefined;
   campaignOutcome = undefined;
+  spectatePaused = false;
   const loaded = slotId ? loadGameFromSlot(localStorage, slotId) : loadGame(localStorage);
   if (!loaded) { message = 'セーブデータがありません。'; return; }
   if (!loaded.ok) { resetGame(selectedMap.id); message = loaded.error; return; }
@@ -555,15 +573,15 @@ function render(): void {
     summary,
     summaryError: summaryResult && !summaryResult.ok ? summaryResult.error : undefined,
     mapName: renderedMap.name,
-    difficultyName: matchMode === 'hotseat' ? uiText.hotseatDifficulty : difficultyNames[difficulty],
+    difficultyName: matchDifficultyName(),
     campaignResult,
     campaignActions: campaignResultActions,
     reasonLabel: victoryReason(renderedGame, renderedMap) === 'decision' ? uiText.decisionVictory : undefined,
-    sideNames: matchMode === 'hotseat' ? { red: sideName('hotseat', 'red'), blue: sideName('hotseat', 'blue') } : undefined,
+    sideNames: matchMode === 'cpu' ? undefined : { red: sideName(matchMode, 'red'), blue: sideName(matchMode, 'blue') },
   });
   const commander = renderedGame.activePlayer === 'red'
-    ? { image: './assets/commander-red.png', alt: '赤軍司令官の肖像', title: 'RED COMMAND', label: matchMode === 'hotseat' ? '赤軍司令部' : '前線司令部' }
-    : { image: './assets/commander-blue.png', alt: '青軍司令官の肖像', title: 'BLUE COMMAND', label: matchMode === 'hotseat' ? '青軍司令部' : '敵軍司令部' };
+    ? { image: './assets/commander-red.png', alt: '赤軍司令官の肖像', title: 'RED COMMAND', label: matchMode === 'cpu' ? '前線司令部' : '赤軍司令部' }
+    : { image: './assets/commander-blue.png', alt: '青軍司令官の肖像', title: 'BLUE COMMAND', label: matchMode === 'cpu' ? '敵軍司令部' : '青軍司令部' };
   const mapTheme = `theme-${renderedMap.theme}`;
   const tileInspectorPanel = renderTileInspector(renderedGame, productionRule);
   // The current numbered turn is still playable; timeout is normalized to a
@@ -603,26 +621,31 @@ function render(): void {
   }).join('')).join('');
   const editorOverlay = editorOpen ? `<div class="editor-overlay" role="dialog" aria-modal="true" aria-labelledby="editor-title"><section class="editor-screen"><div class="editor-heading"><div><p class="card-kicker">SCENARIO EDITOR</p><h2 id="editor-title">最小マップエディタ</h2><p>盤面を選択し、地形・拠点所有者・初期ユニット・勝利条件を設定します。JSONは既存の検証器で確認されます。</p></div><button id="editor-close" class="save-action">閉じる</button></div><div class="editor-layout"><section class="editor-workspace"><div class="editor-toolbar"><label>編集<select id="editor-tool"><option value="terrain" ${editor.tool === 'terrain' ? 'selected' : ''}>地形・拠点</option><option value="unit" ${editor.tool === 'unit' ? 'selected' : ''}>初期ユニット</option><option value="eraseUnit" ${editor.tool === 'eraseUnit' ? 'selected' : ''}>ユニット削除</option></select></label><label>地形<select id="editor-terrain">${terrainKinds.map(kind => `<option value="${kind}" ${kind === editor.terrain ? 'selected' : ''}>${terrainNames[kind]}</option>`).join('')}</select></label><label>所有者<select id="editor-owner"><option value="">中立 / なし</option><option value="red" ${editor.owner === 'red' ? 'selected' : ''}>自軍</option><option value="blue" ${editor.owner === 'blue' ? 'selected' : ''}>敵軍</option></select></label><label>ユニット<select id="editor-unit-kind">${(Object.keys(unitNames) as UnitKind[]).map(kind => `<option value="${kind}" ${kind === editor.unitKind ? 'selected' : ''}>${unitNames[kind]}</option>`).join('')}</select></label><label>陣営<select id="editor-unit-owner"><option value="red" ${editor.unitOwner === 'red' ? 'selected' : ''}>自軍</option><option value="blue" ${editor.unitOwner === 'blue' ? 'selected' : ''}>敵軍</option></select></label></div><div class="editor-board" style="grid-template-columns:repeat(${editor.data.board.width},1fr)">${editorBoard}</div><p class="editor-coordinates">選択中: (${editor.selected.x + 1}, ${editor.selected.y + 1})</p></section><section class="editor-fields"><label>ID<input id="editor-id" value="${escapeHtml(editor.data.id)}"></label><label>作戦名<input id="editor-name" value="${escapeHtml(editor.data.name)}"></label><label>概要<textarea id="editor-briefing">${escapeHtml(editor.data.briefing)}</textarea></label><label>開始資金<input id="editor-gold" type="number" min="0" value="${editor.data.startingGold}"></label><label>勝利条件<select id="editor-victory">${editorVictoryKinds.map(kind => `<option value="${kind}" ${editorVictory.type === kind ? 'selected' : ''}>${kind === 'eliminate' ? '敵軍を全滅' : kind === 'captureCapital' ? '敵司令部を占領' : kind === 'hold' ? '選択地点を保持' : kind === 'survive' ? '規定ターン生存' : 'スコア到達'}</option>`).join('')}</select></label><label>目標値<input id="editor-victory-target" type="number" min="1" value="${editorVictoryTarget}"></label><p class="editor-hint">「保持」は現在選択中のマスを目標にします。敗北条件は敵の司令部占領です。</p></section></div><section class="editor-json"><div><h3>JSON 入出力</h3><p>読み込み時・検証時ともに、通常のシナリオと同じ安全なバリデーションを使います。</p></div><textarea id="editor-json" aria-label="シナリオJSON">${escapeHtml(exportScenarioEditorJson(editor))}</textarea><div class="editor-actions"><button id="editor-export" class="save-action">JSONを書き出す</button><button id="editor-import" class="save-action">JSONを反映</button><button id="editor-validate" class="end-turn">シナリオを検証</button><button id="editor-start" class="end-turn">保存してこのシナリオで開始</button></div>${editorNotice ? `<p class="editor-notice" aria-live="polite">${escapeHtml(editorNotice)}</p>` : ''}</section></section></div>` : '';
   const boardZoomControls = `<div class="board-zoom-controls" aria-label="盤面の拡大率"><button id="board-zoom-out" class="save-action" aria-label="盤面を縮小" title="盤面を縮小" ${boardZoomIndex === 0 ? 'disabled' : ''}>−</button><span aria-live="polite">${boardZoomPercent(boardZoomIndex)}%</span><button id="board-zoom-in" class="save-action" aria-label="盤面を拡大" title="盤面を拡大" ${boardZoomIndex === BOARD_ZOOM_LEVELS.length - 1 ? 'disabled' : ''}>＋</button></div>`;
+  // Spectating starts from the briefing and has nothing to pause once decided;
+  // modal screens hide it so it is not reachable behind them.
+  const spectateControl = !replayMode && matchMode === 'spectate' && !briefingOpen && !campaignMenuOpen && !editorOpen && !renderedGame.winner
+    ? `<button id="spectate-toggle" class="save-action" aria-pressed="${spectatePaused}">${spectatePaused ? uiText.spectateResume : uiText.spectatePause}</button>`
+    : '';
   const briefing = renderBriefingOverlay({
     visible: !campaignMenuOpen && !replayMode && briefingOpen,
     mapName: renderedMap.name,
     briefing: renderedMap.briefing,
     victoryConditions: [...renderedMap.victoryConditions.map(describeVictoryCondition), ...(renderedDecisionRound === undefined ? [] : [uiText.decisionRule(renderedDecisionRound)])],
     matchMode: campaignRun ? undefined : matchMode,
-    conditionHeadings: matchMode === 'hotseat' ? { victory: '赤軍の勝利条件', defeat: '青軍の勝利条件' } : undefined,
+    conditionHeadings: matchMode === 'cpu' ? undefined : { victory: '赤軍の勝利条件', defeat: '青軍の勝利条件' },
     defeatConditions: renderedMap.defeatConditions.map(describeVictoryCondition),
     startingGold: renderedMap.startingGold,
     turnLimit: renderedMap.turnLimit,
-    difficultyName: matchMode === 'hotseat' ? uiText.hotseatDifficulty : difficultyNames[difficulty],
+    difficultyName: matchDifficultyName(),
     campaignRun: campaignRun !== undefined,
   });
   app.innerHTML = `<main class="game-shell">
-    <header class="command-bar"><div class="brand"><span class="brand-mark" aria-hidden="true">✦</span><div><h1>MiniStr</h1><p>TACTICAL COMMAND</p></div></div><label class="map-picker">戦域<select id="map" aria-label="戦域マップを選択" ${replayMode || campaignRun ? 'disabled' : ''}><optgroup label="組み込み">${maps.map(map => `<option value="${escapeHtml(map.id)}" ${map.id === renderedMap.id ? 'selected' : ''}>${escapeHtml(map.name)}</option>`).join('')}</optgroup>${availableScenarios().filter(map => !maps.some(builtIn => builtIn.id === map.id)).length ? `<optgroup label="カスタム">${availableScenarios().filter(map => !maps.some(builtIn => builtIn.id === map.id)).map(map => `<option value="${escapeHtml(map.id)}" ${map.id === renderedMap.id ? 'selected' : ''}>${escapeHtml(map.name)}</option>`).join('')}</optgroup>` : ''}</select></label><label class="map-picker">難易度<select id="difficulty" aria-label="CPUの難易度を選択" ${replayMode ? 'disabled' : ''}>${(['easy', 'normal', 'hard'] as CpuDifficulty[]).map(level => `<option value="${level}" ${level === renderedDifficulty ? 'selected' : ''}>${difficultyNames[level]}</option>`).join('')}</select></label><label class="map-picker">CPU速度<select id="cpu-speed" aria-label="CPUの行動速度を選択" ${replayMode ? 'disabled' : ''}>${COMMAND_SPEEDS.map(speed => `<option value="${speed}" ${speed === cpuSpeed ? 'selected' : ''}>${speed}x</option>`).join('')}</select></label><div class="save-controls"><button id="open-editor" class="save-action" ${replayMode ? 'disabled' : ''}>マップ編集</button><button id="open-campaign" class="save-action" ${replayMode ? 'disabled' : ''}>キャンペーン</button><button id="continue" class="save-action" ${replayMode || !hasSave() ? 'disabled' : ''}>続きから</button><button id="save" class="save-action" ${replayMode ? 'disabled' : ''}>手動セーブ</button><button id="delete-save" class="save-action" ${replayMode || !hasStoredSave() ? 'disabled' : ''}>対局セーブ削除</button><button id="undo" class="save-action" ${canAct && undoAllowed(matchMode) && undoStack.length > 0 ? '' : 'disabled'}>1手戻す</button><button id="import-replay" class="save-action" ${replayMode ? 'disabled' : ''}>JSON取込</button><input id="replay-file" class="visually-hidden" type="file" accept=".json,application/json" aria-label="JSONリプレイファイルを選択"></div><div class="turn-indicator ${renderedGame.activePlayer}"><span>${replayMode ? 'REPLAY' : cpuInProgress ? 'CPU THINKING' : campaignRun ? 'CAMPAIGN' : 'TURN'}</span><strong>${cpuInProgress ? 'CPU 行動中' : concealed ? `${activeLabel}の番` : activeLabel}</strong></div>${cpuInProgress ? '<button id="skip-cpu" class="save-action" title="CPUの残りの行動を高速に進める">CPU をスキップ</button>' : ''}<button id="end" class="end-turn" title="現在のターンを終了" aria-label="ターンを終了する" ${!canAct ? 'disabled' : ''}>ターン終了 <span aria-hidden="true">→</span></button></header>
+    <header class="command-bar"><div class="brand"><span class="brand-mark" aria-hidden="true">✦</span><div><h1>MiniStr</h1><p>TACTICAL COMMAND</p></div></div><label class="map-picker">戦域<select id="map" aria-label="戦域マップを選択" ${replayMode || campaignRun ? 'disabled' : ''}><optgroup label="組み込み">${maps.map(map => `<option value="${escapeHtml(map.id)}" ${map.id === renderedMap.id ? 'selected' : ''}>${escapeHtml(map.name)}</option>`).join('')}</optgroup>${availableScenarios().filter(map => !maps.some(builtIn => builtIn.id === map.id)).length ? `<optgroup label="カスタム">${availableScenarios().filter(map => !maps.some(builtIn => builtIn.id === map.id)).map(map => `<option value="${escapeHtml(map.id)}" ${map.id === renderedMap.id ? 'selected' : ''}>${escapeHtml(map.name)}</option>`).join('')}</optgroup>` : ''}</select></label><label class="map-picker">難易度<select id="difficulty" aria-label="CPUの難易度を選択" ${replayMode ? 'disabled' : ''}>${(['easy', 'normal', 'hard'] as CpuDifficulty[]).map(level => `<option value="${level}" ${level === renderedDifficulty ? 'selected' : ''}>${difficultyNames[level]}</option>`).join('')}</select></label><label class="map-picker">CPU速度<select id="cpu-speed" aria-label="CPUの行動速度を選択" ${replayMode ? 'disabled' : ''}>${COMMAND_SPEEDS.map(speed => `<option value="${speed}" ${speed === cpuSpeed ? 'selected' : ''}>${speed}x</option>`).join('')}</select></label><div class="save-controls"><button id="open-editor" class="save-action" ${replayMode ? 'disabled' : ''}>マップ編集</button><button id="open-campaign" class="save-action" ${replayMode ? 'disabled' : ''}>キャンペーン</button><button id="continue" class="save-action" ${replayMode || !hasSave() ? 'disabled' : ''}>続きから</button><button id="save" class="save-action" ${replayMode || !saveAllowed(matchMode) ? 'disabled' : ''}>手動セーブ</button><button id="delete-save" class="save-action" ${replayMode || !hasStoredSave() ? 'disabled' : ''}>対局セーブ削除</button><button id="undo" class="save-action" ${canAct && undoAllowed(matchMode) && undoStack.length > 0 ? '' : 'disabled'}>1手戻す</button><button id="import-replay" class="save-action" ${replayMode ? 'disabled' : ''}>JSON取込</button><input id="replay-file" class="visually-hidden" type="file" accept=".json,application/json" aria-label="JSONリプレイファイルを選択"></div><div class="turn-indicator ${renderedGame.activePlayer}"><span>${replayMode ? 'REPLAY' : cpuInProgress ? 'CPU THINKING' : campaignRun ? 'CAMPAIGN' : matchMode === 'spectate' ? 'SPECTATE' : 'TURN'}</span><strong>${cpuInProgress ? (matchMode === 'spectate' ? `${activeLabel} CPU 行動中` : 'CPU 行動中') : concealed ? `${activeLabel}の番` : activeLabel}</strong></div>${cpuInProgress ? '<button id="skip-cpu" class="save-action" title="CPUの残りの行動を高速に進める">CPU をスキップ</button>' : ''}${spectateControl}<button id="end" class="end-turn" title="現在のターンを終了" aria-label="ターンを終了する" ${!canAct ? 'disabled' : ''}>ターン終了 <span aria-hidden="true">→</span></button></header>
     ${scenarioLoadError ? `<p class="scenario-warning">組み込みシナリオの読み込みに失敗したため、緊急スカーミッシュで起動しています。${escapeHtml(scenarioLoadError)}</p>` : ''}
     <section class="sound-controls" aria-label="効果音設定"><label><input id="sound-muted" type="checkbox" ${soundSettings.muted ? 'checked' : ''}> 効果音</label><label>音量 <input id="sound-volume" type="range" min="0" max="100" value="${Math.round(soundSettings.volume * 100)}" aria-label="効果音の音量"></label></section>
     ${!hasSave() && hasStoredSave() ? '<p class="scenario-warning" role="status">有効なセーブデータを読み込めません。対局セーブ削除で削除して新規対局を開始できます。</p>' : ''}
     ${replay ? `<section class="replay-toolbar" aria-label="リプレイ再生コントロール"><div><p class="card-kicker">REPLAY</p><strong aria-live="polite">${replay.index} / ${replay.file.commands.length} 手</strong></div><button id="replay-toggle" class="end-turn" aria-label="${replay.playing ? 'リプレイを一時停止' : replay.index >= replay.file.commands.length ? 'リプレイを最初から再生' : 'リプレイを再生'}" ${replay.file.commands.length === 0 ? 'disabled' : ''}>${replay.playing ? '一時停止' : replay.index >= replay.file.commands.length ? 'もう一度再生' : '再生'}</button><button id="replay-step" class="save-action" ${replay.playing || replay.index >= replay.file.commands.length ? 'disabled' : ''}>1手送り</button><label class="replay-speed">速度<select id="replay-speed" aria-label="リプレイ再生速度">${COMMAND_SPEEDS.map(speed => `<option value="${speed}" ${speed === replay!.speed ? 'selected' : ''}>${speed}x</option>`).join('')}</select></label><button id="replay-exit" class="save-action">リプレイを終了</button></section>` : ''}
-    ${concealed ? '' : `<section class="battle-layout"><div class="battlefield-wrap ${mapTheme}"><div class="battlefield-heading"><div><p>OPERATION MAP</p><h2>${escapeHtml(renderedMap.name)}</h2></div><p class="status-message" aria-live="polite">${escapeHtml(message)}</p></div><p id="board-instructions" class="board-instructions">盤面では矢印キーでマスを移動し、Enter または Space で選択・行動、Esc で選択を解除できます。敵部隊を選択またはフォーカスすると、移動範囲と攻撃危険域を確認できます。N キーで次の未行動部隊へ移動します。</p><div id="board-viewport" class="board-viewport" tabindex="0" aria-label="盤面スクロール領域" style="max-height:min(70vh, ${boardViewportHeight}px)"><div class="board" role="group" aria-label="${escapeHtml(renderedMap.name)}の戦術マップ" aria-describedby="board-instructions" style="grid-template-columns:repeat(${renderedGame.board.width},${tileSize}px);grid-template-rows:repeat(${renderedGame.board.height},${tileSize}px);aspect-ratio:${renderedGame.board.width} / ${renderedGame.board.height}">${board}</div></div>${boardZoomControls}<div class="map-legend" aria-label="マップ凡例"><span><i class="legend-dot reachable-dot" aria-hidden="true">移</i>移動可能</span><span><i class="legend-dot danger-dot" aria-hidden="true">危</i>敵の攻撃危険域</span><span><i class="legend-dot enemy-move-dot" aria-hidden="true">敵移</i>選択敵の移動範囲</span><span><i class="legend-dot fog-dot" aria-hidden="true">?</i>未索敵</span><span><i class="legend-unit ${me}-dot" aria-hidden="true">自</i>自軍${matchMode === 'hotseat' ? `（${sideName('hotseat', me)}）` : ''}</span><span><i class="legend-unit ${foe}-dot" aria-hidden="true">敵</i>敵軍${matchMode === 'hotseat' ? `（${sideName('hotseat', foe)}）` : ''}</span><span><i class="legend-facility" aria-hidden="true">拠</i>拠点（市・工・空・港・司）</span><span><i class="legend-dot facility-ready-dot" aria-hidden="true">産</i>生産可能</span></div>${tileInspectorPanel}</div>
+    ${concealed ? '' : `<section class="battle-layout"><div class="battlefield-wrap ${mapTheme}"><div class="battlefield-heading"><div><p>OPERATION MAP</p><h2>${escapeHtml(renderedMap.name)}</h2></div><p class="status-message" aria-live="polite">${escapeHtml(message)}</p></div><p id="board-instructions" class="board-instructions">盤面では矢印キーでマスを移動し、Enter または Space で選択・行動、Esc で選択を解除できます。敵部隊を選択またはフォーカスすると、移動範囲と攻撃危険域を確認できます。N キーで次の未行動部隊へ移動します。</p><div id="board-viewport" class="board-viewport" tabindex="0" aria-label="盤面スクロール領域" style="max-height:min(70vh, ${boardViewportHeight}px)"><div class="board" role="group" aria-label="${escapeHtml(renderedMap.name)}の戦術マップ" aria-describedby="board-instructions" style="grid-template-columns:repeat(${renderedGame.board.width},${tileSize}px);grid-template-rows:repeat(${renderedGame.board.height},${tileSize}px);aspect-ratio:${renderedGame.board.width} / ${renderedGame.board.height}">${board}</div></div>${boardZoomControls}<div class="map-legend" aria-label="マップ凡例"><span><i class="legend-dot reachable-dot" aria-hidden="true">移</i>移動可能</span><span><i class="legend-dot danger-dot" aria-hidden="true">危</i>敵の攻撃危険域</span><span><i class="legend-dot enemy-move-dot" aria-hidden="true">敵移</i>選択敵の移動範囲</span><span><i class="legend-dot fog-dot" aria-hidden="true">?</i>未索敵</span><span><i class="legend-unit ${me}-dot" aria-hidden="true">自</i>自軍${matchMode === 'cpu' ? '' : `（${sideName(matchMode, me)}）`}</span><span><i class="legend-unit ${foe}-dot" aria-hidden="true">敵</i>敵軍${matchMode === 'cpu' ? '' : `（${sideName(matchMode, foe)}）`}</span><span><i class="legend-facility" aria-hidden="true">拠</i>拠点（市・工・空・港・司）</span><span><i class="legend-dot facility-ready-dot" aria-hidden="true">産</i>生産可能</span></div>${tileInspectorPanel}</div>
     <aside id="command-panel" class="command-panel" aria-label="作戦情報" tabindex="-1">${objectivePanel}${unitQueuePanel}${selectedUnitActions}${cpuActivityPanel}<section class="commander-card ${renderedGame.activePlayer}"><img src="${commander.image}" alt="${commander.alt}"><div><p>COMMANDER</p><h2>${commander.title}</h2><span>${commander.label}</span></div></section>${transportAction}${forecastCard}<section class="intel-card"><p class="card-kicker">RESOURCES</p><div class="resource-row"><span>自軍資金</span><strong>${renderedGame.players[me].gold}<small>G</small></strong></div><div class="resource-row enemy"><span>敵軍資金</span><strong>${renderedGame.players[foe].gold}<small>G</small></strong></div></section><section class="intel-card"><p class="card-kicker">RECON</p><div class="recon-count"><strong>${visibleEnemies(renderedGame, me).length}</strong><span>確認済み敵部隊</span></div></section>${renderProductionCard(productionTargetLine, productionSummary, production)}${turnSetting}${saveSlotManager}<p class="command-tip">歩兵は中立・敵軍の都市、工場、空港、港湾、司令部で<strong>占領</strong>できます。生産先は盤面の空き「産」マスを選び、工場・空港・港湾から対応する部隊を生産します。輸送艦は歩兵を1部隊搭載し、別の島へ上陸させられます。</p></aside>
   </section>${mobileActionBar}`}</main>${gameOverOverlay}${briefing}${campaignOverlay}${editorOverlay}${concealed ? renderHandoffOverlay(sideName('hotseat', renderedGame.activePlayer)) : ''}`;
   const effects = pendingPresentationEffects;
@@ -650,6 +673,16 @@ function render(): void {
   // screen stay usable after the match ends, whoever's turn it was.
   const guardCommand = (action: () => void) => () => { if (canCommand()) action(); };
   const guardMenu = (action: () => void) => () => { if (menuAllowed(matchContext())) action(); };
+  // The header is redrawn after every CPU command, so a pointer press may land on
+  // a button that is replaced before release and never becomes a click. Acting on
+  // pointerdown keeps pause reliable at 4x; keyboard activation arrives as a
+  // click with detail 0, and the redraw keeps focus on the button by its id.
+  const toggleSpectate = () => { if (spectatePaused) resumeSpectate(); else pauseSpectate(); };
+  const spectateToggle = app.querySelector<HTMLButtonElement>('#spectate-toggle');
+  spectateToggle?.addEventListener('pointerdown', event => { if (event.button === 0) { event.preventDefault(); toggleSpectate(); } });
+  spectateToggle?.addEventListener('click', event => { if (event.detail === 0) toggleSpectate(); });
+  // Spectating never saves; the slot manager's save button follows the header's.
+  if (!saveAllowed(matchMode)) app.querySelector<HTMLButtonElement>('#save-new-slot')?.setAttribute('disabled', '');
   app.querySelector<HTMLButtonElement>('#skip-cpu')?.addEventListener('click', () => {
     cpuSkipRequested = true;
     pendingPresentationEffects = [];
@@ -938,12 +971,14 @@ function render(): void {
   document.querySelector<HTMLButtonElement>('#replay-exit')?.addEventListener('click', leaveReplay);
   app.querySelectorAll<HTMLInputElement>('input[name="match-mode"]').forEach(input => input.addEventListener('change', () => {
     // The format can only change on the briefing, before any command is played.
-    if (briefingOpen && commandHistory.length === 0 && !campaignRun) matchMode = input.value === 'hotseat' ? 'hotseat' : 'cpu';
+    if (briefingOpen && commandHistory.length === 0 && !campaignRun) matchMode = parseMatchMode(input.value);
     render();
   }));
   document.querySelector<HTMLButtonElement>('#begin-operation')?.addEventListener('click', () => {
     briefingOpen = false;
-    message = matchMode === 'hotseat' ? `2人対戦を開始しました。${sideName('hotseat', game.activePlayer)}から操作してください。` : '作戦を開始しました。ユニットを選択してください。';
+    message = matchMode === 'hotseat' ? `2人対戦を開始しました。${sideName('hotseat', game.activePlayer)}から操作してください。`
+      : matchMode === 'spectate' ? uiText.spectateStarted : '作戦を開始しました。ユニットを選択してください。';
+    if (cpuShouldRun(matchContext())) runCpu();
     render();
   });
   document.querySelector<HTMLButtonElement>('#handoff-start')?.addEventListener('click', beginHandoffTurn);
@@ -1073,13 +1108,24 @@ function moveSelectedUnit(destination: Position): boolean {
     : '移動しました。';
   return true;
 }
-function finishCpuTurn(reachedLimit = false): void {
-  if (game.activePlayer === 'blue' && !game.winner) dispatch({ type: 'endTurn' });
+function finishCpuTurn(side: PlayerId, reachedLimit = false): void {
+  if (game.activePlayer === side && !game.winner) dispatch({ type: 'endTurn' });
   cpuInProgress = false;
   cpuSkipRequested = false;
   skipCpuImmediately = undefined;
   commandScheduler.cancel();
   undoStack = [];
+  if (matchMode === 'spectate') {
+    message = reachedLimit ? 'CPU の行動上限に達したため、ターンを終了しました。' : uiText.spectateTurnEnded(sideName(matchMode, side));
+    turnStartNotice = '';
+    if (cpuShouldRun(matchContext()) && !spectatePaused) {
+      // A short gap between sides keeps the turn change readable.
+      if (spectateContinues(game, spectatePauseAtTurn)) runCpu(CPU_STEP_DELAY_MS * 2 / cpuSpeed);
+      else { spectatePaused = true; message = uiText.spectateTurnLimit(game.turn); }
+    }
+    render();
+    return;
+  }
   message = reachedLimit ? 'CPU の行動上限に達したため、ターンを終了しました。' : 'CPU が行動しました。';
   if (turnStartNotice) message += ` ${turnStartNotice}`;
   turnStartNotice = '';
@@ -1087,31 +1133,52 @@ function finishCpuTurn(reachedLimit = false): void {
   render();
 }
 
+/** Stops the spectated CPU loop mid-turn; the unfinished turn resumes from the same board. */
+function pauseSpectate(): void {
+  if (matchMode !== 'spectate' || spectatePaused || replay) return;
+  commandScheduler.cancel();
+  cpuInProgress = false;
+  cpuSkipRequested = false;
+  skipCpuImmediately = undefined;
+  spectatePaused = true;
+  message = uiText.spectatePaused;
+  render();
+}
+function resumeSpectate(): void {
+  if (matchMode !== 'spectate' || !spectatePaused) return;
+  spectatePaused = false;
+  if (!spectateContinues(game, spectatePauseAtTurn)) spectatePauseAtTurn = game.turn + SPECTATE_TURN_LIMIT;
+  message = uiText.spectateResumed;
+  if (cpuShouldRun(matchContext())) runCpu();
+  render();
+}
+
 /** Advance one CPU command per scheduler step so the board remains observable. */
-function runCpu(): void {
+function runCpu(initialDelayMs = 0): void {
   if (replay || cpuInProgress) return;
+  const side = game.activePlayer;
   cpuInProgress = true;
-  cpuActivity = [];
-  const maximumSteps = Math.max(30, game.units.filter(unit => isDeployedUnit(unit) && unit.owner === 'blue').length * 3 + 5);
+  if (matchMode === 'cpu') cpuActivity = [];
+  const maximumSteps = Math.max(30, game.units.filter(unit => isDeployedUnit(unit) && unit.owner === side).length * 3 + 5);
   let steps = 0;
   const advance = (): boolean => {
-    if (replay || game.activePlayer !== 'blue' || game.winner) { finishCpuTurn(); return false; }
-    if (steps >= maximumSteps) { finishCpuTurn(true); return false; }
+    if (replay || game.activePlayer !== side || game.winner) { finishCpuTurn(side); return false; }
+    if (steps >= maximumSteps) { finishCpuTurn(side, true); return false; }
     steps += 1;
     const action = chooseCpuAction(game, difficulty);
-    if (action.type === 'endTurn') { dispatch(action); finishCpuTurn(); return false; }
+    if (action.type === 'endTurn') { dispatch(action); finishCpuTurn(side); return false; }
     const before = game;
     if (!dispatch(action)) {
       const unitId = action.type === 'move' || action.type === 'wait' || action.type === 'attack' || action.type === 'capture' || action.type === 'embark'
         ? action.unitId : action.type === 'disembark' ? action.transportId : undefined;
       if (!unitId || !dispatch({ type: 'wait', unitId })) {
         message = 'CPU の行動を安全に終了しました。';
-        finishCpuTurn();
+        finishCpuTurn(side);
         return false;
       }
     }
-    recordVisibleCpuAction(before, action);
-    message = 'CPU が行動中です。';
+    if (matchMode === 'cpu') recordVisibleCpuAction(before, action);
+    message = matchMode === 'spectate' ? `${sideName(matchMode, side)}のCPUが行動中です。` : 'CPU が行動中です。';
     if (!cpuSkipRequested) render();
     return true;
   };
@@ -1120,7 +1187,7 @@ function runCpu(): void {
     while (advance()) { /* Drain synchronously so skip always reaches the final board state. */ }
   };
   commandScheduler.start({
-    initialDelayMs: 0,
+    initialDelayMs,
     step: advance,
     nextDelayMs: () => cpuSkipRequested ? 0 : CPU_STEP_DELAY_MS / cpuSpeed,
   });

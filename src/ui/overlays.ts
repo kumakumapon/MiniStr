@@ -1,3 +1,4 @@
+import type { MatchMode } from './matchControl';
 import { escapeHtml, uiText } from './strings';
 
 export interface ResultSummaryView {
@@ -47,7 +48,7 @@ export function renderBriefingOverlay(options: {
   difficultyName: string;
   campaignRun: boolean;
   /** Offered outside campaigns; the chosen format applies when the operation starts. */
-  matchMode?: 'cpu' | 'hotseat';
+  matchMode?: MatchMode;
   /** Headings for the two condition lists; default to victory and defeat. */
   conditionHeadings?: { victory: string; defeat: string };
 }): string {
@@ -58,9 +59,9 @@ export function renderBriefingOverlay(options: {
   return `<div class="briefing-overlay" role="dialog" aria-modal="true" aria-labelledby="briefing-title" aria-describedby="briefing-copy"><section class="briefing-card"><p class="card-kicker">OPERATION BRIEFING</p><h2 id="briefing-title">${escapeHtml(options.mapName)}</h2><p id="briefing-copy" class="briefing-copy">${escapeHtml(options.briefing)}</p><div class="briefing-objectives"><section><h3>${escapeHtml(headings.victory)}</h3><ul>${list(options.victoryConditions)}</ul></section><section><h3>${escapeHtml(headings.defeat)}</h3><ul>${list(options.defeatConditions)}</ul></section></div><div class="briefing-meta"><span>${uiText.startingGold} <strong>${options.startingGold}G</strong></span><span>${uiText.turnLimit} <strong>${options.turnLimit ?? uiText.none}</strong></span><span>${uiText.difficulty} <strong>${escapeHtml(options.difficultyName)}</strong></span></div>${modeChoice}<div class="briefing-actions"><button id="open-campaign-briefing" class="save-action">${uiText.campaign}</button><button id="begin-operation" class="end-turn">${options.campaignRun ? uiText.beginCampaignOperation : uiText.beginSkirmish} <span aria-hidden="true">→</span></button></div></section></div>`;
 }
 
-function renderMatchModeChoice(mode: 'cpu' | 'hotseat'): string {
-  const option = (value: 'cpu' | 'hotseat', label: string) => `<label><input type="radio" name="match-mode" value="${value}" ${mode === value ? 'checked' : ''}> ${label}</label>`;
-  return `<fieldset class="briefing-mode"><legend>${uiText.matchMode}</legend>${option('cpu', uiText.matchModeCpu)}${option('hotseat', uiText.matchModeHotseat)}</fieldset>`;
+function renderMatchModeChoice(mode: MatchMode): string {
+  const option = (value: MatchMode, label: string) => `<label><input type="radio" name="match-mode" value="${value}" ${mode === value ? 'checked' : ''}> ${label}</label>`;
+  return `<fieldset class="briefing-mode"><legend>${uiText.matchMode}</legend>${option('cpu', uiText.matchModeCpu)}${option('hotseat', uiText.matchModeHotseat)}${option('spectate', uiText.matchModeSpectate)}</fieldset>`;
 }
 
 /**

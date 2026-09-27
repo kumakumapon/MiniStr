@@ -77,6 +77,25 @@ describe('overlay renderers', () => {
     expect(briefing(true)).not.toContain('match-mode');
   });
 
+  it('offers CPU-versus-CPU spectating as a match format (#129)', () => {
+    const result = renderBriefingOverlay({
+      visible: true,
+      mapName: 'Test',
+      briefing: '',
+      victoryConditions: ['Win'],
+      defeatConditions: ['Lose'],
+      startingGold: 0,
+      difficultyName: '観戦・両軍普通',
+      campaignRun: false,
+      matchMode: 'spectate',
+    });
+
+    expect(result).toContain('value="spectate" checked');
+    expect(result).toContain('観戦（CPU同士）');
+    expect(result).toContain('value="cpu" ');
+    expect(result).toContain('value="hotseat" ');
+  });
+
   it('keeps briefing controls and compact game panels stable', () => {
     const briefing = renderBriefingOverlay({
       visible: true,
