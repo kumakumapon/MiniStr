@@ -9,9 +9,15 @@ test('spectates a CPU-versus-CPU match with pause and resume (#129)', async ({ p
   // Red's CPU starts on its own; the viewer cannot issue commands.
   await expect(page.locator('.turn-indicator strong')).toHaveText('赤軍 CPU 行動中');
   await expect(page.locator('#end')).toBeDisabled();
-  // Saving waits for a pause (#135): pressing save while a CPU plays writes nothing.
+  // Saving waits for a pause (#135): pressing save while a CPU plays asks nothing and writes nothing.
+  const dialogs: string[] = [];
+  page.on('dialog', (dialog) => {
+    dialogs.push(dialog.message());
+    void dialog.dismiss();
+  });
   await page.locator('#save').click();
-  expect(await page.evaluate(() => localStorage.getItem('ministr.save.manual'))).toBeNull();
+  expect(dialogs).toEqual([]);
+  expect(await page.evaluate(() => [localStorage.getItem('ministr.save.manual'), localStorage.getItem('ministr.save.slots')])).toEqual([null, null]);
 
   // Turns alternate without any input until blue's CPU is playing.
   await expect(page.locator('.turn-indicator strong')).toHaveText('青軍 CPU 行動中', { timeout: 20_000 });

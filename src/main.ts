@@ -299,7 +299,7 @@ function persist(key: string): boolean {
 }
 function saveNamedSlot(): void {
   const name = window.prompt('セーブ名を入力してください（40文字まで）', selectedMap.name)?.trim();
-  if (!name) return;
+  if (!name) { message = 'セーブをキャンセルしました。'; return; }
   const id = `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
   const result = saveGameToSlot(localStorage, id, name, savedMatch());
   message = result.ok ? `「${name}」にセーブしました。` : result.error;
