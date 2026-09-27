@@ -59,7 +59,7 @@ export const uiText = {
   spectateSaveToSlot: 'スロットにセーブ',
   spectateNoSaveDeletion: '観戦中は対局セーブを削除できません',
   invalidSaveWarning: '有効なセーブデータを読み込めません。対局セーブ削除で削除して新規対局を開始できます。',
-  invalidSaveWarningSpectating: '有効なセーブデータを読み込めません。観戦を終えてから対局セーブ削除で削除できます。',
+  invalidSaveWarningSpectating: '有効なセーブデータを読み込めません。新しい対局でCPU対戦か2人対戦を選んでから、対局セーブ削除で削除できます。',
   spectateLoaded: '観戦のセーブデータを一時停止した状態で読み込みました。「観戦を再開」で続行します。',
   spectateTurnLimit: (turn: number) => `${turn}ターンに達したため観戦を一時停止しました。再開すると続行します。`,
   spectateTurnEnded: (side: string) => `${side}のCPUがターンを終了しました。`,

@@ -176,8 +176,13 @@ test('cannot delete the player’s match saves while spectating, but can delete 
   // Paused, menus work, yet match-save deletion stays off and explains why.
   await expect(page.locator('#delete-save')).toBeDisabled();
   await expect(page.locator('#delete-save')).toHaveAttribute('title', '観戦中は対局セーブを削除できません');
-  await expect(page.locator('.scenario-warning[role="status"]')).toContainText('観戦を終えてから');
-  await page.locator('#delete-save').dispatchEvent('click');
+  await expect(page.locator('.scenario-warning[role="status"]')).toContainText('CPU対戦か2人対戦を選んでから');
+  // The handler refuses too: re-enable the button in the page and click it.
+  await page.evaluate(() => {
+    const button = document.querySelector<HTMLButtonElement>('#delete-save')!;
+    button.disabled = false;
+    button.click();
+  });
   const stored = await page.evaluate((keys) => keys.map((key) => localStorage.getItem(key)), saveKeys);
   expect(stored).toEqual(saveKeys.map((key) => `sentinel:${key}`));
 
