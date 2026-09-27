@@ -1,3 +1,5 @@
+// Imports the game and CPU modules on the Node side to build a real finished
+// replay. They must stay free of Vite-only features (import.meta.env, asset imports).
 import { expect, test, type Page } from '@playwright/test';
 import { chooseCpuAction, type CpuDifficulty } from '../../src/ai';
 import { applyGameCommand, createReplay, createScenarioInitialState, scenarioById, serializeReplay, type GameCommand } from '../../src/game';

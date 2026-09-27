@@ -1,43 +1,22 @@
 import { describe, expect, it } from 'vitest';
 import {
-  createReplay,
-  createScenarioInitialState,
-  MAX_REPLAY_BYTES,
-  parseReplay,
-  REPLAY_SCHEMA_VERSION,
-  saveCustomScenario,
-  serializeReplay,
-  summarizeReplay,
-  type GameCommand,
-  type GameState,
-  type ScenarioData,
+  createReplay, createScenarioInitialState, MAX_REPLAY_BYTES, parseReplay,
+  REPLAY_SCHEMA_VERSION, saveCustomScenario, serializeReplay, summarizeReplay, type GameCommand,
+  type GameState, type ScenarioData,
 } from './index';
 
 class MemoryStorage {
   data = new Map<string, string>();
-  getItem(key: string) {
-    return this.data.get(key) ?? null;
-  }
-  setItem(key: string, value: string) {
-    this.data.set(key, value);
-  }
-  removeItem(key: string) {
-    this.data.delete(key);
-  }
+  getItem(key: string) { return this.data.get(key) ?? null; }
+  setItem(key: string, value: string) { this.data.set(key, value); }
+  removeItem(key: string) { this.data.delete(key); }
 }
 
 const replayScenario: ScenarioData = {
-  id: 'replay-test-scenario',
-  name: 'リプレイ試験',
-  briefing: '',
-  startingGold: 0,
+  id: 'replay-test-scenario', name: 'リプレイ試験', briefing: '', startingGold: 0,
   board: { width: 2, height: 1, cells: [] },
-  initialUnits: [
-    { kind: 'bomber', owner: 'red', x: 0, y: 0 },
-    { kind: 'infantry', owner: 'blue', x: 1, y: 0 },
-  ],
-  victoryConditions: [{ type: 'eliminate' }],
-  defeatConditions: [{ type: 'eliminate' }],
+  initialUnits: [{ kind: 'bomber', owner: 'red', x: 0, y: 0 }, { kind: 'infantry', owner: 'blue', x: 1, y: 0 }],
+  victoryConditions: [{ type: 'eliminate' }], defeatConditions: [{ type: 'eliminate' }],
 };
 const savedScenario = saveCustomScenario(new MemoryStorage(), replayScenario);
 if (!savedScenario.ok) throw new Error(savedScenario.error);
@@ -57,7 +36,12 @@ function finishedReplay() {
 
 describe('replay summaries', () => {
   it('counts destroyed units and returns the deterministic result', () => {
-    const summary = summarizeReplay(duel(), [{ type: 'attack', unitId: 'r1', targetId: 'b1' }], mapId, 'hard');
+    const summary = summarizeReplay(
+      duel(),
+      [{ type: 'attack', unitId: 'r1', targetId: 'b1' }],
+      mapId,
+      'hard',
+    );
     expect(summary).toEqual({
       ok: true,
       value: {
@@ -92,14 +76,23 @@ describe('replay summaries', () => {
       mapId,
       difficulty: 'normal',
       initialState: duel(),
-      commands: [{ type: 'attack', unitId: 'r1', targetId: 'b1' }, { type: 'endTurn' }],
+      commands: [
+        { type: 'attack', unitId: 'r1', targetId: 'b1' },
+        { type: 'endTurn' },
+      ],
     });
     expect(result).toEqual({ ok: false, error: 'Command 2: Game has finished' });
   });
 
   it('rejects an unfinished or illegal command sequence', () => {
-    expect(summarizeReplay(duel(), [], mapId, 'normal')).toEqual({ ok: false, error: 'リプレイに対局結果がありません。' });
-    expect(summarizeReplay(duel(), [{ type: 'attack', unitId: 'missing', targetId: 'b1' }], mapId, 'normal')).toEqual({ ok: false, error: 'Command 1: Unit cannot attack' });
+    expect(summarizeReplay(duel(), [], mapId, 'normal'))
+      .toEqual({ ok: false, error: 'リプレイに対局結果がありません。' });
+    expect(summarizeReplay(
+      duel(),
+      [{ type: 'attack', unitId: 'missing', targetId: 'b1' }],
+      mapId,
+      'normal',
+    )).toEqual({ ok: false, error: 'Command 1: Unit cannot attack' });
   });
 });
 
@@ -125,11 +118,14 @@ describe('versioned replay files', () => {
 
   it('rejects malformed, unsupported, oversized, and structurally invalid data', () => {
     expect(parseReplay('{broken')).toEqual({ ok: false, error: 'リプレイデータが壊れています。' });
-    expect(parseReplay(JSON.stringify({ schemaVersion: 999 }))).toEqual({ ok: false, error: '未対応のリプレイデータです。' });
-    expect(parseReplay(' '.repeat(MAX_REPLAY_BYTES + 1))).toEqual({ ok: false, error: 'リプレイデータが大きすぎます。' });
+    expect(parseReplay(JSON.stringify({ schemaVersion: 999 })))
+      .toEqual({ ok: false, error: '未対応のリプレイデータです。' });
+    expect(parseReplay(' '.repeat(MAX_REPLAY_BYTES + 1)))
+      .toEqual({ ok: false, error: 'リプレイデータが大きすぎます。' });
 
     const invalid = { ...finishedReplay(), unexpected: true };
-    expect(parseReplay(JSON.stringify(invalid))).toEqual({ ok: false, error: 'リプレイデータの内容が不正です。' });
+    expect(parseReplay(JSON.stringify(invalid)))
+      .toEqual({ ok: false, error: 'リプレイデータの内容が不正です。' });
   });
 
   it('rejects deeply nested unknown data without throwing', () => {
@@ -137,11 +133,12 @@ describe('versioned replay files', () => {
     if (!serialized.ok) throw new Error(serialized.error);
     const depth = 20_000;
     const nested = '{"next":'.repeat(depth) + 'null' + '}'.repeat(depth);
-    const deeplyNested = serialized.value.replace('"initialState":{', `"initialState":{"unknown":${nested},`);
+    const deeplyNested = serialized.value.replace(
+      '"initialState":{',
+      `"initialState":{"unknown":${nested},`,
+    );
     let result: ReturnType<typeof parseReplay> | undefined;
-    expect(() => {
-      result = parseReplay(deeplyNested);
-    }).not.toThrow();
+    expect(() => { result = parseReplay(deeplyNested); }).not.toThrow();
     expect(result).toEqual({ ok: false, error: 'リプレイデータの内容が不正です。' });
   });
 
@@ -151,20 +148,23 @@ describe('versioned replay files', () => {
       ...replay,
       commands: [{ type: 'move', unitId: 'r1', destination: { x: 'bad', y: 0 } }],
     };
-    expect(parseReplay(JSON.stringify(invalidCommand))).toEqual({ ok: false, error: 'リプレイデータの内容が不正です。' });
+    expect(parseReplay(JSON.stringify(invalidCommand)))
+      .toEqual({ ok: false, error: 'リプレイデータの内容が不正です。' });
 
     const mismatched = {
       ...replay,
       finalState: { ...replay.finalState, turn: replay.finalState.turn + 1 },
     };
-    expect(parseReplay(JSON.stringify(mismatched))).toEqual({ ok: false, error: 'リプレイの最終状態がコマンド履歴と一致しません。' });
+    expect(parseReplay(JSON.stringify(mismatched)))
+      .toEqual({ ok: false, error: 'リプレイの最終状態がコマンド履歴と一致しません。' });
   });
 
   it('rejects a replay whose otherwise self-consistent initial units were edited', () => {
     const replay = finishedReplay();
     const editedInitial = { ...replay.initialState, units: replay.initialState.units.slice(0, 1) };
     const edited = { ...replay, initialState: editedInitial, finalState: editedInitial, commands: [] };
-    expect(parseReplay(JSON.stringify(edited))).toEqual({ ok: false, error: 'リプレイデータの内容が不正です。' });
+    expect(parseReplay(JSON.stringify(edited)))
+      .toEqual({ ok: false, error: 'リプレイデータの内容が不正です。' });
   });
 
   it('rejects a summary that does not match the command history', () => {
@@ -173,9 +173,11 @@ describe('versioned replay files', () => {
       ...replay,
       summary: { ...replay.summary, kills: { red: 0, blue: 1 } },
     };
-    expect(parseReplay(JSON.stringify(mismatched))).toEqual({ ok: false, error: 'リプレイの対局サマリーがコマンド履歴と一致しません。' });
+    expect(parseReplay(JSON.stringify(mismatched)))
+      .toEqual({ ok: false, error: 'リプレイの対局サマリーがコマンド履歴と一致しません。' });
   });
 });
+
 
 describe('wait command replay compatibility', () => {
   it('migrates a v2 replay to the current schema', () => {
