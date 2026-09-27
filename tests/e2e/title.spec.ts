@@ -7,6 +7,9 @@ test('picks a map on the title screen, goes back from the briefing, and starts (
   await expect(page.locator('.briefing-overlay')).toHaveCount(0);
   expect(await page.locator('.title-map-card').count()).toBeGreaterThanOrEqual(11);
   await expect(page.locator('#title-continue')).toBeDisabled();
+  // Every card shows its map's miniature (#145).
+  const cards = await page.locator('.title-map-card').count();
+  await expect(page.locator('.title-map-card svg.map-preview')).toHaveCount(cards);
 
   const landing = page.locator('.title-map-card[data-map-id="landing"]');
   await expect(landing).toContainText('海峡上陸作戦');

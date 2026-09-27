@@ -161,6 +161,7 @@ describe('title screen (#143)', () => {
     victory: '敵部隊を全滅させる',
     custom: false,
     selected: false,
+    preview: '',
     ...patch,
   });
   const title = (patch: Partial<Parameters<typeof renderTitleOverlay>[0]> = {}) =>
