@@ -28,7 +28,7 @@ describe('CPU strike planning (#122)', () => {
     expect(chooseCpuAction(moved.value, 'hard')).toEqual({ type: 'attack', unitId: 'red-tank', targetId: 'blue-infantry' });
   });
 
-  it('ignores hidden enemies, whether they would be better targets or block the route', () => {
+  it('ignores a hidden enemy that would be a better target', () => {
     const base = strikeState([unit('red-tank', 'tank', 'red', 1, 2), unit('blue-infantry', 'infantry', 'blue', 4, 2)], candidate => {
       candidate.board.terrain[1]![4] = { kind: 'forest' };
     });
@@ -36,10 +36,27 @@ describe('CPU strike planning (#122)', () => {
     // An unseen artillery piece next to reachable tiles would be the more valuable target.
     const betterTarget = { ...base, units: [...base.units, unit('hidden-artillery', 'artillery', 'blue', 6, 3)] };
     expect(chooseCpuAction(betterTarget, 'hard')).toEqual(expected);
-    // An unseen unit on the route stops the move on contact without revealing itself in the order.
-    const blocker = { ...base, units: [...base.units, unit('hidden-blocker', 'infantry', 'blue', 4, 0)] };
-    expect(chooseCpuAction(blocker, 'hard')).toEqual(expected);
-    expect(applyGameCommand(blocker, expected).ok).toBe(true);
+  });
+
+  it('plans the same strike through a hidden blocker and stops on contact', () => {
+    // A 1-row corridor: the spotter reveals the target at x=6, but x=4 on the
+    // tank's only route is outside every red unit's vision.
+    const board = createBoard(10, 1);
+    board.terrain[0]![9] = { kind: 'capital', owner: 'blue', capturePoints: 20 };
+    const base: GameState = { ...createGameState(board), units: [
+      unit('red-spotter', 'infantry', 'red', 8, 0), unit('red-tank', 'tank', 'red', 0, 0), unit('blue-infantry', 'infantry', 'blue', 6, 0),
+    ] };
+    const expected = chooseCpuAction(base, 'hard');
+    expect(expected).toEqual({ type: 'move', unitId: 'red-tank', destination: { x: 5, y: 0 } });
+
+    const blocked = { ...base, units: [...base.units, unit('hidden-blocker', 'infantry', 'blue', 4, 0)] };
+    expect(chooseCpuAction(blocked, 'hard')).toEqual(expected);
+    const moved = applyGameCommand(blocked, expected);
+    expect(moved.ok).toBe(true);
+    if (!moved.ok) return;
+    expect(moved.value.units.find(candidate => candidate.id === 'red-tank')).toMatchObject({ position: { x: 3, y: 0 }, hasMoved: true });
+    // The blocker is adjacent and now visible; whatever comes next must be a legal order.
+    expect(applyGameCommand(moved.value, chooseCpuAction(moved.value, 'hard')).ok).toBe(true);
   });
 
   it('keeps capturers on their objectives for non-lethal hits but sends them in for a kill', () => {
@@ -75,6 +92,36 @@ describe('CPU strike planning (#122)', () => {
     expect(move.type).toBe('move');
     if (move.type !== 'move') return;
     expect(manhattanDistance(move.destination, { x: 4, y: 2 })).toBe(1);
+  });
+
+  it('keeps a unit guarding the capital against a visible capturer unless it can finish a target', () => {
+    const state = strikeState([unit('red-tank', 'tank', 'red', 0, 0), unit('blue-mech', 'mech', 'blue', 3, 0)]);
+    expect(chooseCpuAction(state, 'hard')).toEqual(chooseCpuAction(state, 'easy'));
+    const weakened = strikeState([unit('red-tank', 'tank', 'red', 0, 0), unit('blue-mech', 'mech', 'blue', 3, 0, 10)]);
+    expect(chooseCpuAction(weakened, 'hard')).not.toEqual(chooseCpuAction(weakened, 'easy'));
+  });
+
+  it('moves in to interrupt a capture even on normal, without a kill', () => {
+    const state = strikeState([unit('red-tank', 'tank', 'red', 1, 2), unit('blue-mech', 'mech', 'blue', 4, 2)], candidate => {
+      candidate.board.terrain[2]![4] = { kind: 'city', owner: 'red', capturePoints: 10 };
+    });
+    const move = chooseCpuAction(state, 'normal');
+    expect(move.type).toBe('move');
+    if (move.type !== 'move') return;
+    expect(manhattanDistance(move.destination, { x: 4, y: 2 })).toBe(1);
+    const moved = applyGameCommand(state, move);
+    expect(moved.ok && chooseCpuAction(moved.value, 'normal')).toEqual({ type: 'attack', unitId: 'red-tank', targetId: 'blue-mech' });
+  });
+
+  it('never sends a capturer onto a capturable property to strike, since it would capture instead', () => {
+    const state = strikeState([unit('red-infantry', 'infantry', 'red', 1, 2), unit('blue-infantry', 'infantry', 'blue', 3, 2, 10)], candidate => {
+      candidate.board.terrain[2]![2] = { kind: 'city', capturePoints: 20 };
+    });
+    const move = chooseCpuAction(state, 'hard');
+    expect(move.type).toBe('move');
+    if (move.type !== 'move') return;
+    expect(move.destination).not.toEqual({ x: 2, y: 2 });
+    expect(manhattanDistance(move.destination, { x: 3, y: 2 })).toBe(1);
   });
 
   it('does not strike from one of its own production facilities it could still use this turn', () => {

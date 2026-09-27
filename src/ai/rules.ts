@@ -488,7 +488,6 @@ function moveAction(state: GameState, player: PlayerId, config: CpuDifficultyCon
   return undefined;
 }
 
-/** Build immutable, fog-safe data once for the current CPU order. */
 /**
  * Move-then-attack planning (#122): picks the unit, destination and visible
  * target with the best expected trade, and moves there; the next CPU step's
@@ -561,6 +560,7 @@ function guardsCapital(state: GameState, player: PlayerId, unit: DeployedUnit, v
     && manhattanDistance(enemy.position, unit.position) <= unitStats[enemy.kind].movement + 1);
 }
 
+/** Build immutable, fog-safe data once for the current CPU order. */
 export function createCpuPlanningContext(state: GameState, player: PlayerId, config: CpuDifficultyConfig): CpuPlanningContext {
   const visibleEnemies = getVisibleEnemies(state, player);
   return { visibleEnemies, targets: objectives(state, player, config, visibleEnemies), landComponents: landComponents(state.board) };
