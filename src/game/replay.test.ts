@@ -186,3 +186,52 @@ describe('wait command replay compatibility', () => {
     expect(parsed.ok && parsed.value.schemaVersion).toBe(REPLAY_SCHEMA_VERSION);
   });
 });
+
+describe('red CPU difficulty in spectated replays (#137)', () => {
+  const spectated = () => {
+    const result = createReplay({
+      mapId,
+      difficulty: 'hard',
+      redDifficulty: 'easy',
+      initialState: duel(),
+      commands: [{ type: 'attack', unitId: 'r1', targetId: 'b1' }],
+    });
+    if (!result.ok) throw new Error(result.error);
+    return result.value;
+  };
+
+  it('records, exports, and imports red’s difficulty alongside blue’s', () => {
+    const replay = spectated();
+    expect(replay).toMatchObject({ difficulty: 'hard', redDifficulty: 'easy', summary: { difficulty: 'hard' } });
+    const serialized = serializeReplay(replay);
+    expect(serialized.ok).toBe(true);
+    if (!serialized.ok) return;
+    expect(parseReplay(serialized.value)).toMatchObject({ ok: true, value: { difficulty: 'hard', redDifficulty: 'easy' } });
+  });
+
+  it('leaves other replays without the key, so they serialize as before', () => {
+    const replay = finishedReplay();
+    expect(Object.hasOwn(replay, 'redDifficulty')).toBe(false);
+    const serialized = serializeReplay(replay);
+    expect(serialized.ok && JSON.parse(serialized.value)).not.toHaveProperty('redDifficulty');
+    expect(serialized.ok && parseReplay(serialized.value).ok).toBe(true);
+  });
+
+  it('rejects an invalid red difficulty on import and on creation', () => {
+    const raw = JSON.parse((serializeReplay(spectated()) as { ok: true; value: string }).value);
+    for (const redDifficulty of ['expert', 1, null]) {
+      expect(parseReplay(JSON.stringify({ ...raw, redDifficulty })), String(redDifficulty)).toEqual({
+        ok: false,
+        error: 'リプレイデータの内容が不正です。',
+      });
+    }
+    // Other unknown keys are still rejected, and required keys are still required.
+    const withoutCreatedAt = { ...raw };
+    delete withoutCreatedAt.createdAt;
+    expect(parseReplay(JSON.stringify(withoutCreatedAt)).ok).toBe(false);
+    expect(parseReplay(JSON.stringify({ ...raw, blueDifficulty: 'easy' })).ok).toBe(false);
+    const input = { mapId, difficulty: 'hard' as const, initialState: duel(), commands: [{ type: 'attack' as const, unitId: 'r1', targetId: 'b1' }] };
+    expect(createReplay({ ...input, redDifficulty: 'expert' as never }).ok).toBe(false);
+    expect(createReplay({ ...input, extra: true } as never).ok).toBe(false);
+  });
+});

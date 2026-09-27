@@ -29,6 +29,12 @@ export interface ReplayFile {
   schemaVersion: typeof REPLAY_SCHEMA_VERSION;
   mapId: string;
   difficulty: ReplayDifficulty;
+  /**
+   * Spectated matches only: red's CPU difficulty, with `difficulty` being blue's.
+   * Optional within v3, so earlier replays stay valid; versions before it reject
+   * a replay carrying the key as an unknown field.
+   */
+  redDifficulty?: ReplayDifficulty;
   initialState: GameState;
   commands: GameCommand[];
   finalState: GameState;
@@ -53,6 +59,7 @@ function migrateReplay(value: Record<string, unknown>): Record<string, unknown> 
 export interface ReplayInput {
   mapId: string;
   difficulty: ReplayDifficulty;
+  redDifficulty?: ReplayDifficulty;
   initialState: GameState;
   commands: readonly GameCommand[];
 }
@@ -62,10 +69,14 @@ const difficulties = new Set<ReplayDifficulty>(['easy', 'normal', 'hard']);
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === 'object' && value !== null && !Array.isArray(value);
 
-function hasOnlyKeys(value: Record<string, unknown>, keys: readonly string[]): boolean {
-  const actual = Object.keys(value);
-  return actual.length === keys.length && actual.every(key => keys.includes(key));
+/** Every key in `keys` is present, and nothing outside `keys` and `optional` is. */
+function hasOnlyKeys(value: Record<string, unknown>, keys: readonly string[], optional: readonly string[] = []): boolean {
+  return keys.every(key => Object.hasOwn(value, key))
+    && Object.keys(value).every(key => keys.includes(key) || optional.includes(key));
 }
+
+const isOptionalDifficulty = (value: unknown): boolean =>
+  value === undefined || (typeof value === 'string' && difficulties.has(value as ReplayDifficulty));
 
 function isCountPair(value: unknown): value is Record<PlayerId, number> {
   return isRecord(value) && hasOnlyKeys(value, ['red', 'blue'])
@@ -131,10 +142,11 @@ function sameValue(left: unknown, right: unknown): boolean {
 function validateReplayShape(value: unknown): value is ReplayFile {
   const scenario = isRecord(value) && typeof value.mapId === 'string' ? scenarioById(value.mapId) : undefined;
   if (!hasSafeJsonDepth(value) || !isRecord(value)
-    || !hasOnlyKeys(value, ['schemaVersion', 'mapId', 'difficulty', 'initialState', 'commands', 'finalState', 'summary', 'createdAt'])
+    || !hasOnlyKeys(value, ['schemaVersion', 'mapId', 'difficulty', 'initialState', 'commands', 'finalState', 'summary', 'createdAt'], ['redDifficulty'])
     || value.schemaVersion !== REPLAY_SCHEMA_VERSION
     || typeof value.mapId !== 'string' || scenario === undefined
     || typeof value.difficulty !== 'string' || !difficulties.has(value.difficulty as ReplayDifficulty)
+    || !isOptionalDifficulty(value.redDifficulty)
     || !isGameState(value.initialState) || !matchesScenarioInitialState(value.initialState, scenario) || !isGameState(value.finalState)
     || !Array.isArray(value.commands) || value.commands.length > MAX_REPLAY_COMMANDS
     || !value.commands.every(isGameCommand)
@@ -193,9 +205,10 @@ export function summarizeReplay(
 
 export function createReplay(input: ReplayInput): GameResult<ReplayFile> {
   const scenario = isRecord(input) && typeof input.mapId === 'string' ? scenarioById(input.mapId) : undefined;
-  if (!isRecord(input) || !hasOnlyKeys(input, ['mapId', 'difficulty', 'initialState', 'commands'])
+  if (!isRecord(input) || !hasOnlyKeys(input, ['mapId', 'difficulty', 'initialState', 'commands'], ['redDifficulty'])
     || typeof input.mapId !== 'string' || scenario === undefined
     || typeof input.difficulty !== 'string' || !difficulties.has(input.difficulty as ReplayDifficulty)
+    || !isOptionalDifficulty(input.redDifficulty)
     || !isGameState(input.initialState) || !matchesScenarioInitialState(input.initialState, scenario) || !Array.isArray(input.commands)
     || input.commands.length > MAX_REPLAY_COMMANDS || !input.commands.every(isGameCommand))
     return { ok: false, error: 'リプレイデータの内容が不正です。' };
@@ -208,6 +221,8 @@ export function createReplay(input: ReplayInput): GameResult<ReplayFile> {
     schemaVersion: REPLAY_SCHEMA_VERSION,
     mapId: input.mapId,
     difficulty: input.difficulty,
+    // Omitted rather than undefined, so other replays serialize exactly as before.
+    ...(input.redDifficulty === undefined ? {} : { redDifficulty: input.redDifficulty }),
     initialState: structuredClone(input.initialState),
     commands: [...structuredClone(input.commands)],
     finalState: replayed.value,
