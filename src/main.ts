@@ -12,6 +12,7 @@ import { capturePointsLabel, displayedPositions, observedCapturePoints } from '.
 import { loadSoundSettings, ProceduralSoundPlayer, saveSoundSettings, type SoundSettings } from './ui/sound';
 import { commandErrorMessage, escapeHtml, uiText } from './ui/strings';
 import { renderSaveSlotManager } from './ui/saveSlots';
+import { renderMapPreview } from './ui/mapPreview';
 import { renderBriefingOverlay, renderCampaignOverlay, renderGameOverOverlay, renderHandoffOverlay, renderProductionCard, renderTitleOverlay, renderUnitActionCluster } from './ui/overlays';
 import { commandAllowed, cpuDifficultyFor, cpuShouldRun, handoffAfterEndTurn, menuAllowed, parseMatchMode, autosaveAllowed, manualSaveTarget, matchSaveDeletionAllowed, showsWholeBoard, sideName, spectateContinues, SPECTATE_TURN_LIMIT, undoAllowed, viewerFor, type MatchContext, type MatchMode } from './ui/matchControl';
 import { deleteSaveSlot, getStorageUsage, listSaveSlots, loadGameFromSlot, saveGameToSlot, type SavedGame, type ScenarioTheme } from './game';
@@ -718,6 +719,7 @@ function render(): void {
       startingGold: map.startingGold, turnLimit: map.turnLimit,
       victory: map.victoryConditions.map(describeVictoryCondition).join(' / '),
       custom: !maps.some(builtIn => builtIn.id === map.id), selected: map.id === selectedMap.id,
+      preview: renderMapPreview(map.board, map.initialUnits, map.theme),
     })),
     canContinue: hasSave(),
     canResume: titleResumable,
