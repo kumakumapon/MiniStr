@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { createBoard, createGameState } from '../game';
-import { capturePointsLabel, observedCapturePoints } from './fogDisplay';
+import { capturePointsLabel, displayedPositions, observedCapturePoints } from './fogDisplay';
 import { describeTileInspection, inspectTile } from './tileInspector';
 
 describe('capture progress in fog (#125)', () => {
@@ -32,5 +32,30 @@ describe('capture progress in fog (#125)', () => {
       const seen = inspectTile(state, { x: 2, y: 0 }, viewer, new Set(['2,0']))!;
       expect(seen.rows).toContainEqual({ label: '占領値', value: '10' });
     }
+  });
+});
+
+describe('whole-board spectating view (#133)', () => {
+  const state = () => {
+    const game = createGameState(createBoard(20, 3));
+    game.units.push(
+      { id: 'r1', kind: 'infantry', owner: 'red', hp: 100, position: { x: 0, y: 1 }, hasMoved: false, hasActed: false },
+      { id: 'b1', kind: 'infantry', owner: 'blue', hp: 100, position: { x: 19, y: 1 }, hasMoved: false, hasActed: false },
+    );
+    return game;
+  };
+  const has = (positions: readonly { x: number; y: number }[], x: number, y: number) => positions.some((position) => position.x === x && position.y === y);
+
+  it('keeps the viewer’s fog unless the whole board is requested', () => {
+    const fogged = displayedPositions(state(), 'red', false);
+    expect(has(fogged, 0, 1)).toBe(true);
+    expect(has(fogged, 19, 1)).toBe(false);
+  });
+
+  it('lists every tile exactly once when the whole board is shown', () => {
+    const whole = displayedPositions(state(), 'red', true);
+    expect(whole).toHaveLength(60);
+    expect(new Set(whole.map((position) => `${position.x},${position.y}`)).size).toBe(60);
+    expect(has(whole, 19, 1)).toBe(true);
   });
 });
