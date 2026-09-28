@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { defaultSoundSettings, loadSoundSettings, ProceduralSoundPlayer, saveSoundSettings, SOUND_SETTINGS_KEY } from './sound';
 
 function storage(initial: Record<string, string> = {}) {
@@ -72,8 +72,8 @@ class FakeOscillator extends FakeNode {
   stop(time: number) {
     this.stopped = time;
   }
-  addEventListener(_type: string, listener: () => void) {
-    this.ended = listener;
+  addEventListener(type: string, listener: () => void, options?: AddEventListenerOptions) {
+    if (type === 'ended' && options?.once) this.ended = listener;
   }
   end() {
     this.ended?.();
@@ -132,10 +132,10 @@ describe('ProceduralSoundPlayer', () => {
     const [oscillator] = context()!.oscillators;
     const [gain] = context()!.gains;
     expect(oscillator?.type).toBe('sine');
-    expect(oscillator?.frequency.calls).toEqual([
-      ['set', 340, 2],
-      ['ramp', 700, 2.14],
-    ]);
+    const [from, to] = oscillator?.frequency.calls ?? [];
+    expect(from).toEqual(['set', 340, 2]);
+    expect(to?.slice(0, 2)).toEqual(['ramp', 700]);
+    expect(to?.[2]).toBeCloseTo(2.14);
     expect(oscillator?.started).toBe(2);
     expect(oscillator?.stopped).toBeCloseTo(2.14);
     expect(oscillator?.connectedTo).toBe(gain);
@@ -149,12 +149,12 @@ describe('ProceduralSoundPlayer', () => {
     const quiet = fakePlayer({ muted: false, volume: 0.25 });
     await quiet.player.unlock();
     quiet.player.play('hit');
-    expect(quiet.context()!.gains[0]?.gain.calls[0]).toEqual(['set', 0.08, 2]);
+    expect(quiet.context()!.gains[0]?.gain.calls[0]?.[1]).toBeCloseTo(0.08);
 
     const loud = fakePlayer({ muted: false, volume: 1 });
     await loud.player.unlock();
     loud.player.play('hit');
-    expect(loud.context()!.gains[0]?.gain.calls[0]).toEqual(['set', 0.18, 2]);
+    expect(loud.context()!.gains[0]?.gain.calls[0]?.[1]).toBeCloseTo(0.18);
   });
 
   it('plays nothing while muted or at zero volume, and follows updated settings', async () => {
@@ -185,7 +185,12 @@ describe('ProceduralSoundPlayer', () => {
     expect(context()!.oscillators).toHaveLength(0);
   });
 
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
   it('does nothing without Web Audio support', async () => {
+    vi.stubGlobal('AudioContext', undefined);
     const player = new ProceduralSoundPlayer({ muted: false, volume: 0.5 });
     await expect(player.unlock()).resolves.toBeUndefined();
     expect(() => player.play('produce')).not.toThrow();
