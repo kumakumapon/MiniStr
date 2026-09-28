@@ -7,7 +7,7 @@
 
 ## 使用技術
 
-- 言語・バージョン: TypeScript 5.8、strict / noUncheckedIndexedAccess
+- 言語・バージョン: TypeScript 5（`package.json` は `^5.8.3`）、strict / noUncheckedIndexedAccess
 - フレームワーク・主要ライブラリ: Vite 6、Vitest 3
 - 実行環境: Node.js 22 以上、npm 10 以上
 
