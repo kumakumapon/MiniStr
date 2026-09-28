@@ -1,2 +1,13 @@
-# Keep shell scripts runnable under Git Bash when core.autocrlf=true
+# Check out text files with LF on every OS, even with core.autocrlf=true, so
+# Prettier's endOfLine and Git Bash scripts behave the same as in CI.
+* text=auto eol=lf
+
+# Kept explicit from #147: scripts must stay runnable under Git Bash.
 *.sh text eol=lf
+
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.webp binary
+*.ico binary

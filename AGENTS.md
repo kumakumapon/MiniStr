@@ -43,7 +43,7 @@
 | 依存導入 | `npm ci` | lockfileに従って導入する |
 | private-sessionリンク検査 | `npm run check:links` | 変更に含めるコミット範囲も確認する |
 | lint | `npm run lint` | 実装変更時は必須 |
-| フォーマット検査 | `npm run format:check` | CIで実行。Windowsでは作業ツリーのCRLFにより失敗することがある |
+| フォーマット検査 | `npm run format:check` | 実装変更時は必須（CIでも実行） |
 | 型チェック（テストを含む） | `npm run typecheck:test` | 実装変更時は必須 |
 | unit test | `npm test` | 実装変更時は必須。CIは `npm run test:coverage` を実行する |
 | E2E test | `npm run test:e2e` | UI変更時。初回は `npx playwright install chromium` が必要 |
