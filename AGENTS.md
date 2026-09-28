@@ -7,7 +7,7 @@
 
 ## 使用技術
 
-- 言語・バージョン: TypeScript 5.8、strict / noUncheckedIndexedAccess
+- 言語・バージョン: TypeScript 5（`package.json` は `^5.8.3`）、strict / noUncheckedIndexedAccess
 - フレームワーク・主要ライブラリ: Vite 6、Vitest 3
 - 実行環境: Node.js 22 以上、npm 10 以上
 
@@ -42,8 +42,11 @@
 | --- | --- | --- |
 | 依存導入 | `npm ci` | lockfileに従って導入する |
 | private-sessionリンク検査 | `npm run check:links` | 変更に含めるコミット範囲も確認する |
+| lint | `npm run lint` | 実装変更時は必須 |
+| フォーマット検査 | `npm run format:check` | CIで実行。Windowsでは作業ツリーのCRLFにより失敗することがある |
 | 型チェック（テストを含む） | `npm run typecheck:test` | 実装変更時は必須 |
-| unit test | `npm test` | 実装変更時は必須 |
+| unit test | `npm test` | 実装変更時は必須。CIは `npm run test:coverage` を実行する |
+| E2E test | `npm run test:e2e` | UI変更時。初回は `npx playwright install chromium` が必要 |
 | build | `npm run build` | 公開用成果物の確認 |
 
 ## 変更禁止領域
@@ -61,7 +64,7 @@
 
 ## デプロイ上の注意
 
-- GitHub Pages は `main` へのpush後、型チェック・テスト・ビルドが成功した場合に公開される。
+- GitHub Pages は `main` へのpush後、lint・フォーマット検査・型チェック・カバレッジ付きテスト・ビルドが成功した場合に公開される。
 - `main` へ直接反映しない。変更は作業ブランチとPull Requestで提案する。
 - Secretや個人情報、private coding sessionへのリンクをコミット・Issue・PR・ログに含めない。
 
