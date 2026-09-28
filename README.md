@@ -293,6 +293,8 @@ npm run balance -- --maps skirmish,islands --difficulty normal --rules modern --
 
 `npm run balance` は引数を省略すると、全マップ × 全難易度 × 従来／近代ルール × 3シードを計測します（約2分）。結果の例と所見は `docs/reviews/2026-09-26-balance-baseline.md` を参照してください。
 
+`npm run test:coverage` は `src/` の実装ファイルを対象にカバレッジを計測し、`vite.config.ts` の閾値を下回ると失敗します（CI と GitHub Pages のデプロイで実行）。単体テストの対象外である `src/main.ts` も集計に含めているため、全体の行カバレッジは低めに出ます。
+
 ### CI
 
 `main` への push と pull request で、型チェック・テスト・ビルドを実行します。fork からの pull request も同じ検証を実行しますが、read-only の権限のみで、リポジトリの秘密情報は利用しません。
