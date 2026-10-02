@@ -407,7 +407,10 @@ button, select, .tile { touch-action: manipulation; }
 .editor-extra input[type="number"] { width: 5rem; }
 .editor-extra p { flex-basis: 100%; }
 .editor-extra button, .backup-actions button, .replay-navigation button, .build-info button { min-height: 44px; padding: .5rem; color: #f1f5ec; background: #263b34; border: 1px solid #92ada1; border-radius: .4rem; }
-.backup-actions input { max-width: 100%; }
+.save-slot-manager { grid-template-columns: minmax(0, 1fr); }
+.save-slot-manager > * { min-width: 0; }
+.backup-actions label { display: grid; grid-template-columns: minmax(0, 1fr); flex: 1 1 180px; }
+.backup-actions input { width: 100%; min-width: 0; max-width: 100%; }
 .editor-workspace, .unit-reference { overflow: auto; max-width: 100%; }
 .learning-panel { padding: .75rem; margin-block: .5rem; border: 1px solid #708d7f; border-radius: .5rem; }
 .learning-panel summary { cursor: pointer; min-height: 44px; }

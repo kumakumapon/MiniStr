@@ -455,7 +455,7 @@ function cachedSlot(storage: StorageLike, id: string, name: string, source: Save
   return { ...slot };
 }
 
-/** Lists valid named saves plus compatible pre-v4 manual/auto saves. Invalid records are deliberately hidden. */
+/** Lists named/manual/auto saves, including recoverable invalid and missing entries. */
 export function listSaveSlots(storage: StorageLike): SaveSlot[] {
   try {
     const slots = recoverSlotIndex(storage).map(entry => {

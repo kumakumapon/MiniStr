@@ -52,7 +52,7 @@ PR: [#156](https://github.com/kumakumapon/MiniStr/pull/156)。基準: v0.1.0 / `
 
 - 単体/回帰: 最終CIで全ケースとcoverageを確認。mainを対象から外さず、閾値 statements/lines 69、branches 90、functions 94を維持。
 - 配布UI: built distを起動する独立7ケース。保存getter不可・名前付き開始・破損load状態保全・エディタ・置換取消/Escape・英語・他タブ。
-- ブラウザー: 従来20ケースを保持し、4 smoke × Chromium/Firefox/WebKit = 32ケース。初回E2Eは横はみ出し/キーfocus/新確認対応を検出、修正して再実行中。最終結果はPRの同一head CIで確認する。
+- ブラウザー: 従来20ケースを保持し、4 smoke × Chromium/Firefox/WebKit = 32ケース。初回E2Eは横はみ出し/キーfocus/新確認対応を検出。次の実行で31/32成功し、残ったWebKit 360pxのfile input幅も修正。最終結果はPRの同一head CIで確認する。
 - ローカルのPlaywright browser取得は不完全なarchiveで失敗したため、実ブラウザー検証はGitHub Actionsで実行。jsdomを実機検証と扱わない。
 - [18局比較](reviews/2026-10-02-balance-comparison.md): 対象ゲームSHA `4f653d9f613a2706ad5b3142ed09b8c3e1468012`、両版全局決着。
 - [性能生データ](reviews/2026-10-02-performance.json): Node24/Linux、12保存×150手、cold20回中央値27.89ms/p95 68.29ms、cached100回中央値0.028ms/p95 0.096ms。通常CPU20回p95 3.69ms、32×32/128部隊の初期配置10回p95 9.51ms。heap差はGCを含み、最大メモリではない。

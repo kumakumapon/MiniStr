@@ -39,6 +39,7 @@ describe('distributed application boundaries', () => {
     expect(document.body.textContent).toContain('保存領域を利用できません');
     click('#title-training');
     click('#begin-operation');
+    expect((document.querySelector('#map') as HTMLSelectElement).value).toBe('training');
     expect(document.querySelector('.board')).not.toBeNull();
     expect(document.querySelector('#learning-panel')?.hasAttribute('open')).toBe(true);
     click('.tile[data-x="0"][data-y="1"]');
