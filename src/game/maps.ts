@@ -1,4 +1,6 @@
 import { defaultProductionRule, isPropertyTerrainKind, productionRuleSet, type ProductionRule } from './facilities';
+import { hasSafeJsonStructure, parseBoundedJson } from './jsonBoundary';
+import { trainingData } from './training';
 import { createBoard, createGameState, playerOwnedProperties } from './state';
 import { unitKindSet, unitStats } from './units';
 import { CURRENT_RULE_VERSION, terrainKindSet, type Board, type GameResult, type GameState, type PlayerId, type Position, type TerrainKind, type UnitKind } from './types';
@@ -167,6 +169,7 @@ function parseScenario(value: unknown, ids: Set<string>, options: ScenarioLoadOp
 
 /** Converts JSON-compatible scenario data into safe board state. No validation is repeated on lookup. */
 export function loadScenarioDefinitions(source: unknown, options: ScenarioLoadOptions = {}): GameResult<readonly ScenarioDefinition[]> {
+  if (!hasSafeJsonStructure(source)) return { ok: false, error: 'シナリオ定義が複雑すぎます。' };
   const cloned = cloneJson(source);
   if (!cloned.ok) return cloned;
   if (!Array.isArray(cloned.value) || cloned.value.length === 0) return { ok: false, error: 'シナリオ定義は空でない配列である必要があります。' };
@@ -299,9 +302,32 @@ export const scenarioLoadError: string | undefined = builtInCatalog.error;
 
 // Campaign uses the immutable built-in `maps`; regular play may include these persisted definitions.
 const customScenarios = new Map<string, ScenarioDefinition>();
+export const trainingScenario = (() => {
+  const parsed = loadScenarioDefinitions([trainingData]);
+  if (!parsed.ok) throw new Error(parsed.error);
+  return parsed.value[0]!;
+})();
+let archivedScenarios: ScenarioDefinition[] = [];
+let catalogRevision = 0;
+export function scenarioCatalogRevision(): number { return catalogRevision; }
+export function scenarioHistory(id: string): readonly ScenarioDefinition[] { return archivedScenarios.filter(scenario => scenario.id === id); }
 export function availableScenarios(): readonly ScenarioDefinition[] { return [...maps, ...customScenarios.values()]; }
 export function scenarioById(id: string | undefined): ScenarioDefinition | undefined {
-  return id === undefined ? undefined : maps.find(map => map.id === id) ?? customScenarios.get(id);
+  return id === undefined ? undefined : id === trainingScenario.id ? trainingScenario : maps.find(map => map.id === id) ?? customScenarios.get(id);
+}
+
+const snapshotDefinitions = new WeakMap<object, ScenarioDefinition | undefined>();
+/** Resolve a match locally; importing a replay never changes the map catalog. */
+export function scenarioForState(state: Pick<GameState, 'scenarioId' | 'scenarioSnapshot'>): ScenarioDefinition | undefined {
+  if (state.scenarioSnapshot === undefined) return scenarioById(state.scenarioId);
+  const snapshot: unknown = state.scenarioSnapshot;
+  if (!isRecord(snapshot)) return undefined;
+  if (!snapshotDefinitions.has(snapshot)) {
+    const loaded = loadScenarioDefinitions([snapshot]);
+    snapshotDefinitions.set(snapshot, loaded.ok ? loaded.value[0] : undefined);
+  }
+  const definition = snapshotDefinitions.get(snapshot);
+  return definition?.id === state.scenarioId ? definition : undefined;
 }
 
 /** The only valid turn-one state for a scenario, shared by runtime and persistence checks. */
@@ -313,7 +339,7 @@ export function createScenarioInitialState(scenario: ScenarioDefinition): GameSt
   // symmetric scenarios symmetric without changing the end-turn phase.
   const redIncome = playerOwnedProperties(base, 'red').length * 1000;
   return {
-    ...base, scenarioId: scenario.id, ruleVersion: CURRENT_RULE_VERSION,
+    ...base, scenarioId: scenario.id, scenarioSnapshot: scenarioDefinitionToData(scenario), ruleVersion: CURRENT_RULE_VERSION,
     players: { red: { gold: scenario.startingGold + redIncome, income: redIncome }, blue: { gold: scenario.startingGold, income: 0 } },
     units: scenario.initialUnits.map(unit => {
       nextId[unit.owner] += 1;
@@ -345,7 +371,7 @@ export function scenarioDefinitionToData(scenario: ScenarioDefinition): Scenario
   const cells: [number, number, TerrainKind, PlayerId?][] = [];
   for (let y = 0; y < scenario.board.height; y += 1) for (let x = 0; x < scenario.board.width; x += 1) {
     const tile = scenario.board.terrain[y]![x]!;
-    if (tile.kind !== 'plain' || tile.owner !== undefined) cells.push([x, y, tile.kind, tile.owner]);
+    if (tile.kind !== 'plain' || tile.owner !== undefined) cells.push(tile.owner === undefined ? [x, y, tile.kind] : [x, y, tile.kind, tile.owner]);
   }
   return { id: scenario.id, name: scenario.name, briefing: scenario.briefing, startingGold: scenario.startingGold,
     board: { width: scenario.board.width, height: scenario.board.height, cells }, initialUnits: scenario.initialUnits.map(unit => ({ ...unit })),
@@ -353,6 +379,7 @@ export function scenarioDefinitionToData(scenario: ScenarioDefinition): Scenario
 }
 
 function replaceCustomScenarios(scenarios: readonly ScenarioDefinition[]): void {
+  catalogRevision++;
   customScenarios.clear();
   for (const scenario of scenarios) customScenarios.set(scenario.id, scenario);
 }
@@ -360,8 +387,8 @@ function replaceCustomScenarios(scenarios: readonly ScenarioDefinition[]): void 
 function parseCustomScenarioData(value: unknown): GameResult<readonly ScenarioDefinition[]> {
   if (!isRecord(value) || value.schemaVersion !== CUSTOM_SCENARIOS_SCHEMA_VERSION || !Array.isArray(value.scenarios) || value.scenarios.length > MAX_CUSTOM_SCENARIOS)
     return { ok: false, error: 'カスタムシナリオの内容が不正です。' };
-  const loaded = loadScenarioDefinitions(value.scenarios);
-  if (!loaded.ok || loaded.value.some(scenario => maps.some(builtIn => builtIn.id === scenario.id)))
+  const loaded = value.scenarios.length === 0 ? { ok: true as const, value: [] } : loadScenarioDefinitions(value.scenarios);
+  if (!loaded.ok || loaded.value.some(scenario => scenario.id === trainingScenario.id || maps.some(builtIn => builtIn.id === scenario.id)))
     return { ok: false, error: 'カスタムシナリオの内容が不正です。' };
   return loaded;
 }
@@ -369,12 +396,23 @@ function parseCustomScenarioData(value: unknown): GameResult<readonly ScenarioDe
 export function loadCustomScenarios(storage: ScenarioStorageLike): GameResult<readonly ScenarioDefinition[]> {
   let serialized: string | null;
   try { serialized = storage.getItem(CUSTOM_SCENARIOS_KEY); } catch { return { ok: false, error: 'カスタムシナリオを読み込めませんでした。' }; }
-  if (serialized === null) { replaceCustomScenarios([]); return { ok: true, value: [] }; }
+  if (serialized === null) { replaceCustomScenarios([]); archivedScenarios = []; return { ok: true, value: [] }; }
   if (new TextEncoder().encode(serialized).byteLength > MAX_CUSTOM_SCENARIO_BYTES) return { ok: false, error: 'カスタムシナリオのデータが大きすぎます。' };
-  let parsed: unknown;
-  try { parsed = JSON.parse(serialized); } catch { return { ok: false, error: 'カスタムシナリオのデータが壊れています。' }; }
-  const loaded = parseCustomScenarioData(parsed);
+  const parsed = parseBoundedJson(serialized, MAX_CUSTOM_SCENARIO_BYTES);
+  if (!parsed.ok) return parsed;
+  const loaded = parseCustomScenarioData(parsed.value);
   if (!loaded.ok) { replaceCustomScenarios([]); return loaded; }
+  const history = isRecord(parsed.value) ? parsed.value.history : undefined;
+  const archived: ScenarioDefinition[] = [];
+  if (history !== undefined) {
+    if (!Array.isArray(history) || history.length > 256) return { ok: false, error: 'シナリオ履歴が不正です。' };
+    for (const entry of history) {
+      const revision = loadScenarioDefinitions([entry]);
+      if (!revision.ok || (revision.value[0]!.id === trainingScenario.id || maps.some(map => map.id === revision.value[0]!.id))) return { ok: false, error: 'シナリオ履歴が不正です。' };
+      archived.push(revision.value[0]!);
+    }
+  }
+  archivedScenarios = archived;
   replaceCustomScenarios(loaded.value);
   return { ok: true, value: [...loaded.value] };
 }
@@ -383,12 +421,31 @@ export function saveCustomScenario(storage: ScenarioStorageLike, source: Scenari
   const loaded = loadScenarioDefinitions([source]);
   if (!loaded.ok) return loaded;
   const scenario = loaded.value[0]!;
-  if (maps.some(builtIn => builtIn.id === scenario.id)) return { ok: false, error: '組み込みシナリオのIDは上書きできません。' };
+  if (scenario.id === trainingScenario.id || maps.some(builtIn => builtIn.id === scenario.id)) return { ok: false, error: '組み込みシナリオのIDは上書きできません。' };
   const next = new Map(customScenarios); next.set(scenario.id, scenario);
   if (next.size > MAX_CUSTOM_SCENARIOS) return { ok: false, error: `カスタムシナリオは${MAX_CUSTOM_SCENARIOS}件までです。` };
-  const serialized = JSON.stringify({ schemaVersion: CUSTOM_SCENARIOS_SCHEMA_VERSION, scenarios: [...next.values()].map(scenarioDefinitionToData) });
+  const previous = customScenarios.get(scenario.id);
+  const history = previous ? [...archivedScenarios, previous] : archivedScenarios;
+  if (history.length > 256) return { ok: false, error: '互換性保護用のシナリオ履歴が上限に達しました。バックアップを保存してください。' };
+  const serialized = JSON.stringify({ schemaVersion: CUSTOM_SCENARIOS_SCHEMA_VERSION, scenarios: [...next.values()].map(scenarioDefinitionToData), history: history.map(scenarioDefinitionToData) });
   if (new TextEncoder().encode(serialized).byteLength > MAX_CUSTOM_SCENARIO_BYTES) return { ok: false, error: 'カスタムシナリオのデータが大きすぎます。' };
   try { storage.setItem(CUSTOM_SCENARIOS_KEY, serialized); } catch { return { ok: false, error: 'カスタムシナリオを書き込めませんでした。' }; }
+  archivedScenarios = history;
   replaceCustomScenarios([...next.values()]);
   return { ok: true, value: scenario };
+}
+
+/** Removing a catalog entry preserves its old definition for legacy saves. */
+export function deleteCustomScenario(storage: ScenarioStorageLike, id: string): GameResult<void> {
+  const previous = customScenarios.get(id);
+  if (!previous) return { ok: false, error: 'カスタムシナリオが見つかりません。' };
+  const next = [...customScenarios.values()].filter(scenario => scenario.id !== id);
+  const history = [...archivedScenarios, previous];
+  const serialized = JSON.stringify({ schemaVersion: CUSTOM_SCENARIOS_SCHEMA_VERSION, scenarios: next.map(scenarioDefinitionToData), history: history.map(scenarioDefinitionToData) });
+  if (history.length > 256 || new TextEncoder().encode(serialized).byteLength > MAX_CUSTOM_SCENARIO_BYTES) return { ok: false, error: 'シナリオ履歴の保存容量を超えています。' };
+  try { storage.setItem(CUSTOM_SCENARIOS_KEY, serialized); }
+  catch { return { ok: false, error: 'カスタムシナリオを削除できませんでした。' }; }
+  archivedScenarios = history;
+  replaceCustomScenarios(next);
+  return { ok: true, value: undefined };
 }

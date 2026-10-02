@@ -1,3 +1,4 @@
+import { renderLocalePicker } from './locale';
 import type { MatchMode } from './matchControl';
 import { escapeHtml, uiText } from './strings';
 
@@ -105,7 +106,14 @@ export interface TitleMapCard {
  * campaign, import a replay, or edit maps. `canResume` is set when it was opened
  * from a match, which it then returns to unchanged.
  */
-export function renderTitleOverlay(options: { visible: boolean; maps: readonly TitleMapCard[]; canContinue: boolean; canResume: boolean; notice: string }): string {
+export function renderTitleOverlay(options: {
+  visible: boolean;
+  maps: readonly TitleMapCard[];
+  canContinue: boolean;
+  canResume: boolean;
+  notice: string;
+  savePicker?: string;
+}): string {
   if (!options.visible) return '';
   const cards = options.maps
     .map(
@@ -113,7 +121,7 @@ export function renderTitleOverlay(options: { visible: boolean; maps: readonly T
         `<li><button class="title-map-card" data-map-id="${escapeHtml(map.id)}" ${map.selected ? 'aria-current="true"' : ''}>${map.preview}<span class="title-map-name">${escapeHtml(map.name)}${map.custom ? `<em>${uiText.titleCustom}</em>` : ''}</span><span class="title-map-facts"><span>${escapeHtml(map.theme)}</span><span>${uiText.titleBoard(map.width, map.height)}</span><span>${uiText.titleGold(map.startingGold)}</span><span>${uiText.titleTurnLimit(map.turnLimit)}</span></span><span class="title-map-victory">${escapeHtml(map.victory)}</span></button></li>`,
     )
     .join('');
-  return `<div class="title-overlay" role="dialog" aria-modal="true" aria-labelledby="title-heading"><section class="title-screen"><header class="title-hero"><p class="card-kicker">${uiText.titleKicker}</p><h2 id="title-heading">${uiText.titleHeading}</h2><p>${uiText.titleLead}</p></header><nav class="title-menu" aria-label="${uiText.titleMenu}">${options.canResume ? `<button id="title-resume" class="end-turn">${uiText.titleResume}</button>` : ''}<button id="title-continue" class="save-action" ${options.canContinue ? '' : 'disabled'}>${uiText.titleContinue}</button><button id="title-campaign" class="save-action">${uiText.titleCampaign}</button><button id="title-import-replay" class="save-action">${uiText.titleImportReplay}</button><button id="title-editor" class="save-action">${uiText.titleEditor}</button><input id="title-replay-file" class="visually-hidden" type="file" accept=".json,application/json" aria-label="JSONリプレイファイルを選択"></nav>${options.notice ? `<p class="title-notice" role="status">${escapeHtml(options.notice)}</p>` : ''}<section aria-labelledby="title-maps-heading"><h3 id="title-maps-heading">${uiText.titleMapsHeading}</h3><ol class="title-map-list">${cards}</ol></section></section></div>`;
+  return `<div class="title-overlay" role="dialog" aria-modal="true" aria-labelledby="title-heading"><section class="title-screen"><header class="title-hero"><p class="card-kicker">${uiText.titleKicker}</p><h2 id="title-heading">${uiText.titleHeading}</h2><p>${uiText.titleLead}</p></header><nav class="title-menu" aria-label="${uiText.titleMenu}">${renderLocalePicker()}${options.canResume ? `<button id="title-resume" class="end-turn">${uiText.titleResume}</button>` : ''}<button id="title-continue" class="save-action" ${options.canContinue ? '' : 'disabled'}>${uiText.titleContinue}</button><button id="title-training" class="save-action">基本操作を練習</button><button id="title-campaign" class="save-action">${uiText.titleCampaign}</button><button id="title-import-replay" class="save-action">${uiText.titleImportReplay}</button><button id="title-editor" class="save-action">${uiText.titleEditor}</button><input id="title-replay-file" class="visually-hidden" type="file" accept=".json,application/json" aria-label="JSONリプレイファイルを選択"></nav>${options.savePicker ?? ''}${options.notice ? `<p class="title-notice" role="status">${escapeHtml(options.notice)}</p>` : ''}<section aria-labelledby="title-maps-heading"><h3 id="title-maps-heading">${uiText.titleMapsHeading}</h3><ol class="title-map-list">${cards}</ol></section></section></div>`;
 }
 
 /**

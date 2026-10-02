@@ -1,7 +1,21 @@
 import { defineConfig } from 'vite';
 import { configDefaults } from 'vitest/config';
+import { execFileSync } from 'node:child_process';
+import { readFileSync } from 'node:fs';
+
+const version = (JSON.parse(readFileSync(new URL('./package.json', import.meta.url), 'utf8')) as { version: string }).version;
+const sha =
+  process.env.GITHUB_SHA ??
+  (() => {
+    try {
+      return execFileSync('git', ['rev-parse', '--short=12', 'HEAD'], { encoding: 'utf8' }).trim();
+    } catch {
+      return 'source-archive';
+    }
+  })();
 
 export default defineConfig({
+  define: { __BUILD_INFO__: JSON.stringify({ version, sha }) },
   base: './',
   build: {
     outDir: 'dist',
@@ -10,8 +24,9 @@ export default defineConfig({
     middlewareMode: false,
   },
   test: {
-    environment: 'jsdom',
-    exclude: [...configDefaults.exclude, 'tests/e2e/**'],
+    environment: 'node',
+    environmentMatchGlobs: [['src/ui/**/*.test.ts', 'jsdom']],
+    exclude: [...configDefaults.exclude, 'tests/e2e/**', 'tests/integration/**'],
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json-summary'],

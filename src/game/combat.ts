@@ -24,6 +24,10 @@ export interface CombatForecast {
   damageToAttacker: number;
   /** Whether the defender can counterattack at the expected damage outcome. */
   canCounter: boolean;
+  outgoing: DamageRange;
+  incoming: DamageRange;
+  /** Counterattack is possible for at least one damage roll. */
+  possibleCounter: boolean;
 }
 
 export interface DamageRange {
@@ -79,5 +83,16 @@ export function forecastCombat(state: GameState, attacker: Unit, defender: Unit)
   const counterRaw = counterRankFactor === 1 ? baseCounterRaw : baseCounterRaw * counterRankFactor;
   const counterReduction = terrainDefenseReduction(attackerTerrain, attacker.hp);
   const damageToAttacker = Math.max(0, Math.round(counterRaw * (1 - counterReduction / 100)));
-  return { ok: true, value: { damageToDefender, damageToAttacker, canCounter } };
+  const outgoing = damageRange(damageToDefender);
+  const counterAt = (remaining: number): number => {
+    if (remaining <= 0 || defenderAmmo <= 0 || unitStats[attacker.kind].indirect
+      || unitStats[defender.kind].indirect || distance < counterRange[0] || distance > counterRange[1]) return 0;
+    const base = unitStats[defender.kind].attack * remaining / 100 * damageMultiplier[defender.kind][unitCategory[attacker.kind]];
+    return Math.max(0, Math.round((counterRankFactor === 1 ? base : base * counterRankFactor) * (1 - counterReduction / 100)));
+  };
+  const incoming = {
+    min: damageRange(counterAt(Math.max(0, defender.hp - outgoing.max))).min,
+    max: damageRange(counterAt(Math.max(0, defender.hp - outgoing.min))).max,
+  };
+  return { ok: true, value: { damageToDefender, damageToAttacker, canCounter, outgoing, incoming, possibleCounter: incoming.max > 0 } };
 }

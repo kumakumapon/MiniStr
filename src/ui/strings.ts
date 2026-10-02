@@ -3,7 +3,8 @@
  * i18n boundary: a future locale can provide the same keys without changing
  * game rules or DOM event handling.
  */
-export const uiText = {
+import { getLocale, localized, formatNumber } from './locale';
+const japaneseText = {
   defaultInstruction: 'ユニットを選択して行動してください。',
   saveManager: 'セーブ管理',
   saveSlot: '新しいセーブ',
@@ -85,6 +86,88 @@ export const uiText = {
   handoffStart: '開始',
 } as const;
 
+export const uiText = localized(japaneseText, {
+  defaultInstruction: 'Select a unit to give an order.',
+  saveManager: 'Saved games',
+  saveSlot: 'New save',
+  storageUsage: 'Storage',
+  storageWarning: 'Storage is nearly full. Export a backup and remove unused saves or maps.',
+  player: 'Player',
+  cpu: 'CPU',
+  playerVictory: 'Player victory',
+  cpuVictory: 'CPU victory',
+  resultMap: 'Map',
+  resultDifficulty: 'Difficulty',
+  resultWinner: 'Winner',
+  resultTurns: 'Rounds',
+  resultScore: (kills, captures) => `Destroyed ${formatNumber(kills)} / Captured ${formatNumber(captures)}`,
+  resultUnavailable: 'The match summary is unavailable.',
+  viewReplay: 'View replay',
+  exportReplay: 'Export replay',
+  campaignTitle: 'Border campaign',
+  campaignDescription: (count) => `Complete ${formatNumber(count)} operations and aim for the highest grade.`,
+  campaignSkirmish: 'Skirmish',
+  campaign: 'Campaign',
+  close: 'Close',
+  victoryConditions: 'Victory conditions',
+  defeatConditions: 'Defeat conditions',
+  startingGold: 'Starting funds',
+  turnLimit: 'Round limit',
+  difficulty: 'Difficulty',
+  none: 'None',
+  beginCampaignOperation: 'Start operation',
+  beginSkirmish: 'Start skirmish',
+  selectedUnitActions: 'Selected unit actions',
+  unitProduction: 'Production',
+  decisionRule: (round) => `After round ${formatNumber(round)}, more properties wins; ties compare remaining unit value.`,
+  decisionVictory: 'Decision victory',
+  sideVictory: (side) => `${side} wins`,
+  matchMode: 'Match format',
+  matchModeCpu: 'Against CPU',
+  matchModeHotseat: 'Two players on one device',
+  hotseatDifficulty: 'Two players',
+  matchModeSpectate: 'Watch CPUs',
+  spectateDifficulty: (red, blue) => `Spectating · Red ${red} / Blue ${blue}`,
+  spectateDifficultyLegend: 'CPU difficulty',
+  spectateRedDifficulty: 'Red CPU',
+  spectateBlueDifficulty: 'Blue CPU',
+  spectateStarted: 'Spectating started. The CPUs alternate turns.',
+  spectatePause: 'Pause spectating',
+  spectateWholeBoard: 'Whole board',
+  spectateWholeBoardOn: 'Showing both armies without fog.',
+  spectateWholeBoardOff: 'Showing the active side’s view.',
+  spectateResume: 'Resume spectating',
+  spectatePaused: 'Spectating paused. Menus are available.',
+  spectateResumed: 'Spectating resumed.',
+  spectateSaveToSlot: 'Save to slot',
+  titleKicker: 'TACTICAL COMMAND',
+  titleHeading: 'MiniStr',
+  titleLead: 'Choose a battlefield to start an operation.',
+  titleMapsHeading: 'Choose a battlefield',
+  titleMenu: 'Menu',
+  titleResume: 'Return to match',
+  titleContinue: 'Continue',
+  titleCampaign: 'Campaign',
+  titleImportReplay: 'Import replay',
+  titleEditor: 'Map editor',
+  titleCustom: 'Custom',
+  titleBoard: (width, height) => `${width}×${height}`,
+  titleGold: (gold) => `Starting funds ${formatNumber(gold)}G`,
+  titleTurnLimit: (turns) => (turns === undefined ? 'No round limit' : `${formatNumber(turns)}-round limit`),
+  titleOpen: 'Title',
+  titleBackFromBriefing: 'Map selection',
+  titleInvalidSave: 'No valid save is available. Back up or remove the invalid entry from the save list.',
+  spectateNoSaveDeletion: 'Match saves cannot be deleted while spectating',
+  invalidSaveWarning: 'No valid save is available. Export a backup or delete the invalid entry.',
+  invalidSaveWarningSpectating: 'Match saves are protected while spectating. Choose a player match to manage them.',
+  spectateLoaded: 'Spectated save loaded and paused. Choose Resume spectating to continue.',
+  spectateTurnLimit: (turn) => `Paused at round ${formatNumber(turn)}. Resume to continue.`,
+  spectateTurnEnded: (side) => `${side} CPU ended its turn.`,
+  handoffTitle: (side) => `${side}’s turn`,
+  handoffBody: 'Pass the device to the next player. The board stays hidden until they start.',
+  handoffStart: 'Start',
+});
+
 const commandErrorMessages: Record<string, string> = {
   'Game has finished': '対局は終了しています。',
   'Unit not found': '対象のユニットが見つかりません。',
@@ -121,6 +204,7 @@ const commandErrorMessages: Record<string, string> = {
 };
 
 export function commandErrorMessage(error: string): string {
+  if (getLocale() === 'en') return commandErrorMessages[error] ? error : 'This action could not be completed.';
   return commandErrorMessages[error] ?? 'この操作は実行できませんでした。';
 }
 

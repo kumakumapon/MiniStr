@@ -5,7 +5,7 @@ import { applyDamageVariance, forecastCombat } from './combat';
 import { nextRandom } from './rng';
 import { canProduceUnit, isPropertyTerrainKind, unitLimit } from './facilities';
 import { visibleEnemies, visiblePositions } from './fog';
-import { scenarioById } from './maps';
+import { scenarioForState } from './maps';
 import { decisionRound, decisionWinner, updateScenarioProgress, updateScenarioScores, withEvaluatedWinner } from './victory';
 import { experienceAfterCombat } from './experience';
 import { applyModernUpkeep } from './logistics';
@@ -199,7 +199,7 @@ export function produceUnit(state: GameState, facility: Position, kind: UnitKind
   // Generic test/replay states without a scenario ID predate the airport
   // field, so retain their historical factory-air behavior. Built-in and
   // newly saved scenarios always carry an explicit facility rule.
-  const productionRule = scenarioById(state.scenarioId)?.productionRules ?? 'legacy-factory-air';
+  const productionRule = scenarioForState(state)?.productionRules ?? 'legacy-factory-air';
   if (!terrain || terrain.owner !== state.activePlayer || !canProduceUnit(terrain.kind, kind, productionRule, state.ruleVersion))
     return fail('An owned compatible production facility is required');
   if (unitAt(state, facility)) return fail('Production facility is occupied');
@@ -356,7 +356,7 @@ export function disembarkUnit(state: GameState, transportId: string, destination
 export function endTurn(state: GameState): GameState {
   if (state.winner) return state;
   const actor = state.activePlayer;
-  const scenario = scenarioById(state.scenarioId);
+  const scenario = scenarioForState(state);
   const progressed = scenario ? updateScenarioProgress(state, scenario, actor) : state;
   const activePlayer = otherPlayer(state.activePlayer);
   if (usesModernRules(state)) {

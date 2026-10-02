@@ -1,4 +1,4 @@
-import { scenarioById, type ScenarioDefinition, type VictoryCondition } from './maps';
+import { scenarioForState, type ScenarioDefinition, type VictoryCondition } from './maps';
 import { playerOwnedProperties } from './state';
 import { isDeployedUnit, otherPlayer, usesDecisionRules, type GameState, type PlayerId, type Position } from './types';
 import { unitStats } from './units';
@@ -28,7 +28,7 @@ export function getConditionProgress(state: GameState, condition: VictoryConditi
       break;
     }
     case 'captureCapital': {
-      const scenario = scenarioById(state.scenarioId);
+      const scenario = scenarioForState(state);
       if (scenario) {
         const enemy = otherPlayer(player);
         // A known scenario establishes which HQs belong to the opponent. Capturing
@@ -153,7 +153,7 @@ export function withEvaluatedWinner(
   legacyConditions: readonly VictoryCondition[] = [],
   tieBreaker: PlayerId = state.activePlayer,
 ): GameState {
-  const scenario = scenarioById(state.scenarioId);
+  const scenario = scenarioForState(state);
   const winner = scenario
     ? evaluateScenario(state, scenario, tieBreaker)
     : legacyConditions.some(condition => isVictoryConditionMet(state, condition, state.activePlayer))
@@ -171,7 +171,7 @@ export function isDecisionScenario(scenario: ScenarioDefinition): boolean {
 }
 
 /** The decision round for this match, or undefined when no decision victory applies. */
-export function decisionRound(state: GameState, scenario: ScenarioDefinition | undefined = scenarioById(state.scenarioId)): number | undefined {
+export function decisionRound(state: GameState, scenario: ScenarioDefinition | undefined = scenarioForState(state)): number | undefined {
   return usesDecisionRules(state) && scenario && isDecisionScenario(scenario) ? DECISION_ROUND : undefined;
 }
 
@@ -209,7 +209,7 @@ export type VictoryReason = VictoryCondition['type'] | 'decision';
  * rule-version-3 decision scenario past the decision round; anything else that
  * cannot be explained (e.g. a legacy state without a scenario) is undefined.
  */
-export function victoryReason(state: GameState, scenario: ScenarioDefinition | undefined = scenarioById(state.scenarioId)): VictoryReason | undefined {
+export function victoryReason(state: GameState, scenario: ScenarioDefinition | undefined = scenarioForState(state)): VictoryReason | undefined {
   if (!state.winner || !scenario) return undefined;
   const conditions = state.winner === 'red' ? scenario.victoryConditions : scenario.defeatConditions;
   const met = conditions.find(condition => isVictoryConditionMet(state, condition, state.winner!));

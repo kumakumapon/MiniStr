@@ -1,4 +1,5 @@
 import { scenarioById } from './maps';
+import { parseBoundedJson } from './jsonBoundary';
 import { isGameState, type StorageLike } from './session';
 import type { GameResult, GameState, PlayerId } from './types';
 
@@ -153,8 +154,9 @@ export function isCampaignProgress(value: unknown): value is CampaignProgress {
 
 export function parseCampaignProgress(serialized: string): GameResult<CampaignProgress> {
   if (new TextEncoder().encode(serialized).byteLength > MAX_CAMPAIGN_BYTES) return fail('キャンペーンデータが大きすぎます。');
-  let value: unknown;
-  try { value = JSON.parse(serialized); } catch { return fail('キャンペーンデータが壊れています。'); }
+  const parsed = parseBoundedJson(serialized);
+  if (!parsed.ok) return fail('キャンペーンデータが壊れています。');
+  const value = parsed.value;
   if (!isRecord(value)) return fail('キャンペーンデータの形式が不正です。');
   const migrated = migrateCampaign(value);
   if (!migrated) return fail('未対応のキャンペーンデータです。');

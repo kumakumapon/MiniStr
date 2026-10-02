@@ -1,4 +1,5 @@
 import type { unitDefinitions } from './units';
+import type { ScenarioData } from './maps';
 
 export type PlayerId = 'red' | 'blue';
 export type UnitKind = keyof typeof unitDefinitions;
@@ -55,6 +56,8 @@ export interface GameState {
   winner?: PlayerId;
   /** Optional for backwards-compatible save/replay loading. */
   scenarioId?: string;
+  /** Immutable definition recorded at match creation (save/replay schema v4). */
+  scenarioSnapshot?: ScenarioData;
   /** Scenario-defined score; absent values are treated as zero. */
   scores?: Partial<Record<PlayerId, number>>;
   /** Consecutive completed turns for each hold-condition key. */

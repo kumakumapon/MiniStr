@@ -387,3 +387,27 @@ button, select, .tile { touch-action: manipulation; }
 /* Map previews on title cards (#145). */
 /* A fixed height with the width following the map's shape, so wide cards do not letterbox. */
 .map-preview { display: block; width: auto; height: 110px; max-width: 100%; margin: 0 auto 2px; border-radius: 4px; }
+/* Auxiliary controls stay within the viewport at narrow widths and text zoom. */
+.build-info { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; padding: .5rem; font-size: .8rem; }
+.editor-extra, .backup-actions, .replay-navigation { display: flex; flex-wrap: wrap; gap: .6rem; align-items: end; padding: .7rem; max-width: 100%; }
+.editor-extra label, .replay-navigation label { display: grid; gap: .3rem; min-width: 0; }
+.editor-extra input[type="number"] { width: 5rem; }
+.editor-extra p { flex-basis: 100%; }
+.editor-extra button, .backup-actions button, .replay-navigation button, .build-info button { min-height: 44px; padding: .5rem; color: #f1f5ec; background: #263b34; border: 1px solid #92ada1; border-radius: .4rem; }
+.backup-actions input { max-width: 100%; }
+.editor-workspace, .unit-reference { overflow: auto; max-width: 100%; }
+.learning-panel { padding: .75rem; margin-block: .5rem; border: 1px solid #708d7f; border-radius: .5rem; }
+.learning-panel summary { cursor: pointer; min-height: 44px; }
+.learning-panel p { line-height: 1.6; }
+.unit-reference table { border-collapse: collapse; min-width: 32rem; }
+.unit-reference td, .unit-reference th { padding: .4rem; border-bottom: 1px solid #567064; text-align: left; }
+.replay-toolbar { flex-wrap: wrap; }
+.replay-navigation ol { flex-basis: 100%; display: flex; flex-wrap: wrap; gap: .5rem; padding-inline-start: 1.2rem; }
+.save-slot-manager li { overflow-wrap: anywhere; }
+button:focus-visible, select:focus-visible, input:focus-visible, summary:focus-visible { outline: 3px solid #ffe59d; outline-offset: 3px; }
+@media (max-width: 430px) {
+  .editor-extra { padding: .4rem; }
+  .editor-extra select { max-width: 12rem; }
+  .replay-navigation input { max-width: 65vw; }
+  .save-slot-manager li { flex-wrap: wrap; }
+}

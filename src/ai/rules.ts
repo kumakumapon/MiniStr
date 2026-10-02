@@ -1,12 +1,13 @@
 import { forecastCombat, terrainDefenseReduction } from '../game/combat';
+import { observeLogistics } from '../game/fog';
 import { reachablePositionsForPlayer } from '../game/commands';
 import { canProduceUnit, isPropertyTerrainKind, productionKindsForRule, unitLimit } from '../game/facilities';
 import { visibleEnemies as getVisibleEnemies } from '../game/fog';
-import { scenarioById } from '../game/maps';
+import { scenarioForState } from '../game/maps';
 import { manhattanDistance, movementCost, terrainAt } from '../game/terrain';
 import { isDeployedUnit, usesDecisionRules, usesModernRules, type Board, type DeployedUnit, type GameState, type PlayerId, type Position, type Unit, type UnitKind } from '../game/types';
 import { adjacentToSupplyUnit, isGroundUnit, isServiceTile, REPAIR_HP_PER_TURN } from '../game/logistics';
-import { isEmbarkableUnit, isSupplyUnit, unitCategory, unitStats } from '../game/units';
+import { isEmbarkableUnit, isMergeableUnit, isSupplyUnit, unitCategory, unitStats } from '../game/units';
 
 /** The CPU does not use hidden randomness: the same state always gives the same order. */
 export type CpuDifficulty = 'easy' | 'normal' | 'hard';
@@ -62,6 +63,7 @@ export const MIN_CPU_FORCE = 4;
 export type CpuAction =
   | { type: 'capture'; unitId: string }
   | { type: 'attack'; unitId: string; targetId: string }
+  | { type: 'merge'; unitId: string; targetId: string }
   | { type: 'produce'; factory: Position; kind: UnitKind }
   | { type: 'move'; unitId: string; destination: Position }
   | { type: 'wait'; unitId: string }
@@ -100,7 +102,7 @@ function favorableAttack(state: GameState, attacker: DeployedUnit, target: Unit,
   // MAX_ATTACK_LENIENCY in total, so leniencies cannot stack into suicide attacks.
   const leniency = Math.min(MAX_ATTACK_LENIENCY,
     stalemateRelief(state) * 25 + garrisonAllowance(state, attacker, target, result.value.damageToDefender, result.value.damageToAttacker));
-  return result.value.damageToDefender >= target.hp
+  return result.value.outgoing.min >= target.hp
     || result.value.damageToDefender >= result.value.damageToAttacker + config.attackSafetyMargin - leniency;
 }
 
@@ -144,7 +146,7 @@ function attackAction(state: GameState, player: PlayerId, config: CpuDifficultyC
         const bScore = bForecast.ok ? bForecast.value.damageToDefender - bForecast.value.damageToAttacker : -Infinity;
         const interruption = Number(interruptsCapture(state, player, b)) - Number(interruptsCapture(state, player, a));
         // Focus fire: finishing a unit removes its future attacks, so certain kills come first.
-        const lethal = Number(bForecast.ok && bForecast.value.damageToDefender >= b.hp) - Number(aForecast.ok && aForecast.value.damageToDefender >= a.hp);
+        const lethal = Number(bForecast.ok && bForecast.value.outgoing.min >= b.hp) - Number(aForecast.ok && aForecast.value.outgoing.min >= a.hp);
         return interruption || lethal || bScore - aScore || a.hp - b.hp || a.id.localeCompare(b.id);
       })[0];
     if (target) return { type: 'attack', unitId: attacker.id, targetId: target.id };
@@ -180,7 +182,7 @@ function emptyOwnedFacility(state: GameState, player: PlayerId, kind: UnitKind):
     const occupied = state.units.some(unit => isDeployedUnit(unit)
       && unit.position.x === position.x && unit.position.y === position.y);
     if (tile?.owner === player && !occupied) {
-      const productionRule = scenarioById(state.scenarioId)?.productionRules ?? 'legacy-factory-air';
+      const productionRule = scenarioForState(state)?.productionRules ?? 'legacy-factory-air';
       if (canProduceUnit(tile.kind, kind, productionRule, state.ruleVersion)) return position;
     }
   }
@@ -258,6 +260,11 @@ function productionAction(state: GameState, player: PlayerId, config: CpuDifficu
   }
   const specialist = specialistProduction(state, player, context.visibleEnemies);
   if (specialist) return specialist;
+  const supplyNeeded = usesModernRules(state) && orderedUnits(state, player).filter(unit => isGroundUnit(unit.kind) && needsSupply(unit)).length >= 2;
+  if (supplyNeeded && !state.units.some(unit => unit.owner === player && isSupplyUnit(unit.kind)) && state.players[player].gold >= unitStats.apc.cost) {
+    const factory = emptyOwnedFacility(state, player, 'apc');
+    if (factory) return { type: 'produce', factory, kind: 'apc' };
+  }
   // Transports and counters to confirmed threats are bounded one-of-a-kind orders;
   // only the bulk force mix stops at the limit.
   if (atForceLimit(state, player, config)) return undefined;
@@ -268,6 +275,13 @@ function productionAction(state: GameState, player: PlayerId, config: CpuDifficu
 }
 
 function objectives(state: GameState, player: PlayerId, config: CpuDifficultyConfig, visibleEnemies: readonly Unit[]): Position[] {
+  const scenario = scenarioForState(state);
+  const conditions = player === 'red' ? scenario?.victoryConditions : scenario?.defeatConditions;
+  const holdTargets = conditions?.flatMap(condition => condition.type === 'hold' ? condition.positions : []) ?? [];
+  if (holdTargets.length) return holdTargets;
+  if (conditions?.every(condition => condition.type === 'survive')) {
+    return state.board.terrain.flatMap((row, y) => row.flatMap((tile, x) => tile.owner === player && isPropertyTerrainKind(tile.kind) ? [{ x, y }] : []));
+  }
   const capitals: Position[] = [];
   const properties: Position[] = [];
   for (let y = 0; y < state.board.height; y += 1) for (let x = 0; x < state.board.width; x += 1) {
@@ -386,7 +400,11 @@ export function evaluateCpuPosition(
   // came to be serviced (low supplies or heavy damage) are exempt.
   const blocking = !needsSupply(unit) && unit.hp > 50 && blocksProduction(state, player, destination, knownEnemies, config) ? FACILITY_BLOCK_PENALTY : 0;
   const logistics = supplyVehicleValue(state, player, unit, destination);
-  return defense + supply + response + retreatCover + logistics
+  const scenario = scenarioForState(state);
+  const conditions = player === 'red' ? scenario?.victoryConditions : scenario?.defeatConditions;
+  const hold = conditions?.some(condition => condition.type === 'hold' && condition.positions.some(p => p.x === destination.x && p.y === destination.y)) ? 100 : 0;
+  const score = conditions?.some(condition => condition.type === 'score') && isPropertyTerrainKind(terrain.kind) && terrain.owner !== player && unitStats[unit.kind].capturePower > 0 ? 35 : 0;
+  return defense + supply + response + retreatCover + logistics + hold + score
     - distance * config.objectiveDistanceWeight
     - pressure * config.threatAvoidanceWeight * (1 - stalemateRelief(state))
     - retreatPressure
@@ -400,7 +418,7 @@ export const FACILITY_BLOCK_PENALTY = 45;
 function blocksProduction(state: GameState, player: PlayerId, position: Position, knownEnemies: readonly Unit[], config: CpuDifficultyConfig): boolean {
   const tile = terrainAt(state.board, position);
   if (tile?.owner !== player || atForceLimit(state, player, config)) return false;
-  const productionRule = scenarioById(state.scenarioId)?.productionRules ?? 'legacy-factory-air';
+  const productionRule = scenarioForState(state)?.productionRules ?? 'legacy-factory-air';
   const kinds = productionKindsForRule(productionRule, state.ruleVersion)[tile.kind] ?? [];
   // Only a facility we could actually use this turn is being blocked.
   if (!kinds.some(kind => unitStats[kind].cost <= state.players[player].gold)) return false;
@@ -428,6 +446,27 @@ function supplyVehicleValue(state: GameState, player: PlayerId, unit: DeployedUn
 function transportAction(state: GameState, player: PlayerId, targets: readonly Position[], components: ReadonlyMap<string, number>, visibleEnemies: readonly Unit[]): CpuAction | undefined {
   if (!targets.length) return undefined;
   const units = orderedUnits(state, player);
+
+  // Land transports unload near an objective, then become mobile suppliers.
+  for (const transport of units.filter(unit => unit.kind === 'apc' && !unit.hasMoved && !unit.hasActed)) {
+    const cargo = state.units.find(unit => unit.embarkedIn === transport.id);
+    const target = nearestTarget(transport.position, targets);
+    if (!target) continue;
+    if (cargo) {
+      const distance = manhattanDistance(transport.position, target);
+      if (distance <= 3) {
+        const destination = adjacentPositions(transport.position).filter(p => Number.isFinite(movementCost(state.board, p, cargo.kind)) && !knownUnitAt(state, player, p, visibleEnemies))
+          .sort((a, b) => manhattanDistance(a, target) - manhattanDistance(b, target) || a.y - b.y || a.x - b.x)[0];
+        if (destination) return { type: 'disembark', transportId: transport.id, destination };
+      }
+      const destination = reachablePositionsForPlayer(state, transport.id, player).filter(p => manhattanDistance(p, target) < distance)
+        .sort((a, b) => manhattanDistance(a, target) - manhattanDistance(b, target) || a.y - b.y || a.x - b.x)[0];
+      if (destination) return { type: 'move', unitId: transport.id, destination };
+    } else if (manhattanDistance(transport.position, target) > 6) {
+      const passenger = units.find(unit => isEmbarkableUnit(unit.kind) && !unit.hasActed && isAdjacent(unit.position, transport.position));
+      if (passenger) return { type: 'embark', unitId: passenger.id, transportId: transport.id };
+    }
+  }
 
   // An unloaded ship gets priority: landing the cargo is the only way it can capture remote properties.
   for (const transport of units.filter(unit => unit.kind === 'landingShip' && !unit.hasMoved && !unit.hasActed)) {
@@ -527,7 +566,7 @@ function strikeAction(state: GameState, player: PlayerId, config: CpuDifficultyC
         if (!favorableAttack(projected, moved, target, config)) continue;
         const forecast = forecastCombat(projected, moved, target);
         if (!forecast.ok) continue;
-        const lethal = forecast.value.damageToDefender >= target.hp;
+        const lethal = forecast.value.outgoing.min >= target.hp;
         const interruption = interruptsCapture(state, player, target);
         if (finishingOnly && !lethal && !interruption) continue;
         const targetCost = unitStats[target.kind].cost;
@@ -569,14 +608,44 @@ export function createCpuPlanningContext(state: GameState, player: PlayerId, con
 /** Select the next legal high-level CPU order. The caller applies it with the game command layer. */
 export function chooseCpuAction(state: GameState, difficulty: CpuDifficulty = 'normal', player: PlayerId = state.activePlayer): CpuAction {
   if (state.winner || player !== state.activePlayer) return { type: 'endTurn' };
+  state = observeLogistics(state, player);
   const config = cpuDifficultyConfig[difficulty];
   const capture = orderedUnits(state, player).find(unit => canCapture(state, unit));
   if (capture) return { type: 'capture', unitId: capture.id };
   const context = createCpuPlanningContext(state, player, config);
   return attackAction(state, player, config, context.visibleEnemies)
     ?? strikeAction(state, player, config, context.visibleEnemies)
+    ?? mergeAction(state, player)
     ?? transportAction(state, player, context.targets, context.landComponents, context.visibleEnemies)
     ?? productionAction(state, player, config, context)
     ?? moveAction(state, player, config, context)
     ?? { type: 'endTurn' };
+}
+
+/** Merge badly damaged peers only when no immediate attack was selected. */
+function mergeAction(state: GameState, player: PlayerId): CpuAction | undefined {
+  const damaged = orderedUnits(state, player).filter(unit => !unit.hasActed && unit.hp <= 50 && isMergeableUnit(unit.kind));
+  for (const unit of damaged) {
+    const target = damaged.find(ally => ally.id !== unit.id && ally.kind === unit.kind && isAdjacent(unit.position, ally.position));
+    if (target) return { type: 'merge', unitId: unit.id, targetId: target.id };
+  }
+  return undefined;
+}
+
+/** Opt-in development trace; contains no hidden enemy logistics or positions. */
+export function explainCpuAction(state: GameState, difficulty: CpuDifficulty = 'normal') {
+  const player = state.activePlayer;
+  const observed = observeLogistics(state, player);
+  const config = cpuDifficultyConfig[difficulty];
+  const context = createCpuPlanningContext(observed, player, config);
+  const action = chooseCpuAction(state, difficulty);
+  const unit = 'unitId' in action ? observed.units.find(candidate => candidate.id === action.unitId) : undefined;
+  const destination = action.type === 'move' ? action.destination : unit?.position;
+  const evaluation = unit && isDeployedUnit(unit) && destination ? {
+    total: evaluateCpuPosition(observed, player, unit, destination, context.targets, config, context.visibleEnemies),
+    distanceToGoal: context.targets.length ? Math.min(...context.targets.map(target => manhattanDistance(destination, target))) : 0,
+    defensePercent: terrainDefenseReduction(terrainAt(state.board, destination)!, unit.hp),
+    supplyValue: supplyVehicleValue(observed, player, unit, destination),
+  } : undefined;
+  return { action, reason: action.type, visibleEnemies: context.visibleEnemies.length, evaluation };
 }

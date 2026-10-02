@@ -1,6 +1,7 @@
-import { scenarioById } from './maps';
+import { scenarioForState } from './maps';
+import { parseBoundedJson } from './jsonBoundary';
 import {
-  applyGameCommand, isGameCommand, isGameState, matchesScenarioInitialState, replayCommands, type GameCommand,
+  applyGameCommand, isGameCommand, isGameState, matchesScenarioInitialState, replayCommands, restoreArchivedScenario, withinReplayBudget, type GameCommand,
 } from './session';
 import { countDestroyedDeployedUnits } from './victory';
 import { type GameResult, type GameState, type PlayerId } from './types';
@@ -10,7 +11,7 @@ import { type GameResult, type GameState, type PlayerId } from './types';
  * replays remain valid.  Invalid cargo links are rejected by `isGameState` and
  * are never inferred or repaired while importing a replay.
  */
-export const REPLAY_SCHEMA_VERSION = 3 as const;
+export const REPLAY_SCHEMA_VERSION = 4 as const;
 export const MAX_REPLAY_BYTES = 1_000_000;
 const MAX_REPLAY_COMMANDS = 100_000;
 
@@ -43,16 +44,20 @@ export interface ReplayFile {
 }
 
 function migrateReplayV1ToV2(value: Record<string, unknown>): Record<string, unknown> {
-  return { ...structuredClone(value), schemaVersion: 2 };
+  return { ...value, schemaVersion: 2 };
 }
 function migrateReplayV2ToV3(value: Record<string, unknown>): Record<string, unknown> {
-  return { ...structuredClone(value), schemaVersion: REPLAY_SCHEMA_VERSION };
+  return { ...value, schemaVersion: 3 };
+}
+function migrateReplayV3ToV4(value: Record<string, unknown>): Record<string, unknown> {
+  return { ...value, schemaVersion: REPLAY_SCHEMA_VERSION };
 }
 
 function migrateReplay(value: Record<string, unknown>): Record<string, unknown> | undefined {
   if (value.schemaVersion === REPLAY_SCHEMA_VERSION) return value;
-  if (value.schemaVersion === 2) return migrateReplayV2ToV3(value);
-  if (value.schemaVersion === 1) return migrateReplayV2ToV3(migrateReplayV1ToV2(value));
+  if (value.schemaVersion === 3) return migrateReplayV3ToV4(value);
+  if (value.schemaVersion === 2) return migrateReplayV3ToV4(migrateReplayV2ToV3(value));
+  if (value.schemaVersion === 1) return migrateReplayV3ToV4(migrateReplayV2ToV3(migrateReplayV1ToV2(value)));
   return undefined;
 }
 
@@ -92,7 +97,7 @@ function isIsoTimestamp(value: unknown): value is string {
 function isReplaySummary(value: unknown): value is ReplaySummary {
   return isRecord(value)
     && hasOnlyKeys(value, ['mapId', 'difficulty', 'winner', 'turns', 'kills', 'captures'])
-    && typeof value.mapId === 'string' && scenarioById(value.mapId) !== undefined
+    && typeof value.mapId === 'string'
     && typeof value.difficulty === 'string' && difficulties.has(value.difficulty as ReplayDifficulty)
     && (value.winner === 'red' || value.winner === 'blue')
     && Number.isSafeInteger(value.turns) && (value.turns as number) >= 1
@@ -140,11 +145,11 @@ function sameValue(left: unknown, right: unknown): boolean {
 }
 
 function validateReplayShape(value: unknown): value is ReplayFile {
-  const scenario = isRecord(value) && typeof value.mapId === 'string' ? scenarioById(value.mapId) : undefined;
+  const scenario = isRecord(value) && isRecord(value.initialState) ? scenarioForState(value.initialState as unknown as GameState) : undefined;
   if (!hasSafeJsonDepth(value) || !isRecord(value)
     || !hasOnlyKeys(value, ['schemaVersion', 'mapId', 'difficulty', 'initialState', 'commands', 'finalState', 'summary', 'createdAt'], ['redDifficulty'])
     || value.schemaVersion !== REPLAY_SCHEMA_VERSION
-    || typeof value.mapId !== 'string' || scenario === undefined
+    || typeof value.mapId !== 'string' || scenario === undefined || scenario.id !== value.mapId
     || typeof value.difficulty !== 'string' || !difficulties.has(value.difficulty as ReplayDifficulty)
     || !isOptionalDifficulty(value.redDifficulty)
     || !isGameState(value.initialState) || !matchesScenarioInitialState(value.initialState, scenario) || !isGameState(value.finalState)
@@ -161,13 +166,14 @@ export function summarizeReplay(
   mapId: string,
   difficulty: ReplayDifficulty,
 ): GameResult<ReplaySummary> {
-  const scenario = scenarioById(mapId);
-  if (!scenario || !difficulties.has(difficulty) || !isGameState(initialState)
+  const scenario = scenarioForState(initialState);
+  if (!scenario || scenario.id !== mapId || !difficulties.has(difficulty) || !isGameState(initialState)
     || !matchesScenarioInitialState(initialState, scenario)
     || commands.length > MAX_REPLAY_COMMANDS || !commands.every(isGameCommand))
     return { ok: false, error: 'リプレイデータの内容が不正です。' };
 
   let state = structuredClone(initialState);
+  if (!withinReplayBudget(initialState, commands.length)) return { ok: false, error: '再現処理の上限を超えています。' };
   const kills: Record<PlayerId, number> = { red: 0, blue: 0 };
   const captures: Record<PlayerId, number> = { red: 0, blue: 0 };
 
@@ -204,9 +210,9 @@ export function summarizeReplay(
 }
 
 export function createReplay(input: ReplayInput): GameResult<ReplayFile> {
-  const scenario = isRecord(input) && typeof input.mapId === 'string' ? scenarioById(input.mapId) : undefined;
+  const scenario = isRecord(input) && isRecord(input.initialState) ? scenarioForState(input.initialState as unknown as GameState) : undefined;
   if (!isRecord(input) || !hasOnlyKeys(input, ['mapId', 'difficulty', 'initialState', 'commands'], ['redDifficulty'])
-    || typeof input.mapId !== 'string' || scenario === undefined
+    || typeof input.mapId !== 'string' || scenario === undefined || scenario.id !== input.mapId
     || typeof input.difficulty !== 'string' || !difficulties.has(input.difficulty as ReplayDifficulty)
     || !isOptionalDifficulty(input.redDifficulty)
     || !isGameState(input.initialState) || !matchesScenarioInitialState(input.initialState, scenario) || !Array.isArray(input.commands)
@@ -260,11 +266,11 @@ export function serializeReplay(replay: ReplayFile): GameResult<string> {
 export function parseReplay(serialized: string): GameResult<ReplayFile> {
   if (new TextEncoder().encode(serialized).byteLength > MAX_REPLAY_BYTES)
     return { ok: false, error: 'リプレイデータが大きすぎます。' };
-  let value: unknown;
-  try { value = JSON.parse(serialized); }
-  catch { return { ok: false, error: 'リプレイデータが壊れています。' }; }
+  const parsed = parseBoundedJson(serialized, MAX_REPLAY_BYTES);
+  if (!parsed.ok) return { ok: false, error: parsed.error.includes('壊れ') ? 'リプレイデータが壊れています。' : 'リプレイデータの内容が不正です。' };
+  const value = parsed.value;
   if (!isRecord(value)) return { ok: false, error: 'リプレイデータの形式が不正です。' };
-  const migrated = migrateReplay(value);
+  const migrated = migrateReplay(restoreArchivedScenario(value));
   if (!migrated)
     return { ok: false, error: '未対応のリプレイデータです。' };
   if (!validateReplayShape(migrated)) return { ok: false, error: 'リプレイデータの内容が不正です。' };
