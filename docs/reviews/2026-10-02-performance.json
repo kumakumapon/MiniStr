@@ -1,0 +1,36 @@
+{
+  "sha": "4f653d9f613a2706ad5b3142ed09b8c3e1468012",
+  "runtime": "v24.19.0",
+  "platform": "linux",
+  "note": "Node-only; heap deltas include GC; no browser/render/p95 guarantee",
+  "slots": 12,
+  "commandsPerSlot": 150,
+  "coldList": {
+    "samples": 20,
+    "p50Ms": 27.891661,
+    "p95Ms": 68.293588,
+    "maxMs": 68.293588,
+    "heapDeltaBytes": 3747232
+  },
+  "cachedList": {
+    "samples": 100,
+    "p50Ms": 0.028091000000131316,
+    "p95Ms": 0.09643099999993865,
+    "maxMs": 0.1991649999999936,
+    "heapDeltaBytes": 1953024
+  },
+  "normalCpu": {
+    "samples": 20,
+    "p50Ms": 0.1389160000001084,
+    "p95Ms": 3.686537000000044,
+    "maxMs": 3.686537000000044,
+    "heapDeltaBytes": 992344
+  },
+  "largeCpu": {
+    "samples": 10,
+    "p50Ms": 2.7339939999999388,
+    "p95Ms": 9.50627099999997,
+    "maxMs": 9.50627099999997,
+    "heapDeltaBytes": 4764032
+  }
+}

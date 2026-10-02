@@ -387,6 +387,19 @@ button, select, .tile { touch-action: manipulation; }
 /* Map previews on title cards (#145). */
 /* A fixed height with the width following the map's shape, so wide cards do not letterbox. */
 .map-preview { display: block; width: auto; height: 110px; max-width: 100%; margin: 0 auto 2px; border-radius: 4px; }
+/* Allow grid tracks to shrink around the independently scrolling reference table. */
+.command-bar { flex-wrap: wrap; }
+.command-panel, .command-panel > *, .backup-actions > *, .learning-panel { min-width: 0; }
+.backup-actions > * { max-width: 100%; overflow-wrap: anywhere; }
+@media (min-width: 641px) and (max-width: 900px) {
+  .command-panel { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .learning-panel, .save-slot-manager { grid-column: 1 / -1; }
+}
+@media (max-width: 640px) {
+  .battle-layout, .command-panel { grid-template-columns: minmax(0, 1fr); }
+  .save-controls { flex-wrap: wrap; overflow: visible; }
+  .save-controls .save-action { flex: 1 1 88px; }
+}
 /* Auxiliary controls stay within the viewport at narrow widths and text zoom. */
 .build-info { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; padding: .5rem; font-size: .8rem; }
 .editor-extra, .backup-actions, .replay-navigation { display: flex; flex-wrap: wrap; gap: .6rem; align-items: end; padding: .7rem; max-width: 100%; }

@@ -523,7 +523,9 @@ async function importReplay(file: File): Promise<void> {
   beginReplay(parsed.value);
 }
 
+let renderGeneration = 0;
 function render(): void {
+  const generation = ++renderGeneration;
   const activeElement = document.activeElement;
   if (!focusSelector && activeElement instanceof HTMLElement && app.contains(activeElement)) {
     if (activeElement.id) focusSelector = `#${activeElement.id}`;
@@ -803,12 +805,13 @@ function render(): void {
     // up here. A stale one (say, the title card just chosen) would otherwise stop
     // the next redraw from remembering the control actually in use.
     focusSelector = undefined;
-    window.setTimeout(() => document.querySelector<HTMLElement>(gameOverOverlay ? '#result-title' : editorOverlay ? '#editor-close' : campaignOverlay ? '#campaign-close' : titleOverlay ? titleFocus ?? (titleResumable ? '#title-resume' : '.title-map-card[aria-current="true"]') : concealed ? '#handoff-start' : briefingFocus ?? '#begin-operation')?.focus(), 0);
+    window.setTimeout(() => generation === renderGeneration && document.querySelector<HTMLElement>(gameOverOverlay ? '#result-title' : editorOverlay ? '#editor-close' : campaignOverlay ? '#campaign-close' : titleOverlay ? titleFocus ?? (titleResumable ? '#title-resume' : '.title-map-card[aria-current="true"]') : concealed ? '#handoff-start' : briefingFocus ?? '#begin-operation')?.focus(), 0);
   }
   else if (focusSelector) {
     const previousSelector = focusSelector;
     focusSelector = undefined;
     window.requestAnimationFrame(() => {
+      if (generation !== renderGeneration) return;
       const target = app.querySelector<HTMLElement>(previousSelector);
       const focusTarget = target && !('disabled' in target && target.disabled) ? target : app.querySelector<HTMLElement>('#command-panel');
       if (focusTarget?.matches('.tile')) focusTarget.scrollIntoView({ block: 'nearest', inline: 'nearest' });
@@ -1283,6 +1286,8 @@ function focusBoardPosition(position: Position): void {
   focusedPosition = position;
   focusSelector = `.tile[data-x="${position.x}"][data-y="${position.y}"]`;
   render();
+  // Focus before the next keydown, including engines that delay animation frames.
+  app.querySelector<HTMLElement>(`.tile[data-x="${position.x}"][data-y="${position.y}"]`)?.focus({ preventScroll: true });
 }
 
 function handleBoardKey(event: KeyboardEvent, position: Position): void {

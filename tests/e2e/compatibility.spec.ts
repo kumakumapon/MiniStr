@@ -19,13 +19,25 @@ for (const viewport of [
     await page.locator('.load-save-slot[data-save-slot="manual"]').click();
     await expect(page.locator('.title-overlay')).toHaveCount(0);
     await expect(page.locator('.tile[data-x="0"][data-y="2"]')).toContainText('歩');
-    expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1)).toBe(true);
+    const overflow = await page.evaluate(() => ({
+      width: window.innerWidth,
+      scrollWidth: document.documentElement.scrollWidth,
+      elements: [...document.querySelectorAll<HTMLElement>('body *')]
+        .filter((element) => {
+          const rect = element.getBoundingClientRect();
+          return rect.width > 0 && rect.right > window.innerWidth + 1 && !element.closest('.board-viewport, .unit-reference');
+        })
+        .map((element) => ({ tag: element.tagName, class: element.className, width: element.getBoundingClientRect().width }))
+        .slice(0, 20),
+    }));
+    expect(overflow.scrollWidth, JSON.stringify(overflow)).toBeLessThanOrEqual(overflow.width + 1);
     await page.locator('#open-title').click();
     await page.locator('#title-editor').click();
     await page.locator('#editor-start').click();
     await expect(page.locator('.editor-notice')).toContainText('司令部');
     await page.locator('#editor-close').click();
     await expect(page.locator('.title-overlay')).toBeVisible();
+    await page.screenshot({ path: test.info().outputPath('title-verified.png'), fullPage: true });
   });
 }
 
@@ -50,4 +62,5 @@ test('keyboard navigation and enlarged text retain primary actions', async ({ pa
   await page.locator('#open-title').focus();
   await page.keyboard.press('Enter');
   await expect(page.locator('#title-resume')).toBeVisible();
+  await page.screenshot({ path: test.info().outputPath('keyboard-verified.png'), fullPage: true });
 });
