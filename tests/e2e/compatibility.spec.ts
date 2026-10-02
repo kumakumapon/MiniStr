@@ -6,6 +6,7 @@ for (const viewport of [
   { width: 844, height: 390 },
 ]) {
   test(`practice/save/resume at ${viewport.width}×${viewport.height}`, async ({ page }) => {
+    page.on('dialog', (dialog) => dialog.accept());
     await page.setViewportSize(viewport);
     await page.goto('/');
     await page.getByRole('button', { name: '基本操作を練習' }).click();

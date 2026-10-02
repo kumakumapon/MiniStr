@@ -1045,11 +1045,11 @@ function render(): void {
     field<HTMLSelectElement>('#editor-owner').onchange = () => { const value = field<HTMLSelectElement>('#editor-owner').value; editor = { ...editor, owner: value === '' ? undefined : value as PlayerId }; };
     field<HTMLSelectElement>('#editor-unit-kind').onchange = () => { editor = { ...editor, unitKind: field<HTMLSelectElement>('#editor-unit-kind').value as UnitKind }; };
     field<HTMLSelectElement>('#editor-unit-owner').onchange = () => { editor = { ...editor, unitOwner: field<HTMLSelectElement>('#editor-unit-owner').value as PlayerId }; };
-    field<HTMLInputElement>('#editor-id').oninput = () => { editor = { ...editor, data: { ...editor.data, id: field<HTMLInputElement>('#editor-id').value } }; };
-    field<HTMLInputElement>('#editor-name').oninput = () => { editor = { ...editor, data: { ...editor.data, name: field<HTMLInputElement>('#editor-name').value } }; };
-    field<HTMLTextAreaElement>('#editor-briefing').oninput = () => { editor = { ...editor, data: { ...editor.data, briefing: field<HTMLTextAreaElement>('#editor-briefing').value } }; };
-    field<HTMLInputElement>('#editor-gold').oninput = () => { editor = { ...editor, data: { ...editor.data, startingGold: Number(field<HTMLInputElement>('#editor-gold').value) } }; };
-    field<HTMLSelectElement>('#editor-production-rule').onchange = () => { editor = { ...editor, data: { ...editor.data, productionRules: field<HTMLSelectElement>('#editor-production-rule').value as ProductionRule } }; };
+    field<HTMLInputElement>('#editor-id').oninput = () => { commitEditor({ ...editor, data: { ...editor.data, id: field<HTMLInputElement>('#editor-id').value } }); };
+    field<HTMLInputElement>('#editor-name').oninput = () => { commitEditor({ ...editor, data: { ...editor.data, name: field<HTMLInputElement>('#editor-name').value } }); };
+    field<HTMLTextAreaElement>('#editor-briefing').oninput = () => { commitEditor({ ...editor, data: { ...editor.data, briefing: field<HTMLTextAreaElement>('#editor-briefing').value } }); };
+    field<HTMLInputElement>('#editor-gold').oninput = () => { commitEditor({ ...editor, data: { ...editor.data, startingGold: Number(field<HTMLInputElement>('#editor-gold').value) } }); };
+    field<HTMLSelectElement>('#editor-production-rule').onchange = () => { commitEditor({ ...editor, data: { ...editor.data, productionRules: field<HTMLSelectElement>('#editor-production-rule').value as ProductionRule } }); };
     const updateVictory = () => setEditorVictory(field<HTMLSelectElement>('#editor-victory').value as VictoryCondition['type'], Number(field<HTMLInputElement>('#editor-victory-target').value));
     field<HTMLSelectElement>('#editor-victory').onchange = updateVictory;
     field<HTMLInputElement>('#editor-victory-target').oninput = updateVictory;
@@ -1075,6 +1075,7 @@ function render(): void {
     document.querySelector<HTMLButtonElement>('#editor-start')?.addEventListener('click', () => {
       const issues = inspectEditorScenario(editor);
       if (issues.some(issue => issue.severity === 'error')) { editorNotice = issues.map(issue => issue.message).join('\n'); render(); return; }
+      if (!confirmReplaceMatch()) return;
       if (scenarioById(editor.data.id) && !window.confirm('保存済みマップを更新して開始しますか？')) return;
       const saved = saveCustomScenario(localStorage, editor.data);
       if (!saved.ok) { editorNotice = saved.error; render(); return; }

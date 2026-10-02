@@ -1,6 +1,22 @@
 import { applyEditorTool, validateEditorScenario, type ScenarioEditorState } from './editor';
 import { movementCost } from './terrain';
-import { otherPlayer, type Position } from './types';
+import { otherPlayer, type Board, type Position, type UnitKind } from './types';
+import { unitStats, unitDefinitions } from './units';
+
+/** Static terrain reachability ignores temporary occupancy and turn budgets. */
+function canReach(board: Board, start: Position, target: Position, kind: UnitKind): boolean {
+  const queue = [start];
+  const seen = new Set<string>();
+  for (let i = 0; i < queue.length; i++) {
+    const p = queue[i]!;
+    const key = `${p.x},${p.y}`;
+    if (seen.has(key) || !Number.isFinite(movementCost(board, p, kind))) continue;
+    seen.add(key);
+    if (p.x === target.x && p.y === target.y) return true;
+    queue.push({ x: p.x - 1, y: p.y }, { x: p.x + 1, y: p.y }, { x: p.x, y: p.y - 1 }, { x: p.x, y: p.y + 1 });
+  }
+  return false;
+}
 
 export interface EditorIssue {
   severity: 'error' | 'warning';
@@ -22,17 +38,41 @@ export function inspectEditorScenario(editor: ScenarioEditorState): EditorIssue[
     const units = scenario.initialUnits.filter((unit) => unit.owner === player);
     const factories = tiles.filter((tile) => tile.owner === player && ['factory', 'airport', 'port'].includes(tile.kind));
     if (!units.length && !factories.length) add('error', `${player}: 初期部隊と生産施設がありません。`);
-    if (units.length && !factories.length) add('warning', `${player}: 増援を生産できません。固定戦力の作戦か確認してください。`);
+    // No production can be intentional in fixed-force/survival operations.
+    const canFundProduction = scenario.startingGold >= unitStats.infantry.cost || tiles.some((tile) => tile.owner === player);
+    const sources = [...units];
+    if (canFundProduction)
+      scenario.board.terrain.forEach((row, y) =>
+        row.forEach((tile, x) => {
+          if (tile.owner !== player) return;
+          for (const [kind, definition] of Object.entries(unitDefinitions)) {
+            if (
+              tile.kind === definition.productionTerrain ||
+              (scenario.productionRules === 'legacy-factory-air' && tile.kind === 'factory' && definition.productionTerrain === 'airport')
+            )
+              sources.push({ kind: kind as UnitKind, owner: player, x, y });
+          }
+        }),
+      );
+    const waterTransport = units.some((unit) => unit.kind === 'landingShip') || (canFundProduction && factories.some((tile) => tile.kind === 'port'));
+    const reachable = (target: Position, capture: boolean) =>
+      sources.some((unit) => (!capture || unitStats[unit.kind].capturePower > 0) && canReach(scenario.board, unit, target, unit.kind));
     const conditions = player === 'red' ? scenario.victoryConditions : scenario.defeatConditions;
     for (const condition of conditions) {
       if (condition.type === 'captureCapital' && !tiles.some((tile) => tile.kind === 'capital' && tile.owner === otherPlayer(player)))
         add('error', `${player}: 占領対象となる敵司令部がありません。`);
       if (condition.type === 'score' && !tiles.some((tile) => ['city', 'capital', 'factory', 'airport', 'port'].includes(tile.kind)))
         add('error', `${player}: スコアを生む拠点がありません。`);
+      if (condition.type === 'captureCapital' && !waterTransport)
+        scenario.board.terrain.forEach((row, y) =>
+          row.forEach((tile, x) => {
+            if (tile.kind === 'capital' && tile.owner === otherPlayer(player) && !reachable({ x, y }, true))
+              add('warning', `${player}: 司令部 (${x + 1}, ${y + 1}) への占領部隊の経路がありません。輸送計画を確認してください。`);
+          }),
+        );
       if (condition.type === 'hold')
         for (const position of condition.positions) {
-          if (!scenario.initialUnits.some((unit) => Number.isFinite(movementCost(scenario.board, position, unit.kind))))
-            add('warning', `${player}: 保持目標 (${position.x + 1}, ${position.y + 1}) に進入できる初期部隊がありません。`);
+          if (!waterTransport && !reachable(position, false)) add('warning', `${player}: 保持目標 (${position.x + 1}, ${position.y + 1}) に到達できる部隊・生産経路がありません。`);
         }
     }
     if (units.some((unit) => ['fighter', 'bomber', 'helicopter'].includes(unit.kind)) && !tiles.some((tile) => tile.kind === 'airport' && tile.owner === player))

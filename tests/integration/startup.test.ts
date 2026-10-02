@@ -108,6 +108,35 @@ describe('distributed application boundaries', () => {
     expect(document.querySelector('.title-overlay')).not.toBeNull();
   });
 
+  it('preserves an active match when replacement is cancelled, and closes the editor with Escape', () => {
+    const document = launch();
+    click('#title-training');
+    click('#begin-operation');
+    click('.tile[data-x="0"][data-y="1"]');
+    click('.tile[data-x="0"][data-y="2"]');
+    dom.window.confirm = () => false;
+    click('#open-title');
+    click('.title-map-card[data-map-id="canyon"]');
+    expect(document.querySelector('.title-overlay')).not.toBeNull();
+    click('#title-resume');
+    expect(document.querySelector('.tile[data-x="0"][data-y="2"]')?.textContent).toContain('歩');
+    click('#open-editor');
+    dom.window.dispatchEvent(new dom.window.KeyboardEvent('keydown', { key: 'Escape' }));
+    expect(document.querySelector('.editor-overlay')).toBeNull();
+  });
+
+  it('switches primary screens and persists English without changing scenario identifiers', () => {
+    const document = launch();
+    const locale = document.querySelector('.title-overlay [data-locale]') as HTMLSelectElement;
+    locale.value = 'en';
+    locale.dispatchEvent(new dom.window.Event('change'));
+    expect(document.documentElement.lang).toBe('en');
+    expect(document.querySelector('#title-training')?.textContent).toBe('Practice the basics');
+    expect(dom.window.localStorage.getItem('ministr.locale')).toBe('en');
+    click('.title-map-card[data-map-id="skirmish"]');
+    expect(document.querySelector('#begin-operation')?.textContent).toContain('Start');
+  });
+
   it('stops writes on changes from another tab', () => {
     const document = launch();
     click('.title-map-card[data-map-id="skirmish"]');

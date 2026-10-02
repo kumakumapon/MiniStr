@@ -5,15 +5,38 @@ import { EditorHistory, inspectEditorScenario, paintEditor, resizeEditor } from 
 describe('editor operations and playability', () => {
   it('rejects an empty operation and invalid terrain while accepting every built-in map', () => {
     expect(inspectEditorScenario(createScenarioEditor()).filter((issue) => issue.severity === 'error').length).toBeGreaterThan(0);
-    for (const map of maps)
-      expect(
-        inspectEditorScenario({ ...createScenarioEditor(), data: scenarioDefinitionToData(map) }).filter((issue) => issue.severity === 'error'),
-        map.id,
-      ).toEqual([]);
+    for (const map of maps) expect(inspectEditorScenario({ ...createScenarioEditor(), data: scenarioDefinitionToData(map) }), map.id).toEqual([]);
     const editor = createScenarioEditor();
     editor.data = { ...editor.data, initialUnits: [{ kind: 'destroyer', owner: 'red', x: 1, y: 1 }] };
     expect(inspectEditorScenario(editor).some((issue) => issue.message.includes('(2, 2)'))).toBe(true);
     expect(inspectEditorScenario({ ...editor, data: { ...editor.data, id: '' } })[0]?.severity).toBe('error');
+  });
+  it('identifies an isolated capital and accepts an available sea transport plan', () => {
+    const base = createScenarioEditor();
+    const editor = {
+      ...base,
+      data: {
+        ...base.data,
+        board: {
+          width: 5,
+          height: 3,
+          cells: [
+            [0, 1, 'capital', 'red'],
+            [4, 1, 'capital', 'blue'],
+            [2, 0, 'sea'],
+            [2, 1, 'sea'],
+            [2, 2, 'sea'],
+          ] as const,
+        },
+        initialUnits: [
+          { kind: 'infantry' as const, owner: 'red' as const, x: 0, y: 1 },
+          { kind: 'infantry' as const, owner: 'blue' as const, x: 4, y: 1 },
+        ],
+      },
+    };
+    expect(inspectEditorScenario(editor).filter((issue) => issue.message.includes('経路'))).toHaveLength(2);
+    const transport = { ...editor, data: { ...editor.data, initialUnits: [...editor.data.initialUnits, { kind: 'landingShip' as const, owner: 'red' as const, x: 2, y: 1 }] } };
+    expect(inspectEditorScenario(transport).filter((issue) => issue.message.includes('経路'))).toHaveLength(1);
   });
   it('supports rectangle/flood/rotational paint and coordinate bounds', () => {
     const editor = { ...createScenarioEditor(), terrain: 'forest' as const };

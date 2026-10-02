@@ -23,8 +23,8 @@ describe('UI boundaries and exclusive screens', () => {
     storage.setItem('ministr.test', 'one');
     expect(storage.getItem('ministr.test')).toBe('one');
     expect(storage.length).toBe(1);
-    expect(storage.key(0)).toBe('ministr.test');
-    expect(storage.key(1)).toBeNull();
+    expect(storage.key!(0)).toBe('ministr.test');
+    expect(storage.key!(1)).toBeNull();
     storage.removeItem('ministr.test');
     expect(storage.getItem('ministr.test')).toBeNull();
   });
