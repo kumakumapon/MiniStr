@@ -4,6 +4,11 @@
   "version": "0.1.0",
   "type": "module",
   "license": "MIT",
+  "engines": {
+    "node": "^22.0.0 || ^24.0.0",
+    "npm": ">=10 <13"
+  },
+  "packageManager": "npm@11.9.0",
   "scripts": {
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
@@ -13,9 +18,13 @@
     "test:watch": "vitest",
     "check:links": "bash scripts/check-private-links.sh",
     "lint": "eslint .",
-    "format:check": "prettier --check \"src/ui/{strings,saveSlots,saveSlots.test,presentationEffects.test,overlays,overlays.test}.ts\" \"src/ai/cpuSimulation.test.ts\" \"tests/**/*.ts\" \"*.{mjs,ts,json}\" \".github/workflows/*.yml\"",
+    "format:check": "prettier --check \"src/**/*.{ts,css}\" \"scripts/**/*.ts\" \"tests/**/*.ts\" \"*.{mjs,ts,json}\" \".github/**/*.yml\"",
     "test:coverage": "vitest run --coverage",
     "test:e2e": "playwright test",
+    "test:ui": "vitest run --config vitest.ui.config.ts",
+    "test:fast": "vitest run --exclude 'src/ai/cpuSimulation*.test.ts'",
+    "test:cpu": "vitest run src/ai/cpuSimulation*.test.ts",
+    "balance:compare": "vite-node scripts/balance-compare.ts",
     "balance": "vite-node scripts/balance-report.ts"
   },
   "devDependencies": {

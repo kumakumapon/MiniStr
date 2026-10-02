@@ -23,7 +23,7 @@ describe('seeded combat variance', () => {
   it('advances the deterministic RNG once for each resolved damage roll', () => {
     const state = combatState(7);
     const forecast = forecastCombat(state, state.units[0]!, state.units[1]!);
-    expect(forecast.ok && forecast.value).toEqual({ damageToDefender: 68, damageToAttacker: 22, canCounter: true });
+    expect(forecast.ok && forecast.value).toEqual({ damageToDefender: 68, damageToAttacker: 22, canCounter: true, outgoing: { min: 61, max: 75 }, incoming: { min: 15, max: 29 }, possibleCounter: true });
     const first = nextRandom(7);
     const second = nextRandom(first.seed);
     const result = attackUnit(state, 'attacker', 'defender');

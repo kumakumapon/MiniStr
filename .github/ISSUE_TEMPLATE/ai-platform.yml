@@ -1,6 +1,6 @@
 name: Implementation or Bug Report
 description: 実装・不具合対応に必要な情報を整理して登録します。
-title: "[Issue]: "
+title: '[Issue]: '
 labels:
   - needs-triage
 body:
@@ -14,7 +14,7 @@ body:
     attributes:
       label: 目的
       description: 解決したい課題、背景、利用者への価値を記載してください。
-      placeholder: "例: 管理者が失敗したジョブを再実行できるようにする。"
+      placeholder: '例: 管理者が失敗したジョブを再実行できるようにする。'
     validations:
       required: true
 
@@ -62,7 +62,7 @@ body:
     attributes:
       label: 変更可能な範囲
       description: 変更してよい機能、ディレクトリ、設定を記載してください。
-      placeholder: "例: `src/jobs/` と関連テスト。API 互換の範囲内。"
+      placeholder: '例: `src/jobs/` と関連テスト。API 互換の範囲内。'
     validations:
       required: true
 
@@ -71,7 +71,7 @@ body:
     attributes:
       label: 変更禁止事項
       description: 変更してはいけない領域・振る舞い・依存関係を記載してください。
-      placeholder: "例: DB スキーマ、認証方式、公開 API の破壊的変更は不可。"
+      placeholder: '例: DB スキーマ、認証方式、公開 API の破壊的変更は不可。'
     validations:
       required: true
 
@@ -80,7 +80,7 @@ body:
     attributes:
       label: テスト方法
       description: 必要な自動・手動テスト、期待結果、環境を記載してください。
-      placeholder: "例: `pnpm test` と失敗ケースの回帰テストを実行する。"
+      placeholder: '例: `pnpm test` と失敗ケースの回帰テストを実行する。'
     validations:
       required: true
 

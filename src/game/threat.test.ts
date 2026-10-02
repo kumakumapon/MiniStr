@@ -20,6 +20,7 @@ describe('next-turn enemy threat preview', () => {
   it('keeps indirect fire at its current position even after it acted', () => {
     const state = createGameState(createBoard(6, 1));
     state.units = [{ id: 'blue', kind: 'artillery', owner: 'blue', position: { x: 2, y: 0 }, hp: 100, hasMoved: true, hasActed: true }];
+    state.units.push({ id: 'observer', kind: 'recon', owner: 'red', position: { x: 0, y: 0 }, hp: 100, hasMoved: false, hasActed: false });
     const threat = enemyThreatPreview(state, 'blue', 'red');
     expect(threat.movement).toEqual(new Set());
     expect(threat.attack.has('0,0')).toBe(true);

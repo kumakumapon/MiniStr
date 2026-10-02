@@ -1,6 +1,7 @@
 import { defaultProductionRule, isPropertyTerrainKind } from './facilities';
 import { createScenarioInitialState, loadScenarioDefinitions, scenarioDefinitionToData, type InitialUnit, type ScenarioData, type ScenarioDefinition, type VictoryCondition } from './maps';
 import type { GameResult, GameState, PlayerId, Position, TerrainKind, UnitKind } from './types';
+import { parseBoundedJson } from './jsonBoundary';
 
 export interface ScenarioEditorState {
   data: ScenarioData;
@@ -51,8 +52,9 @@ export function applyEditorTool(state: ScenarioEditorState, position: Position):
 
 /** Replaces user-entered JSON only when it contains exactly one valid scenario. */
 export function importScenarioEditorJson(text: string, state: ScenarioEditorState): GameResult<ScenarioEditorState> {
-  let source: unknown;
-  try { source = JSON.parse(text); } catch { return { ok: false, error: 'JSONを読み取れませんでした。' }; }
+  const parsed = parseBoundedJson(text);
+  if (!parsed.ok) return parsed;
+  const source = parsed.value;
   const scenarios = loadScenarioDefinitions(Array.isArray(source) ? source : [source]);
   if (!scenarios.ok) return scenarios;
   if (scenarios.value.length !== 1) return { ok: false, error: '読み込めるシナリオは1件だけです。' };

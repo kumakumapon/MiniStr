@@ -87,6 +87,7 @@ test('sets each side’s CPU difficulty for spectating (#131)', async ({ page })
 });
 
 test('shows the whole board without fog while spectating, and only then (#133)', async ({ page }) => {
+  page.on('dialog', (dialog) => dialog.accept());
   await page.goto('/');
   await page.locator('.title-map-card[data-map-id="skirmish"]').click();
   await page.locator('input[name="match-mode"][value="spectate"]').check();

@@ -1,6 +1,26 @@
 import './style.css';
+import { getLocale, setLocale, localizeControls, renderLocalePicker } from './ui/locale';
+import { renderLearning } from './ui/learning';
+import { ResultCache } from './ui/resultCache';
+import { buildInfo, diagnosticReport } from './ui/buildInfo';
+const resultCache = new ResultCache();
+let learningOpen = false;
+import { ScreenController } from './ui/screenController';
+const screens = new ScreenController();
+import { EditorHistory, inspectEditorScenario, paintEditor, resizeEditor, type PaintMode } from './game/editorTools';
+import { renderEditorView } from './ui/editorView';
+import { deleteCustomScenario, scenarioDefinitionToData } from './game/maps';
+import { ReplayTimeline } from './game/replayTimeline';
+import { renderReplayNavigation } from './ui/replayControls';
+import { exportBackup, restoreBackup, MAX_BACKUP_BYTES } from './game/backup';
+import { downloadJson } from './ui/download';
+import { createBrowserStorage } from './ui/storage';
+import { observedEnemy } from './game/fog';
+import { scenarioForState } from './game/maps';
+const localStorage = createBrowserStorage(() => window.localStorage);
+document.documentElement.lang = setLocale(localStorage.getItem('ministr.locale'));
 import { isEmbarkableUnit, isMergeableUnit, otherPlayer, transportCapacity } from './game';
-import { allProducibleUnitKinds, applyEditorTool, applyGameCommand, AUTO_SAVE_KEY, availableScenarios, campaignStages, countProductionFacilities, createCampaignProgress, createReplay, createScenarioEditor, createScenarioInitialState, damageRange, decisionRound, decisionStanding, deleteSaves, experienceRank, describeVictoryCondition, enemyThreatPreview, exportScenarioEditorJson, forecastCombat, getConditionProgress, gradeCampaignBattle, hasSavedGame, hasStoredSaveData, idleProductionFacilities, importScenarioEditorJson, isCampaignScenarioUnlocked, isDeployedUnit, isUnitKindAvailable, isPropertyTerrainKind, loadCampaignProgress, loadCustomScenarios, loadGame, MANUAL_SAVE_KEY, maps, MAX_REPLAY_BYTES, parseReplay, productionKindsForRule, productionRules, reachablePositionsForPlayer, recordCampaignVictory, saveCampaignProgress, saveCustomScenario, saveGame, scenarioById, scenarioLoadError, serializeReplay, summarizeRepairs, summarizeReplay, terrainKinds, unitLimit, usesDecisionRules, victoryReason, validateEditorScenario, type CampaignGradeResult, type DeployedUnit, type GameCommand, type GameState, type PlayerId, type Position, type ProductionRule, type ReplayFile, type ScenarioEditorState, type TerrainKind, type UnitKind, type VictoryCondition, unitStats, visibleEnemies, visibleEnemyThreats, visiblePositions } from './game';
+import { allProducibleUnitKinds, applyGameCommand, AUTO_SAVE_KEY, availableScenarios, campaignStages, countProductionFacilities, createCampaignProgress, createReplay, createScenarioEditor, createScenarioInitialState, damageRange, decisionRound, decisionStanding, deleteSaves, experienceRank, describeVictoryCondition, enemyThreatPreview, exportScenarioEditorJson, forecastCombat, getConditionProgress, gradeCampaignBattle, hasSavedGame, hasStoredSaveData, idleProductionFacilities, importScenarioEditorJson, isCampaignScenarioUnlocked, isDeployedUnit, isUnitKindAvailable, isPropertyTerrainKind, loadCampaignProgress, loadCustomScenarios, loadGame, MANUAL_SAVE_KEY, maps, MAX_REPLAY_BYTES, parseReplay, productionKindsForRule, productionRules, reachablePositionsForPlayer, recordCampaignVictory, saveCampaignProgress, saveCustomScenario, saveGame, scenarioById, scenarioLoadError, serializeReplay, summarizeRepairs, unitLimit, usesDecisionRules, victoryReason, type CampaignGradeResult, type DeployedUnit, type GameCommand, type GameState, type PlayerId, type Position, type ProductionRule, type ReplayFile, type ScenarioEditorState, type TerrainKind, type UnitKind, type VictoryCondition, unitStats, visibleEnemies, visibleEnemyThreats, visiblePositions } from './game';
 import { chooseCpuAction, type CpuDifficulty } from './ai';
 import { nextBoardPosition } from './ui/boardNavigation';
 import { BOARD_ZOOM_LEVELS, boardAreaWidth, boardTileSize, boardZoomPercent, defaultBoardZoomIndex } from './ui/boardZoom';
@@ -38,7 +58,7 @@ let selectedFacility: Position | undefined;
 let initialState = structuredClone(game);
 let commandHistory: GameCommand[] = [];
 let undoStack: { state: GameState; commandCount: number }[] = [];
-interface ReplayRuntime { file: ReplayFile; state: GameState; index: number; playing: boolean; speed: CommandSpeed }
+interface ReplayRuntime { file: ReplayFile; state: GameState; index: number; playing: boolean; speed: CommandSpeed; timeline: ReplayTimeline; viewpoint: PlayerId | 'all' }
 let replay: ReplayRuntime | undefined;
 const commandScheduler = new CommandScheduler();
 let cpuInProgress = false;
@@ -62,9 +82,9 @@ let spectatePauseAtTurn = SPECTATE_TURN_LIMIT;
 /** Spectating: the viewer asked to see the whole board without fog. Kept across matches. */
 let spectateWholeBoard = false;
 /** Opens once a map is chosen on the title screen. */
-let briefingOpen = false;
+
 /** The title screen: shown at start, and from the header between moves. */
-let titleOpen = true;
+
 /** Opened from a match, so the title offers to return to it unchanged. */
 let titleResumable = false;
 /** Why the last title action (continue, replay import) did not leave the title. */
@@ -74,13 +94,16 @@ let returnToTitle = false;
 /** Whether that title could return to a match, restored along with it. */
 let returnToTitleResumable = false;
 const themeNames: Record<ScenarioTheme, string> = { temperate: '温帯', desert: '砂漠', snow: '雪原', urban: '市街地', coastal: '沿岸' };
-let campaignMenuOpen = false;
+
 let campaignReturnToBriefing = false;
 let campaignRun: { scenarioId: string } | undefined;
 let campaignOutcome: { result: CampaignGradeResult; persisted: boolean; nextScenarioId?: string } | undefined;
-let editorOpen = false;
+
 let editor: ScenarioEditorState = createScenarioEditor();
 let editorNotice = '';
+const editorHistory = new EditorHistory();
+let paintMode: PaintMode = 'brush';
+function commitEditor(next: ScenarioEditorState): void { editor = editorHistory.commit(editor, next); }
 let focusSelector: string | undefined;
 const END_TURN_CONFIRM_KEY = 'ministr.confirmEndTurnWithUnacted';
 let confirmEndTurnWithUnacted = localStorage.getItem(END_TURN_CONFIRM_KEY) !== 'false';
@@ -102,17 +125,17 @@ app.addEventListener('pointerdown', () => { void soundPlayer.unlock(); }, { capt
 app.addEventListener('keydown', () => { void soundPlayer.unlock(); }, { capture: true });
 
 const producibleUnits = allProducibleUnitKinds;
-const editorVictoryKinds = ['eliminate', 'captureCapital', 'hold', 'survive', 'score'] as const;
 
-function editorVictoryCondition(kind: typeof editorVictoryKinds[number], target: number): VictoryCondition {
+
+function editorVictoryCondition(kind: VictoryCondition['type'], target: number): VictoryCondition {
   if (kind === 'eliminate' || kind === 'captureCapital') return { type: kind };
   if (kind === 'hold') return { type: 'hold', positions: [{ ...editor.selected }], turns: Math.max(1, target) };
   if (kind === 'survive') return { type: 'survive', untilTurn: Math.max(1, target) };
   return { type: 'score', target: Math.max(1, target) };
 }
 
-function setEditorVictory(kind: typeof editorVictoryKinds[number], target: number): void {
-  editor = { ...editor, data: { ...editor.data, victoryConditions: [editorVictoryCondition(kind, target)] } };
+function setEditorVictory(kind: VictoryCondition['type'], target: number): void {
+  commitEditor({ ...editor, data: { ...editor.data, victoryConditions: [editorVictoryCondition(kind, target), ...editor.data.victoryConditions.slice(1)] } });
 }
 
 function start(id: string): GameState {
@@ -136,11 +159,11 @@ function matchContext(): MatchContext {
 }
 /** The side whose view the screen shows: always red in CPU matches and replays, the active side otherwise. */
 function viewer(): PlayerId {
-  return replay ? 'red' : viewerFor(matchMode, game.activePlayer);
+  return replay ? replay.viewpoint === 'blue' ? 'blue' : 'red' : viewerFor(matchMode, game.activePlayer);
 }
 /** Tiles the screen may draw for the current viewer (see `showsWholeBoard`). */
 function shownPositions(state: GameState): Position[] {
-  return displayedPositions(state, viewer(), showsWholeBoard(matchMode, spectateWholeBoard, replay !== undefined));
+  return displayedPositions(state, viewer(), replay ? replay.viewpoint === 'all' : showsWholeBoard(matchMode, spectateWholeBoard, false));
 }
 function canCommand(): boolean {
   return commandAllowed(matchContext());
@@ -195,7 +218,7 @@ function refreshFocusedTileViews(): void {
     tile.tabIndex = Number(tile.dataset.x) === focusedPosition.x && Number(tile.dataset.y) === focusedPosition.y ? 0 : -1;
   }
   const inspector = app.querySelector('.tile-inspector');
-  const renderedMap = scenarioById(replay?.file.mapId) ?? selectedMap;
+  const renderedMap = replay ? scenarioForState(replay.state) ?? selectedMap : selectedMap;
   if (inspector) inspector.outerHTML = renderTileInspector(replay?.state ?? game, renderedMap.productionRules);
 }
 
@@ -204,6 +227,9 @@ function syncBoardZoom(boardWidth: number): void {
   if (boardZoomAuto) boardZoomIndex = defaultBoardZoomIndex(boardAreaWidth(window.innerWidth), boardWidth);
 }
 
+function confirmReplaceMatch(): boolean {
+  return game.winner !== undefined || commandHistory.length === 0 || window.confirm('進行中の対局を置き換えますか？未保存の操作は失われます。');
+}
 function resetGame(mapId: string): void {
   commandScheduler.cancel();
   cpuInProgress = false;
@@ -217,7 +243,7 @@ function resetGame(mapId: string): void {
   selected = undefined;
   selectedFacility = undefined;
   focusedPosition = { x: 0, y: 0 };
-  briefingOpen = true;
+  screens.briefingOpen = true;
   handoffPending = false;
   spectatePaused = false;
   spectatePauseAtTurn = SPECTATE_TURN_LIMIT;
@@ -228,7 +254,7 @@ function resetGame(mapId: string): void {
 function finishCampaignBattle(): void {
   if (!campaignRun || game.winner !== 'red' || campaignOutcome) return;
   const stage = campaignStages.find(candidate => candidate.scenarioId === campaignRun!.scenarioId);
-  const summary = summarizeReplay(initialState, commandHistory, selectedMap.id, difficulty);
+  const summary = resultCache.summarize(game, initialState, commandHistory, selectedMap.id, difficulty);
   if (!stage) { campaignNotice = 'キャンペーン作戦が見つかりません。'; return; }
   if (!summary.ok) { campaignNotice = summary.error; return; }
   const graded = gradeCampaignBattle({
@@ -327,16 +353,18 @@ function hasStoredSave(): boolean {
 }
 /** Returns whether a save was loaded; otherwise `message` says why. */
 function continueSavedGame(slotId?: string): boolean {
+  const selectedSlot = slotId ?? listSaveSlots(localStorage).find(slot => slot.status === 'valid')?.id;
+  const loaded = selectedSlot ? loadGameFromSlot(localStorage, selectedSlot) : loadGame(localStorage);
+  if (!loaded) { message = 'セーブデータがありません。'; return false; }
+  if (!loaded.ok) { message = loaded.error; return false; }
+  const map = scenarioForState(loaded.value.initialState);
+  if (!map) { message = 'セーブデータのマップは利用できません。'; return false; }
+  if (!confirmReplaceMatch()) return false;
   commandScheduler.cancel();
   cpuInProgress = false;
   cpuSkipRequested = false;
   campaignRun = undefined;
   campaignOutcome = undefined;
-  const loaded = slotId ? loadGameFromSlot(localStorage, slotId) : loadGame(localStorage);
-  if (!loaded) { message = 'セーブデータがありません。'; return false; }
-  if (!loaded.ok) { resetGame(selectedMap.id); message = loaded.error; return false; }
-  const map = scenarioById(loaded.value.mapId);
-  if (!map) { resetGame(selectedMap.id); message = 'セーブデータのマップは利用できません。'; return false; }
   selectedMap = map;
   difficulty = loaded.value.difficulty;
   matchMode = loaded.value.mode ?? 'cpu';
@@ -355,7 +383,7 @@ function continueSavedGame(slotId?: string): boolean {
   selected = undefined;
   selectedFacility = undefined;
   focusedPosition = { x: 0, y: 0 };
-  briefingOpen = false;
+  screens.briefingOpen = false;
   // A resumed two-player match always starts behind the handoff screen.
   handoffPending = matchMode === 'hotseat' && !game.winner;
   syncBoardZoom(game.board.width);
@@ -367,7 +395,7 @@ function continueSavedGame(slotId?: string): boolean {
 }
 
 function leaveTitle(): void {
-  titleOpen = false;
+  screens.titleOpen = false;
   titleResumable = false;
   titleNotice = '';
 }
@@ -375,8 +403,8 @@ function leaveTitle(): void {
 function backToTitleIfOpenedThere(): void {
   if (!returnToTitle) return;
   returnToTitle = false;
-  briefingOpen = false;
-  titleOpen = true;
+  screens.briefingOpen = false;
+  screens.titleOpen = true;
   titleResumable = returnToTitleResumable;
   returnToTitleResumable = false;
 }
@@ -388,9 +416,9 @@ function leaveTitleAndReturn(): void {
 }
 
 function openCampaignMenu(): void {
-  campaignReturnToBriefing = briefingOpen;
-  briefingOpen = false;
-  campaignMenuOpen = true;
+  campaignReturnToBriefing = screens.briefingOpen;
+  screens.briefingOpen = false;
+  screens.campaignMenuOpen = true;
   render();
 }
 function startCampaignScenario(scenarioId: string): void {
@@ -399,9 +427,10 @@ function startCampaignScenario(scenarioId: string): void {
     render();
     return;
   }
+  if (!confirmReplaceMatch()) return;
   campaignRun = { scenarioId };
   campaignOutcome = undefined;
-  campaignMenuOpen = false;
+  screens.campaignMenuOpen = false;
   returnToTitle = false;
   matchMode = 'cpu';
   resetGame(scenarioId);
@@ -417,14 +446,14 @@ function completedReplay(): ReturnType<typeof createReplay> {
   });
 }
 function beginReplay(file: ReplayFile): void {
-  if (titleOpen) leaveTitleAndReturn();
+  if (screens.titleOpen) leaveTitleAndReturn();
   commandScheduler.cancel();
   cpuInProgress = false;
   cpuSkipRequested = false;
   skipCpuImmediately = undefined;
   pendingPresentationEffects = [];
-  replay = { file: structuredClone(file), state: { ...structuredClone(file.initialState), scenarioId: file.mapId }, index: 0, playing: false, speed: 1 };
-  selected = undefined; selectedFacility = undefined; briefingOpen = false; syncBoardZoom(replay.state.board.width); message = 'リプレイを読み込みました。再生ボタンで開始できます。'; render();
+  replay = { file: structuredClone(file), state: { ...structuredClone(file.initialState), scenarioId: file.mapId }, index: 0, playing: false, speed: 1, timeline: new ReplayTimeline(file), viewpoint: 'red' };
+  selected = undefined; selectedFacility = undefined; screens.briefingOpen = false; syncBoardZoom(replay.state.board.width); message = 'リプレイを読み込みました。再生ボタンで開始できます。'; render();
 }
 function advanceReplay(): boolean {
   if (!replay || replay.index >= replay.file.commands.length) {
@@ -439,7 +468,8 @@ function advanceReplay(): boolean {
     message = `リプレイを再生できません: ${commandErrorMessage(result.error)}`; render(); return false;
   }
   replay.state = result.value;
-  pendingPresentationEffects.push(...presentationEffectsForCommand(before, command, replay.state));
+  const effects = presentationEffectsForCommand(before, command, replay.state);
+  pendingPresentationEffects.push(...(replay.viewpoint === 'all' ? effects : effectsForViewer(effects, before.activePlayer, viewer(), new Set([...visiblePositions(before, viewer()), ...visiblePositions(replay.state, viewer())].map(key)))));
   replay.index += 1;
   if (replay.index >= replay.file.commands.length) {
     replay.playing = false; commandScheduler.cancel(); message = 'リプレイの再生が完了しました。';
@@ -476,22 +506,26 @@ function chooseReplayFile(event: Event): void {
   input.value = '';
   // A rejected file leaves the title open; say why there.
   if (file) void importReplay(file).then(() => {
-    if (!titleOpen) return;
+    if (!screens.titleOpen) return;
     titleNotice = message;
     focusSelector = '#title-import-replay';
     render();
   });
 }
 async function importReplay(file: File): Promise<void> {
+  const expectedGame = game; const expectedScreen = screens.current;
   if (file.size > MAX_REPLAY_BYTES) { message = 'リプレイデータが大きすぎます。'; render(); return; }
   let text: string;
   try { text = await file.text(); } catch { message = 'リプレイファイルを読み込めませんでした。'; render(); return; }
+  if (game !== expectedGame || screens.current !== expectedScreen) return;
   const parsed = parseReplay(text);
   if (!parsed.ok) { message = parsed.error; render(); return; }
   beginReplay(parsed.value);
 }
 
+let renderGeneration = 0;
 function render(): void {
+  const generation = ++renderGeneration;
   const activeElement = document.activeElement;
   if (!focusSelector && activeElement instanceof HTMLElement && app.contains(activeElement)) {
     if (activeElement.id) focusSelector = `#${activeElement.id}`;
@@ -501,7 +535,7 @@ function render(): void {
   }
   const replayMode = replay !== undefined;
   const renderedGame = replay?.state ?? game;
-  const renderedMap = scenarioById(replay?.file.mapId) ?? selectedMap;
+  const renderedMap = replay ? scenarioForState(replay.state) ?? selectedMap : selectedMap;
   const productionRule = renderedMap.productionRules;
   const renderedDifficulty = replay?.file.difficulty ?? difficulty;
   const tileSize = boardTileSize(boardZoomIndex);
@@ -512,7 +546,7 @@ function render(): void {
   const concealed = !replayMode && handoffPending;
   const visible = new Set(shownPositions(renderedGame).map(key));
   // No tile is fogged in the whole-board view, so the legend drops its fog entry.
-  const wholeBoardShown = showsWholeBoard(matchMode, spectateWholeBoard, replayMode);
+  const wholeBoardShown = replay ? replay.viewpoint === 'all' : showsWholeBoard(matchMode, spectateWholeBoard, false);
   const selectedUnit = renderedGame.units.find(unit => unit.id === selected);
   const movable = !replayMode && selectedUnit?.owner === me && !selectedUnit.hasMoved && !selectedUnit.hasActed
     ? new Set(reachablePositionsForPlayer(renderedGame, selectedUnit.id, me).map(key)) : new Set<string>();
@@ -630,14 +664,14 @@ function render(): void {
   const indirectFireBlocked = !replayMode && selectedUnit?.owner === renderedGame.activePlayer
     && unitStats[selectedUnit.kind].indirect && selectedUnit.hasMoved && !selectedUnit.hasActed;
   const forecasts = !replayMode && selectedUnit && selectedUnit.owner === renderedGame.activePlayer && !indirectFireBlocked
-    ? visibleEnemies(renderedGame, selectedUnit.owner).map(enemy => ({ enemy, forecast: forecastCombat(renderedGame, selectedUnit, enemy) })).filter((item): item is { enemy: typeof item.enemy; forecast: Extract<typeof item.forecast, { ok: true }> } => item.forecast.ok)
+    ? visibleEnemies(renderedGame, selectedUnit.owner).map(enemy => ({ enemy, forecast: forecastCombat(renderedGame, selectedUnit, observedEnemy(enemy)) })).filter((item): item is { enemy: typeof item.enemy; forecast: Extract<typeof item.forecast, { ok: true }> } => item.forecast.ok)
     : [];
   const forecastCard = forecasts.length > 0 || indirectFireBlocked ? `<section class="forecast-card"><p class="card-kicker">戦闘予測</p>${forecasts.map(({ enemy, forecast }) => {
     const outgoing = damageRange(forecast.value.damageToDefender);
-    const incoming = forecast.value.canCounter ? damageRange(forecast.value.damageToAttacker) : undefined;
+    const incoming = forecast.value.possibleCounter ? { min: 0, max: forecast.value.incoming.max } : undefined;
     return `<div class="forecast-row"><span>${unitNames[enemy.kind]}（耐久 ${enemy.hp}）</span><span class="forecast-damage">与 ${outgoing.min}〜${outgoing.max}</span><span class="forecast-counter">被 ${incoming ? `${incoming.min}〜${incoming.max}` : 'なし'}</span></div>`;
   }).join('')}${indirectFireBlocked ? '<p class="forecast-note">間接砲は移動したターンに射撃できません。</p>' : selectedUnit!.hasActed ? '<p class="forecast-note">このユニットは行動済みです。</p>' : ''}</section>` : '';
-  const summaryResult = !replayMode && renderedGame.winner ? summarizeReplay(initialState, commandHistory, renderedMap.id, difficulty) : undefined;
+  const summaryResult = !replayMode && renderedGame.winner ? resultCache.summarize(renderedGame, initialState, commandHistory, renderedMap.id, difficulty) : undefined;
   const summary = summaryResult?.ok ? summaryResult.value : undefined;
   const campaignResult = campaignRun && campaignOutcome
     ? `<section class="campaign-result"><span class="campaign-grade grade-${campaignOutcome.result.grade.toLowerCase()}">${campaignOutcome.result.grade}</span><div><strong>作戦評価</strong><p>${campaignOutcome.result.score}点・残存 ${campaignOutcome.result.survivingUnits}部隊・損失 ${campaignOutcome.result.losses}部隊</p>${campaignOutcome.persisted ? '' : `<p class="campaign-save-error">${escapeHtml(campaignNotice)}</p>`}</div></section>`
@@ -646,7 +680,7 @@ function render(): void {
     ? `<button id="campaign-retry" class="save-action">再挑戦</button><button id="campaign-back" class="save-action">キャンペーンへ戻る</button>${campaignOutcome?.nextScenarioId ? '<button id="campaign-next" class="end-turn">次の戦場へ</button>' : ''}`
     : '<button id="restart" class="save-action">もう一度</button>';
   const gameOverOverlay = renderGameOverOverlay({
-    visible: !campaignMenuOpen && !titleOpen && !replayMode && renderedGame.winner !== undefined,
+    visible: !screens.campaignMenuOpen && !screens.titleOpen && !replayMode && renderedGame.winner !== undefined,
     winner: renderedGame.winner,
     summary,
     summaryError: summaryResult && !summaryResult.ok ? summaryResult.error : undefined,
@@ -658,8 +692,8 @@ function render(): void {
     sideNames: matchMode === 'cpu' ? undefined : { red: sideName(matchMode, 'red'), blue: sideName(matchMode, 'blue') },
   });
   const commander = renderedGame.activePlayer === 'red'
-    ? { image: './assets/commander-red.png', alt: '赤軍司令官の肖像', title: 'RED COMMAND', label: matchMode === 'cpu' ? '前線司令部' : '赤軍司令部' }
-    : { image: './assets/commander-blue.png', alt: '青軍司令官の肖像', title: 'BLUE COMMAND', label: matchMode === 'cpu' ? '敵軍司令部' : '青軍司令部' };
+    ? { image: './assets/commander-red.webp', alt: '赤軍司令官の肖像', title: 'RED COMMAND', label: matchMode === 'cpu' ? '前線司令部' : '赤軍司令部' }
+    : { image: './assets/commander-blue.webp', alt: '青軍司令官の肖像', title: 'BLUE COMMAND', label: matchMode === 'cpu' ? '敵軍司令部' : '青軍司令部' };
   const mapTheme = `theme-${renderedMap.theme}`;
   const tileInspectorPanel = renderTileInspector(renderedGame, productionRule);
   // The current numbered turn is still playable; timeout is normalized to a
@@ -677,31 +711,21 @@ function render(): void {
     ? `<nav class="mobile-action-bar" aria-label="クイック操作"><button id="mobile-next-unit" class="mobile-action" ${canAct && unactedUnits.length > 0 ? '' : 'disabled'}><span aria-hidden="true">▶</span>未行動 <strong>${unactedUnits.length}</strong></button><button id="mobile-wait" class="mobile-action" ${canWait ? '' : 'disabled'}><span aria-hidden="true">✓</span>行動終了</button><button id="mobile-capture" class="mobile-action" ${canCapture ? '' : 'disabled'}><span aria-hidden="true">⚑</span>占領</button><button id="mobile-panel" class="mobile-action"><span aria-hidden="true">☰</span>作戦情報</button><button id="mobile-end" class="mobile-action mobile-action-primary" ${!canAct ? 'disabled' : ''}><span aria-hidden="true">→</span>ターン終了</button></nav>`
     : '';
   const turnSetting = !replayMode ? `<section class="turn-setting"><label><input id="confirm-end-turn" type="checkbox" ${confirmEndTurnWithUnacted ? 'checked' : ''}> 未行動部隊がいる時にターン終了を確認する</label></section>` : '';
-  const saveSlotManager = !replayMode ? renderSaveSlotManager(listSaveSlots(localStorage), getStorageUsage(localStorage)) : '';
+  const saveSlotManager = !replayMode && !screens.titleOpen ? renderSaveSlotManager(listSaveSlots(localStorage), getStorageUsage(localStorage), true, matchMode === 'spectate') : '';
   const cpuActivityPanel = !replayMode && matchMode === 'cpu' ? `<section class="intel-card" aria-labelledby="cpu-activity-title"><p class="card-kicker">ENEMY ACTIVITY</p><h2 id="cpu-activity-title">直前のCPU行動</h2>${cpuActivity.length ? `<ol>${cpuActivity.map(entry => `<li>${escapeHtml(entry)}</li>`).join('')}</ol>` : '<p>視認できる敵行動はありません。</p>'}</section>` : '';
-  const campaignCards = campaignMenuOpen ? campaignStages.map((stage, index) => {
+  const campaignCards = screens.campaignMenuOpen ? campaignStages.map((stage, index) => {
     const map = maps.find(candidate => candidate.id === stage.scenarioId);
     const unlocked = !!map && isCampaignScenarioUnlocked(campaignProgress, stage.scenarioId);
     const grade = campaignProgress.bestGrades[stage.scenarioId];
     if (!map) return `<article class="campaign-stage locked"><div class="campaign-stage-number">0${index + 1}</div><div><p class="card-kicker">UNAVAILABLE</p><h3>作戦データを読み込めません</h3><p>組み込みシナリオの読み込みに失敗したため、この作戦は開始できません。</p><span>推奨 ${stage.recommendedTurns} ターン</span></div><button class="save-action" disabled>利用不可</button></article>`;
     return `<article class="campaign-stage ${unlocked ? '' : 'locked'}"><div class="campaign-stage-number">0${index + 1}</div><div><p class="card-kicker">${grade ? 'CLEARED' : unlocked ? 'OPEN' : 'LOCKED'}</p><h3>${escapeHtml(map.name)}</h3><p>${escapeHtml(map.briefing)}</p><span>推奨 ${stage.recommendedTurns} ターン</span></div>${grade ? `<strong class="campaign-grade grade-${grade.toLowerCase()}">${grade}</strong>` : ''}<button class="save-action campaign-start" data-campaign-id="${stage.scenarioId}" ${unlocked ? '' : 'disabled'}>${grade ? '再出撃' : '作戦開始'}</button></article>`;
   }).join('') : '';
-  const campaignOverlay = renderCampaignOverlay(campaignMenuOpen, campaignStages.length, campaignNotice, campaignCards);
-  const editorVictory = editor.data.victoryConditions[0] ?? { type: 'captureCapital' as const };
-  const editorVictoryTarget = editorVictory.type === 'hold' ? editorVictory.turns : editorVictory.type === 'survive' ? editorVictory.untilTurn : editorVictory.type === 'score' ? editorVictory.target : 1;
-  const editorBoard = Array.from({ length: editor.data.board.height }, (_, y) => Array.from({ length: editor.data.board.width }, (_, x) => {
-    const cell = editor.data.board.cells.find(([cellX, cellY]) => cellX === x && cellY === y);
-    const terrain = cell?.[2] ?? 'plain';
-    const owner = cell?.[3];
-    const unit = editor.data.initialUnits.find(candidate => candidate.x === x && candidate.y === y);
-    const ownerLabel = owner === 'red' ? '自' : owner === 'blue' ? '敵' : '';
-    return `<button class="editor-tile ${terrain} ${editor.selected.x === x && editor.selected.y === y ? 'selected' : ''}" data-editor-x="${x}" data-editor-y="${y}" title="(${x + 1}, ${y + 1}) ${terrainNames[terrain]}${ownerLabel ? `・${ownerLabel}` : ''}${unit ? `・${unitNames[unit.kind]}` : ''}" aria-label="(${x + 1}, ${y + 1}) ${terrainNames[terrain]}${unit ? `、${unitNames[unit.kind]}` : ''}"><span>${terrain === 'plain' ? '' : terrain === 'forest' ? '森' : terrain === 'mountain' ? '山' : terrain === 'sea' ? '海' : terrain === 'road' ? '道' : terrain === 'city' ? '市' : terrain === 'factory' ? '工' : terrain === 'airport' ? '空' : terrain === 'port' ? '港' : '司'}</span><i>${ownerLabel}</i>${unit ? `<b class="${unit.owner}">${unitTokens[unit.kind]}</b>` : ''}</button>`;
-  }).join('')).join('');
-  const editorOverlay = editorOpen ? `<div class="editor-overlay" role="dialog" aria-modal="true" aria-labelledby="editor-title"><section class="editor-screen"><div class="editor-heading"><div><p class="card-kicker">SCENARIO EDITOR</p><h2 id="editor-title">最小マップエディタ</h2><p>盤面を選択し、地形・拠点所有者・初期ユニット・勝利条件を設定します。JSONは既存の検証器で確認されます。</p></div><button id="editor-close" class="save-action">閉じる</button></div><div class="editor-layout"><section class="editor-workspace"><div class="editor-toolbar"><label>編集<select id="editor-tool"><option value="terrain" ${editor.tool === 'terrain' ? 'selected' : ''}>地形・拠点</option><option value="unit" ${editor.tool === 'unit' ? 'selected' : ''}>初期ユニット</option><option value="eraseUnit" ${editor.tool === 'eraseUnit' ? 'selected' : ''}>ユニット削除</option></select></label><label>地形<select id="editor-terrain">${terrainKinds.map(kind => `<option value="${kind}" ${kind === editor.terrain ? 'selected' : ''}>${terrainNames[kind]}</option>`).join('')}</select></label><label>所有者<select id="editor-owner"><option value="">中立 / なし</option><option value="red" ${editor.owner === 'red' ? 'selected' : ''}>自軍</option><option value="blue" ${editor.owner === 'blue' ? 'selected' : ''}>敵軍</option></select></label><label>ユニット<select id="editor-unit-kind">${(Object.keys(unitNames) as UnitKind[]).map(kind => `<option value="${kind}" ${kind === editor.unitKind ? 'selected' : ''}>${unitNames[kind]}</option>`).join('')}</select></label><label>陣営<select id="editor-unit-owner"><option value="red" ${editor.unitOwner === 'red' ? 'selected' : ''}>自軍</option><option value="blue" ${editor.unitOwner === 'blue' ? 'selected' : ''}>敵軍</option></select></label></div><div class="editor-board" style="grid-template-columns:repeat(${editor.data.board.width},1fr)">${editorBoard}</div><p class="editor-coordinates">選択中: (${editor.selected.x + 1}, ${editor.selected.y + 1})</p></section><section class="editor-fields"><label>ID<input id="editor-id" value="${escapeHtml(editor.data.id)}"></label><label>作戦名<input id="editor-name" value="${escapeHtml(editor.data.name)}"></label><label>概要<textarea id="editor-briefing">${escapeHtml(editor.data.briefing)}</textarea></label><label>開始資金<input id="editor-gold" type="number" min="0" value="${editor.data.startingGold}"></label><label>勝利条件<select id="editor-victory">${editorVictoryKinds.map(kind => `<option value="${kind}" ${editorVictory.type === kind ? 'selected' : ''}>${kind === 'eliminate' ? '敵軍を全滅' : kind === 'captureCapital' ? '敵司令部を占領' : kind === 'hold' ? '選択地点を保持' : kind === 'survive' ? '規定ターン生存' : 'スコア到達'}</option>`).join('')}</select></label><label>目標値<input id="editor-victory-target" type="number" min="1" value="${editorVictoryTarget}"></label><p class="editor-hint">「保持」は現在選択中のマスを目標にします。敗北条件は敵の司令部占領です。</p></section></div><section class="editor-json"><div><h3>JSON 入出力</h3><p>読み込み時・検証時ともに、通常のシナリオと同じ安全なバリデーションを使います。</p></div><textarea id="editor-json" aria-label="シナリオJSON">${escapeHtml(exportScenarioEditorJson(editor))}</textarea><div class="editor-actions"><button id="editor-export" class="save-action">JSONを書き出す</button><button id="editor-import" class="save-action">JSONを反映</button><button id="editor-validate" class="end-turn">シナリオを検証</button><button id="editor-start" class="end-turn">保存してこのシナリオで開始</button></div>${editorNotice ? `<p class="editor-notice" aria-live="polite">${escapeHtml(editorNotice)}</p>` : ''}</section></section></div>` : '';
+  const campaignOverlay = renderCampaignOverlay(screens.campaignMenuOpen, campaignStages.length, campaignNotice, campaignCards);
+  const editorOverlay = screens.editorOpen ? renderEditorView(editor, editorNotice, paintMode, editorHistory) : "";
   const boardZoomControls = `<div class="board-zoom-controls" aria-label="盤面の拡大率"><button id="board-zoom-out" class="save-action" aria-label="盤面を縮小" title="盤面を縮小" ${boardZoomIndex === 0 ? 'disabled' : ''}>−</button><span aria-live="polite">${boardZoomPercent(boardZoomIndex)}%</span><button id="board-zoom-in" class="save-action" aria-label="盤面を拡大" title="盤面を拡大" ${boardZoomIndex === BOARD_ZOOM_LEVELS.length - 1 ? 'disabled' : ''}>＋</button></div>`;
   // Spectating starts from the briefing and has nothing to pause once decided;
   // modal screens hide it so it is not reachable behind them.
-  const spectateControl = !replayMode && matchMode === 'spectate' && !briefingOpen && !campaignMenuOpen && !editorOpen && !renderedGame.winner
+  const spectateControl = !replayMode && matchMode === 'spectate' && !screens.briefingOpen && !screens.campaignMenuOpen && !screens.editorOpen && !renderedGame.winner
     ? `<button id="spectate-toggle" class="save-action" aria-pressed="${spectatePaused}">${spectatePaused ? uiText.spectateResume : uiText.spectatePause}</button>`
     : '';
   // Spectating sets each side's CPU; replays record a single difficulty.
@@ -711,10 +735,10 @@ function render(): void {
   const difficultyOptions = (current: CpuDifficulty) => cpuDifficulties
     .map(level => `<option value="${level}" ${level === current ? 'selected' : ''}>${difficultyNames[level]}</option>`).join('');
   // Viewing only, so it stays usable while the CPUs play.
-  const wholeBoardControl = !replayMode && matchMode === 'spectate' && !briefingOpen && !campaignMenuOpen && !editorOpen
+  const wholeBoardControl = !replayMode && matchMode === 'spectate' && !screens.briefingOpen && !screens.campaignMenuOpen && !screens.editorOpen
     ? `<button id="spectate-whole-board" class="save-action" aria-pressed="${spectateWholeBoard}">${uiText.spectateWholeBoard}</button>`
     : '';
-  const titleVisible = titleOpen && !replayMode && !campaignMenuOpen && !editorOpen;
+  const titleVisible = screens.titleOpen && !replayMode && !screens.campaignMenuOpen && !screens.editorOpen;
   const titleOverlay = renderTitleOverlay({
     visible: titleVisible,
     // Built only while the title shows; every other redraw skips the map list.
@@ -730,11 +754,12 @@ function render(): void {
       })(),
     })),
     canContinue: hasSave(),
+    savePicker: titleVisible ? renderSaveSlotManager(listSaveSlots(localStorage), getStorageUsage(localStorage), false, matchMode === 'spectate') : '',
     canResume: titleResumable,
-    notice: titleNotice || (!hasSave() && hasStoredSave() ? uiText.titleInvalidSave : ''),
+    notice: titleNotice || (!localStorage.persistent ? 'ブラウザーの保存領域を利用できません。このタブ内だけに保存します。終了前にバックアップしてください。' : '') || (!hasSave() && hasStoredSave() ? uiText.titleInvalidSave : ''),
   });
   const briefing = renderBriefingOverlay({
-    visible: !campaignMenuOpen && !titleOpen && !replayMode && briefingOpen,
+    visible: !screens.campaignMenuOpen && !screens.titleOpen && !replayMode && screens.briefingOpen,
     backToTitle: true,
     mapName: renderedMap.name,
     briefing: renderedMap.briefing,
@@ -749,13 +774,16 @@ function render(): void {
     campaignRun: campaignRun !== undefined,
   });
   app.innerHTML = `<main class="game-shell">
-    <header class="command-bar"><div class="brand"><span class="brand-mark" aria-hidden="true">✦</span><div><h1>MiniStr</h1><p>TACTICAL COMMAND</p></div></div><label class="map-picker">戦域<select id="map" aria-label="戦域マップを選択" ${replayMode || campaignRun ? 'disabled' : ''}><optgroup label="組み込み">${maps.map(map => `<option value="${escapeHtml(map.id)}" ${map.id === renderedMap.id ? 'selected' : ''}>${escapeHtml(map.name)}</option>`).join('')}</optgroup>${availableScenarios().filter(map => !maps.some(builtIn => builtIn.id === map.id)).length ? `<optgroup label="カスタム">${availableScenarios().filter(map => !maps.some(builtIn => builtIn.id === map.id)).map(map => `<option value="${escapeHtml(map.id)}" ${map.id === renderedMap.id ? 'selected' : ''}>${escapeHtml(map.name)}</option>`).join('')}</optgroup>` : ''}</select></label>${renderedRedDifficulty ? `<label class="map-picker">${uiText.spectateRedDifficulty}<select id="red-difficulty" aria-label="赤軍CPUの難易度を選択" ${replayMode ? 'disabled' : ''}>${difficultyOptions(renderedRedDifficulty)}</select></label>` : ''}<label class="map-picker">${spectateDifficulties ? uiText.spectateBlueDifficulty : '難易度'}<select id="difficulty" aria-label="${spectateDifficulties ? '青軍CPU' : 'CPU'}の難易度を選択" ${replayMode ? 'disabled' : ''}>${difficultyOptions(renderedDifficulty)}</select></label><label class="map-picker">CPU速度<select id="cpu-speed" aria-label="CPUの行動速度を選択" ${replayMode ? 'disabled' : ''}>${COMMAND_SPEEDS.map(speed => `<option value="${speed}" ${speed === cpuSpeed ? 'selected' : ''}>${speed}x</option>`).join('')}</select></label><div class="save-controls"><button id="open-title" class="save-action" ${replayMode ? 'disabled' : ''}>${uiText.titleOpen}</button><button id="open-editor" class="save-action" ${replayMode ? 'disabled' : ''}>マップ編集</button><button id="open-campaign" class="save-action" ${replayMode ? 'disabled' : ''}>キャンペーン</button><button id="continue" class="save-action" ${replayMode || !hasSave() ? 'disabled' : ''}>続きから</button><button id="save" class="save-action" ${replayMode ? 'disabled' : ''}>${manualSaveTarget(matchMode) === 'slot' ? uiText.spectateSaveToSlot : '手動セーブ'}</button><button id="delete-save" class="save-action" ${matchSaveDeletionAllowed(matchMode) ? '' : `title="${escapeHtml(uiText.spectateNoSaveDeletion)}"`} ${replayMode || !hasStoredSave() || !matchSaveDeletionAllowed(matchMode) ? 'disabled' : ''}>対局セーブ削除</button><button id="undo" class="save-action" ${canAct && undoAllowed(matchMode) && undoStack.length > 0 ? '' : 'disabled'}>1手戻す</button><button id="import-replay" class="save-action" ${replayMode ? 'disabled' : ''}>JSON取込</button><input id="replay-file" class="visually-hidden" type="file" accept=".json,application/json" aria-label="JSONリプレイファイルを選択"></div><div class="turn-indicator ${renderedGame.activePlayer}"><span>${replayMode ? 'REPLAY' : cpuInProgress ? 'CPU THINKING' : campaignRun ? 'CAMPAIGN' : matchMode === 'spectate' ? 'SPECTATE' : 'TURN'}</span><strong>${cpuInProgress ? (matchMode === 'spectate' ? `${activeLabel} CPU 行動中` : 'CPU 行動中') : concealed ? `${activeLabel}の番` : activeLabel}</strong></div>${cpuInProgress ? '<button id="skip-cpu" class="save-action" title="CPUの残りの行動を高速に進める">CPU をスキップ</button>' : ''}${spectateControl}${wholeBoardControl}<button id="end" class="end-turn" title="現在のターンを終了" aria-label="ターンを終了する" ${!canAct ? 'disabled' : ''}>ターン終了 <span aria-hidden="true">→</span></button></header>
+    <div class="build-info">${renderLocalePicker()}v${escapeHtml(buildInfo.version)} · ${escapeHtml(buildInfo.sha.slice(0, 12))} <button id="diagnostics-export">診断情報を保存</button></div>
+    ${localStorage.conflicted ? '<p role="alert">別のタブでデータが変更されました。書き込みを停止しています。バックアップ後に再読み込みしてください。<button id="storage-reload">再読み込み</button></p>' : ''}
+    ${!localStorage.persistent ? '<p class="storage-warning" role="alert">ブラウザーの保存領域を利用できません。このタブを閉じるとデータが失われます。バックアップをダウンロードしてください。</p>' : ''}
+    <header class="command-bar"><div class="brand"><span class="brand-mark" aria-hidden="true">✦</span><div><h1>MiniStr</h1><p>TACTICAL COMMAND</p></div></div><label class="map-picker">戦域<select id="map" aria-label="戦域マップを選択" ${replayMode || campaignRun ? 'disabled' : ''}>${!availableScenarios().some(map => map.id === renderedMap.id) ? `<option value="${escapeHtml(renderedMap.id)}" selected>${escapeHtml(renderedMap.name)}</option>` : ''}<optgroup label="組み込み">${maps.map(map => `<option value="${escapeHtml(map.id)}" ${map.id === renderedMap.id ? 'selected' : ''}>${escapeHtml(map.name)}</option>`).join('')}</optgroup>${availableScenarios().filter(map => !maps.some(builtIn => builtIn.id === map.id)).length ? `<optgroup label="カスタム">${availableScenarios().filter(map => !maps.some(builtIn => builtIn.id === map.id)).map(map => `<option value="${escapeHtml(map.id)}" ${map.id === renderedMap.id ? 'selected' : ''}>${escapeHtml(map.name)}</option>`).join('')}</optgroup>` : ''}</select></label>${renderedRedDifficulty ? `<label class="map-picker">${uiText.spectateRedDifficulty}<select id="red-difficulty" aria-label="赤軍CPUの難易度を選択" ${replayMode ? 'disabled' : ''}>${difficultyOptions(renderedRedDifficulty)}</select></label>` : ''}<label class="map-picker">${spectateDifficulties ? uiText.spectateBlueDifficulty : '難易度'}<select id="difficulty" aria-label="${spectateDifficulties ? '青軍CPU' : 'CPU'}の難易度を選択" ${replayMode ? 'disabled' : ''}>${difficultyOptions(renderedDifficulty)}</select></label><label class="map-picker">CPU速度<select id="cpu-speed" aria-label="CPUの行動速度を選択" ${replayMode ? 'disabled' : ''}>${COMMAND_SPEEDS.map(speed => `<option value="${speed}" ${speed === cpuSpeed ? 'selected' : ''}>${speed}x</option>`).join('')}</select></label><div class="save-controls"><button id="open-title" class="save-action" ${replayMode ? 'disabled' : ''}>${uiText.titleOpen}</button><button id="open-editor" class="save-action" ${replayMode ? 'disabled' : ''}>マップ編集</button><button id="open-campaign" class="save-action" ${replayMode ? 'disabled' : ''}>キャンペーン</button><button id="continue" class="save-action" ${replayMode || !hasSave() ? 'disabled' : ''}>続きから</button><button id="save" class="save-action" ${replayMode ? 'disabled' : ''}>${manualSaveTarget(matchMode) === 'slot' ? uiText.spectateSaveToSlot : '手動セーブ'}</button><button id="delete-save" class="save-action" ${matchSaveDeletionAllowed(matchMode) ? '' : `title="${escapeHtml(uiText.spectateNoSaveDeletion)}"`} ${replayMode || !hasStoredSave() || !matchSaveDeletionAllowed(matchMode) ? 'disabled' : ''}>対局セーブ削除</button><button id="undo" class="save-action" ${canAct && undoAllowed(matchMode) && undoStack.length > 0 ? '' : 'disabled'}>1手戻す</button><button id="import-replay" class="save-action" ${replayMode ? 'disabled' : ''}>JSON取込</button><input id="replay-file" class="visually-hidden" type="file" accept=".json,application/json" aria-label="JSONリプレイファイルを選択"></div><div class="turn-indicator ${renderedGame.activePlayer}"><span>${replayMode ? 'REPLAY' : cpuInProgress ? 'CPU THINKING' : campaignRun ? 'CAMPAIGN' : matchMode === 'spectate' ? 'SPECTATE' : 'TURN'}</span><strong>${cpuInProgress ? (matchMode === 'spectate' ? `${activeLabel} CPU 行動中` : 'CPU 行動中') : concealed ? `${activeLabel}の番` : activeLabel}</strong></div>${cpuInProgress ? '<button id="skip-cpu" class="save-action" title="CPUの残りの行動を高速に進める">CPU をスキップ</button>' : ''}${spectateControl}${wholeBoardControl}<button id="end" class="end-turn" title="現在のターンを終了" aria-label="ターンを終了する" ${!canAct ? 'disabled' : ''}>ターン終了 <span aria-hidden="true">→</span></button></header>
     ${scenarioLoadError ? `<p class="scenario-warning">組み込みシナリオの読み込みに失敗したため、緊急スカーミッシュで起動しています。${escapeHtml(scenarioLoadError)}</p>` : ''}
     <section class="sound-controls" aria-label="効果音設定"><label><input id="sound-muted" type="checkbox" ${soundSettings.muted ? 'checked' : ''}> 効果音</label><label>音量 <input id="sound-volume" type="range" min="0" max="100" value="${Math.round(soundSettings.volume * 100)}" aria-label="効果音の音量"></label></section>
     ${!hasSave() && hasStoredSave() ? `<p class="scenario-warning" role="status">${matchSaveDeletionAllowed(matchMode) ? uiText.invalidSaveWarning : uiText.invalidSaveWarningSpectating}</p>` : ''}
-    ${replay ? `<section class="replay-toolbar" aria-label="リプレイ再生コントロール"><div><p class="card-kicker">REPLAY</p><strong aria-live="polite">${replay.index} / ${replay.file.commands.length} 手</strong></div><button id="replay-toggle" class="end-turn" aria-label="${replay.playing ? 'リプレイを一時停止' : replay.index >= replay.file.commands.length ? 'リプレイを最初から再生' : 'リプレイを再生'}" ${replay.file.commands.length === 0 ? 'disabled' : ''}>${replay.playing ? '一時停止' : replay.index >= replay.file.commands.length ? 'もう一度再生' : '再生'}</button><button id="replay-step" class="save-action" ${replay.playing || replay.index >= replay.file.commands.length ? 'disabled' : ''}>1手送り</button><label class="replay-speed">速度<select id="replay-speed" aria-label="リプレイ再生速度">${COMMAND_SPEEDS.map(speed => `<option value="${speed}" ${speed === replay!.speed ? 'selected' : ''}>${speed}x</option>`).join('')}</select></label><button id="replay-exit" class="save-action">リプレイを終了</button></section>` : ''}
+    ${replay ? `<section class="replay-toolbar" aria-label="リプレイ再生コントロール"><div><p class="card-kicker">REPLAY</p><strong aria-live="polite">${replay.index} / ${replay.file.commands.length} 手</strong></div><button id="replay-toggle" class="end-turn" aria-label="${replay.playing ? 'リプレイを一時停止' : replay.index >= replay.file.commands.length ? 'リプレイを最初から再生' : 'リプレイを再生'}" ${replay.file.commands.length === 0 ? 'disabled' : ''}>${replay.playing ? '一時停止' : replay.index >= replay.file.commands.length ? 'もう一度再生' : '再生'}</button><button id="replay-step" class="save-action" ${replay.playing || replay.index >= replay.file.commands.length ? 'disabled' : ''}>1手送り</button><label class="replay-speed">速度<select id="replay-speed" aria-label="リプレイ再生速度">${COMMAND_SPEEDS.map(speed => `<option value="${speed}" ${speed === replay!.speed ? 'selected' : ''}>${speed}x</option>`).join('')}</select></label>${renderReplayNavigation(replay.index, replay.file.commands.length, replay.viewpoint, replay.timeline)}<button id="replay-exit" class="save-action">リプレイを終了</button></section>` : ''}
     ${concealed ? '' : `<section class="battle-layout"><div class="battlefield-wrap ${mapTheme}"><div class="battlefield-heading"><div><p>OPERATION MAP</p><h2>${escapeHtml(renderedMap.name)}</h2></div><p class="status-message" aria-live="polite">${escapeHtml(message)}</p></div><p id="board-instructions" class="board-instructions">盤面では矢印キーでマスを移動し、Enter または Space で選択・行動、Esc で選択を解除できます。敵部隊を選択またはフォーカスすると、移動範囲と攻撃危険域を確認できます。N キーで次の未行動部隊へ移動します。</p><div id="board-viewport" class="board-viewport" tabindex="0" aria-label="盤面スクロール領域" style="max-height:min(70vh, ${boardViewportHeight}px)"><div class="board" role="group" aria-label="${escapeHtml(renderedMap.name)}の戦術マップ" aria-describedby="board-instructions" style="grid-template-columns:repeat(${renderedGame.board.width},${tileSize}px);grid-template-rows:repeat(${renderedGame.board.height},${tileSize}px);aspect-ratio:${renderedGame.board.width} / ${renderedGame.board.height}">${board}</div></div>${boardZoomControls}<div class="map-legend" aria-label="マップ凡例"><span><i class="legend-dot reachable-dot" aria-hidden="true">移</i>移動可能</span><span><i class="legend-dot danger-dot" aria-hidden="true">危</i>敵の攻撃危険域</span><span><i class="legend-dot enemy-move-dot" aria-hidden="true">敵移</i>選択敵の移動範囲</span>${wholeBoardShown ? '' : '<span><i class="legend-dot fog-dot" aria-hidden="true">?</i>未索敵</span>'}<span><i class="legend-unit ${me}-dot" aria-hidden="true">自</i>自軍${matchMode === 'cpu' ? '' : `（${sideName(matchMode, me)}）`}</span><span><i class="legend-unit ${foe}-dot" aria-hidden="true">敵</i>敵軍${matchMode === 'cpu' ? '' : `（${sideName(matchMode, foe)}）`}</span><span><i class="legend-facility" aria-hidden="true">拠</i>拠点（市・工・空・港・司）</span><span><i class="legend-dot facility-ready-dot" aria-hidden="true">産</i>生産可能</span></div>${tileInspectorPanel}</div>
-    <aside id="command-panel" class="command-panel" aria-label="作戦情報" tabindex="-1">${objectivePanel}${unitQueuePanel}${selectedUnitActions}${cpuActivityPanel}<section class="commander-card ${renderedGame.activePlayer}"><img src="${commander.image}" alt="${commander.alt}"><div><p>COMMANDER</p><h2>${commander.title}</h2><span>${commander.label}</span></div></section>${transportAction}${forecastCard}<section class="intel-card"><p class="card-kicker">RESOURCES</p><div class="resource-row"><span>自軍資金</span><strong>${renderedGame.players[me].gold}<small>G</small></strong></div><div class="resource-row enemy"><span>敵軍資金</span><strong>${renderedGame.players[foe].gold}<small>G</small></strong></div></section><section class="intel-card"><p class="card-kicker">RECON</p><div class="recon-count"><strong>${renderedGame.units.filter(unit => unit.owner === foe && isDeployedUnit(unit) && visible.has(key(unit.position))).length}</strong><span>確認済み敵部隊</span></div></section>${renderProductionCard(productionTargetLine, productionSummary, production)}${turnSetting}${saveSlotManager}<p class="command-tip">歩兵は中立・敵軍の都市、工場、空港、港湾、司令部で<strong>占領</strong>できます。生産先は盤面の空き「産」マスを選び、工場・空港・港湾から対応する部隊を生産します。輸送艦は歩兵を1部隊搭載し、別の島へ上陸させられます。</p></aside>
+    <aside id="command-panel" class="command-panel" aria-label="作戦情報" tabindex="-1">${objectivePanel}${unitQueuePanel}${selectedUnitActions}${cpuActivityPanel}<section class="commander-card ${renderedGame.activePlayer}"><img src="${commander.image}" alt="${commander.alt}" width="512" height="768" loading="lazy" decoding="async"><div><p>COMMANDER</p><h2>${commander.title}</h2><span>${commander.label}</span></div></section>${renderLearning(renderedGame, me, commandHistory, learningOpen)}${transportAction}${forecastCard}<section class="intel-card"><p class="card-kicker">RESOURCES</p><div class="resource-row"><span>自軍資金</span><strong>${renderedGame.players[me].gold}<small>G</small></strong></div><div class="resource-row enemy"><span>敵軍資金</span><strong>${wholeBoardShown ? renderedGame.players[foe].gold : '不明'}<small>G</small></strong></div></section><section class="intel-card"><p class="card-kicker">RECON</p><div class="recon-count"><strong>${renderedGame.units.filter(unit => unit.owner === foe && isDeployedUnit(unit) && visible.has(key(unit.position))).length}</strong><span>確認済み敵部隊</span></div></section>${renderProductionCard(productionTargetLine, productionSummary, production)}${turnSetting}${saveSlotManager}<p class="command-tip">歩兵は中立・敵軍の都市、工場、空港、港湾、司令部で<strong>占領</strong>できます。生産先は盤面の空き「産」マスを選び、工場・空港・港湾から対応する部隊を生産します。輸送艦は歩兵を1部隊搭載し、別の島へ上陸させられます。</p></aside>
   </section>${mobileActionBar}`}</main>${gameOverOverlay}${briefing}${titleOverlay}${campaignOverlay}${editorOverlay}${concealed ? renderHandoffOverlay(sideName('hotseat', renderedGame.activePlayer)) : ''}`;
   const effects = pendingPresentationEffects;
   pendingPresentationEffects = [];
@@ -777,12 +805,13 @@ function render(): void {
     // up here. A stale one (say, the title card just chosen) would otherwise stop
     // the next redraw from remembering the control actually in use.
     focusSelector = undefined;
-    window.setTimeout(() => document.querySelector<HTMLElement>(gameOverOverlay ? '#result-title' : editorOverlay ? '#editor-close' : campaignOverlay ? '#campaign-close' : titleOverlay ? titleFocus ?? (titleResumable ? '#title-resume' : '.title-map-card[aria-current="true"]') : concealed ? '#handoff-start' : briefingFocus ?? '#begin-operation')?.focus(), 0);
+    window.setTimeout(() => generation === renderGeneration && document.querySelector<HTMLElement>(gameOverOverlay ? '#result-title' : editorOverlay ? '#editor-close' : campaignOverlay ? '#campaign-close' : titleOverlay ? titleFocus ?? (titleResumable ? '#title-resume' : '.title-map-card[aria-current="true"]') : concealed ? '#handoff-start' : briefingFocus ?? '#begin-operation')?.focus(), 0);
   }
   else if (focusSelector) {
     const previousSelector = focusSelector;
     focusSelector = undefined;
     window.requestAnimationFrame(() => {
+      if (generation !== renderGeneration) return;
       const target = app.querySelector<HTMLElement>(previousSelector);
       const focusTarget = target && !('disabled' in target && target.disabled) ? target : app.querySelector<HTMLElement>('#command-panel');
       if (focusTarget?.matches('.tile')) focusTarget.scrollIntoView({ block: 'nearest', inline: 'nearest' });
@@ -791,6 +820,46 @@ function render(): void {
   }
   // Board commands need the side on the device to be active; menus and the result
   // screen stay usable after the match ends, whoever's turn it was.
+  app.querySelector<HTMLDetailsElement>('#learning-panel')?.addEventListener('toggle', event => { learningOpen = (event.currentTarget as HTMLDetailsElement).open; });
+  app.querySelector('#title-training')?.addEventListener('click', () => {
+    if (!confirmReplaceMatch()) return;
+    leaveTitle(); campaignRun = undefined; campaignOutcome = undefined; matchMode = 'cpu'; difficulty = 'easy'; learningOpen = true;
+    resetGame('training'); render();
+  });
+  app.querySelector('#diagnostics-export')?.addEventListener('click', () => downloadJson('ministr-diagnostics.json', diagnosticReport({ persistent: localStorage.persistent, bytes: getStorageUsage(localStorage).bytes, locale: document.documentElement.lang, viewport: { width: window.innerWidth, height: window.innerHeight } })));
+  app.querySelector('#storage-reload')?.addEventListener('click', () => { if (window.confirm('進行中の未保存の操作を破棄して再読み込みしますか？')) window.location.reload(); });
+  app.querySelector('#backup-export')?.addEventListener('click', () => {
+    const backup = exportBackup(localStorage);
+    if (backup.ok) downloadJson('ministr-backup.json', backup.value); else { message = backup.error; titleNotice = message; render(); }
+  });
+  app.querySelector<HTMLInputElement>('#backup-import')?.addEventListener('change', async event => {
+    const input = event.currentTarget as HTMLInputElement;
+    const file = input.files?.[0]; input.value = '';
+    if (!file) return;
+    if (file.size > MAX_BACKUP_BYTES) { message = 'バックアップが大きすぎます。'; titleNotice = message; render(); return; }
+    const expectedGame = game; const expectedScreen = screens.current;
+    let text: string;
+    try { text = await file.text(); } catch { message = 'バックアップファイルを読み込めませんでした。'; titleNotice = message; render(); return; }
+    if (game !== expectedGame || screens.current !== expectedScreen) return;
+    if (!window.confirm('バックアップの内容で保存データを置き換えますか？現在のデータを先にバックアップしてください。')) return;
+    const restored = restoreBackup(localStorage, text);
+    if (restored.ok) {
+      loadCustomScenarios(localStorage);
+      const progress = loadCampaignProgress(localStorage);
+      if (progress.ok) campaignProgress = progress.value;
+      soundSettings = loadSoundSettings(localStorage); soundPlayer.setSettings(soundSettings);
+      confirmEndTurnWithUnacted = localStorage.getItem(END_TURN_CONFIRM_KEY) !== 'false';
+      setLocale(localStorage.getItem('ministr.locale') === 'en' ? 'en' : 'ja');
+    }
+    message = restored.ok ? 'バックアップを復元しました。保存一覧から再開できます。' : restored.error;
+    titleNotice = message; render();
+  });
+  localizeControls(app);
+  app.querySelectorAll<HTMLSelectElement>('[data-locale]').forEach(select => select.addEventListener('change', () => {
+    document.documentElement.lang = setLocale(select.value);
+    try { localStorage.setItem('ministr.locale', getLocale()); } catch { message = getLocale() === 'en' ? 'Language applies to this tab only.' : '言語はこのタブだけに適用します。'; }
+    render();
+  }));
   const guardCommand = (action: () => void) => () => { if (canCommand()) action(); };
   const guardMenu = (action: () => void) => () => { if (menuAllowed(matchContext())) action(); };
   // The header is redrawn after every CPU command, so a pointer press may land on
@@ -836,6 +905,7 @@ function render(): void {
   app.querySelector<HTMLButtonElement>('#board-zoom-out')?.addEventListener('click', changeBoardZoom(-1));
   app.querySelector<HTMLButtonElement>('#board-zoom-in')?.addEventListener('click', changeBoardZoom(1));
   document.querySelector<HTMLSelectElement>('#map')!.onchange = guardMenu(() => {
+    if (!confirmReplaceMatch()) { render(); return; }
     campaignRun = undefined; campaignOutcome = undefined;
     resetGame(document.querySelector<HTMLSelectElement>('#map')!.value);
     message = '作戦ブリーフィングを確認してください。'; render();
@@ -852,8 +922,8 @@ function render(): void {
   const menuOpen = () => menuAllowed(matchContext());
   bindDifficulty('#difficulty', level => { difficulty = level; }, menuOpen);
   bindDifficulty('#red-difficulty', level => { redDifficulty = level; }, menuOpen);
-  bindDifficulty('#briefing-red-difficulty', level => { redDifficulty = level; }, () => briefingOpen);
-  bindDifficulty('#briefing-blue-difficulty', level => { difficulty = level; }, () => briefingOpen);
+  bindDifficulty('#briefing-red-difficulty', level => { redDifficulty = level; }, () => screens.briefingOpen);
+  bindDifficulty('#briefing-blue-difficulty', level => { difficulty = level; }, () => screens.briefingOpen);
   document.querySelector<HTMLSelectElement>('#cpu-speed')?.addEventListener('change', event => {
     cpuSpeed = Number((event.currentTarget as HTMLSelectElement).value) as CommandSpeed;
     message = `CPUの行動速度を ${cpuSpeed}x にしました。`;
@@ -862,32 +932,36 @@ function render(): void {
   document.querySelector<HTMLButtonElement>('#end')!.onclick = guardCommand(endPlayerTurn);
   document.querySelector<HTMLButtonElement>('#continue')!.onclick = guardMenu(() => { continueSavedGame(); render(); });
   document.querySelector<HTMLButtonElement>('#save')!.onclick = guardMenu(() => {
-    if (manualSaveTarget(matchMode) === 'slot') saveNamedSlot(); else persist(MANUAL_SAVE_KEY);
+    if (manualSaveTarget(matchMode) === 'slot') saveNamedSlot(); else if (!localStorage.getItem(MANUAL_SAVE_KEY) || window.confirm('手動セーブを上書きしますか？')) persist(MANUAL_SAVE_KEY);
     render();
   });
-  document.querySelector<HTMLButtonElement>('#delete-save')!.onclick = guardMenu(() => { if (!matchSaveDeletionAllowed(matchMode)) return; const result = deleteSaves(localStorage); message = result.ok ? 'セーブデータを削除しました。' : result.error; render(); });
+  document.querySelector<HTMLButtonElement>('#delete-save')!.onclick = guardMenu(() => { if (!matchSaveDeletionAllowed(matchMode) || !window.confirm('手動セーブとオートセーブを削除しますか？')) return; const result = deleteSaves(localStorage); message = result.ok ? 'セーブデータを削除しました。' : result.error; render(); });
   document.querySelector<HTMLButtonElement>('#save-new-slot')?.addEventListener('click', guardMenu(() => { saveNamedSlot(); render(); }));
-  app.querySelectorAll<HTMLButtonElement>('.load-save-slot').forEach(button => button.addEventListener('click', guardMenu(() => {
-    continueSavedGame(button.dataset.saveSlot);
+  app.querySelectorAll<HTMLButtonElement>('.load-save-slot').forEach(button => button.addEventListener('click', () => {
+    if (!screens.titleOpen && !menuAllowed(matchContext())) return;
+    if (continueSavedGame(button.dataset.saveSlot)) leaveTitle(); else titleNotice = message;
     render();
-  })));
-  app.querySelectorAll<HTMLButtonElement>('.delete-save-slot').forEach(button => button.addEventListener('click', guardMenu(() => {
-    const result = deleteSaveSlot(localStorage, button.dataset.saveSlot ?? '');
+  }));
+  app.querySelectorAll<HTMLButtonElement>('.delete-save-slot').forEach(button => button.addEventListener('click', () => {
+    if ((!screens.titleOpen && !menuAllowed(matchContext())) || !window.confirm('このセーブを削除しますか？')) return;
+    const id = button.dataset.saveSlot ?? '';
+    if (['manual', 'auto'].includes(id) && !matchSaveDeletionAllowed(matchMode)) return;
+    const result = deleteSaveSlot(localStorage, id);
     message = result.ok ? 'セーブスロットを削除しました。' : result.error;
     render();
-  })));
+  }));
   document.querySelector<HTMLButtonElement>('#undo')!.onclick = guardCommand(() => {
     if (!undoAllowed(matchMode)) return; const checkpoint = undoStack.pop(); if (checkpoint) { game = checkpoint.state; commandHistory.length = checkpoint.commandCount; selected = undefined; message = '1手戻しました。'; } render(); });
   document.querySelector<HTMLButtonElement>('#open-editor')?.addEventListener('click', guardMenu(() => {
-    editorOpen = true; editorNotice = '編集したシナリオはJSONとして書き出せます。'; render();
+    screens.editorOpen = true; editorNotice = '編集したシナリオはJSONとして書き出せます。'; render();
   }));
-  document.querySelector<HTMLButtonElement>('#editor-close')?.addEventListener('click', () => { editorOpen = false; backToTitleIfOpenedThere(); render(); });
+  document.querySelector<HTMLButtonElement>('#editor-close')?.addEventListener('click', () => { screens.editorOpen = false; backToTitleIfOpenedThere(); render(); });
   document.querySelector<HTMLButtonElement>('#open-title')?.addEventListener('click', guardMenu(() => {
-    titleOpen = true; titleResumable = true; titleNotice = ''; render();
+    screens.titleOpen = true; titleResumable = true; titleNotice = ''; render();
   }));
   app.querySelectorAll<HTMLButtonElement>('.title-map-card').forEach(card => card.addEventListener('click', () => {
     const mapId = card.dataset.mapId ?? '';
-    if (!titleOpen || !scenarioById(mapId)) return;
+    if (!screens.titleOpen || !scenarioById(mapId) || !confirmReplaceMatch()) return;
     leaveTitle();
     campaignRun = undefined; campaignOutcome = undefined;
     resetGame(mapId);
@@ -896,15 +970,14 @@ function render(): void {
   }));
   document.querySelector<HTMLButtonElement>('#title-resume')?.addEventListener('click', () => { leaveTitle(); render(); });
   document.querySelector<HTMLButtonElement>('#title-continue')?.addEventListener('click', () => {
-    // A failed load may already have reset the match, so there is nothing left to return to.
-    if (continueSavedGame()) leaveTitle(); else { titleNotice = message; titleResumable = false; }
+    if (continueSavedGame()) leaveTitle(); else titleNotice = message;
     render();
   });
   document.querySelector<HTMLButtonElement>('#title-campaign')?.addEventListener('click', () => {
-    leaveTitleAndReturn(); briefingOpen = false; openCampaignMenu();
+    leaveTitleAndReturn(); screens.briefingOpen = false; openCampaignMenu();
   });
   document.querySelector<HTMLButtonElement>('#title-editor')?.addEventListener('click', () => {
-    leaveTitleAndReturn(); editorOpen = true; editorNotice = '編集したシナリオはJSONとして書き出せます。'; render();
+    leaveTitleAndReturn(); screens.editorOpen = true; editorNotice = '編集したシナリオはJSONとして書き出せます。'; render();
   });
   document.querySelector<HTMLButtonElement>('#title-import-replay')?.addEventListener('click', () => {
     document.querySelector<HTMLInputElement>('#title-replay-file')?.click();
@@ -912,9 +985,9 @@ function render(): void {
   document.querySelector<HTMLInputElement>('#title-replay-file')?.addEventListener('change', chooseReplayFile);
   document.querySelector<HTMLButtonElement>('#briefing-back-to-title')?.addEventListener('click', () => {
     if (campaignRun) return;
-    briefingOpen = false; titleOpen = true; titleResumable = false; titleNotice = ''; render();
+    screens.briefingOpen = false; screens.titleOpen = true; titleResumable = false; titleNotice = ''; render();
   });
-  if (editorOpen) {
+  if (screens.editorOpen) {
     // Keep the existing compact editor markup while adding the production rule
     // as a real form control. The value is part of the exported scenario data.
     const editorFields = app.querySelector<HTMLElement>('.editor-fields');
@@ -936,21 +1009,55 @@ function render(): void {
       else editorFields.append(label);
     }
     const field = <T extends HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>(selector: string) => app.querySelector<T>(selector)!;
+    app.querySelector('#editor-undo')?.addEventListener('click', () => { editor = editorHistory.undo(editor); render(); });
+    app.querySelector('#editor-redo')?.addEventListener('click', () => { editor = editorHistory.redo(editor); render(); });
+    app.querySelector('#editor-paint')?.addEventListener('change', () => { paintMode = field<HTMLSelectElement>('#editor-paint').value as PaintMode; });
+    app.querySelector('#editor-resize')?.addEventListener('click', () => {
+      if (!window.confirm('範囲外の地形と部隊を削除してサイズを変更しますか？元に戻せます。')) return;
+      commitEditor(resizeEditor(editor, Number(field<HTMLInputElement>('#editor-width').value), Number(field<HTMLInputElement>('#editor-height').value))); render();
+    });
+    app.querySelector('#editor-theme')?.addEventListener('change', () => { commitEditor({ ...editor, data: { ...editor.data, theme: field<HTMLSelectElement>('#editor-theme').value as ScenarioTheme } }); });
+    app.querySelector('#editor-load')?.addEventListener('click', () => {
+      const map = scenarioById(field<HTMLSelectElement>('#editor-catalog').value);
+      if (map) { commitEditor({ ...editor, data: scenarioDefinitionToData(map) }); render(); }
+    });
+    app.querySelector('#editor-duplicate')?.addEventListener('click', () => {
+      commitEditor({ ...editor, data: { ...structuredClone(editor.data), id: 'copy-' + Date.now().toString(36), name: editor.data.name + ' 複製' } }); render();
+    });
+    app.querySelector('#editor-delete')?.addEventListener('click', () => {
+      const id = field<HTMLSelectElement>('#editor-catalog').value;
+      if (!id || !window.confirm('保存済みのマップを削除しますか？')) return;
+      const result = deleteCustomScenario(localStorage, id);
+      editorNotice = result.ok ? 'マップを削除しました。' : result.error; render();
+    });
+    app.querySelector('#editor-save')?.addEventListener('click', () => {
+      if (scenarioById(editor.data.id) && !window.confirm('同じIDのマップを更新しますか？以前の対局は旧定義で再現されます。')) return;
+      const result = saveCustomScenario(localStorage, editor.data);
+      editorNotice = result.ok ? '下書きを保存しました。開始前にプレイ可能性を検証してください。' : result.error; render();
+    });
+    app.querySelector('#editor-add-objective')?.addEventListener('click', () => {
+      if (editor.data.victoryConditions.length >= 32) return;
+      commitEditor({ ...editor, data: { ...editor.data, victoryConditions: [...editor.data.victoryConditions, structuredClone(editor.data.victoryConditions[0]!)] } }); render();
+    });
+    app.querySelector('#editor-remove-objective')?.addEventListener('click', () => {
+      if (editor.data.victoryConditions.length <= 1) return;
+      commitEditor({ ...editor, data: { ...editor.data, victoryConditions: editor.data.victoryConditions.slice(0, -1) } }); render();
+    });
     field<HTMLSelectElement>('#editor-tool').onchange = () => { editor = { ...editor, tool: field<HTMLSelectElement>('#editor-tool').value as ScenarioEditorState['tool'] }; };
     field<HTMLSelectElement>('#editor-terrain').onchange = () => { editor = { ...editor, terrain: field<HTMLSelectElement>('#editor-terrain').value as TerrainKind }; };
     field<HTMLSelectElement>('#editor-owner').onchange = () => { const value = field<HTMLSelectElement>('#editor-owner').value; editor = { ...editor, owner: value === '' ? undefined : value as PlayerId }; };
     field<HTMLSelectElement>('#editor-unit-kind').onchange = () => { editor = { ...editor, unitKind: field<HTMLSelectElement>('#editor-unit-kind').value as UnitKind }; };
     field<HTMLSelectElement>('#editor-unit-owner').onchange = () => { editor = { ...editor, unitOwner: field<HTMLSelectElement>('#editor-unit-owner').value as PlayerId }; };
-    field<HTMLInputElement>('#editor-id').oninput = () => { editor = { ...editor, data: { ...editor.data, id: field<HTMLInputElement>('#editor-id').value } }; };
-    field<HTMLInputElement>('#editor-name').oninput = () => { editor = { ...editor, data: { ...editor.data, name: field<HTMLInputElement>('#editor-name').value } }; };
-    field<HTMLTextAreaElement>('#editor-briefing').oninput = () => { editor = { ...editor, data: { ...editor.data, briefing: field<HTMLTextAreaElement>('#editor-briefing').value } }; };
-    field<HTMLInputElement>('#editor-gold').oninput = () => { editor = { ...editor, data: { ...editor.data, startingGold: Number(field<HTMLInputElement>('#editor-gold').value) } }; };
-    field<HTMLSelectElement>('#editor-production-rule').onchange = () => { editor = { ...editor, data: { ...editor.data, productionRules: field<HTMLSelectElement>('#editor-production-rule').value as ProductionRule } }; };
-    const updateVictory = () => setEditorVictory(field<HTMLSelectElement>('#editor-victory').value as typeof editorVictoryKinds[number], Number(field<HTMLInputElement>('#editor-victory-target').value));
+    field<HTMLInputElement>('#editor-id').oninput = () => { commitEditor({ ...editor, data: { ...editor.data, id: field<HTMLInputElement>('#editor-id').value } }); };
+    field<HTMLInputElement>('#editor-name').oninput = () => { commitEditor({ ...editor, data: { ...editor.data, name: field<HTMLInputElement>('#editor-name').value } }); };
+    field<HTMLTextAreaElement>('#editor-briefing').oninput = () => { commitEditor({ ...editor, data: { ...editor.data, briefing: field<HTMLTextAreaElement>('#editor-briefing').value } }); };
+    field<HTMLInputElement>('#editor-gold').oninput = () => { commitEditor({ ...editor, data: { ...editor.data, startingGold: Number(field<HTMLInputElement>('#editor-gold').value) } }); };
+    field<HTMLSelectElement>('#editor-production-rule').onchange = () => { commitEditor({ ...editor, data: { ...editor.data, productionRules: field<HTMLSelectElement>('#editor-production-rule').value as ProductionRule } }); };
+    const updateVictory = () => setEditorVictory(field<HTMLSelectElement>('#editor-victory').value as VictoryCondition['type'], Number(field<HTMLInputElement>('#editor-victory-target').value));
     field<HTMLSelectElement>('#editor-victory').onchange = updateVictory;
     field<HTMLInputElement>('#editor-victory-target').oninput = updateVictory;
     app.querySelectorAll<HTMLButtonElement>('.editor-tile').forEach(tile => tile.addEventListener('click', () => {
-      editor = applyEditorTool(editor, { x: Number(tile.dataset.editorX), y: Number(tile.dataset.editorY) });
+      commitEditor(paintEditor(editor, { x: Number(tile.dataset.editorX), y: Number(tile.dataset.editorY) }, paintMode));
       editorNotice = '盤面を更新しました。'; render();
     }));
     document.querySelector<HTMLButtonElement>('#editor-export')?.addEventListener('click', () => {
@@ -959,21 +1066,25 @@ function render(): void {
     });
     document.querySelector<HTMLButtonElement>('#editor-import')?.addEventListener('click', () => {
       const imported = importScenarioEditorJson(field<HTMLTextAreaElement>('#editor-json').value, editor);
-      if (imported.ok) { editor = imported.value; editorNotice = 'JSONを反映しました。'; }
+      if (imported.ok) { commitEditor(imported.value); editorNotice = 'JSONを反映しました。'; }
       else editorNotice = imported.error;
       render();
     });
     document.querySelector<HTMLButtonElement>('#editor-validate')?.addEventListener('click', () => {
-      const result = validateEditorScenario(editor);
-      editorNotice = result.ok ? '検証に成功しました。JSONはゲームに取り込める形式です。' : result.error;
+      const issues = inspectEditorScenario(editor);
+      editorNotice = issues.length ? issues.map(issue => `${issue.severity === 'error' ? 'エラー' : '注意'}: ${issue.message}`).join('\n') : '形式とプレイ可能性の検査に成功しました。';
       render();
     });
     document.querySelector<HTMLButtonElement>('#editor-start')?.addEventListener('click', () => {
+      const issues = inspectEditorScenario(editor);
+      if (issues.some(issue => issue.severity === 'error')) { editorNotice = issues.map(issue => issue.message).join('\n'); render(); return; }
+      if (!confirmReplaceMatch()) return;
+      if (scenarioById(editor.data.id) && !window.confirm('保存済みマップを更新して開始しますか？')) return;
       const saved = saveCustomScenario(localStorage, editor.data);
       if (!saved.ok) { editorNotice = saved.error; render(); return; }
       campaignRun = undefined;
       campaignOutcome = undefined;
-      editorOpen = false;
+      screens.editorOpen = false;
       returnToTitle = false;
       resetGame(saved.value.id);
       message = 'カスタムシナリオを保存して開始しました。';
@@ -1003,7 +1114,8 @@ function render(): void {
     document.querySelector<HTMLButtonElement>('#next-unit')?.addEventListener('click', guardCommand(selectNextUnactedUnit));
     document.querySelector<HTMLInputElement>('#confirm-end-turn')?.addEventListener('change', event => {
       confirmEndTurnWithUnacted = (event.currentTarget as HTMLInputElement).checked;
-      localStorage.setItem(END_TURN_CONFIRM_KEY, String(confirmEndTurnWithUnacted));
+      try { localStorage.setItem(END_TURN_CONFIRM_KEY, String(confirmEndTurnWithUnacted)); }
+      catch { message = '設定を保存できませんでした。'; render(); return; }
       message = confirmEndTurnWithUnacted ? 'ターン終了時の未行動部隊確認を有効にしました。' : 'ターン終了時の未行動部隊確認を無効にしました。';
       render();
     });
@@ -1076,20 +1188,21 @@ function render(): void {
     })));
   }
   document.querySelector<HTMLButtonElement>('#restart')?.addEventListener('click', guardMenu(() => {
+    if (!confirmReplaceMatch()) return;
     resetGame(selectedMap.id); message = 'ユニットを選択して行動してください。'; render();
   }));
   document.querySelector<HTMLButtonElement>('#open-campaign')?.addEventListener('click', guardMenu(openCampaignMenu));
   document.querySelector<HTMLButtonElement>('#open-campaign-briefing')?.addEventListener('click', guardMenu(openCampaignMenu));
   document.querySelector<HTMLButtonElement>('#campaign-close')?.addEventListener('click', () => {
-    campaignMenuOpen = false;
-    briefingOpen = campaignReturnToBriefing;
+    screens.campaignMenuOpen = false;
+    screens.briefingOpen = campaignReturnToBriefing;
     campaignReturnToBriefing = false;
     backToTitleIfOpenedThere();
     render();
   });
   document.querySelector<HTMLButtonElement>('#campaign-skirmish')?.addEventListener('click', () => {
-    campaignRun = undefined; campaignOutcome = undefined; campaignMenuOpen = false;
-    briefingOpen = campaignReturnToBriefing; campaignReturnToBriefing = false;
+    campaignRun = undefined; campaignOutcome = undefined; screens.campaignMenuOpen = false;
+    screens.briefingOpen = campaignReturnToBriefing; campaignReturnToBriefing = false;
     message = '単体戦モードに戻りました。戦域を自由に選択できます。';
     backToTitleIfOpenedThere();
     render();
@@ -1104,7 +1217,7 @@ function render(): void {
     if (campaignOutcome?.nextScenarioId) startCampaignScenario(campaignOutcome.nextScenarioId);
   });
   document.querySelector<HTMLButtonElement>('#campaign-back')?.addEventListener('click', () => {
-    campaignMenuOpen = true;
+    screens.campaignMenuOpen = true;
     campaignReturnToBriefing = false;
     render();
   });
@@ -1132,6 +1245,20 @@ function render(): void {
     }
     render();
   });
+  const seekReplay = (index: number) => {
+    if (!replay) return;
+    const result = replay.timeline.seek(index);
+    if (!result.ok) { message = result.error; render(); return; }
+    commandScheduler.cancel(); pendingPresentationEffects = [];
+    replay.playing = false; replay.state = result.value; replay.index = index; render();
+  };
+  app.querySelector('#replay-back')?.addEventListener('click', () => { if (replay) seekReplay(replay.index - 1); });
+  app.querySelector<HTMLInputElement>('#replay-seek')?.addEventListener('change', event => seekReplay(Number((event.currentTarget as HTMLInputElement).value)));
+  app.querySelectorAll<HTMLButtonElement>('.replay-event').forEach(button => button.addEventListener('click', () => seekReplay(Number(button.dataset.index))));
+  app.querySelector<HTMLSelectElement>('#replay-viewpoint')?.addEventListener('change', event => {
+    const value = (event.currentTarget as HTMLSelectElement).value;
+    if (replay && (value === 'red' || value === 'blue' || value === 'all')) { replay.viewpoint = value; render(); }
+  });
   document.querySelector<HTMLButtonElement>('#replay-step')?.addEventListener('click', () => { if (replay && !replay.playing) advanceReplay(); });
   document.querySelector<HTMLSelectElement>('#replay-speed')?.addEventListener('change', event => {
     if (!replay) return;
@@ -1142,11 +1269,11 @@ function render(): void {
   document.querySelector<HTMLButtonElement>('#replay-exit')?.addEventListener('click', leaveReplay);
   app.querySelectorAll<HTMLInputElement>('input[name="match-mode"]').forEach(input => input.addEventListener('change', () => {
     // The format can only change on the briefing, before any command is played.
-    if (briefingOpen && commandHistory.length === 0 && !campaignRun) matchMode = parseMatchMode(input.value);
+    if (screens.briefingOpen && commandHistory.length === 0 && !campaignRun) matchMode = parseMatchMode(input.value);
     render();
   }));
   document.querySelector<HTMLButtonElement>('#begin-operation')?.addEventListener('click', () => {
-    briefingOpen = false;
+    screens.briefingOpen = false;
     message = matchMode === 'hotseat' ? `2人対戦を開始しました。${sideName('hotseat', game.activePlayer)}から操作してください。`
       : matchMode === 'spectate' ? uiText.spectateStarted : '作戦を開始しました。ユニットを選択してください。';
     if (cpuShouldRun(matchContext())) runCpu();
@@ -1159,6 +1286,8 @@ function focusBoardPosition(position: Position): void {
   focusedPosition = position;
   focusSelector = `.tile[data-x="${position.x}"][data-y="${position.y}"]`;
   render();
+  // Focus before the next keydown, including engines that delay animation frames.
+  app.querySelector<HTMLElement>(`.tile[data-x="${position.x}"][data-y="${position.y}"]`)?.focus({ preventScroll: true });
 }
 
 function handleBoardKey(event: KeyboardEvent, position: Position): void {
@@ -1340,7 +1469,7 @@ function runCpu(initialDelayMs = 0): void {
     if (action.type === 'endTurn') { dispatch(action); finishCpuTurn(side); return false; }
     const before = game;
     if (!dispatch(action)) {
-      const unitId = action.type === 'move' || action.type === 'wait' || action.type === 'attack' || action.type === 'capture' || action.type === 'embark'
+      const unitId = action.type === 'move' || action.type === 'wait' || action.type === 'attack' || action.type === 'merge' || action.type === 'capture' || action.type === 'embark'
         ? action.unitId : action.type === 'disembark' ? action.transportId : undefined;
       if (!unitId || !dispatch({ type: 'wait', unitId })) {
         message = 'CPU の行動を安全に終了しました。';
@@ -1354,8 +1483,7 @@ function runCpu(initialDelayMs = 0): void {
     return true;
   };
   skipCpuImmediately = () => {
-    commandScheduler.cancel();
-    while (advance()) { /* Drain synchronously so skip always reaches the final board state. */ }
+    commandScheduler.start({ initialDelayMs: 0, step: advance, nextDelayMs: () => 0 });
   };
   commandScheduler.start({
     initialDelayMs,
@@ -1365,6 +1493,12 @@ function runCpu(initialDelayMs = 0): void {
 }
 // Orientation changes and window resizes re-derive the default zoom, but never
 // overrule a rate the player set with the zoom controls.
+window.addEventListener('storage', event => {
+  if (event.key !== null && !event.key.startsWith('ministr.')) return;
+  localStorage.markExternalChange();
+  commandScheduler.cancel(); cpuInProgress = false; spectatePaused = matchMode === 'spectate';
+  message = '別タブの変更を検知しました。バックアップ後に再読み込みしてください。'; titleNotice = message; render();
+});
 window.addEventListener('resize', () => {
   if (!boardZoomAuto) return;
   const previous = boardZoomIndex;
@@ -1372,10 +1506,15 @@ window.addEventListener('resize', () => {
   if (boardZoomIndex !== previous) render();
 });
 window.addEventListener('keydown', event => {
+  if (event.key === 'Escape') {
+    const close = app.querySelector<HTMLButtonElement>('#editor-close, #campaign-close, #briefing-back-to-title');
+    if (close) { event.preventDefault(); close.click(); return; }
+    if (replay) { event.preventDefault(); leaveReplay(); return; }
+  }
   const target = event.target;
   const editingText = target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement || target instanceof HTMLSelectElement || (target instanceof HTMLElement && target.isContentEditable);
   if (editingText || event.ctrlKey || event.altKey || event.metaKey || event.key.toLowerCase() !== 'n') return;
-  if (titleOpen || briefingOpen || campaignMenuOpen || editorOpen || !canCommand()) return;
+  if (screens.titleOpen || screens.briefingOpen || screens.campaignMenuOpen || screens.editorOpen || !canCommand()) return;
   event.preventDefault();
   selectNextUnactedUnit();
 });

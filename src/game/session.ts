@@ -1,15 +1,16 @@
 import { attackUnit, captureProperty, disembarkUnit, embarkUnit, endTurn, mergeUnits, moveUnit, produceUnit, waitUnit } from './commands';
 import { MAX_EXPERIENCE } from './experience';
 import { isUnitKindAvailable } from './facilities';
-import { createScenarioInitialState, scenarioById, type ScenarioDefinition } from './maps';
+import { createScenarioInitialState, scenarioForState, scenarioHistory, scenarioDefinitionToData, scenarioCatalogRevision, type ScenarioDefinition } from './maps';
 import { ruleVersions, terrainKindSet, type GameResult, type GameState, type Position, type UnitKind } from './types';
 import { isEmbarkableUnit, transportCapacity, unitKindSet } from './units';
+import { parseBoundedJson } from './jsonBoundary';
 
 /**
  * Schema v3 adds the explicit `wait` command. Malformed cargo is rejected
  * by `isGameState` instead of being repaired during load.
  */
-export const SAVE_SCHEMA_VERSION = 3 as const;
+export const SAVE_SCHEMA_VERSION = 4 as const;
 export const MAX_SAVE_BYTES = 1_000_000;
 export const MANUAL_SAVE_KEY = 'ministr.save.manual';
 export const AUTO_SAVE_KEY = 'ministr.save.auto';
@@ -66,6 +67,8 @@ export interface SaveSlot {
   /** `legacy` entries are the pre-slot manual/auto saves and remain readable. */
   source: 'slot' | 'legacy';
   mode: SavedMatchMode;
+  status?: 'valid' | 'corrupt' | 'missing';
+  error?: string;
 }
 
 export interface StorageUsage {
@@ -76,17 +79,37 @@ export interface StorageUsage {
 
 /** v1 had the same fields; keeping named migrations makes later changes append-only. */
 function migrateSaveV1ToV2(value: Record<string, unknown>): Record<string, unknown> {
-  return { ...structuredClone(value), schemaVersion: 2 };
+  return { ...value, schemaVersion: 2 };
 }
 function migrateSaveV2ToV3(value: Record<string, unknown>): Record<string, unknown> {
-  return { ...structuredClone(value), schemaVersion: SAVE_SCHEMA_VERSION };
+  return { ...value, schemaVersion: 3 };
+}
+function migrateSaveV3ToV4(value: Record<string, unknown>): Record<string, unknown> {
+  return { ...value, schemaVersion: SAVE_SCHEMA_VERSION };
 }
 
 function migrateSavedGame(value: Record<string, unknown>): Record<string, unknown> | undefined {
   if (value.schemaVersion === SAVE_SCHEMA_VERSION) return value;
-  if (value.schemaVersion === 2) return migrateSaveV2ToV3(value);
-  if (value.schemaVersion === 1) return migrateSaveV2ToV3(migrateSaveV1ToV2(value));
+  if (value.schemaVersion === 3) return migrateSaveV3ToV4(value);
+  if (value.schemaVersion === 2) return migrateSaveV3ToV4(migrateSaveV2ToV3(value));
+  if (value.schemaVersion === 1) return migrateSaveV3ToV4(migrateSaveV2ToV3(migrateSaveV1ToV2(value)));
   return undefined;
+}
+
+/** Upgrade archived custom-map matches without registering imported definitions. */
+export function restoreArchivedScenario(value: Record<string, unknown>): Record<string, unknown> {
+  const initial = value.initialState;
+  if (!isRecord(initial) || initial.scenarioSnapshot !== undefined || typeof value.mapId !== 'string') return value;
+  const current = scenarioForState(initial as unknown as GameState);
+  if (current && matchesScenarioInitialState(initial, current)) return value;
+  const archived = scenarioHistory(value.mapId).find(scenario => matchesScenarioInitialState(initial, scenario));
+  if (!archived) return value;
+  const snapshot = scenarioDefinitionToData(archived);
+  const result = { ...value, initialState: { ...initial, scenarioSnapshot: snapshot } };
+  for (const key of ['gameState', 'finalState']) {
+    if (isRecord(value[key])) Object.assign(result, { [key]: { ...value[key], scenarioSnapshot: snapshot } });
+  }
+  return result;
 }
 
 export interface StorageLike {
@@ -113,6 +136,7 @@ export function applyGameCommand(state: GameState, command: GameCommand): GameRe
 }
 
 export function replayCommands(initialState: GameState, commands: readonly GameCommand[]): GameResult {
+  if (!withinReplayBudget(initialState, commands.length)) return { ok: false, error: '再現処理の上限を超えています。履歴または盤面が大きすぎます。' };
   let state = structuredClone(initialState);
   for (let index = 0; index < commands.length; index += 1) {
     const result = applyGameCommand(state, commands[index]!);
@@ -120,6 +144,11 @@ export function replayCommands(initialState: GameState, commands: readonly GameC
     state = result.value;
   }
   return { ok: true, value: state };
+}
+
+/** Deterministic work bound, independent of the machine's clock or speed. */
+export function withinReplayBudget(state: GameState, commands: number): boolean {
+  return commands * (state.board.width * state.board.height + state.units.length * 4 + 1) <= 50_000_000;
 }
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
@@ -177,7 +206,8 @@ export function matchesScenarioInitialState(value: unknown, scenario: ScenarioDe
   // Replay older matches with the rule version they recorded (classic or v2).
   const recorded = isRecord(value) && (value.ruleVersion === undefined || ruleVersions.includes(value.ruleVersion as never))
     ? value.ruleVersion : expected.ruleVersion;
-  return sameValue(value, { ...expected, ruleVersion: recorded });
+  return sameValue(value, { ...expected, ruleVersion: recorded,
+    scenarioSnapshot: isRecord(value) && value.scenarioSnapshot !== undefined ? expected.scenarioSnapshot : undefined });
 }
 
 export function isGameCommand(value: unknown): value is GameCommand {
@@ -259,17 +289,18 @@ export function isGameState(value: unknown): value is GameState {
     && Number.isSafeInteger(value.rngSeed) && (value.rngSeed as number) >= 0 && (value.rngSeed as number) <= 0xffff_ffff
     && Number.isSafeInteger(value.nextUnitId) && (value.nextUnitId as number) >= 1
     && (value.winner === undefined || players.has(value.winner as string))
-    && (value.scenarioId === undefined || (typeof value.scenarioId === 'string' && scenarioById(value.scenarioId) !== undefined))
+    && (value.scenarioId === undefined ? value.scenarioSnapshot === undefined
+      : typeof value.scenarioId === 'string' && scenarioForState(value as unknown as GameState) !== undefined)
     && (value.scores === undefined || isScenarioScores(value.scores))
     && (value.objectiveHoldTurns === undefined || isHoldProgress(value.objectiveHoldTurns));
 }
 
 function validateSavedGameShape(value: unknown): value is SavedGame {
-  const scenario = isRecord(value) && typeof value.mapId === 'string' ? scenarioById(value.mapId) : undefined;
+  const scenario = isRecord(value) && isRecord(value.initialState) ? scenarioForState(value.initialState as unknown as GameState) : undefined;
   return isRecord(value) && value.schemaVersion === SAVE_SCHEMA_VERSION
-    && typeof value.mapId === 'string' && scenario !== undefined
+    && typeof value.mapId === 'string' && scenario !== undefined && scenario.id === value.mapId
     && ['easy', 'normal', 'hard'].includes(String(value.difficulty))
-    && typeof value.savedAt === 'string' && isGameState(value.initialState) && isGameState(value.gameState)
+    && typeof value.savedAt === 'string' && Number.isFinite(Date.parse(value.savedAt)) && isGameState(value.initialState) && isGameState(value.gameState)
     // A self-consistent edited save/replay must not be able to alter the map's
     // turn-one gold, board, or forces. Custom IDs resolve through the loaded,
     // persisted custom catalog rather than trusting the save payload.
@@ -294,14 +325,15 @@ function validateSavedGameConsistency(saved: SavedGame): GameResult<SavedGame> {
 export function parseSavedGame(serialized: string): GameResult<SavedGame> {
   if (new TextEncoder().encode(serialized).byteLength > MAX_SAVE_BYTES)
     return { ok: false, error: 'セーブデータが大きすぎます。' };
-  let value: unknown;
-  try { value = JSON.parse(serialized); }
-  catch { return { ok: false, error: 'セーブデータが壊れています。' }; }
+  const parsed = parseBoundedJson(serialized, MAX_SAVE_BYTES);
+  if (!parsed.ok) return { ok: false, error: parsed.error.includes('壊れ') ? 'セーブデータが壊れています。' : 'セーブデータの内容が不正です。' };
+  const value = parsed.value;
   if (!isRecord(value)) return { ok: false, error: 'セーブデータの形式が不正です。' };
-  const migrated = migrateSavedGame(value);
+  const migrated = migrateSavedGame(restoreArchivedScenario(value));
   if (!migrated) return { ok: false, error: '未対応のセーブデータです。' };
   if (!validateSavedGameShape(migrated)) return { ok: false, error: 'セーブデータの内容が不正です。' };
-  return validateSavedGameConsistency(migrated);
+  try { return validateSavedGameConsistency(migrated); }
+  catch { return { ok: false, error: 'セーブデータの内容が不正です。' }; }
 }
 
 export function saveGame(storage: StorageLike, key: string, game: Omit<SavedGame, 'schemaVersion' | 'savedAt'>): GameResult<SavedGame> {
@@ -332,11 +364,7 @@ export function loadGame(storage: StorageLike, keys: readonly string[] = [MANUAL
 }
 
 export function hasSavedGame(storage: StorageLike): boolean {
-  try { return [MANUAL_SAVE_KEY, AUTO_SAVE_KEY].some(key => {
-    const raw = storage.getItem(key);
-    return raw !== null && parseSavedGame(raw).ok;
-  }); }
-  catch { return false; }
+  return listSaveSlots(storage).some(slot => slot.status === 'valid');
 }
 
 /** Presence-only check used to offer explicit recovery for invalid saves. */
@@ -346,18 +374,13 @@ export function hasStoredSaveData(storage: StorageLike): boolean {
 }
 
 export function deleteSaves(storage: StorageLike): GameResult<void> {
-  try {
-    storage.removeItem(MANUAL_SAVE_KEY);
-    storage.removeItem(AUTO_SAVE_KEY);
-    return { ok: true, value: undefined };
-  } catch {
-    return { ok: false, error: 'セーブデータを削除できませんでした。' };
-  }
+  return writeStorageChanges(storage, new Map([[MANUAL_SAVE_KEY, null], [AUTO_SAVE_KEY, null]]));
 }
 
 const slotKey = (id: string) => `${SAVE_SLOT_PREFIX}${id}`;
 const bytesOf = (value: string) => new TextEncoder().encode(value).byteLength;
 const validSlotId = (value: string) => /^[a-z0-9][a-z0-9-]{0,47}$/.test(value);
+const reservedSlotId = (value: string) => value === 'manual' || value === 'auto';
 const validSlotName = (value: string) => value.length > 0 && value.length <= 40
   && ![...value].some(character => character.charCodeAt(0) < 32 || character.charCodeAt(0) === 127);
 interface StoredSlotIndexEntry { id: string; name: string }
@@ -377,27 +400,71 @@ function readSlotIndex(storage: StorageLike): StoredSlotIndexEntry[] {
     }).slice(0, MAX_SAVE_SLOTS);
   } catch { return []; }
 }
-function writeSlotIndex(storage: StorageLike, entries: readonly StoredSlotIndexEntry[]): GameResult<void> {
-  try { storage.setItem(SAVE_SLOT_INDEX_KEY, JSON.stringify(entries)); return { ok: true, value: undefined }; }
-  catch { return { ok: false, error: 'セーブスロット一覧を書き込めませんでした。' }; }
-}
-function toSaveSlot(id: string, name: string, source: SaveSlot['source'], raw: string): SaveSlot | undefined {
-  const parsed = parseSavedGame(raw);
-  if (!parsed.ok) return undefined;
-  const saved = parsed.value;
-  return { id, name, source, mode: saved.mode ?? 'cpu', mapId: saved.mapId, difficulty: saved.difficulty, turn: saved.gameState.turn, savedAt: saved.savedAt, bytes: bytesOf(raw) };
+/** Reconcile orphaned payloads without writing or discarding broken entries. */
+function recoverSlotIndex(storage: StorageLike): StoredSlotIndexEntry[] {
+  const entries = readSlotIndex(storage);
+  try {
+    for (let i = 0; i < (storage.length ?? 0); i++) {
+      const key = storage.key?.(i);
+      if (!key?.startsWith(SAVE_SLOT_PREFIX)) continue;
+      const id = key.slice(SAVE_SLOT_PREFIX.length);
+      if (validSlotId(id) && !reservedSlotId(id) && !entries.some(entry => entry.id === id)) entries.push({ id, name: `復旧: ${id}` });
+    }
+  } catch { /* Indexed entries remain usable when enumeration is unavailable. */ }
+  return entries;
 }
 
-/** Lists valid named saves plus compatible pre-v4 manual/auto saves. Invalid records are deliberately hidden. */
+export function writeStorageChanges(storage: StorageLike, changes: ReadonlyMap<string, string | null>): GameResult<void> {
+  const previous = new Map<string, string | null>();
+  try {
+    for (const key of changes.keys()) previous.set(key, storage.getItem(key));
+    for (const [key, value] of changes) {
+      if (value === null) storage.removeItem(key); else storage.setItem(key, value);
+    }
+    return { ok: true, value: undefined };
+  } catch {
+    try {
+      for (const [key, value] of previous) {
+        if (storage.getItem(key) === value) continue;
+        if (value === null) storage.removeItem(key); else storage.setItem(key, value);
+      }
+    } catch { return { ok: false, error: '保存に失敗し、元のデータを完全には復元できませんでした。バックアップを保存して復旧してください。' }; }
+    return { ok: false, error: '保存に失敗しました。変更前のデータを保持しています。' };
+  }
+}
+function toSaveSlot(id: string, name: string, source: SaveSlot['source'], raw: string | null): SaveSlot {
+  const invalid = { id, name, source, mode: 'cpu' as const, mapId: '不明', difficulty: 'normal' as const, turn: 0, savedAt: '', bytes: bytesOf(raw ?? '') };
+  if (raw === null) return { ...invalid, status: 'missing', error: '本体データがありません。' };
+  const parsed = parseSavedGame(raw);
+  if (!parsed.ok) return { ...invalid, status: 'corrupt', error: parsed.error };
+  const saved = parsed.value;
+  return { id, name, source, status: 'valid', mode: saved.mode ?? 'cpu', mapId: saved.mapId, difficulty: saved.difficulty, turn: saved.gameState.turn, savedAt: saved.savedAt, bytes: bytesOf(raw) };
+}
+
+const slotCache = new WeakMap<StorageLike, Map<string, { raw: string | null; name: string; revision: number; slot: SaveSlot }>>();
+function cachedSlot(storage: StorageLike, id: string, name: string, source: SaveSlot['source'], raw: string | null): SaveSlot {
+  let cache = slotCache.get(storage);
+  if (!cache) { cache = new Map(); slotCache.set(storage, cache); }
+  const key = `${source}:${id}`;
+  const entry = cache.get(key);
+  const revision = scenarioCatalogRevision();
+  if (entry && entry.raw === raw && entry.name === name && entry.revision === revision) return { ...entry.slot };
+  const slot = toSaveSlot(id, name, source, raw);
+  if (cache.size > MAX_SAVE_SLOTS + 2) cache.clear();
+  cache.set(key, { raw, name, slot, revision });
+  return { ...slot };
+}
+
+/** Lists named/manual/auto saves, including recoverable invalid and missing entries. */
 export function listSaveSlots(storage: StorageLike): SaveSlot[] {
   try {
-    const slots = readSlotIndex(storage).flatMap(entry => {
+    const slots = recoverSlotIndex(storage).map(entry => {
       const raw = storage.getItem(slotKey(entry.id));
-      return raw === null ? [] : [toSaveSlot(entry.id, entry.name, 'slot', raw)].filter((slot): slot is SaveSlot => slot !== undefined);
+      return cachedSlot(storage, entry.id, entry.name, 'slot', raw);
     });
     for (const [id, name, key] of [['manual', '以前の手動セーブ', MANUAL_SAVE_KEY], ['auto', '以前のオートセーブ', AUTO_SAVE_KEY]] as const) {
       const raw = storage.getItem(key);
-      const slot = raw === null ? undefined : toSaveSlot(id, name, 'legacy', raw);
+      const slot = raw === null ? undefined : cachedSlot(storage, id, name, 'legacy', raw);
       if (slot) slots.push(slot);
     }
     return slots.sort((left, right) => right.savedAt.localeCompare(left.savedAt));
@@ -409,14 +476,15 @@ function namedSaveKey(id: string): string | undefined {
 
 /** Saves to a named slot. Legacy ids are readable but intentionally cannot be overwritten through this API. */
 export function saveGameToSlot(storage: StorageLike, id: string, name: string, game: Omit<SavedGame, 'schemaVersion' | 'savedAt'>): GameResult<SavedGame> {
-  if (!validSlotId(id) || !validSlotName(name)) return { ok: false, error: 'セーブスロット名またはIDが不正です。' };
-  const index = readSlotIndex(storage);
+  if (!validSlotId(id) || reservedSlotId(id) || !validSlotName(name)) return { ok: false, error: 'セーブスロット名またはIDが不正です。' };
+  const index = recoverSlotIndex(storage);
   const existing = index.find(entry => entry.id === id);
   if (!existing && index.length >= MAX_SAVE_SLOTS) return { ok: false, error: `セーブスロットは最大${MAX_SAVE_SLOTS}件です。不要なセーブを削除してください。` };
-  const saved = saveGame(storage, slotKey(id), game);
+  let serialized = '';
+  const saved = saveGame({ getItem: () => null, removeItem: () => {}, setItem: (_key, value) => { serialized = value; } }, slotKey(id), game);
   if (!saved.ok) return saved;
   const next = existing ? index.map(entry => entry.id === id ? { id, name } : entry) : [...index, { id, name }];
-  const indexed = writeSlotIndex(storage, next);
+  const indexed = writeStorageChanges(storage, new Map([[slotKey(id), serialized], [SAVE_SLOT_INDEX_KEY, JSON.stringify(next)]]));
   return indexed.ok ? saved : indexed;
 }
 export function loadGameFromSlot(storage: StorageLike, id: string): GameResult<SavedGame> | undefined {
@@ -426,11 +494,11 @@ export function loadGameFromSlot(storage: StorageLike, id: string): GameResult<S
 }
 export function deleteSaveSlot(storage: StorageLike, id: string): GameResult<void> {
   if (!validSlotId(id)) return { ok: false, error: 'セーブスロットが不正です。' };
-  const index = readSlotIndex(storage);
+  if (reservedSlotId(id)) return writeStorageChanges(storage, new Map([[namedSaveKey(id)!, null]]));
+  const index = recoverSlotIndex(storage);
   if (!index.some(entry => entry.id === id)) return { ok: false, error: 'セーブスロットが見つかりません。' };
   try {
-    storage.removeItem(slotKey(id));
-    return writeSlotIndex(storage, index.filter(entry => entry.id !== id));
+    return writeStorageChanges(storage, new Map<string, string | null>([[slotKey(id), null], [SAVE_SLOT_INDEX_KEY, JSON.stringify(index.filter(entry => entry.id !== id))]]));
   } catch { return { ok: false, error: 'セーブスロットを削除できませんでした。' }; }
 }
 
