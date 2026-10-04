@@ -49,11 +49,19 @@ export interface ScenarioCatalog {
 
 export interface ScenarioLoadOptions { defaultProductionRule?: ProductionRule }
 
-export interface ScenarioStorageLike { getItem(key: string): string | null; setItem(key: string, value: string): void; removeItem(key: string): void }
+export interface ScenarioStorageLike {
+  getItem(key: string): string | null;
+  setItem(key: string, value: string): void;
+  removeItem(key: string): void;
+  readonly length?: number;
+  key?(index: number): string | null;
+}
 export const CUSTOM_SCENARIOS_KEY = 'ministr.scenarios.custom';
 export const CUSTOM_SCENARIOS_SCHEMA_VERSION = 1 as const;
 export const MAX_CUSTOM_SCENARIO_BYTES = 1_000_000;
 export const MAX_CUSTOM_SCENARIOS = 32;
+export const MAX_CUSTOM_CATALOG_CELLS = 1_048_576;
+export const MAX_CUSTOM_CATALOG_UNITS = 8_192;
 
 const playerIds = new Set<PlayerId>(['red', 'blue']);
 const isRecord = (value: unknown): value is Record<string, unknown> => typeof value === 'object' && value !== null && !Array.isArray(value);
@@ -309,9 +317,20 @@ export const trainingScenario = (() => {
 })();
 let archivedScenarios: ScenarioDefinition[] = [];
 let catalogRevision = 0;
+export interface CustomScenarioCatalogSnapshot {
+  scenarios: readonly ScenarioDefinition[];
+  history: readonly ScenarioDefinition[];
+}
 export function scenarioCatalogRevision(): number { return catalogRevision; }
 export function scenarioHistory(id: string): readonly ScenarioDefinition[] { return archivedScenarios.filter(scenario => scenario.id === id); }
 export function availableScenarios(): readonly ScenarioDefinition[] { return [...maps, ...customScenarios.values()]; }
+export function captureCustomScenarioCatalog(): CustomScenarioCatalogSnapshot {
+  return { scenarios: [...customScenarios.values()], history: [...archivedScenarios] };
+}
+export function restoreCustomScenarioCatalog(snapshot: CustomScenarioCatalogSnapshot): void {
+  archivedScenarios = [...snapshot.history];
+  replaceCustomScenarios(snapshot.scenarios);
+}
 export function scenarioById(id: string | undefined): ScenarioDefinition | undefined {
   return id === undefined ? undefined : id === trainingScenario.id ? trainingScenario : maps.find(map => map.id === id) ?? customScenarios.get(id);
 }
@@ -393,6 +412,56 @@ function parseCustomScenarioData(value: unknown): GameResult<readonly ScenarioDe
   return loaded;
 }
 
+/** Reject archives with excessive expanded boards before createBoard allocates their rows. */
+function withinCustomCatalogBudget(value: unknown): boolean {
+  if (!isRecord(value) || !Array.isArray(value.scenarios)) return true;
+  const definitions = [...value.scenarios, ...(Array.isArray(value.history) ? value.history : [])];
+  let cells = 0;
+  let units = 0;
+  for (const definition of definitions) {
+    if (!isRecord(definition) || !isRecord(definition.board)) continue;
+    const { width, height } = definition.board;
+    if (!Number.isSafeInteger(width) || !Number.isSafeInteger(height)
+      || (width as number) <= 0 || (height as number) <= 0
+      || (width as number) > 256 || (height as number) > 256) continue;
+    cells += (width as number) * (height as number);
+    if (Array.isArray(definition.initialUnits)) units += definition.initialUnits.length;
+    if (cells > MAX_CUSTOM_CATALOG_CELLS || units > MAX_CUSTOM_CATALOG_UNITS) return false;
+  }
+  return true;
+}
+
+/** Keep archived definitions only while a legacy save without a snapshot needs lookup. */
+function pruneUnreferencedHistory(storage: ScenarioStorageLike, history: readonly ScenarioDefinition[]): ScenarioDefinition[] {
+  const legacyIds = new Set<string>();
+  const keys = new Set(['ministr.save.manual', 'ministr.save.auto']);
+  try {
+    if (storage.length !== undefined && storage.key) {
+      for (let index = 0; index < storage.length; index++) {
+        const key = storage.key(index);
+        if (key?.startsWith('ministr.save.slot.') && key !== 'ministr.save.slots') keys.add(key);
+      }
+    } else {
+      const index = parseBoundedJson(storage.getItem('ministr.save.slots') ?? '[]', 32_000);
+      if (index.ok && Array.isArray(index.value)) for (const entry of index.value) {
+        if (isRecord(entry) && typeof entry.id === 'string' && /^[a-z0-9][a-z0-9-]{0,47}$/.test(entry.id))
+          keys.add(`ministr.save.slot.${entry.id}`);
+      }
+    }
+    for (const key of keys) {
+      const raw = storage.getItem(key);
+      if (raw === null) continue;
+      const parsed = parseBoundedJson(raw, MAX_CUSTOM_SCENARIO_BYTES);
+      if (!parsed.ok || !isRecord(parsed.value) || typeof parsed.value.mapId !== 'string'
+        || !isRecord(parsed.value.initialState) || parsed.value.initialState.scenarioSnapshot !== undefined) continue;
+      legacyIds.add(parsed.value.mapId);
+    }
+  } catch {
+    return [...history];
+  }
+  return history.filter(scenario => legacyIds.has(scenario.id));
+}
+
 export function loadCustomScenarios(storage: ScenarioStorageLike): GameResult<readonly ScenarioDefinition[]> {
   let serialized: string | null;
   try { serialized = storage.getItem(CUSTOM_SCENARIOS_KEY); } catch { return { ok: false, error: 'カスタムシナリオを読み込めませんでした。' }; }
@@ -400,8 +469,9 @@ export function loadCustomScenarios(storage: ScenarioStorageLike): GameResult<re
   if (new TextEncoder().encode(serialized).byteLength > MAX_CUSTOM_SCENARIO_BYTES) return { ok: false, error: 'カスタムシナリオのデータが大きすぎます。' };
   const parsed = parseBoundedJson(serialized, MAX_CUSTOM_SCENARIO_BYTES);
   if (!parsed.ok) return parsed;
+  if (!withinCustomCatalogBudget(parsed.value)) return { ok: false, error: 'カスタムシナリオ履歴の展開上限を超えています。不要な履歴を整理してください。' };
   const loaded = parseCustomScenarioData(parsed.value);
-  if (!loaded.ok) { replaceCustomScenarios([]); return loaded; }
+  if (!loaded.ok) return loaded;
   const history = isRecord(parsed.value) ? parsed.value.history : undefined;
   const archived: ScenarioDefinition[] = [];
   if (history !== undefined) {
@@ -425,14 +495,21 @@ export function saveCustomScenario(storage: ScenarioStorageLike, source: Scenari
   const next = new Map(customScenarios); next.set(scenario.id, scenario);
   if (next.size > MAX_CUSTOM_SCENARIOS) return { ok: false, error: `カスタムシナリオは${MAX_CUSTOM_SCENARIOS}件までです。` };
   const previous = customScenarios.get(scenario.id);
-  const history = previous ? [...archivedScenarios, previous] : archivedScenarios;
-  if (history.length > 256) return { ok: false, error: '互換性保護用のシナリオ履歴が上限に達しました。バックアップを保存してください。' };
+  const unchanged = previous !== undefined
+    && JSON.stringify(scenarioDefinitionToData(previous)) === JSON.stringify(scenarioDefinitionToData(scenario));
+  const retainedHistory = pruneUnreferencedHistory(storage, archivedScenarios);
+  const history = previous && !unchanged ? [...retainedHistory, previous] : retainedHistory;
+  if (history.length > 256) return { ok: false, error: '旧形式セーブが必要とする履歴を安全に整理できません。該当セーブを読み込んで新形式で保存するか、不要なセーブを削除してください。' };
   const serialized = JSON.stringify({ schemaVersion: CUSTOM_SCENARIOS_SCHEMA_VERSION, scenarios: [...next.values()].map(scenarioDefinitionToData), history: history.map(scenarioDefinitionToData) });
   if (new TextEncoder().encode(serialized).byteLength > MAX_CUSTOM_SCENARIO_BYTES) return { ok: false, error: 'カスタムシナリオのデータが大きすぎます。' };
-  try { storage.setItem(CUSTOM_SCENARIOS_KEY, serialized); } catch { return { ok: false, error: 'カスタムシナリオを書き込めませんでした。' }; }
-  archivedScenarios = history;
-  replaceCustomScenarios([...next.values()]);
-  return { ok: true, value: scenario };
+  try {
+    if (storage.getItem(CUSTOM_SCENARIOS_KEY) !== serialized) storage.setItem(CUSTOM_SCENARIOS_KEY, serialized);
+  } catch { return { ok: false, error: 'カスタムシナリオを書き込めませんでした。' }; }
+  if (!unchanged || history.length !== archivedScenarios.length) {
+    archivedScenarios = history;
+    replaceCustomScenarios([...next.values()]);
+  }
+  return { ok: true, value: unchanged ? previous : scenario };
 }
 
 /** Removing a catalog entry preserves its old definition for legacy saves. */
@@ -440,9 +517,10 @@ export function deleteCustomScenario(storage: ScenarioStorageLike, id: string): 
   const previous = customScenarios.get(id);
   if (!previous) return { ok: false, error: 'カスタムシナリオが見つかりません。' };
   const next = [...customScenarios.values()].filter(scenario => scenario.id !== id);
-  const history = [...archivedScenarios, previous];
+  const history = [...pruneUnreferencedHistory(storage, archivedScenarios), previous];
   const serialized = JSON.stringify({ schemaVersion: CUSTOM_SCENARIOS_SCHEMA_VERSION, scenarios: next.map(scenarioDefinitionToData), history: history.map(scenarioDefinitionToData) });
-  if (history.length > 256 || new TextEncoder().encode(serialized).byteLength > MAX_CUSTOM_SCENARIO_BYTES) return { ok: false, error: 'シナリオ履歴の保存容量を超えています。' };
+  if (history.length > 256) return { ok: false, error: '旧形式セーブが必要とする履歴を安全に整理できません。該当セーブを読み込んで新形式で保存するか、不要なセーブを削除してください。' };
+  if (new TextEncoder().encode(serialized).byteLength > MAX_CUSTOM_SCENARIO_BYTES) return { ok: false, error: 'シナリオ履歴の保存容量を超えています。' };
   try { storage.setItem(CUSTOM_SCENARIOS_KEY, serialized); }
   catch { return { ok: false, error: 'カスタムシナリオを削除できませんでした。' }; }
   archivedScenarios = history;

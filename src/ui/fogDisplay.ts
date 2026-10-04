@@ -1,13 +1,26 @@
-import { isPropertyTerrainKind, visiblePositions, type GameState, type PlayerId, type Position, type Terrain } from '../game';
+import {
+  isPropertyTerrainKind,
+  visiblePositions,
+  type GameState,
+  type PlayerId,
+  type Position,
+  type Terrain,
+} from "../game";
 
 /**
  * The tiles the screen may draw for `viewer`: every tile when the whole board is
  * shown, otherwise the viewer's fog of war. Every fog-dependent view (board,
  * tile inspector, presentation effects, recon count) goes through this.
  */
-export function displayedPositions(state: GameState, viewer: PlayerId, wholeBoard: boolean): Position[] {
+export function displayedPositions(
+  state: GameState,
+  viewer: PlayerId,
+  wholeBoard: boolean,
+): Position[] {
   if (!wholeBoard) return visiblePositions(state, viewer);
-  return Array.from({ length: state.board.height }, (_, y) => Array.from({ length: state.board.width }, (_, x) => ({ x, y }))).flat();
+  return Array.from({ length: state.board.height }, (_, y) =>
+    Array.from({ length: state.board.width }, (_, x) => ({ x, y })),
+  ).flat();
 }
 
 /**
@@ -20,11 +33,14 @@ export function displayedPositions(state: GameState, viewer: PlayerId, wholeBoar
  * Whether a tile is visible is the viewer's public knowledge, so showing
  * 'unknown' reveals nothing by itself.
  */
-export function observedCapturePoints(tile: Terrain, visible: boolean): number | 'unknown' | undefined {
+export function observedCapturePoints(
+  tile: Terrain,
+  visible: boolean,
+): number | "unknown" | undefined {
   if (!isPropertyTerrainKind(tile.kind)) return undefined;
-  return visible ? tile.capturePoints : 'unknown';
+  return visible ? tile.capturePoints : "unknown";
 }
 
-export function capturePointsLabel(value: number | 'unknown'): string {
-  return value === 'unknown' ? '不明' : `${value}`;
+export function capturePointsLabel(value: number | "unknown"): string {
+  return value === "unknown" ? "不明" : `${value}`;
 }

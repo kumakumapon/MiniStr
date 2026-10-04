@@ -1,7 +1,15 @@
 /** Injected by Vite; tests and local non-Vite consumers still have a label. */
-export const buildInfo = typeof __BUILD_INFO__ === 'undefined' ? { version: 'development', sha: 'unknown' } : __BUILD_INFO__;
+export const buildInfo =
+  typeof __BUILD_INFO__ === "undefined"
+    ? { version: "development", sha: "unknown" }
+    : __BUILD_INFO__;
 
-export function diagnosticReport(options: { persistent: boolean; bytes: number; locale: string; viewport: { width: number; height: number } }): string {
+export function diagnosticReport(options: {
+  persistent: boolean;
+  bytes: number;
+  locale: string;
+  viewport: { width: number; height: number };
+}): string {
   return JSON.stringify(
     {
       schemaVersion: 1,

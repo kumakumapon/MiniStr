@@ -1,7 +1,11 @@
-import type { StorageLike } from '../game/session';
+import type { StorageLike } from "../game/session";
 
 /** Capture a throwing browser getter and keep a coherent session-only copy. */
-export function createBrowserStorage(provider: () => Storage): StorageLike & { readonly persistent: boolean; readonly conflicted: boolean; markExternalChange(): void } {
+export function createBrowserStorage(provider: () => Storage): StorageLike & {
+  readonly persistent: boolean;
+  readonly conflicted: boolean;
+  markExternalChange(): void;
+} {
   const memory = new Map<string, string>();
   let backend: Storage | undefined;
   let conflicted = false;
@@ -9,7 +13,7 @@ export function createBrowserStorage(provider: () => Storage): StorageLike & { r
     backend = provider();
     for (let i = 0; i < backend.length; i++) {
       const key = backend.key(i);
-      if (key?.startsWith('ministr.')) memory.set(key, backend.getItem(key)!);
+      if (key?.startsWith("ministr.")) memory.set(key, backend.getItem(key)!);
     }
   } catch {
     backend = undefined;
@@ -34,7 +38,9 @@ export function createBrowserStorage(provider: () => Storage): StorageLike & { r
     },
     key(index) {
       try {
-        return backend ? backend.key(index) : ([...memory.keys()][index] ?? null);
+        return backend
+          ? backend.key(index)
+          : ([...memory.keys()][index] ?? null);
       } catch {
         backend = undefined;
         return [...memory.keys()][index] ?? null;
@@ -54,7 +60,8 @@ export function createBrowserStorage(provider: () => Storage): StorageLike & { r
       return memory.get(key) ?? null;
     },
     setItem(key, value) {
-      if (conflicted) throw Error('Storage changed in another tab; reload before writing');
+      if (conflicted)
+        throw Error("Storage changed in another tab; reload before writing");
       if (backend) {
         // Quota errors must reach transactional callers; do not claim persistence.
         backend.setItem(key, value);
@@ -62,7 +69,8 @@ export function createBrowserStorage(provider: () => Storage): StorageLike & { r
       memory.set(key, value);
     },
     removeItem(key) {
-      if (conflicted) throw Error('Storage changed in another tab; reload before writing');
+      if (conflicted)
+        throw Error("Storage changed in another tab; reload before writing");
       backend?.removeItem(key);
       memory.delete(key);
     },

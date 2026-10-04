@@ -41,6 +41,8 @@
 - `npm run format:check`: 成功。
 - `npm run build`: 成功。部分checkoutに背景画像2点がないためViteが解決時の警告を出すが、GitHub上のmainには存在する。
 - `npm run typecheck:test`: 成功。
+- `FocusRestoreGuard`の新旧render/focus revision条件をNode assertionで検査: 成功。
+- `npx playwright test --list`: Chromium全体とFirefox/WebKit互換性suiteに44件を登録。
 - Vitestは実行したテストの成功表示後にrunnerが終了せず、終了コード0を確認できなかったため、全体成功とは数えない。
 - Playwrightブラウザのダウンロードは配布元から0 byteの不完全archiveが返り、Chromium/Firefox/WebKitをこの環境に導入できなかった。実E2EはPR CIで確認する。
 - 実機アクセシビリティ、初心者評価、追加balance matrix、画像の完全decode/実転送計測は未実施。
