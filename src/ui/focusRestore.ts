@@ -16,9 +16,6 @@ export class FocusRestoreGuard {
   }
 
   isCurrent(ticket: FocusRestoreTicket, renderRevision: number): boolean {
-    return (
-      ticket.renderRevision === renderRevision &&
-      ticket.focusRevision === this.focusRevision
-    );
+    return ticket.renderRevision === renderRevision && ticket.focusRevision === this.focusRevision;
   }
 }

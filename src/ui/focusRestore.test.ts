@@ -1,8 +1,8 @@
-import { describe, expect, it } from "vitest";
-import { FocusRestoreGuard } from "./focusRestore";
+import { describe, expect, it } from 'vitest';
+import { FocusRestoreGuard } from './focusRestore';
 
-describe("deferred focus restoration", () => {
-  it("does not steal focus after a newer user focus change", () => {
+describe('deferred focus restoration', () => {
+  it('does not steal focus after a newer user focus change', () => {
     const guard = new FocusRestoreGuard();
     const ticket = guard.capture(4);
 
@@ -11,7 +11,7 @@ describe("deferred focus restoration", () => {
     expect(guard.isCurrent(ticket, 4)).toBe(false);
   });
 
-  it("rejects restoration from an older render", () => {
+  it('rejects restoration from an older render', () => {
     const guard = new FocusRestoreGuard();
     const ticket = guard.capture(4);
 

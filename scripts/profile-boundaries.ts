@@ -1,16 +1,8 @@
 /** Node microbenchmarks; these are not mobile-browser latency measurements. */
-import { performance } from "node:perf_hooks";
-import { execFileSync } from "node:child_process";
-import {
-  applyGameCommand,
-  createScenarioInitialState,
-  listSaveSlots,
-  maps,
-  saveGameToSlot,
-  type StorageLike,
-  type GameCommand,
-} from "../src/game";
-import { chooseCpuAction } from "../src/ai";
+import { performance } from 'node:perf_hooks';
+import { execFileSync } from 'node:child_process';
+import { applyGameCommand, createScenarioInitialState, listSaveSlots, maps, saveGameToSlot, type StorageLike, type GameCommand } from '../src/game';
+import { chooseCpuAction } from '../src/ai';
 
 class MemoryStorage implements StorageLike {
   data = new Map<string, string>();
@@ -50,13 +42,13 @@ function measure(run: () => unknown, samples: number) {
 const storage = new MemoryStorage();
 const initialState = createScenarioInitialState({
   ...maps[0]!,
-  id: "profile-long",
+  id: 'profile-long',
   turnLimit: 1000,
 });
 let state = initialState;
 const commands: GameCommand[] = [];
 for (let i = 0; i < 150; i++) {
-  const command = { type: "endTurn" } as const;
+  const command = { type: 'endTurn' } as const;
   const result = applyGameCommand(state, command);
   if (!result.ok) throw Error(result.error);
   state = result.value;
@@ -65,7 +57,7 @@ for (let i = 0; i < 150; i++) {
 for (let i = 0; i < 12; i++) {
   const result = saveGameToSlot(storage, `profile-${i}`, `Profile ${i}`, {
     mapId: initialState.scenarioId!,
-    difficulty: "normal",
+    difficulty: 'normal',
     initialState,
     gameState: state,
     commands,
@@ -82,17 +74,15 @@ const cachedList = measure(() => listSaveSlots(storage), 100);
 const normal = createScenarioInitialState(maps[0]!);
 const large = createScenarioInitialState({
   ...maps[0]!,
-  id: "profile-large",
+  id: 'profile-large',
   board: {
     width: 32,
     height: 32,
-    terrain: Array.from({ length: 32 }, () =>
-      Array.from({ length: 32 }, () => ({ kind: "plain" as const })),
-    ),
+    terrain: Array.from({ length: 32 }, () => Array.from({ length: 32 }, () => ({ kind: 'plain' as const }))),
   },
   initialUnits: Array.from({ length: 128 }, (_, i) => ({
-    kind: "infantry" as const,
-    owner: i < 64 ? ("red" as const) : ("blue" as const),
+    kind: 'infantry' as const,
+    owner: i < 64 ? ('red' as const) : ('blue' as const),
     x: i % 32,
     y: i < 64 ? Math.floor(i / 32) : 30 + Math.floor((i - 64) / 32),
   })),
@@ -100,18 +90,18 @@ const large = createScenarioInitialState({
 console.log(
   JSON.stringify(
     {
-      sha: execFileSync("git", ["rev-parse", "HEAD"], {
-        encoding: "utf8",
+      sha: execFileSync('git', ['rev-parse', 'HEAD'], {
+        encoding: 'utf8',
       }).trim(),
       runtime: process.version,
       platform: process.platform,
-      note: "Node-only; heap deltas include GC; no browser/render/p95 guarantee",
+      note: 'Node-only; heap deltas include GC; no browser/render/p95 guarantee',
       slots: 12,
       commandsPerSlot: 150,
       coldList,
       cachedList,
-      normalCpu: measure(() => chooseCpuAction(normal, "hard"), 20),
-      largeCpu: measure(() => chooseCpuAction(large, "hard"), 10),
+      normalCpu: measure(() => chooseCpuAction(normal, 'hard'), 20),
+      largeCpu: measure(() => chooseCpuAction(large, 'hard'), 10),
     },
     null,
     2,
