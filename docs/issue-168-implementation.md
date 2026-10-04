@@ -10,20 +10,20 @@
 
 | # | 結果 | 実施内容・残件 |
 | --- | --- | --- |
-| 01 | ◐ | render世代に加えて利用者のfocus変更世代を確認する復元ガードを追加し、回帰テストを追加。Chromium/Firefox/WebKitとPagesゲートはPR CIで確認する。 |
+| 01 | ◐ | render世代に加えて利用者のfocus変更世代を確認する復元ガードを追加し、回帰テストを追加。Chromium/Firefox/WebKitとcommit-hygieneはPR CIで確認する。Pages workflow自体はmainへのpush時のみなので、このPRでは未実行。 |
 | 02 | ✓ | バックアップの候補検証をdry-runで行い、失敗時は実行中カタログの正確なsnapshotを復元する。候補不正・既存カタログ破損の回帰を追加。 |
 | 03 | ✓ | 展開前にカスタムシナリオ総セル数・部隊数を制限し、失敗時に既存カタログを保つ。 |
 | 04 | ✓ | 対話開始・再開・replayに盤面/部隊/履歴予算を適用し、古い大規模セーブのparse/exportを維持する。 |
 | 05 | ✓ | 同一内容の保存をno-op化し、旧形式セーブが参照しない履歴だけを整理。300回保存・履歴上限・旧形式参照を検査。 |
 | 06 | ✓ | 撃破得点と複数勝利条件を考慮し、静的に断定できない条件は警告へ分離。 |
 | 07 | ✓ | endTurnで即時勝利が成立するCPUターンは追加行動より終了を優先。hold勝利fixtureを追加。 |
-| 08 | ◐ | editorのundo/redo状態、入力履歴のグループ化、書出し通知、縮小時hold目標・不正サイズを改善。IME/実ブラウザの回帰はCI待ち。 |
+| 08 | ◐ | editorのundo/redo状態、入力履歴のグループ化、書出し通知、縮小時hold目標・不正サイズを改善。該当E2Eは成功。IME個別評価は未実施。 |
 | 09 | ✓ | replay/backupの非同期読込をrequest IDと画面revisionで保護し、古い成功・失敗を無効化。 |
 | 10 | ◐ | バックアップ復元時の`document.lang`を同期。学習/編集/保存エラーを含む全UI翻訳は継続課題。 |
 | 11 | ◐ | 主要文字を相対単位化し、実際のcomputed font size・modal Tab循環をE2Eに追加。実機タッチ、読み上げ、コントラスト評価は未実施。 |
-| 12 | ◐ | dense 32×32盤面の性能予算テストを追加し、editor tile検索をMap参照に変更。実ブラウザ計測と長時間処理の取消/分割はCI・別作業で確認する。 |
+| 12 | ◐ | dense 32×32盤面E2Eは三つのbrowser projectで315.5〜512.0ms、5秒基準内。editor tile検索をMap参照に変更。長時間処理の取消/分割や広範な実機計測は未実施。 |
 | 13 | ◐ | async request、screen revision、focus restoreを小さなUIモジュールへ分離。`main.ts`全体の状態遷移整理は未完了。 |
-| 14 | ◐ | malformed input/状態境界の単体・配布UIケースを追加。3ブラウザE2EはCI待ち。 |
+| 14 | ✓ | malformed input/状態境界fixtureと配布UIケースを追加。PR CIで3 browser projectを含む44件が成功。 |
 | 15 | ◐ | 復元前に全候補を検証し、変更件数と削除対象を確認できるpreviewを追加。複数タブ間の復元競合は未実装。 |
 | 16 | — | 今回は目的別・陣営別の拡張balance matrixを実行していない。前回の比較記録を新規計測として扱わず、fixtureと判定方法を別途整える。 |
 | 17 | ◐ | 練習進捗をコマンド履歴ではなく占領結果・同一輸送船の搭乗/上陸結果で判定。初心者による実利用評価は未実施。 |
@@ -43,8 +43,9 @@
 - `npm run typecheck:test`: 成功。
 - `FocusRestoreGuard`の新旧render/focus revision条件をNode assertionで検査: 成功。
 - `npx playwright test --list`: Chromium全体とFirefox/WebKit互換性suiteに44件を登録。
-- Vitestは実行したテストの成功表示後にrunnerが終了せず、終了コード0を確認できなかったため、全体成功とは数えない。
-- Playwrightブラウザのダウンロードは配布元から0 byteの不完全archiveが返り、Chromium/Firefox/WebKitをこの環境に導入できなかった。実E2EはPR CIで確認する。
+- ローカルVitest runnerは成功表示後も終了しなかったが、GitHub Actions run [#235](https://github.com/kumakumapon/MiniStr/actions/runs/37182798388)ではcoverage 52 files / 497 tests、配布UI 7 tests、Playwright 44 testsがすべて成功。
+- ローカルのPlaywright browser取得は0 byte archiveで失敗。CI側のbrowser取得・実行は成功し、32×32 editor renderは315.5〜512.0ms。
+- Pages workflowはmainへのpush時のみ起動し、このPRではPages upload/deploy jobを実行していない。PR CIのbuild・テストゲートは成功。
 - 実機アクセシビリティ、初心者評価、追加balance matrix、画像の完全decode/実転送計測は未実施。
 
 ## 変更の境界
