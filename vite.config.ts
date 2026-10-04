@@ -8,7 +8,9 @@ const sha =
   process.env.GITHUB_SHA ??
   (() => {
     try {
-      return execFileSync('git', ['rev-parse', '--short=12', 'HEAD'], { encoding: 'utf8' }).trim();
+      return execFileSync('git', ['rev-parse', '--short=12', 'HEAD'], {
+        encoding: 'utf8',
+      }).trim();
     } catch {
       return 'source-archive';
     }

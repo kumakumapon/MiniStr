@@ -58,7 +58,10 @@ export function renderBriefingOverlay(options: {
   backToTitle?: boolean;
 }): string {
   if (!options.visible) return '';
-  const headings = options.conditionHeadings ?? { victory: uiText.victoryConditions, defeat: uiText.defeatConditions };
+  const headings = options.conditionHeadings ?? {
+    victory: uiText.victoryConditions,
+    defeat: uiText.defeatConditions,
+  };
   const modeChoice = options.campaignRun || options.matchMode === undefined ? '' : renderMatchModeChoice(options.matchMode);
   const difficultyChoice =
     options.campaignRun || options.matchMode !== 'spectate' || !options.spectateDifficulties ? '' : renderSpectateDifficultyChoice(options.spectateDifficulties);

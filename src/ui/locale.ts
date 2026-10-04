@@ -5,7 +5,9 @@ export function setLocale(value: string | null): Locale {
   locale = value === 'en' ? 'en' : 'ja';
   return locale;
 }
-type Localized<T> = { [K in keyof T]: T[K] extends (...args: infer A) => string ? (...args: A) => string : string };
+type Localized<T> = {
+  [K in keyof T]: T[K] extends (...args: infer A) => string ? (...args: A) => string : string;
+};
 export function localized<T extends object>(ja: T, en: Localized<T>): Localized<T> {
   return new Proxy(ja as unknown as Localized<T>, {
     get(target, key: string) {
@@ -16,7 +18,10 @@ export function localized<T extends object>(ja: T, en: Localized<T>): Localized<
 export const formatNumber = (value: number): string => new Intl.NumberFormat(locale).format(value);
 export function formatDate(value: string): string {
   return Number.isFinite(Date.parse(value))
-    ? new Intl.DateTimeFormat(locale, { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(value))
+    ? new Intl.DateTimeFormat(locale, {
+        dateStyle: 'medium',
+        timeStyle: 'short',
+      }).format(new Date(value))
     : locale === 'ja'
       ? '日時不明'
       : 'Unknown date';

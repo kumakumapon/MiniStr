@@ -7,16 +7,21 @@ const resultCache = new ResultCache();
 let learningOpen = false;
 import { ScreenController } from './ui/screenController';
 const screens = new ScreenController();
+import { AsyncRequestGate } from './ui/asyncRequest';
+const fileReadGate = new AsyncRequestGate();
+import { installModalFocusTrap } from './ui/modalFocus';
+import { FocusRestoreGuard } from './ui/focusRestore';
 import { EditorHistory, inspectEditorScenario, paintEditor, resizeEditor, type PaintMode } from './game/editorTools';
 import { renderEditorView } from './ui/editorView';
 import { deleteCustomScenario, scenarioDefinitionToData } from './game/maps';
 import { ReplayTimeline } from './game/replayTimeline';
 import { renderReplayNavigation } from './ui/replayControls';
-import { exportBackup, restoreBackup, MAX_BACKUP_BYTES } from './game/backup';
+import { exportBackup, previewBackup, restoreBackup, MAX_BACKUP_BYTES } from './game/backup';
 import { downloadJson } from './ui/download';
 import { createBrowserStorage } from './ui/storage';
 import { observedEnemy } from './game/fog';
 import { scenarioForState } from './game/maps';
+import { withinInteractiveMatchBudget } from './game/session';
 const localStorage = createBrowserStorage(() => window.localStorage);
 document.documentElement.lang = setLocale(localStorage.getItem('ministr.locale'));
 import { isEmbarkableUnit, isMergeableUnit, otherPlayer, transportCapacity } from './game';
@@ -103,7 +108,16 @@ let editor: ScenarioEditorState = createScenarioEditor();
 let editorNotice = '';
 const editorHistory = new EditorHistory();
 let paintMode: PaintMode = 'brush';
-function commitEditor(next: ScenarioEditorState): void { editor = editorHistory.commit(editor, next); }
+function syncEditorHistoryControls(): void {
+  const undo = app.querySelector<HTMLButtonElement>('#editor-undo');
+  const redo = app.querySelector<HTMLButtonElement>('#editor-redo');
+  if (undo) undo.disabled = !editorHistory.canUndo;
+  if (redo) redo.disabled = !editorHistory.canRedo;
+}
+function commitEditor(next: ScenarioEditorState, group?: string): void {
+  editor = editorHistory.commit(editor, next, group);
+  syncEditorHistoryControls();
+}
 let focusSelector: string | undefined;
 const END_TURN_CONFIRM_KEY = 'ministr.confirmEndTurnWithUnacted';
 let confirmEndTurnWithUnacted = localStorage.getItem(END_TURN_CONFIRM_KEY) !== 'false';
@@ -111,6 +125,9 @@ const loadedCampaign = loadCampaignProgress(localStorage);
 let campaignProgress = loadedCampaign.ok ? loadedCampaign.value : createCampaignProgress();
 let campaignNotice = loadedCampaign.ok ? '' : loadedCampaign.error;
 const app = document.querySelector<HTMLDivElement>('#app')!;
+installModalFocusTrap(document);
+const focusRestoreGuard = new FocusRestoreGuard();
+document.addEventListener('focusin', () => focusRestoreGuard.noteFocusChange());
 const difficultyNames: Record<CpuDifficulty, string> = { easy: '易しい', normal: '普通', hard: '難しい' };
 const cpuDifficulties: readonly CpuDifficulty[] = ['easy', 'normal', 'hard'];
 /** Form values are checked against the known levels rather than cast. */
@@ -357,6 +374,10 @@ function continueSavedGame(slotId?: string): boolean {
   const loaded = selectedSlot ? loadGameFromSlot(localStorage, selectedSlot) : loadGame(localStorage);
   if (!loaded) { message = 'セーブデータがありません。'; return false; }
   if (!loaded.ok) { message = loaded.error; return false; }
+  if (!withinInteractiveMatchBudget(loaded.value.initialState, loaded.value.gameState, loaded.value.commands.length)) {
+    message = 'このセーブは現在の対話プレイ上限を超えています。元データは保持されています。バックアップから書き出して保管できます。';
+    return false;
+  }
   const map = scenarioForState(loaded.value.initialState);
   if (!map) { message = 'セーブデータのマップは利用できません。'; return false; }
   if (!confirmReplaceMatch()) return false;
@@ -446,6 +467,11 @@ function completedReplay(): ReturnType<typeof createReplay> {
   });
 }
 function beginReplay(file: ReplayFile): void {
+  if (!withinInteractiveMatchBudget(file.initialState, file.finalState, file.commands.length)) {
+    message = 'このリプレイは現在の対話プレイ上限を超えています。現在の対局は保持されています。';
+    render();
+    return;
+  }
   if (screens.titleOpen) leaveTitleAndReturn();
   commandScheduler.cancel();
   cpuInProgress = false;
@@ -505,22 +531,26 @@ function chooseReplayFile(event: Event): void {
   const file = input.files?.[0];
   input.value = '';
   // A rejected file leaves the title open; say why there.
-  if (file) void importReplay(file).then(() => {
+  if (file) void importReplay(file).then(applied => {
+    if (!applied) return;
     if (!screens.titleOpen) return;
     titleNotice = message;
     focusSelector = '#title-import-replay';
     render();
   });
 }
-async function importReplay(file: File): Promise<void> {
-  const expectedGame = game; const expectedScreen = screens.current;
-  if (file.size > MAX_REPLAY_BYTES) { message = 'リプレイデータが大きすぎます。'; render(); return; }
+async function importReplay(file: File): Promise<boolean> {
+  const request = fileReadGate.begin();
+  const expectedGame = game; const expectedRevision = screens.revision;
+  const isCurrent = () => fileReadGate.isCurrent(request) && screens.revision === expectedRevision && game === expectedGame;
+  if (file.size > MAX_REPLAY_BYTES) { message = 'リプレイデータが大きすぎます。'; render(); return true; }
   let text: string;
-  try { text = await file.text(); } catch { message = 'リプレイファイルを読み込めませんでした。'; render(); return; }
-  if (game !== expectedGame || screens.current !== expectedScreen) return;
+  try { text = await file.text(); } catch { if (!isCurrent()) return false; message = 'リプレイファイルを読み込めませんでした。'; render(); return true; }
+  if (!isCurrent()) return false;
   const parsed = parseReplay(text);
-  if (!parsed.ok) { message = parsed.error; render(); return; }
+  if (!parsed.ok) { message = parsed.error; render(); return true; }
   beginReplay(parsed.value);
+  return true;
 }
 
 let renderGeneration = 0;
@@ -805,13 +835,15 @@ function render(): void {
     // up here. A stale one (say, the title card just chosen) would otherwise stop
     // the next redraw from remembering the control actually in use.
     focusSelector = undefined;
-    window.setTimeout(() => generation === renderGeneration && document.querySelector<HTMLElement>(gameOverOverlay ? '#result-title' : editorOverlay ? '#editor-close' : campaignOverlay ? '#campaign-close' : titleOverlay ? titleFocus ?? (titleResumable ? '#title-resume' : '.title-map-card[aria-current="true"]') : concealed ? '#handoff-start' : briefingFocus ?? '#begin-operation')?.focus(), 0);
+    const focusTicket = focusRestoreGuard.capture(generation);
+    window.setTimeout(() => focusRestoreGuard.isCurrent(focusTicket, renderGeneration) && document.querySelector<HTMLElement>(gameOverOverlay ? '#result-title' : editorOverlay ? '#editor-close' : campaignOverlay ? '#campaign-close' : titleOverlay ? titleFocus ?? (titleResumable ? '#title-resume' : '.title-map-card[aria-current="true"]') : concealed ? '#handoff-start' : briefingFocus ?? '#begin-operation')?.focus(), 0);
   }
   else if (focusSelector) {
     const previousSelector = focusSelector;
     focusSelector = undefined;
+    const focusTicket = focusRestoreGuard.capture(generation);
     window.requestAnimationFrame(() => {
-      if (generation !== renderGeneration) return;
+      if (!focusRestoreGuard.isCurrent(focusTicket, renderGeneration)) return;
       const target = app.querySelector<HTMLElement>(previousSelector);
       const focusTarget = target && !('disabled' in target && target.disabled) ? target : app.querySelector<HTMLElement>('#command-panel');
       if (focusTarget?.matches('.tile')) focusTarget.scrollIntoView({ block: 'nearest', inline: 'nearest' });
@@ -836,20 +868,28 @@ function render(): void {
     const input = event.currentTarget as HTMLInputElement;
     const file = input.files?.[0]; input.value = '';
     if (!file) return;
+    const request = fileReadGate.begin();
+    const expectedGame = game; const expectedRevision = screens.revision;
+    const isCurrent = () => fileReadGate.isCurrent(request) && screens.revision === expectedRevision && game === expectedGame;
     if (file.size > MAX_BACKUP_BYTES) { message = 'バックアップが大きすぎます。'; titleNotice = message; render(); return; }
-    const expectedGame = game; const expectedScreen = screens.current;
     let text: string;
-    try { text = await file.text(); } catch { message = 'バックアップファイルを読み込めませんでした。'; titleNotice = message; render(); return; }
-    if (game !== expectedGame || screens.current !== expectedScreen) return;
-    if (!window.confirm('バックアップの内容で保存データを置き換えますか？現在のデータを先にバックアップしてください。')) return;
-    const restored = restoreBackup(localStorage, text);
+    try { text = await file.text(); } catch { if (!isCurrent()) return; message = 'バックアップファイルを読み込めませんでした。'; titleNotice = message; render(); return; }
+    if (!isCurrent()) return;
+    const preview = previewBackup(localStorage, text);
+    if (!preview.ok) { message = preview.error; titleNotice = message; render(); return; }
+    const details = `${preview.value.entryCount}件の項目、${preview.value.saveCount}件のセーブ`
+      + `${preview.value.hasScenarios ? '、カスタムシナリオあり' : ''}${preview.value.hasCampaign ? '、キャンペーン記録あり' : ''}`
+      + `。復元により現在のアプリ項目${preview.value.removedEntryCount}件が削除されます。内容を完全検証してから書き込みます。`;
+    if (!window.confirm(`バックアップ内容を確認してください。\n\n${details}\n\n現在のデータを先にバックアップしてください。復元しますか？`)) return;
+    if (!isCurrent()) return;
+    const restored = restoreBackup(localStorage, preview.value);
     if (restored.ok) {
       loadCustomScenarios(localStorage);
       const progress = loadCampaignProgress(localStorage);
       if (progress.ok) campaignProgress = progress.value;
       soundSettings = loadSoundSettings(localStorage); soundPlayer.setSettings(soundSettings);
       confirmEndTurnWithUnacted = localStorage.getItem(END_TURN_CONFIRM_KEY) !== 'false';
-      setLocale(localStorage.getItem('ministr.locale') === 'en' ? 'en' : 'ja');
+      document.documentElement.lang = setLocale(localStorage.getItem('ministr.locale') === 'en' ? 'en' : 'ja');
     }
     message = restored.ok ? 'バックアップを復元しました。保存一覧から再開できます。' : restored.error;
     titleNotice = message; render();
@@ -1013,8 +1053,28 @@ function render(): void {
     app.querySelector('#editor-redo')?.addEventListener('click', () => { editor = editorHistory.redo(editor); render(); });
     app.querySelector('#editor-paint')?.addEventListener('change', () => { paintMode = field<HTMLSelectElement>('#editor-paint').value as PaintMode; });
     app.querySelector('#editor-resize')?.addEventListener('click', () => {
-      if (!window.confirm('範囲外の地形と部隊を削除してサイズを変更しますか？元に戻せます。')) return;
-      commitEditor(resizeEditor(editor, Number(field<HTMLInputElement>('#editor-width').value), Number(field<HTMLInputElement>('#editor-height').value))); render();
+      const width = Number(field<HTMLInputElement>('#editor-width').value);
+      const height = Number(field<HTMLInputElement>('#editor-height').value);
+      if (![width, height].every(value => Number.isSafeInteger(value) && value >= 2 && value <= 32)) {
+        editorNotice = '幅・高さは2〜32の整数で入力してください。';
+        render();
+        return;
+      }
+      const currentWidth = editor.data.board.width;
+      const currentHeight = editor.data.board.height;
+      if (width === currentWidth && height === currentHeight) {
+        editorNotice = '盤面サイズに変更はありません。';
+        render();
+        return;
+      }
+      const shrinking = width < currentWidth || height < currentHeight;
+      if (shrinking && !window.confirm('範囲外の地形と部隊を削除してサイズを変更しますか？元に戻せます。')) return;
+      const cropped = editor.data.victoryConditions.flatMap(condition => condition.type === 'hold'
+        ? condition.positions.filter(position => position.x >= width || position.y >= height).map(position => `(${position.x + 1}, ${position.y + 1})`)
+        : []);
+      commitEditor(resizeEditor(editor, width, height));
+      editorNotice = cropped.length ? `盤面外になる保持目標があります: ${cropped.join('、')}。勝利条件を修正してください。` : shrinking ? '盤面を縮小しました。範囲外の地形と部隊は削除されました。' : '盤面サイズを変更しました。';
+      render();
     });
     app.querySelector('#editor-theme')?.addEventListener('change', () => { commitEditor({ ...editor, data: { ...editor.data, theme: field<HTMLSelectElement>('#editor-theme').value as ScenarioTheme } }); });
     app.querySelector('#editor-load')?.addEventListener('click', () => {
@@ -1048,10 +1108,12 @@ function render(): void {
     field<HTMLSelectElement>('#editor-owner').onchange = () => { const value = field<HTMLSelectElement>('#editor-owner').value; editor = { ...editor, owner: value === '' ? undefined : value as PlayerId }; };
     field<HTMLSelectElement>('#editor-unit-kind').onchange = () => { editor = { ...editor, unitKind: field<HTMLSelectElement>('#editor-unit-kind').value as UnitKind }; };
     field<HTMLSelectElement>('#editor-unit-owner').onchange = () => { editor = { ...editor, unitOwner: field<HTMLSelectElement>('#editor-unit-owner').value as PlayerId }; };
-    field<HTMLInputElement>('#editor-id').oninput = () => { commitEditor({ ...editor, data: { ...editor.data, id: field<HTMLInputElement>('#editor-id').value } }); };
-    field<HTMLInputElement>('#editor-name').oninput = () => { commitEditor({ ...editor, data: { ...editor.data, name: field<HTMLInputElement>('#editor-name').value } }); };
-    field<HTMLTextAreaElement>('#editor-briefing').oninput = () => { commitEditor({ ...editor, data: { ...editor.data, briefing: field<HTMLTextAreaElement>('#editor-briefing').value } }); };
-    field<HTMLInputElement>('#editor-gold').oninput = () => { commitEditor({ ...editor, data: { ...editor.data, startingGold: Number(field<HTMLInputElement>('#editor-gold').value) } }); };
+    for (const selector of ['#editor-id', '#editor-name', '#editor-briefing', '#editor-gold'])
+      field<HTMLInputElement | HTMLTextAreaElement>(selector).addEventListener('blur', () => editorHistory.finishGroup());
+    field<HTMLInputElement>('#editor-id').oninput = () => { commitEditor({ ...editor, data: { ...editor.data, id: field<HTMLInputElement>('#editor-id').value } }, 'field:id'); };
+    field<HTMLInputElement>('#editor-name').oninput = () => { commitEditor({ ...editor, data: { ...editor.data, name: field<HTMLInputElement>('#editor-name').value } }, 'field:name'); };
+    field<HTMLTextAreaElement>('#editor-briefing').oninput = () => { commitEditor({ ...editor, data: { ...editor.data, briefing: field<HTMLTextAreaElement>('#editor-briefing').value } }, 'field:briefing'); };
+    field<HTMLInputElement>('#editor-gold').oninput = () => { commitEditor({ ...editor, data: { ...editor.data, startingGold: Number(field<HTMLInputElement>('#editor-gold').value) } }, 'field:gold'); };
     field<HTMLSelectElement>('#editor-production-rule').onchange = () => { commitEditor({ ...editor, data: { ...editor.data, productionRules: field<HTMLSelectElement>('#editor-production-rule').value as ProductionRule } }); };
     const updateVictory = () => setEditorVictory(field<HTMLSelectElement>('#editor-victory').value as VictoryCondition['type'], Number(field<HTMLInputElement>('#editor-victory-target').value));
     field<HTMLSelectElement>('#editor-victory').onchange = updateVictory;
@@ -1063,6 +1125,8 @@ function render(): void {
     document.querySelector<HTMLButtonElement>('#editor-export')?.addEventListener('click', () => {
       field<HTMLTextAreaElement>('#editor-json').value = exportScenarioEditorJson(editor);
       editorNotice = 'JSONを書き出しました。';
+      const notice = app.querySelector<HTMLElement>('#editor-notice');
+      if (notice) { notice.hidden = false; notice.textContent = editorNotice; }
     });
     document.querySelector<HTMLButtonElement>('#editor-import')?.addEventListener('click', () => {
       const imported = importScenarioEditorJson(field<HTMLTextAreaElement>('#editor-json').value, editor);

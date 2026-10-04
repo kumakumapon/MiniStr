@@ -127,7 +127,7 @@ describe('locale, learning and user-selected diagnostics', () => {
   });
   it('provides skippable practice guidance and statistics from actual unit rules', () => {
     const state = createScenarioInitialState(maps[0]!);
-    expect(lessonProgress([{ type: 'endTurn' }])).toEqual([false, false, false, true, false, false]);
+    expect(lessonProgress(state, 'red', [{ type: 'endTurn' }])).toEqual([false, false, false, true, false, false]);
     const html = renderLearning({ ...state, scenarioId: 'training' }, 'red', [{ type: 'move', unitId: 'r1', destination: { x: 0, y: 2 } }], true);
     expect(html).toContain('✓ 移動');
     expect(html).toContain('毎ターン消費');

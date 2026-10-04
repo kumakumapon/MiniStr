@@ -1,6 +1,6 @@
 import { forecastCombat, terrainDefenseReduction } from '../game/combat';
 import { observeLogistics } from '../game/fog';
-import { reachablePositionsForPlayer } from '../game/commands';
+import { endTurn, reachablePositionsForPlayer } from '../game/commands';
 import { canProduceUnit, isPropertyTerrainKind, productionKindsForRule, unitLimit } from '../game/facilities';
 import { visibleEnemies as getVisibleEnemies } from '../game/fog';
 import { scenarioForState } from '../game/maps';
@@ -609,6 +609,9 @@ export function createCpuPlanningContext(state: GameState, player: PlayerId, con
 export function chooseCpuAction(state: GameState, difficulty: CpuDifficulty = 'normal', player: PlayerId = state.activePlayer): CpuAction {
   if (state.winner || player !== state.activePlayer) return { type: 'endTurn' };
   state = observeLogistics(state, player);
+  // Never abandon a win secured by ending this turn (notably a completed hold
+  // objective) in order to seek an optional attack or move.
+  if (endTurn(state).winner === player) return { type: 'endTurn' };
   const config = cpuDifficultyConfig[difficulty];
   const capture = orderedUnits(state, player).find(unit => canCapture(state, unit));
   if (capture) return { type: 'capture', unitId: capture.id };

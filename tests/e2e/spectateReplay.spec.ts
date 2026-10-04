@@ -34,7 +34,11 @@ function spectatedReplayJson(red: CpuDifficulty | undefined, blue: CpuDifficulty
 async function importReplay(page: Page, json: string): Promise<void> {
   await page.goto('/');
   // Imported from the title screen (#143).
-  await page.locator('#title-replay-file').setInputFiles({ name: 'replay.json', mimeType: 'application/json', buffer: Buffer.from(json) });
+  await page.locator('#title-replay-file').setInputFiles({
+    name: 'replay.json',
+    mimeType: 'application/json',
+    buffer: Buffer.from(json),
+  });
   await expect(page.locator('.replay-toolbar')).toBeVisible();
 }
 

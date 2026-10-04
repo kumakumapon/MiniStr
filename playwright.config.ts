@@ -10,8 +10,16 @@ export default defineConfig({
   },
   projects: [
     { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
-    { name: 'firefox', testMatch: /compatibility\.spec\.ts/, use: { ...devices['Desktop Firefox'] } },
-    { name: 'webkit', testMatch: /compatibility\.spec\.ts/, use: { ...devices['Desktop Safari'] } },
+    {
+      name: 'firefox',
+      testMatch: /compatibility\.spec\.ts/,
+      use: { ...devices['Desktop Firefox'] },
+    },
+    {
+      name: 'webkit',
+      testMatch: /compatibility\.spec\.ts/,
+      use: { ...devices['Desktop Safari'] },
+    },
   ],
   webServer: {
     command: 'npm run preview -- --host 127.0.0.1 --port 4173',

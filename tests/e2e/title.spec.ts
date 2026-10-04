@@ -117,7 +117,11 @@ test('lands on the start button after going back and forth by keyboard (#143 rev
 test('explains a rejected replay on the title and keeps focus on the import button (#143 review)', async ({ page }) => {
   await page.goto('/');
   await page.locator('#title-import-replay').focus();
-  await page.locator('#title-replay-file').setInputFiles({ name: 'broken.json', mimeType: 'application/json', buffer: Buffer.from('{broken') });
+  await page.locator('#title-replay-file').setInputFiles({
+    name: 'broken.json',
+    mimeType: 'application/json',
+    buffer: Buffer.from('{broken'),
+  });
   await expect(page.locator('.title-notice')).toContainText('リプレイデータが壊れています');
   await expect(page.locator('.title-overlay')).toBeVisible();
   await expect(page.locator('#title-import-replay')).toBeFocused();

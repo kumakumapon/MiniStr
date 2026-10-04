@@ -59,10 +59,15 @@ export function inspectEditorScenario(editor: ScenarioEditorState): EditorIssue[
       sources.some((unit) => (!capture || unitStats[unit.kind].capturePower > 0) && canReach(scenario.board, unit, target, unit.kind));
     const conditions = player === 'red' ? scenario.victoryConditions : scenario.defeatConditions;
     for (const condition of conditions) {
+      const hasAlternative = conditions.some((candidate) => candidate !== condition && candidate.type !== condition.type);
       if (condition.type === 'captureCapital' && !tiles.some((tile) => tile.kind === 'capital' && tile.owner === otherPlayer(player)))
-        add('error', `${player}: 占領対象となる敵司令部がありません。`);
-      if (condition.type === 'score' && !tiles.some((tile) => ['city', 'capital', 'factory', 'airport', 'port'].includes(tile.kind)))
-        add('error', `${player}: スコアを生む拠点がありません。`);
+        add(hasAlternative ? 'warning' : 'error', `${player}: 占領対象となる敵司令部がありません。`);
+      if (
+        condition.type === 'score' &&
+        !tiles.some((tile) => ['city', 'capital', 'factory', 'airport', 'port'].includes(tile.kind)) &&
+        !scenario.initialUnits.some((unit) => unit.owner === otherPlayer(player))
+      )
+        add(hasAlternative ? 'warning' : 'error', `${player}: スコアを得られる拠点も撃破対象もありません。`);
       if (condition.type === 'captureCapital' && !waterTransport)
         scenario.board.terrain.forEach((row, y) =>
           row.forEach((tile, x) => {
@@ -107,7 +112,10 @@ export function paintEditor(editor: ScenarioEditorState, at: Position, mode: Pai
       queue.push({ x: p.x + 1, y: p.y }, { x: p.x - 1, y: p.y }, { x: p.x, y: p.y + 1 }, { x: p.x, y: p.y - 1 });
     }
   }
-  return { ...positions.reduce((state, p) => applyEditorTool(state, p), editor), selected: at };
+  return {
+    ...positions.reduce((state, p) => applyEditorTool(state, p), editor),
+    selected: at,
+  };
 }
 
 export function resizeEditor(editor: ScenarioEditorState, width: number, height: number): ScenarioEditorState {
@@ -117,7 +125,12 @@ export function resizeEditor(editor: ScenarioEditorState, width: number, height:
     selected: { x: 0, y: 0 },
     data: {
       ...editor.data,
-      board: { ...editor.data.board, width, height, cells: editor.data.board.cells.filter(([x, y]) => x < width && y < height) },
+      board: {
+        ...editor.data.board,
+        width,
+        height,
+        cells: editor.data.board.cells.filter(([x, y]) => x < width && y < height),
+      },
       initialUnits: editor.data.initialUnits.filter((unit) => unit.x < width && unit.y < height),
     },
   };
@@ -126,26 +139,35 @@ export function resizeEditor(editor: ScenarioEditorState, width: number, height:
 export class EditorHistory {
   private past: ScenarioEditorState[] = [];
   private future: ScenarioEditorState[] = [];
+  private lastGroup: string | undefined;
   get canUndo() {
     return this.past.length > 0;
   }
   get canRedo() {
     return this.future.length > 0;
   }
-  commit(previous: ScenarioEditorState, next: ScenarioEditorState): ScenarioEditorState {
+  commit(previous: ScenarioEditorState, next: ScenarioEditorState, group?: string): ScenarioEditorState {
     if (previous === next) return next;
-    this.past.push(structuredClone(previous));
-    if (this.past.length > 100) this.past.shift();
+    if (!group || group !== this.lastGroup) {
+      this.past.push(structuredClone(previous));
+      if (this.past.length > 100) this.past.shift();
+    }
+    this.lastGroup = group;
     this.future = [];
     return next;
   }
+  finishGroup(): void {
+    this.lastGroup = undefined;
+  }
   undo(current: ScenarioEditorState): ScenarioEditorState {
+    this.lastGroup = undefined;
     const previous = this.past.pop();
     if (!previous) return current;
     this.future.push(structuredClone(current));
     return previous;
   }
   redo(current: ScenarioEditorState): ScenarioEditorState {
+    this.lastGroup = undefined;
     const next = this.future.pop();
     if (!next) return current;
     this.past.push(structuredClone(current));

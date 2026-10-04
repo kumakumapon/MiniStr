@@ -18,12 +18,34 @@ const terrainColors: Record<TerrainKind, string> = {
 /** Per-theme tweaks that mirror `.theme-* .tile.*` in style.css. */
 const themeColors: Partial<Record<ScenarioTheme, Partial<Record<TerrainKind, string>>>> = {
   desert: { plain: '#c18b48', road: '#d0ae76' },
-  snow: { plain: '#d6e3e5', road: '#c9d6d9', sea: '#4d9ab8', forest: '#2a4838', mountain: '#8b9caa' },
-  urban: { plain: '#838580', road: '#bdb8a9', sea: '#203840', forest: '#56633f', mountain: '#6b6f77' },
-  coastal: { plain: '#c3cf8f', road: '#c9b47f', sea: '#1aa9bd', forest: '#2f6a48', mountain: '#d6c295' },
+  snow: {
+    plain: '#d6e3e5',
+    road: '#c9d6d9',
+    sea: '#4d9ab8',
+    forest: '#2a4838',
+    mountain: '#8b9caa',
+  },
+  urban: {
+    plain: '#838580',
+    road: '#bdb8a9',
+    sea: '#203840',
+    forest: '#56633f',
+    mountain: '#6b6f77',
+  },
+  coastal: {
+    plain: '#c3cf8f',
+    road: '#c9b47f',
+    sea: '#1aa9bd',
+    forest: '#2f6a48',
+    mountain: '#d6c295',
+  },
 };
 
-const ownerColors: Record<PlayerId | 'neutral', string> = { red: '#e0644f', blue: '#4f8fe0', neutral: '#e4dccb' };
+const ownerColors: Record<PlayerId | 'neutral', string> = {
+  red: '#e0644f',
+  blue: '#4f8fe0',
+  neutral: '#e4dccb',
+};
 
 const propertyKinds: ReadonlySet<TerrainKind> = new Set(['city', 'factory', 'airport', 'port', 'capital']);
 

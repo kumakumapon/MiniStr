@@ -1,7 +1,11 @@
 import type { StorageLike } from '../game/session';
 
 /** Capture a throwing browser getter and keep a coherent session-only copy. */
-export function createBrowserStorage(provider: () => Storage): StorageLike & { readonly persistent: boolean; readonly conflicted: boolean; markExternalChange(): void } {
+export function createBrowserStorage(provider: () => Storage): StorageLike & {
+  readonly persistent: boolean;
+  readonly conflicted: boolean;
+  markExternalChange(): void;
+} {
   const memory = new Map<string, string>();
   let backend: Storage | undefined;
   let conflicted = false;
