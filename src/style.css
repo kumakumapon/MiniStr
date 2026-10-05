@@ -23,7 +23,7 @@ button { cursor: pointer; }
 
 /* The key art supports the frame; the game board itself stays deliberately legible. */
 .battlefield-wrap { position: relative; overflow: visible; background: #16251f; }
-.battlefield-wrap::before { position: absolute; inset: 0; content: ''; opacity: .12; background: url('/assets/battlefield-bg.png') center / cover; pointer-events: none; }
+.battlefield-wrap::before { position: absolute; inset: 0; content: ''; opacity: .12; background: url('/assets/battlefield-bg.webp') center / cover; pointer-events: none; }
 .battlefield-wrap > * { position: relative; z-index: 1; }
 .board { background: #274d35; }
 .board-viewport { width: 100%; max-width: 100%; overflow: auto; overscroll-behavior: contain; border-radius: 4px; scrollbar-color: #708d7f #101a16; }
@@ -51,7 +51,7 @@ button { cursor: pointer; }
 
 .game-over { position: fixed; inset: 0; z-index: 100; display: grid; place-items: center; background: #0a1211d9; }.game-over-card { display: grid; gap: 14px; justify-items: center; padding: 34px 46px; text-align: center; border: 1px solid #e8b33b; border-radius: 10px; background: linear-gradient(150deg, #1b2a26, #101817); box-shadow: 0 25px 60px #000a; }.game-over-card h2 { margin: 0; font-family: system-ui, -apple-system, 'Segoe UI', sans-serif; font-stretch: condensed; font-size:2.375rem; color: #fff0b1; }.game-over-card .end-turn { padding: 12px 28px; }
 
-.battlefield-wrap.theme-desert::before { opacity: .18; background-image: url('/assets/desert-frontier.png'); }
+.battlefield-wrap.theme-desert::before { opacity: .18; background-image: url('/assets/desert-frontier.webp'); }
 .battlefield-wrap.theme-desert .board { border-color: #7d5b37; }.battlefield-wrap.theme-desert .tile.plain { background-image: linear-gradient(135deg, #c9944e 0 50%, #b77f3e 50%); }.battlefield-wrap.theme-desert .tile.road { background-image: linear-gradient(18deg, transparent 40%, #e0c188 41% 58%, transparent 59%), linear-gradient(#bd8747, #a76f35); }.battlefield-wrap.theme-desert .tile.mountain { filter: sepia(.28) saturate(1.2); }
 .commander-card.blue { border-color: #427bb9; background: linear-gradient(110deg, #142033 30%, transparent), #1e426c; }.commander-card.blue p { color: #bddcff; }.commander-card.blue span { color: #d2e8ff; }
 .unit-recon, .unit-apc { border-radius: 50% 50% 16% 16%; }.unit-mech { clip-path: polygon(20% 0, 80% 0, 100% 28%, 100% 100%, 0 100%, 0 28%); border-width: 3px; }.unit-heavyTank { border-width: 3px; border-radius: 30% 30% 10% 10%; }.unit-helicopter { border-radius: 50%; }.unit-battleship { clip-path: polygon(0 60%, 100% 60%, 82% 100%, 18% 100%); border-radius: 0; }.unit-rocket { clip-path: polygon(12% 0, 88% 0, 100% 40%, 84% 100%, 16% 100%, 0 40%); border-radius: 0; }
@@ -287,7 +287,7 @@ button, select, .tile { touch-action: manipulation; }
 /* Phase 7.3: index.html adds description/theme-color/viewport-fit meta only — no CSS needed there. */
 
 /* Phase 7.4: map themes. theme-temperate is the original green look, kept as the unqualified base styling below; theme-desert (migrated from the old .desert class, above) keeps its dedicated key-art asset. The three new themes reuse battlefield-bg.png with a CSS gradient wash for the frame tint — no new image assets. */
-.battlefield-wrap.theme-snow::before { background: linear-gradient(160deg, #dce9ec73, #17242640), url('/assets/battlefield-bg.png') center / cover; opacity: .24; filter: saturate(.75); }
+.battlefield-wrap.theme-snow::before { background: linear-gradient(160deg, #dce9ec73, #17242640), url('/assets/battlefield-bg.webp') center / cover; opacity: .24; filter: saturate(.75); }
 .battlefield-wrap.theme-snow .board { border-color: #6d8492; }
 .battlefield-wrap.theme-snow .tile.plain { background-image: linear-gradient(135deg, #dce8ea 0 50%, #c9dbdd 50%); }
 .battlefield-wrap.theme-snow .tile.forest { background-image: radial-gradient(circle at 25% 30%, #16332a 0 8%, transparent 9%), radial-gradient(circle at 72% 68%, #16332a 0 10%, transparent 11%), linear-gradient(135deg, #2c4b3b, #1c3529); }
@@ -298,7 +298,7 @@ button, select, .tile { touch-action: manipulation; }
 .battlefield-wrap.theme-snow .tile.capital { background-color: #b9766a; }
 .battlefield-wrap.theme-snow .tile.port { background-image: linear-gradient(145deg, #244a5c, #4f93a8); }
 
-.battlefield-wrap.theme-urban::before { background: linear-gradient(160deg, #34362f92, #101010c2), url('/assets/battlefield-bg.png') center / cover; opacity: .3; filter: saturate(.7) brightness(.95); }
+.battlefield-wrap.theme-urban::before { background: linear-gradient(160deg, #34362f92, #101010c2), url('/assets/battlefield-bg.webp') center / cover; opacity: .3; filter: saturate(.7) brightness(.95); }
 .battlefield-wrap.theme-urban .board { border-color: #5a5d55; }
 .battlefield-wrap.theme-urban .tile.plain { background-image: linear-gradient(135deg, #8d8f89 0 50%, #797b76 50%); }
 .battlefield-wrap.theme-urban .tile.forest { background-image: radial-gradient(circle at 25% 30%, #4a5432 0 8%, transparent 9%), radial-gradient(circle at 72% 68%, #4a5432 0 10%, transparent 11%), linear-gradient(135deg, #5c6b3f, #495735); }
@@ -309,7 +309,7 @@ button, select, .tile { touch-action: manipulation; }
 .battlefield-wrap.theme-urban .tile.capital { background-color: #8a4a3f; }
 .battlefield-wrap.theme-urban .tile.port { background-image: linear-gradient(145deg, #0f2c34, #1f4a55); }
 
-.battlefield-wrap.theme-coastal::before { background: linear-gradient(160deg, #1fb6c94a, #0d3a4066), url('/assets/battlefield-bg.png') center / cover; opacity: .26; }
+.battlefield-wrap.theme-coastal::before { background: linear-gradient(160deg, #1fb6c94a, #0d3a4066), url('/assets/battlefield-bg.webp') center / cover; opacity: .26; }
 .battlefield-wrap.theme-coastal .board { border-color: #2c8a92; }
 .battlefield-wrap.theme-coastal .tile.plain { background-image: linear-gradient(135deg, #cdd79a 0 50%, #b9c684 50%); }
 .battlefield-wrap.theme-coastal .tile.forest { background-image: radial-gradient(circle at 25% 30%, #1f5138 0 8%, transparent 9%), radial-gradient(circle at 72% 68%, #1f5138 0 10%, transparent 11%), linear-gradient(135deg, #3f8a5e, #2c6b48); }
