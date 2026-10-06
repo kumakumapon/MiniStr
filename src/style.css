@@ -428,8 +428,6 @@ button:focus-visible, select:focus-visible, input:focus-visible, summary:focus-v
   .save-slot-manager li { flex-wrap: wrap; }
 }
 
-
-
 /* Pixel-art battlefield sprites. SVG viewBoxes keep each asset sharp at every board zoom. */
 .tile { isolation: isolate; background-image: none; }
 .tile::before { display: none; }
