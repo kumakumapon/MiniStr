@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" shape-rendering="crispEdges">
+  <defs>
+    <symbol id="unit-infantry" viewBox="0 0 32 32">
+      <path d="M10 24h12v5H10z" fill="#263a3e"/><path d="M12 17h8v8h-8z" fill="currentColor" stroke="#24343a" stroke-width="2"/><path d="M11 8h10v8H11z" fill="#d8c98f" stroke="#24343a" stroke-width="2"/><path d="M10 8a6 6 0 0 1 12 0z" fill="currentColor" stroke="#24343a" stroke-width="2"/><path d="M19 19h10v2H19z" fill="#263a3e"/><path d="M8 20h6v2H8z" fill="#f0d87b"/>
+    </symbol>
+    <symbol id="unit-mech" viewBox="0 0 32 32">
+      <path d="M9 23h5v6H9zm9 0h5v6h-5z" fill="#25383d"/><path d="M10 16h13v9H10z" fill="currentColor" stroke="#25383d" stroke-width="2"/><path d="M11 7h10v8H11z" fill="#d6c88e" stroke="#25383d" stroke-width="2"/><path d="M10 7a6 6 0 0 1 12 0z" fill="currentColor" stroke="#25383d" stroke-width="2"/><path d="m20 18 9-4 1 3-9 5z" fill="#293b40"/><path d="M11 19h4v3h-4z" fill="#f0d87b"/>
+    </symbol>
+    <symbol id="unit-tank" viewBox="0 0 32 32">
+      <rect x="5" y="4" width="7" height="24" rx="2" fill="#263a3e"/><rect x="20" y="4" width="7" height="24" rx="2" fill="#263a3e"/><path d="M8 6h3v3H8zm0 7h3v3H8zm0 7h3v3H8zm12-14h3v3h-3zm0 7h3v3h-3zm0 7h3v3h-3z" fill="#839080"/><rect x="9" y="7" width="14" height="18" rx="3" fill="currentColor" stroke="#24343a" stroke-width="2"/><path d="M13 9h7v10h-7z" fill="#e1d195" stroke="#24343a" stroke-width="2"/><path d="M15 11h4v5h-4z" fill="currentColor"/><path d="M16 3h2v10h-2z" fill="#263a3e"/><path d="M13 22h7v2h-7z" fill="#f0d87b"/>
+    </symbol>
+    <symbol id="unit-heavyTank" viewBox="0 0 32 32">
+      <rect x="3" y="3" width="8" height="26" rx="2" fill="#23373c"/><rect x="21" y="3" width="8" height="26" rx="2" fill="#23373c"/><path d="M5 6h4v4H5zm0 8h4v4H5zm0 8h4v4H5zm14-16h4v4h-4zm0 8h4v4h-4zm0 8h4v4h-4z" fill="#8a947b"/><rect x="8" y="5" width="16" height="22" rx="3" fill="currentColor" stroke="#24343a" stroke-width="2"/><path d="M11 8h10v12H11z" fill="#ddcf97" stroke="#24343a" stroke-width="2"/><path d="M14 10h5v8h-5z" fill="currentColor"/><path d="M15 2h3v11h-3z" fill="#263a3e"/><path d="M11 23h10v2H11z" fill="#f0d87b"/>
+    </symbol>
+    <symbol id="unit-artillery" viewBox="0 0 32 32">
+      <rect x="5" y="8" width="5" height="14" rx="2" fill="#263a3e"/><rect x="22" y="8" width="5" height="14" rx="2" fill="#263a3e"/><path d="M8 21 5 29h3l6-7m5 0 6 7h3l-3-8" fill="none" stroke="#263a3e" stroke-width="2"/><rect x="9" y="12" width="14" height="10" rx="3" fill="currentColor" stroke="#24343a" stroke-width="2"/><path d="M13 12h7v6h-7z" fill="#e1d195" stroke="#24343a" stroke-width="2"/><path d="M15 5h3v11h-3z" fill="#263a3e"/><path d="M12 19h8v2h-8z" fill="#f0d87b"/>
+    </symbol>
+    <symbol id="unit-rocket" viewBox="0 0 32 32">
+      <rect x="5" y="5" width="5" height="22" rx="2" fill="#263a3e"/><rect x="22" y="5" width="5" height="22" rx="2" fill="#263a3e"/><path d="M8 7h16v18H8z" fill="currentColor" stroke="#24343a" stroke-width="2"/><path d="M11 8h10v8H11z" fill="#d8c98f" stroke="#24343a" stroke-width="2"/><path d="m12 8 2-5h2l1 5zm7 0 2-5h2l1 5z" fill="#34454a"/><path d="M12 11h2v4h-2zm6 0h2v4h-2z" fill="#f0d87b"/><path d="M11 21h10v2H11z" fill="#283a3f"/>
+    </symbol>
+    <symbol id="unit-antiAir" viewBox="0 0 32 32">
+      <rect x="5" y="5" width="6" height="22" rx="2" fill="#263a3e"/><rect x="21" y="5" width="6" height="22" rx="2" fill="#263a3e"/><rect x="8" y="8" width="16" height="17" rx="3" fill="currentColor" stroke="#24343a" stroke-width="2"/><path d="M12 10h8v8h-8z" fill="#e1d195" stroke="#24343a" stroke-width="2"/><path d="M14 3h2v12h-2zm4 0h2v12h-2z" fill="#263a3e"/><path d="M10 21h12v2H10z" fill="#f0d87b"/>
+    </symbol>
+    <symbol id="unit-recon" viewBox="0 0 32 32">
+      <path d="M5 8h5v5H5zm17 0h5v5h-5zm-17 12h5v5H5zm17 0h5v5h-5z" fill="#263a3e"/><path d="M8 7h16v19H8z" fill="currentColor" stroke="#24343a" stroke-width="2"/><path d="M11 10h10v7H11z" fill="#d7c98f" stroke="#24343a" stroke-width="2"/><path d="M14 10v7m4-7v7" stroke="#66766d" stroke-width="2"/><path d="M13 20h6v3h-6z" fill="#f0d87b"/>
+    </symbol>
+    <symbol id="unit-apc" viewBox="0 0 32 32">
+      <path d="M4 7h6v6H4zm18 0h6v6h-6zM4 20h6v6H4zm18 0h6v6h-6z" fill="#263a3e"/><path d="M8 5h16v22H8z" fill="currentColor" stroke="#24343a" stroke-width="2"/><path d="M11 8h10v10H11z" fill="#d9ca91" stroke="#24343a" stroke-width="2"/><path d="M13 10h6v6h-6z" fill="#6f8178"/><path d="M11 21h10v3H11z" fill="#f0d87b"/>
+    </symbol>
+    <symbol id="unit-fighter" viewBox="0 0 32 32">
+      <path d="M15 2h3l2 10 10 7v3l-10-2-2 7 4 3v2l-5-2-5 2v-2l4-3-2-7-10 2v-3l10-7z" fill="currentColor" stroke="#24343a" stroke-width="2" stroke-linejoin="round"/><path d="M15 9h3v13h-3z" fill="#e7d9a0"/><path d="M15 26h3v3h-3z" fill="#b84f3d"/>
+    </symbol>
+    <symbol id="unit-bomber" viewBox="0 0 32 32">
+      <path d="M14 2h4l2 10 11 5v4l-11-2-2 7 4 3v2l-5-2-5 2v-2l4-3-2-7-11 2v-4l11-5z" fill="currentColor" stroke="#24343a" stroke-width="2" stroke-linejoin="round"/><path d="M14 9h4v13h-4z" fill="#e7d9a0"/><path d="M11 16h3v3h-3zm7 0h3v3h-3z" fill="#6a7b72"/>
+    </symbol>
+    <symbol id="unit-helicopter" viewBox="0 0 32 32">
+      <path d="M3 8h26v2H3zM15 4h2v5h-2z" fill="#263a3e"/><path d="M11 13h10v9H11z" fill="currentColor" stroke="#24343a" stroke-width="2"/><path d="M14 14h5v5h-5z" fill="#d9e0c4"/><path d="M20 16h8v2h-8zm-8 7h12v2H12zM7 25h19v2H7z" fill="#263a3e"/><path d="M6 24h4v4H6zm16 0h4v4h-4z" fill="#f0d87b"/>
+    </symbol>
+    <symbol id="unit-battleship" viewBox="0 0 32 32">
+      <path d="M14 2h4l3 5v17l-5 6-5-6V7z" fill="currentColor" stroke="#24343a" stroke-width="2"/><path d="M14 8h4v10h-4z" fill="#d8c98f"/><path d="M13 12h6v3h-6z" fill="#263a3e"/><path d="M9 18h4v3H9zm10 0h4v3h-4zM15 4h2v9h-2z" fill="#f0d87b"/><path d="M15 24h2v3h-2z" fill="#497c91"/>
+    </symbol>
+    <symbol id="unit-destroyer" viewBox="0 0 32 32">
+      <path d="M14 3h4l3 5v16l-5 5-5-5V8z" fill="currentColor" stroke="#24343a" stroke-width="2"/><path d="M14 8h4v9h-4z" fill="#d9ca91"/><path d="M13 11h6v2h-6zm-2 7h4v3h-4zm6 0h4v3h-4z" fill="#263a3e"/><path d="M15 4h2v8h-2z" fill="#f0d87b"/>
+    </symbol>
+    <symbol id="unit-landingShip" viewBox="0 0 32 32">
+      <path d="M12 3h8l4 5v15l-8 6-8-6V8z" fill="currentColor" stroke="#24343a" stroke-width="2"/><path d="M12 8h8v10h-8z" fill="#d9ca91"/><path d="M13 10h6v6h-6z" fill="#6f8178"/><path d="M8 20h16v3l-8 4-8-4z" fill="#263a3e"/><path d="M14 4h4v3h-4z" fill="#f0d87b"/>
+    </symbol>
+  </defs>
+</svg>
