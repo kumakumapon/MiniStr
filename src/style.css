@@ -428,3 +428,26 @@ button:focus-visible, select:focus-visible, input:focus-visible, summary:focus-v
   .save-slot-manager li { flex-wrap: wrap; }
 }
 
+/* Pixel-art battlefield sprites. SVG viewBoxes keep each asset sharp at every board zoom. */
+.tile { isolation: isolate; background-image: none; }
+.tile::before { display: none; }
+.terrain-art { position: absolute; z-index: 0; inset: 0; display: block; pointer-events: none; }
+.terrain-art svg { display: block; width: 100%; height: 100%; }
+.tile.fog .terrain-art { display: none; }
+.facility { inset: 4% auto auto 4%; z-index: 1; min-width: 0; max-width: 70%; padding: 2px 4px; border-width: 1px; border-radius: 2px; background: #28352ee8; box-shadow: 0 1px 2px #0008; }
+.facility b { font-size: clamp(.55rem, 1.15vw, .875rem); }
+.facility small { position: static; max-width: 100%; overflow: hidden; font-size: clamp(.35rem, .52vw, .48rem); text-overflow: ellipsis; }
+.facility.red { background: #923d35ed; }.facility.blue { background: #2f6392ed; }.facility.neutral { background: #62583fed; }
+.unit { display: grid; place-items: center; overflow: visible; border: 0; border-radius: 0; background: transparent !important; box-shadow: none; color: #ed7160; text-shadow: none; }
+.unit.blue { color: #83c1fa; }
+.unit-art { display: block; width: 100%; height: 100%; overflow: visible; filter: drop-shadow(0 1px 1px #16251dcc); }
+.unit-art use { fill: currentColor; }
+.unit b { display: none; }
+.unit small { z-index: 2; right: -3px; bottom: -4px; min-width: 14px; padding: 1px 3px; font-size: .5rem; }
+.unit em { top: calc(100% + 2px); z-index: 4; padding: 1px 3px; font-size: .45rem; border-radius: 2px; background: #101817dd; }
+.unit-owner-marker { top: -4px; left: -4px; width: 12px; height: 12px; font-size: .4rem; }
+.unit-fighter, .unit-bomber, .unit-destroyer, .unit-battleship { border-radius: 0; }
+@media (max-width: 640px) {
+  .unit { inset: 5%; width: auto; height: auto; }
+  .unit-art { width: 100%; height: 100%; }
+}
