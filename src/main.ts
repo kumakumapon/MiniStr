@@ -614,9 +614,9 @@ function render(): void {
     const rank = unit ? experienceRank(unit.experience) : 0;
     const unitLabel = unit && !hidden ? `${sideName(matchMode, unit.owner)}の${unitNames[unit.kind]}${rank ? `（${rankNames[rank]}）` : ''}、耐久 ${unit.hp}${cargo ? `、搭載 ${unitNames[cargo.kind]}` : ''}${fuelWarning}` : '';
     const label = unit && !hidden
-      ? `<span class="unit ${unit.owner} unit-${unit.kind}" aria-hidden="true"><svg class="unit-art" viewBox="0 0 32 32" focusable="false"><use href="/assets/unit-sprites.svg#unit-${unit.kind}"></use></svg><small>${unit.hp}</small><em>${unitNames[unit.kind]}${cargo ? `・${unitNames[cargo.kind]}搭載` : ''}</em><i class="unit-owner-marker">${unit.owner === me ? '自' : '敵'}</i>${cargo ? '<i class="cargo-marker">積</i>' : ''}${rank ? `<i class="rank-marker">${rankStars(rank)}</i>` : ''}${fuelWarning ? `<i class="fuel-warning">燃${fuelTurns}</i>` : ''}</span>`
+      ? `<span class="unit ${unit.owner} unit-${unit.kind}" aria-hidden="true"><span class="unit-art"></span><small>${unit.hp}</small><em>${unitNames[unit.kind]}${cargo ? `・${unitNames[cargo.kind]}搭載` : ''}</em><i class="unit-owner-marker">${unit.owner === me ? '自' : '敵'}</i>${cargo ? '<i class="cargo-marker">積</i>' : ''}${rank ? `<i class="rank-marker">${rankStars(rank)}</i>` : ''}${fuelWarning ? `<i class="fuel-warning">燃${fuelTurns}</i>` : ''}</span>`
       : '';
-    const terrainArt = `<span class="terrain-art" aria-hidden="true"><svg viewBox="0 0 48 48" focusable="false"><use href="/assets/terrain-sprites.svg#terrain-${terrain.kind}"></use></svg></span>`;
+    const terrainArt = '';
     const facility = isProperty && !hidden
       ? `<span class="facility facility-${terrain.kind} ${propertyOwner ?? 'neutral'}" aria-hidden="true"><b>${terrain.kind === 'city' ? '市' : terrain.kind === 'factory' ? '工' : terrain.kind === 'airport' ? '空' : terrain.kind === 'port' ? '港' : '司'}</b><small>${propertyOwner === me ? '自軍' : propertyOwner === foe ? '敵軍' : '中立'}${capturePoints !== undefined ? ` ${capturePointsLabel(capturePoints)}` : ''}</small></span>`
       : '';
