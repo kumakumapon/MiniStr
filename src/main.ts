@@ -33,6 +33,7 @@ import { rankNames, rankStars, terrainNames, unitNames, unitTokens } from './ui/
 import { describeTileInspection, inspectTile, type InspectorRow } from './ui/tileInspector';
 import { COMMAND_SPEEDS, CommandScheduler, type CommandSpeed } from './ui/commandScheduler';
 import { effectsForViewer, presentationEffectsForCommand, renderPresentationEffects, type PresentationEffect } from './ui/presentationEffects';
+import { BATTLE_SCENE_DURATION_MS, battleSceneForCommand, renderBattleScene, type BattleScene } from './ui/battleScene';
 import { capturePointsLabel, displayedPositions, observedCapturePoints } from './ui/fogDisplay';
 import { loadSoundSettings, ProceduralSoundPlayer, saveSoundSettings, type SoundSettings } from './ui/sound';
 import { BackgroundMusicPlayer, loadMusicSettings, saveMusicSettings, type MusicSettings } from './ui/music';
@@ -138,6 +139,24 @@ const soundPlayer = new ProceduralSoundPlayer(soundSettings);
 let musicSettings: MusicSettings = loadMusicSettings(localStorage);
 const musicPlayer = new BackgroundMusicPlayer(musicSettings);
 let pendingPresentationEffects: PresentationEffect[] = [];
+let activeBattleScene: BattleScene | undefined;
+let battleSceneTimer: number | undefined;
+
+function showBattleScene(scene: BattleScene): void {
+  if (battleSceneTimer !== undefined) window.clearTimeout(battleSceneTimer);
+  activeBattleScene = scene;
+  battleSceneTimer = window.setTimeout(() => dismissBattleScene(), BATTLE_SCENE_DURATION_MS);
+}
+function dismissBattleScene(redraw = true): void {
+  if (battleSceneTimer !== undefined) window.clearTimeout(battleSceneTimer);
+  battleSceneTimer = undefined;
+  activeBattleScene = undefined;
+  if (redraw) render();
+}
+function battleSceneIsVisible(scene: BattleScene, visible: ReadonlySet<string>): boolean {
+  return [scene.attacker.position, scene.defender.position]
+    .every(position => visible.has(`${position.x},${position.y}`));
+}
 
 // The context is intentionally created only from a real user gesture. CPU and
 // replay playback before that gesture remain silent under browser autoplay rules.
@@ -314,6 +333,11 @@ function dispatch(command: GameCommand, undoable = false): boolean {
     const me = viewer();
     const seen = new Set([...shownPositions(before), ...shownPositions(game)].map(key));
     pendingPresentationEffects.push(...effectsForViewer(effects, before.activePlayer, me, seen));
+    const scene = battleSceneForCommand(before, command, game);
+    if (scene) {
+      const visibleUnits = new Set([...shownPositions(before), ...shownPositions(game)].map(position => `${position.x},${position.y}`));
+      if (before.activePlayer === me || battleSceneIsVisible(scene, visibleUnits)) showBattleScene(scene);
+    }
   }
   finishCampaignBattle();
   return true;
@@ -497,6 +521,11 @@ function advanceReplay(): boolean {
     message = `リプレイを再生できません: ${commandErrorMessage(result.error)}`; render(); return false;
   }
   replay.state = result.value;
+  const battleScene = battleSceneForCommand(before, command, replay.state);
+  if (battleScene) {
+    const visibleUnits = new Set([...visiblePositions(before, viewer()), ...visiblePositions(replay.state, viewer())].map(position => `${position.x},${position.y}`));
+    if (replay.viewpoint === 'all' || battleSceneIsVisible(battleScene, visibleUnits)) showBattleScene(battleScene);
+  }
   const effects = presentationEffectsForCommand(before, command, replay.state);
   pendingPresentationEffects.push(...(replay.viewpoint === 'all' ? effects : effectsForViewer(effects, before.activePlayer, viewer(), new Set([...visiblePositions(before, viewer()), ...visiblePositions(replay.state, viewer())].map(key)))));
   replay.index += 1;
@@ -508,10 +537,10 @@ function advanceReplay(): boolean {
 }
 function scheduleReplay(): void {
   if (!replay?.playing || replay.index >= replay.file.commands.length) return;
-  commandScheduler.start({ step: advanceReplay, nextDelayMs: () => 1000 / replay!.speed });
+  commandScheduler.start({ step: advanceReplay, nextDelayMs: () => activeBattleScene ? BATTLE_SCENE_DURATION_MS + 50 : 1000 / replay!.speed });
 }
 function leaveReplay(): void {
-  commandScheduler.cancel(); pendingPresentationEffects = []; replay = undefined; selected = undefined;
+  commandScheduler.cancel(); dismissBattleScene(false); pendingPresentationEffects = []; replay = undefined; selected = undefined;
   message = game.winner ? '対局結果に戻りました。' : '通常の対局に戻りました。';
   backToTitleIfOpenedThere();
   render();
@@ -714,7 +743,7 @@ function render(): void {
     ? `<button id="campaign-retry" class="save-action">再挑戦</button><button id="campaign-back" class="save-action">キャンペーンへ戻る</button>${campaignOutcome?.nextScenarioId ? '<button id="campaign-next" class="end-turn">次の戦場へ</button>' : ''}`
     : '<button id="restart" class="save-action">もう一度</button>';
   const gameOverOverlay = renderGameOverOverlay({
-    visible: !screens.campaignMenuOpen && !screens.titleOpen && !replayMode && renderedGame.winner !== undefined,
+    visible: !activeBattleScene && !screens.campaignMenuOpen && !screens.titleOpen && !replayMode && renderedGame.winner !== undefined,
     winner: renderedGame.winner,
     summary,
     summaryError: summaryResult && !summaryResult.ok ? summaryResult.error : undefined,
@@ -818,7 +847,7 @@ function render(): void {
     ${replay ? `<section class="replay-toolbar" aria-label="リプレイ再生コントロール"><div><p class="card-kicker">REPLAY</p><strong aria-live="polite">${replay.index} / ${replay.file.commands.length} 手</strong></div><button id="replay-toggle" class="end-turn" aria-label="${replay.playing ? 'リプレイを一時停止' : replay.index >= replay.file.commands.length ? 'リプレイを最初から再生' : 'リプレイを再生'}" ${replay.file.commands.length === 0 ? 'disabled' : ''}>${replay.playing ? '一時停止' : replay.index >= replay.file.commands.length ? 'もう一度再生' : '再生'}</button><button id="replay-step" class="save-action" ${replay.playing || replay.index >= replay.file.commands.length ? 'disabled' : ''}>1手送り</button><label class="replay-speed">速度<select id="replay-speed" aria-label="リプレイ再生速度">${COMMAND_SPEEDS.map(speed => `<option value="${speed}" ${speed === replay!.speed ? 'selected' : ''}>${speed}x</option>`).join('')}</select></label>${renderReplayNavigation(replay.index, replay.file.commands.length, replay.viewpoint, replay.timeline)}<button id="replay-exit" class="save-action">リプレイを終了</button></section>` : ''}
     ${concealed ? '' : `<section class="battle-layout"><div class="battlefield-wrap ${mapTheme}"><div class="battlefield-heading"><div><p>OPERATION MAP</p><h2>${escapeHtml(renderedMap.name)}</h2></div><p class="status-message" aria-live="polite">${escapeHtml(message)}</p></div><p id="board-instructions" class="board-instructions">盤面では矢印キーでマスを移動し、Enter または Space で選択・行動、Esc で選択を解除できます。敵部隊を選択またはフォーカスすると、移動範囲と攻撃危険域を確認できます。N キーで次の未行動部隊へ移動します。</p><div id="board-viewport" class="board-viewport" tabindex="0" aria-label="盤面スクロール領域" style="max-height:min(70vh, ${boardViewportHeight}px)"><div class="board" role="group" aria-label="${escapeHtml(renderedMap.name)}の戦術マップ" aria-describedby="board-instructions" style="grid-template-columns:repeat(${renderedGame.board.width},${tileSize}px);grid-template-rows:repeat(${renderedGame.board.height},${tileSize}px);aspect-ratio:${renderedGame.board.width} / ${renderedGame.board.height}">${board}</div></div>${boardZoomControls}<div class="map-legend" aria-label="マップ凡例"><span><i class="legend-dot reachable-dot" aria-hidden="true">移</i>移動可能</span><span><i class="legend-dot danger-dot" aria-hidden="true">危</i>敵の攻撃危険域</span><span><i class="legend-dot enemy-move-dot" aria-hidden="true">敵移</i>選択敵の移動範囲</span>${wholeBoardShown ? '' : '<span><i class="legend-dot fog-dot" aria-hidden="true">?</i>未索敵</span>'}<span><i class="legend-unit ${me}-dot" aria-hidden="true">自</i>自軍${matchMode === 'cpu' ? '' : `（${sideName(matchMode, me)}）`}</span><span><i class="legend-unit ${foe}-dot" aria-hidden="true">敵</i>敵軍${matchMode === 'cpu' ? '' : `（${sideName(matchMode, foe)}）`}</span><span><i class="legend-facility" aria-hidden="true">拠</i>拠点（市・工・空・港・司）</span><span><i class="legend-dot facility-ready-dot" aria-hidden="true">産</i>生産可能</span></div>${tileInspectorPanel}</div>
     <aside id="command-panel" class="command-panel" aria-label="作戦情報" tabindex="-1">${objectivePanel}${unitQueuePanel}${selectedUnitActions}${cpuActivityPanel}<section class="commander-card ${renderedGame.activePlayer}"><img src="${commander.image}" alt="${commander.alt}" width="512" height="768" loading="lazy" decoding="async"><div><p>COMMANDER</p><h2>${commander.title}</h2><span>${commander.label}</span></div></section>${renderLearning(renderedGame, me, commandHistory, learningOpen)}${transportAction}${forecastCard}<section class="intel-card"><p class="card-kicker">RESOURCES</p><div class="resource-row"><span>自軍資金</span><strong>${renderedGame.players[me].gold}<small>G</small></strong></div><div class="resource-row enemy"><span>敵軍資金</span><strong>${wholeBoardShown ? renderedGame.players[foe].gold : '不明'}<small>G</small></strong></div></section><section class="intel-card"><p class="card-kicker">RECON</p><div class="recon-count"><strong>${renderedGame.units.filter(unit => unit.owner === foe && isDeployedUnit(unit) && visible.has(key(unit.position))).length}</strong><span>確認済み敵部隊</span></div></section>${renderProductionCard(productionTargetLine, productionSummary, production)}${turnSetting}${saveSlotManager}<p class="command-tip">歩兵は中立・敵軍の都市、工場、空港、港湾、司令部で<strong>占領</strong>できます。生産先は盤面の空き「産」マスを選び、工場・空港・港湾から対応する部隊を生産します。輸送艦は歩兵を1部隊搭載し、別の島へ上陸させられます。</p></aside>
-  </section>${mobileActionBar}`}</main>${gameOverOverlay}${briefing}${titleOverlay}${campaignOverlay}${editorOverlay}${concealed ? renderHandoffOverlay(sideName('hotseat', renderedGame.activePlayer)) : ''}`;
+  </section>${mobileActionBar}`}</main>${gameOverOverlay}${briefing}${titleOverlay}${campaignOverlay}${editorOverlay}${concealed ? renderHandoffOverlay(sideName('hotseat', renderedGame.activePlayer)) : ''}${activeBattleScene ? renderBattleScene(activeBattleScene) : ''}`;
   const effects = pendingPresentationEffects;
   pendingPresentationEffects = [];
   if (effects.length) {
@@ -826,7 +855,8 @@ function render(): void {
     renderPresentationEffects(app, effects, interval === undefined ? 280 : Math.max(40, Math.min(280, interval - 15)));
     for (const effect of effects) soundPlayer.play(effect.sound);
   }
-  if (gameOverOverlay || briefing || titleOverlay || campaignOverlay || editorOverlay || concealed) {
+  app.querySelector<HTMLButtonElement>('#battle-scene-skip')?.addEventListener('click', () => dismissBattleScene());
+  if (gameOverOverlay || briefing || titleOverlay || campaignOverlay || editorOverlay || concealed || activeBattleScene) {
     app.querySelector('main')?.setAttribute('inert', '');
     // A briefing control the player just changed keeps focus, so a following
     // Enter or Space does not land on the start button.
@@ -840,7 +870,7 @@ function render(): void {
     // the next redraw from remembering the control actually in use.
     focusSelector = undefined;
     const focusTicket = focusRestoreGuard.capture(generation);
-    window.setTimeout(() => focusRestoreGuard.isCurrent(focusTicket, renderGeneration) && document.querySelector<HTMLElement>(gameOverOverlay ? '#result-title' : editorOverlay ? '#editor-close' : campaignOverlay ? '#campaign-close' : titleOverlay ? titleFocus ?? (titleResumable ? '#title-resume' : '.title-map-card[aria-current="true"]') : concealed ? '#handoff-start' : briefingFocus ?? '#begin-operation')?.focus(), 0);
+    window.setTimeout(() => focusRestoreGuard.isCurrent(focusTicket, renderGeneration) && document.querySelector<HTMLElement>(activeBattleScene ? '#battle-scene-skip' : gameOverOverlay ? '#result-title' : editorOverlay ? '#editor-close' : campaignOverlay ? '#campaign-close' : titleOverlay ? titleFocus ?? (titleResumable ? '#title-resume' : '.title-map-card[aria-current="true"]') : concealed ? '#handoff-start' : briefingFocus ?? '#begin-operation')?.focus(), 0);
   }
   else if (focusSelector) {
     const previousSelector = focusSelector;
@@ -1567,7 +1597,7 @@ function runCpu(initialDelayMs = 0): void {
   commandScheduler.start({
     initialDelayMs,
     step: advance,
-    nextDelayMs: () => cpuSkipRequested ? 0 : CPU_STEP_DELAY_MS / cpuSpeed,
+    nextDelayMs: () => activeBattleScene ? BATTLE_SCENE_DURATION_MS + 50 : cpuSkipRequested ? 0 : CPU_STEP_DELAY_MS / cpuSpeed,
   });
 }
 // Orientation changes and window resizes re-derive the default zoom, but never
