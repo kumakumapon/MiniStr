@@ -279,6 +279,7 @@ function resetGame(mapId: string): void {
   cpuSkipRequested = false;
   skipCpuImmediately = undefined;
   pendingPresentationEffects = [];
+  pendingHandoffActionScene = undefined;
   game = start(mapId);
   initialState = structuredClone(game);
   commandHistory = [];
@@ -563,7 +564,7 @@ function scheduleReplay(): void {
   commandScheduler.start({ step: advanceReplay, nextDelayMs: () => activeTacticalScene ? activeTacticalSceneDurationMs + 50 : 1000 / replay!.speed });
 }
 function leaveReplay(): void {
-  commandScheduler.cancel(); dismissTacticalScene(false); pendingPresentationEffects = []; replay = undefined; selected = undefined;
+  commandScheduler.cancel(); dismissTacticalScene(false); pendingPresentationEffects = []; pendingHandoffActionScene = undefined; replay = undefined; selected = undefined;
   message = game.winner ? '対局結果に戻りました。' : '通常の対局に戻りました。';
   backToTitleIfOpenedThere();
   render();
