@@ -1,4 +1,5 @@
-import type { StorageLike } from '../game';
+import type { StorageLike, UnitKind } from '../game';
+import type { BattleSound } from './battleAudio';
 import type { SoundEvent } from './presentationEffects';
 
 export interface SoundSettings {
@@ -86,6 +87,8 @@ const soundVoices: Record<SoundEvent, readonly SoundVoice[]> = {
 export class ProceduralSoundPlayer {
   private context: AudioContext | undefined;
   private constructorRef: AudioContextConstructor | undefined;
+  private readonly battleSounds = new Map<GainNode, () => void>();
+  private noise: AudioBuffer | undefined;
 
   constructor(
     private settings: SoundSettings,
@@ -96,6 +99,10 @@ export class ProceduralSoundPlayer {
 
   setSettings(settings: SoundSettings): void {
     this.settings = settings;
+    for (const [gain, stop] of this.battleSounds) {
+      if (settings.muted || settings.volume === 0) stop();
+      else gain.gain.setValueAtTime(settings.volume, this.context!.currentTime);
+    }
   }
 
   async unlock(): Promise<void> {
@@ -115,6 +122,76 @@ export class ProceduralSoundPlayer {
     if (!context || context.state !== 'running' || this.settings.muted || this.settings.volume === 0) return;
     const now = context.currentTime;
     soundVoices[event].forEach((voice, index) => this.playVoice(context, voice, now, index));
+  }
+
+  /** Noise transients and low bodies distinguish gunfire, shells and explosions. */
+  playBattle(cue: BattleSound, kind: UnitKind): (() => void) | undefined {
+    const context = this.context;
+    if (!context || context.state !== 'running' || this.settings.muted || this.settings.volume === 0) return;
+    if (!this.noise) {
+      this.noise = context.createBuffer(1, context.sampleRate, context.sampleRate);
+      const samples = this.noise.getChannelData(0);
+      for (let i = 0; i < samples.length; i++) samples[i] = Math.random() * 2 - 1;
+    }
+    const master = context.createGain();
+    master.gain.setValueAtTime(this.settings.volume, context.currentTime);
+    master.connect(context.destination);
+    const sources: AudioScheduledSourceNode[] = [];
+    const nodes: AudioNode[] = [master];
+    let stopped = false;
+    const stop = () => {
+      if (stopped) return;
+      stopped = true;
+      for (const source of sources) {
+        try { source.stop(); } catch { /* Already finished. */ }
+      }
+      nodes.forEach(node => node.disconnect());
+      this.battleSounds.delete(master);
+    };
+    this.battleSounds.set(master, stop);
+    const burst = (delay: number, duration: number, level: number, cutoff: number, pitch: number) => {
+      const start = context.currentTime + delay;
+      const envelope = context.createGain();
+      envelope.gain.setValueAtTime(0.001, start);
+      envelope.gain.exponentialRampToValueAtTime(level, start + 0.004);
+      envelope.gain.exponentialRampToValueAtTime(0.001, start + duration);
+      envelope.connect(master);
+      const filter = context.createBiquadFilter();
+      filter.type = 'lowpass';
+      filter.frequency.setValueAtTime(cutoff, start);
+      filter.frequency.exponentialRampToValueAtTime(Math.max(120, cutoff * 0.18), start + duration);
+      const noise = context.createBufferSource();
+      noise.buffer = this.noise!;
+      noise.connect(filter).connect(envelope);
+      const body = context.createOscillator();
+      body.type = 'sine';
+      body.frequency.setValueAtTime(pitch, start);
+      body.frequency.exponentialRampToValueAtTime(28, start + duration);
+      const bodyGain = context.createGain();
+      bodyGain.gain.value = 0.65;
+      body.connect(bodyGain).connect(envelope);
+      sources.push(noise, body);
+      nodes.push(noise, body, bodyGain, filter, envelope);
+      noise.start(start); noise.stop(start + duration);
+      body.start(start); body.stop(start + duration);
+      return body;
+    };
+    let last: AudioScheduledSourceNode;
+    if (cue === 'destroy') {
+      last = burst(0, 0.65, 0.42, 2600, 110);
+    } else if (cue === 'impact') {
+      last = burst(0, 0.24, 0.34, 3400, 180);
+    } else if (kind === 'infantry' || kind === 'mech' || kind === 'recon' || kind === 'antiAir' || kind === 'helicopter' || kind === 'fighter') {
+      burst(0, 0.07, 0.30, 6500, 220);
+      burst(0.07, 0.07, 0.26, 6500, 210);
+      last = burst(0.14, 0.08, 0.28, 6500, 200);
+    } else if (kind === 'rocket' || kind === 'bomber') {
+      last = burst(0, 0.25, 0.30, 1900, 135);
+    } else {
+      last = burst(0, 0.20, 0.38, 4200, 155);
+    }
+    last.addEventListener('ended', stop, { once: true });
+    return stop;
   }
 
   private playVoice(context: AudioContext, voice: SoundVoice, now: number, index: number): void {
