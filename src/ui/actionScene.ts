@@ -31,8 +31,8 @@ export interface LogisticsChange {
   position: Position;
   source:
     | { type: 'facility'; terrain: TerrainKind }
-    | { type: 'supply'; kind: UnitKind }
-    | { type: 'transport'; kind: UnitKind }
+    | { type: 'supply'; kind: UnitKind; position: Position }
+    | { type: 'transport'; kind: UnitKind; position: Position }
     | { type: 'field' };
   resources: LogisticsResourceChange[];
 }
@@ -105,13 +105,13 @@ export function actionSceneForCommand(before: GameState, command: GameCommand, a
       if (terrain) source = { type: 'facility', terrain: terrain.kind };
     } else if (carrier && isDeployedUnit(carrier)) {
       source = isSupplyUnit(carrier.kind)
-        ? { type: 'supply', kind: carrier.kind }
-        : { type: 'transport', kind: carrier.kind };
+        ? { type: 'supply', kind: carrier.kind, position: { ...carrier.position } }
+        : { type: 'transport', kind: carrier.kind, position: { ...carrier.position } };
     } else {
       const supplier = after.units.find(candidate => candidate.owner === owner && candidate.id !== unit.id
         && isDeployedUnit(candidate) && isSupplyUnit(candidate.kind)
         && Math.abs(candidate.position.x - position.x) + Math.abs(candidate.position.y - position.y) === 1);
-      if (supplier && isDeployedUnit(supplier)) source = { type: 'supply', kind: supplier.kind };
+      if (supplier && isDeployedUnit(supplier)) source = { type: 'supply', kind: supplier.kind, position: { ...supplier.position } };
       else if (isDeployedUnit(unit) && adjacentToSupplyUnit(after, unit.position, owner, unit.id)) source = { type: 'field' };
     }
 
@@ -125,7 +125,12 @@ export function actionSceneForCommand(before: GameState, command: GameCommand, a
 export function actionSceneForVisiblePositions(scene: ActionScene, visible: ReadonlySet<string>): ActionScene | undefined {
   const seen = (position: Position) => visible.has(`${position.x},${position.y}`);
   if (scene.kind === 'capture') return seen(scene.position) ? scene : undefined;
-  const changes = scene.changes.filter(change => seen(change.position));
+  const changes = scene.changes.filter(change => seen(change.position)).map(change => {
+    const source = change.source;
+    return (source.type === 'supply' || source.type === 'transport') && !seen(source.position)
+      ? { ...change, source: { type: 'field' as const } }
+      : change;
+  });
   return changes.length ? { ...scene, changes } : undefined;
 }
 
