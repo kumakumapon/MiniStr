@@ -970,3 +970,11 @@ button:focus-visible, select:focus-visible, input:focus-visible, summary:focus-v
   .action-capture-progress-fill { animation-duration: .75s !important; }
   .action-logistics-card { animation-duration: .36s !important; }
 }
+
+.action-scene .action-scene-sprite.unit-infantry,
+.action-scene .action-scene-sprite.unit-mech,
+.action-scene .action-scene-sprite.unit-rocket,
+.action-scene .action-scene-sprite.unit-fighter,
+.action-scene .action-scene-sprite.unit-bomber,
+.action-scene .action-scene-sprite.unit-destroyer,
+.action-scene .action-scene-sprite.unit-battleship { clip-path: none; }
