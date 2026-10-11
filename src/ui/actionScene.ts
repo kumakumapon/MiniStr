@@ -13,6 +13,7 @@ export interface CaptureActionScene {
   owner: PlayerId;
   position: Position;
   terrain: TerrainKind;
+  propertyOwner?: PlayerId;
   progressBefore: number;
   progressAfter: number;
   captured: boolean;
@@ -64,6 +65,7 @@ export function actionSceneForCommand(before: GameState, command: GameCommand, a
       owner: unitBefore.owner,
       position: { ...unitBefore.position },
       terrain: terrainAfter.kind,
+      propertyOwner: terrainAfter.owner,
       progressBefore: captureProgress(terrainBefore.owner, unitBefore.owner, terrainBefore.capturePoints),
       progressAfter: captureProgress(terrainAfter.owner, unitBefore.owner, terrainAfter.capturePoints),
       captured: terrainBefore.owner !== unitBefore.owner && terrainAfter.owner === unitBefore.owner,
@@ -134,7 +136,7 @@ function unitSprite(kind: UnitKind, owner: PlayerId, label: string): string {
 function renderCaptureScene(scene: CaptureActionScene, english: boolean): string {
   const title = scene.captured
     ? (english ? 'Property captured' : '拠点を占領')
-    : (english ? 'Capture in progress' : '占領を進行');
+    : (english ? 'Capture in progress' : '占領を進行中');
   const detail = scene.captured
     ? (english ? 'The property is now under your control.' : '拠点を自軍の支配下に置きました。')
     : (english ? 'Keep a unit here to complete the capture.' : '部隊を維持すると占領が完了します。');
@@ -145,13 +147,13 @@ function renderCaptureScene(scene: CaptureActionScene, english: boolean): string
     <div class="action-capture-stage">
       ${unitSprite(scene.unitKind, scene.owner, unitNames[scene.unitKind])}
       <span class="action-scene-arrow" aria-hidden="true">▶</span>
-      <div class="action-capture-property ${scene.captured ? scene.owner : ''}">
+      <div class="action-capture-property ${scene.propertyOwner ?? ''}">
         <span class="action-capture-building" aria-hidden="true">⌂</span>
         <span class="action-capture-flag" aria-hidden="true">⚑</span>
       </div>
     </div>
     <div class="action-capture-progress" role="meter" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${Math.round(scene.progressAfter)}" aria-label="${english ? 'Capture progress' : '占領の進行度'}">
-      <span class="action-capture-progress-fill" style="--capture-before:${scene.progressBefore}%;--capture-after:${scene.progressAfter}%"></span>
+      <span class="action-capture-progress-fill ${scene.owner}" style="--capture-before:${scene.progressBefore}%;--capture-after:${scene.progressAfter}%"></span>
     </div>
     <p class="action-scene-detail">${detail} <strong>${Math.round(scene.progressAfter)}%</strong></p>`;
 }
