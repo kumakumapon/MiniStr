@@ -264,7 +264,7 @@ button, select, .tile { touch-action: manipulation; }
 /* Phase 7.2: mobile quick-action bar. Fixed above the board on phones/tablets so the most frequent actions never need a scroll back up to the header; desktop keeps the existing header controls. */
 .mobile-action-bar { display: none; }
 @media (max-width: 900px) {
-  .mobile-action-bar { position: fixed; z-index: 15; inset: auto 0 0 0; display: grid; grid-template-columns: repeat(5, 1fr); gap: 1px; padding: 6px max(6px, env(safe-area-inset-right)) max(6px, env(safe-area-inset-bottom)) max(6px, env(safe-area-inset-left)); border-top: 1px solid #496158; background: linear-gradient(0deg, #101817f2, #16221ff2); box-shadow: 0 -12px 30px #0007; }
+  .mobile-action-bar { position: fixed; z-index: 15; inset: auto 0 0 0; display: grid; grid-template-columns: repeat(6, 1fr); gap: 1px; padding: 6px max(6px, env(safe-area-inset-right)) max(6px, env(safe-area-inset-bottom)) max(6px, env(safe-area-inset-left)); border-top: 1px solid #496158; background: linear-gradient(0deg, #101817f2, #16221ff2); box-shadow: 0 -12px 30px #0007; }
   .mobile-action { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 3px 6px; min-height: 52px; padding: 6px 4px; color: #dce8df; font-size:0.6875rem; font-weight: 700; line-height: 1.15; border: 0; border-radius: 4px; background: #21312b; }
   .mobile-action span { font-size:1rem; }
   .mobile-action strong { color: #f6d370; }
@@ -978,3 +978,33 @@ button:focus-visible, select:focus-visible, input:focus-visible, summary:focus-v
 .action-scene .action-scene-sprite.unit-bomber,
 .action-scene .action-scene-sprite.unit-destroyer,
 .action-scene .action-scene-sprite.unit-battleship { clip-path: none; }
+
+body.production-menu-open { overflow: hidden; }
+
+/* Contextual production stays in the viewport instead of below the battlefield. */
+.board-production-controls { display: flex; justify-content: flex-end; margin-top: 8px; }
+.production-launcher { min-height: 40px; padding: 8px 14px; border-color: #b49a5c; font-size: .8rem; }
+.production-launcher span { margin-left: 8px; color: #ffe18b; }
+.production-menu-backdrop { position: fixed; z-index: 115; inset: 0; display: grid; place-items: center; padding: 16px; background: #07100dbd; backdrop-filter: blur(3px); }
+.production-menu { --production-accent: #ffe18b; --production-edge: #607060; display: grid; grid-template-rows: auto auto minmax(0, 1fr); width: min(620px, 100%); max-height: calc(100dvh - 32px); overflow: hidden; border: 1px solid #e5b94e; border-radius: 8px; background: #18241f; box-shadow: 0 22px 80px #000b; }
+.production-menu-header { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 16px 20px; border-bottom: 1px solid var(--production-edge); }
+.production-menu-header h2 { margin: 3px 0 0; color: var(--production-accent); font-size: 1.25rem; }
+.production-menu-header button { min-height: 44px; padding: 8px 12px; font-size: .8rem; }
+.production-menu-controls { padding: 14px 20px 0; }
+.production-menu-funds { display: block; margin-bottom: 10px; color: var(--production-accent); }
+.production-menu-controls label { display: flex; align-items: center; gap: 12px; font-size: .85rem; font-weight: 700; }
+.production-menu-controls select { flex: 1; min-width: 0; min-height: 44px; padding: 8px; border: 1px solid var(--production-edge); border-radius: 4px; color: #f4f0e5; background: #101817; }
+.production-menu-notice { min-height: 2.8em; margin: 10px 0; color: #d5dfce; font-size: .8rem; line-height: 1.4; }
+.production-menu-body { min-height: 0; overflow: auto; overscroll-behavior: contain; padding: 0 20px 20px; }
+.production-menu .production-grid { margin-top: 0; }
+.production-menu .produce { min-height: 54px; padding: 10px; font-size: .8rem; flex-wrap: wrap; }
+.production-menu .produce em { font-size: .75rem; }
+.production-menu .produce small { width: 100%; font-size: .7rem; }
+.production-menu-empty { color: #c9d8ce; font-size: .85rem; line-height: 1.6; }
+@media (max-width: 640px) {
+  .production-menu-backdrop { align-items: end; padding: 8px 8px max(8px, env(safe-area-inset-bottom)); }
+  .production-menu { max-height: calc(100dvh - 24px - env(safe-area-inset-bottom)); }
+  .production-menu-header { padding: 12px; }
+  .production-menu-controls { padding: 12px 12px 0; }
+  .production-menu-body { padding: 0 12px 12px; }
+}
