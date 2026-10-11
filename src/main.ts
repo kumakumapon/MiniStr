@@ -33,6 +33,7 @@ import { rankNames, rankStars, terrainNames, unitNames, unitTokens } from './ui/
 import { describeTileInspection, inspectTile, type InspectorRow } from './ui/tileInspector';
 import { COMMAND_SPEEDS, CommandScheduler, type CommandSpeed } from './ui/commandScheduler';
 import { effectsForViewer, presentationEffectsForCommand, renderPresentationEffects, type PresentationEffect } from './ui/presentationEffects';
+import { playBattleSceneAudio } from './ui/battleAudio';
 import { BATTLE_SCENE_DURATION_MS, battleSceneForCommand, renderBattleScene, type BattleScene } from './ui/battleScene';
 import { ACTION_SCENE_DURATION_MS, actionSceneForCommand, actionSceneForVisiblePositions, renderActionScene, type ActionScene } from './ui/actionScene';
 import { capturePointsLabel, displayedPositions, observedCapturePoints } from './ui/fogDisplay';
@@ -144,9 +145,14 @@ let activeTacticalScene: BattleScene | ActionScene | undefined;
 let tacticalSceneTimer: number | undefined;
 let activeTacticalSceneDurationMs = BATTLE_SCENE_DURATION_MS;
 let pendingHandoffActionScene: ActionScene | undefined;
+let stopBattleAudio: (() => void) | undefined;
 
 function showTacticalScene(scene: BattleScene | ActionScene): void {
   if (tacticalSceneTimer !== undefined) window.clearTimeout(tacticalSceneTimer);
+  stopBattleAudio?.();
+  stopBattleAudio = undefined;
+  musicPlayer.setBattle('attacker' in scene);
+  if ('attacker' in scene) stopBattleAudio = playBattleSceneAudio(scene, (cue, kind) => soundPlayer.playBattle(cue, kind));
   activeTacticalScene = scene;
   activeTacticalSceneDurationMs = 'attacker' in scene ? BATTLE_SCENE_DURATION_MS : ACTION_SCENE_DURATION_MS;
   tacticalSceneTimer = window.setTimeout(() => dismissTacticalScene(), activeTacticalSceneDurationMs);
@@ -154,6 +160,9 @@ function showTacticalScene(scene: BattleScene | ActionScene): void {
 function dismissTacticalScene(redraw = true): void {
   if (tacticalSceneTimer !== undefined) window.clearTimeout(tacticalSceneTimer);
   tacticalSceneTimer = undefined;
+  stopBattleAudio?.();
+  stopBattleAudio = undefined;
+  musicPlayer.setBattle(false);
   activeTacticalScene = undefined;
   if (redraw) render();
 }
@@ -274,6 +283,7 @@ function confirmReplaceMatch(): boolean {
   return game.winner !== undefined || commandHistory.length === 0 || window.confirm('進行中の対局を置き換えますか？未保存の操作は失われます。');
 }
 function resetGame(mapId: string): void {
+  dismissTacticalScene(false);
   commandScheduler.cancel();
   cpuInProgress = false;
   cpuSkipRequested = false;
@@ -515,6 +525,7 @@ function beginReplay(file: ReplayFile): void {
     return;
   }
   if (screens.titleOpen) leaveTitleAndReturn();
+  dismissTacticalScene(false);
   commandScheduler.cancel();
   cpuInProgress = false;
   cpuSkipRequested = false;
@@ -866,7 +877,7 @@ function render(): void {
     ${!localStorage.persistent ? '<p class="storage-warning" role="alert">ブラウザーの保存領域を利用できません。このタブを閉じるとデータが失われます。バックアップをダウンロードしてください。</p>' : ''}
     <header class="command-bar"><div class="brand"><span class="brand-mark" aria-hidden="true">✦</span><div><h1>MiniStr</h1><p>TACTICAL COMMAND</p></div></div><label class="map-picker">戦域<select id="map" aria-label="戦域マップを選択" ${replayMode || campaignRun ? 'disabled' : ''}>${!availableScenarios().some(map => map.id === renderedMap.id) ? `<option value="${escapeHtml(renderedMap.id)}" selected>${escapeHtml(renderedMap.name)}</option>` : ''}<optgroup label="組み込み">${maps.map(map => `<option value="${escapeHtml(map.id)}" ${map.id === renderedMap.id ? 'selected' : ''}>${escapeHtml(map.name)}</option>`).join('')}</optgroup>${availableScenarios().filter(map => !maps.some(builtIn => builtIn.id === map.id)).length ? `<optgroup label="カスタム">${availableScenarios().filter(map => !maps.some(builtIn => builtIn.id === map.id)).map(map => `<option value="${escapeHtml(map.id)}" ${map.id === renderedMap.id ? 'selected' : ''}>${escapeHtml(map.name)}</option>`).join('')}</optgroup>` : ''}</select></label>${renderedRedDifficulty ? `<label class="map-picker">${uiText.spectateRedDifficulty}<select id="red-difficulty" aria-label="赤軍CPUの難易度を選択" ${replayMode ? 'disabled' : ''}>${difficultyOptions(renderedRedDifficulty)}</select></label>` : ''}<label class="map-picker">${spectateDifficulties ? uiText.spectateBlueDifficulty : '難易度'}<select id="difficulty" aria-label="${spectateDifficulties ? '青軍CPU' : 'CPU'}の難易度を選択" ${replayMode ? 'disabled' : ''}>${difficultyOptions(renderedDifficulty)}</select></label><label class="map-picker">CPU速度<select id="cpu-speed" aria-label="CPUの行動速度を選択" ${replayMode ? 'disabled' : ''}>${COMMAND_SPEEDS.map(speed => `<option value="${speed}" ${speed === cpuSpeed ? 'selected' : ''}>${speed}x</option>`).join('')}</select></label><div class="save-controls"><button id="open-title" class="save-action" ${replayMode ? 'disabled' : ''}>${uiText.titleOpen}</button><button id="open-editor" class="save-action" ${replayMode ? 'disabled' : ''}>マップ編集</button><button id="open-campaign" class="save-action" ${replayMode ? 'disabled' : ''}>キャンペーン</button><button id="continue" class="save-action" ${replayMode || !hasSave() ? 'disabled' : ''}>続きから</button><button id="save" class="save-action" ${replayMode ? 'disabled' : ''}>${manualSaveTarget(matchMode) === 'slot' ? uiText.spectateSaveToSlot : '手動セーブ'}</button><button id="delete-save" class="save-action" ${matchSaveDeletionAllowed(matchMode) ? '' : `title="${escapeHtml(uiText.spectateNoSaveDeletion)}"`} ${replayMode || !hasStoredSave() || !matchSaveDeletionAllowed(matchMode) ? 'disabled' : ''}>対局セーブ削除</button><button id="undo" class="save-action" ${canAct && undoAllowed(matchMode) && undoStack.length > 0 ? '' : 'disabled'}>1手戻す</button><button id="import-replay" class="save-action" ${replayMode ? 'disabled' : ''}>JSON取込</button><input id="replay-file" class="visually-hidden" type="file" accept=".json,application/json" aria-label="JSONリプレイファイルを選択"></div><div class="turn-indicator ${renderedGame.activePlayer}"><span>${replayMode ? 'REPLAY' : cpuInProgress ? 'CPU THINKING' : campaignRun ? 'CAMPAIGN' : matchMode === 'spectate' ? 'SPECTATE' : 'TURN'}</span><strong>${cpuInProgress ? (matchMode === 'spectate' ? `${activeLabel} CPU 行動中` : 'CPU 行動中') : concealed ? `${activeLabel}の番` : activeLabel}</strong></div>${cpuInProgress ? '<button id="skip-cpu" class="save-action" title="CPUの残りの行動を高速に進める">CPU をスキップ</button>' : ''}${spectateControl}${wholeBoardControl}<button id="end" class="end-turn" title="現在のターンを終了" aria-label="ターンを終了する" ${!canAct ? 'disabled' : ''}>ターン終了 <span aria-hidden="true">→</span></button></header>
     ${scenarioLoadError ? `<p class="scenario-warning">組み込みシナリオの読み込みに失敗したため、緊急スカーミッシュで起動しています。${escapeHtml(scenarioLoadError)}</p>` : ''}
-    <section class="sound-controls" aria-label="音量設定"><label><input id="sound-muted" type="checkbox" ${soundSettings.muted ? 'checked' : ''}> 効果音</label><label>音量 <input id="sound-volume" type="range" min="0" max="100" value="${Math.round(soundSettings.volume * 100)}" aria-label="効果音の音量"></label><label><input id="music-muted" type="checkbox" ${musicSettings.muted ? 'checked' : ''}> BGM</label><label>BGM音量 <input id="music-volume" type="range" min="0" max="100" value="${Math.round(musicSettings.volume * 100)}" aria-label="BGMの音量"></label></section>
+    <section class="sound-controls" aria-label="音量設定"><label><input id="sound-muted" type="checkbox" ${!soundSettings.muted ? 'checked' : ''}> 効果音</label><label>音量 <input id="sound-volume" type="range" min="0" max="100" value="${Math.round(soundSettings.volume * 100)}" aria-label="効果音の音量"></label><label><input id="music-muted" type="checkbox" ${!musicSettings.muted ? 'checked' : ''}> BGM</label><label>BGM音量 <input id="music-volume" type="range" min="0" max="100" value="${Math.round(musicSettings.volume * 100)}" aria-label="BGMの音量"></label></section>
     ${!hasSave() && hasStoredSave() ? `<p class="scenario-warning" role="status">${matchSaveDeletionAllowed(matchMode) ? uiText.invalidSaveWarning : uiText.invalidSaveWarningSpectating}</p>` : ''}
     ${replay ? `<section class="replay-toolbar" aria-label="リプレイ再生コントロール"><div><p class="card-kicker">REPLAY</p><strong aria-live="polite">${replay.index} / ${replay.file.commands.length} 手</strong></div><button id="replay-toggle" class="end-turn" aria-label="${replay.playing ? 'リプレイを一時停止' : replay.index >= replay.file.commands.length ? 'リプレイを最初から再生' : 'リプレイを再生'}" ${replay.file.commands.length === 0 ? 'disabled' : ''}>${replay.playing ? '一時停止' : replay.index >= replay.file.commands.length ? 'もう一度再生' : '再生'}</button><button id="replay-step" class="save-action" ${replay.playing || replay.index >= replay.file.commands.length ? 'disabled' : ''}>1手送り</button><label class="replay-speed">速度<select id="replay-speed" aria-label="リプレイ再生速度">${COMMAND_SPEEDS.map(speed => `<option value="${speed}" ${speed === replay!.speed ? 'selected' : ''}>${speed}x</option>`).join('')}</select></label>${renderReplayNavigation(replay.index, replay.file.commands.length, replay.viewpoint, replay.timeline)}<button id="replay-exit" class="save-action">リプレイを終了</button></section>` : ''}
     ${concealed ? '' : `<section class="battle-layout"><div class="battlefield-wrap ${mapTheme}"><div class="battlefield-heading"><div><p>OPERATION MAP</p><h2>${escapeHtml(renderedMap.name)}</h2></div><p class="status-message" aria-live="polite">${escapeHtml(message)}</p></div><p id="board-instructions" class="board-instructions">盤面では矢印キーでマスを移動し、Enter または Space で選択・行動、Esc で選択を解除できます。敵部隊を選択またはフォーカスすると、移動範囲と攻撃危険域を確認できます。N キーで次の未行動部隊へ移動します。</p><div id="board-viewport" class="board-viewport" tabindex="0" aria-label="盤面スクロール領域" style="max-height:min(70vh, ${boardViewportHeight}px)"><div class="board" role="group" aria-label="${escapeHtml(renderedMap.name)}の戦術マップ" aria-describedby="board-instructions" style="grid-template-columns:repeat(${renderedGame.board.width},${tileSize}px);grid-template-rows:repeat(${renderedGame.board.height},${tileSize}px);aspect-ratio:${renderedGame.board.width} / ${renderedGame.board.height}">${board}</div></div>${boardZoomControls}<div class="map-legend" aria-label="マップ凡例"><span><i class="legend-dot reachable-dot" aria-hidden="true">移</i>移動可能</span><span><i class="legend-dot danger-dot" aria-hidden="true">危</i>敵の攻撃危険域</span><span><i class="legend-dot enemy-move-dot" aria-hidden="true">敵移</i>選択敵の移動範囲</span>${wholeBoardShown ? '' : '<span><i class="legend-dot fog-dot" aria-hidden="true">?</i>未索敵</span>'}<span><i class="legend-unit ${me}-dot" aria-hidden="true">自</i>自軍${matchMode === 'cpu' ? '' : `（${sideName(matchMode, me)}）`}</span><span><i class="legend-unit ${foe}-dot" aria-hidden="true">敵</i>敵軍${matchMode === 'cpu' ? '' : `（${sideName(matchMode, foe)}）`}</span><span><i class="legend-facility" aria-hidden="true">拠</i>拠点（市・工・空・港・司）</span><span><i class="legend-dot facility-ready-dot" aria-hidden="true">産</i>生産可能</span></div>${tileInspectorPanel}</div>
@@ -877,7 +888,10 @@ function render(): void {
   if (effects.length) {
     const interval = cpuInProgress ? CPU_STEP_DELAY_MS / cpuSpeed : replay?.playing ? 1000 / replay.speed : undefined;
     renderPresentationEffects(app, effects, interval === undefined ? 280 : Math.max(40, Math.min(280, interval - 15)));
-    for (const effect of effects) soundPlayer.play(effect.sound);
+    for (const effect of effects) {
+      if (activeTacticalScene && 'attacker' in activeTacticalScene && ['attack', 'hit', 'destroy'].includes(effect.sound)) continue;
+      soundPlayer.play(effect.sound);
+    }
   }
   app.querySelector<HTMLButtonElement>('#battle-scene-skip, #tactical-scene-skip')?.addEventListener('click', () => dismissTacticalScene());
   if (gameOverOverlay || briefing || titleOverlay || campaignOverlay || editorOverlay || concealed || activeTacticalScene) {
@@ -987,7 +1001,7 @@ function render(): void {
     if (!saveSoundSettings(localStorage, next)) message = '効果音設定を保存できませんでした。';
   };
   app.querySelector<HTMLInputElement>('#sound-muted')?.addEventListener('change', event => {
-    updateSoundSettings({ ...soundSettings, muted: (event.currentTarget as HTMLInputElement).checked });
+    updateSoundSettings({ ...soundSettings, muted: !(event.currentTarget as HTMLInputElement).checked });
   });
   app.querySelector<HTMLInputElement>('#sound-volume')?.addEventListener('input', event => {
     updateSoundSettings({ ...soundSettings, volume: Number((event.currentTarget as HTMLInputElement).value) / 100 });
@@ -998,7 +1012,7 @@ function render(): void {
     if (!saveMusicSettings(localStorage, next)) message = 'BGM設定を保存できませんでした。';
   };
   app.querySelector<HTMLInputElement>('#music-muted')?.addEventListener('change', event => {
-    updateMusicSettings({ ...musicSettings, muted: (event.currentTarget as HTMLInputElement).checked });
+    updateMusicSettings({ ...musicSettings, muted: !(event.currentTarget as HTMLInputElement).checked });
   });
   app.querySelector<HTMLInputElement>('#music-volume')?.addEventListener('input', event => {
     updateMusicSettings({ ...musicSettings, volume: Number((event.currentTarget as HTMLInputElement).value) / 100 });
@@ -1382,7 +1396,7 @@ function render(): void {
     if (!replay) return;
     const result = replay.timeline.seek(index);
     if (!result.ok) { message = result.error; render(); return; }
-    commandScheduler.cancel(); pendingPresentationEffects = [];
+    commandScheduler.cancel(); dismissTacticalScene(false); pendingPresentationEffects = [];
     replay.playing = false; replay.state = result.value; replay.index = index; render();
   };
   app.querySelector('#replay-back')?.addEventListener('click', () => { if (replay) seekReplay(replay.index - 1); });

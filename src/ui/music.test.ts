@@ -15,6 +15,7 @@ class FakeAudio {
   loop = false;
   preload = '';
   volume = 1;
+  currentTime = 0;
   readonly play = vi.fn(async () => {});
   readonly pause = vi.fn();
 }
@@ -36,6 +37,60 @@ describe('music settings', () => {
 });
 
 describe('BackgroundMusicPlayer', () => {
+  it('switches to battle music and restores the normal position while respecting mute and volume', async () => {
+    const normal = new FakeAudio();
+    const battle = new FakeAudio();
+    const player = new BackgroundMusicPlayer(defaultMusicSettings, normal, battle);
+    await player.unlock();
+    normal.currentTime = 12;
+    battle.currentTime = 4;
+    player.setBattle(true);
+    expect(normal.pause).toHaveBeenCalled();
+    expect(battle.loop).toBe(true);
+    expect(battle.currentTime).toBe(0);
+    expect(battle.volume).toBe(defaultMusicSettings.volume);
+    const plays = battle.play.mock.calls.length;
+    player.setBattle(true);
+    expect(battle.play).toHaveBeenCalledTimes(plays);
+
+    player.setSettings({ muted: true, volume: 0.4 });
+    expect(battle.pause).toHaveBeenCalled();
+    expect(battle.volume).toBe(0.4);
+    player.setSettings({ muted: false, volume: 0.4 });
+    expect(battle.play).toHaveBeenCalledTimes(plays + 1);
+    player.setBattle(false);
+    expect(normal.currentTime).toBe(12);
+    expect(normal.play).toHaveBeenCalledTimes(2);
+    player.setBattle(true);
+    player.setSettings({ muted: false, volume: 0 });
+    expect(battle.volume).toBe(0);
+    const silentPlays = battle.play.mock.calls.length;
+    player.setBattle(false);
+    player.setBattle(true);
+    expect(battle.play).toHaveBeenCalledTimes(silentPlays);
+  });
+
+  it('cannot restart skipped battle music when a pending play resolves late', async () => {
+    const normal = new FakeAudio();
+    const battle = new FakeAudio();
+    const player = new BackgroundMusicPlayer(defaultMusicSettings, normal, battle);
+    await player.unlock();
+    let finish: (() => void) | undefined;
+    battle.play.mockImplementationOnce(
+      () =>
+        new Promise<void>((resolve) => {
+          finish = resolve;
+        }),
+    );
+    player.setBattle(true);
+    player.setBattle(false);
+    const pauses = battle.pause.mock.calls.length;
+    finish?.();
+    await Promise.resolve();
+    expect(battle.pause).toHaveBeenCalledTimes(pauses + 1);
+    expect(normal.play).toHaveBeenCalledTimes(2);
+  });
+
   it('starts only after unlock, loops, and responds to mute and volume settings', async () => {
     const audio = new FakeAudio();
     const player = new BackgroundMusicPlayer(defaultMusicSettings, audio);
