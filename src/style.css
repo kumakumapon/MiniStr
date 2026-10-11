@@ -553,14 +553,28 @@ button:focus-visible, select:focus-visible, input:focus-visible, summary:focus-v
   border-radius: 6px;
   background: #0c1512b8;
 }
-.battle-combatant.battle-attacker {
-  animation: battle-advance .65s cubic-bezier(.2, .75, .25, 1) both;
+.battle-combatant.battle-attacker .battle-sprite {
+  animation: battle-unit-lunge .92s cubic-bezier(.2, .75, .25, 1) both;
 }
-.battle-combatant.battle-defender.battle-hit {
-  animation: battle-impact .46s .62s ease-out both;
+.battle-combatant.battle-defender.battle-hit .battle-sprite {
+  animation: battle-unit-recoil .42s .62s steps(2, end) both;
 }
-.battle-combatant.battle-attacker.battle-hit {
-  animation: battle-advance .65s cubic-bezier(.2, .75, .25, 1) both, battle-impact .46s 1.12s ease-out both;
+.battle-combatant.battle-attacker.battle-hit .battle-sprite {
+  animation: battle-unit-lunge .92s cubic-bezier(.2, .75, .25, 1) both, battle-unit-recoil .42s 1.12s steps(2, end) both;
+}
+.battle-combatant.battle-hit .battle-sprite::after {
+  position: absolute;
+  z-index: 2;
+  inset: 8%;
+  content: '';
+  border-radius: 50%;
+  opacity: 0;
+  pointer-events: none;
+  background: radial-gradient(circle, #fffbd9 0 8%, #ffe16b 9% 25%, #f27a45 26% 34%, transparent 35%);
+  animation: battle-hit-flash .42s .62s ease-out both;
+}
+.battle-combatant.battle-attacker.battle-hit .battle-sprite::after {
+  animation-delay: 1.12s;
 }
 .battle-side-label {
   align-self: flex-start;
@@ -678,15 +692,21 @@ button:focus-visible, select:focus-visible, input:focus-visible, summary:focus-v
   from { opacity: 0; transform: translateY(12px) scale(.97); }
   to { opacity: 1; transform: translateY(0) scale(1); }
 }
-@keyframes battle-advance {
-  from { transform: translateX(0); }
-  48% { transform: translateX(18px) scale(1.06); }
-  to { transform: translateX(0); }
+@keyframes battle-unit-lunge {
+  0%, 100% { transform: translateX(0) scale(1); filter: brightness(1); }
+  38% { transform: translateX(28%) scale(1.08); filter: brightness(1.2); }
+  55% { transform: translateX(45%) scale(1.14); filter: brightness(1.5); }
+  78% { transform: translateX(35%) scale(1.08); filter: brightness(1.15); }
 }
-@keyframes battle-impact {
+@keyframes battle-unit-recoil {
   0%, 100% { transform: translateX(0); filter: brightness(1); }
-  35% { transform: translateX(7px); filter: brightness(1.8); }
-  70% { transform: translateX(-4px); filter: brightness(1.2); }
+  35% { transform: translateX(12%) rotate(4deg); filter: brightness(2); }
+  70% { transform: translateX(-7%) rotate(-3deg); filter: brightness(1.35); }
+}
+@keyframes battle-hit-flash {
+  0%, 100% { opacity: 0; transform: scale(.45); }
+  35% { opacity: 1; transform: scale(1.15); }
+  72% { opacity: .65; transform: scale(.88); }
 }
 @keyframes battle-counter-flash {
   0% { opacity: 0; transform: translateY(5px); }
@@ -706,12 +726,10 @@ button:focus-visible, select:focus-visible, input:focus-visible, summary:focus-v
   .battle-hp-label { flex-direction: column; align-items: center; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .battle-scene,
-  .battle-combatant,
-  .battle-counter-note,
-  .battle-hp-fill {
-    animation-duration: .01ms !important;
-    animation-delay: 0ms !important;
-  }
-  .battle-hp-fill { width: var(--hp-after); }
+  /* The battle animation is an explicit gameplay cue and can still be skipped. */
+  .battle-scene { animation-duration: .3s !important; }
+  .battle-combatant .battle-sprite { animation-duration: .92s !important; }
+  .battle-combatant .battle-sprite::after { animation-duration: .42s !important; }
+  .battle-counter-note { animation-duration: .5s !important; }
+  .battle-hp-fill { animation-duration: .82s !important; }
 }
