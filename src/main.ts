@@ -33,6 +33,8 @@ import { rankNames, rankStars, terrainNames, unitNames, unitTokens } from './ui/
 import { describeTileInspection, inspectTile, type InspectorRow } from './ui/tileInspector';
 import { COMMAND_SPEEDS, CommandScheduler, type CommandSpeed } from './ui/commandScheduler';
 import { effectsForViewer, presentationEffectsForCommand, renderPresentationEffects, type PresentationEffect } from './ui/presentationEffects';
+import { renderProductionMenu } from './ui/productionMenu';
+import { captureRenderScroll } from './ui/renderScroll';
 import { playBattleSceneAudio } from './ui/battleAudio';
 import { BATTLE_SCENE_DURATION_MS, battleSceneForCommand, renderBattleScene, type BattleScene } from './ui/battleScene';
 import { ACTION_SCENE_DURATION_MS, actionSceneForCommand, actionSceneForVisiblePositions, renderActionScene, type ActionScene } from './ui/actionScene';
@@ -64,6 +66,32 @@ let boardZoomIndex = defaultBoardZoomIndex(boardAreaWidth(window.innerWidth), ga
 let boardZoomAuto = true;
 /** Production target chosen by tapping an idle facility; falls back to the first free one. */
 let selectedFacility: Position | undefined;
+let productionMenuOpen = false;
+let productionNotice = '';
+let productionReturnSelector: string | undefined;
+let preventBoardFocusScroll = false;
+
+function openProductionMenu(position?: Position, returnSelector = '#open-production'): void {
+  if (!canCommand()) return;
+  const facilities = idleProductionFacilities(game, viewer(), selectedMap.productionRules);
+  const facility = facilities.find(candidate => position && key(candidate.position) === key(position)) ?? facilities[0];
+  if (!facility) return;
+  selected = undefined;
+  selectedFacility = { ...facility.position };
+  productionMenuOpen = true;
+  productionNotice = '';
+  productionReturnSelector = returnSelector;
+  focusSelector = '#production-facility';
+  render();
+}
+function closeProductionMenu(): void {
+  productionMenuOpen = false;
+  selectedFacility = undefined;
+  focusSelector = productionReturnSelector;
+  productionReturnSelector = undefined;
+  preventBoardFocusScroll = true;
+  render();
+}
 let initialState = structuredClone(game);
 let commandHistory: GameCommand[] = [];
 let undoStack: { state: GameState; commandCount: number }[] = [];
@@ -283,6 +311,9 @@ function confirmReplaceMatch(): boolean {
   return game.winner !== undefined || commandHistory.length === 0 || window.confirm('進行中の対局を置き換えますか？未保存の操作は失われます。');
 }
 function resetGame(mapId: string): void {
+  productionMenuOpen = false;
+  productionNotice = '';
+  productionReturnSelector = undefined;
   dismissTacticalScene(false);
   commandScheduler.cancel();
   cpuInProgress = false;
@@ -623,10 +654,13 @@ async function importReplay(file: File): Promise<boolean> {
 let renderGeneration = 0;
 function render(): void {
   const generation = ++renderGeneration;
+  const restoreScroll = captureRenderScroll(app, window);
+  const allowBoardFocusScroll = !preventBoardFocusScroll;
+  preventBoardFocusScroll = false;
   const activeElement = document.activeElement;
   if (!focusSelector && activeElement instanceof HTMLElement && app.contains(activeElement)) {
     if (activeElement.id) focusSelector = `#${activeElement.id}`;
-    else if (activeElement.matches('.produce[data-kind]')) focusSelector = `.produce[data-kind="${activeElement.dataset.kind}"]`;
+    else if (activeElement.matches('.produce[data-kind]')) focusSelector = `${productionMenuOpen ? '#production-menu ' : ''}.produce[data-kind="${activeElement.dataset.kind}"]`;
     else if (activeElement.matches('.title-map-card[data-map-id]')) focusSelector = `.title-map-card[data-map-id="${activeElement.dataset.mapId}"]`;
     else if (activeElement.matches('.tile[data-x][data-y]')) focusSelector = `.tile[data-x="${activeElement.dataset.x}"][data-y="${activeElement.dataset.y}"]`;
   }
@@ -656,7 +690,7 @@ function render(): void {
   // Resolved before the board is drawn so idle facilities can be marked on the
   // tiles that produce, not only counted in the panel.
   const idleFacilities = idleProductionFacilities(renderedGame, me, productionRule);
-  const targetFacility = selectedFacility && idleFacilities.find(facility => key(facility.position) === key(selectedFacility!));
+  const targetFacility = (selectedFacility && idleFacilities.find(facility => key(facility.position) === key(selectedFacility!))) || (productionMenuOpen ? idleFacilities[0] : undefined);
   const viewerAtUnitLimit = usesDecisionRules(renderedGame) && renderedGame.units.filter(unit => unit.owner === me).length >= unitLimit(renderedGame.board);
   const idleFacilityKeys = new Set(viewerAtUnitLimit ? [] : idleFacilities.map(facility => key(facility.position)));
   const board = renderedGame.board.terrain.flatMap((row, y) => row.map((terrain, x) => {
@@ -708,7 +742,7 @@ function render(): void {
   const ownUnitCount = renderedGame.units.filter(unit => unit.owner === me).length;
   const ownUnitLimit = usesDecisionRules(renderedGame) ? unitLimit(renderedGame.board) : undefined;
   const atUnitLimit = ownUnitLimit !== undefined && ownUnitCount >= ownUnitLimit;
-  const production = producibleUnits.filter(kind => isUnitKindAvailable(kind, renderedGame.ruleVersion)).map(kind => {
+  const production = producibleUnits.filter(kind => isUnitKindAvailable(kind, renderedGame.ruleVersion) && (!productionMenuOpen || !targetFacility || targetFacility.kinds.includes(kind))).map(kind => {
     // A chosen facility restricts the roster to what it can build; otherwise any
     // idle facility of the right type may take the order.
     const facility = targetFacility ?? idleFacilities.find(candidate => candidate.kinds.includes(kind));
@@ -722,10 +756,15 @@ function render(): void {
     const availability = atUnitLimit ? '部隊数が上限です' : !buildable ? '生産可能な空き施設がありません' : !affordable ? `資金不足（あと ${missing}G）` : '生産可能';
     return `<button class="produce produce-${kind}" data-kind="${kind}" ${!canAct || atUnitLimit || !buildable || !affordable ? 'disabled' : ''} title="${where}で${unitNames[kind]}を生産 (${cost}G) — ${availability}" aria-label="${where}で${unitNames[kind]}を${cost}ゴールドで生産、${availability}"><span aria-hidden="true">${unitTokens[kind]}</span>${unitNames[kind]} <em>${cost}G</em>${!affordable ? ` <small>資金不足（あと ${missing}G）</small>` : ''}</button>`;
   }).join('');
+  const productionLauncher = `<button id="open-production" class="save-action production-launcher" ${!canAct || !idleFacilities.length || atUnitLimit ? 'disabled' : ''}>ユニット生産 <span>${idleFacilities.length}施設</span></button>`;
   const productionSummary = `<p class="production-summary">空き生産施設 <strong>${idleFacilities.length}</strong> / ${countProductionFacilities(renderedGame, me, productionRule)}${ownUnitLimit !== undefined ? `・部隊数 <strong>${ownUnitCount}</strong> / ${ownUnitLimit}` : ''}</p>`;
   const productionTargetLine = targetFacility
     ? `<p class="production-target">生産先 <strong>${terrainNames[targetFacility.kind]} (${targetFacility.position.x + 1}, ${targetFacility.position.y + 1})</strong><button id="clear-production-facility" class="save-action">自動選択</button></p>`
     : '<p class="production-target">生産先 <strong>自動選択</strong>（盤面の「産」マスを選ぶと指定できます）</p>';
+  const productionOverlay = productionMenuOpen && canAct ? renderProductionMenu({
+    facilities: idleFacilities, target: targetFacility?.position, funds: renderedGame.players[me].gold,
+    summary: productionSummary, units: production, notice: productionNotice,
+  }) : '';
   const activeLabel = sideName(matchMode, renderedGame.activePlayer);
   const selectedTerrain = selectedUnit && isDeployedUnit(selectedUnit) ? renderedGame.board.terrain[selectedUnit.position.y]?.[selectedUnit.position.x] : undefined;
   const canCapture = selectedUnit?.owner === renderedGame.activePlayer && isDeployedUnit(selectedUnit)
@@ -806,7 +845,7 @@ function render(): void {
   // Phones put the command panel a long scroll below the board, so the actions a
   // turn actually needs stay reachable in a bar fixed to the bottom of the screen.
   const mobileActionBar = !replayMode
-    ? `<nav class="mobile-action-bar" aria-label="クイック操作"><button id="mobile-next-unit" class="mobile-action" ${canAct && unactedUnits.length > 0 ? '' : 'disabled'}><span aria-hidden="true">▶</span>未行動 <strong>${unactedUnits.length}</strong></button><button id="mobile-wait" class="mobile-action" ${canWait ? '' : 'disabled'}><span aria-hidden="true">✓</span>行動終了</button><button id="mobile-capture" class="mobile-action" ${canCapture ? '' : 'disabled'}><span aria-hidden="true">⚑</span>占領</button><button id="mobile-panel" class="mobile-action"><span aria-hidden="true">☰</span>作戦情報</button><button id="mobile-end" class="mobile-action mobile-action-primary" ${!canAct ? 'disabled' : ''}><span aria-hidden="true">→</span>ターン終了</button></nav>`
+    ? `<nav class="mobile-action-bar" aria-label="クイック操作"><button id="mobile-next-unit" class="mobile-action" ${canAct && unactedUnits.length > 0 ? '' : 'disabled'}><span aria-hidden="true">▶</span>未行動 <strong>${unactedUnits.length}</strong></button><button id="mobile-wait" class="mobile-action" ${canWait ? '' : 'disabled'}><span aria-hidden="true">✓</span>行動終了</button><button id="mobile-capture" class="mobile-action" ${canCapture ? '' : 'disabled'}><span aria-hidden="true">⚑</span>占領</button><button id="mobile-production" class="mobile-action" ${!canAct || !idleFacilities.length || atUnitLimit ? 'disabled' : ''}><span aria-hidden="true">＋</span>生産</button><button id="mobile-panel" class="mobile-action"><span aria-hidden="true">☰</span>作戦情報</button><button id="mobile-end" class="mobile-action mobile-action-primary" ${!canAct ? 'disabled' : ''}><span aria-hidden="true">→</span>ターン終了</button></nav>`
     : '';
   const turnSetting = !replayMode ? `<section class="turn-setting"><label><input id="confirm-end-turn" type="checkbox" ${confirmEndTurnWithUnacted ? 'checked' : ''}> 未行動部隊がいる時にターン終了を確認する</label></section>` : '';
   const saveSlotManager = !replayMode && !screens.titleOpen ? renderSaveSlotManager(listSaveSlots(localStorage), getStorageUsage(localStorage), true, matchMode === 'spectate') : '';
@@ -880,9 +919,11 @@ function render(): void {
     <section class="sound-controls" aria-label="音量設定"><label><input id="sound-muted" type="checkbox" ${!soundSettings.muted ? 'checked' : ''}> 効果音</label><label>音量 <input id="sound-volume" type="range" min="0" max="100" value="${Math.round(soundSettings.volume * 100)}" aria-label="効果音の音量"></label><label><input id="music-muted" type="checkbox" ${!musicSettings.muted ? 'checked' : ''}> BGM</label><label>BGM音量 <input id="music-volume" type="range" min="0" max="100" value="${Math.round(musicSettings.volume * 100)}" aria-label="BGMの音量"></label></section>
     ${!hasSave() && hasStoredSave() ? `<p class="scenario-warning" role="status">${matchSaveDeletionAllowed(matchMode) ? uiText.invalidSaveWarning : uiText.invalidSaveWarningSpectating}</p>` : ''}
     ${replay ? `<section class="replay-toolbar" aria-label="リプレイ再生コントロール"><div><p class="card-kicker">REPLAY</p><strong aria-live="polite">${replay.index} / ${replay.file.commands.length} 手</strong></div><button id="replay-toggle" class="end-turn" aria-label="${replay.playing ? 'リプレイを一時停止' : replay.index >= replay.file.commands.length ? 'リプレイを最初から再生' : 'リプレイを再生'}" ${replay.file.commands.length === 0 ? 'disabled' : ''}>${replay.playing ? '一時停止' : replay.index >= replay.file.commands.length ? 'もう一度再生' : '再生'}</button><button id="replay-step" class="save-action" ${replay.playing || replay.index >= replay.file.commands.length ? 'disabled' : ''}>1手送り</button><label class="replay-speed">速度<select id="replay-speed" aria-label="リプレイ再生速度">${COMMAND_SPEEDS.map(speed => `<option value="${speed}" ${speed === replay!.speed ? 'selected' : ''}>${speed}x</option>`).join('')}</select></label>${renderReplayNavigation(replay.index, replay.file.commands.length, replay.viewpoint, replay.timeline)}<button id="replay-exit" class="save-action">リプレイを終了</button></section>` : ''}
-    ${concealed ? '' : `<section class="battle-layout"><div class="battlefield-wrap ${mapTheme}"><div class="battlefield-heading"><div><p>OPERATION MAP</p><h2>${escapeHtml(renderedMap.name)}</h2></div><p class="status-message" aria-live="polite">${escapeHtml(message)}</p></div><p id="board-instructions" class="board-instructions">盤面では矢印キーでマスを移動し、Enter または Space で選択・行動、Esc で選択を解除できます。敵部隊を選択またはフォーカスすると、移動範囲と攻撃危険域を確認できます。N キーで次の未行動部隊へ移動します。</p><div id="board-viewport" class="board-viewport" tabindex="0" aria-label="盤面スクロール領域" style="max-height:min(70vh, ${boardViewportHeight}px)"><div class="board" role="group" aria-label="${escapeHtml(renderedMap.name)}の戦術マップ" aria-describedby="board-instructions" style="grid-template-columns:repeat(${renderedGame.board.width},${tileSize}px);grid-template-rows:repeat(${renderedGame.board.height},${tileSize}px);aspect-ratio:${renderedGame.board.width} / ${renderedGame.board.height}">${board}</div></div>${boardZoomControls}<div class="map-legend" aria-label="マップ凡例"><span><i class="legend-dot reachable-dot" aria-hidden="true">移</i>移動可能</span><span><i class="legend-dot danger-dot" aria-hidden="true">危</i>敵の攻撃危険域</span><span><i class="legend-dot enemy-move-dot" aria-hidden="true">敵移</i>選択敵の移動範囲</span>${wholeBoardShown ? '' : '<span><i class="legend-dot fog-dot" aria-hidden="true">?</i>未索敵</span>'}<span><i class="legend-unit ${me}-dot" aria-hidden="true">自</i>自軍${matchMode === 'cpu' ? '' : `（${sideName(matchMode, me)}）`}</span><span><i class="legend-unit ${foe}-dot" aria-hidden="true">敵</i>敵軍${matchMode === 'cpu' ? '' : `（${sideName(matchMode, foe)}）`}</span><span><i class="legend-facility" aria-hidden="true">拠</i>拠点（市・工・空・港・司）</span><span><i class="legend-dot facility-ready-dot" aria-hidden="true">産</i>生産可能</span></div>${tileInspectorPanel}</div>
+    ${concealed ? '' : `<section class="battle-layout"><div class="battlefield-wrap ${mapTheme}"><div class="battlefield-heading"><div><p>OPERATION MAP</p><h2>${escapeHtml(renderedMap.name)}</h2></div><p class="status-message" aria-live="polite">${escapeHtml(message)}</p></div><p id="board-instructions" class="board-instructions">盤面では矢印キーでマスを移動し、Enter または Space で選択・行動、Esc で選択を解除できます。敵部隊を選択またはフォーカスすると、移動範囲と攻撃危険域を確認できます。N キーで次の未行動部隊へ移動します。</p><div id="board-viewport" class="board-viewport" tabindex="0" aria-label="盤面スクロール領域" style="max-height:min(70vh, ${boardViewportHeight}px)"><div class="board" role="group" aria-label="${escapeHtml(renderedMap.name)}の戦術マップ" aria-describedby="board-instructions" style="grid-template-columns:repeat(${renderedGame.board.width},${tileSize}px);grid-template-rows:repeat(${renderedGame.board.height},${tileSize}px);aspect-ratio:${renderedGame.board.width} / ${renderedGame.board.height}">${board}</div></div>${boardZoomControls}<div class="board-production-controls">${productionLauncher}</div><div class="map-legend" aria-label="マップ凡例"><span><i class="legend-dot reachable-dot" aria-hidden="true">移</i>移動可能</span><span><i class="legend-dot danger-dot" aria-hidden="true">危</i>敵の攻撃危険域</span><span><i class="legend-dot enemy-move-dot" aria-hidden="true">敵移</i>選択敵の移動範囲</span>${wholeBoardShown ? '' : '<span><i class="legend-dot fog-dot" aria-hidden="true">?</i>未索敵</span>'}<span><i class="legend-unit ${me}-dot" aria-hidden="true">自</i>自軍${matchMode === 'cpu' ? '' : `（${sideName(matchMode, me)}）`}</span><span><i class="legend-unit ${foe}-dot" aria-hidden="true">敵</i>敵軍${matchMode === 'cpu' ? '' : `（${sideName(matchMode, foe)}）`}</span><span><i class="legend-facility" aria-hidden="true">拠</i>拠点（市・工・空・港・司）</span><span><i class="legend-dot facility-ready-dot" aria-hidden="true">産</i>生産可能</span></div>${tileInspectorPanel}</div>
     <aside id="command-panel" class="command-panel" aria-label="作戦情報" tabindex="-1">${objectivePanel}${unitQueuePanel}${selectedUnitActions}${cpuActivityPanel}<section class="commander-card ${renderedGame.activePlayer}"><img src="${commander.image}" alt="${commander.alt}" width="512" height="768" loading="lazy" decoding="async"><div><p>COMMANDER</p><h2>${commander.title}</h2><span>${commander.label}</span></div></section>${renderLearning(renderedGame, me, commandHistory, learningOpen)}${transportAction}${forecastCard}<section class="intel-card"><p class="card-kicker">RESOURCES</p><div class="resource-row"><span>自軍資金</span><strong>${renderedGame.players[me].gold}<small>G</small></strong></div><div class="resource-row enemy"><span>敵軍資金</span><strong>${wholeBoardShown ? renderedGame.players[foe].gold : '不明'}<small>G</small></strong></div></section><section class="intel-card"><p class="card-kicker">RECON</p><div class="recon-count"><strong>${renderedGame.units.filter(unit => unit.owner === foe && isDeployedUnit(unit) && visible.has(key(unit.position))).length}</strong><span>確認済み敵部隊</span></div></section>${renderProductionCard(productionTargetLine, productionSummary, production)}${turnSetting}${saveSlotManager}<p class="command-tip">歩兵は中立・敵軍の都市、工場、空港、港湾、司令部で<strong>占領</strong>できます。生産先は盤面の空き「産」マスを選び、工場・空港・港湾から対応する部隊を生産します。輸送艦は歩兵を1部隊搭載し、別の島へ上陸させられます。</p></aside>
-  </section>${mobileActionBar}`}</main>${gameOverOverlay}${briefing}${titleOverlay}${campaignOverlay}${editorOverlay}${concealed ? renderHandoffOverlay(sideName('hotseat', renderedGame.activePlayer)) : ''}${activeTacticalScene ? ('attacker' in activeTacticalScene ? renderBattleScene(activeTacticalScene) : renderActionScene(activeTacticalScene)) : ''}`;
+  </section>${mobileActionBar}`}</main>${gameOverOverlay}${briefing}${titleOverlay}${campaignOverlay}${editorOverlay}${concealed ? renderHandoffOverlay(sideName('hotseat', renderedGame.activePlayer)) : ''}${activeTacticalScene ? ('attacker' in activeTacticalScene ? renderBattleScene(activeTacticalScene) : renderActionScene(activeTacticalScene)) : ''}${productionOverlay}`;
+  document.body.classList.toggle('production-menu-open', Boolean(productionOverlay));
+  restoreScroll();
   const effects = pendingPresentationEffects;
   pendingPresentationEffects = [];
   if (effects.length) {
@@ -894,7 +935,7 @@ function render(): void {
     }
   }
   app.querySelector<HTMLButtonElement>('#battle-scene-skip, #tactical-scene-skip')?.addEventListener('click', () => dismissTacticalScene());
-  if (gameOverOverlay || briefing || titleOverlay || campaignOverlay || editorOverlay || concealed || activeTacticalScene) {
+  if (gameOverOverlay || briefing || titleOverlay || campaignOverlay || editorOverlay || concealed || activeTacticalScene || productionOverlay) {
     app.querySelector('main')?.setAttribute('inert', '');
     // A briefing control the player just changed keeps focus, so a following
     // Enter or Space does not land on the start button.
@@ -906,9 +947,18 @@ function render(): void {
     // Overlays place focus themselves, so the remembered control is always used
     // up here. A stale one (say, the title card just chosen) would otherwise stop
     // the next redraw from remembering the control actually in use.
+    const previousProductionFocus = focusSelector;
     focusSelector = undefined;
     const focusTicket = focusRestoreGuard.capture(generation);
-    window.setTimeout(() => focusRestoreGuard.isCurrent(focusTicket, renderGeneration) && document.querySelector<HTMLElement>(activeTacticalScene ? ('attacker' in activeTacticalScene ? '#battle-scene-skip' : '#tactical-scene-skip') : gameOverOverlay ? '#result-title' : editorOverlay ? '#editor-close' : campaignOverlay ? '#campaign-close' : titleOverlay ? titleFocus ?? (titleResumable ? '#title-resume' : '.title-map-card[aria-current="true"]') : concealed ? '#handoff-start' : briefingFocus ?? '#begin-operation')?.focus(), 0);
+    if (productionOverlay) {
+      const selector = previousProductionFocus?.startsWith('#production-') ? previousProductionFocus : '#production-facility';
+      window.requestAnimationFrame(() => {
+        if (!focusRestoreGuard.isCurrent(focusTicket, renderGeneration)) return;
+        const target = app.querySelector<HTMLElement>(selector);
+        const fallback = app.querySelector<HTMLElement>('#production-facility:not(:disabled), #production-menu-close');
+        (target && !('disabled' in target && target.disabled) ? target : fallback)?.focus({ preventScroll: true });
+      });
+    } else window.setTimeout(() => focusRestoreGuard.isCurrent(focusTicket, renderGeneration) && document.querySelector<HTMLElement>(activeTacticalScene ? ('attacker' in activeTacticalScene ? '#battle-scene-skip' : '#tactical-scene-skip') : gameOverOverlay ? '#result-title' : editorOverlay ? '#editor-close' : campaignOverlay ? '#campaign-close' : titleOverlay ? titleFocus ?? (titleResumable ? '#title-resume' : '.title-map-card[aria-current="true"]') : concealed ? '#handoff-start' : briefingFocus ?? '#begin-operation')?.focus(), 0);
   }
   else if (focusSelector) {
     const previousSelector = focusSelector;
@@ -918,7 +968,7 @@ function render(): void {
       if (!focusRestoreGuard.isCurrent(focusTicket, renderGeneration)) return;
       const target = app.querySelector<HTMLElement>(previousSelector);
       const focusTarget = target && !('disabled' in target && target.disabled) ? target : app.querySelector<HTMLElement>('#command-panel');
-      if (focusTarget?.matches('.tile')) focusTarget.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+      if (allowBoardFocusScroll && focusTarget?.matches('.tile')) focusTarget.scrollIntoView({ block: 'nearest', inline: 'nearest' });
       focusTarget?.focus({ preventScroll: true });
     });
   }
@@ -994,6 +1044,20 @@ function render(): void {
     cpuSkipRequested = true;
     pendingPresentationEffects = [];
     skipCpuImmediately?.();
+  });
+  app.querySelector('#open-production')?.addEventListener('click', () => openProductionMenu());
+  app.querySelector('#mobile-production')?.addEventListener('click', () => openProductionMenu(undefined, '#mobile-production'));
+  app.querySelector('#production-menu-close')?.addEventListener('click', closeProductionMenu);
+  app.querySelector('#production-menu-backdrop')?.addEventListener('click', event => {
+    if (event.target === event.currentTarget) closeProductionMenu();
+  });
+  app.querySelector<HTMLSelectElement>('#production-facility')?.addEventListener('change', event => {
+    const value = (event.currentTarget as HTMLSelectElement).value;
+    const facility = idleProductionFacilities(game, viewer(), selectedMap.productionRules).find(candidate => key(candidate.position) === value);
+    if (!facility) return;
+    selectedFacility = { ...facility.position };
+    focusSelector = '#production-facility';
+    render();
   });
   const updateSoundSettings = (next: SoundSettings) => {
     soundSettings = next;
@@ -1281,8 +1345,11 @@ function render(): void {
       if (dispatch({ type: 'produce', factory: { ...facility.position }, kind }, true)) {
         message = `${terrainNames[facility.kind]} (${facility.position.x + 1}, ${facility.position.y + 1}) で${unitNames[kind]}を生産しました。`;
         // The new unit occupies the facility, so the chosen target is spent.
-        selectedFacility = undefined;
+        const remaining = idleProductionFacilities(game, viewer(), selectedMap.productionRules);
+        const next = remaining.find(candidate => candidate.kinds.includes(kind)) ?? remaining[0];
+        selectedFacility = productionMenuOpen && next ? { ...next.position } : undefined;
       }
+      if (productionMenuOpen) productionNotice = message;
       render();
     }));
     document.querySelector<HTMLButtonElement>('#clear-production-facility')?.addEventListener('click', guardCommand(() => {
@@ -1430,6 +1497,7 @@ function render(): void {
 }
 
 function focusBoardPosition(position: Position): void {
+  if (productionMenuOpen) return;
   focusedPosition = position;
   focusSelector = `.tile[data-x="${position.x}"][data-y="${position.y}"]`;
   render();
@@ -1533,8 +1601,8 @@ function act(position: Position): void {
     // A reachable facility is a normal movement destination. Production target
     // selection is intentionally available only while no unit is selected.
   } else if (facility && !selected) {
-    selectedFacility = { ...position };
-    message = `${terrainNames[facility.kind]} (${position.x + 1}, ${position.y + 1}) を生産先に選びました。生産するユニットを選んでください。`;
+    openProductionMenu(position, `.tile[data-x="${position.x}"][data-y="${position.y}"]`);
+    return;
   } else if (moveSelectedUnit(position)) {
     // The helper sets either the normal movement message or the encounter notice.
   } else if (selected && !selectedUnitIsOwn()) {
@@ -1658,6 +1726,10 @@ window.addEventListener('resize', () => {
   if (boardZoomIndex !== previous) render();
 });
 window.addEventListener('keydown', event => {
+  if (productionMenuOpen) {
+    if (event.key === 'Escape') { event.preventDefault(); closeProductionMenu(); }
+    return;
+  }
   if (event.key === 'Escape') {
     const close = app.querySelector<HTMLButtonElement>('#editor-close, #campaign-close, #briefing-back-to-title');
     if (close) { event.preventDefault(); close.click(); return; }
