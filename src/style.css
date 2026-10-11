@@ -883,7 +883,8 @@ button:focus-visible, select:focus-visible, input:focus-visible, summary:focus-v
   background: linear-gradient(90deg, #d99442, #ffe16b);
   animation: action-capture-progress .75s .2s ease-out forwards;
 }
-.action-capture-property.red ~ .action-capture-progress .action-capture-progress-fill { background: linear-gradient(90deg, #b43f39, #ff9981); }
+.action-capture-progress-fill.red { background: linear-gradient(90deg, #b43f39, #ff9981); }
+.action-capture-progress-fill.blue { background: linear-gradient(90deg, #3977ae, #9ecbff); }
 .action-scene-detail {
   margin: 10px 0 0;
   color: #ced8c9;
