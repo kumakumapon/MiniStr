@@ -139,7 +139,7 @@ function renderCaptureScene(scene: CaptureActionScene, english: boolean): string
     ? (english ? 'The property is now under your control.' : '拠点を自軍の支配下に置きました。')
     : (english ? 'Keep a unit here to complete the capture.' : '部隊を維持すると占領が完了します。');
   return `<header class="action-scene-header">
-      <div><p class="card-kicker">${english ? 'PROPERTY OPERATION' : 'PROPERTY OPERATION'}</p><h2 id="tactical-scene-title">${title}</h2></div>
+      <div><p class="card-kicker">${english ? 'PROPERTY OPERATION' : '拠点作戦'}</p><h2 id="tactical-scene-title">${title}</h2></div>
       <span class="action-scene-terrain">${escapeHtml(terrainNames[scene.terrain])}</span>
     </header>
     <div class="action-capture-stage">
