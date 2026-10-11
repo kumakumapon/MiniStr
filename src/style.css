@@ -560,7 +560,7 @@ button:focus-visible, select:focus-visible, input:focus-visible, summary:focus-v
   animation: battle-impact .46s .62s ease-out both;
 }
 .battle-combatant.battle-attacker.battle-hit {
-  animation: battle-impact .46s 1.12s ease-out both;
+  animation: battle-advance .65s cubic-bezier(.2, .75, .25, 1) both, battle-impact .46s 1.12s ease-out both;
 }
 .battle-side-label {
   align-self: flex-start;
