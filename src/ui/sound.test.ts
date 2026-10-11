@@ -39,6 +39,7 @@ describe('sound settings', () => {
 });
 
 class FakeParam {
+  value = 1;
   readonly calls: [string, number, number][] = [];
   setValueAtTime(value: number, time: number) {
     this.calls.push(['set', value, time]);
@@ -65,11 +66,13 @@ class FakeOscillator extends FakeNode {
   readonly frequency = new FakeParam();
   started?: number;
   stopped?: number;
+  stopCalls = 0;
   private ended?: () => void;
   start(time: number) {
     this.started = time;
   }
-  stop(time: number) {
+  stop(time?: number) {
+    this.stopCalls += 1;
     this.stopped = time;
   }
   addEventListener(type: string, listener: () => void, options?: AddEventListenerOptions) {
@@ -84,13 +87,26 @@ class FakeGain extends FakeNode {
   readonly gain = new FakeParam();
 }
 
+class FakeBufferSource extends FakeOscillator {
+  buffer: unknown;
+}
+
+class FakeFilter extends FakeNode {
+  type = '';
+  readonly frequency = new FakeParam();
+}
+
 class FakeAudioContext {
   static instances: FakeAudioContext[] = [];
   state: AudioContextState = 'suspended';
   currentTime = 2;
+  sampleRate = 1000;
   readonly destination = {};
   readonly oscillators: FakeOscillator[] = [];
   readonly gains: FakeGain[] = [];
+  readonly filters: FakeFilter[] = [];
+  readonly sources: FakeBufferSource[] = [];
+  readonly buffers: Float32Array[] = [];
   static resumeFails = false;
   constructor() {
     FakeAudioContext.instances.push(this);
@@ -109,6 +125,21 @@ class FakeAudioContext {
     this.gains.push(node);
     return node;
   }
+  createBuffer(_channels: number, length: number) {
+    const samples = new Float32Array(length);
+    this.buffers.push(samples);
+    return { getChannelData: () => samples };
+  }
+  createBufferSource() {
+    const node = new FakeBufferSource();
+    this.sources.push(node);
+    return node;
+  }
+  createBiquadFilter() {
+    const node = new FakeFilter();
+    this.filters.push(node);
+    return node;
+  }
 }
 
 function fakePlayer(settings = { muted: false, volume: 0.45 }) {
@@ -119,6 +150,59 @@ function fakePlayer(settings = { muted: false, volume: 0.45 }) {
 }
 
 describe('ProceduralSoundPlayer', () => {
+  it.each([
+    ['fire', 'infantry', 3, 0.22],
+    ['fire', 'tank', 1, 0.2],
+    ['fire', 'rocket', 1, 0.25],
+    ['impact', 'tank', 1, 0.24],
+    ['destroy', 'tank', 1, 0.65],
+  ] as const)('plays %s for %s with shaped noise and body, and releases all nodes', async (cue, kind, bursts, duration) => {
+    const { player, context } = fakePlayer();
+    await player.unlock();
+    const stop = player.playBattle(cue, kind);
+    const audio = context()!;
+    expect(audio.sources).toHaveLength(bursts);
+    expect(audio.oscillators).toHaveLength(bursts);
+    expect(audio.filters.every((filter) => filter.type === 'lowpass')).toBe(true);
+    expect(audio.sources.at(-1)?.stopped).toBeCloseTo(audio.currentTime + duration);
+    expect(audio.gains[0]?.gain.calls[0]).toEqual(['set', defaultSoundSettings.volume, 2]);
+    const samples = audio.buffers[0]!;
+    expect(samples.every((value) => Number.isFinite(value) && Math.abs(value) <= 1)).toBe(true);
+    expect(samples.some((value) => value !== 0)).toBe(true);
+    audio.oscillators.at(-1)!.end();
+    expect([...audio.gains, ...audio.filters, ...audio.sources, ...audio.oscillators].every((node) => node.disconnected)).toBe(true);
+    const stopCounts = audio.sources.map((source) => source.stopCalls);
+    stop?.();
+    expect(audio.sources.map((source) => source.stopCalls)).toEqual(stopCounts);
+  });
+
+  it('caches the noise buffer and applies volume and mute changes to active battle sounds', async () => {
+    const { player, context } = fakePlayer();
+    await player.unlock();
+    player.playBattle('fire', 'tank');
+    player.playBattle('destroy', 'infantry');
+    const audio = context()!;
+    expect(audio.buffers).toHaveLength(1);
+    player.setSettings({ muted: false, volume: 0.2 });
+    expect(audio.gains[0]?.gain.calls.at(-1)).toEqual(['set', 0.2, 2]);
+    player.setSettings({ muted: true, volume: 0.2 });
+    expect(audio.sources.every((source) => source.disconnected)).toBe(true);
+    expect(player.playBattle('fire', 'tank')).toBeUndefined();
+    player.setSettings({ muted: false, volume: 0 });
+    expect(player.playBattle('impact', 'tank')).toBeUndefined();
+    expect(audio.sources).toHaveLength(2);
+  });
+
+  it('does not create battle audio before unlock or when the context remains suspended', async () => {
+    const { player, context } = fakePlayer();
+    expect(player.playBattle('fire', 'tank')).toBeUndefined();
+    expect(context()).toBeUndefined();
+    FakeAudioContext.resumeFails = true;
+    await player.unlock();
+    expect(player.playBattle('fire', 'tank')).toBeUndefined();
+    expect(context()!.buffers).toHaveLength(0);
+  });
+
   it('stays silent until a user gesture unlocks it', () => {
     const { player, context } = fakePlayer();
     player.play('move');
