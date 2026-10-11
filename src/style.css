@@ -733,3 +733,44 @@ button:focus-visible, select:focus-visible, input:focus-visible, summary:focus-v
   .battle-counter-note { animation-duration: .5s !important; }
   .battle-hp-fill { animation-duration: .82s !important; }
 }
+
+
+/* Turn the top-down map art toward the opposing unit in the battle tableau. */
+.battle-sprite .unit-art { transform-origin: center; }
+.battle-attacker .battle-sprite.unit-infantry .unit-art,
+.battle-attacker .battle-sprite.unit-mech .unit-art,
+.battle-attacker .battle-sprite.unit-recon .unit-art,
+.battle-attacker .battle-sprite.unit-apc .unit-art { transform: rotate(-90deg); }
+.battle-defender .battle-sprite.unit-infantry .unit-art,
+.battle-defender .battle-sprite.unit-mech .unit-art,
+.battle-defender .battle-sprite.unit-recon .unit-art,
+.battle-defender .battle-sprite.unit-apc .unit-art { transform: rotate(90deg); }
+.battle-attacker .battle-sprite.unit-tank .unit-art,
+.battle-attacker .battle-sprite.unit-heavyTank .unit-art,
+.battle-attacker .battle-sprite.unit-artillery .unit-art,
+.battle-attacker .battle-sprite.unit-rocket .unit-art,
+.battle-attacker .battle-sprite.unit-antiAir .unit-art,
+.battle-attacker .battle-sprite.unit-fighter .unit-art,
+.battle-attacker .battle-sprite.unit-bomber .unit-art,
+.battle-attacker .battle-sprite.unit-helicopter .unit-art,
+.battle-attacker .battle-sprite.unit-destroyer .unit-art,
+.battle-attacker .battle-sprite.unit-landingShip .unit-art,
+.battle-attacker .battle-sprite.unit-battleship .unit-art { transform: rotate(90deg); }
+.battle-defender .battle-sprite.unit-tank .unit-art,
+.battle-defender .battle-sprite.unit-heavyTank .unit-art,
+.battle-defender .battle-sprite.unit-artillery .unit-art,
+.battle-defender .battle-sprite.unit-rocket .unit-art,
+.battle-defender .battle-sprite.unit-antiAir .unit-art,
+.battle-defender .battle-sprite.unit-fighter .unit-art,
+.battle-defender .battle-sprite.unit-bomber .unit-art,
+.battle-defender .battle-sprite.unit-helicopter .unit-art,
+.battle-defender .battle-sprite.unit-destroyer .unit-art,
+.battle-defender .battle-sprite.unit-landingShip .unit-art,
+.battle-defender .battle-sprite.unit-battleship .unit-art { transform: rotate(-90deg); }
+.battle-scene .battle-sprite.unit-infantry,
+.battle-scene .battle-sprite.unit-mech,
+.battle-scene .battle-sprite.unit-rocket,
+.battle-scene .battle-sprite.unit-fighter,
+.battle-scene .battle-sprite.unit-bomber,
+.battle-scene .battle-sprite.unit-destroyer,
+.battle-scene .battle-sprite.unit-battleship { clip-path: none; }
