@@ -54,11 +54,7 @@ const soundVoices: Record<SoundEvent, readonly SoundVoice[]> = {
     { wave: 'triangle', from: 215, to: 180, duration: 0.12, level: 0.14, attack: 0.012 },
     { wave: 'sine', from: 860, to: 610, duration: 0.08, delay: 0.018, level: 0.09, attack: 0.008 },
   ],
-  attack: [
-    { wave: 'square', from: 130, to: 80, duration: 0.1 },
-    { wave: 'sawtooth', from: 920, to: 210, duration: 0.065, level: 0.12, attack: 0.004 },
-    { wave: 'sine', from: 65, to: 42, duration: 0.24, delay: 0.012, level: 0.17, attack: 0.025 },
-  ],
+  attack: [{ wave: 'sawtooth', from: 260, to: 68, duration: 0.17, attack: 0.007 }],
   hit: [
     { wave: 'triangle', from: 190, to: 120, duration: 0.08 },
     { wave: 'sawtooth', from: 530, to: 95, duration: 0.055, level: 0.1, attack: 0.003 },
@@ -129,7 +125,7 @@ export class ProceduralSoundPlayer {
     oscillator.type = voice.wave;
     oscillator.frequency.setValueAtTime(voice.from, start);
     oscillator.frequency.exponentialRampToValueAtTime(Math.max(1, voice.to), start + voice.duration);
-    if (index === 0) {
+    if (index === 0 && voice.attack === undefined) {
       gain.gain.setValueAtTime(peak, start);
     } else {
       const attack = Math.min(voice.attack ?? 0.01, voice.duration * 0.5);
