@@ -108,6 +108,8 @@ let matchMode: MatchMode = 'cpu';
 let handoffPending = false;
 let cpuSpeed: CommandSpeed = 1;
 let skipCpuImmediately: (() => void) | undefined;
+/** Re-queues the next CPU step; used when a battle scene is closed before its timed wait ends. */
+let resumeCpuStep: (() => void) | undefined;
 const CPU_STEP_DELAY_MS = 350;
 /** Spectating: the viewer stopped the CPU loop; menus work until they resume. */
 let spectatePaused = false;
@@ -191,8 +193,13 @@ function dismissTacticalScene(redraw = true): void {
   stopBattleAudio?.();
   stopBattleAudio = undefined;
   musicPlayer.setBattle(false);
+  const wasShowing = activeTacticalScene !== undefined;
   activeTacticalScene = undefined;
-  if (redraw) render();
+  if (redraw) {
+    render();
+    // The CPU waits out the scene's full length; closing it early must not leave the CPU idle.
+    if (wasShowing && cpuInProgress) resumeCpuStep?.();
+  }
 }
 function battleSceneIsVisible(scene: BattleScene, visible: ReadonlySet<string>): boolean {
   return [scene.attacker.position, scene.defender.position]
@@ -1041,6 +1048,7 @@ function render(): void {
     render();
   });
   app.querySelector<HTMLButtonElement>('#skip-cpu')?.addEventListener('click', () => {
+    if (!cpuInProgress) { cpuSkipRequested = false; return; }
     cpuSkipRequested = true;
     pendingPresentationEffects = [];
     skipCpuImmediately?.();
@@ -1633,6 +1641,7 @@ function finishCpuTurn(side: PlayerId, reachedLimit = false): void {
   cpuInProgress = false;
   cpuSkipRequested = false;
   skipCpuImmediately = undefined;
+  resumeCpuStep = undefined;
   commandScheduler.cancel();
   undoStack = [];
   if (matchMode === 'spectate') {
@@ -1682,6 +1691,15 @@ function runCpu(initialDelayMs = 0): void {
   const maximumSteps = Math.max(30, game.units.filter(unit => isDeployedUnit(unit) && unit.owner === side).length * 3 + 5);
   let steps = 0;
   const advance = (): boolean => {
+    try { return advanceStep(); } catch (error) {
+      // An unexpected failure must not leave the CPU permanently "in progress".
+      console.error(error);
+      message = 'CPU の行動を安全に終了しました。';
+      finishCpuTurn(side);
+      return false;
+    }
+  };
+  const advanceStep = (): boolean => {
     if (replay || game.activePlayer !== side || game.winner) { finishCpuTurn(side); return false; }
     if (steps >= maximumSteps) { finishCpuTurn(side, true); return false; }
     steps += 1;
@@ -1703,7 +1721,16 @@ function runCpu(initialDelayMs = 0): void {
     return true;
   };
   skipCpuImmediately = () => {
+    // A scene still on screen would hold the CPU for its whole length; drop it first.
+    if (activeTacticalScene) { dismissTacticalScene(false); render(); }
     commandScheduler.start({ initialDelayMs: 0, step: advance, nextDelayMs: () => 0 });
+  };
+  resumeCpuStep = () => {
+    commandScheduler.start({
+      initialDelayMs: cpuSkipRequested ? 0 : CPU_STEP_DELAY_MS / cpuSpeed,
+      step: advance,
+      nextDelayMs: () => activeTacticalScene ? activeTacticalSceneDurationMs + 50 : cpuSkipRequested ? 0 : CPU_STEP_DELAY_MS / cpuSpeed,
+    });
   };
   commandScheduler.start({
     initialDelayMs,

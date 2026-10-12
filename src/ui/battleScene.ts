@@ -59,8 +59,30 @@ function clampedHp(hp: number): number {
 export function renderBattleScene(scene: BattleScene): string {
   const english = getLocale() === 'en';
   const labels = english
-    ? { title: 'Engagement', attacker: 'ATTACKER', defender: 'DEFENDER', terrain: 'Terrain', hp: 'HP', noDamage: 'No damage', destroyed: 'DESTROYED', skip: 'Skip scene' }
-    : { title: '戦闘発生', attacker: '攻撃側', defender: '防衛側', terrain: '戦場', hp: 'HP', noDamage: 'ダメージなし', destroyed: '撃破', skip: '演出をスキップ' };
+    ? {
+        title: 'Engagement',
+        attacker: 'ATTACKER',
+        defender: 'DEFENDER',
+        terrain: 'Terrain',
+        hp: 'HP',
+        noDamage: 'No damage',
+        destroyed: 'DESTROYED',
+        skip: 'Skip scene',
+        red: 'RED TEAM',
+        blue: 'BLUE TEAM',
+      }
+    : {
+        title: '戦闘発生',
+        attacker: '攻撃側',
+        defender: '防衛側',
+        terrain: '戦場',
+        hp: 'HP',
+        noDamage: 'ダメージなし',
+        destroyed: '撃破',
+        skip: '演出をスキップ',
+        red: '赤軍',
+        blue: '青軍',
+      };
 
   const combatant = (unit: BattleParticipant, role: 'attacker' | 'defender', incomingDamage: number): string => {
     const sideLabel = role === 'attacker' ? labels.attacker : labels.defender;
@@ -70,7 +92,8 @@ export function renderBattleScene(scene: BattleScene): string {
     const damageText = incomingDamage > 0 ? `−${incomingDamage} HP` : labels.noDamage;
     const result = after === 0 ? `<span class="battle-destroyed">${labels.destroyed}</span>` : '';
     const hitClass = incomingDamage > 0 ? ' battle-hit' : '';
-    return `<article class="battle-combatant battle-${role}${hitClass}">
+    return `<article class="battle-combatant battle-${role} battle-team-${unit.owner}${hitClass}">
+      <span class="battle-team-badge battle-team-badge-${unit.owner}">${unit.owner === 'red' ? '■' : '●'} ${unit.owner === 'red' ? labels.red : labels.blue}</span>
       <span class="battle-side-label">${sideLabel}</span>
       <span class="unit battle-sprite ${unit.owner} unit-${unit.kind}" aria-hidden="true"><span class="unit-art"></span></span>
       <h3>${escapeHtml(name)}</h3>
