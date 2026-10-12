@@ -1,4 +1,4 @@
-// Regenerates the four themes in public/assets: node scripts/generate-music.mjs writes battle/frontier/dawn/drive .wav; encode with ffmpeg libvorbis -q:a 3 (volume -5 / -3 / -3 / -1.5 dB) as {battle,frontier,dawn,drive}-theme.ogg.
+// Regenerates the six themes in public/assets: node scripts/generate-music.mjs writes battle/frontier/dawn/drive/wasteland/mist .wav; encode with ffmpeg libvorbis -q:a 3 (volume -5 / -3 / -3 / -1.5 / -2.6 / -4.9 dB) as {name}-theme.ogg (frontier, dawn, drive, wasteland, mist, battle).
 import fs from 'node:fs';
 import { Buffer } from 'node:buffer';
 const SR = 44100;
@@ -241,4 +241,66 @@ function drive() {
   }
   reverb(s, 0.22, 0.9); finish(s, 'drive.wav', 1.5);
 }
-battle(); frontier(); dawn(); drive();
+// ---------------- Wasteland: 72 BPM, E minor, 16 bars, a lean western mood ----------------
+function wasteland() {
+  const bpm = 72, beat = 60 / bpm, bar = beat * 4, bars = 16; const s = new Song(bar * bars);
+  const C = { Em: { tri: [52, 55, 59], root: 40 }, C: { tri: [48, 52, 55], root: 36 }, D: { tri: [50, 54, 57], root: 38 }, G: { tri: [55, 59, 62], root: 31 }, Am: { tri: [45, 48, 52], root: 33 }, B: { tri: [47, 51, 54], root: 35 } };
+  const prog = ['Em', 'Em', 'C', 'D', 'Em', 'G', 'Am', 'B', 'Em', 'C', 'G', 'D', 'Em', 'Am', 'B', 'Em'];
+  const mel = [
+    [[0, 2, 71], [2, 1, 74], [3, 1, 76]], [[0, 3, 79], [3, 1, 76]], [[0, 2, 76], [2, 2, 72]], [[0, 2, 74], [2, 1, 78], [3, 1, 74]],
+    [[0, 1.5, 71], [1.5, .5, 74], [2, 2, 76]], [[0, 2, 79], [2, 1, 83], [3, 1, 79]], [[0, 2, 81], [2, 2, 76]], [[0, 3, 75], [3, 1, 78]],
+    [[0, 2, 83], [2, 1, 79], [3, 1, 76]], [[0, 2, 79], [2, 2, 76]], [[0, 1, 74], [1, 1, 79], [2, 2, 83]], [[0, 2, 81], [2, 1, 78], [3, 1, 74]],
+    [[0, 2, 76], [2, 1, 79], [3, 1, 83]], [[0, 3, 81], [3, 1, 79]], [[0, 2, 78], [2, 1, 75], [3, 1, 78]], [[0, 4, 76]],
+  ];
+  for (let b = 0; b < bars; b++) {
+    const T = b * bar, { tri, root } = C[prog[b]], late = b >= 8;
+    // desert drone and a thin, dark pad
+    tone(s, { t: T, dur: bar, freq: mtof(root), vol: 0.22, voices: 1, wave: 'sin', attack: 0.2, release: 0.5 });
+    if (b % 2 === 0) tone(s, { t: T, dur: bar * 2, freq: mtof(28), vol: 0.1, voices: 1, wave: 'sin', attack: 1.2, release: 1.2 });
+    for (const m of tri) tone(s, { t: T, dur: bar, freq: mtof(m), vol: 0.03, pan: m % 2 ? 0.5 : -0.5, voices: 3, detune: 11, attack: 0.9, release: 0.9, cutoff: 650, res: 0.1 });
+    // fingerpicked guitar: plucked saw with a fast filter decay
+    const pick = [0, 2, 1, 2, 0, 2, 1, 2];
+    for (let e = 0; e < 8; e++) tone(s, { t: T + e * beat / 2, dur: 0.3, freq: mtof(tri[pick[e]] + 12), vol: late ? 0.1 : 0.085, pan: -0.25 + (e % 2) * 0.1, voices: 1, attack: 0.003, release: 0.5, cutoff: 500, peak: 3200, decay: 0.09, res: 0.25 });
+    // whistle-like lead, sparse
+    for (const [bt, d, m] of mel[b]) {
+      tone(s, { t: T + bt * beat, dur: d * beat * 0.95, freq: mtof(m), vol: 0.1, pan: 0.2, voices: 2, detune: 4, wave: 'tri', attack: 0.07, release: 0.5, cutoff: 3200, vib: 0.007, vibRate: 5.2 });
+      tone(s, { t: T + bt * beat, dur: d * beat * 0.95, freq: mtof(m + 12), vol: 0.025, pan: 0.3, voices: 1, wave: 'sin', attack: 0.09, release: 0.5, vib: 0.007, vibRate: 5.2 });
+    }
+    // percussion: deep toms and brush
+    taiko(s, T, 0.7, 48); if (b % 2) taiko(s, T + beat * 2, 0.4, 56);
+    if (late) { noiseHit(s, { t: T + beat, dur: 0.22, vol: 0.12, hp: 0.4, lpHz: 6000, shape: 1.6 }); noiseHit(s, { t: T + beat * 3, dur: 0.22, vol: 0.12, hp: 0.4, lpHz: 6000, shape: 1.6 }); }
+    else for (const q of [1, 3]) hat(s, T + q * beat, 0.07, q === 1 ? -0.3 : 0.3);
+    if (b === 7 || b === 15) for (let r = 0; r < 4; r++) taiko(s, T + beat * 3 + r * beat / 4, 0.25 + r * 0.1, 50 + r * 3);
+  }
+  reverb(s, 0.4, 1.2); finish(s, 'wasteland.wav', 1.4);
+}
+
+// ---------------- Mist: 60 BPM, F major, 16 bars, a calm ambient bed ----------------
+function mist() {
+  const bpm = 60, beat = 60 / bpm, bar = beat * 4, bars = 16; const s = new Song(bar * bars);
+  const C = { F: { tri: [53, 57, 60, 64], root: 29 }, Am: { tri: [57, 60, 64, 67], root: 33 }, Dm: { tri: [50, 53, 57, 60], root: 26 }, G: { tri: [55, 59, 62, 69], root: 31 }, Em: { tri: [52, 55, 59, 62], root: 40 } };
+  const prog = ['F', 'Am', 'Dm', 'G', 'F', 'Am', 'Dm', 'Em', 'F', 'Am', 'Dm', 'G', 'Dm', 'Em', 'F', 'F'];
+  const mel = [
+    [[0.5, 1, 77], [2, 2, 81]], [[0.5, 1, 76], [2, 2, 72]], [[0.5, 1, 74], [2, 2, 77]], [[0.5, 1, 79], [2, 2, 83]],
+    [[0.5, 1, 84], [2, 2, 81]], [[0.5, 1, 81], [2, 2, 76]], [[0.5, 1, 77], [2, 1, 74], [3, 1, 69]], [[0.5, 1, 79], [2, 2, 76]],
+    [[0, 1, 81], [1, 1, 84], [2, 2, 88]], [[0, 1, 83], [1, 1, 81], [2, 2, 76]], [[0, 1, 77], [1, 1, 81], [2, 2, 86]], [[0, 2, 83], [2, 2, 79]],
+    [[0.5, 1, 81], [2, 2, 77]], [[0.5, 1, 79], [2, 2, 83]], [[0, 2, 84], [2, 2, 81]], [[0, 4, 77]],
+  ];
+  for (let b = 0; b < bars; b++) {
+    const T = b * bar, { tri, root } = C[prog[b]], late = b >= 8;
+    for (const [pan, det] of [[-0.8, 9], [-0.3, 13], [0.3, 11], [0.8, 15]]) for (const m of tri) tone(s, { t: T, dur: bar, freq: mtof(m + (pan > 0 ? 12 : 0)), vol: 0.03 * (late ? 1.2 : 1), pan, detune: det, voices: 3, attack: 1.6, release: 1.8, cutoff: 1500, res: 0.1, vib: 0.002, vibRate: 3.8 });
+    tone(s, { t: T, dur: bar, freq: mtof(root), vol: 0.2, voices: 1, wave: 'sin', attack: 0.8, release: 1.2 });
+    // bell-like melody with a two-tap echo on the opposite side
+    for (const [bt, d, m] of mel[b]) {
+      for (const [k, delay, gain, pan] of [[0, 0, 1, -0.25], [1, beat * 0.75, 0.38, 0.6], [2, beat * 1.5, 0.16, -0.6]]) {
+        tone(s, { t: T + bt * beat + delay, dur: d * beat * 0.5, freq: mtof(m), vol: 0.085 * gain, pan, voices: 2, detune: 3, wave: 'tri', attack: 0.012, release: 1.6, cutoff: 3600, peak: 2400, decay: 0.4 });
+        if (k === 0) tone(s, { t: T + bt * beat, dur: 0.3, freq: mtof(m + 12), vol: 0.02, pan: 0.15, voices: 1, wave: 'sin', attack: 0.005, release: 1.4 });
+      }
+    }
+    if (b % 2 === 0) taiko(s, T, 0.22, 46);
+    if (late && b % 2 === 1) taiko(s, T + beat * 2, 0.14, 52);
+  }
+  reverb(s, 0.55, 1.5); finish(s, 'mist.wav', 1.3);
+}
+
+battle(); frontier(); dawn(); drive(); wasteland(); mist();
