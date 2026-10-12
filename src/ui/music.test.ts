@@ -6,6 +6,7 @@ import {
   FIELD_TRACKS,
   FIELD_TRACK_FILES,
   FIELD_TRACK_LABELS,
+  type FieldTrack,
   loadMusicSettings,
   MUSIC_SETTINGS_KEY,
   saveMusicSettings,
@@ -156,5 +157,76 @@ describe('BackgroundMusicPlayer', () => {
     await player.unlock();
     player.setSettings({ ...defaultMusicSettings, muted: false, volume: 0 });
     expect(audio.pause).toHaveBeenCalled();
+  });
+});
+
+describe('BackgroundMusicPlayer field track switching', () => {
+  function setup(settings = defaultMusicSettings) {
+    const created: Record<string, FakeAudio> = {};
+    const factory = vi.fn((track: FieldTrack) => (created[track] = new FakeAudio()));
+    const battle = new FakeAudio();
+    const march = new FakeAudio();
+    created.march = march;
+    const player = new BackgroundMusicPlayer(settings, march, battle, factory);
+    return { created, factory, battle, march, player };
+  }
+  const flush = () => new Promise((resolve) => setTimeout(resolve, 0));
+
+  it('stops the old track and plays the new one after unlock', async () => {
+    const { created, march, player } = setup();
+    await player.unlock();
+    player.setSettings({ ...defaultMusicSettings, fieldTrack: 'dawn' });
+    await flush();
+    expect(march.pause).toHaveBeenCalled();
+    expect(created.dawn?.loop).toBe(true);
+    expect(created.dawn?.play).toHaveBeenCalled();
+    expect(created.dawn?.volume).toBe(defaultMusicSettings.volume);
+  });
+
+  it('reuses an element when a track is picked again', async () => {
+    const { factory, player } = setup();
+    await player.unlock();
+    player.setSettings({ ...defaultMusicSettings, fieldTrack: 'dawn' });
+    player.setSettings({ ...defaultMusicSettings, fieldTrack: 'march' });
+    player.setSettings({ ...defaultMusicSettings, fieldTrack: 'dawn' });
+    expect(factory).toHaveBeenCalledTimes(1);
+  });
+
+  it('keeps the battle theme during a switch and plays the new track afterwards', async () => {
+    const { created, battle, player } = setup();
+    await player.unlock();
+    player.setBattle(true);
+    const battlePauses = battle.pause.mock.calls.length;
+    player.setSettings({ ...defaultMusicSettings, fieldTrack: 'drive' });
+    await flush();
+    expect(battle.pause).toHaveBeenCalledTimes(battlePauses);
+    expect(created.drive?.volume).toBe(defaultMusicSettings.volume);
+    expect(created.drive?.pause).toHaveBeenCalled();
+    player.setBattle(false);
+    await flush();
+    expect(battle.pause).toHaveBeenCalled();
+    expect(created.drive?.play.mock.calls.length).toBeGreaterThan(1);
+  });
+
+  it('stays silent when muted and plays the chosen track once unmuted', async () => {
+    const { created, player } = setup();
+    await player.unlock();
+    const muted = { ...defaultMusicSettings, muted: true, fieldTrack: 'dawn' as const };
+    player.setSettings(muted);
+    await flush();
+    expect(created.dawn?.pause).toHaveBeenCalled();
+    const playsWhileMuted = created.dawn?.play.mock.calls.length ?? 0;
+    player.setSettings({ ...muted, muted: false });
+    await flush();
+    expect(created.dawn?.play.mock.calls.length).toBeGreaterThan(playsWhileMuted);
+  });
+
+  it('does not play a new track before the first gesture, then starts it on unlock', async () => {
+    const { created, player } = setup();
+    player.setSettings({ ...defaultMusicSettings, fieldTrack: 'drive' });
+    await flush();
+    expect(created.drive?.play).not.toHaveBeenCalled();
+    await player.unlock();
+    expect(created.drive?.play).toHaveBeenCalled();
   });
 });

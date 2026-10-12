@@ -73,7 +73,9 @@ function createAudio(track: string = FIELD_TRACK_FILES.march): LoopingAudio {
 /** Starts a looped soundtrack only after a user gesture unlocks browser audio. */
 export class BackgroundMusicPlayer {
   private audio: LoopingAudio;
-  private readonly injectedAudio: boolean;
+  /** Field-track elements are created when first picked and then reused. */
+  private readonly fieldAudio = new Map<FieldTrack, LoopingAudio>();
+  private readonly createField: ((track: FieldTrack) => LoopingAudio) | undefined;
   private battleAudio: LoopingAudio | undefined;
   private inBattle = false;
   private activated = false;
@@ -82,9 +84,12 @@ export class BackgroundMusicPlayer {
     private settings: MusicSettings,
     audio?: LoopingAudio,
     battleAudio?: LoopingAudio,
+    createField?: (track: FieldTrack) => LoopingAudio,
   ) {
-    this.injectedAudio = audio !== undefined;
-    this.audio = audio ?? createAudio(FIELD_TRACK_FILES[settings.fieldTrack]);
+    // Injected audio without a factory (tests) stays fixed; otherwise tracks come from files.
+    this.createField = createField ?? (audio ? undefined : (track) => createAudio(FIELD_TRACK_FILES[track]));
+    this.audio = audio ?? this.createField!(settings.fieldTrack);
+    this.fieldAudio.set(settings.fieldTrack, this.audio);
     this.audio.loop = true;
     this.audio.preload = 'none';
     this.audio.volume = settings.volume;
@@ -135,9 +140,20 @@ export class BackgroundMusicPlayer {
     const trackChanged = settings.fieldTrack !== this.settings.fieldTrack;
     this.settings = settings;
     // The chosen track is only fetched when picked; a battle in progress keeps its own theme.
-    if (trackChanged && !this.injectedAudio) {
+    if (trackChanged && this.createField) {
       this.audio.pause();
-      this.audio = createAudio(FIELD_TRACK_FILES[settings.fieldTrack]);
+      let next = this.fieldAudio.get(settings.fieldTrack);
+      const fresh = next === undefined;
+      if (!next) {
+        next = this.createField(settings.fieldTrack);
+        next.loop = true;
+        next.preload = 'none';
+        this.fieldAudio.set(settings.fieldTrack, next);
+      }
+      this.audio = next;
+      // Picking a track is a user gesture: grant a new element playback permission now
+      // (per-element on some browsers) even if it must stay silent until later.
+      if (fresh && this.activated) this.primeSilently(next);
     }
     this.audio.volume = settings.volume;
     if (this.battleAudio) this.battleAudio.volume = settings.volume;
@@ -149,6 +165,20 @@ export class BackgroundMusicPlayer {
       return;
     }
     void this.syncPlayback();
+  }
+
+  private primeSilently(audio: LoopingAudio): void {
+    audio.volume = 0;
+    const restore = (): void => {
+      audio.volume = this.settings.volume;
+    };
+    void audio
+      .play()
+      .then(() => {
+        if (audio !== (this.inBattle ? this.battleAudio : this.audio) || this.settings.muted || this.settings.volume === 0) audio.pause();
+        restore();
+      })
+      .catch(restore);
   }
 
   private async syncPlayback(): Promise<void> {
