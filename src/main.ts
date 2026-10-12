@@ -187,7 +187,7 @@ function showTacticalScene(scene: BattleScene | ActionScene): void {
   activeTacticalSceneDurationMs = 'attacker' in scene ? BATTLE_SCENE_DURATION_MS : ACTION_SCENE_DURATION_MS;
   tacticalSceneTimer = window.setTimeout(() => dismissTacticalScene(), activeTacticalSceneDurationMs);
 }
-function dismissTacticalScene(redraw = true): void {
+function dismissTacticalScene(redraw = true): boolean {
   if (tacticalSceneTimer !== undefined) window.clearTimeout(tacticalSceneTimer);
   tacticalSceneTimer = undefined;
   stopBattleAudio?.();
@@ -195,11 +195,8 @@ function dismissTacticalScene(redraw = true): void {
   musicPlayer.setBattle(false);
   const wasShowing = activeTacticalScene !== undefined;
   activeTacticalScene = undefined;
-  if (redraw) {
-    render();
-    // The CPU waits out the scene's full length; closing it early must not leave the CPU idle.
-    if (wasShowing && cpuInProgress) resumeCpuStep?.();
-  }
+  if (redraw) render();
+  return wasShowing;
 }
 function battleSceneIsVisible(scene: BattleScene, visible: ReadonlySet<string>): boolean {
   return [scene.attacker.position, scene.defender.position]
@@ -941,7 +938,10 @@ function render(): void {
       soundPlayer.play(effect.sound);
     }
   }
-  app.querySelector<HTMLButtonElement>('#battle-scene-skip, #tactical-scene-skip')?.addEventListener('click', () => dismissTacticalScene());
+  app.querySelector<HTMLButtonElement>('#battle-scene-skip, #tactical-scene-skip')?.addEventListener('click', () => {
+    // The CPU waits out the scene's full length; closing it early must not leave the CPU idle.
+    if (dismissTacticalScene() && cpuInProgress) resumeCpuStep?.();
+  });
   if (gameOverOverlay || briefing || titleOverlay || campaignOverlay || editorOverlay || concealed || activeTacticalScene || productionOverlay) {
     app.querySelector('main')?.setAttribute('inert', '');
     // A briefing control the player just changed keeps focus, so a following
@@ -1637,12 +1637,16 @@ function moveSelectedUnit(destination: Position): boolean {
   return true;
 }
 function finishCpuTurn(side: PlayerId, reachedLimit = false): void {
-  if (game.activePlayer === side && !game.winner) dispatch({ type: 'endTurn' });
+  // Release the CPU first so a failing endTurn cannot leave it "in progress".
   cpuInProgress = false;
-  cpuSkipRequested = false;
   skipCpuImmediately = undefined;
   resumeCpuStep = undefined;
   commandScheduler.cancel();
+  try {
+    if (game.activePlayer === side && !game.winner) dispatch({ type: 'endTurn' });
+  } finally {
+    cpuSkipRequested = false;
+  }
   undoStack = [];
   if (matchMode === 'spectate') {
     message = reachedLimit ? 'CPU の行動上限に達したため、ターンを終了しました。' : uiText.spectateTurnEnded(sideName(matchMode, side));
@@ -1694,8 +1698,9 @@ function runCpu(initialDelayMs = 0): void {
     try { return advanceStep(); } catch (error) {
       // An unexpected failure must not leave the CPU permanently "in progress".
       console.error(error);
-      message = 'CPU の行動を安全に終了しました。';
       finishCpuTurn(side);
+      message = 'CPU の行動を安全に終了しました。';
+      render();
       return false;
     }
   };
