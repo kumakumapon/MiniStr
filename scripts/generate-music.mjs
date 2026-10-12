@@ -131,33 +131,46 @@ function battle() {
   reverb(s, 0.3); finish(s, 'battle.wav', 1.5);
 }
 
-// ---------------- Frontier: 76 BPM, D minor, 16 bars ----------------
+// ---------------- Frontier: 100 BPM, D minor, 16 bars, marching and heroic ----------------
 function frontier() {
-  const bpm = 76, beat = 60 / bpm, bar = beat * 4, bars = 16; const s = new Song(bar * bars);
-  const prog = ['Dm', 'Bb', 'F', 'C', 'Dm', 'Bb', 'Gm', 'A', 'Dm', 'Bb', 'F', 'C', 'Gm', 'F', 'A', 'A'];
+  const bpm = 100, beat = 60 / bpm, bar = beat * 4, bars = 16; const s = new Song(bar * bars);
+  const prog = ['Dm', 'Dm', 'Bb', 'C', 'Dm', 'Gm', 'Bb', 'A', 'Dm', 'Bb', 'F', 'C', 'Gm', 'Bb', 'C', 'A'];
   const mel = [
-    [[0, 2, 74], [2, 1, 72], [3, 1, 69]], [[0, 3, 70], [3, 1, 72]], [[0, 2, 72], [2, 2, 77]], [[0, 3, 76], [3, 1, 74]],
-    [[0, 2, 74], [2, 1, 77], [3, 1, 81]], [[0, 3, 82], [3, 1, 81]], [[0, 2, 79], [2, 2, 74]], [[0, 3, 73], [3, 1, 76]],
-    [[0, 2, 81], [2, 1, 79], [3, 1, 77]], [[0, 2, 77], [2, 2, 74]], [[0, 2, 77], [2, 1, 81], [3, 1, 84]], [[0, 3, 84], [3, 1, 79]],
-    [[0, 2, 82], [2, 1, 79], [3, 1, 74]], [[0, 2, 81], [2, 2, 77]], [[0, 2, 76], [2, 1, 73], [3, 1, 76]], [[0, 3, 81], [3, 1, 76]],
+    [[0, 1.5, 74], [1.5, .5, 77], [2, 1, 81], [3, 1, 79]], [[0, 1.5, 77], [1.5, .5, 76], [2, 2, 74]],
+    [[0, 1.5, 74], [1.5, .5, 77], [2, 1, 82], [3, 1, 81]], [[0, 1.5, 79], [1.5, .5, 76], [2, 2, 72]],
+    [[0, 1.5, 74], [1.5, .5, 77], [2, 1, 81], [3, 1, 86]], [[0, 1.5, 82], [1.5, .5, 79], [2, 1, 77], [3, 1, 74]],
+    [[0, 1.5, 77], [1.5, .5, 79], [2, 1, 82], [3, 1, 79]], [[0, 2, 73], [2, .5, 76], [2.5, .5, 79], [3, 1, 81]],
+    [[0, 1, 86], [1, .5, 84], [1.5, .5, 86], [2, 2, 89]], [[0, 1.5, 86], [1.5, .5, 82], [2, 2, 86]],
+    [[0, 1, 84], [1, 1, 81], [2, 1, 77], [3, 1, 81]], [[0, 1.5, 84], [1.5, .5, 79], [2, 2, 76]],
+    [[0, 1, 82], [1, .5, 84], [1.5, .5, 82], [2, 2, 86]], [[0, 1.5, 89], [1.5, .5, 86], [2, 1, 82], [3, 1, 86]],
+    [[0, 1.5, 88], [1.5, .5, 84], [2, 1, 79], [3, 1, 84]], [[0, 2, 85], [2, .5, 88], [2.5, .5, 85], [3, 1, 81]],
   ];
   for (let b = 0; b < bars; b++) {
-    const T = b * bar, ch = prog[b], root = ROOT[ch], swell = b >= 8 ? 1.2 : 1;
-    for (const [pan, det] of [[-0.7, 8], [-0.25, 12], [0.25, 10], [0.7, 14]]) for (const m of TRI[ch]) tone(s, { t: T, dur: bar, freq: mtof(m + (pan > 0 ? 12 : 0)), vol: 0.04 * swell, pan, detune: det, voices: 3, attack: 0.9, release: 0.9, cutoff: 1500, res: 0.1, vib: 0.002, vibRate: 4.6 });
-    tone(s, { t: T, dur: bar, freq: mtof(root), vol: 0.24, voices: 1, wave: 'sin', attack: 0.15, release: 0.5 });
-    tone(s, { t: T, dur: bar, freq: mtof(root + 12), vol: 0.1, voices: 3, detune: 9, attack: 0.2, release: 0.5, cutoff: 500, peak: 700, decay: 0.8, res: 0.1, vib: 0.002 });
+    const T = b * bar, ch = prog[b], root = ROOT[ch], late = b >= 8, swell = late ? 1.2 : 1;
+    // string pad
+    for (const [pan, det] of [[-0.6, 9], [0.6, 12]]) for (const m of TRI[ch]) tone(s, { t: T, dur: bar, freq: mtof(m), vol: 0.035 * swell, pan, detune: det, voices: 3, attack: 0.4, release: 0.5, cutoff: 1400, res: 0.1 });
+    // sub bass + pulsing 8ths
+    tone(s, { t: T, dur: bar, freq: mtof(root), vol: 0.2, voices: 1, wave: 'sin', attack: 0.01, release: 0.1 });
+    for (let e = 0; e < 8; e++) tone(s, { t: T + e * beat / 2, dur: beat / 2 * 0.8, freq: mtof(root + 12), vol: 0.12, voices: 2, detune: 6, attack: 0.005, release: 0.05, cutoff: 240, peak: 800, decay: 0.09, res: 0.3 });
+    // driving string ostinato: 8ths, then 16ths in the second half
+    const pat = [0, 7, 12, 7, 0, 7, 15, 7], steps = late ? 16 : 8, sd = bar / steps;
+    for (let k = 0; k < steps; k++) tone(s, { t: T + k * sd, dur: sd * 0.78, freq: mtof(root + 24 + pat[k % 8]), vol: (k % (steps / 4) === 0 ? 0.07 : 0.045), pan: k % 2 ? 0.4 : -0.4, voices: 3, detune: 10, attack: 0.004, release: 0.04, cutoff: 650, peak: 2000, decay: 0.07, res: 0.15 });
+    // horn melody with octave doubling; trumpet line above in the second half
     for (const [bt, d, m] of mel[b]) {
-      tone(s, { t: T + bt * beat, dur: d * beat * 0.97, freq: mtof(m), vol: 0.14 * swell, pan: 0.15, voices: 4, detune: 10, attack: 0.12, release: 0.5, cutoff: 800, peak: 2200, decay: 0.7, res: 0.12, vib: 0.005, vibRate: 5 });
-      tone(s, { t: T + bt * beat, dur: d * beat * 0.97, freq: mtof(m - 12), vol: 0.11 * swell, pan: -0.2, voices: 4, detune: 10, attack: 0.14, release: 0.5, cutoff: 650, peak: 1600, decay: 0.7, res: 0.12, vib: 0.005, vibRate: 5 });
-      if (b >= 8) tone(s, { t: T + bt * beat, dur: d * beat * 0.97, freq: mtof(m - 5), vol: 0.06, pan: 0.4, voices: 3, detune: 10, attack: 0.15, release: 0.5, cutoff: 700, peak: 1500, decay: 0.7 });
+      tone(s, { t: T + bt * beat, dur: d * beat * 0.93, freq: mtof(m), vol: 0.15 * swell, pan: 0.1, voices: 4, detune: 12, attack: 0.04, release: 0.2, cutoff: 850, peak: 3200, decay: 0.3, res: 0.12, vib: 0.004 });
+      tone(s, { t: T + bt * beat, dur: d * beat * 0.93, freq: mtof(m - 12), vol: 0.12 * swell, pan: -0.15, voices: 4, detune: 12, attack: 0.05, release: 0.2, cutoff: 650, peak: 2300, decay: 0.3, res: 0.12, vib: 0.004 });
+      if (late) tone(s, { t: T + bt * beat, dur: d * beat * 0.93, freq: mtof(m + 7), vol: 0.05, pan: 0.45, voices: 3, detune: 10, attack: 0.05, release: 0.2, cutoff: 900, peak: 2800, decay: 0.3 });
     }
+    // harp-like arpeggio
     const arp = [0, 1, 2, 1, 2, 1, 0, 1];
-    for (let e = 0; e < 8; e++) tone(s, { t: T + e * beat / 2, dur: 0.5, freq: mtof(TRI[ch][arp[e]] + 12), vol: 0.06, pan: e % 2 ? 0.5 : -0.5, voices: 1, wave: 'tri', attack: 0.004, release: 0.7, cutoff: 900, peak: 4000, decay: 0.12 });
-    taiko(s, T, 0.75, 52); taiko(s, T + beat * 2, 0.5, 58);
-    if (b % 2 === 1) taiko(s, T + beat * 3, 0.35, 64);
-    if (b === 7 || b === 15) for (let r = 0; r < 6; r++) taiko(s, T + beat * 3 + r * beat / 6, 0.2 + r * 0.06, 58);
-    if (b % 4 === 0 && b > 0) crash(s, T, 0.16);
+    for (let e = 0; e < 8; e++) tone(s, { t: T + e * beat / 2 + beat / 4, dur: 0.4, freq: mtof(TRI[ch][arp[e]] + 24), vol: 0.035, pan: e % 2 ? 0.55 : -0.55, voices: 1, wave: 'tri', attack: 0.004, release: 0.5, cutoff: 900, peak: 4000, decay: 0.1 });
+    // march percussion
+    taiko(s, T, 0.8, 58); kick(s, T + beat * 2, 0.55); if (late) kick(s, T + beat * 1.5, 0.35);
+    snare(s, T + beat, 0.28); snare(s, T + beat * 3, 0.32);
+    for (let h = 0; h < 8; h++) hat(s, T + h * beat / 2, h % 2 ? 0.06 : 0.035, h % 2 ? 0.4 : -0.4);
+    if (b % 4 === 0 && b > 0) crash(s, T, 0.2);
+    if (b === 7 || b === 15) { for (let r = 0; r < 8; r++) snare(s, T + beat * 3 + r * beat / 8, 0.12 + r * 0.04); taiko(s, T + beat * 3.5, 0.8, 55); }
   }
-  reverb(s, 0.42, 1.25); finish(s, 'frontier.wav', 1.4);
+  reverb(s, 0.34, 1.15); finish(s, 'frontier.wav', 1.5);
 }
 battle(); frontier();
