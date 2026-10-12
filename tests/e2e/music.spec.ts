@@ -28,14 +28,14 @@ test('lets the player choose a field track and keeps it after reload', async ({ 
   await page.getByRole('button', { name: /単体作戦を開始/ }).click();
   const track = page.locator('#music-track');
   await expect(track).toHaveValue('march');
-  await expect(track.locator('option')).toHaveCount(3);
+  await expect(track.locator('option')).toHaveCount(5);
 
-  await track.selectOption('drive');
+  await track.selectOption('mist');
   const settings = await page.evaluate(() => JSON.parse(localStorage.getItem('ministr.music.settings') ?? 'null'));
-  expect(settings.fieldTrack).toBe('drive');
+  expect(settings.fieldTrack).toBe('mist');
 
   await page.reload();
   await page.locator('.title-map-card[data-map-id="skirmish"]').click();
   await page.getByRole('button', { name: /単体作戦を開始/ }).click();
-  await expect(page.locator('#music-track')).toHaveValue('drive');
+  await expect(page.locator('#music-track')).toHaveValue('mist');
 });

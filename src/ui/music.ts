@@ -1,11 +1,17 @@
 import type { StorageLike } from '../game';
 
-export const FIELD_TRACKS = ['march', 'dawn', 'drive'] as const;
+export const FIELD_TRACKS = ['march', 'dawn', 'drive', 'wasteland', 'mist'] as const;
 export type FieldTrack = (typeof FIELD_TRACKS)[number];
 
 /** Audio file (without extension) for each selectable field track. */
-export const FIELD_TRACK_FILES: Record<FieldTrack, string> = { march: 'frontier-theme', dawn: 'dawn-theme', drive: 'drive-theme' };
-export const FIELD_TRACK_LABELS: Record<FieldTrack, string> = { march: '行進（重厚）', dawn: '暁（壮麗）', drive: '疾走（シンセ）' };
+export const FIELD_TRACK_FILES: Record<FieldTrack, string> = {
+  march: 'frontier-theme',
+  dawn: 'dawn-theme',
+  drive: 'drive-theme',
+  wasteland: 'wasteland-theme',
+  mist: 'mist-theme',
+};
+export const FIELD_TRACK_LABELS: Record<FieldTrack, string> = { march: '行進（重厚）', dawn: '暁（壮麗）', drive: '疾走（シンセ）', wasteland: '荒野（渋い）', mist: '霧（静か）' };
 
 export interface MusicSettings {
   muted: boolean;
