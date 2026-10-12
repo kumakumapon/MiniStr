@@ -54,32 +54,43 @@ const soundVoices: Record<SoundEvent, readonly SoundVoice[]> = {
     { wave: 'sine', from: 430, to: 610, duration: 0.07 },
     { wave: 'triangle', from: 215, to: 180, duration: 0.12, level: 0.14, attack: 0.012 },
     { wave: 'sine', from: 860, to: 610, duration: 0.08, delay: 0.018, level: 0.09, attack: 0.008 },
+    { wave: 'sine', from: 118, to: 74, duration: 0.14, level: 0.2, attack: 0.01 },
   ],
-  attack: [{ wave: 'sawtooth', from: 260, to: 68, duration: 0.17, attack: 0.007 }],
+  attack: [
+    { wave: 'sawtooth', from: 220, to: 52, duration: 0.2, attack: 0.007 },
+    { wave: 'sine', from: 130, to: 42, duration: 0.26, level: 0.3, attack: 0.01 },
+    { wave: 'triangle', from: 90, to: 45, duration: 0.18, delay: 0.01, level: 0.18, attack: 0.012 },
+  ],
   hit: [
     { wave: 'triangle', from: 190, to: 120, duration: 0.08 },
     { wave: 'sawtooth', from: 530, to: 95, duration: 0.055, level: 0.1, attack: 0.003 },
     { wave: 'sine', from: 76, to: 42, duration: 0.14, delay: 0.006, level: 0.17, attack: 0.018 },
+    { wave: 'sine', from: 58, to: 34, duration: 0.24, delay: 0.004, level: 0.3, attack: 0.012 },
   ],
   destroy: [
     { wave: 'sawtooth', from: 150, to: 45, duration: 0.16 },
     { wave: 'triangle', from: 74, to: 28, duration: 0.34, delay: 0.008, level: 0.18, attack: 0.035 },
     { wave: 'sawtooth', from: 560, to: 72, duration: 0.22, delay: 0.012, level: 0.08, attack: 0.006 },
+    { wave: 'sine', from: 62, to: 28, duration: 0.62, delay: 0.01, level: 0.34, attack: 0.03 },
+    { wave: 'sawtooth', from: 90, to: 30, duration: 0.45, delay: 0.02, level: 0.1, attack: 0.02 },
   ],
   capture: [
     { wave: 'sine', from: 340, to: 700, duration: 0.14 },
     { wave: 'triangle', from: 510, to: 1020, duration: 0.19, delay: 0.025, level: 0.15, attack: 0.035 },
     { wave: 'sine', from: 680, to: 1360, duration: 0.22, delay: 0.05, level: 0.11, attack: 0.04 },
+    { wave: 'triangle', from: 170, to: 350, duration: 0.3, level: 0.18, attack: 0.03 },
   ],
   produce: [
     { wave: 'triangle', from: 300, to: 500, duration: 0.12 },
     { wave: 'sine', from: 450, to: 750, duration: 0.16, delay: 0.02, level: 0.13, attack: 0.025 },
     { wave: 'triangle', from: 600, to: 1000, duration: 0.19, delay: 0.045, level: 0.1, attack: 0.035 },
+    { wave: 'triangle', from: 150, to: 250, duration: 0.26, level: 0.18, attack: 0.03 },
   ],
   turn: [
     { wave: 'sine', from: 250, to: 420, duration: 0.13 },
     { wave: 'triangle', from: 375, to: 630, duration: 0.18, delay: 0.025, level: 0.14, attack: 0.035 },
     { wave: 'sine', from: 500, to: 840, duration: 0.21, delay: 0.05, level: 0.1, attack: 0.04 },
+    { wave: 'triangle', from: 125, to: 210, duration: 0.3, level: 0.2, attack: 0.04 },
   ],
 };
 
@@ -149,7 +160,7 @@ export class ProceduralSoundPlayer {
       this.battleSounds.delete(master);
     };
     this.battleSounds.set(master, stop);
-    const burst = (delay: number, duration: number, level: number, cutoff: number, pitch: number) => {
+    const burst = (delay: number, duration: number, level: number, cutoff: number, pitch: number, weight = 0.95) => {
       const start = context.currentTime + delay;
       const envelope = context.createGain();
       envelope.gain.setValueAtTime(0.001, start);
@@ -168,7 +179,7 @@ export class ProceduralSoundPlayer {
       body.frequency.setValueAtTime(pitch, start);
       body.frequency.exponentialRampToValueAtTime(28, start + duration);
       const bodyGain = context.createGain();
-      bodyGain.gain.value = 0.65;
+      bodyGain.gain.value = weight;
       body.connect(bodyGain).connect(envelope);
       sources.push(noise, body);
       nodes.push(noise, body, bodyGain, filter, envelope);
@@ -178,17 +189,17 @@ export class ProceduralSoundPlayer {
     };
     let last: AudioScheduledSourceNode;
     if (cue === 'destroy') {
-      last = burst(0, 0.65, 0.42, 2600, 110);
+      last = burst(0, 0.65, 0.44, 2000, 72, 1.0);
     } else if (cue === 'impact') {
-      last = burst(0, 0.24, 0.34, 3400, 180);
+      last = burst(0, 0.24, 0.36, 2600, 115, 1.05);
     } else if (kind === 'infantry' || kind === 'mech' || kind === 'recon' || kind === 'antiAir' || kind === 'helicopter' || kind === 'fighter') {
-      burst(0, 0.07, 0.30, 6500, 220);
-      burst(0.07, 0.07, 0.26, 6500, 210);
-      last = burst(0.14, 0.08, 0.28, 6500, 200);
+      burst(0, 0.07, 0.30, 5200, 160, 0.8);
+      burst(0.07, 0.07, 0.26, 5200, 150, 0.8);
+      last = burst(0.14, 0.08, 0.28, 5200, 140, 0.8);
     } else if (kind === 'rocket' || kind === 'bomber') {
-      last = burst(0, 0.25, 0.30, 1900, 135);
+      last = burst(0, 0.25, 0.32, 1500, 92, 1.1);
     } else {
-      last = burst(0, 0.20, 0.38, 4200, 155);
+      last = burst(0, 0.20, 0.40, 3000, 100, 1.1);
     }
     last.addEventListener('ended', stop, { once: true });
     return stop;

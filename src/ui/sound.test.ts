@@ -229,6 +229,15 @@ describe('ProceduralSoundPlayer', () => {
     expect(gain?.disconnected).toBe(true);
   });
 
+  it.each(['move', 'attack', 'hit', 'destroy', 'capture', 'produce', 'turn'] as const)('layers a low body under the %s cue', async (event) => {
+    const { player, context } = fakePlayer();
+    await player.unlock();
+    player.play(event);
+    const starts = context()!.oscillators.map((oscillator) => oscillator.frequency.calls[0]?.[1] ?? Infinity);
+    expect(starts.length).toBeGreaterThan(1);
+    expect(Math.min(...starts)).toBeLessThanOrEqual(220);
+  });
+
   it('scales the peak gain with the volume and caps it', async () => {
     const quiet = fakePlayer({ muted: false, volume: 0.25 });
     await quiet.player.unlock();
@@ -250,7 +259,7 @@ describe('ProceduralSoundPlayer', () => {
     expect(context()!.oscillators).toHaveLength(0);
     player.setSettings({ muted: false, volume: 0.5 });
     player.play('attack');
-    expect(context()!.oscillators).toHaveLength(1);
+    expect(context()!.oscillators).toHaveLength(3);
   });
 
   it('reuses one context across unlocks', async () => {
