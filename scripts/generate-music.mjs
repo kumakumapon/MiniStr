@@ -1,4 +1,4 @@
-// Regenerates public/assets/{battle,frontier}-theme.ogg: node scripts/generate-music.mjs, then encode battle.wav / frontier.wav with ffmpeg (libvorbis -q:a 3; volume -5dB / -3dB).
+// Regenerates the four themes in public/assets: node scripts/generate-music.mjs writes battle/frontier/dawn/drive .wav; encode with ffmpeg libvorbis -q:a 3 (volume -5 / -3 / -3 / -1.5 dB) as {battle,frontier,dawn,drive}-theme.ogg.
 import fs from 'node:fs';
 import { Buffer } from 'node:buffer';
 const SR = 44100;
@@ -173,4 +173,72 @@ function frontier() {
   }
   reverb(s, 0.34, 1.15); finish(s, 'frontier.wav', 1.5);
 }
-battle(); frontier();
+const riser = (s, t, dur, vol) => {
+  const n = Math.floor(dur * SR), start = Math.round(t * SR); let prev = 0;
+  for (let i = 0; i < n; i++) { const x = rnd(); const h = x - prev * 0.85; prev = x; s.put(start + i, h * vol * Math.pow(i / n, 2.2), (i / n - 0.5) * 0.6); }
+};
+
+// ---------------- Dawn: 84 BPM, D major, 16 bars, a hopeful hymn ----------------
+function dawn() {
+  const bpm = 84, beat = 60 / bpm, bar = beat * 4, bars = 16; const s = new Song(bar * bars);
+  const C = { D: { tri: [50, 54, 57], root: 38 }, A: { tri: [45, 49, 52], root: 33 }, Bm: { tri: [47, 50, 54], root: 35 }, G: { tri: [43, 47, 50], root: 31 }, Em: { tri: [52, 55, 59], root: 40 } };
+  const prog = ['D', 'A', 'Bm', 'G', 'D', 'A', 'G', 'A', 'D', 'A', 'Bm', 'G', 'Em', 'G', 'A', 'A'];
+  const mel = [
+    [[0, 2, 78], [2, 1, 81], [3, 1, 78]], [[0, 2, 76], [2, 2, 73]], [[0, 2, 74], [2, 1, 78], [3, 1, 83]], [[0, 3, 81], [3, 1, 79]],
+    [[0, 2, 78], [2, 1, 81], [3, 1, 86]], [[0, 2, 85], [2, 2, 81]], [[0, 2, 83], [2, 1, 79], [3, 1, 83]], [[0, 3, 85], [3, 1, 81]],
+    [[0, 1, 86], [1, 1, 83], [2, 2, 81]], [[0, 2, 85], [2, 1, 81], [3, 1, 85]], [[0, 2, 86], [2, 1, 83], [3, 1, 78]], [[0, 2, 83], [2, 2, 79]],
+    [[0, 2, 83], [2, 1, 79], [3, 1, 76]], [[0, 2, 86], [2, 2, 83]], [[0, 2, 85], [2, 1, 88], [3, 1, 85]], [[0, 4, 81]],
+  ];
+  for (let b = 0; b < bars; b++) {
+    const T = b * bar, { tri, root } = C[prog[b]], late = b >= 8, swell = late ? 1.2 : 1;
+    for (const [pan, det] of [[-0.7, 8], [-0.25, 12], [0.25, 10], [0.7, 14]]) for (const m of tri) tone(s, { t: T, dur: bar, freq: mtof(m + (pan > 0 ? 12 : 0)), vol: 0.04 * swell, pan, detune: det, voices: 3, attack: 0.7, release: 0.8, cutoff: 1700, res: 0.1, vib: 0.002, vibRate: 4.6 });
+    tone(s, { t: T, dur: bar, freq: mtof(root), vol: 0.22, voices: 1, wave: 'sin', attack: 0.1, release: 0.4 });
+    tone(s, { t: T + beat * 2, dur: beat * 2, freq: mtof(root + 7), vol: 0.1, voices: 1, wave: 'sin', attack: 0.05, release: 0.4 });
+    for (const [bt, d, m] of mel[b]) {
+      tone(s, { t: T + bt * beat, dur: d * beat * 0.97, freq: mtof(m - 12), vol: 0.14 * swell, pan: -0.15, voices: 4, detune: 9, attack: 0.1, release: 0.45, cutoff: 700, peak: 1800, decay: 0.6, res: 0.12, vib: 0.005, vibRate: 5 });
+      tone(s, { t: T + bt * beat, dur: d * beat * 0.97, freq: mtof(m), vol: 0.07 * swell, pan: 0.2, voices: 3, detune: 7, attack: 0.08, release: 0.4, wave: 'tri', cutoff: 3500, vib: 0.006, vibRate: 5.4 });
+      if (late) tone(s, { t: T + bt * beat, dur: d * beat * 0.97, freq: mtof(m - 5), vol: 0.07, pan: 0.45, voices: 3, detune: 9, attack: 0.12, release: 0.45, cutoff: 800, peak: 1500, decay: 0.6 });
+    }
+    // flowing harp arpeggio, denser in the second half
+    const steps = late ? 16 : 8, sd = bar / steps, order = [0, 1, 2, 1];
+    for (let k = 0; k < steps; k++) tone(s, { t: T + k * sd, dur: 0.4, freq: mtof(tri[order[k % 4] ?? 0] + 24), vol: late ? 0.04 : 0.05, pan: k % 2 ? 0.5 : -0.5, voices: 1, wave: 'tri', attack: 0.004, release: 0.6, cutoff: 1000, peak: 4000, decay: 0.12 });
+    taiko(s, T, 0.5, 54); if (late) { taiko(s, T + beat * 2, 0.35, 60); hat(s, T + beat * 3, 0.05, 0.3); }
+    if (b % 4 === 0 && b > 0) crash(s, T, 0.14);
+    if (b === 15) for (let r = 0; r < 6; r++) taiko(s, T + beat * 3 + r * beat / 6, 0.15 + r * 0.05, 58);
+  }
+  reverb(s, 0.45, 1.3); finish(s, 'dawn.wav', 1.4);
+}
+
+// ---------------- Drive: 128 BPM, A minor, 16 bars, synth and four-on-the-floor ----------------
+function drive() {
+  const bpm = 128, beat = 60 / bpm, bar = beat * 4, bars = 16; const s = new Song(bar * bars);
+  const C = { Am: { tri: [57, 60, 64], root: 33 }, F: { tri: [53, 57, 60], root: 29 }, C: { tri: [48, 52, 55], root: 36 }, G: { tri: [55, 59, 62], root: 31 } };
+  const prog = ['Am', 'F', 'C', 'G', 'Am', 'F', 'G', 'Am', 'Am', 'F', 'C', 'G', 'Am', 'F', 'G', 'Am'];
+  const lead = [
+    [], [], [], [],
+    [[0, 2, 81], [2, 2, 84]], [[0, 2, 84], [2, 2, 81]], [[0, 2, 83], [2, 2, 79]], [[0, 2, 81], [2, 1, 84], [3, 1, 88]],
+    [[0, 1.5, 88], [1.5, .5, 84], [2, 1, 81], [3, 1, 84]], [[0, 1.5, 84], [1.5, .5, 81], [2, 2, 77]], [[0, 1, 84], [1, 1, 88], [2, 2, 91]], [[0, 1.5, 86], [1.5, .5, 83], [2, 2, 79]],
+    [[0, 1.5, 88], [1.5, .5, 84], [2, 1, 81], [3, 1, 84]], [[0, 1, 89], [1, 1, 88], [2, 2, 84]], [[0, 1, 86], [1, 1, 83], [2, 1, 86], [3, 1, 91]], [[0, 2, 88], [2, 2, 81]],
+  ];
+  for (let b = 0; b < bars; b++) {
+    const T = b * bar, { tri, root } = C[prog[b]], late = b >= 8, on = b >= 2;
+    // four-on-the-floor kick, offbeat open hat, clap on 2 and 4, 16th hats
+    for (let q = 0; q < 4; q++) boom(s, { t: T + q * beat, f0: 170, f1: 46, dur: 0.32, vol: 0.85, click: 0.4 });
+    for (let h = 0; h < 16; h++) hat(s, T + h * beat / 4, h % 4 === 2 ? 0.1 : 0.04, h % 2 ? 0.45 : -0.45);
+    if (on) { snare(s, T + beat, 0.32); snare(s, T + beat * 3, 0.36); }
+    // rolling 16th bass, ducked on the kick by a short gate
+    for (let k = 0; k < 16; k++) tone(s, { t: T + k * beat / 4, dur: beat / 4 * 0.75, freq: mtof(root + (k % 8 === 6 ? 12 : k % 4 === 3 ? 7 : 0)), vol: k % 4 === 0 ? 0.05 : 0.2, voices: 2, detune: 5, attack: 0.003, release: 0.03, cutoff: 200, peak: 1100, decay: 0.1, res: 0.35 });
+    // offbeat supersaw chord stabs
+    if (on) for (let q = 0; q < 4; q++) for (const m of tri) tone(s, { t: T + q * beat + beat / 2, dur: beat * 0.35, freq: mtof(m + 12), vol: 0.045, pan: q % 2 ? 0.35 : -0.35, voices: 5, detune: 22, attack: 0.004, release: 0.08, cutoff: 700, peak: 3200, decay: 0.12 });
+    // 16th arpeggio
+    const arp = [0, 1, 2, 1, 2, 1, 0, 1];
+    for (let k = 0; k < 16; k++) tone(s, { t: T + k * beat / 4, dur: beat / 4 * 0.7, freq: mtof(tri[arp[k % 8] ?? 0] + 24), vol: late ? 0.045 : 0.035, pan: k % 2 ? 0.55 : -0.55, voices: 2, detune: 8, attack: 0.003, release: 0.05, cutoff: 900, peak: 3600, decay: 0.08, res: 0.25 });
+    // lead
+    for (const [bt, d, m] of lead[b]) tone(s, { t: T + bt * beat, dur: d * beat * 0.92, freq: mtof(m), vol: 0.1, pan: 0.05, voices: 5, detune: 16, attack: 0.01, release: 0.18, cutoff: 1200, peak: 4200, decay: 0.3, res: 0.2, vib: 0.003 });
+    if (late) tone(s, { t: T, dur: bar, freq: mtof(root + 24), vol: 0.03, voices: 3, detune: 14, attack: 0.4, release: 0.6, cutoff: 1300 });
+    if (b % 4 === 0 && b > 0) crash(s, T, 0.2);
+    if (b === 7 || b === 15) { riser(s, T + beat * 2, beat * 2, 0.25); for (let r = 0; r < 8; r++) snare(s, T + beat * 3 + r * beat / 8, 0.15 + r * 0.04); }
+  }
+  reverb(s, 0.22, 0.9); finish(s, 'drive.wav', 1.5);
+}
+battle(); frontier(); dawn(); drive();

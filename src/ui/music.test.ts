@@ -1,6 +1,15 @@
 import { describe, expect, it, vi } from 'vitest';
 import type { StorageLike } from '../game';
-import { BackgroundMusicPlayer, defaultMusicSettings, loadMusicSettings, MUSIC_SETTINGS_KEY, saveMusicSettings } from './music';
+import {
+  BackgroundMusicPlayer,
+  defaultMusicSettings,
+  FIELD_TRACKS,
+  FIELD_TRACK_FILES,
+  FIELD_TRACK_LABELS,
+  loadMusicSettings,
+  MUSIC_SETTINGS_KEY,
+  saveMusicSettings,
+} from './music';
 
 function storage(initial: Record<string, string> = {}): StorageLike {
   const values = new Map(Object.entries(initial));
@@ -29,10 +38,34 @@ describe('music settings', () => {
 
   it('persists valid settings and rejects invalid values', () => {
     const target = storage();
-    const settings = { muted: true, volume: 0.35 };
+    const settings = { ...defaultMusicSettings, muted: true, volume: 0.35 };
     expect(saveMusicSettings(target, settings)).toBe(true);
     expect(loadMusicSettings(target)).toEqual(settings);
-    expect(saveMusicSettings(target, { muted: false, volume: -0.1 })).toBe(false);
+    expect(saveMusicSettings(target, { ...defaultMusicSettings, muted: false, volume: -0.1 })).toBe(false);
+  });
+});
+
+describe('field track setting', () => {
+  it('reads settings saved before the track choice as the default march', () => {
+    const old = storage({ [MUSIC_SETTINGS_KEY]: '{"muted":true,"volume":0.5}' });
+    expect(loadMusicSettings(old)).toEqual({ muted: true, volume: 0.5, fieldTrack: 'march' });
+  });
+
+  it('keeps a valid chosen track and falls back for unknown ones', () => {
+    const target = storage();
+    expect(saveMusicSettings(target, { ...defaultMusicSettings, fieldTrack: 'drive' })).toBe(true);
+    expect(loadMusicSettings(target).fieldTrack).toBe('drive');
+    expect(loadMusicSettings(storage({ [MUSIC_SETTINGS_KEY]: '{"muted":false,"volume":0.3,"fieldTrack":"jazz"}' }))).toEqual(defaultMusicSettings);
+    expect(loadMusicSettings(storage({ [MUSIC_SETTINGS_KEY]: '{"muted":false,"volume":0.3,"fieldTrack":7}' }))).toEqual(defaultMusicSettings);
+    expect(saveMusicSettings(target, { ...defaultMusicSettings, fieldTrack: 'jazz' as never })).toBe(false);
+  });
+
+  it('ships an audio file for every selectable track', () => {
+    for (const track of FIELD_TRACKS) {
+      expect(FIELD_TRACK_FILES[track]).toMatch(/-theme$/);
+      expect(FIELD_TRACK_LABELS[track]).not.toBe('');
+    }
+    expect(new Set(FIELD_TRACKS.map((track) => FIELD_TRACK_FILES[track])).size).toBe(FIELD_TRACKS.length);
   });
 });
 
@@ -53,16 +86,16 @@ describe('BackgroundMusicPlayer', () => {
     player.setBattle(true);
     expect(battle.play).toHaveBeenCalledTimes(plays);
 
-    player.setSettings({ muted: true, volume: 0.4 });
+    player.setSettings({ ...defaultMusicSettings, muted: true, volume: 0.4 });
     expect(battle.pause).toHaveBeenCalled();
     expect(battle.volume).toBe(0.4);
-    player.setSettings({ muted: false, volume: 0.4 });
+    player.setSettings({ ...defaultMusicSettings, muted: false, volume: 0.4 });
     expect(battle.play).toHaveBeenCalledTimes(plays + 1);
     player.setBattle(false);
     expect(normal.currentTime).toBe(12);
     expect(normal.play).toHaveBeenCalledTimes(2);
     player.setBattle(true);
-    player.setSettings({ muted: false, volume: 0 });
+    player.setSettings({ ...defaultMusicSettings, muted: false, volume: 0 });
     expect(battle.volume).toBe(0);
     const silentPlays = battle.play.mock.calls.length;
     player.setBattle(false);
@@ -102,11 +135,11 @@ describe('BackgroundMusicPlayer', () => {
     await player.unlock();
     expect(audio.play).toHaveBeenCalledTimes(1);
 
-    player.setSettings({ muted: true, volume: 0.6 });
+    player.setSettings({ ...defaultMusicSettings, muted: true, volume: 0.6 });
     expect(audio.volume).toBe(0.6);
     expect(audio.pause).toHaveBeenCalledTimes(1);
 
-    player.setSettings({ muted: false, volume: 0.4 });
+    player.setSettings({ ...defaultMusicSettings, muted: false, volume: 0.4 });
     expect(audio.play).toHaveBeenCalledTimes(2);
   });
 
@@ -121,7 +154,7 @@ describe('BackgroundMusicPlayer', () => {
     const audio = new FakeAudio();
     const player = new BackgroundMusicPlayer(defaultMusicSettings, audio);
     await player.unlock();
-    player.setSettings({ muted: false, volume: 0 });
+    player.setSettings({ ...defaultMusicSettings, muted: false, volume: 0 });
     expect(audio.pause).toHaveBeenCalled();
   });
 });
