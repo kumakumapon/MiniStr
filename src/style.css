@@ -1008,3 +1008,12 @@ body.production-menu-open { overflow: hidden; }
   .production-menu-controls { padding: 12px 12px 0; }
   .production-menu-body { padding: 0 12px 12px; }
 }
+
+/* Team colour: the shared sprite art carries no red/blue tint, so the card says it. */
+.battle-combatant.battle-team-red { border: 2px solid #ff6b5c; background: linear-gradient(#5a1c1888, #0c1512b8 70%); }
+.battle-combatant.battle-team-blue { border: 2px solid #5aa8ff; background: linear-gradient(#143a6688, #0c1512b8 70%); }
+.battle-team-badge { align-self: stretch; margin: -14px calc(-1 * clamp(8px, 2vw, 18px)) 8px; padding: 5px 8px; color: #fff; font-size: .78rem; font-weight: 800; letter-spacing: .12em; text-align: center; border-radius: 4px 4px 0 0; }
+.battle-team-badge-red { background: #c4382d; }
+.battle-team-badge-blue { background: #2a6cc0; }
+.battle-team-red .battle-sprite.unit .unit-art { filter: drop-shadow(0 0 6px #ff5a4a) drop-shadow(0 0 2px #ff5a4a); }
+.battle-team-blue .battle-sprite.unit .unit-art { filter: drop-shadow(0 0 6px #4aa0ff) drop-shadow(0 0 2px #4aa0ff); }
