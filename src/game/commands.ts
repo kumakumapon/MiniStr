@@ -9,7 +9,7 @@ import { scenarioForState } from './maps';
 import { decisionRound, decisionWinner, updateScenarioProgress, updateScenarioScores, withEvaluatedWinner } from './victory';
 import { experienceAfterCombat } from './experience';
 import { applyModernUpkeep } from './logistics';
-import { isDeployedUnit, otherPlayer, usesDecisionRules, usesModernRules, type GameResult, type GameState, type PlayerId, type Position, type Unit, type UnitKind } from './types';
+import { BALANCED_RULE_VERSION, isDeployedUnit, otherPlayer, usesDecisionRules, usesModernRules, type GameResult, type GameState, type PlayerId, type Position, type Unit, type UnitKind } from './types';
 
 const fail = <T = GameState>(error: string): GameResult<T> => ({ ok: false, error });
 const succeed = <T>(value: T): GameResult<T> => ({ ok: true, value });
@@ -203,7 +203,7 @@ export function produceUnit(state: GameState, facility: Position, kind: UnitKind
   if (!terrain || terrain.owner !== state.activePlayer || !canProduceUnit(terrain.kind, kind, productionRule, state.ruleVersion))
     return fail('An owned compatible production facility is required');
   if (unitAt(state, facility)) return fail('Production facility is occupied');
-  if (usesDecisionRules(state) && state.units.filter(unit => unit.owner === state.activePlayer).length >= unitLimit(state.board))
+  if (usesDecisionRules(state) && state.units.filter(unit => unit.owner === state.activePlayer).length >= unitLimit(state.board, state.ruleVersion))
     return fail('Unit limit reached');
   const stats = unitStats[kind];
   if (state.players[state.activePlayer].gold < stats.cost) return fail('Insufficient funds');
@@ -367,8 +367,11 @@ export function endTurn(state: GameState): GameState {
       turn: state.turn + (activePlayer === 'red' ? 1 : 0),
       units: progressed.units.map(unit => unit.owner === activePlayer ? { ...unit, hasMoved: false, hasActed: false } : unit),
     });
-    const upkept = applyModernUpkeep(ready, activePlayer);
-    const settled = withEvaluatedWinner({ ...upkept, units: withoutExhaustedUnits(upkept.units, activePlayer) }, [], actor);
+    // Both armies enter their first turn with full fuel. Older matches retain
+    // blue's historical opening fuel charge so their command history replays.
+    const consumeFuel = state.ruleVersion !== BALANCED_RULE_VERSION || state.turn !== 1 || activePlayer !== 'blue';
+    const upkept = applyModernUpkeep(ready, activePlayer, consumeFuel);
+    const settled = withEvaluatedWinner({ ...upkept, units: withoutExhaustedUnits(upkept.units, activePlayer) }, [], actor, actor === 'blue');
     // Decision victory at the end of the decision round (blue closes each round).
     // It is judged on the board as blue left it, before red's income and repairs,
     // so the first player's start-of-turn upkeep cannot tip the result. Aircraft

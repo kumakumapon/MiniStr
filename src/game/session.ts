@@ -96,7 +96,7 @@ function migrateSavedGame(value: Record<string, unknown>): Record<string, unknow
   return undefined;
 }
 
-/** Upgrade archived custom-map matches without registering imported definitions. */
+/** Upgrade archived built-in or custom-map matches without registering imported definitions. */
 export function restoreArchivedScenario(value: Record<string, unknown>): Record<string, unknown> {
   const initial = value.initialState;
   if (!isRecord(initial) || initial.scenarioSnapshot !== undefined || typeof value.mapId !== 'string') return value;

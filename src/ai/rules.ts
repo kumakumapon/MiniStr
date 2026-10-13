@@ -8,6 +8,11 @@ import { manhattanDistance, movementCost, terrainAt } from '../game/terrain';
 import { isDeployedUnit, usesDecisionRules, usesModernRules, type Board, type DeployedUnit, type GameState, type PlayerId, type Position, type Unit, type UnitKind } from '../game/types';
 import { adjacentToSupplyUnit, isGroundUnit, isServiceTile, REPAIR_HP_PER_TURN } from '../game/logistics';
 import { isEmbarkableUnit, isMergeableUnit, isSupplyUnit, unitCategory, unitStats } from '../game/units';
+import { bluePlanningState, rotatePosition } from './perspective';
+
+// Production IDs interleave between armies. Numeric ordering preserves each
+// army's creation order instead of moving u10 ahead of u2.
+const unitIdOrder = new Intl.Collator('en', { numeric: true });
 
 /** The CPU does not use hidden randomness: the same state always gives the same order. */
 export type CpuDifficulty = 'easy' | 'normal' | 'hard';
@@ -83,7 +88,7 @@ type StandardProductionKind = Extract<UnitKind, 'infantry' | 'tank' | 'artillery
 const standardProductionKinds: readonly StandardProductionKind[] = ['infantry', 'tank', 'artillery'];
 
 function orderedUnits(state: GameState, player: PlayerId): DeployedUnit[] {
-  return state.units.filter((unit): unit is DeployedUnit => unit.owner === player && isDeployedUnit(unit)).sort((a, b) => a.id.localeCompare(b.id));
+  return state.units.filter((unit): unit is DeployedUnit => unit.owner === player && isDeployedUnit(unit)).sort((a, b) => unitIdOrder.compare(a.id, b.id));
 }
 
 function canCapture(state: GameState, unit: DeployedUnit): boolean {
@@ -147,7 +152,7 @@ function attackAction(state: GameState, player: PlayerId, config: CpuDifficultyC
         const interruption = Number(interruptsCapture(state, player, b)) - Number(interruptsCapture(state, player, a));
         // Focus fire: finishing a unit removes its future attacks, so certain kills come first.
         const lethal = Number(bForecast.ok && bForecast.value.outgoing.min >= b.hp) - Number(aForecast.ok && aForecast.value.outgoing.min >= a.hp);
-        return interruption || lethal || bScore - aScore || a.hp - b.hp || a.id.localeCompare(b.id);
+        return interruption || lethal || bScore - aScore || a.hp - b.hp || unitIdOrder.compare(a.id, b.id);
       })[0];
     if (target) return { type: 'attack', unitId: attacker.id, targetId: target.id };
   }
@@ -248,7 +253,7 @@ function atForceLimit(state: GameState, player: PlayerId, config: CpuDifficultyC
 
 function productionAction(state: GameState, player: PlayerId, config: CpuDifficultyConfig, context: CpuPlanningContext): CpuAction | undefined {
   // The rule-version-3 unit limit binds every order, including the exempt ones below.
-  if (usesDecisionRules(state) && state.units.filter(unit => unit.owner === player).length >= unitLimit(state.board)) return undefined;
+  if (usesDecisionRules(state) && state.units.filter(unit => unit.owner === player).length >= unitLimit(state.board, state.ruleVersion)) return undefined;
   const { targets } = context;
   const hasRemoteInfantry = orderedUnits(state, player)
     .filter(unit => isEmbarkableUnit(unit.kind))
@@ -404,10 +409,13 @@ export function evaluateCpuPosition(
   const conditions = player === 'red' ? scenario?.victoryConditions : scenario?.defeatConditions;
   const hold = conditions?.some(condition => condition.type === 'hold' && condition.positions.some(p => p.x === destination.x && p.y === destination.y)) ? 100 : 0;
   const score = conditions?.some(condition => condition.type === 'score') && isPropertyTerrainKind(terrain.kind) && terrain.owner !== player && unitStats[unit.kind].capturePower > 0 ? 35 : 0;
+  // Healthy combat units leave uncaptured facilities open for the infantry.
+  const captureLane = unit.hp > 50 && unitStats[unit.kind].capturePower === 0 && isPropertyTerrainKind(terrain.kind) && terrain.owner !== player ? 30 : 0;
   return defense + supply + response + retreatCover + logistics + hold + score
     - distance * config.objectiveDistanceWeight
     - pressure * config.threatAvoidanceWeight * (1 - stalemateRelief(state))
     - retreatPressure
+    - captureLane
     - blocking;
 }
 
@@ -511,12 +519,21 @@ function moveAction(state: GameState, player: PlayerId, config: CpuDifficultyCon
   if (!targets.length) return undefined;
   for (const unit of orderedUnits(state, player)) {
     if (unit.hasMoved || unit.hasActed) continue;
+    const scenario = scenarioForState(state);
+    const conditions = player === 'red' ? scenario?.victoryConditions : scenario?.defeatConditions;
+    const defending = conditions?.some(condition => condition.type === 'hold') || conditions?.every(condition => condition.type === 'survive');
+    const combatTargets = targets.filter(target => {
+      const tile = terrainAt(state.board, target);
+      return tile?.kind === 'capital' && tile.owner !== undefined && tile.owner !== player
+        || context.visibleEnemies.some(enemy => isDeployedUnit(enemy) && enemy.position.x === target.x && enemy.position.y === target.y);
+    });
+    const unitTargets = unitStats[unit.kind].capturePower > 0 || defending || !combatTargets.length ? targets : combatTargets;
     // Advance across the unit's whole movement range (Dijkstra reachability), weighing cover,
     // resupply and visible counterattack risk instead of raw distance alone.
     // Include the current position as an explicit wait order. Unlike a zero-cost
     // move, waiting is legal even when a ground unit has no fuel left.
     const destination = [unit.position, ...reachablePositionsForPlayer(state, unit.id, player)]
-      .map(position => ({ position, score: evaluateCpuPosition(state, player, unit, position, targets, config, context.visibleEnemies) }))
+      .map(position => ({ position, score: evaluateCpuPosition(state, player, unit, position, unitTargets, config, context.visibleEnemies) }))
       .sort((a, b) => b.score - a.score || a.position.y - b.position.y || a.position.x - b.position.x)[0]?.position;
     if (destination) {
       if (destination.x === unit.position.x && destination.y === unit.position.y)
@@ -607,6 +624,15 @@ export function createCpuPlanningContext(state: GameState, player: PlayerId, con
 
 /** Select the next legal high-level CPU order. The caller applies it with the game command layer. */
 export function chooseCpuAction(state: GameState, difficulty: CpuDifficulty = 'normal', player: PlayerId = state.activePlayer): CpuAction {
+  if (state.winner || player !== state.activePlayer) return { type: 'endTurn' };
+  const action = chooseOrientedCpuAction(player === 'blue' ? bluePlanningState(state) : state, difficulty, player);
+  if (player !== 'blue') return action;
+  if (action.type === 'move' || action.type === 'disembark') return { ...action, destination: rotatePosition(action.destination, state.board) };
+  if (action.type === 'produce') return { ...action, factory: rotatePosition(action.factory, state.board) };
+  return action;
+}
+
+function chooseOrientedCpuAction(state: GameState, difficulty: CpuDifficulty, player: PlayerId): CpuAction {
   if (state.winner || player !== state.activePlayer) return { type: 'endTurn' };
   state = observeLogistics(state, player);
   // Never abandon a win secured by ending this turn (notably a completed hold

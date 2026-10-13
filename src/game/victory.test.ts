@@ -72,7 +72,7 @@ describe('data-driven victory conditions', () => {
     expect(isVictoryConditionMet(state, condition, 'red')).toBe(false);
     state.board.terrain[4]![6] = { kind: 'capital', owner: 'red', capturePoints: 20 };
     expect(isVictoryConditionMet(state, condition, 'red')).toBe(false);
-    state.board.terrain[9]![13] = { kind: 'capital', owner: 'red', capturePoints: 20 };
+    state.board.terrain[siege.board.height - 1]![siege.board.width - 1] = { kind: 'capital', owner: 'red', capturePoints: 20 };
     expect(isVictoryConditionMet(state, condition, 'red')).toBe(true);
   });
 

@@ -408,14 +408,14 @@ describe('Capital capture objectives', () => {
   it('does not complete a known scenario objective after capturing a neutral capital', () => {
     const scenario = maps.find(map => map.id === 'siege')!;
     const state = stateWith(createGameState(structuredClone(scenario.board)), { scenarioId: scenario.id });
-    state.board.terrain[4]![6]!.owner = 'red';
+    state.board.terrain[7]![10]!.owner = 'red';
     expect(getConditionProgress(state, { type: 'captureCapital' }, 'red')).toEqual({ current: 0, target: 1, complete: false });
   });
 
   it('completes a known scenario objective after capturing its initially enemy-owned capital', () => {
     const scenario = maps.find(map => map.id === 'siege')!;
     const state = stateWith(createGameState(structuredClone(scenario.board)), { scenarioId: scenario.id });
-    state.board.terrain[9]![13]!.owner = 'red';
+    state.board.terrain[scenario.board.height - 1]![scenario.board.width - 1]!.owner = 'red';
     expect(getConditionProgress(state, { type: 'captureCapital' }, 'red')).toEqual({ current: 1, target: 1, complete: true });
   });
 
