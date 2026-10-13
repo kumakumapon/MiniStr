@@ -1,0 +1,1050 @@
+{
+  "baselineRef": "46858f60b2eee82af946774ff765d806a4f0d52a",
+  "rules": {
+    "before": 3,
+    "after": 4
+  },
+  "maxRounds": 60,
+  "seeds": [
+    7919,
+    15838,
+    23757,
+    31676
+  ],
+  "openingBonuses": {
+    "skirmish": 4000,
+    "canyon": 4000,
+    "industrial": 2000,
+    "outpost": 2000,
+    "river": 1000
+  },
+  "measurementGroups": {
+    "tuned": [
+      "skirmish",
+      "canyon",
+      "industrial",
+      "outpost"
+    ],
+    "unchangedNoBonus": [
+      "islands",
+      "siege",
+      "marsh",
+      "admiralty"
+    ],
+    "unchanged1000Bonus": [
+      "river"
+    ]
+  },
+  "before": [
+    {
+      "map": "skirmish",
+      "difficulty": "hard",
+      "seed": 7919,
+      "winner": "red",
+      "turns": 40
+    },
+    {
+      "map": "skirmish",
+      "difficulty": "hard",
+      "seed": 15838,
+      "winner": "blue",
+      "turns": 41
+    },
+    {
+      "map": "skirmish",
+      "difficulty": "hard",
+      "seed": 23757,
+      "winner": "blue",
+      "turns": 28
+    },
+    {
+      "map": "skirmish",
+      "difficulty": "hard",
+      "seed": 31676,
+      "winner": "red",
+      "turns": 41
+    },
+    {
+      "map": "skirmish",
+      "difficulty": "normal",
+      "seed": 7919,
+      "winner": "blue",
+      "turns": 41
+    },
+    {
+      "map": "skirmish",
+      "difficulty": "normal",
+      "seed": 15838,
+      "winner": "red",
+      "turns": 41
+    },
+    {
+      "map": "skirmish",
+      "difficulty": "normal",
+      "seed": 23757,
+      "winner": "blue",
+      "turns": 41
+    },
+    {
+      "map": "skirmish",
+      "difficulty": "normal",
+      "seed": 31676,
+      "winner": "red",
+      "turns": 41
+    },
+    {
+      "map": "islands",
+      "difficulty": "hard",
+      "seed": 7919,
+      "winner": "red",
+      "turns": 41
+    },
+    {
+      "map": "islands",
+      "difficulty": "hard",
+      "seed": 15838,
+      "winner": "red",
+      "turns": 41
+    },
+    {
+      "map": "islands",
+      "difficulty": "hard",
+      "seed": 23757,
+      "winner": "blue",
+      "turns": 41
+    },
+    {
+      "map": "islands",
+      "difficulty": "hard",
+      "seed": 31676,
+      "winner": "red",
+      "turns": 41
+    },
+    {
+      "map": "islands",
+      "difficulty": "normal",
+      "seed": 7919,
+      "winner": "blue",
+      "turns": 41
+    },
+    {
+      "map": "islands",
+      "difficulty": "normal",
+      "seed": 15838,
+      "winner": "blue",
+      "turns": 41
+    },
+    {
+      "map": "islands",
+      "difficulty": "normal",
+      "seed": 23757,
+      "winner": "blue",
+      "turns": 41
+    },
+    {
+      "map": "islands",
+      "difficulty": "normal",
+      "seed": 31676,
+      "winner": "blue",
+      "turns": 41
+    },
+    {
+      "map": "canyon",
+      "difficulty": "hard",
+      "seed": 7919,
+      "winner": "blue",
+      "turns": 41
+    },
+    {
+      "map": "canyon",
+      "difficulty": "hard",
+      "seed": 15838,
+      "winner": "red",
+      "turns": 34
+    },
+    {
+      "map": "canyon",
+      "difficulty": "hard",
+      "seed": 23757,
+      "winner": "blue",
+      "turns": 41
+    },
+    {
+      "map": "canyon",
+      "difficulty": "hard",
+      "seed": 31676,
+      "winner": "red",
+      "turns": 41
+    },
+    {
+      "map": "canyon",
+      "difficulty": "normal",
+      "seed": 7919,
+      "winner": "red",
+      "turns": 41
+    },
+    {
+      "map": "canyon",
+      "difficulty": "normal",
+      "seed": 15838,
+      "winner": "red",
+      "turns": 41
+    },
+    {
+      "map": "canyon",
+      "difficulty": "normal",
+      "seed": 23757,
+      "winner": "red",
+      "turns": 41
+    },
+    {
+      "map": "canyon",
+      "difficulty": "normal",
+      "seed": 31676,
+      "winner": "blue",
+      "turns": 41
+    },
+    {
+      "map": "siege",
+      "difficulty": "hard",
+      "seed": 7919,
+      "winner": "red",
+      "turns": 41
+    },
+    {
+      "map": "siege",
+      "difficulty": "hard",
+      "seed": 15838,
+      "winner": "red",
+      "turns": 41
+    },
+    {
+      "map": "siege",
+      "difficulty": "hard",
+      "seed": 23757,
+      "winner": "blue",
+      "turns": 41
+    },
+    {
+      "map": "siege",
+      "difficulty": "hard",
+      "seed": 31676,
+      "winner": "red",
+      "turns": 41
+    },
+    {
+      "map": "siege",
+      "difficulty": "normal",
+      "seed": 7919,
+      "winner": "red",
+      "turns": 35
+    },
+    {
+      "map": "siege",
+      "difficulty": "normal",
+      "seed": 15838,
+      "winner": "blue",
+      "turns": 41
+    },
+    {
+      "map": "siege",
+      "difficulty": "normal",
+      "seed": 23757,
+      "winner": "red",
+      "turns": 36
+    },
+    {
+      "map": "siege",
+      "difficulty": "normal",
+      "seed": 31676,
+      "winner": "red",
+      "turns": 41
+    },
+    {
+      "map": "river",
+      "difficulty": "hard",
+      "seed": 7919,
+      "winner": "red",
+      "turns": 41
+    },
+    {
+      "map": "river",
+      "difficulty": "hard",
+      "seed": 15838,
+      "winner": "red",
+      "turns": 41
+    },
+    {
+      "map": "river",
+      "difficulty": "hard",
+      "seed": 23757,
+      "winner": "red",
+      "turns": 41
+    },
+    {
+      "map": "river",
+      "difficulty": "hard",
+      "seed": 31676,
+      "winner": "blue",
+      "turns": 41
+    },
+    {
+      "map": "river",
+      "difficulty": "normal",
+      "seed": 7919,
+      "winner": "red",
+      "turns": 41
+    },
+    {
+      "map": "river",
+      "difficulty": "normal",
+      "seed": 15838,
+      "winner": "blue",
+      "turns": 41
+    },
+    {
+      "map": "river",
+      "difficulty": "normal",
+      "seed": 23757,
+      "winner": "red",
+      "turns": 41
+    },
+    {
+      "map": "river",
+      "difficulty": "normal",
+      "seed": 31676,
+      "winner": "red",
+      "turns": 41
+    },
+    {
+      "map": "industrial",
+      "difficulty": "hard",
+      "seed": 7919,
+      "winner": "red",
+      "turns": 10
+    },
+    {
+      "map": "industrial",
+      "difficulty": "hard",
+      "seed": 15838,
+      "winner": "red",
+      "turns": 10
+    },
+    {
+      "map": "industrial",
+      "difficulty": "hard",
+      "seed": 23757,
+      "winner": "blue",
+      "turns": 9
+    },
+    {
+      "map": "industrial",
+      "difficulty": "hard",
+      "seed": 31676,
+      "winner": "red",
+      "turns": 9
+    },
+    {
+      "map": "industrial",
+      "difficulty": "normal",
+      "seed": 7919,
+      "winner": "blue",
+      "turns": 10
+    },
+    {
+      "map": "industrial",
+      "difficulty": "normal",
+      "seed": 15838,
+      "winner": "blue",
+      "turns": 11
+    },
+    {
+      "map": "industrial",
+      "difficulty": "normal",
+      "seed": 23757,
+      "winner": "blue",
+      "turns": 11
+    },
+    {
+      "map": "industrial",
+      "difficulty": "normal",
+      "seed": 31676,
+      "winner": "red",
+      "turns": 13
+    },
+    {
+      "map": "outpost",
+      "difficulty": "hard",
+      "seed": 7919,
+      "winner": "red",
+      "turns": 15
+    },
+    {
+      "map": "outpost",
+      "difficulty": "hard",
+      "seed": 15838,
+      "winner": "red",
+      "turns": 16
+    },
+    {
+      "map": "outpost",
+      "difficulty": "hard",
+      "seed": 23757,
+      "winner": "blue",
+      "turns": 21
+    },
+    {
+      "map": "outpost",
+      "difficulty": "hard",
+      "seed": 31676,
+      "winner": "blue",
+      "turns": 21
+    },
+    {
+      "map": "outpost",
+      "difficulty": "normal",
+      "seed": 7919,
+      "winner": "blue",
+      "turns": 21
+    },
+    {
+      "map": "outpost",
+      "difficulty": "normal",
+      "seed": 15838,
+      "winner": "blue",
+      "turns": 21
+    },
+    {
+      "map": "outpost",
+      "difficulty": "normal",
+      "seed": 23757,
+      "winner": "blue",
+      "turns": 21
+    },
+    {
+      "map": "outpost",
+      "difficulty": "normal",
+      "seed": 31676,
+      "winner": "blue",
+      "turns": 21
+    },
+    {
+      "map": "marsh",
+      "difficulty": "hard",
+      "seed": 7919,
+      "winner": "red",
+      "turns": 41
+    },
+    {
+      "map": "marsh",
+      "difficulty": "hard",
+      "seed": 15838,
+      "winner": "red",
+      "turns": 39
+    },
+    {
+      "map": "marsh",
+      "difficulty": "hard",
+      "seed": 23757,
+      "winner": "red",
+      "turns": 41
+    },
+    {
+      "map": "marsh",
+      "difficulty": "hard",
+      "seed": 31676,
+      "winner": "red",
+      "turns": 41
+    },
+    {
+      "map": "marsh",
+      "difficulty": "normal",
+      "seed": 7919,
+      "winner": "red",
+      "turns": 41
+    },
+    {
+      "map": "marsh",
+      "difficulty": "normal",
+      "seed": 15838,
+      "winner": "red",
+      "turns": 41
+    },
+    {
+      "map": "marsh",
+      "difficulty": "normal",
+      "seed": 23757,
+      "winner": "red",
+      "turns": 41
+    },
+    {
+      "map": "marsh",
+      "difficulty": "normal",
+      "seed": 31676,
+      "winner": "red",
+      "turns": 41
+    },
+    {
+      "map": "admiralty",
+      "difficulty": "hard",
+      "seed": 7919,
+      "winner": "blue",
+      "turns": 41
+    },
+    {
+      "map": "admiralty",
+      "difficulty": "hard",
+      "seed": 15838,
+      "winner": "blue",
+      "turns": 41
+    },
+    {
+      "map": "admiralty",
+      "difficulty": "hard",
+      "seed": 23757,
+      "winner": "blue",
+      "turns": 41
+    },
+    {
+      "map": "admiralty",
+      "difficulty": "hard",
+      "seed": 31676,
+      "winner": "red",
+      "turns": 41
+    },
+    {
+      "map": "admiralty",
+      "difficulty": "normal",
+      "seed": 7919,
+      "winner": "blue",
+      "turns": 41
+    },
+    {
+      "map": "admiralty",
+      "difficulty": "normal",
+      "seed": 15838,
+      "winner": "blue",
+      "turns": 41
+    },
+    {
+      "map": "admiralty",
+      "difficulty": "normal",
+      "seed": 23757,
+      "winner": "blue",
+      "turns": 41
+    },
+    {
+      "map": "admiralty",
+      "difficulty": "normal",
+      "seed": 31676,
+      "winner": "blue",
+      "turns": 41
+    }
+  ],
+  "after": [
+    {
+      "map": "skirmish",
+      "difficulty": "hard",
+      "seed": 7919,
+      "winner": "blue",
+      "turns": 41
+    },
+    {
+      "map": "skirmish",
+      "difficulty": "hard",
+      "seed": 15838,
+      "winner": "blue",
+      "turns": 41
+    },
+    {
+      "map": "skirmish",
+      "difficulty": "hard",
+      "seed": 23757,
+      "winner": "blue",
+      "turns": 41
+    },
+    {
+      "map": "skirmish",
+      "difficulty": "hard",
+      "seed": 31676,
+      "winner": "red",
+      "turns": 41
+    },
+    {
+      "map": "skirmish",
+      "difficulty": "normal",
+      "seed": 7919,
+      "winner": "red",
+      "turns": 41
+    },
+    {
+      "map": "skirmish",
+      "difficulty": "normal",
+      "seed": 15838,
+      "winner": "red",
+      "turns": 41
+    },
+    {
+      "map": "skirmish",
+      "difficulty": "normal",
+      "seed": 23757,
+      "winner": "red",
+      "turns": 41
+    },
+    {
+      "map": "skirmish",
+      "difficulty": "normal",
+      "seed": 31676,
+      "winner": "red",
+      "turns": 41
+    },
+    {
+      "map": "islands",
+      "difficulty": "hard",
+      "seed": 7919,
+      "winner": "red",
+      "turns": 41
+    },
+    {
+      "map": "islands",
+      "difficulty": "hard",
+      "seed": 15838,
+      "winner": "blue",
+      "turns": 41
+    },
+    {
+      "map": "islands",
+      "difficulty": "hard",
+      "seed": 23757,
+      "winner": "blue",
+      "turns": 41
+    },
+    {
+      "map": "islands",
+      "difficulty": "hard",
+      "seed": 31676,
+      "winner": "blue",
+      "turns": 41
+    },
+    {
+      "map": "islands",
+      "difficulty": "normal",
+      "seed": 7919,
+      "winner": "blue",
+      "turns": 41
+    },
+    {
+      "map": "islands",
+      "difficulty": "normal",
+      "seed": 15838,
+      "winner": "red",
+      "turns": 41
+    },
+    {
+      "map": "islands",
+      "difficulty": "normal",
+      "seed": 23757,
+      "winner": "red",
+      "turns": 41
+    },
+    {
+      "map": "islands",
+      "difficulty": "normal",
+      "seed": 31676,
+      "winner": "red",
+      "turns": 41
+    },
+    {
+      "map": "canyon",
+      "difficulty": "hard",
+      "seed": 7919,
+      "winner": "red",
+      "turns": 41
+    },
+    {
+      "map": "canyon",
+      "difficulty": "hard",
+      "seed": 15838,
+      "winner": "blue",
+      "turns": 41
+    },
+    {
+      "map": "canyon",
+      "difficulty": "hard",
+      "seed": 23757,
+      "winner": "red",
+      "turns": 41
+    },
+    {
+      "map": "canyon",
+      "difficulty": "hard",
+      "seed": 31676,
+      "winner": "blue",
+      "turns": 41
+    },
+    {
+      "map": "canyon",
+      "difficulty": "normal",
+      "seed": 7919,
+      "winner": "blue",
+      "turns": 41
+    },
+    {
+      "map": "canyon",
+      "difficulty": "normal",
+      "seed": 15838,
+      "winner": "red",
+      "turns": 41
+    },
+    {
+      "map": "canyon",
+      "difficulty": "normal",
+      "seed": 23757,
+      "winner": "blue",
+      "turns": 41
+    },
+    {
+      "map": "canyon",
+      "difficulty": "normal",
+      "seed": 31676,
+      "winner": "red",
+      "turns": 41
+    },
+    {
+      "map": "siege",
+      "difficulty": "hard",
+      "seed": 7919,
+      "winner": "blue",
+      "turns": 41
+    },
+    {
+      "map": "siege",
+      "difficulty": "hard",
+      "seed": 15838,
+      "winner": "red",
+      "turns": 41
+    },
+    {
+      "map": "siege",
+      "difficulty": "hard",
+      "seed": 23757,
+      "winner": "red",
+      "turns": 41
+    },
+    {
+      "map": "siege",
+      "difficulty": "hard",
+      "seed": 31676,
+      "winner": "red",
+      "turns": 41
+    },
+    {
+      "map": "siege",
+      "difficulty": "normal",
+      "seed": 7919,
+      "winner": "blue",
+      "turns": 41
+    },
+    {
+      "map": "siege",
+      "difficulty": "normal",
+      "seed": 15838,
+      "winner": "blue",
+      "turns": 41
+    },
+    {
+      "map": "siege",
+      "difficulty": "normal",
+      "seed": 23757,
+      "winner": "blue",
+      "turns": 41
+    },
+    {
+      "map": "siege",
+      "difficulty": "normal",
+      "seed": 31676,
+      "winner": "blue",
+      "turns": 41
+    },
+    {
+      "map": "river",
+      "difficulty": "hard",
+      "seed": 7919,
+      "winner": "blue",
+      "turns": 41
+    },
+    {
+      "map": "river",
+      "difficulty": "hard",
+      "seed": 15838,
+      "winner": "red",
+      "turns": 41
+    },
+    {
+      "map": "river",
+      "difficulty": "hard",
+      "seed": 23757,
+      "winner": "blue",
+      "turns": 41
+    },
+    {
+      "map": "river",
+      "difficulty": "hard",
+      "seed": 31676,
+      "winner": "blue",
+      "turns": 41
+    },
+    {
+      "map": "river",
+      "difficulty": "normal",
+      "seed": 7919,
+      "winner": "red",
+      "turns": 41
+    },
+    {
+      "map": "river",
+      "difficulty": "normal",
+      "seed": 15838,
+      "winner": "red",
+      "turns": 41
+    },
+    {
+      "map": "river",
+      "difficulty": "normal",
+      "seed": 23757,
+      "winner": "red",
+      "turns": 41
+    },
+    {
+      "map": "river",
+      "difficulty": "normal",
+      "seed": 31676,
+      "winner": "blue",
+      "turns": 41
+    },
+    {
+      "map": "industrial",
+      "difficulty": "hard",
+      "seed": 7919,
+      "winner": "blue",
+      "turns": 15
+    },
+    {
+      "map": "industrial",
+      "difficulty": "hard",
+      "seed": 15838,
+      "winner": "red",
+      "turns": 15
+    },
+    {
+      "map": "industrial",
+      "difficulty": "hard",
+      "seed": 23757,
+      "winner": "blue",
+      "turns": 15
+    },
+    {
+      "map": "industrial",
+      "difficulty": "hard",
+      "seed": 31676,
+      "winner": "red",
+      "turns": 14
+    },
+    {
+      "map": "industrial",
+      "difficulty": "normal",
+      "seed": 7919,
+      "winner": "blue",
+      "turns": 17
+    },
+    {
+      "map": "industrial",
+      "difficulty": "normal",
+      "seed": 15838,
+      "winner": "blue",
+      "turns": 17
+    },
+    {
+      "map": "industrial",
+      "difficulty": "normal",
+      "seed": 23757,
+      "winner": "red",
+      "turns": 18
+    },
+    {
+      "map": "industrial",
+      "difficulty": "normal",
+      "seed": 31676,
+      "winner": "blue",
+      "turns": 15
+    },
+    {
+      "map": "outpost",
+      "difficulty": "hard",
+      "seed": 7919,
+      "winner": "blue",
+      "turns": 41
+    },
+    {
+      "map": "outpost",
+      "difficulty": "hard",
+      "seed": 15838,
+      "winner": "red",
+      "turns": 41
+    },
+    {
+      "map": "outpost",
+      "difficulty": "hard",
+      "seed": 23757,
+      "winner": "blue",
+      "turns": 41
+    },
+    {
+      "map": "outpost",
+      "difficulty": "hard",
+      "seed": 31676,
+      "winner": "red",
+      "turns": 41
+    },
+    {
+      "map": "outpost",
+      "difficulty": "normal",
+      "seed": 7919,
+      "winner": "blue",
+      "turns": 41
+    },
+    {
+      "map": "outpost",
+      "difficulty": "normal",
+      "seed": 15838,
+      "winner": "red",
+      "turns": 41
+    },
+    {
+      "map": "outpost",
+      "difficulty": "normal",
+      "seed": 23757,
+      "winner": "blue",
+      "turns": 41
+    },
+    {
+      "map": "outpost",
+      "difficulty": "normal",
+      "seed": 31676,
+      "winner": "blue",
+      "turns": 41
+    },
+    {
+      "map": "marsh",
+      "difficulty": "hard",
+      "seed": 7919,
+      "winner": "blue",
+      "turns": 41
+    },
+    {
+      "map": "marsh",
+      "difficulty": "hard",
+      "seed": 15838,
+      "winner": "red",
+      "turns": 41
+    },
+    {
+      "map": "marsh",
+      "difficulty": "hard",
+      "seed": 23757,
+      "winner": "blue",
+      "turns": 41
+    },
+    {
+      "map": "marsh",
+      "difficulty": "hard",
+      "seed": 31676,
+      "winner": "blue",
+      "turns": 33
+    },
+    {
+      "map": "marsh",
+      "difficulty": "normal",
+      "seed": 7919,
+      "winner": "blue",
+      "turns": 41
+    },
+    {
+      "map": "marsh",
+      "difficulty": "normal",
+      "seed": 15838,
+      "winner": "red",
+      "turns": 41
+    },
+    {
+      "map": "marsh",
+      "difficulty": "normal",
+      "seed": 23757,
+      "winner": "blue",
+      "turns": 41
+    },
+    {
+      "map": "marsh",
+      "difficulty": "normal",
+      "seed": 31676,
+      "winner": "red",
+      "turns": 41
+    },
+    {
+      "map": "admiralty",
+      "difficulty": "hard",
+      "seed": 7919,
+      "winner": "red",
+      "turns": 41
+    },
+    {
+      "map": "admiralty",
+      "difficulty": "hard",
+      "seed": 15838,
+      "winner": "red",
+      "turns": 41
+    },
+    {
+      "map": "admiralty",
+      "difficulty": "hard",
+      "seed": 23757,
+      "winner": "red",
+      "turns": 41
+    },
+    {
+      "map": "admiralty",
+      "difficulty": "hard",
+      "seed": 31676,
+      "winner": "red",
+      "turns": 41
+    },
+    {
+      "map": "admiralty",
+      "difficulty": "normal",
+      "seed": 7919,
+      "winner": "red",
+      "turns": 41
+    },
+    {
+      "map": "admiralty",
+      "difficulty": "normal",
+      "seed": 15838,
+      "winner": "blue",
+      "turns": 41
+    },
+    {
+      "map": "admiralty",
+      "difficulty": "normal",
+      "seed": 23757,
+      "winner": "blue",
+      "turns": 41
+    },
+    {
+      "map": "admiralty",
+      "difficulty": "normal",
+      "seed": 31676,
+      "winner": "blue",
+      "turns": 41
+    }
+  ]
+}

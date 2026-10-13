@@ -10,19 +10,19 @@ export type CampaignGrade = 'S' | 'A' | 'B' | 'C';
 
 export interface CampaignStage { scenarioId: string; recommendedTurns: number }
 export const campaignStages: readonly CampaignStage[] = [
-  { scenarioId: 'skirmish', recommendedTurns: 14 },
-  { scenarioId: 'islands', recommendedTurns: 18 },
-  { scenarioId: 'canyon', recommendedTurns: 20 },
-  { scenarioId: 'siege', recommendedTurns: 24 },
-  { scenarioId: 'river', recommendedTurns: 22 },
-  { scenarioId: 'tundra', recommendedTurns: 18 },
+  { scenarioId: 'skirmish', recommendedTurns: 22 },
+  { scenarioId: 'islands', recommendedTurns: 26 },
+  { scenarioId: 'canyon', recommendedTurns: 28 },
+  { scenarioId: 'siege', recommendedTurns: 32 },
+  { scenarioId: 'river', recommendedTurns: 30 },
+  { scenarioId: 'tundra', recommendedTurns: 24 },
   // Append new stages so every v2 unlocked-prefix and grade remains valid.
   // Landing follows the existing river operation, where players first learn ports.
-  { scenarioId: 'outpost', recommendedTurns: 14 },
-  { scenarioId: 'landing', recommendedTurns: 18 },
-  { scenarioId: 'industrial', recommendedTurns: 24 },
+  { scenarioId: 'outpost', recommendedTurns: 22 },
+  { scenarioId: 'landing', recommendedTurns: 26 },
+  { scenarioId: 'industrial', recommendedTurns: 32 },
   // Appending preserves valid v3 saves from the original nine-stage campaign.
-  { scenarioId: 'marsh', recommendedTurns: 20 },
+  { scenarioId: 'marsh', recommendedTurns: 28 },
 ];
 
 export interface CampaignProgress {

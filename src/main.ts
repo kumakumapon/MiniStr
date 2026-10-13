@@ -695,7 +695,7 @@ function render(): void {
   // tiles that produce, not only counted in the panel.
   const idleFacilities = idleProductionFacilities(renderedGame, me, productionRule);
   const targetFacility = (selectedFacility && idleFacilities.find(facility => key(facility.position) === key(selectedFacility!))) || (productionMenuOpen ? idleFacilities[0] : undefined);
-  const viewerAtUnitLimit = usesDecisionRules(renderedGame) && renderedGame.units.filter(unit => unit.owner === me).length >= unitLimit(renderedGame.board);
+  const viewerAtUnitLimit = usesDecisionRules(renderedGame) && renderedGame.units.filter(unit => unit.owner === me).length >= unitLimit(renderedGame.board, renderedGame.ruleVersion);
   const idleFacilityKeys = new Set(viewerAtUnitLimit ? [] : idleFacilities.map(facility => key(facility.position)));
   const board = renderedGame.board.terrain.flatMap((row, y) => row.map((terrain, x) => {
     const unit = renderedGame.units.find(item => isDeployedUnit(item) && item.position.x === x && item.position.y === y);
@@ -744,7 +744,7 @@ function render(): void {
     return `<button ${!canAct ? 'disabled' : ''} class="tile ${terrain.kind} ${isSelected ? 'selected' : ''} ${isReachable ? 'reachable' : ''} ${enemyMovement ? 'enemy-move-zone' : ''} ${enemyAttack ? 'enemy-attack-zone' : ''} ${movementDanger ? 'movement-danger' : ''} ${isFacilityTarget ? 'facility-target' : ''} ${hidden ? 'fog' : ''}" data-x="${x}" data-y="${y}" data-terrain="${terrain.kind}" tabindex="${focusedPosition.x === x && focusedPosition.y === y ? '0' : '-1'}" title="${propertyLabel}${unitLabel ? ` — ${unitLabel}` : ''}${statuses.length ? ` — ${statuses.join('、')}` : ''}" aria-label="${propertyLabel}${unitLabel ? `、${unitLabel}` : ''}${statuses.length ? `、${statuses.join('、')}` : ''}">${terrainArt}${stateMarker}${facility}${label}</button>`;
   })).join('');
   const ownUnitCount = renderedGame.units.filter(unit => unit.owner === me).length;
-  const ownUnitLimit = usesDecisionRules(renderedGame) ? unitLimit(renderedGame.board) : undefined;
+  const ownUnitLimit = usesDecisionRules(renderedGame) ? unitLimit(renderedGame.board, renderedGame.ruleVersion) : undefined;
   const atUnitLimit = ownUnitLimit !== undefined && ownUnitCount >= ownUnitLimit;
   const production = producibleUnits.filter(kind => isUnitKindAvailable(kind, renderedGame.ruleVersion) && (!productionMenuOpen || !targetFacility || targetFacility.kinds.includes(kind))).map(kind => {
     // A chosen facility restricts the roster to what it can build; otherwise any

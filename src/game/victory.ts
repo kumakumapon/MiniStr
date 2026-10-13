@@ -1,6 +1,6 @@
 import { scenarioForState, type ScenarioDefinition, type VictoryCondition } from './maps';
 import { playerOwnedProperties } from './state';
-import { isDeployedUnit, otherPlayer, usesDecisionRules, type GameState, type PlayerId, type Position } from './types';
+import { BALANCED_RULE_VERSION, isDeployedUnit, otherPlayer, usesDecisionRules, type GameState, type PlayerId, type Position } from './types';
 import { unitStats } from './units';
 
 export interface ConditionProgress { current: number; target: number; complete: boolean }
@@ -134,11 +134,26 @@ export function updateScenarioScores(previous: GameState, next: GameState): Game
 /**
  * Scenarios describe the red player's victory list and the blue player's mirrored
  * defeat list. If both sides meet a condition on the same state, the active player
- * wins, making simultaneous resolution deterministic. Legacy turn limits are
+ * wins, making simultaneous resolution deterministic. Version 4 score races
+ * instead resolve after both turns, compare points, and continue equal scores.
+ * Legacy turn limits are
  * normalized to blue's survive condition while loading a scenario.
  */
-export function evaluateScenario(state: GameState, scenario: ScenarioDefinition, tieBreaker: PlayerId = state.activePlayer): PlayerId | undefined {
+export function evaluateScenario(state: GameState, scenario: ScenarioDefinition, tieBreaker: PlayerId = state.activePlayer, roundComplete = true): PlayerId | undefined {
   if (state.winner) return state.winner;
+  if (state.ruleVersion === BALANCED_RULE_VERSION) {
+    const nonScore = (conditions: readonly VictoryCondition[], player: PlayerId) => conditions.some(condition => condition.type !== 'score' && isVictoryConditionMet(state, condition, player));
+    const redImmediate = nonScore(scenario.victoryConditions, 'red'), blueImmediate = nonScore(scenario.defeatConditions, 'blue');
+    if (redImmediate || blueImmediate) return redImmediate && blueImmediate ? tieBreaker : redImmediate ? 'red' : 'blue';
+    if (!roundComplete) return undefined;
+    const scored = (conditions: readonly VictoryCondition[], player: PlayerId) => conditions.some(condition => condition.type === 'score' && isVictoryConditionMet(state, condition, player));
+    const redScored = scored(scenario.victoryConditions, 'red'), blueScored = scored(scenario.defeatConditions, 'blue');
+    if (redScored && blueScored) {
+      const red = state.scores?.red ?? 0, blue = state.scores?.blue ?? 0;
+      return red === blue ? undefined : red > blue ? 'red' : 'blue';
+    }
+    return redScored ? 'red' : blueScored ? 'blue' : undefined;
+  }
   const redWon = scenario.victoryConditions.some(condition => isVictoryConditionMet(state, condition, 'red'));
   const blueWon = scenario.defeatConditions.some(condition => isVictoryConditionMet(state, condition, 'blue'));
   if (redWon && blueWon) return tieBreaker;
@@ -152,10 +167,11 @@ export function withEvaluatedWinner(
   state: GameState,
   legacyConditions: readonly VictoryCondition[] = [],
   tieBreaker: PlayerId = state.activePlayer,
+  roundComplete = false,
 ): GameState {
   const scenario = scenarioForState(state);
   const winner = scenario
-    ? evaluateScenario(state, scenario, tieBreaker)
+    ? evaluateScenario(state, scenario, tieBreaker, roundComplete)
     : legacyConditions.some(condition => isVictoryConditionMet(state, condition, state.activePlayer))
       ? state.activePlayer : state.winner;
   return winner === state.winner ? state : { ...state, winner };

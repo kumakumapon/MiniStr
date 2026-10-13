@@ -13,7 +13,7 @@ test('picks a map on the title screen, goes back from the briefing, and starts (
 
   const landing = page.locator('.title-map-card[data-map-id="landing"]');
   await expect(landing).toContainText('海峡上陸作戦');
-  await expect(landing).toContainText('18ターン制限');
+  await expect(landing).toContainText('26ターン制限');
   await landing.click();
   await expect(page.locator('#briefing-title')).toHaveText('海峡上陸作戦');
 
