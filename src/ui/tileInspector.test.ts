@@ -58,6 +58,8 @@ describe('inspectTile', () => {
     expect(own.title).toBe('自軍の戦車');
     expect(rowValue(own.rows, '耐久')).toBe('62 / 100');
     expect(rowValue(own.rows, '弾薬')).toBe('3 / 6');
+    expect(rowValue(own.rows, '武器')).toBe('戦車砲');
+    expect(rowValue(own.rows, '弾数上限')).toBe('6');
     expect(rowValue(own.rows, '燃料')).toBe('消費なし');
     expect(rowValue(own.rows, '状態')).toBe('移動済み');
   });
@@ -69,6 +71,8 @@ describe('inspectTile', () => {
     expect(rowValue(enemy.rows, '搭載')).toBe('歩兵');
     expect(rowValue(enemy.rows, '燃料')).toBeUndefined();
     expect(rowValue(enemy.rows, '弾薬')).toBeUndefined();
+    expect(rowValue(enemy.rows, '武器')).toBe('非武装');
+    expect(rowValue(enemy.rows, '弾数上限')).toBe('0');
     expect(rowValue(enemy.rows, '状態')).toBeUndefined();
   });
 
@@ -78,6 +82,20 @@ describe('inspectTile', () => {
     expect(fogged.unit).toBeUndefined();
     expect(fogged.title).toBe('平原');
     expect(describeTileInspection(fogged)).toContain('未索敵');
+  });
+
+  it('shows empty magazines and compatible resupply sources without inventing weapons for transports', () => {
+    const empty: GameState = { ...situation(), ruleVersion: 4 };
+    empty.units[0]!.ammo = 0;
+    const own = inspectTile(empty, { x: 0, y: 0 }, 'red', everywhere)!.unit!;
+    expect(rowValue(own.rows, '弾薬')).toBe('0 / 6（弾切れ・補給が必要）');
+    expect(rowValue(own.rows, '補給')).toContain('都市・工場・司令部');
+    expect(rowValue(own.rows, '補給')).toContain('APC');
+    expect(rowValue(own.rows, '補給')).not.toContain('空港');
+    const ship = inspectTile(empty, { x: 3, y: 1 }, 'blue', everywhere)!.unit!;
+    expect(rowValue(ship.rows, '弾薬')).toBe('非武装');
+    expect(rowValue(ship.rows, '補給')).toContain('港湾');
+    expect(rowValue(ship.rows, '補給')).not.toContain('APC');
   });
 
   it('flattens an inspection into one accessible sentence using one-based coordinates', () => {
