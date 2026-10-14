@@ -1,6 +1,7 @@
-import { defaultProductionRule, defenseStars, experienceRank, isDeployedUnit, MAX_EXPERIENCE, usesModernRules, isPropertyTerrainKind, movementCost, productionKindsForRule, terrainAt, type ProductionRule, unitStats, type GameState, type PlayerId, type Position, type UnitKind } from '../game';
+import { canServiceUnitAt, defaultProductionRule, defenseStars, experienceRank, isDeployedUnit, isGroundUnit, MAX_EXPERIENCE, remainingAmmo, usesModernRules, isPropertyTerrainKind, movementCost, productionKindsForRule, terrainAt, type ProductionRule, unitStats, type GameState, type PlayerId, type Position, type UnitKind } from '../game';
 import { capturePointsLabel, observedCapturePoints } from './fogDisplay';
-import { ownerLabel, rankNames, rankStars, sideLabel, terrainNames, unitNames } from './labels';
+import { ownerLabel, rankNames, rankStars, sideLabel, terrainNames, unitNames, unitWeaponName } from './labels';
+import { uiText } from './strings';
 
 export interface InspectorRow { label: string; value: string }
 export interface TileInspection {
@@ -56,6 +57,8 @@ export function inspectTile(
   const stats = unitStats[unit.kind];
   const unitRows: InspectorRow[] = [
     { label: '耐久', value: `${unit.hp} / 100` },
+    { label: uiText.weapon, value: unitWeaponName(unit.kind) },
+    { label: uiText.ammoCapacity, value: `${stats.ammo}` },
     { label: '攻撃', value: `${stats.attack}` },
     { label: '射程', value: range(unit.kind) },
     { label: '移動', value: `${stats.movement}` },
@@ -69,7 +72,11 @@ export function inspectTile(
   if (cargo) unitRows.push({ label: '搭載', value: unitNames[cargo.kind] });
   if (unit.owner === viewer) {
     unitRows.push({ label: '燃料', value: stats.fuelPerTurn === 0 ? '消費なし' : `${unit.fuel ?? stats.fuel}（毎手番 -${stats.fuelPerTurn}）` });
-    unitRows.push({ label: '弾薬', value: stats.ammo === 0 ? 'なし' : `${unit.ammo ?? stats.ammo}` });
+    const ammo = remainingAmmo(unit);
+    unitRows.push({ label: uiText.ammo, value: stats.ammo === 0 ? uiText.unarmed : `${ammo} / ${stats.ammo}${ammo === 0 ? `（${uiText.ammoEmpty}）` : ''}` });
+    const facilities = (['city', 'factory', 'capital', 'airport', 'port'] as const)
+      .filter(kind => !usesModernRules(state) || canServiceUnitAt(kind, unit.kind)).map(kind => terrainNames[kind]).join('・');
+    unitRows.push({ label: uiText.resupply, value: uiText.resupplyAt(facilities) + (usesModernRules(state) && isGroundUnit(unit.kind) ? uiText.resupplyByApc : '') });
     unitRows.push({ label: '状態', value: unit.hasActed ? '行動済み' : unit.hasMoved ? '移動済み' : '未行動' });
   }
   return { ...inspection, unit: { title: `${sideLabel(unit.owner, viewer)}の${unitNames[unit.kind]}`, rows: unitRows } };

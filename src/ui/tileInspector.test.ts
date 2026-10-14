@@ -57,7 +57,7 @@ describe('inspectTile', () => {
     const own = inspectTile(state, { x: 0, y: 0 }, 'red', everywhere)!.unit!;
     expect(own.title).toBe('自軍の戦車');
     expect(rowValue(own.rows, '耐久')).toBe('62 / 100');
-    expect(rowValue(own.rows, '弾薬')).toBe('3');
+    expect(rowValue(own.rows, '弾薬')).toBe('3 / 6');
     expect(rowValue(own.rows, '燃料')).toBe('消費なし');
     expect(rowValue(own.rows, '状態')).toBe('移動済み');
   });

@@ -1,7 +1,7 @@
 import { rankDamageFactor } from './experience';
 import { defenseStars, manhattanDistance, terrainAt } from './terrain';
 import type { Terrain } from './types';
-import { damageMultiplier, incomingDamageFactor, unitCategory, unitStats } from './units';
+import { damageMultiplier, incomingDamageFactor, remainingAmmo, unitCategory, unitStats } from './units';
 import { isDeployedUnit, type GameResult, type GameState, type Unit } from './types';
 
 export { damageMultiplier };
@@ -59,7 +59,7 @@ export function combatDamageFactor(state: GameState, attacker: Unit, defender: U
 export function forecastCombat(state: GameState, attacker: Unit, defender: Unit): GameResult<CombatForecast> {
   if (!isDeployedUnit(attacker) || !isDeployedUnit(defender)) return { ok: false, error: 'Embarked units cannot fight' };
   if (attacker.owner === defender.owner) return { ok: false, error: 'Cannot attack a friendly unit' };
-  const attackerAmmo = attacker.ammo ?? unitStats[attacker.kind].ammo;
+  const attackerAmmo = remainingAmmo(attacker);
   if (attackerAmmo <= 0) return { ok: false, error: 'Unit is out of ammunition' };
   if (unitStats[attacker.kind].attack <= 0) return { ok: false, error: 'Unit has no attack capability' };
   const distance = manhattanDistance(attacker.position, defender.position);
@@ -75,7 +75,7 @@ export function forecastCombat(state: GameState, attacker: Unit, defender: Unit)
   const damageToDefender = Math.max(0, Math.round(raw * (1 - reduction / 100)));
   const defenderRemaining = Math.max(0, defender.hp - damageToDefender);
   const counterRange = unitStats[defender.kind].range;
-  const defenderAmmo = defender.ammo ?? unitStats[defender.kind].ammo;
+  const defenderAmmo = remainingAmmo(defender);
   const canCounter = !unitStats[attacker.kind].indirect && !unitStats[defender.kind].indirect
     && defenderRemaining > 0 && defenderAmmo > 0 && distance >= counterRange[0] && distance <= counterRange[1];
   const baseCounterRaw = canCounter ? unitStats[defender.kind].attack * defenderRemaining / 100 * damageMultiplier[defender.kind][unitCategory[attacker.kind]] : 0;

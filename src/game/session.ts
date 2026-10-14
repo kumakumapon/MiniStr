@@ -3,7 +3,7 @@ import { MAX_EXPERIENCE } from './experience';
 import { isUnitKindAvailable } from './facilities';
 import { createScenarioInitialState, scenarioForState, scenarioHistory, scenarioDefinitionToData, scenarioCatalogRevision, type ScenarioDefinition } from './maps';
 import { ruleVersions, terrainKindSet, type GameResult, type GameState, type Position, type UnitKind } from './types';
-import { isEmbarkableUnit, transportCapacity, unitKindSet } from './units';
+import { isEmbarkableUnit, isValidUnitAmmo, transportCapacity, unitKindSet } from './units';
 import { parseBoundedJson } from './jsonBoundary';
 
 /**
@@ -262,7 +262,7 @@ export function isGameState(value: unknown): value is GameState {
       || typeof unit.owner !== 'string' || !players.has(unit.owner)
       || !isFiniteNumber(unit.hp) || unit.hp <= 0 || unit.hp > 100
       || (unit.fuel !== undefined && (!isFiniteNumber(unit.fuel) || unit.fuel < 0))
-      || (unit.ammo !== undefined && (!isFiniteNumber(unit.ammo) || unit.ammo < 0))
+      || !isValidUnitAmmo(unit.kind as UnitKind, unit.ammo)
       || typeof unit.hasMoved !== 'boolean' || typeof unit.hasActed !== 'boolean'
       // Experience exists only in modern-rule matches, so a classic save cannot smuggle in rank bonuses.
       || (unit.experience !== undefined && (!modern || !Number.isSafeInteger(unit.experience)

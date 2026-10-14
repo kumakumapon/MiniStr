@@ -1,4 +1,7 @@
-export interface UnitStats { cost: number; movement: number; attack: number; defense: number; capturePower: number; range: readonly [number, number]; fuel: number; /** Fuel consumed at the start of each turn while away from an owned property. */ fuelPerTurn: number; ammo: number; vision: number; /** Cannot attack on the turn it moves. */ indirect: boolean }
+export interface UnitStats { cost: number; movement: number; attack: number; defense: number; capturePower: number; range: readonly [number, number]; fuel: number; /** Fuel consumed at the start of each turn while away from an owned property. */ fuelPerTurn: number; /** Maximum rounds; each attack or counterattack consumes one. Zero means unarmed. */ ammo: number; vision: number; /** Cannot attack on the turn it moves. */ indirect: boolean }
+
+export type WeaponKind = 'rifle' | 'machineGun' | 'tankCannon' | 'howitzer' | 'rocketLauncher' | 'antiAirCannon'
+  | 'airMissile' | 'bomb' | 'navalGun' | 'antiTankLauncher' | 'heavyTankCannon' | 'helicopterRocket' | 'heavyNavalGun';
 
 export type UnitCategory = 'soft' | 'armor' | 'air' | 'sea';
 export type MovementProfile = 'foot' | 'vehicle' | 'air' | 'sea';
@@ -7,6 +10,8 @@ export type ProductionTerrain = 'factory' | 'airport' | 'port';
 export type ProductionFacilityKind = ProductionTerrain;
 
 export interface UnitDefinition {
+  /** Fixed weapon for this kind; attack, range and ammunition capacity are defined in stats. */
+  weapon: WeaponKind | null;
   category: UnitCategory;
   movementProfile: MovementProfile;
   productionTerrain: ProductionTerrain;
@@ -33,84 +38,99 @@ export interface UnitDefinition {
  */
 export const unitDefinitions = {
   infantry: {
+    weapon: 'rifle',
     category: 'soft', movementProfile: 'foot', productionTerrain: 'factory', mergeable: true, embarkable: true,
     stats: { cost: 1000, movement: 3, attack: 55, defense: 10, capturePower: 10, range: [1, 1], fuel: 99, fuelPerTurn: 0, ammo: 9, vision: 2, indirect: false },
     effectiveness: { soft: 1.0, armor: 0.5, air: 0.35, sea: 0.3 },
   },
   recon: {
+    weapon: 'machineGun',
     category: 'soft', movementProfile: 'vehicle', productionTerrain: 'factory', mergeable: true,
     stats: { cost: 4000, movement: 7, attack: 35, defense: 15, capturePower: 0, range: [1, 1], fuel: 80, fuelPerTurn: 0, ammo: 6, vision: 5, indirect: false },
     effectiveness: { soft: 1.1, armor: 0.6, air: 0.4, sea: 0.3 },
   },
   tank: {
+    weapon: 'tankCannon',
     category: 'armor', movementProfile: 'vehicle', productionTerrain: 'factory', mergeable: true,
     stats: { cost: 7000, movement: 5, attack: 75, defense: 35, capturePower: 0, range: [1, 1], fuel: 70, fuelPerTurn: 0, ammo: 6, vision: 3, indirect: false },
     effectiveness: { soft: 1.0, armor: 1.0, air: 0.35, sea: 0.6 },
   },
   artillery: {
+    weapon: 'howitzer',
     category: 'armor', movementProfile: 'vehicle', productionTerrain: 'factory', mergeable: true,
     stats: { cost: 6000, movement: 4, attack: 70, defense: 20, capturePower: 0, range: [2, 3], fuel: 50, fuelPerTurn: 0, ammo: 6, vision: 3, indirect: true },
     effectiveness: { soft: 1.15, armor: 1.0, air: 0.5, sea: 0.9 },
   },
   rocket: {
+    weapon: 'rocketLauncher',
     category: 'armor', movementProfile: 'vehicle', productionTerrain: 'factory', mergeable: true,
     stats: { cost: 12000, movement: 5, attack: 90, defense: 20, capturePower: 0, range: [3, 5], fuel: 50, fuelPerTurn: 0, ammo: 5, vision: 3, indirect: true },
     effectiveness: { soft: 1.2, armor: 1.05, air: 0.5, sea: 1.0 },
   },
   antiAir: {
+    weapon: 'antiAirCannon',
     category: 'armor', movementProfile: 'vehicle', productionTerrain: 'factory', mergeable: true,
     stats: { cost: 8000, movement: 3, attack: 65, defense: 25, capturePower: 0, range: [1, 2], fuel: 60, fuelPerTurn: 0, ammo: 6, vision: 3, indirect: false },
     effectiveness: { soft: 0.45, armor: 0.4, air: 1.8, sea: 0.3 },
   },
   apc: {
+    weapon: 'machineGun',
     category: 'armor', movementProfile: 'vehicle', productionTerrain: 'factory', transportCapacity: 1, supplier: true,
     stats: { cost: 5000, movement: 6, attack: 25, defense: 30, capturePower: 0, range: [1, 1], fuel: 70, fuelPerTurn: 0, ammo: 6, vision: 3, indirect: false },
     effectiveness: { soft: 0.55, armor: 0.3, air: 0.25, sea: 0.2 },
   },
   fighter: {
+    weapon: 'airMissile',
     category: 'air', movementProfile: 'air', productionTerrain: 'airport', mergeable: true,
     stats: { cost: 20000, movement: 8, attack: 85, defense: 15, capturePower: 0, range: [1, 1], fuel: 60, fuelPerTurn: 5, ammo: 6, vision: 5, indirect: false },
     effectiveness: { soft: 0.5, armor: 0.4, air: 1.4, sea: 0.5 },
   },
   bomber: {
+    weapon: 'bomb',
     category: 'air', movementProfile: 'air', productionTerrain: 'airport', mergeable: true,
     stats: { cost: 22000, movement: 7, attack: 95, defense: 10, capturePower: 0, range: [1, 1], fuel: 70, fuelPerTurn: 5, ammo: 6, vision: 4, indirect: false },
     effectiveness: { soft: 1.25, armor: 1.25, air: 0.4, sea: 1.25 },
   },
   destroyer: {
+    weapon: 'navalGun',
     category: 'sea', movementProfile: 'sea', productionTerrain: 'port', mergeable: true,
     stats: { cost: 12000, movement: 6, attack: 70, defense: 30, capturePower: 0, range: [1, 1], fuel: 99, fuelPerTurn: 2, ammo: 9, vision: 4, indirect: false },
     effectiveness: { soft: 0.7, armor: 0.7, air: 1.1, sea: 1.0 },
   },
   landingShip: {
+    weapon: null,
     category: 'sea', movementProfile: 'sea', productionTerrain: 'port', transportCapacity: 1,
     stats: { cost: 7000, movement: 5, attack: 0, defense: 20, capturePower: 0, range: [1, 1], fuel: 99, fuelPerTurn: 2, ammo: 0, vision: 3, indirect: false },
     effectiveness: { soft: 0, armor: 0, air: 0, sea: 0 },
   },
   // Phase 9 (#114) units, available only under the modern rules.
   mech: {
+    weapon: 'antiTankLauncher',
     category: 'soft', movementProfile: 'foot', productionTerrain: 'factory', mergeable: true, embarkable: true, modernOnly: true,
     stats: { cost: 3000, movement: 2, attack: 60, defense: 15, capturePower: 10, range: [1, 1], fuel: 70, fuelPerTurn: 0, ammo: 3, vision: 2, indirect: false },
     effectiveness: { soft: 0.9, armor: 1.15, air: 0.35, sea: 0.3 },
   },
   heavyTank: {
+    weapon: 'heavyTankCannon',
     category: 'armor', movementProfile: 'vehicle', productionTerrain: 'factory', mergeable: true, modernOnly: true, incomingDamageFactor: 0.7,
     stats: { cost: 16000, movement: 4, attack: 100, defense: 55, capturePower: 0, range: [1, 1], fuel: 50, fuelPerTurn: 0, ammo: 5, vision: 2, indirect: false },
     effectiveness: { soft: 1.0, armor: 1.05, air: 0.3, sea: 0.65 },
   },
   helicopter: {
+    weapon: 'helicopterRocket',
     category: 'air', movementProfile: 'air', productionTerrain: 'airport', mergeable: true, modernOnly: true,
     stats: { cost: 9000, movement: 6, attack: 60, defense: 10, capturePower: 0, range: [1, 1], fuel: 99, fuelPerTurn: 2, ammo: 6, vision: 3, indirect: false },
     effectiveness: { soft: 1.1, armor: 0.9, air: 0.4, sea: 0.6 },
   },
   battleship: {
+    weapon: 'heavyNavalGun',
     category: 'sea', movementProfile: 'sea', productionTerrain: 'port', mergeable: true, modernOnly: true, incomingDamageFactor: 0.8,
     stats: { cost: 28000, movement: 5, attack: 90, defense: 45, capturePower: 0, range: [2, 6], fuel: 99, fuelPerTurn: 2, ammo: 6, vision: 3, indirect: true },
     effectiveness: { soft: 1.1, armor: 1.0, air: 0.2, sea: 1.0 },
   },
 } as const satisfies Record<string, UnitDefinition>;
 
-import type { UnitKind } from './types';
+import type { Unit, UnitKind } from './types';
 
 export const unitKinds = Object.keys(unitDefinitions) as UnitKind[];
 export const unitKindSet: ReadonlySet<string> = new Set(unitKinds);
@@ -120,7 +140,20 @@ const valuesByKind = <Value>(select: (definition: UnitDefinition) => Value): Rec
 
 export const unitCategory = valuesByKind(definition => definition.category);
 export const unitStats = valuesByKind(definition => definition.stats);
+export const unitWeapons = valuesByKind(definition => definition.weapon);
 export const damageMultiplier = valuesByKind(definition => definition.effectiveness);
+
+/** Omitted ammunition in historical data means a full magazine. */
+export function isValidUnitAmmo(kind: UnitKind, ammo: unknown): boolean {
+  return ammo === undefined || (typeof ammo === 'number' && Number.isSafeInteger(ammo) && ammo >= 0 && ammo <= unitStats[kind].ammo);
+}
+
+/** Keep direct callers as well as validated saves inside the weapon's magazine capacity. */
+export function remainingAmmo(unit: Pick<Unit, 'kind' | 'ammo'>): number {
+  const maximum = unitStats[unit.kind].ammo;
+  const value = unit.ammo ?? maximum;
+  return Number.isFinite(value) ? Math.max(0, Math.min(maximum, Math.floor(value))) : 0;
+}
 
 export function isEmbarkableUnit(kind: UnitKind): boolean { return (unitDefinitions[kind] as UnitDefinition).embarkable === true; }
 export function transportCapacity(kind: UnitKind): number { return (unitDefinitions[kind] as UnitDefinition).transportCapacity ?? 0; }

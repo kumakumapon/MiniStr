@@ -7,7 +7,7 @@ import { scenarioForState } from '../game/maps';
 import { manhattanDistance, movementCost, terrainAt } from '../game/terrain';
 import { isDeployedUnit, usesDecisionRules, usesModernRules, type Board, type DeployedUnit, type GameState, type PlayerId, type Position, type Unit, type UnitKind } from '../game/types';
 import { adjacentToSupplyUnit, isGroundUnit, isServiceTile, REPAIR_HP_PER_TURN } from '../game/logistics';
-import { isEmbarkableUnit, isMergeableUnit, isSupplyUnit, unitCategory, unitStats } from '../game/units';
+import { isEmbarkableUnit, isMergeableUnit, isSupplyUnit, remainingAmmo, unitCategory, unitStats } from '../game/units';
 import { bluePlanningState, rotatePosition } from './perspective';
 
 // Production IDs interleave between armies. Numeric ordering preserves each
@@ -358,7 +358,7 @@ function needsSupply(unit: DeployedUnit): boolean {
   return fuelTurnsRemaining <= 2
     || fuel <= Math.max(6, Math.floor(stats.fuel / 3))
     // Only armed kinds track ammunition; an empty magazine needs resupply most of all.
-    || (stats.ammo > 0 && (unit.ammo ?? stats.ammo) <= Math.max(1, Math.floor(stats.ammo / 3)));
+    || (stats.ammo > 0 && remainingAmmo(unit) <= Math.max(1, Math.floor(stats.ammo / 3)));
 }
 
 /**
@@ -558,7 +558,7 @@ function strikeAction(state: GameState, player: PlayerId, config: CpuDifficultyC
   let best: { score: number; unitId: string; destination: Position } | undefined;
   for (const unit of orderedUnits(state, player)) {
     const stats = unitStats[unit.kind];
-    if (unit.hasMoved || unit.hasActed || stats.indirect || stats.attack <= 0 || (unit.ammo ?? stats.ammo) <= 0) continue;
+    if (unit.hasMoved || unit.hasActed || stats.indirect || stats.attack <= 0 || remainingAmmo(unit) <= 0) continue;
     const [minimumRange, maximumRange] = stats.range;
     const targets = visibleTargets.filter((target): target is DeployedUnit => isDeployedUnit(target)
       && manhattanDistance(unit.position, target.position) <= stats.movement + maximumRange);

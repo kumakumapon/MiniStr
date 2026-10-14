@@ -25,6 +25,7 @@ export interface Unit {
   embarkedIn?: string;
   hp: number;
   fuel?: number;
+  /** Remaining rounds, an integer from 0 to this kind's ammo capacity; absent means full. */
   ammo?: number;
   hasMoved: boolean;
   hasActed: boolean;
