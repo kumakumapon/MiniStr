@@ -1,6 +1,6 @@
 import { movementCost, positionKey, samePosition, terrainAt } from './terrain';
 import { playerOwnedProperties, unitAt } from './state';
-import { isEmbarkableUnit, isMergeableUnit, transportCapacity, unitStats } from './units';
+import { isEmbarkableUnit, isMergeableUnit, remainingAmmo, transportCapacity, unitStats } from './units';
 import { applyDamageVariance, forecastCombat } from './combat';
 import { nextRandom } from './rng';
 import { canProduceUnit, isPropertyTerrainKind, unitLimit } from './facilities';
@@ -234,8 +234,9 @@ export function attackUnit(state: GameState, attackerId: string, defenderId: str
   const attacker = state.units.find(unit => unit.id === attackerId);
   const defender = state.units.find(unit => unit.id === defenderId);
   if (!attacker || !defender || !isDeployedUnit(attacker) || !isDeployedUnit(defender) || attacker.owner !== state.activePlayer || attacker.hasActed) return fail('Unit cannot attack');
+  if (unitStats[attacker.kind].attack <= 0) return fail('Unit has no attack capability');
   if (unitStats[attacker.kind].indirect && attacker.hasMoved) return fail('Indirect units cannot attack after moving');
-  if ((attacker.ammo ?? unitStats[attacker.kind].ammo) <= 0) return fail('Unit is out of ammunition');
+  if (remainingAmmo(attacker) <= 0) return fail('Unit is out of ammunition');
   if (defender.owner !== attacker.owner && !visibleEnemies(state, attacker.owner).some(unit => unit.id === defender.id)) return fail('Target is not visible');
   const forecast = forecastCombat(state, attacker, defender);
   if (!forecast.ok) return forecast;
@@ -258,11 +259,11 @@ export function attackUnit(state: GameState, attackerId: string, defenderId: str
   const defenderDestroyed = defender.hp - damageToDefender <= 0;
   const damagedUnits = state.units.map(unit => {
     if (unit.id === attacker.id) return {
-      ...unit, hp: Math.max(0, unit.hp - damageToAttacker), ammo: (unit.ammo ?? unitStats[unit.kind].ammo) - 1, hasActed: true,
+      ...unit, hp: Math.max(0, unit.hp - damageToAttacker), ammo: remainingAmmo(unit) - 1, hasActed: true,
       ...(modern ? { experience: experienceAfterCombat(unit, damageToDefender, defenderDestroyed) } : {}),
     };
     if (unit.id === defender.id) return {
-      ...unit, hp: Math.max(0, unit.hp - damageToDefender), ammo: canCounter ? (unit.ammo ?? unitStats[unit.kind].ammo) - 1 : unit.ammo,
+      ...unit, hp: Math.max(0, unit.hp - damageToDefender), ammo: canCounter ? remainingAmmo(unit) - 1 : unit.ammo,
       ...(modern ? { experience: experienceAfterCombat(unit, damageToAttacker, attackerDestroyed) } : {}),
     };
     return unit;
@@ -301,7 +302,7 @@ export function mergeUnits(state: GameState, unitId: string, targetId: string): 
   const removed = survivor.id === unit.id ? target : unit;
   const stats = unitStats[survivor.kind];
   const hp = Math.min(100, unit.hp + target.hp);
-  const ammo = Math.min(stats.ammo, (unit.ammo ?? stats.ammo) + (target.ammo ?? stats.ammo));
+  const ammo = Math.min(stats.ammo, remainingAmmo(unit) + remainingAmmo(target));
   const fuel = Math.min(stats.fuel, (unit.fuel ?? stats.fuel) + (target.fuel ?? stats.fuel));
   // The merged unit keeps the more experienced crew. Classic units never carry experience.
   const experience = Math.max(unit.experience ?? 0, target.experience ?? 0);

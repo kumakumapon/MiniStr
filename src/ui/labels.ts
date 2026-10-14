@@ -1,4 +1,4 @@
-import type { PlayerId, TerrainKind, UnitKind } from '../game';
+import { unitWeapons, type PlayerId, type TerrainKind, type UnitKind, type WeaponKind } from '../game';
 import { getLocale, localized } from './locale';
 
 /**
@@ -21,6 +21,21 @@ export const unitTokens: Record<UnitKind, string> = {
   destroyer: '艦', landingShip: '輸', recon: '偵', rocket: '自', antiAir: '防', apc: '装',
   mech: '対', heavyTank: '重', helicopter: 'ヘ', battleship: '巨',
 };
+
+export const weaponNames = localized<Record<WeaponKind, string>>({
+  rifle: '小銃', machineGun: '機関銃', tankCannon: '戦車砲', howitzer: '榴弾砲', rocketLauncher: '多連装ロケット',
+  antiAirCannon: '対空機関砲', airMissile: '航空ミサイル', bomb: '爆弾', navalGun: '艦砲',
+  antiTankLauncher: '対戦車ロケット', heavyTankCannon: '重戦車砲', helicopterRocket: '航空ロケット', heavyNavalGun: '大口径艦砲',
+}, {
+  rifle: 'Rifle', machineGun: 'Machine gun', tankCannon: 'Tank cannon', howitzer: 'Howitzer', rocketLauncher: 'Rocket launcher',
+  antiAirCannon: 'Anti-air cannon', airMissile: 'Aircraft missile', bomb: 'Bomb', navalGun: 'Naval gun',
+  antiTankLauncher: 'Anti-tank rocket', heavyTankCannon: 'Heavy tank cannon', helicopterRocket: 'Helicopter rocket', heavyNavalGun: 'Heavy naval gun',
+});
+
+export function unitWeaponName(kind: UnitKind): string {
+  const weapon = unitWeapons[kind];
+  return weapon === null ? (getLocale() === 'en' ? 'Unarmed' : '非武装') : weaponNames[weapon];
+}
 
 /** Rank titles for experience ranks 0-3 (大戦略-style veterancy). */
 export const rankNames = ['新兵', '古参', '精鋭', '英雄'] as const;

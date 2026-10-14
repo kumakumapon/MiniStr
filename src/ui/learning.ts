@@ -1,6 +1,6 @@
 import { playerOwnedProperties, repairCost, REPAIR_HP_PER_TURN, unitStats, type GameCommand, type GameState, type PlayerId, type UnitKind } from '../game';
-import { unitNames } from './labels';
-import { escapeHtml } from './strings';
+import { unitNames, unitWeaponName } from './labels';
+import { escapeHtml, uiText } from './strings';
 
 const lessons: readonly {
   command: GameCommand['type'];
@@ -55,5 +55,5 @@ export function renderLearning(state: GameState, viewer: PlayerId, commands: rea
   const progress = lessonProgress(state, viewer, commands);
   const training = state.scenarioId === 'training';
   const income = playerOwnedProperties(state, viewer).length * 1000;
-  return `<details id="learning-panel" class="learning-panel" ${open ? 'open' : ''}><summary>操作ガイド・兵科比較（閉じるとヒントをスキップ）</summary>${training ? `<ol>${lessons.map((lesson, i) => `<li><strong>${progress[i] ? '✓ ' : ''}${lesson.title}</strong><p>${lesson.text}</p></li>`).join('')}</ol>` : '<p>ユニットを選択→移動先または攻撃先を選択。占領は歩兵系ユニットで行います。矢印キー・Enter・N（次の部隊）が使えます。</p>'}<p>次の自軍ターンの収入見込み: ${income}G。修理は対応施設で最大${REPAIR_HP_PER_TURN}HP、歩兵なら最大${repairCost('infantry', REPAIR_HP_PER_TURN)}Gです。航空機は空港、艦船は港湾で補給します。</p><p>判定時は拠点数、同数なら残存部隊の価値で比較します。完全同点では決着せず、次のターンへ進みます。相手の燃料・残弾・資金は非公開で、脅威表示は補給済みを仮定します。</p><div class="unit-reference" tabindex="0" role="region" aria-label="兵科比較表"><table><thead><tr><th>兵科</th><th>費用</th><th>移動</th><th>射程</th><th>燃料</th><th>毎ターン消費</th></tr></thead><tbody>${(Object.keys(unitStats) as UnitKind[]).map((kind) => `<tr><th>${escapeHtml(unitNames[kind])}</th><td>${unitStats[kind].cost}</td><td>${unitStats[kind].movement}</td><td>${unitStats[kind].range.join('–')}</td><td>${unitStats[kind].fuel}</td><td>${unitStats[kind].fuelPerTurn}</td></tr>`).join('')}</tbody></table></div></details>`;
+  return `<details id="learning-panel" class="learning-panel" ${open ? 'open' : ''}><summary>操作ガイド・兵科比較（閉じるとヒントをスキップ）</summary>${training ? `<ol>${lessons.map((lesson, i) => `<li><strong>${progress[i] ? '✓ ' : ''}${lesson.title}</strong><p>${lesson.text}</p></li>`).join('')}</ol>` : '<p>ユニットを選択→移動先または攻撃先を選択。占領は歩兵系ユニットで行います。矢印キー・Enter・N（次の部隊）が使えます。</p>'}<p>次の自軍ターンの収入見込み: ${income}G。修理は対応施設で最大${REPAIR_HP_PER_TURN}HP、歩兵なら最大${repairCost('infantry', REPAIR_HP_PER_TURN)}Gです。航空機は空港、艦船は港湾で補給します。</p><p>判定時は拠点数、同数なら残存部隊の価値で比較します。完全同点では決着せず、次のターンへ進みます。相手の燃料・残弾・資金は非公開で、脅威表示は補給済みを仮定します。</p><p>${escapeHtml(uiText.ammoGuide)}</p><div class="unit-reference" tabindex="0" role="region" aria-label="兵科比較表"><table><thead><tr><th>兵科</th><th>${uiText.weapon}</th><th>${uiText.ammoCapacity}</th><th>費用</th><th>移動</th><th>射程</th><th>燃料</th><th>毎ターン消費</th></tr></thead><tbody>${(Object.keys(unitStats) as UnitKind[]).map((kind) => `<tr><th>${escapeHtml(unitNames[kind])}</th><td>${escapeHtml(unitWeaponName(kind))}</td><td>${unitStats[kind].ammo}</td><td>${unitStats[kind].cost}</td><td>${unitStats[kind].movement}</td><td>${unitStats[kind].range.join('–')}</td><td>${unitStats[kind].fuel}</td><td>${unitStats[kind].fuelPerTurn}</td></tr>`).join('')}</tbody></table></div></details>`;
 }

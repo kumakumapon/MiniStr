@@ -12,6 +12,8 @@ Campaign progress remains schema 3. Custom catalog schema remains unchanged with
 
 All JSON boundaries enforce UTF-8 size, iterative depth (64) and node count (200,000) before migration or cloning. Then they validate keys/types/ranges, reconstruct the canonical initial state, replay legal commands and compare the recorded final state/summary. A snapshot goes through the same scenario parser and never registers an imported scenario globally.
 
+Unit weapons and ammunition capacities are derived from the canonical unit kind, so weapon labels do not add saved fields or change rule versions. A present `ammo` must be a safe integer between zero and that kind's capacity, inclusive; omitted ammunition in historical data still means a full magazine. Negative, fractional, excessive and non-finite reserves are rejected before load or replay. Spectator camera choices are viewer-only state and do not enter saves, replays or CPU decisions.
+
 Save/replay/editor/catalog inputs are limited to 1,000,000 bytes; campaign data to 64,000; complete backup to 16,000,000. Existing command-count and board schema limits remain, but replay work is additionally limited to:
 
 `commands × (board width × height + initial units × 4 + 1) ≤ 50,000,000`
