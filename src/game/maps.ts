@@ -23,6 +23,8 @@ export interface ScenarioDefinition extends MapDefinition {
   victoryConditions: VictoryCondition[];
   defeatConditions: VictoryCondition[];
   turnLimit?: number;
+  /** Optional round-end decision timing; omission retains the historical 40-round rule. */
+  decisionRound?: number;
   /** Rules explicitly recorded by new scenario JSON; old JSON uses factory-air compatibility. */
   productionRules: ProductionRule;
 }
@@ -42,6 +44,8 @@ export interface ScenarioData {
   victoryConditions: readonly VictoryCondition[];
   defeatConditions: readonly VictoryCondition[];
   turnLimit?: number;
+  /** Recorded in new match snapshots so later timing changes cannot alter existing matches. */
+  decisionRound?: number;
   theme?: ScenarioTheme;
   /** Optional for old custom JSON. Omission intentionally selects legacy factory air production. */
   productionRules?: ProductionRule;
@@ -185,13 +189,17 @@ function parseScenario(value: unknown, ids: Set<string>, options: ScenarioLoadOp
   // all results are resolved through the same condition evaluator.
   if (turnLimit !== undefined && (!isPositiveInteger(turnLimit) || turnLimit >= Number.MAX_SAFE_INTEGER))
     return { ok: false, error: `シナリオ「${value.id}」のターン制限が不正です。` };
+  const decisionRound = value.decisionRound;
+  if (decisionRound !== undefined && (!isPositiveInteger(decisionRound) || decisionRound >= Number.MAX_SAFE_INTEGER))
+    return { ok: false, error: `シナリオ「${value.id}」の判定ラウンドが不正です。` };
   const normalizedDefeatConditions = turnLimit === undefined
     ? defeatConditions.value
     // The numbered limit remains playable. The survival condition completes
     // only after the next round begins, matching the legacy > turnLimit rule.
     : [...defeatConditions.value, { type: 'survive' as const, untilTurn: turnLimit + 1 }];
   ids.add(value.id);
-  return { ok: true, value: { id: value.id, name: value.name, briefing: value.briefing, startingGold, firstPlayerBonus: firstPlayerBonus as number | undefined, secondPlayerBonus: secondPlayerBonus as number | undefined, board, initialUnits, victoryConditions: victoryConditions.value, defeatConditions: normalizedDefeatConditions, turnLimit, theme: theme as ScenarioTheme, productionRules: productionRules as ProductionRule } };
+  return { ok: true, value: { id: value.id, name: value.name, briefing: value.briefing, startingGold, firstPlayerBonus: firstPlayerBonus as number | undefined, secondPlayerBonus: secondPlayerBonus as number | undefined, board, initialUnits, victoryConditions: victoryConditions.value, defeatConditions: normalizedDefeatConditions, turnLimit,
+    ...(decisionRound === undefined ? {} : { decisionRound: decisionRound as number }), theme: theme as ScenarioTheme, productionRules: productionRules as ProductionRule } };
 }
 
 /** Converts JSON-compatible scenario data into safe board state. No validation is repeated on lookup. */
@@ -418,7 +426,8 @@ export function scenarioDefinitionToData(scenario: ScenarioDefinition): Scenario
   }
   return { id: scenario.id, name: scenario.name, briefing: scenario.briefing, startingGold: scenario.startingGold, firstPlayerBonus: scenario.firstPlayerBonus, secondPlayerBonus: scenario.secondPlayerBonus,
     board: { width: scenario.board.width, height: scenario.board.height, cells }, initialUnits: scenario.initialUnits.map(unit => ({ ...unit })),
-    victoryConditions: scenario.victoryConditions.map(condition => structuredClone(condition)), defeatConditions: exportableDefeatConditions(scenario), turnLimit: scenario.turnLimit, theme: scenario.theme, productionRules: scenario.productionRules };
+    victoryConditions: scenario.victoryConditions.map(condition => structuredClone(condition)), defeatConditions: exportableDefeatConditions(scenario), turnLimit: scenario.turnLimit,
+    ...(scenario.decisionRound === undefined ? {} : { decisionRound: scenario.decisionRound }), theme: scenario.theme, productionRules: scenario.productionRules };
 }
 
 function replaceCustomScenarios(scenarios: readonly ScenarioDefinition[]): void {

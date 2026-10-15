@@ -97,8 +97,8 @@ export function expandedScenarioData(source: readonly ScenarioData[]): ScenarioD
       map.pair(0, 4, 'factory', 'red');
       map.pair(8, 4, 'port');
       red = red.map((unit) => (unit.kind === 'landingShip' ? { ...unit, x: 5, y: 2 } : { ...unit, x: 4, y: 2 }));
-      turnLimit = 26;
-      briefing = '広がった海峡を渡る上陸作戦。輸送艦で歩兵を中央島へ送り、敵岸への上陸拠点を確保せよ。26ターン以内に敵司令部を占領すれば勝利。';
+      turnLimit = 40;
+      briefing = '広がった海峡を渡る上陸作戦。輸送艦で歩兵を中央島へ送り、敵岸への上陸拠点を確保せよ。40ターン以内に敵司令部を占領すれば勝利。';
     } else if (scenario.id === 'river') {
       for (let y = 0; y < height; y++) map.set(10, y, 'sea');
       map.pair(10, 3, 'road');
@@ -195,6 +195,7 @@ export function expandedScenarioData(source: readonly ScenarioData[]): ScenarioD
       initialUnits: initialUnits ?? map.forces(red),
       briefing: secondPlayerBonus === undefined ? briefing : `${briefing} 後攻の青軍には開始時に${secondPlayerBonus}Gの補償資金が加算される。`,
       turnLimit,
+      decisionRound: 60,
       victoryConditions,
       defeatConditions,
     };

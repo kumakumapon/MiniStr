@@ -179,7 +179,7 @@ export function withEvaluatedWinner(
   return winner === state.winner ? state : { ...state, winner };
 }
 
-/** Round whose end triggers a decision in eligible rule-version-3 matches (#119). */
+/** Historical decision timing retained for legacy definitions and rule-version-3 matches. */
 export const DECISION_ROUND = 40;
 
 /** Scenarios decided only by elimination or capital capture have no built-in end, so they get a decision. */
@@ -190,7 +190,8 @@ export function isDecisionScenario(scenario: ScenarioDefinition): boolean {
 
 /** The decision round for this match, or undefined when no decision victory applies. */
 export function decisionRound(state: GameState, scenario: ScenarioDefinition | undefined = scenarioForState(state)): number | undefined {
-  return usesDecisionRules(state) && scenario && isDecisionScenario(scenario) ? DECISION_ROUND : undefined;
+  if (!usesDecisionRules(state) || !scenario || !isDecisionScenario(scenario)) return undefined;
+  return state.ruleVersion === BALANCED_RULE_VERSION ? scenario.decisionRound ?? DECISION_ROUND : DECISION_ROUND;
 }
 
 export interface DecisionStanding {
