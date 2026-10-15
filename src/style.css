@@ -30,6 +30,12 @@ button { cursor: pointer; }
 .board-viewport:focus-visible { outline: 3px solid #fff1a8; outline-offset: 3px; }
 .board-viewport .board { min-width: max-content; }
 .battlefield-stage { --brief-background: #14231f; --brief-border: #496158; --brief-text: #f4f0e5; --brief-muted: #b4c8bb; position: relative; }
+.map-turn-status { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 8px; padding: 9px 12px; border-left: 3px solid #9ac7ad; background: #12221d; color: #d8e9df; }
+.map-turn-status strong { font-size: .8125rem; }
+.map-turn-status p { margin: 4px 0 0; font-size: .75rem; line-height: 1.5; color: #b6cbbf; }
+.map-turn-status.enemy { border-left-color: #e4bf67; }
+.map-turn-status .save-action { flex-shrink: 0; }
+@media (max-width: 680px) { .map-turn-status { flex-direction: column; align-items: stretch; } .map-turn-status .save-action { align-self: flex-end; } }
 .unit-brief { position: relative; z-index: 6; min-height: 109px; margin-bottom: 8px; padding: 10px 12px; color: var(--brief-text); background: var(--brief-background); border: 1px solid var(--brief-border); border-left: 3px solid var(--brief-border); border-radius: 5px; box-shadow: 0 3px 8px #0005; }
 .unit-brief-red { border-left-color: #ff8b7d; }
 .unit-brief-blue { border-left-color: #8dc6ff; }

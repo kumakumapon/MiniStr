@@ -15,7 +15,7 @@ export interface MapDefinition { id: string; name: string; board: Board; startin
 export type VictoryCondition =
   | { type: 'eliminate' }
   | { type: 'captureCapital' }
-  | { type: 'hold'; positions: Position[]; turns: number }
+  | { type: 'hold'; positions: Position[]; turns: number; requireOwnership?: boolean; groundOnly?: boolean }
   | { type: 'survive'; untilTurn: number }
   | { type: 'score'; target: number };
 export interface ScenarioDefinition extends MapDefinition {
@@ -86,6 +86,8 @@ function parseVictoryCondition(value: unknown, width: number, height: number): V
   if (value.type === 'eliminate' || value.type === 'captureCapital') return { type: value.type };
   if (value.type === 'hold') {
     if (!Array.isArray(value.positions) || value.positions.length === 0 || value.positions.length > width * height || !isPositiveInteger(value.turns)) return undefined;
+    if (value.requireOwnership !== undefined && typeof value.requireOwnership !== 'boolean') return undefined;
+    if (value.groundOnly !== undefined && typeof value.groundOnly !== 'boolean') return undefined;
     const positions: Position[] = [];
     const seen = new Set<string>();
     for (const position of value.positions) {
@@ -95,7 +97,9 @@ function parseVictoryCondition(value: unknown, width: number, height: number): V
       seen.add(key);
       positions.push({ x: position.x, y: position.y });
     }
-    return { type: 'hold', positions, turns: value.turns };
+    return { type: 'hold', positions, turns: value.turns,
+      ...(value.requireOwnership === undefined ? {} : { requireOwnership: value.requireOwnership }),
+      ...(value.groundOnly === undefined ? {} : { groundOnly: value.groundOnly }) };
   }
   if (value.type === 'survive' && isPositiveInteger(value.untilTurn)) return { type: 'survive', untilTurn: value.untilTurn };
   if (value.type === 'score' && isPositiveInteger(value.target)) return { type: 'score', target: value.target };
@@ -164,6 +168,9 @@ function parseScenario(value: unknown, ids: Set<string>, options: ScenarioLoadOp
   const parseConditions = (conditions: unknown, label: string): GameResult<VictoryCondition[]> => {
     if (!Array.isArray(conditions) || conditions.length === 0 || conditions.length > 32) return { ok: false, error: `シナリオ「${value.id}」の${label}が不正です。` };
     const parsed = conditions.map(condition => parseVictoryCondition(condition, width, height));
+    if (parsed.some(condition => condition?.type === 'hold' && condition.requireOwnership
+      && condition.positions.some(position => !isPropertyTerrainKind(board.terrain[position.y]![position.x]!.kind))))
+      return { ok: false, error: `シナリオ「${value.id}」の占領保持目標には拠点を指定してください。` };
     return parsed.every((condition): condition is VictoryCondition => condition !== undefined)
       ? { ok: true, value: parsed }
       : { ok: false, error: `シナリオ「${value.id}」の${label}が不正です。` };
