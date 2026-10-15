@@ -9,7 +9,7 @@ const positionKey = ({ x, y }: Position) => `${x},${y}`;
 
 /** Stable key used to persist a hold condition's consecutive-turn progress. */
 export function holdConditionKey(condition: Extract<VictoryCondition, { type: 'hold' }>): string {
-  return `hold:${condition.positions.map(positionKey).join('|')}:${condition.turns}`;
+  return `hold:${condition.positions.map(positionKey).join('|')}:${condition.turns}${condition.requireOwnership ? ':owned' : ''}`;
 }
 
 function playerHoldsPositions(state: GameState, player: PlayerId, positions: readonly Position[]): boolean {
@@ -74,7 +74,7 @@ export function describeVictoryCondition(condition: VictoryCondition): string {
   switch (condition.type) {
     case 'eliminate': return '敵部隊を全滅させる';
     case 'captureCapital': return '敵司令部を占領する';
-    case 'hold': return `指定地点を${condition.turns}ターン連続で保持する`;
+    case 'hold': return `指定${condition.requireOwnership ? '拠点を占領し、' : '地点を'}${condition.turns}ターン連続で保持する`;
     case 'survive': return `${condition.untilTurn}ターンまで生存する`;
     case 'score': return `スコア${condition.target}を獲得する`;
   }
@@ -109,7 +109,8 @@ export function updateScenarioProgress(state: GameState, scenario: ScenarioDefin
     const key = holdConditionKey(condition);
     if (updated.has(key)) continue;
     updated.add(key);
-    next[key] = playerHoldsPositions(state, player, condition.positions) ? (previous[key] ?? 0) + 1 : 0;
+    const owned = !condition.requireOwnership || condition.positions.every(position => state.board.terrain[position.y]?.[position.x]?.owner === player);
+    next[key] = owned && playerHoldsPositions(state, player, condition.positions) ? (previous[key] ?? 0) + 1 : 0;
   }
   return { ...state, objectiveHoldTurns: { ...state.objectiveHoldTurns, [player]: next } };
 }

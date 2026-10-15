@@ -6,6 +6,15 @@
 import { getLocale, localized, formatNumber } from './locale';
 const japaneseText = {
   defaultInstruction: 'ユニットを選択して行動してください。',
+  playerTurnTitle: 'あなたの手番',
+  playerTurnHint: '部隊の操作後に「ターン終了」で敵軍が行動します。',
+  enemyTurnTitle: '敵軍の手番：思考・行動中',
+  enemyTurnPausedTitle: '敵軍の手番：進行を停止中',
+  enemyTurnHint: '未索敵範囲の移動・生産は盤面に表示されません。完了すると自軍の手番に戻ります。',
+  boardEndTurn: 'ターン終了して敵軍へ',
+  turnStopped: '別タブの更新を検知したため停止中です。バックアップ後に再読み込みしてください。',
+  enemyTurnComplete: '敵軍の手番が終了しました。',
+  enemyTurnUnseen: '敵軍の手番が終了しました。視認範囲内での移動・戦闘報告はありません。',
   saveManager: 'セーブ管理',
   saveSlot: '新しいセーブ',
   storageUsage: '保存領域',
@@ -114,6 +123,15 @@ const japaneseText = {
 
 export const uiText = localized(japaneseText, {
   defaultInstruction: 'Select a unit to give an order.',
+  playerTurnTitle: 'Your turn',
+  playerTurnHint: 'Give your orders, then end the turn to let the enemy act.',
+  enemyTurnTitle: 'Enemy turn: planning and acting',
+  enemyTurnPausedTitle: 'Enemy turn: paused',
+  enemyTurnHint: 'Moves and production outside your vision remain hidden. Your turn resumes when the enemy finishes.',
+  boardEndTurn: 'End turn and let the enemy act',
+  turnStopped: 'Another tab changed the data. Back up your data, then reload to continue.',
+  enemyTurnComplete: 'The enemy turn has ended.',
+  enemyTurnUnseen: 'The enemy turn has ended. No movement or combat was reported within your vision.',
   saveManager: 'Saved games',
   saveSlot: 'New save',
   storageUsage: 'Storage',

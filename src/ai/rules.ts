@@ -287,6 +287,11 @@ function objectives(state: GameState, player: PlayerId, config: CpuDifficultyCon
   if (conditions?.every(condition => condition.type === 'survive')) {
     return state.board.terrain.flatMap((row, y) => row.flatMap((tile, x) => tile.owner === player && isPropertyTerrainKind(tile.kind) ? [{ x, y }] : []));
   }
+  // The opponent's authored objectives are public orders, even in fog. Defend
+  // them before expanding elsewhere; no hidden unit positions are consulted.
+  const opposingConditions = player === 'red' ? scenario?.defeatConditions : scenario?.victoryConditions;
+  const counterTargets = opposingConditions?.flatMap(condition => condition.type === 'hold' ? condition.positions : []) ?? [];
+  if (counterTargets.length) return counterTargets;
   const capitals: Position[] = [];
   const properties: Position[] = [];
   for (let y = 0; y < state.board.height; y += 1) for (let x = 0; x < state.board.width; x += 1) {
@@ -408,10 +413,12 @@ export function evaluateCpuPosition(
   const scenario = scenarioForState(state);
   const conditions = player === 'red' ? scenario?.victoryConditions : scenario?.defeatConditions;
   const hold = conditions?.some(condition => condition.type === 'hold' && condition.positions.some(p => p.x === destination.x && p.y === destination.y)) ? 100 : 0;
+  const opposingConditions = player === 'red' ? scenario?.defeatConditions : scenario?.victoryConditions;
+  const contest = opposingConditions?.some(condition => condition.type === 'hold' && condition.positions.some(p => p.x === destination.x && p.y === destination.y)) ? 60 : 0;
   const score = conditions?.some(condition => condition.type === 'score') && isPropertyTerrainKind(terrain.kind) && terrain.owner !== player && unitStats[unit.kind].capturePower > 0 ? 35 : 0;
   // Healthy combat units leave uncaptured facilities open for the infantry.
   const captureLane = unit.hp > 50 && unitStats[unit.kind].capturePower === 0 && isPropertyTerrainKind(terrain.kind) && terrain.owner !== player ? 30 : 0;
-  return defense + supply + response + retreatCover + logistics + hold + score
+  return defense + supply + response + retreatCover + logistics + hold + contest + score
     - distance * config.objectiveDistanceWeight
     - pressure * config.threatAvoidanceWeight * (1 - stalemateRelief(state))
     - retreatPressure
@@ -521,7 +528,9 @@ function moveAction(state: GameState, player: PlayerId, config: CpuDifficultyCon
     if (unit.hasMoved || unit.hasActed) continue;
     const scenario = scenarioForState(state);
     const conditions = player === 'red' ? scenario?.victoryConditions : scenario?.defeatConditions;
-    const defending = conditions?.some(condition => condition.type === 'hold') || conditions?.every(condition => condition.type === 'survive');
+    const opposingConditions = player === 'red' ? scenario?.defeatConditions : scenario?.victoryConditions;
+    const defending = conditions?.some(condition => condition.type === 'hold') || conditions?.every(condition => condition.type === 'survive')
+      || opposingConditions?.some(condition => condition.type === 'hold');
     const combatTargets = targets.filter(target => {
       const tile = terrainAt(state.board, target);
       return tile?.kind === 'capital' && tile.owner !== undefined && tile.owner !== player
