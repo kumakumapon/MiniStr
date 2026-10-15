@@ -174,6 +174,14 @@ button:disabled, select:disabled { cursor: not-allowed; opacity: .45; }
 .campaign-result { width: min(430px, 78vw); display: flex; align-items: center; justify-content: center; gap: 14px; padding: 12px; border: 1px solid #8c7135; border-radius: 7px; background: #28291e; }
 .campaign-result strong { color: #fff0b1; }.campaign-result p { margin: 3px 0 0; color: #bacbbf; font-size:0.6875rem; }
 .campaign-result .campaign-save-error { color: #ff9f90; font-weight: 700; }
+.campaign-stage div > p.campaign-deployment { margin: 9px 0 0; color: #c4ddb6; font-weight: 700; }
+.campaign-preparation { padding: 12px; margin: 12px 0; border-left: 3px solid var(--accent, #d2aa49); background: #101b17; text-align: left; }
+.campaign-preparation strong { color: #f4e4b1; font-size: .8125rem; }
+.campaign-preparation p { margin: 8px 0 0; color: #b8cbbf; font-size: .75rem; line-height: 1.6; }
+.campaign-orders { margin-top: 12px; color: #d8cc9b; font-size: .75rem; }
+.campaign-orders summary { cursor: pointer; padding: 7px 0; }
+.campaign-orders p { color: #b8cbbf; line-height: 1.6; }
+.objective-marker { position: absolute; z-index: 5; top: 2px; left: 2px; padding: 1px 3px; border: 1px solid #fff0aa; border-radius: 2px; color: #fff4bb; background: #292515; font-size: .625rem; font-weight: 800; line-height: 1.2; pointer-events: none; }
 
 @media (max-width: 480px) {
   .briefing-overlay { padding: 10px; }
