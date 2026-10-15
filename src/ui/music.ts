@@ -11,7 +11,13 @@ export const FIELD_TRACK_FILES: Record<FieldTrack, string> = {
   wasteland: 'wasteland-theme',
   mist: 'mist-theme',
 };
-export const FIELD_TRACK_LABELS: Record<FieldTrack, string> = { march: '行進（重厚）', dawn: '暁（壮麗）', drive: '疾走（シンセ）', wasteland: '荒野（渋い）', mist: '霧（静か）' };
+export const FIELD_TRACK_LABELS: Record<FieldTrack, string> = {
+  march: '行進（勇壮・144 BPM）',
+  dawn: '暁（壮麗）',
+  drive: '疾走（シンセ）',
+  wasteland: '荒野（渋い）',
+  mist: '霧（静か）',
+};
 
 export interface MusicSettings {
   muted: boolean;
@@ -70,7 +76,8 @@ export function saveMusicSettings(storage: StorageLike, settings: MusicSettings)
 }
 
 function createAudio(track: string = FIELD_TRACK_FILES.march): LoopingAudio {
-  const audio = new Audio(`${import.meta.env.BASE_URL}assets/${track}.ogg`);
+  const revision = track === 'frontier-theme' || track === 'battle-theme' ? '?v=brave-20261015' : '';
+  const audio = new Audio(`${import.meta.env.BASE_URL}assets/${track}.ogg${revision}`);
   audio.loop = true;
   audio.preload = 'none';
   return audio;
