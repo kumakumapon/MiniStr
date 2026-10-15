@@ -20,7 +20,9 @@ import { exportBackup, previewBackup, restoreBackup, MAX_BACKUP_BYTES } from './
 import { downloadJson } from './ui/download';
 import { createBrowserStorage } from './ui/storage';
 import { observedEnemy } from './game/fog';
-import { scenarioForState } from './game/maps';
+import { scenarioForState, type ScenarioDefinition } from './game/maps';
+import { campaignDeployment, campaignOperations, createCampaignScenario } from './game/campaignOperations';
+import { recordCampaignVeterans } from './game/campaign';
 import { withinInteractiveMatchBudget } from './game/session';
 const localStorage = createBrowserStorage(() => window.localStorage);
 document.documentElement.lang = setLocale(localStorage.getItem('ministr.locale'));
@@ -155,7 +157,7 @@ const themeNames: Record<ScenarioTheme, string> = { temperate: '温帯', desert:
 
 let campaignReturnToBriefing = false;
 let campaignRun: { scenarioId: string } | undefined;
-let campaignOutcome: { result: CampaignGradeResult; persisted: boolean; nextScenarioId?: string } | undefined;
+let campaignOutcome: { result: CampaignGradeResult; persisted: boolean; nextScenarioId?: string; veteranCount: number } | undefined;
 
 let editor: ScenarioEditorState = createScenarioEditor();
 let editorNotice = '';
@@ -241,8 +243,8 @@ function setEditorVictory(kind: VictoryCondition['type'], target: number): void 
   commitEditor({ ...editor, data: { ...editor.data, victoryConditions: [editorVictoryCondition(kind, target), ...editor.data.victoryConditions.slice(1)] } });
 }
 
-function start(id: string): GameState {
-  selectedMap = scenarioById(id) ?? maps[0]!;
+function start(id: string, operation?: ScenarioDefinition): GameState {
+  selectedMap = operation ?? scenarioById(id) ?? maps[0]!;
   return createScenarioInitialState(selectedMap);
 }
 
@@ -285,7 +287,7 @@ function objectiveProgress(condition: VictoryCondition, state: GameState, player
 
 function objectiveList(conditions: readonly VictoryCondition[], state: GameState, player: PlayerId): string {
   if (conditions.length === 0) return '<li><span>条件なし</span></li>';
-  return conditions.map(condition => `<li><span>${escapeHtml(describeVictoryCondition(condition))}</span><strong>${escapeHtml(objectiveProgress(condition, state, player))}</strong></li>`).join('');
+  return conditions.map(condition => `<li><span>${escapeHtml(describeVictoryCondition(condition))}${condition.type === 'hold' ? ` (${condition.positions.map(position => `${position.x + 1}, ${position.y + 1}`).join(' / ')})` : ''}</span><strong>${escapeHtml(objectiveProgress(condition, state, player))}</strong></li>`).join('');
 }
 
 
@@ -336,7 +338,7 @@ function syncBoardZoom(boardWidth: number): void {
 function confirmReplaceMatch(): boolean {
   return game.winner !== undefined || commandHistory.length === 0 || window.confirm('進行中の対局を置き換えますか？未保存の操作は失われます。');
 }
-function resetGame(mapId: string): void {
+function resetGame(mapId: string, operation?: ScenarioDefinition): void {
   productionMenuOpen = false;
   productionNotice = '';
   productionReturnSelector = undefined;
@@ -347,7 +349,7 @@ function resetGame(mapId: string): void {
   skipCpuImmediately = undefined;
   pendingPresentationEffects = [];
   pendingHandoffActionScene = undefined;
-  game = start(mapId);
+  game = start(mapId, operation);
   resetSpectatorCamera();
   initialState = structuredClone(game);
   commandHistory = [];
@@ -376,10 +378,13 @@ function finishCampaignBattle(): void {
   if (!graded.ok) { campaignNotice = graded.error; return; }
   const recorded = recordCampaignVictory(campaignProgress, stage.scenarioId, graded.value.grade);
   if (!recorded.ok) { campaignNotice = recorded.error; return; }
+  const veterans = recordCampaignVeterans(recorded.value, game);
+  if (!veterans.ok) { campaignNotice = veterans.error; return; }
   const nextScenarioId = campaignStages[campaignStages.indexOf(stage) + 1]?.scenarioId;
-  const saved = saveCampaignProgress(localStorage, recorded.value);
-  if (saved.ok) campaignProgress = recorded.value;
-  campaignOutcome = { result: graded.value, persisted: saved.ok, nextScenarioId: saved.ok ? nextScenarioId : undefined };
+  const saved = saveCampaignProgress(localStorage, veterans.value);
+  if (saved.ok) campaignProgress = veterans.value;
+  campaignOutcome = { result: graded.value, persisted: saved.ok, nextScenarioId: saved.ok ? nextScenarioId : undefined,
+    veteranCount: veterans.value.veteransByScenario?.[stage.scenarioId]?.length ?? 0 };
   campaignNotice = saved.ok ? `${graded.value.grade}評価を記録しました。` : saved.error;
 }
 function dispatch(command: GameCommand, undoable = false): boolean {
@@ -558,8 +563,9 @@ function openCampaignMenu(): void {
   render();
 }
 function startCampaignScenario(scenarioId: string): void {
-  if (!isCampaignScenarioUnlocked(campaignProgress, scenarioId)) {
-    campaignNotice = 'この作戦はまだ解放されていません。';
+  const operation = createCampaignScenario(campaignProgress, scenarioId);
+  if (!operation.ok) {
+    campaignNotice = operation.error;
     render();
     return;
   }
@@ -569,7 +575,7 @@ function startCampaignScenario(scenarioId: string): void {
   screens.campaignMenuOpen = false;
   returnToTitle = false;
   matchMode = 'cpu';
-  resetGame(scenarioId);
+  resetGame(scenarioId, operation.value);
   message = '作戦ブリーフィングを確認してください。';
   render();
 }
@@ -726,6 +732,7 @@ function render(): void {
   const targetFacility = (selectedFacility && idleFacilities.find(facility => key(facility.position) === key(selectedFacility!))) || (productionMenuOpen ? idleFacilities[0] : undefined);
   const viewerAtUnitLimit = usesDecisionRules(renderedGame) && renderedGame.units.filter(unit => unit.owner === me).length >= unitLimit(renderedGame.board, renderedGame.ruleVersion);
   const idleFacilityKeys = new Set(viewerAtUnitLimit ? [] : idleFacilities.map(facility => key(facility.position)));
+  const objectivePositions = new Set(renderedMap.victoryConditions.flatMap(condition => condition.type === 'hold' ? condition.positions.map(key) : []));
   const board = renderedGame.board.terrain.flatMap((row, y) => row.map((terrain, x) => {
     const unit = renderedGame.units.find(item => isDeployedUnit(item) && item.position.x === x && item.position.y === y);
     const hidden = !visible.has(`${x},${y}`);
@@ -763,6 +770,7 @@ function render(): void {
     const productionReady = !hidden && idleFacilityKeys.has(`${x},${y}`);
     const isFacilityTarget = productionReady && !!targetFacility && key(targetFacility.position) === `${x},${y}`;
     const statuses = [
+      objectivePositions.has(`${x},${y}`) ? '作戦目標地点' : '',
       isSelected ? '選択中' : '',
       isReachable ? '移動可能' : '',
       enemyMovement ? '選択中の敵ユニットの移動範囲' : '',
@@ -771,7 +779,7 @@ function render(): void {
       isFacilityTarget ? '生産先に選択中' : productionReady ? '生産可能' : '',
       hidden ? '未索敵' : '',
     ].filter(Boolean);
-    const stateMarker = `${isSelected ? '<span class="tile-state-marker selected-marker" aria-hidden="true">選</span>' : ''}${isReachable ? '<span class="tile-state-marker reachable-marker" aria-hidden="true">移</span>' : ''}${productionReady ? '<span class="tile-state-marker facility-ready-marker" aria-hidden="true">産</span>' : ''}${enemyMovement ? '<span class="tile-state-marker enemy-move-marker" aria-hidden="true">敵移</span>' : ''}${(enemyAttack || movementDanger) ? '<span class="tile-state-marker danger-marker" aria-hidden="true">危</span>' : ''}`;
+    const stateMarker = `${objectivePositions.has(`${x},${y}`) ? '<span class="objective-marker" aria-hidden="true">目</span>' : ''}${isSelected ? '<span class="tile-state-marker selected-marker" aria-hidden="true">選</span>' : ''}${isReachable ? '<span class="tile-state-marker reachable-marker" aria-hidden="true">移</span>' : ''}${productionReady ? '<span class="tile-state-marker facility-ready-marker" aria-hidden="true">産</span>' : ''}${enemyMovement ? '<span class="tile-state-marker enemy-move-marker" aria-hidden="true">敵移</span>' : ''}${(enemyAttack || movementDanger) ? '<span class="tile-state-marker danger-marker" aria-hidden="true">危</span>' : ''}`;
     return `<button ${!canAct ? 'disabled' : ''} class="tile ${!replayMode && matchMode === 'spectate' && spectateLastAction && key(spectateLastAction) === `${x},${y}` ? 'spectate-current' : ''} ${terrain.kind} ${isSelected ? 'selected' : ''} ${isReachable ? 'reachable' : ''} ${enemyMovement ? 'enemy-move-zone' : ''} ${enemyAttack ? 'enemy-attack-zone' : ''} ${movementDanger ? 'movement-danger' : ''} ${isFacilityTarget ? 'facility-target' : ''} ${hidden ? 'fog' : ''}" data-x="${x}" data-y="${y}" data-terrain="${terrain.kind}" tabindex="${focusedPosition.x === x && focusedPosition.y === y ? '0' : '-1'}" title="${propertyLabel}${unitLabel ? ` — ${unitLabel}` : ''}${statuses.length ? ` — ${statuses.join('、')}` : ''}" aria-label="${propertyLabel}${unitLabel ? `、${unitLabel}` : ''}${statuses.length ? `、${statuses.join('、')}` : ''}">${terrainArt}${stateMarker}${facility}${label}</button>`;
   })).join('');
   const ownUnitCount = renderedGame.units.filter(unit => unit.owner === me).length;
@@ -846,7 +854,7 @@ function render(): void {
   const summaryResult = !replayMode && renderedGame.winner ? resultCache.summarize(renderedGame, initialState, commandHistory, renderedMap.id, difficulty) : undefined;
   const summary = summaryResult?.ok ? summaryResult.value : undefined;
   const campaignResult = campaignRun && campaignOutcome
-    ? `<section class="campaign-result"><span class="campaign-grade grade-${campaignOutcome.result.grade.toLowerCase()}">${campaignOutcome.result.grade}</span><div><strong>作戦評価</strong><p>${campaignOutcome.result.score}点・残存 ${campaignOutcome.result.survivingUnits}部隊・損失 ${campaignOutcome.result.losses}部隊</p>${campaignOutcome.persisted ? '' : `<p class="campaign-save-error">${escapeHtml(campaignNotice)}</p>`}</div></section>`
+    ? `<section class="campaign-result"><span class="campaign-grade grade-${campaignOutcome.result.grade.toLowerCase()}">${campaignOutcome.result.grade}</span><div><strong>作戦評価</strong><p>${campaignOutcome.result.score}点・残存 ${campaignOutcome.result.survivingUnits}部隊・損失 ${campaignOutcome.result.losses}部隊</p>${campaignOutcome.persisted ? `<p>経験を記録：${campaignOutcome.veteranCount}部隊${campaignOutcome.nextScenarioId ? '・次作戦の同種部隊へ継承' : '・全作戦完了'}</p>` : `<p class="campaign-save-error">${escapeHtml(campaignNotice)}</p>`}</div></section>`
     : '';
   const campaignResultActions = campaignRun
     ? `<button id="campaign-retry" class="save-action">再挑戦</button><button id="campaign-back" class="save-action">キャンペーンへ戻る</button>${campaignOutcome?.nextScenarioId ? '<button id="campaign-next" class="end-turn">次の戦場へ</button>' : ''}`
@@ -875,7 +883,7 @@ function render(): void {
   // Property ownership is public; unit value is not shown because it would reveal hidden units.
   const renderedDecisionRound = decisionRound(renderedGame, renderedMap);
   const decisionPanel = renderedDecisionRound === undefined ? '' : `<div class="objective-group decision"><h3>判定</h3><ul><li><span>${escapeHtml(uiText.decisionRule(renderedDecisionRound))}</span><strong>拠点 ${decisionStanding(renderedGame, me).properties} 対 ${decisionStanding(renderedGame, foe).properties}・残り ${Math.max(0, renderedDecisionRound - renderedGame.turn + 1)}</strong></li></ul></div>`;
-  const objectivePanel = `<section class="objective-card" aria-labelledby="objective-title"><div class="objective-heading"><div><p class="card-kicker">MISSION</p><h2 id="objective-title">作戦目標</h2></div>${remainingTurns !== undefined ? `<span class="turn-limit"><strong>${remainingTurns}</strong> 残りターン</span>` : renderedDecisionRound !== undefined ? `<span class="turn-limit"><strong>${Math.max(0, renderedDecisionRound - renderedGame.turn + 1)}</strong> 判定まで</span>` : `<span class="turn-limit unlimited">制限なし</span>`}</div><div class="objective-group victory"><h3>勝利条件</h3><ul>${me === 'red' ? objectiveList(renderedMap.victoryConditions, renderedGame, 'red') : objectiveList(renderedMap.defeatConditions, renderedGame, 'blue')}</ul></div><div class="objective-group defeat"><h3>敗北条件</h3><ul>${me === 'red' ? objectiveList(renderedMap.defeatConditions, renderedGame, 'blue') : objectiveList(renderedMap.victoryConditions, renderedGame, 'red')}</ul></div>${decisionPanel}</section>`;
+  const objectivePanel = `<section class="objective-card" aria-labelledby="objective-title"><div class="objective-heading"><div><p class="card-kicker">MISSION</p><h2 id="objective-title">作戦目標</h2></div>${remainingTurns !== undefined ? `<span class="turn-limit"><strong>${remainingTurns}</strong> 残りターン</span>` : renderedDecisionRound !== undefined ? `<span class="turn-limit"><strong>${Math.max(0, renderedDecisionRound - renderedGame.turn + 1)}</strong> 判定まで</span>` : `<span class="turn-limit unlimited">制限なし</span>`}</div><div class="objective-group victory"><h3>勝利条件</h3><ul>${me === 'red' ? objectiveList(renderedMap.victoryConditions, renderedGame, 'red') : objectiveList(renderedMap.defeatConditions, renderedGame, 'blue')}</ul></div><div class="objective-group defeat"><h3>敗北条件</h3><ul>${me === 'red' ? objectiveList(renderedMap.defeatConditions, renderedGame, 'blue') : objectiveList(renderedMap.victoryConditions, renderedGame, 'red')}</ul></div>${decisionPanel}${campaignRun ? `<details class="campaign-orders"><summary>作戦指令・補給方針</summary><p>${escapeHtml(renderedMap.briefing)}</p></details>` : ''}</section>`;
   const unactedUnits = !replayMode && canAct ? unactedOwnUnits(renderedGame, me) : [];
   const unitQueuePanel = !replayMode ? `<section class="unit-queue-card" aria-labelledby="unit-queue-title"><div><p class="card-kicker">UNIT STATUS</p><h2 id="unit-queue-title">未行動部隊 <strong>${unactedUnits.length}</strong></h2></div>${unactedUnits.length ? `<ol>${unactedUnits.map(unit => `<li><button class="unit-queue-item" data-unit-id="${unit.id}" aria-label="${unitNames[unit.kind]}、耐久 ${unit.hp}、マス ${unit.position.x + 1}、${unit.position.y + 1} を選択"><span class="${unit.owner}" aria-hidden="true">${unitTokens[unit.kind]}</span>${unitNames[unit.kind]} <em>${unit.hp}</em></button></li>`).join('')}</ol><button id="next-unit" class="save-action" ${canAct ? '' : 'disabled'}>次の未行動部隊 <kbd>N</kbd></button>` : '<p class="unit-queue-empty">未行動の自軍ユニットはありません。</p>'}</section>` : '';
   // Phones put the command panel a long scroll below the board, so the actions a
@@ -888,10 +896,12 @@ function render(): void {
   const cpuActivityPanel = !replayMode && matchMode === 'cpu' ? `<section class="intel-card" aria-labelledby="cpu-activity-title"><p class="card-kicker">ENEMY ACTIVITY</p><h2 id="cpu-activity-title">直前のCPU行動</h2>${cpuActivity.length ? `<ol>${cpuActivity.map(entry => `<li>${escapeHtml(entry)}</li>`).join('')}</ol>` : '<p>視認できる敵行動はありません。</p>'}</section>` : '';
   const campaignCards = screens.campaignMenuOpen ? campaignStages.map((stage, index) => {
     const map = maps.find(candidate => candidate.id === stage.scenarioId);
+    const operation = campaignOperations[stage.scenarioId];
     const unlocked = !!map && isCampaignScenarioUnlocked(campaignProgress, stage.scenarioId);
     const grade = campaignProgress.bestGrades[stage.scenarioId];
     if (!map) return `<article class="campaign-stage locked"><div class="campaign-stage-number">0${index + 1}</div><div><p class="card-kicker">UNAVAILABLE</p><h3>作戦データを読み込めません</h3><p>組み込みシナリオの読み込みに失敗したため、この作戦は開始できません。</p><span>推奨 ${stage.recommendedTurns} ターン</span></div><button class="save-action" disabled>利用不可</button></article>`;
-    return `<article class="campaign-stage ${unlocked ? '' : 'locked'}"><div class="campaign-stage-number">0${index + 1}</div><div><p class="card-kicker">${grade ? 'CLEARED' : unlocked ? 'OPEN' : 'LOCKED'}</p><h3>${escapeHtml(map.name)}</h3><p>${escapeHtml(map.briefing)}</p><span>推奨 ${stage.recommendedTurns} ターン</span></div>${grade ? `<strong class="campaign-grade grade-${grade.toLowerCase()}">${grade}</strong>` : ''}<button class="save-action campaign-start" data-campaign-id="${stage.scenarioId}" ${unlocked ? '' : 'disabled'}>${grade ? '再出撃' : '作戦開始'}</button></article>`;
+    const deployment = campaignDeployment(campaignProgress, stage.scenarioId);
+    return `<article class="campaign-stage ${unlocked ? '' : 'locked'}"><div class="campaign-stage-number">${String(index + 1).padStart(2, '0')}</div><div><p class="card-kicker">${grade ? 'CLEARED' : unlocked ? 'OPEN' : 'LOCKED'} · ${escapeHtml(operation?.phase ?? '')}</p><h3>${escapeHtml(operation?.title ?? map.name)}</h3><p>${escapeHtml(operation?.orders ?? map.briefing)}</p><span>目安 ${stage.recommendedTurns} ターン${operation?.deadline ? ` ／ 期限 ${operation.deadline}` : ''}</span>${unlocked ? `<p class="campaign-deployment">出撃支援 +${deployment.support}G ／ 引継候補 ${deployment.veterans.length}部隊</p>` : ''}</div>${grade ? `<strong class="campaign-grade grade-${grade.toLowerCase()}">${grade}</strong>` : ''}<button class="save-action campaign-start" data-campaign-id="${stage.scenarioId}" ${unlocked ? '' : 'disabled'}>${grade ? '再出撃' : '作戦準備'}</button></article>`;
   }).join('') : '';
   const campaignOverlay = renderCampaignOverlay(screens.campaignMenuOpen, campaignStages.length, campaignNotice, campaignCards);
   const editorOverlay = screens.editorOpen ? renderEditorView(editor, editorNotice, paintMode, editorHistory) : "";
@@ -943,10 +953,14 @@ function render(): void {
     conditionHeadings: matchMode === 'cpu' ? undefined : { victory: '赤軍の勝利条件', defeat: '青軍の勝利条件' },
     spectateDifficulties: { red: redDifficulty, blue: difficulty, levels: cpuDifficulties.map(level => ({ value: level, label: difficultyNames[level] })) },
     defeatConditions: renderedMap.defeatConditions.map(describeVictoryCondition),
-    startingGold: renderedMap.startingGold,
+    startingGold: campaignRun ? initialState.players.red.gold : renderedMap.startingGold,
     turnLimit: renderedMap.turnLimit,
     difficultyName: matchDifficultyName(),
     campaignRun: campaignRun !== undefined,
+    campaignPreparation: campaignRun ? {
+      support: initialState.scenarioSnapshot?.firstPlayerBonus ?? 0,
+      veterans: initialState.units.filter(unit => unit.owner === 'red' && (unit.experience ?? 0) > 0).length,
+    } : undefined,
   });
   app.innerHTML = `<main class="game-shell">
     <div class="build-info">${renderLocalePicker()}v${escapeHtml(buildInfo.version)} · ${escapeHtml(buildInfo.sha.slice(0, 12))} <button id="diagnostics-export">診断情報を保存</button></div>
@@ -1493,8 +1507,11 @@ function render(): void {
     render();
   });
   document.querySelector<HTMLButtonElement>('#campaign-skirmish')?.addEventListener('click', () => {
+    if (campaignRun && !confirmReplaceMatch()) return;
+    const campaignScenarioId = campaignRun?.scenarioId;
     campaignRun = undefined; campaignOutcome = undefined; screens.campaignMenuOpen = false;
-    screens.briefingOpen = campaignReturnToBriefing; campaignReturnToBriefing = false;
+    if (campaignScenarioId) resetGame(campaignScenarioId);
+    screens.briefingOpen = campaignScenarioId !== undefined || campaignReturnToBriefing; campaignReturnToBriefing = false;
     message = '単体戦モードに戻りました。戦域を自由に選択できます。';
     backToTitleIfOpenedThere();
     render();

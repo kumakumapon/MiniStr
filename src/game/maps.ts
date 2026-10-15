@@ -1,4 +1,5 @@
 import { defaultProductionRule, isPropertyTerrainKind, productionRuleSet, type ProductionRule } from './facilities';
+import { MAX_EXPERIENCE } from './experience';
 import { hasSafeJsonStructure, parseBoundedJson } from './jsonBoundary';
 import { trainingData } from './training';
 import { expandedScenarioData } from './expandedMaps';
@@ -6,11 +7,11 @@ import { createBoard, createGameState, playerOwnedProperties } from './state';
 import { unitKindSet, unitStats } from './units';
 import { CURRENT_RULE_VERSION, terrainKindSet, type Board, type GameResult, type GameState, type PlayerId, type Position, type TerrainKind, type UnitKind } from './types';
 
-export interface InitialUnit { kind: UnitKind; owner: PlayerId; x: number; y: number }
+export interface InitialUnit { kind: UnitKind; owner: PlayerId; x: number; y: number; experience?: number }
 export const scenarioThemes = ['temperate', 'desert', 'snow', 'urban', 'coastal'] as const;
 export type ScenarioTheme = (typeof scenarioThemes)[number];
 export const scenarioThemeSet: ReadonlySet<string> = new Set(scenarioThemes);
-export interface MapDefinition { id: string; name: string; board: Board; startingGold: number; secondPlayerBonus?: number; initialUnits: readonly InitialUnit[]; theme: ScenarioTheme }
+export interface MapDefinition { id: string; name: string; board: Board; startingGold: number; firstPlayerBonus?: number; secondPlayerBonus?: number; initialUnits: readonly InitialUnit[]; theme: ScenarioTheme }
 export type VictoryCondition =
   | { type: 'eliminate' }
   | { type: 'captureCapital' }
@@ -32,6 +33,8 @@ export interface ScenarioData {
   name: string;
   briefing: string;
   startingGold: number;
+  /** One-off campaign logistics grant, recorded in the immutable match snapshot. */
+  firstPlayerBonus?: number;
   /** One-off opening compensation; omission preserves historical opening funds. */
   secondPlayerBonus?: number;
   board: { width: number; height: number; fill?: TerrainKind; cells: readonly (readonly [number, number, TerrainKind, PlayerId?])[] };
@@ -106,6 +109,8 @@ function parseScenario(value: unknown, ids: Set<string>, options: ScenarioLoadOp
   if (typeof value.name !== 'string' || value.name.trim() === '' || typeof value.briefing !== 'string') return { ok: false, error: `シナリオ「${value.id}」の表示文が不正です。` };
   const startingGold = value.startingGold;
   if (!isNonNegativeInteger(startingGold)) return { ok: false, error: `シナリオ「${value.id}」の開始資金が不正です。` };
+  const firstPlayerBonus = value.firstPlayerBonus;
+  if (firstPlayerBonus !== undefined && (!isNonNegativeInteger(firstPlayerBonus) || firstPlayerBonus > 1_000_000)) return { ok: false, error: `シナリオ「${value.id}」の出撃支援が不正です。` };
   const secondPlayerBonus = value.secondPlayerBonus;
   if (secondPlayerBonus !== undefined && (!isNonNegativeInteger(secondPlayerBonus) || secondPlayerBonus > 1_000_000)) return { ok: false, error: `シナリオ「${value.id}」の後攻補償が不正です。` };
   const theme = value.theme === undefined ? 'temperate' : value.theme;
@@ -148,11 +153,13 @@ function parseScenario(value: unknown, ids: Set<string>, options: ScenarioLoadOp
     const y = unit.y;
     if (typeof unit.kind !== 'string' || !unitKindSet.has(unit.kind)
       || typeof unit.owner !== 'string' || !playerIds.has(unit.owner as PlayerId)
-      || !isNonNegativeInteger(x) || !isNonNegativeInteger(y) || x >= width || y >= height) return { ok: false, error: `シナリオ「${value.id}」の初期ユニットが不正です。` };
+      || !isNonNegativeInteger(x) || !isNonNegativeInteger(y) || x >= width || y >= height
+      || (unit.experience !== undefined && (!isNonNegativeInteger(unit.experience) || unit.experience > MAX_EXPERIENCE))) return { ok: false, error: `シナリオ「${value.id}」の初期ユニットが不正です。` };
     const key = `${x},${y}`;
     if (unitPositions.has(key)) return { ok: false, error: `シナリオ「${value.id}」に重複した初期ユニットがあります。` };
     unitPositions.add(key);
-    initialUnits.push({ kind: unit.kind as UnitKind, owner: unit.owner as PlayerId, x, y });
+    initialUnits.push({ kind: unit.kind as UnitKind, owner: unit.owner as PlayerId, x, y,
+      ...(unit.experience === undefined ? {} : { experience: unit.experience as number }) });
   }
   const parseConditions = (conditions: unknown, label: string): GameResult<VictoryCondition[]> => {
     if (!Array.isArray(conditions) || conditions.length === 0 || conditions.length > 32) return { ok: false, error: `シナリオ「${value.id}」の${label}が不正です。` };
@@ -177,7 +184,7 @@ function parseScenario(value: unknown, ids: Set<string>, options: ScenarioLoadOp
     // only after the next round begins, matching the legacy > turnLimit rule.
     : [...defeatConditions.value, { type: 'survive' as const, untilTurn: turnLimit + 1 }];
   ids.add(value.id);
-  return { ok: true, value: { id: value.id, name: value.name, briefing: value.briefing, startingGold, secondPlayerBonus: secondPlayerBonus as number | undefined, board, initialUnits, victoryConditions: victoryConditions.value, defeatConditions: normalizedDefeatConditions, turnLimit, theme: theme as ScenarioTheme, productionRules: productionRules as ProductionRule } };
+  return { ok: true, value: { id: value.id, name: value.name, briefing: value.briefing, startingGold, firstPlayerBonus: firstPlayerBonus as number | undefined, secondPlayerBonus: secondPlayerBonus as number | undefined, board, initialUnits, victoryConditions: victoryConditions.value, defeatConditions: normalizedDefeatConditions, turnLimit, theme: theme as ScenarioTheme, productionRules: productionRules as ProductionRule } };
 }
 
 /** Converts JSON-compatible scenario data into safe board state. No validation is repeated on lookup. */
@@ -368,11 +375,12 @@ export function createScenarioInitialState(scenario: ScenarioDefinition): GameSt
   const redIncome = playerOwnedProperties(base, 'red').length * 1000;
   return {
     ...base, scenarioId: scenario.id, scenarioSnapshot: scenarioDefinitionToData(scenario), ruleVersion: CURRENT_RULE_VERSION,
-    players: { red: { gold: scenario.startingGold + redIncome, income: redIncome }, blue: { gold: scenario.startingGold + (scenario.secondPlayerBonus ?? 0), income: 0 } },
+    players: { red: { gold: scenario.startingGold + redIncome + (scenario.firstPlayerBonus ?? 0), income: redIncome }, blue: { gold: scenario.startingGold + (scenario.secondPlayerBonus ?? 0), income: 0 } },
     units: scenario.initialUnits.map(unit => {
       nextId[unit.owner] += 1;
       const stats = unitStats[unit.kind];
-      return { id: `${unit.owner[0]}${nextId[unit.owner]}`, kind: unit.kind, owner: unit.owner, position: { x: unit.x, y: unit.y }, hp: 100, fuel: stats.fuel, ammo: stats.ammo, hasMoved: false, hasActed: false };
+      return { id: `${unit.owner[0]}${nextId[unit.owner]}`, kind: unit.kind, owner: unit.owner, position: { x: unit.x, y: unit.y }, hp: 100, fuel: stats.fuel, ammo: stats.ammo, hasMoved: false, hasActed: false,
+        ...(unit.experience === undefined ? {} : { experience: unit.experience }) };
     }),
   };
 }
@@ -401,7 +409,7 @@ export function scenarioDefinitionToData(scenario: ScenarioDefinition): Scenario
     const tile = scenario.board.terrain[y]![x]!;
     if (tile.kind !== 'plain' || tile.owner !== undefined) cells.push(tile.owner === undefined ? [x, y, tile.kind] : [x, y, tile.kind, tile.owner]);
   }
-  return { id: scenario.id, name: scenario.name, briefing: scenario.briefing, startingGold: scenario.startingGold, secondPlayerBonus: scenario.secondPlayerBonus,
+  return { id: scenario.id, name: scenario.name, briefing: scenario.briefing, startingGold: scenario.startingGold, firstPlayerBonus: scenario.firstPlayerBonus, secondPlayerBonus: scenario.secondPlayerBonus,
     board: { width: scenario.board.width, height: scenario.board.height, cells }, initialUnits: scenario.initialUnits.map(unit => ({ ...unit })),
     victoryConditions: scenario.victoryConditions.map(condition => structuredClone(condition)), defeatConditions: exportableDefeatConditions(scenario), turnLimit: scenario.turnLimit, theme: scenario.theme, productionRules: scenario.productionRules };
 }

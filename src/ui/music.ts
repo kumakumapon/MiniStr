@@ -13,10 +13,10 @@ export const FIELD_TRACK_FILES: Record<FieldTrack, string> = {
 };
 export const FIELD_TRACK_LABELS: Record<FieldTrack, string> = {
   march: '行進（勇壮・144 BPM）',
-  dawn: '暁（壮麗）',
-  drive: '疾走（シンセ）',
-  wasteland: '荒野（渋い）',
-  mist: '霧（静か）',
+  dawn: '暁（凱旋・136 BPM）',
+  drive: '疾走（突撃・156 BPM）',
+  wasteland: '荒野（進軍・144 BPM）',
+  mist: '霧（決意・132 BPM）',
 };
 
 export interface MusicSettings {
@@ -76,7 +76,7 @@ export function saveMusicSettings(storage: StorageLike, settings: MusicSettings)
 }
 
 function createAudio(track: string = FIELD_TRACK_FILES.march): LoopingAudio {
-  const revision = track === 'frontier-theme' || track === 'battle-theme' ? '?v=brave-20261015' : '';
+  const revision = track === 'frontier-theme' || track === 'battle-theme' ? '?v=brave-20261015' : '?v=campaign-20261015';
   const audio = new Audio(`${import.meta.env.BASE_URL}assets/${track}.ogg${revision}`);
   audio.loop = true;
   audio.preload = 'none';

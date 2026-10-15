@@ -1,9 +1,11 @@
 import { scenarioById } from './maps';
 import { parseBoundedJson } from './jsonBoundary';
 import { isGameState, type StorageLike } from './session';
-import type { GameResult, GameState, PlayerId } from './types';
+import { MAX_EXPERIENCE } from './experience';
+import { unitKindSet } from './units';
+import type { GameResult, GameState, PlayerId, UnitKind } from './types';
 
-export const CAMPAIGN_SCHEMA_VERSION = 3 as const;
+export const CAMPAIGN_SCHEMA_VERSION = 4 as const;
 export const CAMPAIGN_STORAGE_KEY = 'ministr.campaign.progress';
 export const MAX_CAMPAIGN_BYTES = 64_000;
 export type CampaignGrade = 'S' | 'A' | 'B' | 'C';
@@ -30,7 +32,11 @@ export interface CampaignProgress {
   unlockedScenarioIds: string[];
   bestGrades: Partial<Record<string, CampaignGrade>>;
   updatedAt: string;
+  /** The latest victorious roster for each operation; replays replace, never accumulate it. */
+  veteransByScenario?: Partial<Record<string, CampaignVeteran[]>>;
 }
+
+export interface CampaignVeteran { kind: UnitKind; experience: number }
 
 function migrateCampaignV1ToV2(value: Record<string, unknown>): Record<string, unknown> {
   return { ...structuredClone(value), schemaVersion: 2 };
@@ -38,13 +44,14 @@ function migrateCampaignV1ToV2(value: Record<string, unknown>): Record<string, u
 
 function migrateCampaignV2ToV3(value: Record<string, unknown>): Record<string, unknown> {
   // The three added stages are appended, so a v2 prefix remains a valid v3 prefix.
-  return { ...structuredClone(value), schemaVersion: CAMPAIGN_SCHEMA_VERSION };
+  return { ...structuredClone(value), schemaVersion: 3 };
 }
 
 function migrateCampaign(value: Record<string, unknown>): Record<string, unknown> | undefined {
   if (value.schemaVersion === CAMPAIGN_SCHEMA_VERSION) return value;
-  if (value.schemaVersion === 1) return migrateCampaignV2ToV3(migrateCampaignV1ToV2(value));
-  if (value.schemaVersion === 2) return migrateCampaignV2ToV3(value);
+  const v3 = value.schemaVersion === 1 ? migrateCampaignV2ToV3(migrateCampaignV1ToV2(value))
+    : value.schemaVersion === 2 ? migrateCampaignV2ToV3(value) : value.schemaVersion === 3 ? value : undefined;
+  if (v3) return { ...structuredClone(v3), schemaVersion: CAMPAIGN_SCHEMA_VERSION };
   return undefined;
 }
 export interface CampaignGradeResult {
@@ -125,6 +132,7 @@ export function recordCampaignVictory(
   const next = stageIds[index + 1];
   if (next) unlocked.add(next);
   return ok({
+    ...(progress.veteransByScenario === undefined ? {} : { veteransByScenario: structuredClone(progress.veteransByScenario) }),
     schemaVersion: CAMPAIGN_SCHEMA_VERSION,
     unlockedScenarioIds: stageIds.filter(id => unlocked.has(id)),
     bestGrades,
@@ -132,9 +140,21 @@ export function recordCampaignVictory(
   });
 }
 
+/** Keep survivors (including transported troops); refit and reinforcement occur at the next deployment. */
+export function recordCampaignVeterans(progress: CampaignProgress, finalState: GameState): GameResult<CampaignProgress> {
+  if (!isCampaignProgress(progress) || !isGameState(finalState) || finalState.winner !== 'red'
+    || !finalState.scenarioId || !isCampaignScenarioCompleted(progress, finalState.scenarioId))
+    return fail('生還部隊を記録できません。');
+  const veterans = finalState.units.filter(unit => unit.owner === 'red')
+    .map(unit => ({ kind: unit.kind, experience: Math.min(MAX_EXPERIENCE, (unit.experience ?? 0) + 1) }))
+    .sort((a, b) => b.experience - a.experience || a.kind.localeCompare(b.kind)).slice(0, 64);
+  return ok({ ...progress, veteransByScenario: { ...progress.veteransByScenario, [finalState.scenarioId]: veterans } });
+}
+
 export function isCampaignProgress(value: unknown): value is CampaignProgress {
   if (!isRecord(value)
-    || !hasOnlyKeys(value, ['schemaVersion', 'unlockedScenarioIds', 'bestGrades', 'updatedAt'])
+    || !hasOnlyKeys(value, ['schemaVersion', 'unlockedScenarioIds', 'bestGrades', 'updatedAt',
+      ...(Object.hasOwn(value, 'veteransByScenario') ? ['veteransByScenario'] : [])])
     || value.schemaVersion !== CAMPAIGN_SCHEMA_VERSION
     || !Array.isArray(value.unlockedScenarioIds) || !isRecord(value.bestGrades)
     || typeof value.updatedAt !== 'string' || !Number.isFinite(Date.parse(value.updatedAt))
@@ -148,6 +168,15 @@ export function isCampaignProgress(value: unknown): value is CampaignProgress {
   }
   for (const [id, grade] of Object.entries(value.bestGrades)) {
     if (!stageIdSet.has(id) || !grades.has(grade as CampaignGrade) || !unlockedSet.has(id)) return false;
+  }
+  if (value.veteransByScenario !== undefined) {
+    if (!isRecord(value.veteransByScenario)) return false;
+    for (const [id, veterans] of Object.entries(value.veteransByScenario)) {
+      if (!stageIdSet.has(id) || !Object.hasOwn(value.bestGrades, id) || !Array.isArray(veterans) || veterans.length > 64
+        || veterans.some(unit => !isRecord(unit) || !hasOnlyKeys(unit, ['kind', 'experience'])
+          || typeof unit.kind !== 'string' || !unitKindSet.has(unit.kind)
+          || !Number.isSafeInteger(unit.experience) || (unit.experience as number) < 1 || (unit.experience as number) > MAX_EXPERIENCE)) return false;
+    }
   }
   return campaignStages.every(stage => scenarioById(stage.scenarioId) !== undefined);
 }

@@ -2,7 +2,7 @@
 // With no arguments all six WAV themes are written. For the heroic pair, render
 // battle frontier together, then encode frontier at -5 dB and battle at -4.9 dB
 // with ffmpeg libvorbis -q:a 3. See public/assets/*-theme.md for the other mixes.
-// Other gains: dawn/drive -3 dB, wasteland -1.5 dB, mist -2.6 dB.
+// Campaign quartet: render dawn drive wasteland mist together; encode each at -5 dB, libvorbis quality 3.
 import fs from 'node:fs';
 import { Buffer } from 'node:buffer';
 import process from 'node:process';
@@ -188,9 +188,31 @@ const riser = (s, t, dur, vol) => {
   for (let i = 0; i < n; i++) { const x = rnd(); const h = x - prev * 0.85; prev = x; s.put(start + i, h * vol * Math.pow(i / n, 2.2), (i / n - 0.5) * 0.6); }
 };
 
-// ---------------- Dawn: 84 BPM, D major, 16 bars, a hopeful hymn ----------------
+// A shared martial rhythm; melodies, harmony and instrumentation remain specific to each theme.
+function campaignPulse(s, T, beat, root, tri, barIndex, gallop = false) {
+  for (let k = 0; k < 8; k++) {
+    const t = T + k * beat / 2;
+    tone(s, { t, dur: beat * 0.32, freq: mtof(root + (k % 4 === 3 ? 7 : 12)), vol: k % 2 ? 0.1 : 0.14, voices: 2, detune: 6, attack: 0.005, release: 0.045, cutoff: 350, peak: 1200, decay: 0.08 });
+    hat(s, t, k % 2 ? 0.065 : 0.04, k % 2 ? 0.4 : -0.4);
+    if (gallop && k % 2 === 0) tone(s, { t: t + beat * 0.375, dur: beat * 0.09, freq: mtof(root + 12), vol: 0.09, attack: 0.004, release: 0.025, cutoff: 700, peak: 1500, decay: 0.06 });
+  }
+  for (const q of [0, 2]) {
+    taiko(s, T + q * beat, 0.62, 58);
+    for (const m of tri.slice(0, 3)) tone(s, { t: T + q * beat, dur: beat * 0.32, freq: mtof(m + 12), vol: 0.045, pan: -0.2, voices: 3, detune: 8, attack: 0.01, release: 0.075, cutoff: 1000, peak: 3000, decay: 0.12 });
+  }
+  for (const q of [1, 3]) snare(s, T + q * beat, 0.38);
+  for (const q of [0.875, 2.875, 3.75]) snare(s, T + q * beat, 0.1);
+  if (barIndex % 8 === 7) for (let r = 0; r < 8; r++) snare(s, T + beat * 3 + r * beat / 8, 0.1 + r * 0.035);
+}
+
+function campaignBrass(s, T, beat, melody, vol = 0.11) {
+  for (const [bt, d, m] of melody) for (const [octave, gain, pan] of [[0, 1, 0.15], [-12, 0.65, -0.2]])
+    tone(s, { t: T + bt * beat, dur: d * beat * 0.76, freq: mtof(m + octave), vol: vol * gain, pan, voices: 3, detune: 9, attack: 0.014, release: 0.08, cutoff: 1000, peak: 3400, decay: 0.17, vib: 0.003 });
+}
+
+// ---------------- Dawn: 136 BPM, D major, 16 bars, triumphant brass and strings ----------------
 function dawn() {
-  const bpm = 84, beat = 60 / bpm, bar = beat * 4, bars = 16; const s = new Song(bar * bars);
+  const bpm = 136, beat = 60 / bpm, bar = beat * 4, bars = 16; const s = new Song(bar * bars);
   const C = { D: { tri: [50, 54, 57], root: 38 }, A: { tri: [45, 49, 52], root: 33 }, Bm: { tri: [47, 50, 54], root: 35 }, G: { tri: [43, 47, 50], root: 31 }, Em: { tri: [52, 55, 59], root: 40 } };
   const prog = ['D', 'A', 'Bm', 'G', 'D', 'A', 'G', 'A', 'D', 'A', 'Bm', 'G', 'Em', 'G', 'A', 'A'];
   const mel = [
@@ -201,37 +223,40 @@ function dawn() {
   ];
   for (let b = 0; b < bars; b++) {
     const T = b * bar, { tri, root } = C[prog[b]], late = b >= 8, swell = late ? 1.2 : 1;
-    for (const [pan, det] of [[-0.7, 8], [-0.25, 12], [0.25, 10], [0.7, 14]]) for (const m of tri) tone(s, { t: T, dur: bar, freq: mtof(m + (pan > 0 ? 12 : 0)), vol: 0.04 * swell, pan, detune: det, voices: 3, attack: 0.7, release: 0.8, cutoff: 1700, res: 0.1, vib: 0.002, vibRate: 4.6 });
+    for (const [pan, det] of [[-0.7, 8], [-0.25, 12], [0.25, 10], [0.7, 14]]) for (const m of tri) tone(s, { t: T, dur: bar, freq: mtof(m + (pan > 0 ? 12 : 0)), vol: 0.04 * swell, pan, detune: det, voices: 3, attack: 0.12, release: 0.18, cutoff: 1700, res: 0.1, vib: 0.002, vibRate: 4.6 });
     tone(s, { t: T, dur: bar, freq: mtof(root), vol: 0.22, voices: 1, wave: 'sin', attack: 0.1, release: 0.4 });
     tone(s, { t: T + beat * 2, dur: beat * 2, freq: mtof(root + 7), vol: 0.1, voices: 1, wave: 'sin', attack: 0.05, release: 0.4 });
     for (const [bt, d, m] of mel[b]) {
-      tone(s, { t: T + bt * beat, dur: d * beat * 0.97, freq: mtof(m - 12), vol: 0.14 * swell, pan: -0.15, voices: 4, detune: 9, attack: 0.1, release: 0.45, cutoff: 700, peak: 1800, decay: 0.6, res: 0.12, vib: 0.005, vibRate: 5 });
-      tone(s, { t: T + bt * beat, dur: d * beat * 0.97, freq: mtof(m), vol: 0.07 * swell, pan: 0.2, voices: 3, detune: 7, attack: 0.08, release: 0.4, wave: 'tri', cutoff: 3500, vib: 0.006, vibRate: 5.4 });
-      if (late) tone(s, { t: T + bt * beat, dur: d * beat * 0.97, freq: mtof(m - 5), vol: 0.07, pan: 0.45, voices: 3, detune: 9, attack: 0.12, release: 0.45, cutoff: 800, peak: 1500, decay: 0.6 });
+      tone(s, { t: T + bt * beat, dur: d * beat * 0.97, freq: mtof(m - 12), vol: 0.14 * swell, pan: -0.15, voices: 4, detune: 9, attack: 0.02, release: 0.09, cutoff: 700, peak: 1800, decay: 0.6, res: 0.12, vib: 0.005, vibRate: 5 });
+      tone(s, { t: T + bt * beat, dur: d * beat * 0.97, freq: mtof(m), vol: 0.07 * swell, pan: 0.2, voices: 3, detune: 7, attack: 0.02, release: 0.1, wave: 'tri', cutoff: 3500, vib: 0.006, vibRate: 5.4 });
+      if (late) tone(s, { t: T + bt * beat, dur: d * beat * 0.97, freq: mtof(m - 5), vol: 0.07, pan: 0.45, voices: 3, detune: 9, attack: 0.025, release: 0.1, cutoff: 800, peak: 1500, decay: 0.6 });
     }
-    // flowing harp arpeggio, denser in the second half
-    const steps = late ? 16 : 8, sd = bar / steps, order = [0, 1, 2, 1];
+    campaignPulse(s, T, beat, root, tri, b);
+    campaignBrass(s, T, beat, mel[b], late ? 0.12 : 0.1);
+    // flowing sixteenth-note harp arpeggio
+    const steps = 16, sd = bar / steps, order = [0, 1, 2, 1];
     for (let k = 0; k < steps; k++) tone(s, { t: T + k * sd, dur: 0.4, freq: mtof(tri[order[k % 4] ?? 0] + 24), vol: late ? 0.04 : 0.05, pan: k % 2 ? 0.5 : -0.5, voices: 1, wave: 'tri', attack: 0.004, release: 0.6, cutoff: 1000, peak: 4000, decay: 0.12 });
     taiko(s, T, 0.5, 54); if (late) { taiko(s, T + beat * 2, 0.35, 60); hat(s, T + beat * 3, 0.05, 0.3); }
     if (b % 4 === 0 && b > 0) crash(s, T, 0.14);
     if (b === 15) for (let r = 0; r < 6; r++) taiko(s, T + beat * 3 + r * beat / 6, 0.15 + r * 0.05, 58);
   }
-  reverb(s, 0.45, 1.3); finish(s, 'dawn.wav', 1.4);
+  reverb(s, 0.24, 1.0); finish(s, 'dawn.wav', 1.4);
 }
 
-// ---------------- Drive: 128 BPM, A minor, 16 bars, synth and four-on-the-floor ----------------
+// ---------------- Drive: 156 BPM, A minor, 16 bars, charging synth and brass ----------------
 function drive() {
-  const bpm = 128, beat = 60 / bpm, bar = beat * 4, bars = 16; const s = new Song(bar * bars);
+  const bpm = 156, beat = 60 / bpm, bar = beat * 4, bars = 16; const s = new Song(bar * bars);
   const C = { Am: { tri: [57, 60, 64], root: 33 }, F: { tri: [53, 57, 60], root: 29 }, C: { tri: [48, 52, 55], root: 36 }, G: { tri: [55, 59, 62], root: 31 } };
   const prog = ['Am', 'F', 'C', 'G', 'Am', 'F', 'G', 'Am', 'Am', 'F', 'C', 'G', 'Am', 'F', 'G', 'Am'];
   const lead = [
-    [], [], [], [],
+    [[0, 1.5, 81], [1.5, .5, 84], [2, 1, 88], [3, 1, 84]], [[0, 1, 84], [1, 1, 81], [2, 2, 77]],
+    [[0, 1.5, 84], [1.5, .5, 88], [2, 1, 91], [3, 1, 88]], [[0, 1, 86], [1, 1, 83], [2, 2, 79]],
     [[0, 2, 81], [2, 2, 84]], [[0, 2, 84], [2, 2, 81]], [[0, 2, 83], [2, 2, 79]], [[0, 2, 81], [2, 1, 84], [3, 1, 88]],
     [[0, 1.5, 88], [1.5, .5, 84], [2, 1, 81], [3, 1, 84]], [[0, 1.5, 84], [1.5, .5, 81], [2, 2, 77]], [[0, 1, 84], [1, 1, 88], [2, 2, 91]], [[0, 1.5, 86], [1.5, .5, 83], [2, 2, 79]],
     [[0, 1.5, 88], [1.5, .5, 84], [2, 1, 81], [3, 1, 84]], [[0, 1, 89], [1, 1, 88], [2, 2, 84]], [[0, 1, 86], [1, 1, 83], [2, 1, 86], [3, 1, 91]], [[0, 2, 88], [2, 2, 81]],
   ];
   for (let b = 0; b < bars; b++) {
-    const T = b * bar, { tri, root } = C[prog[b]], late = b >= 8, on = b >= 2;
+    const T = b * bar, { tri, root } = C[prog[b]], late = b >= 8, on = true;
     // four-on-the-floor kick, offbeat open hat, clap on 2 and 4, 16th hats
     for (let q = 0; q < 4; q++) boom(s, { t: T + q * beat, f0: 170, f1: 46, dur: 0.32, vol: 0.85, click: 0.4 });
     for (let h = 0; h < 16; h++) hat(s, T + h * beat / 4, h % 4 === 2 ? 0.1 : 0.04, h % 2 ? 0.45 : -0.45);
@@ -243,6 +268,9 @@ function drive() {
     // 16th arpeggio
     const arp = [0, 1, 2, 1, 2, 1, 0, 1];
     for (let k = 0; k < 16; k++) tone(s, { t: T + k * beat / 4, dur: beat / 4 * 0.7, freq: mtof(tri[arp[k % 8] ?? 0] + 24), vol: late ? 0.045 : 0.035, pan: k % 2 ? 0.55 : -0.55, voices: 2, detune: 8, attack: 0.003, release: 0.05, cutoff: 900, peak: 3600, decay: 0.08, res: 0.25 });
+    // Brass octaves make the charging lead audible from the first bar.
+    campaignBrass(s, T, beat, lead[b], late ? 0.1 : 0.085);
+    for (const q of [0.875, 2.875, 3.75]) snare(s, T + q * beat, 0.12);
     // lead
     for (const [bt, d, m] of lead[b]) tone(s, { t: T + bt * beat, dur: d * beat * 0.92, freq: mtof(m), vol: 0.1, pan: 0.05, voices: 5, detune: 16, attack: 0.01, release: 0.18, cutoff: 1200, peak: 4200, decay: 0.3, res: 0.2, vib: 0.003 });
     if (late) tone(s, { t: T, dur: bar, freq: mtof(root + 24), vol: 0.03, voices: 3, detune: 14, attack: 0.4, release: 0.6, cutoff: 1300 });
@@ -251,9 +279,9 @@ function drive() {
   }
   reverb(s, 0.22, 0.9); finish(s, 'drive.wav', 1.5);
 }
-// ---------------- Wasteland: 72 BPM, E minor, 16 bars, a lean western mood ----------------
+// ---------------- Wasteland: 144 BPM, E minor, 16 bars, galloping frontier cavalry ----------------
 function wasteland() {
-  const bpm = 72, beat = 60 / bpm, bar = beat * 4, bars = 16; const s = new Song(bar * bars);
+  const bpm = 144, beat = 60 / bpm, bar = beat * 4, bars = 16; const s = new Song(bar * bars);
   const C = { Em: { tri: [52, 55, 59], root: 40 }, C: { tri: [48, 52, 55], root: 36 }, D: { tri: [50, 54, 57], root: 38 }, G: { tri: [55, 59, 62], root: 31 }, Am: { tri: [45, 48, 52], root: 33 }, B: { tri: [47, 51, 54], root: 35 } };
   const prog = ['Em', 'Em', 'C', 'D', 'Em', 'G', 'Am', 'B', 'Em', 'C', 'G', 'D', 'Em', 'Am', 'B', 'Em'];
   const mel = [
@@ -267,27 +295,29 @@ function wasteland() {
     // desert drone and a thin, dark pad
     tone(s, { t: T, dur: bar, freq: mtof(root), vol: 0.22, voices: 1, wave: 'sin', attack: 0.2, release: 0.5 });
     if (b % 2 === 0) tone(s, { t: T, dur: bar * 2, freq: mtof(28), vol: 0.1, voices: 1, wave: 'sin', attack: 1.2, release: 1.2 });
-    for (const m of tri) tone(s, { t: T, dur: bar, freq: mtof(m), vol: 0.03, pan: m % 2 ? 0.5 : -0.5, voices: 3, detune: 11, attack: 0.9, release: 0.9, cutoff: 650, res: 0.1 });
+    for (const m of tri) tone(s, { t: T, dur: bar, freq: mtof(m), vol: 0.03, pan: m % 2 ? 0.5 : -0.5, voices: 3, detune: 11, attack: 0.14, release: 0.2, cutoff: 650, res: 0.1 });
     // fingerpicked guitar: plucked saw with a fast filter decay
     const pick = [0, 2, 1, 2, 0, 2, 1, 2];
     for (let e = 0; e < 8; e++) tone(s, { t: T + e * beat / 2, dur: 0.3, freq: mtof(tri[pick[e]] + 12), vol: late ? 0.1 : 0.085, pan: -0.25 + (e % 2) * 0.1, voices: 1, attack: 0.003, release: 0.5, cutoff: 500, peak: 3200, decay: 0.09, res: 0.25 });
     // whistle-like lead, sparse
     for (const [bt, d, m] of mel[b]) {
-      tone(s, { t: T + bt * beat, dur: d * beat * 0.95, freq: mtof(m), vol: 0.1, pan: 0.2, voices: 2, detune: 4, wave: 'tri', attack: 0.07, release: 0.5, cutoff: 3200, vib: 0.007, vibRate: 5.2 });
-      tone(s, { t: T + bt * beat, dur: d * beat * 0.95, freq: mtof(m + 12), vol: 0.025, pan: 0.3, voices: 1, wave: 'sin', attack: 0.09, release: 0.5, vib: 0.007, vibRate: 5.2 });
+      tone(s, { t: T + bt * beat, dur: d * beat * 0.95, freq: mtof(m), vol: 0.1, pan: 0.2, voices: 2, detune: 4, wave: 'tri', attack: 0.02, release: 0.12, cutoff: 3200, vib: 0.007, vibRate: 5.2 });
+      tone(s, { t: T + bt * beat, dur: d * beat * 0.95, freq: mtof(m + 12), vol: 0.025, pan: 0.3, voices: 1, wave: 'sin', attack: 0.025, release: 0.14, vib: 0.007, vibRate: 5.2 });
     }
+    campaignPulse(s, T, beat, root, tri, b, true);
+    campaignBrass(s, T, beat, mel[b], late ? 0.12 : 0.1);
     // percussion: deep toms and brush
     taiko(s, T, 0.7, 48); if (b % 2) taiko(s, T + beat * 2, 0.4, 56);
     if (late) { noiseHit(s, { t: T + beat, dur: 0.22, vol: 0.12, hp: 0.4, lpHz: 6000, shape: 1.6 }); noiseHit(s, { t: T + beat * 3, dur: 0.22, vol: 0.12, hp: 0.4, lpHz: 6000, shape: 1.6 }); }
     else for (const q of [1, 3]) hat(s, T + q * beat, 0.07, q === 1 ? -0.3 : 0.3);
     if (b === 7 || b === 15) for (let r = 0; r < 4; r++) taiko(s, T + beat * 3 + r * beat / 4, 0.25 + r * 0.1, 50 + r * 3);
   }
-  reverb(s, 0.4, 1.2); finish(s, 'wasteland.wav', 1.4);
+  reverb(s, 0.23, 1.0); finish(s, 'wasteland.wav', 1.4);
 }
 
-// ---------------- Mist: 60 BPM, F major, 16 bars, a calm ambient bed ----------------
+// ---------------- Mist: 132 BPM, F major, 16 bars, a resolute advance through the mist ----------------
 function mist() {
-  const bpm = 60, beat = 60 / bpm, bar = beat * 4, bars = 16; const s = new Song(bar * bars);
+  const bpm = 132, beat = 60 / bpm, bar = beat * 4, bars = 16; const s = new Song(bar * bars);
   const C = { F: { tri: [53, 57, 60, 64], root: 29 }, Am: { tri: [57, 60, 64, 67], root: 33 }, Dm: { tri: [50, 53, 57, 60], root: 26 }, G: { tri: [55, 59, 62, 69], root: 31 }, Em: { tri: [52, 55, 59, 62], root: 40 } };
   const prog = ['F', 'Am', 'Dm', 'G', 'F', 'Am', 'Dm', 'Em', 'F', 'Am', 'Dm', 'G', 'Dm', 'Em', 'F', 'F'];
   const mel = [
@@ -298,19 +328,23 @@ function mist() {
   ];
   for (let b = 0; b < bars; b++) {
     const T = b * bar, { tri, root } = C[prog[b]], late = b >= 8;
-    for (const [pan, det] of [[-0.8, 9], [-0.3, 13], [0.3, 11], [0.8, 15]]) for (const m of tri) tone(s, { t: T, dur: bar, freq: mtof(m + (pan > 0 ? 12 : 0)), vol: 0.03 * (late ? 1.2 : 1), pan, detune: det, voices: 3, attack: 1.6, release: 1.8, cutoff: 1500, res: 0.1, vib: 0.002, vibRate: 3.8 });
-    tone(s, { t: T, dur: bar, freq: mtof(root), vol: 0.2, voices: 1, wave: 'sin', attack: 0.8, release: 1.2 });
+    for (const [pan, det] of [[-0.8, 9], [-0.3, 13], [0.3, 11], [0.8, 15]]) for (const m of tri) tone(s, { t: T, dur: bar, freq: mtof(m + (pan > 0 ? 12 : 0)), vol: 0.03 * (late ? 1.2 : 1), pan, detune: det, voices: 3, attack: 0.15, release: 0.22, cutoff: 1500, res: 0.1, vib: 0.002, vibRate: 3.8 });
+    tone(s, { t: T, dur: bar, freq: mtof(root), vol: 0.2, voices: 1, wave: 'sin', attack: 0.025, release: 0.16 });
     // bell-like melody with a two-tap echo on the opposite side
     for (const [bt, d, m] of mel[b]) {
-      for (const [k, delay, gain, pan] of [[0, 0, 1, -0.25], [1, beat * 0.75, 0.38, 0.6], [2, beat * 1.5, 0.16, -0.6]]) {
-        tone(s, { t: T + bt * beat + delay, dur: d * beat * 0.5, freq: mtof(m), vol: 0.085 * gain, pan, voices: 2, detune: 3, wave: 'tri', attack: 0.012, release: 1.6, cutoff: 3600, peak: 2400, decay: 0.4 });
-        if (k === 0) tone(s, { t: T + bt * beat, dur: 0.3, freq: mtof(m + 12), vol: 0.02, pan: 0.15, voices: 1, wave: 'sin', attack: 0.005, release: 1.4 });
+      for (const [k, delay, gain, pan] of [[0, 0, 1, -0.25], [1, beat * 0.5, 0.22, 0.6], [2, beat, 0.1, -0.6]]) {
+        tone(s, { t: T + bt * beat + delay, dur: d * beat * 0.5, freq: mtof(m), vol: 0.085 * gain, pan, voices: 2, detune: 3, wave: 'tri', attack: 0.012, release: 0.2, cutoff: 3600, peak: 2400, decay: 0.4 });
+        if (k === 0) tone(s, { t: T + bt * beat, dur: 0.3, freq: mtof(m + 12), vol: 0.02, pan: 0.15, voices: 1, wave: 'sin', attack: 0.005, release: 0.18 });
       }
     }
+    campaignPulse(s, T, beat, root, tri, b);
+    campaignBrass(s, T, beat, mel[b], late ? 0.14 : 0.12);
+    const order = [0, 2, 1, 2];
+    for (let k = 0; k < 16; k++) tone(s, { t: T + k * beat / 4, dur: beat * 0.16, freq: mtof(tri[order[k % 4]] + 12), vol: k % 4 ? 0.035 : 0.055, pan: k % 2 ? 0.35 : -0.35, voices: 2, detune: 6, attack: 0.005, release: 0.045, cutoff: 900, peak: 1800, decay: 0.07 });
     if (b % 2 === 0) taiko(s, T, 0.22, 46);
     if (late && b % 2 === 1) taiko(s, T + beat * 2, 0.14, 52);
   }
-  reverb(s, 0.55, 1.5); finish(s, 'mist.wav', 1.3);
+  reverb(s, 0.26, 1.1); finish(s, 'mist.wav', 1.3);
 }
 
 const renderers = { battle, frontier, dawn, drive, wasteland, mist };
