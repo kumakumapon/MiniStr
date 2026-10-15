@@ -25,7 +25,8 @@
     "test:fast": "vitest run --exclude 'src/ai/cpuSimulation*.test.ts'",
     "test:cpu": "vitest run src/ai/cpuSimulation*.test.ts",
     "balance:compare": "vite-node scripts/balance-compare.ts",
-    "balance": "vite-node scripts/balance-report.ts"
+    "balance": "vite-node scripts/balance-report.ts",
+    "campaign:playthrough": "vite-node scripts/campaign-playthrough.ts"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

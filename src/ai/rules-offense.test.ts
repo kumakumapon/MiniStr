@@ -119,8 +119,9 @@ describe('CPU resupply need', () => {
     };
     const emptyTank = unit({ id: 't', kind: 'tank', owner: 'blue', position: { x: 1, y: 0 }, ammo: 0 }) as DeployedUnit;
     const fullTank = unit({ id: 't', kind: 'tank', owner: 'blue', position: { x: 1, y: 0 } }) as DeployedUnit;
-    // The +80 resupply incentive applies only to the empty tank.
-    expect((score(emptyTank, 0) - score(emptyTank, 1)) - (score(fullTank, 0) - score(fullTank, 1))).toBe(80);
+    // Empty magazines value the service itself (+80) and one tile of progress
+    // toward it, even when there are no combat objectives.
+    expect((score(emptyTank, 0) - score(emptyTank, 1)) - (score(fullTank, 0) - score(fullTank, 1))).toBe(80 + cpuDifficultyConfig.normal.objectiveDistanceWeight);
   });
 });
 

@@ -21,7 +21,7 @@ export const campaignOperations: Readonly<Record<string, CampaignOperation>> = {
     orders: '中央の敵前進工場 (10, 7) を歩兵で占領し、部隊を置いて3ターン連続で保持せよ。',
     logistics: '偵察車で前衛を見つけ、戦車と間接砲で排除する。歩兵で占領し、補給車で前線の弾薬・燃料を維持する。',
     enemyOrders: '前衛の偵察車・戦車が中央工場を防衛し、後続部隊が奪回を狙う。まず偵察して前衛を排除する。',
-    objective: { type: 'hold', positions: [{ x: 9, y: 6 }], turns: 3, requireOwnership: true },
+    objective: { type: 'hold', positions: [{ x: 9, y: 6 }], turns: 3, requireOwnership: true, groundOnly: true },
     deadline: 32,
     frontline: {
       cells: [[9, 6, 'factory', 'blue']],
@@ -30,6 +30,7 @@ export const campaignOperations: Readonly<Record<string, CampaignOperation>> = {
         ['tank', 11, 7],
         ['artillery', 3, 1, 'red'],
         ['apc', 3, 2, 'red'],
+        ['rocket', 2, 2, 'red'],
       ],
     },
   },
@@ -39,7 +40,7 @@ export const campaignOperations: Readonly<Record<string, CampaignOperation>> = {
     orders: '中央島の敵前進港 (7, 5) を占領し、部隊を置いて3ターン連続で保持して海上補給路を開け。',
     logistics: '輸送艦で歩兵を運び、港を確保する。艦艇は港、航空機は空港で補給・修理する。',
     enemyOrders: '中央島の歩兵と沿岸の駆逐艦が港を守る。艦艇で沿岸を制し、歩兵を上陸させる。',
-    objective: { type: 'hold', positions: [{ x: 6, y: 4 }], turns: 3, requireOwnership: true },
+    objective: { type: 'hold', positions: [{ x: 6, y: 4 }], turns: 3, requireOwnership: true, groundOnly: true },
     deadline: 36,
     frontline: {
       cells: [
@@ -49,6 +50,9 @@ export const campaignOperations: Readonly<Record<string, CampaignOperation>> = {
       units: [
         ['infantry', 8, 4],
         ['destroyer', 9, 4],
+        ['battleship', 5, 0, 'red'],
+        ['landingShip', 5, 3, 'red'],
+        ['infantry', 3, 2, 'red'],
       ],
     },
   },
@@ -58,7 +62,7 @@ export const campaignOperations: Readonly<Record<string, CampaignOperation>> = {
     orders: '北側関門 (11, 5) を2ターン連続で保持し、敵の防衛線を突破せよ。',
     logistics: '間接砲を前衛の後ろに置き、補給車を随伴させる。南側の関門への迂回も有効。',
     enemyOrders: '関門の戦車と後方の間接砲が進路を遮る。正面の装甲だけで突破せず、側面と射程を使う。',
-    objective: { type: 'hold', positions: [{ x: 10, y: 4 }], turns: 2 },
+    objective: { type: 'hold', positions: [{ x: 10, y: 4 }], turns: 2, groundOnly: true },
     deadline: 38,
     frontline: {
       units: [
@@ -74,11 +78,14 @@ export const campaignOperations: Readonly<Record<string, CampaignOperation>> = {
     logistics: '生産と修理を同じ資金で賄う。歩兵の進路を確保し、戦車だけで都市へ突入しない。',
     enemyOrders: '市街の前衛と本営の増援が包囲を妨害する。補給拠点を確保してから歩兵を前進させる。',
     objective: { type: 'captureCapital' },
-    deadline: 44,
+    deadline: 50,
     frontline: {
       units: [
         ['infantry', 13, 7],
         ['artillery', 14, 8],
+        ['rocket', 4, 1, 'red'],
+        ['rocket', 4, 2, 'red'],
+        ['apc', 3, 2, 'red'],
       ],
     },
   },
@@ -88,12 +95,14 @@ export const campaignOperations: Readonly<Record<string, CampaignOperation>> = {
     orders: '北橋の東岸 (12, 4) を3ターン連続で保持し、渡河部隊の橋頭堡を築け。',
     logistics: '二つの橋と港を使って戦力を分散する。橋の先へ補給車も渡し、燃料と弾薬を維持する。',
     enemyOrders: '東岸の前衛が橋頭堡を防衛し、後続が増援する。北橋だけに戦力を集中しすぎない。',
-    objective: { type: 'hold', positions: [{ x: 11, y: 3 }], turns: 3 },
+    objective: { type: 'hold', positions: [{ x: 11, y: 3 }], turns: 3, groundOnly: true },
     deadline: 40,
     frontline: {
       units: [
         ['infantry', 12, 3],
         ['tank', 13, 3],
+        ['battleship', 10, 6, 'red'],
+        ['rocket', 4, 7, 'red'],
       ],
     },
   },
@@ -111,7 +120,7 @@ export const campaignOperations: Readonly<Record<string, CampaignOperation>> = {
     orders: '中央の敵前哨工場 (10, 8) を占領し、部隊を置いて3ターン連続で保持して反攻拠点を確保せよ。',
     logistics: '防御地形で部隊を温存する。評価だけでなく、次へ送れる生還部隊の経験も意識する。',
     enemyOrders: '前哨工場の守備隊と偵察車が集結を妨害する。占領後も守備部隊を残して奪回に備える。',
-    objective: { type: 'hold', positions: [{ x: 9, y: 7 }], turns: 3, requireOwnership: true },
+    objective: { type: 'hold', positions: [{ x: 9, y: 7 }], turns: 3, requireOwnership: true, groundOnly: true },
     deadline: 34,
     frontline: {
       cells: [[9, 7, 'factory', 'blue']],
@@ -124,15 +133,27 @@ export const campaignOperations: Readonly<Record<string, CampaignOperation>> = {
   landing: {
     title: '海峡の反攻',
     phase: '第4戦域・総反攻',
-    orders: '中央島を中継地に敵岸へ上陸し、敵司令部を占領せよ。',
+    orders: '海峡を渡り、敵岸の軍港 (14, 5) を占領して地上部隊で3ターン保持し、後続部隊の橋頭堡を確保せよ。',
     logistics: '制海権を確保してから輸送艦を進める。港で補給し、歩兵の上陸地点を先に空ける。',
     enemyOrders: '海峡の駆逐艦と敵岸歩兵が上陸を阻む。輸送艦だけを先行させない。',
-    objective: { type: 'captureCapital' },
+    objective: { type: 'hold', positions: [{ x: 13, y: 4 }], turns: 3, requireOwnership: true, groundOnly: true },
     deadline: 38,
     frontline: {
+      cells: [
+        [1, 3, 'plain'],
+        [4, 3, 'port', 'red'],
+        [16, 8, 'plain'],
+        [13, 4, 'port', 'blue'],
+      ],
       units: [
         ['destroyer', 12, 3],
         ['infantry', 14, 4],
+        ['destroyer', 5, 5, 'red'],
+        ['battleship', 5, 7, 'red'],
+        ['fighter', 5, 1, 'red'],
+        ['landingShip', 5, 8, 'red'],
+        ['infantry', 4, 8, 'red'],
+        ['battleship', 5, 10, 'red'],
       ],
     },
   },
@@ -150,6 +171,7 @@ export const campaignOperations: Readonly<Record<string, CampaignOperation>> = {
       ],
       turns: 3,
       requireOwnership: true,
+      groundOnly: true,
     },
     deadline: 44,
     frontline: {
@@ -157,6 +179,9 @@ export const campaignOperations: Readonly<Record<string, CampaignOperation>> = {
       units: [
         ['artillery', 13, 9],
         ['infantry', 12, 8],
+        ['rocket', 4, 1, 'red'],
+        ['rocket', 4, 2, 'red'],
+        ['apc', 3, 2, 'red'],
       ],
     },
   },
@@ -166,13 +191,16 @@ export const campaignOperations: Readonly<Record<string, CampaignOperation>> = {
     orders: '敵側の前進工場 (13, 12) を占領し、部隊を置いて3ターン連続で保持して最終補給線を遮断せよ。',
     logistics: '湿地を避ける道路と輸送車を使い、前衛と補給車を離さない。経験部隊を集中して突破口を守る。',
     enemyOrders: '前進工場の守備隊が道路の出口を守る。経験部隊と補給車で突破後の反撃に備える。',
-    objective: { type: 'hold', positions: [{ x: 12, y: 11 }], turns: 3, requireOwnership: true },
-    deadline: 40,
+    objective: { type: 'hold', positions: [{ x: 12, y: 11 }], turns: 3, requireOwnership: true, groundOnly: true },
+    deadline: 48,
     frontline: {
       cells: [[12, 11, 'factory', 'blue']],
       units: [
         ['infantry', 11, 11],
         ['tank', 13, 10],
+        ['rocket', 3, 1, 'red'],
+        ['rocket', 2, 2, 'red'],
+        ['apc', 3, 2, 'red'],
       ],
     },
   },
