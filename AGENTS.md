@@ -8,8 +8,8 @@
 ## 使用技術
 
 - 言語・バージョン: TypeScript 5（`package.json` は `^5.8.3`）、strict / noUncheckedIndexedAccess
-- フレームワーク・主要ライブラリ: Vite 6、Vitest 3
-- 実行環境: Node.js 22 以上、npm 10 以上
+- フレームワーク・主要ライブラリ: Vite 6、Vitest 5
+- 実行環境: Node.js 22.13以降の22系または24系、npm 10–12
 
 ## パッケージマネージャー
 

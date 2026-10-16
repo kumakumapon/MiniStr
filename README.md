@@ -314,8 +314,8 @@ src/
 
 ### 前提条件
 
-- Node.js 22 以上
-- npm 10 以上
+- Node.js 22.13 以上の22系、または24系
+- npm 10–12
 
 ### インストール
 
@@ -325,7 +325,7 @@ git clone https://github.com/kumakumapon/MiniStr.git
 cd MiniStr
 
 # 依存関係をインストール
-npm install
+npm ci
 ```
 
 ### 開発
