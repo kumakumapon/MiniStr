@@ -274,9 +274,12 @@ function productionAction(state: GameState, player: PlayerId, config: CpuDifficu
     // unarmed replacement transport or on infantry stranded on the home island.
     return undefined;
   }
-  if (hasRemoteInfantry && !hasLandingShip && state.players[player].gold >= unitStats.landingShip.cost) {
+  if (hasRemoteInfantry && !hasLandingShip && state.board.terrain.some(row => row.some(tile => tile.kind === 'port' && tile.owner === player))) {
     const port = emptyOwnedFacility(state, player, 'landingShip');
-    if (port) return { type: 'produce', factory: port, kind: 'landingShip' };
+    if (port && state.players[player].gold >= unitStats.landingShip.cost) return { type: 'produce', factory: port, kind: 'landingShip' };
+    // Losing the transports must not start an endless queue of stranded ground
+    // troops. Bank the replacement cost while movement clears the home port.
+    return undefined;
   }
   const specialist = specialistProduction(state, player, context.visibleEnemies);
   if (specialist) return specialist;
@@ -483,7 +486,10 @@ export const FACILITY_BLOCK_PENALTY = 45;
 /** Whether ending on `position` would occupy one of `player`'s production facilities. */
 function blocksProduction(state: GameState, player: PlayerId, position: Position, knownEnemies: readonly Unit[], config: CpuDifficultyConfig): boolean {
   const tile = terrainAt(state.board, position);
-  if (tile?.owner !== player || atForceLimit(state, player, config)) return false;
+  if (tile?.owner !== player) return false;
+  // Ships and aircraft are bounded specialist orders even at the bulk-force
+  // cap. Their facilities must stay open so a lost fleet can be rebuilt.
+  if (atForceLimit(state, player, config) && tile.kind !== 'port' && tile.kind !== 'airport') return false;
   const productionRule = scenarioForState(state)?.productionRules ?? 'legacy-factory-air';
   const kinds = productionKindsForRule(productionRule, state.ruleVersion)[tile.kind] ?? [];
   // Only a facility we could actually use this turn is being blocked.
