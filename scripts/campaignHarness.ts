@@ -17,7 +17,7 @@ import {
 
 export function playCampaignStage(progress: CampaignProgress, stage: CampaignStage, difficulty: CpuDifficulty) {
   const scenario = createCampaignScenario(progress, stage.scenarioId);
-  if (!scenario.ok) throw new Error(scenario.error);
+  if (!scenario.ok) throw new Error(`${stage.scenarioId}: ${scenario.error}`);
   const initialState = createScenarioInitialState(scenario.value);
   let state = initialState;
   const commands: GameCommand[] = [];

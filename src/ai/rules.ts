@@ -417,7 +417,8 @@ export function evaluateCpuPosition(
   const supply = needsSupply(unit, state) && resupplied ? 80 : 0;
   const serviceTargets = needsSupply(unit, state) ? supplyTargets(state, player, unit) : [];
   const serviceDistance = serviceTargets.length ? Math.min(...serviceTargets.map(position => manhattanDistance(destination, position))) : undefined;
-  const criticalSupply = !hasUsableWeapon(state, unit, false) && unitStats[unit.kind].ammo > 0 || (unit.fuel ?? unitStats[unit.kind].fuel) <= unitStats[unit.kind].fuelPerTurn * 2;
+  // A secondary gun can cover a retreat, but does not replace a depleted primary.
+  const criticalSupply = remainingAmmo(unit) === 0 && unitStats[unit.kind].ammo > 0 || (unit.fuel ?? unitStats[unit.kind].fuel) <= unitStats[unit.kind].fuelPerTurn * 2;
   const distance = targets.length ? Math.min(...targets.map(target => manhattanDistance(destination, target))) : 0;
   const deployedEnemies = knownEnemies.filter(isDeployedUnit);
   const pressure = deployedEnemies.reduce((risk, enemy) => {
@@ -660,7 +661,7 @@ function strikeAction(state: GameState, player: PlayerId, config: CpuDifficultyC
     if (!targets.length) continue;
     // Units with another job (capturing, supplying, resupplying, holding the
     // capital against a visible capturer) leave it only for a finishing blow.
-    const finishingOnly = config.strikePlanning === 'lethal' || stats.capturePower > 0 || isSupplyUnit(unit.kind) || needsSupply(unit, state)
+    const finishingOnly = config.strikePlanning === 'lethal' || stats.indirect || stats.capturePower > 0 || isSupplyUnit(unit.kind) || needsSupply(unit, state)
       || guardsCapital(state, player, unit, visibleTargets);
     for (const destination of reachablePositionsForPlayer(state, unit.id, player)) {
       const inRange = targets.filter(target => {
