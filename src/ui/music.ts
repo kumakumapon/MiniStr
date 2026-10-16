@@ -32,6 +32,7 @@ export interface LoopingAudio {
   loop: boolean;
   preload: string;
   volume: number;
+  muted?: boolean;
   currentTime?: number;
   play(): Promise<void>;
   pause(): void;
@@ -106,11 +107,13 @@ export class BackgroundMusicPlayer {
     this.audio.loop = true;
     this.audio.preload = 'none';
     this.audio.volume = settings.volume;
+    this.audio.muted = true;
     this.battleAudio = battleAudio ?? (audio ? undefined : createAudio('battle-theme'));
     if (this.battleAudio) {
       this.battleAudio.loop = true;
       this.battleAudio.preload = 'auto';
       this.battleAudio.volume = settings.volume;
+      this.battleAudio.muted = true;
     }
   }
 
@@ -120,18 +123,7 @@ export class BackgroundMusicPlayer {
     // Unlock both elements during the gesture, including browsers that grant
     // playback permission per element. A late completion cannot restart a scene.
     const battle = this.battleAudio;
-    if (battle && !this.inBattle) {
-      battle.volume = 0;
-      void battle
-        .play()
-        .then(() => {
-          if (!this.inBattle || this.settings.muted || this.settings.volume === 0) battle.pause();
-          battle.volume = this.settings.volume;
-        })
-        .catch(() => {
-          battle.volume = this.settings.volume;
-        });
-    }
+    if (battle && !this.inBattle) this.primeSilently(battle);
     await this.syncPlayback();
   }
 
@@ -145,7 +137,11 @@ export class BackgroundMusicPlayer {
       this.battleAudio.volume = this.settings.volume;
       if (this.battleAudio.currentTime !== undefined) this.battleAudio.currentTime = 0;
     }
-    (active ? this.audio : this.battleAudio)?.pause();
+    const previous = active ? this.audio : this.battleAudio;
+    if (previous) {
+      previous.muted = true;
+      previous.pause();
+    }
     void this.syncPlayback();
   }
 
@@ -154,6 +150,7 @@ export class BackgroundMusicPlayer {
     this.settings = settings;
     // The chosen track is only fetched when picked; a battle in progress keeps its own theme.
     if (trackChanged && this.createField) {
+      this.audio.muted = true;
       this.audio.pause();
       let next = this.fieldAudio.get(settings.fieldTrack);
       const fresh = next === undefined;
@@ -161,6 +158,7 @@ export class BackgroundMusicPlayer {
         next = this.createField(settings.fieldTrack);
         next.loop = true;
         next.preload = 'none';
+        next.muted = true;
         this.fieldAudio.set(settings.fieldTrack, next);
       }
       this.audio = next;
@@ -172,6 +170,8 @@ export class BackgroundMusicPlayer {
     if (this.battleAudio) this.battleAudio.volume = settings.volume;
     if (!this.activated || settings.muted || settings.volume === 0) {
       if (settings.muted || settings.volume === 0) {
+        this.audio.muted = true;
+        if (this.battleAudio) this.battleAudio.muted = true;
         this.audio.pause();
         this.battleAudio?.pause();
       }
@@ -181,29 +181,37 @@ export class BackgroundMusicPlayer {
   }
 
   private primeSilently(audio: LoopingAudio): void {
+    // Some browsers ignore element volume. Keep an inactive track explicitly
+    // muted even while its playback permission is being unlocked.
+    audio.muted = true;
     audio.volume = 0;
     const restore = (): void => {
+      audio.muted = audio !== (this.inBattle ? this.battleAudio : this.audio) || this.settings.muted || this.settings.volume === 0;
+      if (audio.muted) audio.pause();
       audio.volume = this.settings.volume;
     };
-    void audio
-      .play()
-      .then(() => {
-        if (audio !== (this.inBattle ? this.battleAudio : this.audio) || this.settings.muted || this.settings.volume === 0) audio.pause();
-        restore();
-      })
-      .catch(restore);
+    void audio.play().then(restore).catch(restore);
   }
 
   private async syncPlayback(): Promise<void> {
     const audio = this.inBattle ? this.battleAudio : this.audio;
     if (!audio) return;
-    if (!this.activated || this.settings.muted || this.settings.volume === 0) {
+    // Silence the other elements before making the current one audible.
+    for (const field of this.fieldAudio.values()) {
+      if (field !== audio) field.muted = true;
+    }
+    if (this.battleAudio && this.battleAudio !== audio) this.battleAudio.muted = true;
+    audio.muted = !this.activated || this.settings.muted || this.settings.volume === 0;
+    if (audio.muted) {
       audio.pause();
       return;
     }
     try {
       await audio.play();
-      if (audio !== (this.inBattle ? this.battleAudio : this.audio) || this.settings.muted || this.settings.volume === 0) audio.pause();
+      if (audio !== (this.inBattle ? this.battleAudio : this.audio) || this.settings.muted || this.settings.volume === 0) {
+        audio.muted = true;
+        audio.pause();
+      }
     } catch {
       // Browser autoplay policy or unavailable audio: remain silent.
     }
