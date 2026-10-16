@@ -654,9 +654,7 @@ function strikeAction(state: GameState, player: PlayerId, config: CpuDifficultyC
   let best: { score: number; unitId: string; destination: Position } | undefined;
   for (const unit of orderedUnits(state, player)) {
     const stats = unitStats[unit.kind];
-    // Indirect batteries reposition for their primary; the secondary covers
-    // close defence and any opportunistic shot after ordinary movement.
-    if (unit.hasMoved || unit.hasActed || stats.indirect || !hasUsableWeapon(state, unit, true)) continue;
+    if (unit.hasMoved || unit.hasActed || !hasUsableWeapon(state, unit, true)) continue;
     const directWeapons = weaponsForUnit(unit.kind, state).filter((weapon, slot) => !weapon.indirect && weaponAmmo(unit, slot as WeaponSlot) > 0);
     const maximumRange = Math.max(...directWeapons.map(weapon => weapon.range[1]));
     const targets = visibleTargets.filter((target): target is DeployedUnit => isDeployedUnit(target)
@@ -664,7 +662,7 @@ function strikeAction(state: GameState, player: PlayerId, config: CpuDifficultyC
     if (!targets.length) continue;
     // Units with another job (capturing, supplying, resupplying, holding the
     // capital against a visible capturer) leave it only for a finishing blow.
-    const finishingOnly = config.strikePlanning === 'lethal' || stats.capturePower > 0 || isSupplyUnit(unit.kind) || needsSupply(unit)
+    const finishingOnly = config.strikePlanning === 'lethal' || stats.indirect || stats.capturePower > 0 || isSupplyUnit(unit.kind) || needsSupply(unit)
       || guardsCapital(state, player, unit, visibleTargets);
     for (const destination of reachablePositionsForPlayer(state, unit.id, player)) {
       const inRange = targets.filter(target => {
