@@ -104,6 +104,11 @@ function favorableAttack(state: GameState, attacker: DeployedUnit, target: Unit,
   // damage its target. This also keeps the AI safe if future unit matchups have
   // a zero damage multiplier.
   if (!result.ok || result.value.damageToDefender <= 0) return false;
+  // A weak secondary shot at a serviced garrison would be healed away every
+  // turn. Leave the action available for closing to primary range or resupply.
+  if (result.value.attackWeapon === 1 && isDeployedUnit(target)
+    && isServiceTile(state, target.position, target.kind, target.owner)
+    && result.value.damageToDefender <= REPAIR_HP_PER_TURN && result.value.outgoing.min < target.hp) return false;
   // A certain destruction is always worthwhile. Otherwise difficulty controls accepted risk.
   // Long stalemates and sieges may accept extra retaliation, but never more than
   // MAX_ATTACK_LENIENCY in total, so leniencies cannot stack into suicide attacks.
