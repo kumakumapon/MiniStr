@@ -743,6 +743,29 @@ export function chooseCpuAction(state: GameState, difficulty: CpuDifficulty = 'n
   return action;
 }
 
+/** Open a chain of friendly blockers so a capturer can reach its objective. */
+function clearCaptureLane(state: GameState, player: PlayerId, blocker: DeployedUnit, allies: readonly DeployedUnit[]): CpuAction | undefined {
+  const queue = [blocker];
+  const seen = new Set([blocker.id]);
+  for (let index = 0; index < queue.length; index++) {
+    const unit = queue[index]!;
+    const distance = manhattanDistance(unit.position, blocker.position);
+    const destination = reachablePositionsForPlayer(state, unit.id, player)
+      .filter(position => manhattanDistance(position, unit.position) === 1
+        && manhattanDistance(position, blocker.position) > distance
+        && !isPropertyTerrainKind(terrainAt(state.board, position)?.kind ?? 'plain'))
+      .sort((a, b) => a.y - b.y || a.x - b.x)[0];
+    if (destination) return { type: 'move', unitId: unit.id, destination };
+    for (const ally of allies) {
+      if (seen.has(ally.id) || ally.hasMoved || ally.hasActed || !isAdjacent(unit.position, ally.position)
+        || !Number.isFinite(movementCost(state.board, ally.position, unit.kind))) continue;
+      seen.add(ally.id);
+      queue.push(ally);
+    }
+  }
+  return undefined;
+}
+
 function chooseOrientedCpuAction(state: GameState, difficulty: CpuDifficulty, player: PlayerId): CpuAction {
   if (state.winner || player !== state.activePlayer) return { type: 'endTurn' };
   state = observeLogistics(state, player);
@@ -758,18 +781,21 @@ function chooseOrientedCpuAction(state: GameState, difficulty: CpuDifficulty, pl
   if (capture) return { type: 'capture', unitId: capture.id };
   const context = createCpuPlanningContext(state, player, config);
   const capturers = orderedUnits(state, player).filter(unit => unitStats[unit.kind].capturePower > 0 && !unit.hasActed);
-  const obstructing = readyUnits.find(unit => !unit.hasActed && !unit.hasMoved
+  const obstructing = readyUnits.filter(unit => !unit.hasActed && !unit.hasMoved
     && terrainAt(state.board, unit.position)?.owner !== player
     && isPropertyTerrainKind(terrainAt(state.board, unit.position)?.kind ?? 'plain')
     && (unitStats[unit.kind].capturePower === 0
       && capturers.some(ally => manhattanDistance(ally.position, unit.position) <= unitStats[ally.kind].movement)
-      || unit.hp < 35 && canCapture(state, unit) && replacementFor(unit)));
+      || unit.hp < 35 && canCapture(state, unit) && replacementFor(unit)))
+    .sort((a, b) => Number(terrainAt(state.board, b.position)?.kind === 'capital') - Number(terrainAt(state.board, a.position)?.kind === 'capital'))[0];
   if (obstructing) {
     const destination = reachablePositionsForPlayer(state, obstructing.id, player)
       .filter(position => manhattanDistance(position, obstructing.position) === 1)
       .sort((a, b) => evaluateCpuPosition(state, player, obstructing, b, context.targets, config, context.visibleEnemies)
         - evaluateCpuPosition(state, player, obstructing, a, context.targets, config, context.visibleEnemies))[0];
     if (destination) return { type: 'move', unitId: obstructing.id, destination };
+    const clear = clearCaptureLane(state, player, obstructing, readyUnits);
+    if (clear) return clear;
   }
   return attackAction(state, player, config, context.visibleEnemies)
     ?? strikeAction(state, player, config, context.visibleEnemies)
