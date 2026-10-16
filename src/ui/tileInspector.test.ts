@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { createBoard, createGameState, type GameState, type Unit } from '../game';
+import { createBoard, createGameState, CURRENT_RULE_VERSION, type GameState, type Unit } from '../game';
 import { describeTileInspection, inspectTile } from './tileInspector';
 
 function situation(): GameState {
@@ -54,12 +54,14 @@ describe('inspectTile', () => {
   });
 
   it("gives full detail for the viewer's own unit", () => {
-    const own = inspectTile(state, { x: 0, y: 0 }, 'red', everywhere)!.unit!;
+    const own = inspectTile({ ...state, ruleVersion: CURRENT_RULE_VERSION }, { x: 0, y: 0 }, 'red', everywhere)!.unit!;
     expect(own.title).toBe('自軍の戦車');
     expect(rowValue(own.rows, '耐久')).toBe('62 / 100');
     expect(rowValue(own.rows, '弾薬')).toBe('3 / 6');
     expect(rowValue(own.rows, '武器')).toBe('戦車砲');
     expect(rowValue(own.rows, '弾数上限')).toBe('6');
+    expect(rowValue(own.rows, '武器 2')).toBe('機関銃 · 威力 40 · 射程 1〜1 · 弾数上限 6');
+    expect(rowValue(own.rows, '機関銃 弾薬')).toBe('6 / 6');
     expect(rowValue(own.rows, '燃料')).toBe('消費なし');
     expect(rowValue(own.rows, '状態')).toBe('移動済み');
   });
