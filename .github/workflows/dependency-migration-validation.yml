@@ -1,0 +1,125 @@
+name: Dependency migration validation
+
+on:
+  push:
+    branches: [maintenance/vitest-migration-validation]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: dependency-migration-validation-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        dependencies: [vitest, combined]
+    env:
+      REPORT_DIR: ${{ runner.temp }}/dependency-migration-${{ matrix.dependencies }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 22
+      - run: npm install --global npm@11.9.0
+      - name: Include the versions proposed by PRs 161 and 165
+        if: matrix.dependencies == 'combined'
+        run: npm pkg set 'devDependencies.vite=^8.3.4' 'devDependencies.eslint=^10.12.0'
+      - name: Generate the candidate lockfile
+        run: npm install --package-lock-only --ignore-scripts --no-audit
+      - name: Install only from the generated lockfile
+        run: npm ci
+      - name: Check the installed dependency tree
+        run: npm ls --all
+      - name: Collect current audit results and export the generated lockfile
+        run: |
+          mkdir -p "$REPORT_DIR"
+          node --input-type=module <<'NODE'
+          import { readFileSync, writeFileSync } from 'node:fs';
+          import { join } from 'node:path';
+          import { spawnSync, execFileSync } from 'node:child_process';
+          import { createHash } from 'node:crypto';
+          import { gzipSync } from 'node:zlib';
+          const dir = process.env.REPORT_DIR;
+          const reports = {};
+          for (const [name, args] of [['full', ['audit', '--json']], ['production', ['audit', '--omit=dev', '--json']]]) {
+            const result = spawnSync('npm', args, { encoding: 'utf8' });
+            if (result.error) throw result.error;
+            const report = JSON.parse(result.stdout);
+            if (report.error || !report.metadata?.vulnerabilities || ![0, 1].includes(result.status)) {
+              throw Error('Audit did not return a complete report: ' + name);
+            }
+            reports[name] = { exitCode: result.status, report };
+            writeFileSync(join(dir, 'npm-audit-' + name + '.json'), result.stdout);
+            console.log(JSON.stringify({ audit: name, exitCode: result.status, vulnerabilities: report.metadata.vulnerabilities }));
+          }
+          const packageLock = readFileSync('package-lock.json', 'utf8');
+          const packageJson = readFileSync('package.json', 'utf8');
+          const versions = { node: process.version, npm: execFileSync('npm', ['--version'], { encoding: 'utf8' }).trim() };
+          const bundle = {
+            sha: process.env.GITHUB_SHA,
+            versions,
+            packageJson,
+            packageLock,
+            lockSha256: createHash('sha256').update(packageLock).digest('hex'),
+            audits: reports,
+          };
+          writeFileSync(join(dir, 'package-lock.json'), packageLock);
+          writeFileSync(join(dir, 'package.json'), packageJson);
+          writeFileSync(join(dir, 'versions.json'), JSON.stringify(versions, null, 2) + '\n');
+          console.log('DEPENDENCY_MIGRATION_BUNDLE_GZIP_BASE64=' + gzipSync(JSON.stringify(bundle)).toString('base64'));
+          NODE
+      - run: npm run check:links
+      - run: npm run lint
+      - run: npm run format:check
+      - run: npm run typecheck:test
+      - name: Check test discovery and environments
+        run: |
+          npx vitest list --json --maxWorkers=2 > "$REPORT_DIR/test-list.json"
+          node --input-type=module <<'NODE'
+          import { readFileSync, readdirSync } from 'node:fs';
+          import { join, relative } from 'node:path';
+          const tests = JSON.parse(readFileSync(join(process.env.REPORT_DIR, 'test-list.json'), 'utf8'));
+          const expected = readdirSync('src', { recursive: true }).filter(path => path.endsWith('.test.ts')).map(path => 'src/' + path).sort();
+          const found = [...new Set(tests.map(test => relative(process.cwd(), test.file)))].sort();
+          if (JSON.stringify(expected) !== JSON.stringify(found)) throw Error('Test file discovery changed');
+          const ids = tests.map(test => test.file + ':' + test.name);
+          if (new Set(ids).size !== tests.length) throw Error('Duplicate test discovery');
+          const counts = {};
+          for (const test of tests) {
+            const project = test.file.includes('/src/ui/') ? 'ui' : 'node';
+            if (test.projectName !== project) throw Error('Incorrect environment for ' + test.file);
+            counts[project] = (counts[project] ?? 0) + 1;
+          }
+          console.log(JSON.stringify({ files: found.length, tests: tests.length, projects: counts }));
+          NODE
+      - run: npm run test:coverage -- --maxWorkers=2
+      - run: npm run build
+      - run: npm run test:ui
+      - run: npx playwright install --with-deps chromium firefox webkit
+      - run: npm run test:e2e
+      - name: Require clean audit results
+        if: always()
+        run: |
+          node --input-type=module <<'NODE'
+          import { readFileSync } from 'node:fs';
+          import { join } from 'node:path';
+          for (const scope of ['full', 'production']) {
+            const report = JSON.parse(readFileSync(join(process.env.REPORT_DIR, 'npm-audit-' + scope + '.json'), 'utf8'));
+            if (report.metadata.vulnerabilities.total !== 0) throw Error('Audit findings remain: ' + scope);
+          }
+          NODE
+      - name: Preserve dependency reports, coverage and browser results
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: dependency-migration-${{ matrix.dependencies }}
+          path: |
+            ${{ env.REPORT_DIR }}/
+            coverage/coverage-summary.json
+            test-results/
+          retention-days: 14

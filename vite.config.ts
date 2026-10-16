@@ -1,5 +1,4 @@
-import { defineConfig } from 'vite';
-import { configDefaults } from 'vitest/config';
+import { configDefaults, defineConfig } from 'vitest/config';
 import { execFileSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 
@@ -26,9 +25,25 @@ export default defineConfig({
     middlewareMode: false,
   },
   test: {
-    environment: 'node',
-    environmentMatchGlobs: [['src/ui/**/*.test.ts', 'jsdom']],
     exclude: [...configDefaults.exclude, 'tests/e2e/**', 'tests/integration/**'],
+    projects: [
+      {
+        extends: true,
+        test: {
+          name: 'node',
+          environment: 'node',
+          exclude: ['src/ui/**/*.test.ts'],
+        },
+      },
+      {
+        extends: true,
+        test: {
+          name: 'ui',
+          environment: 'jsdom',
+          include: ['src/ui/**/*.test.ts'],
+        },
+      },
+    ],
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json-summary'],
