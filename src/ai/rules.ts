@@ -275,7 +275,7 @@ function productionAction(state: GameState, player: PlayerId, config: CpuDifficu
   }
   const specialist = specialistProduction(state, player, context.visibleEnemies);
   if (specialist) return specialist;
-  const supplyNeeded = usesModernRules(state) && orderedUnits(state, player).filter(unit => isGroundUnit(unit.kind) && needsSupply(unit, state)).length >= 2;
+  const supplyNeeded = usesModernRules(state) && orderedUnits(state, player).filter(unit => isGroundUnit(unit.kind) && needsSupply(unit)).length >= 2;
   if (supplyNeeded && !state.units.some(unit => unit.owner === player && isSupplyUnit(unit.kind)) && state.players[player].gold >= unitStats.apc.cost) {
     const factory = emptyOwnedFacility(state, player, 'apc');
     if (factory) return { type: 'produce', factory, kind: 'apc' };
@@ -366,14 +366,15 @@ function nearestTarget(position: Position, targets: readonly Position[]): Positi
   return [...targets].sort((a, b) => manhattanDistance(position, a) - manhattanDistance(position, b) || a.y - b.y || a.x - b.x)[0];
 }
 
-function needsSupply(unit: DeployedUnit, state: GameState): boolean {
+function needsSupply(unit: DeployedUnit): boolean {
   const stats = unitStats[unit.kind];
   const fuel = unit.fuel ?? stats.fuel;
   const fuelTurnsRemaining = stats.fuelPerTurn > 0 ? Math.ceil(fuel / stats.fuelPerTurn) : Infinity;
   return fuelTurnsRemaining <= 2
     || fuel <= Math.max(6, Math.floor(stats.fuel / 3))
-    // Only armed kinds track ammunition; an empty magazine needs resupply most of all.
-    || weaponsForUnit(unit.kind, state).some((weapon, slot) => weaponAmmo(unit, slot as WeaponSlot) <= Math.max(1, Math.floor(weapon.ammo / 3)));
+    // Preserve the primary weapon's mission: an empty secondary alone should
+    // not pull a fully armed ship or artillery battery away from its objective.
+    || (stats.ammo > 0 && remainingAmmo(unit) <= Math.max(1, Math.floor(stats.ammo / 3)));
 }
 
 const supplyTargetCache = new WeakMap<GameState, Map<string, readonly Position[]>>();
@@ -414,8 +415,8 @@ export function evaluateCpuPosition(
   // Under modern rules only compatible facilities (or, for ground units, a supply vehicle) resupply.
   const resupplied = isServiceTile(state, destination, unit.kind, player)
     || (usesModernRules(state) && isGroundUnit(unit.kind) && adjacentToSupplyUnit(state, destination, player, unit.id));
-  const supply = needsSupply(unit, state) && resupplied ? 80 : 0;
-  const serviceTargets = needsSupply(unit, state) ? supplyTargets(state, player, unit) : [];
+  const supply = needsSupply(unit) && resupplied ? 80 : 0;
+  const serviceTargets = needsSupply(unit) ? supplyTargets(state, player, unit) : [];
   const serviceDistance = serviceTargets.length ? Math.min(...serviceTargets.map(position => manhattanDistance(destination, position))) : undefined;
   // A secondary gun can cover a retreat, but does not replace a depleted primary.
   const criticalSupply = remainingAmmo(unit) === 0 && unitStats[unit.kind].ammo > 0 || (unit.fuel ?? unitStats[unit.kind].fuel) <= unitStats[unit.kind].fuelPerTurn * 2;
@@ -445,7 +446,7 @@ export function evaluateCpuPosition(
   const retreatPressure = lowHpRatio * config.lowHpRetreatWeight * pressure;
   // Parking on an owned factory/airport/port blocks production there. Units that
   // came to be serviced (low supplies or heavy damage) are exempt.
-  const blocking = !needsSupply(unit, state) && unit.hp > 50 && blocksProduction(state, player, destination, knownEnemies, config) ? FACILITY_BLOCK_PENALTY : 0;
+  const blocking = !needsSupply(unit) && unit.hp > 50 && blocksProduction(state, player, destination, knownEnemies, config) ? FACILITY_BLOCK_PENALTY : 0;
   const logistics = supplyVehicleValue(state, player, unit, destination);
   const scenario = scenarioForState(state);
   const conditions = player === 'red' ? scenario?.victoryConditions : scenario?.defeatConditions;
@@ -498,7 +499,7 @@ export function stalemateRelief(state: Pick<GameState, 'turn'>): number {
 function supplyVehicleValue(state: GameState, player: PlayerId, unit: DeployedUnit, destination: Position): number {
   if (!usesModernRules(state) || !isSupplyUnit(unit.kind)) return 0;
   const served = orderedUnits(state, player).filter(ally => ally.id !== unit.id && isGroundUnit(ally.kind)
-    && manhattanDistance(ally.position, destination) === 1 && needsSupply(ally, state)).length;
+    && manhattanDistance(ally.position, destination) === 1 && needsSupply(ally)).length;
   return Math.min(2, served) * 30;
 }
 
@@ -653,7 +654,9 @@ function strikeAction(state: GameState, player: PlayerId, config: CpuDifficultyC
   let best: { score: number; unitId: string; destination: Position } | undefined;
   for (const unit of orderedUnits(state, player)) {
     const stats = unitStats[unit.kind];
-    if (unit.hasMoved || unit.hasActed || !hasUsableWeapon(state, unit, true)) continue;
+    // Indirect batteries reposition for their primary; the secondary covers
+    // close defence and any opportunistic shot after ordinary movement.
+    if (unit.hasMoved || unit.hasActed || stats.indirect || !hasUsableWeapon(state, unit, true)) continue;
     const directWeapons = weaponsForUnit(unit.kind, state).filter((weapon, slot) => !weapon.indirect && weaponAmmo(unit, slot as WeaponSlot) > 0);
     const maximumRange = Math.max(...directWeapons.map(weapon => weapon.range[1]));
     const targets = visibleTargets.filter((target): target is DeployedUnit => isDeployedUnit(target)
@@ -661,7 +664,7 @@ function strikeAction(state: GameState, player: PlayerId, config: CpuDifficultyC
     if (!targets.length) continue;
     // Units with another job (capturing, supplying, resupplying, holding the
     // capital against a visible capturer) leave it only for a finishing blow.
-    const finishingOnly = config.strikePlanning === 'lethal' || stats.indirect || stats.capturePower > 0 || isSupplyUnit(unit.kind) || needsSupply(unit, state)
+    const finishingOnly = config.strikePlanning === 'lethal' || stats.capturePower > 0 || isSupplyUnit(unit.kind) || needsSupply(unit)
       || guardsCapital(state, player, unit, visibleTargets);
     for (const destination of reachablePositionsForPlayer(state, unit.id, player)) {
       const inRange = targets.filter(target => {

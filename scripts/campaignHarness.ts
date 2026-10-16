@@ -70,5 +70,6 @@ export function playCampaignStage(progress: CampaignProgress, stage: CampaignSta
     blueAttacks: turns.filter((turn) => turn.side === 'blue').reduce((sum, turn) => sum + (turn.counts.attack ?? 0), 0),
     milliseconds: Date.now() - started,
   };
+  if (state.winner !== 'red') console.warn(`Campaign reference loss: ${JSON.stringify(summary)}`);
   return { summary, initialState, commands, finalState: state, turns, replay: serialized.value, progress: nextProgress };
 }
