@@ -776,7 +776,8 @@ function chooseOrientedCpuAction(state: GameState, difficulty: CpuDifficulty, pl
   const readyUnits = orderedUnits(state, player);
   const replacementFor = (unit: DeployedUnit) => readyUnits.some(ally => ally.id !== unit.id && unitStats[ally.kind].capturePower > 0
     && !ally.hasMoved && !ally.hasActed && ally.hp >= Math.max(60, unit.hp + 30)
-    && manhattanDistance(ally.position, unit.position) <= unitStats[ally.kind].movement);
+    && manhattanDistance(ally.position, unit.position) <= unitStats[ally.kind].movement
+    && reachablePositionsForPlayer(state, ally.id, player).some(position => isAdjacent(position, unit.position)));
   const capture = readyUnits.find(unit => canCapture(state, unit) && (unit.hp >= 35 || !replacementFor(unit)));
   if (capture) return { type: 'capture', unitId: capture.id };
   const context = createCpuPlanningContext(state, player, config);
