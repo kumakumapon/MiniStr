@@ -48,6 +48,7 @@ export function renderBriefingOverlay(options: {
   turnLimit?: number;
   difficultyName: string;
   campaignRun: boolean;
+  campaignPreparation?: { support: number; veterans: number };
   /** Offered outside campaigns; the chosen format applies when the operation starts. */
   matchMode?: MatchMode;
   /** Headings for the two condition lists; default to victory and defeat. */
@@ -58,12 +59,18 @@ export function renderBriefingOverlay(options: {
   backToTitle?: boolean;
 }): string {
   if (!options.visible) return '';
-  const headings = options.conditionHeadings ?? { victory: uiText.victoryConditions, defeat: uiText.defeatConditions };
+  const headings = options.conditionHeadings ?? {
+    victory: uiText.victoryConditions,
+    defeat: uiText.defeatConditions,
+  };
   const modeChoice = options.campaignRun || options.matchMode === undefined ? '' : renderMatchModeChoice(options.matchMode);
   const difficultyChoice =
     options.campaignRun || options.matchMode !== 'spectate' || !options.spectateDifficulties ? '' : renderSpectateDifficultyChoice(options.spectateDifficulties);
   const list = (conditions: readonly string[]) => conditions.map((condition) => `<li>${escapeHtml(condition)}</li>`).join('');
-  return `<div class="briefing-overlay" role="dialog" aria-modal="true" aria-labelledby="briefing-title" aria-describedby="briefing-copy"><section class="briefing-card"><p class="card-kicker">OPERATION BRIEFING</p><h2 id="briefing-title">${escapeHtml(options.mapName)}</h2><p id="briefing-copy" class="briefing-copy">${escapeHtml(options.briefing)}</p><div class="briefing-objectives"><section><h3>${escapeHtml(headings.victory)}</h3><ul>${list(options.victoryConditions)}</ul></section><section><h3>${escapeHtml(headings.defeat)}</h3><ul>${list(options.defeatConditions)}</ul></section></div><div class="briefing-meta"><span>${uiText.startingGold} <strong>${options.startingGold}G</strong></span><span>${uiText.turnLimit} <strong>${options.turnLimit ?? uiText.none}</strong></span><span>${uiText.difficulty} <strong>${escapeHtml(options.difficultyName)}</strong></span></div>${modeChoice}${difficultyChoice}<div class="briefing-actions">${options.backToTitle && !options.campaignRun ? `<button id="briefing-back-to-title" class="save-action">${uiText.titleBackFromBriefing}</button>` : ''}<button id="open-campaign-briefing" class="save-action">${uiText.campaign}</button><button id="begin-operation" class="end-turn">${options.campaignRun ? uiText.beginCampaignOperation : uiText.beginSkirmish} <span aria-hidden="true">→</span></button></div></section></div>`;
+  const preparation = options.campaignPreparation
+    ? `<section class="campaign-preparation" aria-label="出撃支援と部隊継承"><strong>出撃支援 +${options.campaignPreparation.support}G ／ 経験継承 ${options.campaignPreparation.veterans}部隊</strong><p>初期資金は初回収入と支援込み。前作戦の生還部隊から同種の初期部隊へ経験を継承し、耐久・弾薬・燃料は全回復して出撃します。</p><p>指定地点の保持は、部隊を配置して自軍のターンを終了すると進みます。「占領して保持」の拠点では、先に歩兵などで占領してください。自軍ターン終了時に配置部隊がいなければ、連続保持はやり直しです。</p></section>`
+    : '';
+  return `<div class="briefing-overlay" role="dialog" aria-modal="true" aria-labelledby="briefing-title" aria-describedby="briefing-copy"><section class="briefing-card"><p class="card-kicker">OPERATION BRIEFING</p><h2 id="briefing-title">${escapeHtml(options.mapName)}</h2><p id="briefing-copy" class="briefing-copy">${escapeHtml(options.briefing)}</p><div class="briefing-objectives"><section><h3>${escapeHtml(headings.victory)}</h3><ul>${list(options.victoryConditions)}</ul></section><section><h3>${escapeHtml(headings.defeat)}</h3><ul>${list(options.defeatConditions)}</ul></section></div><div class="briefing-meta"><span>${uiText.startingGold} <strong>${options.startingGold}G</strong></span><span>${uiText.turnLimit} <strong>${options.turnLimit ?? uiText.none}</strong></span><span>${uiText.difficulty} <strong>${escapeHtml(options.difficultyName)}</strong></span></div>${preparation}${modeChoice}${difficultyChoice}<div class="briefing-actions">${options.backToTitle && !options.campaignRun ? `<button id="briefing-back-to-title" class="save-action">${uiText.titleBackFromBriefing}</button>` : ''}<button id="open-campaign-briefing" class="save-action">${uiText.campaign}</button><button id="begin-operation" class="end-turn">${options.campaignRun ? uiText.beginCampaignOperation : uiText.beginSkirmish} <span aria-hidden="true">→</span></button></div></section></div>`;
 }
 
 export interface SpectateDifficultyChoice {

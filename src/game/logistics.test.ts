@@ -216,7 +216,7 @@ describe('rule version persistence compatibility', () => {
     expect(isGameState(modernInitial())).toBe(true);
     // Rule version 3 became valid in #119; versions outside the known set are still rejected.
     expect(isGameState({ ...modernInitial(), ruleVersion: 1 })).toBe(false);
-    expect(isGameState({ ...modernInitial(), ruleVersion: 4 })).toBe(false);
+    expect(isGameState({ ...modernInitial(), ruleVersion: 5 })).toBe(false);
     const classic = classicInitial();
     expect(isGameState({ ...classic, units: classic.units.map(candidate => ({ ...candidate, experience: 1 })) })).toBe(false);
   });

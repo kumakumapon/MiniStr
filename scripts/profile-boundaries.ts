@@ -40,7 +40,11 @@ function measure(run: () => unknown, samples: number) {
   };
 }
 const storage = new MemoryStorage();
-const initialState = createScenarioInitialState({ ...maps[0]!, id: 'profile-long', turnLimit: 1000 });
+const initialState = createScenarioInitialState({
+  ...maps[0]!,
+  id: 'profile-long',
+  turnLimit: 1000,
+});
 let state = initialState;
 const commands: GameCommand[] = [];
 for (let i = 0; i < 150; i++) {
@@ -51,7 +55,13 @@ for (let i = 0; i < 150; i++) {
   commands.push(command);
 }
 for (let i = 0; i < 12; i++) {
-  const result = saveGameToSlot(storage, `profile-${i}`, `Profile ${i}`, { mapId: initialState.scenarioId!, difficulty: 'normal', initialState, gameState: state, commands });
+  const result = saveGameToSlot(storage, `profile-${i}`, `Profile ${i}`, {
+    mapId: initialState.scenarioId!,
+    difficulty: 'normal',
+    initialState,
+    gameState: state,
+    commands,
+  });
   if (!result.ok) throw Error(result.error);
 }
 const coldList = measure(() => {
@@ -65,7 +75,11 @@ const normal = createScenarioInitialState(maps[0]!);
 const large = createScenarioInitialState({
   ...maps[0]!,
   id: 'profile-large',
-  board: { width: 32, height: 32, terrain: Array.from({ length: 32 }, () => Array.from({ length: 32 }, () => ({ kind: 'plain' as const }))) },
+  board: {
+    width: 32,
+    height: 32,
+    terrain: Array.from({ length: 32 }, () => Array.from({ length: 32 }, () => ({ kind: 'plain' as const }))),
+  },
   initialUnits: Array.from({ length: 128 }, (_, i) => ({
     kind: 'infantry' as const,
     owner: i < 64 ? ('red' as const) : ('blue' as const),
@@ -76,7 +90,9 @@ const large = createScenarioInitialState({
 console.log(
   JSON.stringify(
     {
-      sha: execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim(),
+      sha: execFileSync('git', ['rev-parse', 'HEAD'], {
+        encoding: 'utf8',
+      }).trim(),
       runtime: process.version,
       platform: process.platform,
       note: 'Node-only; heap deltas include GC; no browser/render/p95 guarantee',

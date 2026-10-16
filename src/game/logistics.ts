@@ -65,11 +65,11 @@ const withFullSupplies = (unit: Unit): Unit => ({ ...unit, fuel: unitStats[unit.
  * adjacent ground units and their own cargo, then paid repairs in unit order.
  * Destroying aircraft and ships that ran dry is left to the caller.
  */
-export function applyModernUpkeep(state: GameState, player: PlayerId): GameState {
+export function applyModernUpkeep(state: GameState, player: PlayerId, consumeFuel = true): GameState {
   const consumed = state.units.map(unit => {
     if (unit.owner !== player || !isDeployedUnit(unit) || isServiceTile(state, unit.position, unit.kind, player)) return unit;
     const stats = unitStats[unit.kind];
-    return stats.fuelPerTurn > 0 ? { ...unit, fuel: Math.max(0, (unit.fuel ?? stats.fuel) - stats.fuelPerTurn) } : unit;
+    return consumeFuel && stats.fuelPerTurn > 0 ? { ...unit, fuel: Math.max(0, (unit.fuel ?? stats.fuel) - stats.fuelPerTurn) } : unit;
   });
   const suppliers = new Set(consumed.filter(unit => unit.owner === player && isDeployedUnit(unit) && isSupplyUnit(unit.kind)).map(unit => unit.id));
   const supplied = consumed.map(unit => {

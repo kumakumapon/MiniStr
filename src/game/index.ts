@@ -15,4 +15,5 @@ export * from './victory';
 export * from './session';
 export * from './replay';
 export * from './campaign';
+export * from './campaignOperations';
 export * from './editor';

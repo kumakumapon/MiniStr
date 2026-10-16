@@ -1,4 +1,4 @@
-import { isDeployedUnit, MODERN_RULE_VERSION, type Board, type GameState, type PlayerId, type Position, type TerrainKind, type UnitKind } from './types';
+import { isDeployedUnit, CURRENT_RULE_VERSION, BALANCED_RULE_VERSION, MODERN_RULE_VERSION, type Board, type GameState, type PlayerId, type Position, type TerrainKind, type UnitKind } from './types';
 import { unitDefinitions, unitKinds, type ProductionTerrain, type UnitDefinition } from './units';
 
 export const propertyTerrainKinds = ['city', 'factory', 'airport', 'capital', 'port'] as const;
@@ -88,11 +88,13 @@ export const UNIT_LIMIT_BOARD_SHARE = 0.25;
 
 /**
  * Per-side unit limit under rule version 3 (#119): a quarter of the board, at
- * least ten. Counting every tile (sea included) keeps island maps playable.
+ * least ten. Version 4 additionally caps it at 64. Counting every tile (sea included) keeps island maps playable.
  * Embarked cargo counts toward the limit.
  */
-export function unitLimit(board: Board): number {
-  return Math.max(10, Math.floor(board.width * board.height * UNIT_LIMIT_BOARD_SHARE));
+export function unitLimit(board: Board, ruleVersion: RuleVersion | undefined = CURRENT_RULE_VERSION): number {
+  const scaled = Math.max(10, Math.floor(board.width * board.height * UNIT_LIMIT_BOARD_SHARE));
+  // Two capped armies stay inside the existing 128-unit interactive budget.
+  return ruleVersion === BALANCED_RULE_VERSION ? Math.min(64, scaled) : scaled;
 }
 
 /** Total owned production facilities, regardless of occupancy. */

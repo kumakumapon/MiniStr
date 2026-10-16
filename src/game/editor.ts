@@ -21,7 +21,7 @@ export function createScenarioEditor(): ScenarioEditorState {
     data: {
       id: 'custom-operation', name: '新規作戦', briefing: 'ここに作戦概要を入力してください。', startingGold: 6000,
       board: { width: 8, height: 6, cells: [] }, initialUnits: [], productionRules: defaultProductionRule,
-      victoryConditions: defaultVictory, defeatConditions: defaultDefeat,
+      victoryConditions: defaultVictory, defeatConditions: defaultDefeat, decisionRound: 60,
     },
     selected: { x: 0, y: 0 }, tool: 'terrain', terrain: 'plain', owner: undefined,
     unitKind: 'infantry', unitOwner: 'red',

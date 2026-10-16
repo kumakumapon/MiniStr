@@ -3,14 +3,19 @@ export type AppScreen = 'title' | 'battle' | 'briefing' | 'campaign' | 'editor';
 /** Exclusive modal state; closing an inactive screen cannot dismiss another. */
 export class ScreenController {
   private screen: AppScreen = 'title';
+  private screenRevision = 0;
   get current(): AppScreen {
     return this.screen;
   }
+  get revision(): number {
+    return this.screenRevision;
+  }
   open(screen: AppScreen): void {
+    if (this.screen !== screen) this.screenRevision++;
     this.screen = screen;
   }
   close(screen: AppScreen): void {
-    if (this.screen === screen) this.screen = 'battle';
+    if (this.screen === screen) this.open('battle');
   }
   get titleOpen() {
     return this.screen === 'title';

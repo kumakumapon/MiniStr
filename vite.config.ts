@@ -1,5 +1,4 @@
-import { defineConfig } from 'vite';
-import { configDefaults } from 'vitest/config';
+import { configDefaults, defineConfig } from 'vitest/config';
 import { execFileSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 
@@ -8,7 +7,9 @@ const sha =
   process.env.GITHUB_SHA ??
   (() => {
     try {
-      return execFileSync('git', ['rev-parse', '--short=12', 'HEAD'], { encoding: 'utf8' }).trim();
+      return execFileSync('git', ['rev-parse', '--short=12', 'HEAD'], {
+        encoding: 'utf8',
+      }).trim();
     } catch {
       return 'source-archive';
     }
@@ -24,22 +25,45 @@ export default defineConfig({
     middlewareMode: false,
   },
   test: {
-    environment: 'node',
-    environmentMatchGlobs: [['src/ui/**/*.test.ts', 'jsdom']],
     exclude: [...configDefaults.exclude, 'tests/e2e/**', 'tests/integration/**'],
+    projects: [
+      {
+        extends: true,
+        test: {
+          name: 'node',
+          environment: 'node',
+          exclude: ['src/ui/**/*.test.ts'],
+        },
+      },
+      {
+        extends: true,
+        test: {
+          name: 'ui',
+          environment: 'jsdom',
+          include: ['src/ui/**/*.test.ts'],
+        },
+      },
+    ],
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json-summary'],
       // Measure the shipped source only. `src/main.ts` stays in on purpose so
-      // the untested UI integration remains visible in the totals (#149). While
-      // no test imports it, v8 counts it as one function and one branch, so it
-      // lowers statements and lines only.
+      // the untested UI integration remains visible in the totals (#149).
+      // Vitest 5 also counts functions and branches in files never imported.
       include: ['src/**/*.ts'],
       exclude: ['src/**/*.test.ts', 'src/**/*.fixture.ts', 'src/**/*.d.ts'],
-      // Just under the measured totals, so CI fails when coverage drops. Each
-      // function is ~0.3pt, so functions keeps room for a few untested ones.
-      // Raise them as `src/main.ts` is split into tested modules.
-      thresholds: { statements: 69, branches: 90, functions: 94, lines: 69 },
+      // Rebased on Vitest 5's measured totals (see the dependency review).
+      // The global gate includes main.ts; directory gates also protect the
+      // tested modules independently of the uncovered UI integration.
+      thresholds: {
+        statements: 62,
+        branches: 60,
+        functions: 68,
+        lines: 65,
+        'src/ai/**': { statements: 98, branches: 96, functions: 98, lines: 99 },
+        'src/game/**': { statements: 91, branches: 89, functions: 95, lines: 95 },
+        'src/ui/**': { statements: 79, branches: 72, functions: 83, lines: 81 },
+      },
     },
   },
 });

@@ -3,7 +3,7 @@
 ## Three independent versions
 
 - Save/replay `schemaVersion: 4` is the container format. Readers accept 1 → 2 → 3 → 4 using named, adjacent, pure migrations, then strict validation. Unknown/future versions fail without writing.
-- `GameState.ruleVersion` controls game mechanics (classic, logistics/modern, decision rules). A container migration never silently enables a newer rule.
+- `GameState.ruleVersion` controls game mechanics (classic, logistics/modern, decision rules, balanced opening/round-end scores). A container migration never silently enables a newer rule.
 - `GameState.scenarioSnapshot` is a validated, canonical ScenarioData definition. New matches embed it so a catalog rename, replacement, deletion or another browser does not change the rules of that match. It is a definition snapshot, not a signature or proof of authorship.
 
 Campaign progress remains schema 3. Custom catalog schema remains unchanged with an optional validated `history` array. Backups have their own schema 1; they are not replays.
@@ -11,6 +11,8 @@ Campaign progress remains schema 3. Custom catalog schema remains unchanged with
 ## Validation order and budgets
 
 All JSON boundaries enforce UTF-8 size, iterative depth (64) and node count (200,000) before migration or cloning. Then they validate keys/types/ranges, reconstruct the canonical initial state, replay legal commands and compare the recorded final state/summary. A snapshot goes through the same scenario parser and never registers an imported scenario globally.
+
+Unit weapons and ammunition capacities are derived from the canonical unit kind, so weapon labels do not add saved fields or change rule versions. A present `ammo` must be a safe integer between zero and that kind's capacity, inclusive; omitted ammunition in historical data still means a full magazine. Negative, fractional, excessive and non-finite reserves are rejected before load or replay. Spectator camera choices are viewer-only state and do not enter saves, replays or CPU decisions.
 
 Save/replay/editor/catalog inputs are limited to 1,000,000 bytes; campaign data to 64,000; complete backup to 16,000,000. Existing command-count and board schema limits remain, but replay work is additionally limited to:
 
@@ -23,6 +25,8 @@ This is a deterministic admission budget, not a wall-clock guarantee. Newly star
 Overwrite/delete archives the previous validated definition in the same catalog write. An old save without a snapshot can resolve against that history only when its initial state equals the canonical state of that revision. Up to 256 revisions and the catalog byte budget are retained; reaching either limit refuses the write instead of deleting revisions.
 
 Definitions lost **before** this protection was installed cannot be reconstructed from a map ID alone. Preserve an older exported catalog/backup. New schema-4 snapshots are portable without that catalog.
+
+Built-in map revisions from before the wide-map update are retained separately from custom history. Pre-snapshot saves/replays are matched against their canonical initial state and upgraded with that old definition; an edited opening is rejected. Optional `ScenarioData.secondPlayerBonus` is a bounded nonnegative integer (maximum 1,000,000), recorded in snapshots and applied once at creation. Omission keeps historical funds. Rule versions 2 and 3 retain their original upkeep, force limits and immediate scoring; version 4 defers score victory until blue closes a round and caps each side at 64 units.
 
 ## Storage and recovery
 

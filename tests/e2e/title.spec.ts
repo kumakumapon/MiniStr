@@ -13,7 +13,7 @@ test('picks a map on the title screen, goes back from the briefing, and starts (
 
   const landing = page.locator('.title-map-card[data-map-id="landing"]');
   await expect(landing).toContainText('海峡上陸作戦');
-  await expect(landing).toContainText('18ターン制限');
+  await expect(landing).toContainText('40ターン制限');
   await landing.click();
   await expect(page.locator('#briefing-title')).toHaveText('海峡上陸作戦');
 
@@ -117,7 +117,11 @@ test('lands on the start button after going back and forth by keyboard (#143 rev
 test('explains a rejected replay on the title and keeps focus on the import button (#143 review)', async ({ page }) => {
   await page.goto('/');
   await page.locator('#title-import-replay').focus();
-  await page.locator('#title-replay-file').setInputFiles({ name: 'broken.json', mimeType: 'application/json', buffer: Buffer.from('{broken') });
+  await page.locator('#title-replay-file').setInputFiles({
+    name: 'broken.json',
+    mimeType: 'application/json',
+    buffer: Buffer.from('{broken'),
+  });
   await expect(page.locator('.title-notice')).toContainText('リプレイデータが壊れています');
   await expect(page.locator('.title-overlay')).toBeVisible();
   await expect(page.locator('#title-import-replay')).toBeFocused();

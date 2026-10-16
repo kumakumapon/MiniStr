@@ -19,7 +19,12 @@ describe('overlay renderers', () => {
       difficultyName: 'normal',
       campaignResult: '',
       campaignActions: '',
-      summary: { winner: 'red', turns: 4, kills: { red: 2, blue: 1 }, captures: { red: 1, blue: 0 } },
+      summary: {
+        winner: 'red',
+        turns: 4,
+        kills: { red: 2, blue: 1 },
+        captures: { red: 1, blue: 0 },
+      },
     });
     const campaign = renderCampaignOverlay(true, 10, '<notice>', '<article>safe markup</article>');
 
@@ -59,7 +64,12 @@ describe('overlay renderers', () => {
       campaignResult: '',
       campaignActions: '',
       sideNames: { red: '赤軍', blue: '青軍' },
-      summary: { winner: 'blue', turns: 9, kills: { red: 1, blue: 2 }, captures: { red: 0, blue: 1 } },
+      summary: {
+        winner: 'blue',
+        turns: 9,
+        kills: { red: 1, blue: 2 },
+        captures: { red: 0, blue: 1 },
+      },
     });
 
     expect(result).toContain('青軍の勝利');
@@ -78,7 +88,10 @@ describe('overlay renderers', () => {
         difficultyName: '普通',
         campaignRun,
         matchMode: 'hotseat',
-        conditionHeadings: { victory: '赤軍の勝利条件', defeat: '青軍の勝利条件' },
+        conditionHeadings: {
+          victory: '赤軍の勝利条件',
+          defeat: '青軍の勝利条件',
+        },
       });
 
     expect(briefing(false)).toContain('value="hotseat" checked');
@@ -165,11 +178,27 @@ describe('title screen (#143)', () => {
     ...patch,
   });
   const title = (patch: Partial<Parameters<typeof renderTitleOverlay>[0]> = {}) =>
-    renderTitleOverlay({ visible: true, maps: [card()], canContinue: false, canResume: false, notice: '', ...patch });
+    renderTitleOverlay({
+      visible: true,
+      maps: [card()],
+      canContinue: false,
+      canResume: false,
+      notice: '',
+      ...patch,
+    });
 
   it('lists each map with the facts needed to compare them', () => {
     const result = title({
-      maps: [card(), card({ id: 'landing', name: '海峡上陸作戦', theme: '沿岸', turnLimit: 18, selected: true })],
+      maps: [
+        card(),
+        card({
+          id: 'landing',
+          name: '海峡上陸作戦',
+          theme: '沿岸',
+          turnLimit: 18,
+          selected: true,
+        }),
+      ],
     });
     expect(result).toContain('data-map-id="skirmish"');
     expect(result).toContain('12×8');
@@ -182,7 +211,9 @@ describe('title screen (#143)', () => {
   });
 
   it('marks custom maps and escapes their text', () => {
-    const result = title({ maps: [card({ id: 'my-map', name: '<b>自作</b>', custom: true })] });
+    const result = title({
+      maps: [card({ id: 'my-map', name: '<b>自作</b>', custom: true })],
+    });
     expect(result).toContain('<em>カスタム</em>');
     expect(result).toContain('&lt;b&gt;自作&lt;/b&gt;');
     expect(result).not.toContain('<b>自作</b>');

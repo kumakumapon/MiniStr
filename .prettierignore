@@ -4,7 +4,6 @@ src/ai/balance.test.ts
 src/ai/balance.ts
 src/ai/rules-issues.test.ts
 src/ai/rules-offense.test.ts
-src/ai/rules-strike.test.ts
 src/ai/rules.test.ts
 src/ai/rules.ts
 src/game/antiAir.test.ts
@@ -26,7 +25,6 @@ src/game/game.test.ts
 src/game/logistics.test.ts
 src/game/logistics.ts
 src/game/maps-issues.test.ts
-src/game/maps.test.ts
 src/game/maps.ts
 src/game/merge.test.ts
 src/game/modernUnits.test.ts
@@ -34,7 +32,6 @@ src/game/replay.test.ts
 src/game/replay.ts
 src/game/rng.ts
 src/game/scenario-export.test.ts
-src/game/session.test.ts
 src/game/session.ts
 src/game/state.ts
 src/game/terrain.ts

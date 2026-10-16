@@ -1,13 +1,18 @@
 import { forecastCombat, terrainDefenseReduction } from '../game/combat';
 import { observeLogistics } from '../game/fog';
-import { reachablePositionsForPlayer } from '../game/commands';
+import { endTurn, reachablePositionsForPlayer } from '../game/commands';
 import { canProduceUnit, isPropertyTerrainKind, productionKindsForRule, unitLimit } from '../game/facilities';
 import { visibleEnemies as getVisibleEnemies } from '../game/fog';
 import { scenarioForState } from '../game/maps';
 import { manhattanDistance, movementCost, terrainAt } from '../game/terrain';
 import { isDeployedUnit, usesDecisionRules, usesModernRules, type Board, type DeployedUnit, type GameState, type PlayerId, type Position, type Unit, type UnitKind } from '../game/types';
 import { adjacentToSupplyUnit, isGroundUnit, isServiceTile, REPAIR_HP_PER_TURN } from '../game/logistics';
-import { isEmbarkableUnit, isMergeableUnit, isSupplyUnit, unitCategory, unitStats } from '../game/units';
+import { isEmbarkableUnit, isMergeableUnit, isSupplyUnit, remainingAmmo, unitCategory, unitStats } from '../game/units';
+import { bluePlanningState, rotatePosition } from './perspective';
+
+// Production IDs interleave between armies. Numeric ordering preserves each
+// army's creation order instead of moving u10 ahead of u2.
+const unitIdOrder = new Intl.Collator('en', { numeric: true });
 
 /** The CPU does not use hidden randomness: the same state always gives the same order. */
 export type CpuDifficulty = 'easy' | 'normal' | 'hard';
@@ -83,7 +88,7 @@ type StandardProductionKind = Extract<UnitKind, 'infantry' | 'tank' | 'artillery
 const standardProductionKinds: readonly StandardProductionKind[] = ['infantry', 'tank', 'artillery'];
 
 function orderedUnits(state: GameState, player: PlayerId): DeployedUnit[] {
-  return state.units.filter((unit): unit is DeployedUnit => unit.owner === player && isDeployedUnit(unit)).sort((a, b) => a.id.localeCompare(b.id));
+  return state.units.filter((unit): unit is DeployedUnit => unit.owner === player && isDeployedUnit(unit)).sort((a, b) => unitIdOrder.compare(a.id, b.id));
 }
 
 function canCapture(state: GameState, unit: DeployedUnit): boolean {
@@ -147,7 +152,7 @@ function attackAction(state: GameState, player: PlayerId, config: CpuDifficultyC
         const interruption = Number(interruptsCapture(state, player, b)) - Number(interruptsCapture(state, player, a));
         // Focus fire: finishing a unit removes its future attacks, so certain kills come first.
         const lethal = Number(bForecast.ok && bForecast.value.outgoing.min >= b.hp) - Number(aForecast.ok && aForecast.value.outgoing.min >= a.hp);
-        return interruption || lethal || bScore - aScore || a.hp - b.hp || a.id.localeCompare(b.id);
+        return interruption || lethal || bScore - aScore || a.hp - b.hp || unitIdOrder.compare(a.id, b.id);
       })[0];
     if (target) return { type: 'attack', unitId: attacker.id, targetId: target.id };
   }
@@ -248,12 +253,20 @@ function atForceLimit(state: GameState, player: PlayerId, config: CpuDifficultyC
 
 function productionAction(state: GameState, player: PlayerId, config: CpuDifficultyConfig, context: CpuPlanningContext): CpuAction | undefined {
   // The rule-version-3 unit limit binds every order, including the exempt ones below.
-  if (usesDecisionRules(state) && state.units.filter(unit => unit.owner === player).length >= unitLimit(state.board)) return undefined;
+  if (usesDecisionRules(state) && state.units.filter(unit => unit.owner === player).length >= unitLimit(state.board, state.ruleVersion)) return undefined;
   const { targets } = context;
   const hasRemoteInfantry = orderedUnits(state, player)
     .filter(unit => isEmbarkableUnit(unit.kind))
     .some(unit => targets.some(target => !sameLandComponent(context.landComponents, unit.position, target)));
   const hasLandingShip = state.units.some(unit => unit.owner === player && unit.kind === 'landingShip');
+  const warships = state.units.filter(unit => unit.owner === player && (unit.kind === 'destroyer' || unit.kind === 'battleship')).length;
+  if (hasRemoteInfantry && hasLandingShip && warships < 2 && state.board.terrain.some(row => row.some(tile => tile.kind === 'port' && tile.owner === player))) {
+    const port = emptyOwnedFacility(state, player, 'destroyer');
+    if (port && state.players[player].gold >= unitStats.destroyer.cost) return { type: 'produce', factory: port, kind: 'destroyer' };
+    // Save for an escort instead of repeatedly spending every new income on an
+    // unarmed replacement transport or on infantry stranded on the home island.
+    return undefined;
+  }
   if (hasRemoteInfantry && !hasLandingShip && state.players[player].gold >= unitStats.landingShip.cost) {
     const port = emptyOwnedFacility(state, player, 'landingShip');
     if (port) return { type: 'produce', factory: port, kind: 'landingShip' };
@@ -282,6 +295,11 @@ function objectives(state: GameState, player: PlayerId, config: CpuDifficultyCon
   if (conditions?.every(condition => condition.type === 'survive')) {
     return state.board.terrain.flatMap((row, y) => row.flatMap((tile, x) => tile.owner === player && isPropertyTerrainKind(tile.kind) ? [{ x, y }] : []));
   }
+  // The opponent's authored objectives are public orders, even in fog. Defend
+  // them before expanding elsewhere; no hidden unit positions are consulted.
+  const opposingConditions = player === 'red' ? scenario?.defeatConditions : scenario?.victoryConditions;
+  const counterTargets = opposingConditions?.flatMap(condition => condition.type === 'hold' ? condition.positions : []) ?? [];
+  if (counterTargets.length) return counterTargets;
   const capitals: Position[] = [];
   const properties: Position[] = [];
   for (let y = 0; y < state.board.height; y += 1) for (let x = 0; x < state.board.width; x += 1) {
@@ -353,7 +371,22 @@ function needsSupply(unit: DeployedUnit): boolean {
   return fuelTurnsRemaining <= 2
     || fuel <= Math.max(6, Math.floor(stats.fuel / 3))
     // Only armed kinds track ammunition; an empty magazine needs resupply most of all.
-    || (stats.ammo > 0 && (unit.ammo ?? stats.ammo) <= Math.max(1, Math.floor(stats.ammo / 3)));
+    || (stats.ammo > 0 && remainingAmmo(unit) <= Math.max(1, Math.floor(stats.ammo / 3)));
+}
+
+const supplyTargetCache = new WeakMap<GameState, Map<string, readonly Position[]>>();
+function supplyTargets(state: GameState, player: PlayerId, unit: DeployedUnit): readonly Position[] {
+  let cache = supplyTargetCache.get(state);
+  if (!cache) { cache = new Map(); supplyTargetCache.set(state, cache); }
+  const previous = cache.get(unit.id);
+  if (previous) return previous;
+  const positions = state.board.terrain.flatMap((row, y) => row.flatMap((_tile, x) => {
+    const position = { x, y };
+    return isServiceTile(state, position, unit.kind, player)
+      || usesModernRules(state) && isGroundUnit(unit.kind) && adjacentToSupplyUnit(state, position, player, unit.id) ? [position] : [];
+  }));
+  cache.set(unit.id, positions);
+  return positions;
 }
 
 /**
@@ -380,12 +413,23 @@ export function evaluateCpuPosition(
   const resupplied = isServiceTile(state, destination, unit.kind, player)
     || (usesModernRules(state) && isGroundUnit(unit.kind) && adjacentToSupplyUnit(state, destination, player, unit.id));
   const supply = needsSupply(unit) && resupplied ? 80 : 0;
+  const serviceTargets = needsSupply(unit) ? supplyTargets(state, player, unit) : [];
+  const serviceDistance = serviceTargets.length ? Math.min(...serviceTargets.map(position => manhattanDistance(destination, position))) : undefined;
+  const criticalSupply = remainingAmmo(unit) === 0 && unitStats[unit.kind].ammo > 0 || (unit.fuel ?? unitStats[unit.kind].fuel) <= unitStats[unit.kind].fuelPerTurn * 2;
   const distance = targets.length ? Math.min(...targets.map(target => manhattanDistance(destination, target))) : 0;
   const deployedEnemies = knownEnemies.filter(isDeployedUnit);
   const pressure = deployedEnemies.reduce((risk, enemy) => {
     const forecast = forecastCombat(projected, enemy, moved);
     return risk + (forecast.ok ? forecast.value.damageToDefender * 1.4 : 0);
   }, 0);
+  // Indirect guns establish a firing position; driving onto the defended tile
+  // makes them unable to fire and blocks the troops meant to capture it.
+  const futureShooter = { ...moved, hasMoved: false, hasActed: false };
+  const firePosition = unitStats[unit.kind].indirect && remainingAmmo(unit) > 0
+    ? deployedEnemies.reduce((best, enemy) => {
+      const forecast = forecastCombat(projected, futureShooter, enemy);
+      return Math.max(best, forecast.ok ? forecast.value.damageToDefender * 1.4 : 0);
+    }, 0) : 0;
   const captureThreat = deployedEnemies
     .filter(enemy => interruptsCapture(state, player, enemy))
     .reduce((best, enemy) => Math.min(best, manhattanDistance(destination, enemy.position)), Infinity);
@@ -402,13 +446,26 @@ export function evaluateCpuPosition(
   const logistics = supplyVehicleValue(state, player, unit, destination);
   const scenario = scenarioForState(state);
   const conditions = player === 'red' ? scenario?.victoryConditions : scenario?.defeatConditions;
-  const hold = conditions?.some(condition => condition.type === 'hold' && condition.positions.some(p => p.x === destination.x && p.y === destination.y)) ? 100 : 0;
+  const holding = conditions?.find(condition => condition.type === 'hold' && condition.positions.some(p => p.x === destination.x && p.y === destination.y));
+  const mustCapture = terrain.owner !== player && (holding?.type === 'hold' && holding.requireOwnership
+    || terrain.kind === 'capital' && terrain.owner !== undefined && conditions?.some(condition => condition.type === 'captureCapital'));
+  // Occupying an enemy objective with armour/aircraft prevents our infantry
+  // from capturing it. This applies to damaged units too: it is not a service tile.
+  const blocksCapture = mustCapture && unitStats[unit.kind].capturePower === 0;
+  const cannotHold = holding?.type === 'hold' && holding.groundOnly && !isGroundUnit(unit.kind);
+  const hold = holding && !blocksCapture && !cannotHold ? 100 : 0;
+  const opposingConditions = player === 'red' ? scenario?.defeatConditions : scenario?.victoryConditions;
+  const contest = opposingConditions?.some(condition => condition.type === 'hold' && condition.positions.some(p => p.x === destination.x && p.y === destination.y)) ? 60 : 0;
   const score = conditions?.some(condition => condition.type === 'score') && isPropertyTerrainKind(terrain.kind) && terrain.owner !== player && unitStats[unit.kind].capturePower > 0 ? 35 : 0;
-  return defense + supply + response + retreatCover + logistics + hold + score
-    - distance * config.objectiveDistanceWeight
+  // Healthy combat units leave uncaptured facilities open for the infantry.
+  const captureLane = unit.hp > 50 && unitStats[unit.kind].capturePower === 0 && isPropertyTerrainKind(terrain.kind) && terrain.owner !== player ? 30 : 0;
+  return defense + supply + response + retreatCover + logistics + hold + contest + score + firePosition
+    - (criticalSupply && serviceDistance !== undefined ? serviceDistance : distance) * config.objectiveDistanceWeight
     - pressure * config.threatAvoidanceWeight * (1 - stalemateRelief(state))
     - retreatPressure
-    - blocking;
+    - captureLane
+    - blocking
+    - (blocksCapture || cannotHold ? 150 : 0);
 }
 
 /** Outweighs a three-star facility's cover so idle units step off production sites. */
@@ -444,6 +501,7 @@ function supplyVehicleValue(state: GameState, player: PlayerId, unit: DeployedUn
 
 /** Choose one transport step before ordinary movement so island objectives are never stranded. */
 function transportAction(state: GameState, player: PlayerId, targets: readonly Position[], components: ReadonlyMap<string, number>, visibleEnemies: readonly Unit[]): CpuAction | undefined {
+  targets = targets.filter(target => components.has(`${target.x},${target.y}`));
   if (!targets.length) return undefined;
   const units = orderedUnits(state, player);
 
@@ -484,11 +542,25 @@ function transportAction(state: GameState, player: PlayerId, targets: readonly P
 
   // Board an infantry unit only if an objective lies on a different land component.
   for (const infantry of units.filter(unit => isEmbarkableUnit(unit.kind) && !unit.hasActed)) {
-    const remoteObjective = targets.some(target => !sameLandComponent(components, infantry.position, target));
+    const nextTarget = nearestTarget(infantry.position, targets);
+    const remoteObjective = nextTarget !== undefined && !sameLandComponent(components, infantry.position, nextTarget);
     if (!remoteObjective) continue;
     const transport = units.find(candidate => candidate.kind === 'landingShip' && !candidate.hasMoved && !candidate.hasActed
       && isAdjacent(infantry.position, candidate.position) && !state.units.some(unit => unit.embarkedIn === candidate.id));
     if (transport) return { type: 'embark', unitId: infantry.id, transportId: transport.id };
+    if (infantry.hasMoved) continue;
+    // Meet an idle ship at its current coast instead of letting the empty ship
+    // sail away while the infantry walks toward an unreachable island.
+    const meeting = units.filter(candidate => candidate.kind === 'landingShip' && !candidate.hasMoved && !candidate.hasActed
+      && !state.units.some(unit => unit.embarkedIn === candidate.id))
+      .flatMap(candidate => adjacentPositions(candidate.position))
+      .filter(position => sameLandComponent(components, infantry.position, position));
+    const currentDistance = meeting.length ? Math.min(...meeting.map(position => manhattanDistance(infantry.position, position))) : Infinity;
+    const destination = reachablePositionsForPlayer(state, infantry.id, player)
+      .map(position => ({ position, distance: meeting.length ? Math.min(...meeting.map(target => manhattanDistance(position, target))) : Infinity }))
+      .filter(candidate => candidate.distance < currentDistance)
+      .sort((a, b) => a.distance - b.distance || a.position.y - b.position.y || a.position.x - b.position.x)[0]?.position;
+    if (destination) return { type: 'move', unitId: infantry.id, destination };
   }
 
   // Carry cargo toward the closest remote objective. This is finite because it only accepts a strict
@@ -499,8 +571,21 @@ function transportAction(state: GameState, player: PlayerId, targets: readonly P
     if (!target) continue;
     const currentDistance = manhattanDistance(transport.position, target);
     const destination = reachablePositionsForPlayer(state, transport.id, player)
-      .filter(position => manhattanDistance(position, target) < currentDistance)
+      .filter(position => manhattanDistance(position, target) < currentDistance
+        && !(terrainAt(state.board, position)?.kind === 'port' && terrainAt(state.board, position)?.owner !== player))
       .sort((a, b) => manhattanDistance(a, target) - manhattanDistance(b, target) || a.y - b.y || a.x - b.x)[0];
+    if (destination) return { type: 'move', unitId: transport.id, destination };
+  }
+  // Return empty ships to stranded troops instead of waiting forever on the
+  // island where the last passenger was dropped (or lost).
+  for (const transport of units.filter(unit => unit.kind === 'landingShip' && !unit.hasMoved && !unit.hasActed
+    && !state.units.some(candidate => candidate.embarkedIn === unit.id))) {
+    const waiting = units.filter(unit => isEmbarkableUnit(unit.kind) && targets.some(target => !sameLandComponent(components, unit.position, target)));
+    if (!waiting.length) continue;
+    const distance = (position: Position) => Math.min(...waiting.map(unit => manhattanDistance(position, unit.position)));
+    const destination = reachablePositionsForPlayer(state, transport.id, player)
+      .filter(position => distance(position) < distance(transport.position))
+      .sort((a, b) => distance(a) - distance(b) || a.y - b.y || a.x - b.x)[0];
     if (destination) return { type: 'move', unitId: transport.id, destination };
   }
   return undefined;
@@ -511,12 +596,36 @@ function moveAction(state: GameState, player: PlayerId, config: CpuDifficultyCon
   if (!targets.length) return undefined;
   for (const unit of orderedUnits(state, player)) {
     if (unit.hasMoved || unit.hasActed) continue;
+    if (unit.kind === 'landingShip' && !state.units.some(candidate => candidate.embarkedIn === unit.id)) {
+      const tile = terrainAt(state.board, unit.position);
+      if (tile?.kind === 'port' && tile.owner === player) {
+        const berth = reachablePositionsForPlayer(state, unit.id, player)
+          .filter(position => terrainAt(state.board, position)?.kind === 'sea' && manhattanDistance(unit.position, position) <= 2)
+          .sort((a, b) => manhattanDistance(a, unit.position) - manhattanDistance(b, unit.position) || a.y - b.y || a.x - b.x)[0];
+        if (berth) return { type: 'move', unitId: unit.id, destination: berth };
+      }
+      return { type: 'wait', unitId: unit.id };
+    }
+    const openTargets = targets.filter(target => !state.units.some(ally => ally.owner === player && ally.id !== unit.id
+      && isDeployedUnit(ally) && ally.position.x === target.x && ally.position.y === target.y));
+    const assignedTargets = openTargets.length ? openTargets : targets;
+    const scenario = scenarioForState(state);
+    const conditions = player === 'red' ? scenario?.victoryConditions : scenario?.defeatConditions;
+    const opposingConditions = player === 'red' ? scenario?.defeatConditions : scenario?.victoryConditions;
+    const defending = conditions?.some(condition => condition.type === 'hold') || conditions?.every(condition => condition.type === 'survive')
+      || opposingConditions?.some(condition => condition.type === 'hold');
+    const combatTargets = assignedTargets.filter(target => {
+      const tile = terrainAt(state.board, target);
+      return tile?.kind === 'capital' && tile.owner !== undefined && tile.owner !== player
+        || context.visibleEnemies.some(enemy => isDeployedUnit(enemy) && enemy.position.x === target.x && enemy.position.y === target.y);
+    });
+    const unitTargets = unitStats[unit.kind].capturePower > 0 || defending || !combatTargets.length ? assignedTargets : combatTargets;
     // Advance across the unit's whole movement range (Dijkstra reachability), weighing cover,
     // resupply and visible counterattack risk instead of raw distance alone.
     // Include the current position as an explicit wait order. Unlike a zero-cost
     // move, waiting is legal even when a ground unit has no fuel left.
     const destination = [unit.position, ...reachablePositionsForPlayer(state, unit.id, player)]
-      .map(position => ({ position, score: evaluateCpuPosition(state, player, unit, position, targets, config, context.visibleEnemies) }))
+      .map(position => ({ position, score: evaluateCpuPosition(state, player, unit, position, unitTargets, config, context.visibleEnemies) }))
       .sort((a, b) => b.score - a.score || a.position.y - b.position.y || a.position.x - b.position.x)[0]?.position;
     if (destination) {
       if (destination.x === unit.position.x && destination.y === unit.position.y)
@@ -541,7 +650,7 @@ function strikeAction(state: GameState, player: PlayerId, config: CpuDifficultyC
   let best: { score: number; unitId: string; destination: Position } | undefined;
   for (const unit of orderedUnits(state, player)) {
     const stats = unitStats[unit.kind];
-    if (unit.hasMoved || unit.hasActed || stats.indirect || stats.attack <= 0 || (unit.ammo ?? stats.ammo) <= 0) continue;
+    if (unit.hasMoved || unit.hasActed || stats.indirect || stats.attack <= 0 || remainingAmmo(unit) <= 0) continue;
     const [minimumRange, maximumRange] = stats.range;
     const targets = visibleTargets.filter((target): target is DeployedUnit => isDeployedUnit(target)
       && manhattanDistance(unit.position, target.position) <= stats.movement + maximumRange);
@@ -608,11 +717,41 @@ export function createCpuPlanningContext(state: GameState, player: PlayerId, con
 /** Select the next legal high-level CPU order. The caller applies it with the game command layer. */
 export function chooseCpuAction(state: GameState, difficulty: CpuDifficulty = 'normal', player: PlayerId = state.activePlayer): CpuAction {
   if (state.winner || player !== state.activePlayer) return { type: 'endTurn' };
+  const action = chooseOrientedCpuAction(player === 'blue' ? bluePlanningState(state) : state, difficulty, player);
+  if (player !== 'blue') return action;
+  if (action.type === 'move' || action.type === 'disembark') return { ...action, destination: rotatePosition(action.destination, state.board) };
+  if (action.type === 'produce') return { ...action, factory: rotatePosition(action.factory, state.board) };
+  return action;
+}
+
+function chooseOrientedCpuAction(state: GameState, difficulty: CpuDifficulty, player: PlayerId): CpuAction {
+  if (state.winner || player !== state.activePlayer) return { type: 'endTurn' };
   state = observeLogistics(state, player);
+  // Never abandon a win secured by ending this turn (notably a completed hold
+  // objective) in order to seek an optional attack or move.
+  if (endTurn(state).winner === player) return { type: 'endTurn' };
   const config = cpuDifficultyConfig[difficulty];
-  const capture = orderedUnits(state, player).find(unit => canCapture(state, unit));
+  const readyUnits = orderedUnits(state, player);
+  const replacementFor = (unit: DeployedUnit) => readyUnits.some(ally => ally.id !== unit.id && unitStats[ally.kind].capturePower > 0
+    && !ally.hasMoved && !ally.hasActed && ally.hp >= Math.max(60, unit.hp + 30)
+    && manhattanDistance(ally.position, unit.position) <= unitStats[ally.kind].movement);
+  const capture = readyUnits.find(unit => canCapture(state, unit) && (unit.hp >= 35 || !replacementFor(unit)));
   if (capture) return { type: 'capture', unitId: capture.id };
   const context = createCpuPlanningContext(state, player, config);
+  const capturers = orderedUnits(state, player).filter(unit => unitStats[unit.kind].capturePower > 0 && !unit.hasActed);
+  const obstructing = readyUnits.find(unit => !unit.hasActed && !unit.hasMoved
+    && terrainAt(state.board, unit.position)?.owner !== player
+    && isPropertyTerrainKind(terrainAt(state.board, unit.position)?.kind ?? 'plain')
+    && (unitStats[unit.kind].capturePower === 0
+      && capturers.some(ally => manhattanDistance(ally.position, unit.position) <= unitStats[ally.kind].movement)
+      || unit.hp < 35 && canCapture(state, unit) && replacementFor(unit)));
+  if (obstructing) {
+    const destination = reachablePositionsForPlayer(state, obstructing.id, player)
+      .filter(position => manhattanDistance(position, obstructing.position) === 1)
+      .sort((a, b) => evaluateCpuPosition(state, player, obstructing, b, context.targets, config, context.visibleEnemies)
+        - evaluateCpuPosition(state, player, obstructing, a, context.targets, config, context.visibleEnemies))[0];
+    if (destination) return { type: 'move', unitId: obstructing.id, destination };
+  }
   return attackAction(state, player, config, context.visibleEnemies)
     ?? strikeAction(state, player, config, context.visibleEnemies)
     ?? mergeAction(state, player)

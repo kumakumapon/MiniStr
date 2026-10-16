@@ -78,7 +78,7 @@ describe('simulateMatch', () => {
     const v2 = balanceInitialState(skirmish, 'v2', 1);
     const current = balanceInitialState(skirmish, 'modern', 1);
     expect(v2.ok && v2.value.ruleVersion).toBe(2);
-    expect(current.ok && current.value.ruleVersion).toBe(3);
+    expect(current.ok && current.value.ruleVersion).toBe(4);
   });
 
   it('refuses classic rules on maps whose initial forces need modern rules', () => {

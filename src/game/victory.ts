@@ -1,7 +1,7 @@
 import { scenarioForState, type ScenarioDefinition, type VictoryCondition } from './maps';
 import { playerOwnedProperties } from './state';
-import { isDeployedUnit, otherPlayer, usesDecisionRules, type GameState, type PlayerId, type Position } from './types';
-import { unitStats } from './units';
+import { BALANCED_RULE_VERSION, isDeployedUnit, otherPlayer, usesDecisionRules, type GameState, type PlayerId, type Position } from './types';
+import { unitCategory, unitStats } from './units';
 
 export interface ConditionProgress { current: number; target: number; complete: boolean }
 
@@ -9,12 +9,13 @@ const positionKey = ({ x, y }: Position) => `${x},${y}`;
 
 /** Stable key used to persist a hold condition's consecutive-turn progress. */
 export function holdConditionKey(condition: Extract<VictoryCondition, { type: 'hold' }>): string {
-  return `hold:${condition.positions.map(positionKey).join('|')}:${condition.turns}`;
+  return `hold:${condition.positions.map(positionKey).join('|')}:${condition.turns}${condition.requireOwnership ? ':owned' : ''}${condition.groundOnly ? ':ground' : ''}`;
 }
 
-function playerHoldsPositions(state: GameState, player: PlayerId, positions: readonly Position[]): boolean {
+function playerHoldsPositions(state: GameState, player: PlayerId, positions: readonly Position[], groundOnly = false): boolean {
   return positions.length > 0 && positions.every(position => state.units.some(unit =>
-    unit.owner === player && isDeployedUnit(unit) && unit.position.x === position.x && unit.position.y === position.y));
+    unit.owner === player && isDeployedUnit(unit) && unit.position.x === position.x && unit.position.y === position.y
+    && (!groundOnly || unitCategory[unit.kind] === 'soft' || unitCategory[unit.kind] === 'armor')));
 }
 
 export function getConditionProgress(state: GameState, condition: VictoryCondition, player: PlayerId): ConditionProgress {
@@ -74,7 +75,7 @@ export function describeVictoryCondition(condition: VictoryCondition): string {
   switch (condition.type) {
     case 'eliminate': return '敵部隊を全滅させる';
     case 'captureCapital': return '敵司令部を占領する';
-    case 'hold': return `指定地点を${condition.turns}ターン連続で保持する`;
+    case 'hold': return `指定${condition.requireOwnership ? '拠点を占領し、' : '地点を'}${condition.groundOnly ? '地上部隊で' : ''}${condition.turns}ターン連続で保持する`;
     case 'survive': return `${condition.untilTurn}ターンまで生存する`;
     case 'score': return `スコア${condition.target}を獲得する`;
   }
@@ -109,7 +110,8 @@ export function updateScenarioProgress(state: GameState, scenario: ScenarioDefin
     const key = holdConditionKey(condition);
     if (updated.has(key)) continue;
     updated.add(key);
-    next[key] = playerHoldsPositions(state, player, condition.positions) ? (previous[key] ?? 0) + 1 : 0;
+    const owned = !condition.requireOwnership || condition.positions.every(position => state.board.terrain[position.y]?.[position.x]?.owner === player);
+    next[key] = owned && playerHoldsPositions(state, player, condition.positions, condition.groundOnly) ? (previous[key] ?? 0) + 1 : 0;
   }
   return { ...state, objectiveHoldTurns: { ...state.objectiveHoldTurns, [player]: next } };
 }
@@ -134,11 +136,26 @@ export function updateScenarioScores(previous: GameState, next: GameState): Game
 /**
  * Scenarios describe the red player's victory list and the blue player's mirrored
  * defeat list. If both sides meet a condition on the same state, the active player
- * wins, making simultaneous resolution deterministic. Legacy turn limits are
+ * wins, making simultaneous resolution deterministic. Version 4 score races
+ * instead resolve after both turns, compare points, and continue equal scores.
+ * Legacy turn limits are
  * normalized to blue's survive condition while loading a scenario.
  */
-export function evaluateScenario(state: GameState, scenario: ScenarioDefinition, tieBreaker: PlayerId = state.activePlayer): PlayerId | undefined {
+export function evaluateScenario(state: GameState, scenario: ScenarioDefinition, tieBreaker: PlayerId = state.activePlayer, roundComplete = true): PlayerId | undefined {
   if (state.winner) return state.winner;
+  if (state.ruleVersion === BALANCED_RULE_VERSION) {
+    const nonScore = (conditions: readonly VictoryCondition[], player: PlayerId) => conditions.some(condition => condition.type !== 'score' && isVictoryConditionMet(state, condition, player));
+    const redImmediate = nonScore(scenario.victoryConditions, 'red'), blueImmediate = nonScore(scenario.defeatConditions, 'blue');
+    if (redImmediate || blueImmediate) return redImmediate && blueImmediate ? tieBreaker : redImmediate ? 'red' : 'blue';
+    if (!roundComplete) return undefined;
+    const scored = (conditions: readonly VictoryCondition[], player: PlayerId) => conditions.some(condition => condition.type === 'score' && isVictoryConditionMet(state, condition, player));
+    const redScored = scored(scenario.victoryConditions, 'red'), blueScored = scored(scenario.defeatConditions, 'blue');
+    if (redScored && blueScored) {
+      const red = state.scores?.red ?? 0, blue = state.scores?.blue ?? 0;
+      return red === blue ? undefined : red > blue ? 'red' : 'blue';
+    }
+    return redScored ? 'red' : blueScored ? 'blue' : undefined;
+  }
   const redWon = scenario.victoryConditions.some(condition => isVictoryConditionMet(state, condition, 'red'));
   const blueWon = scenario.defeatConditions.some(condition => isVictoryConditionMet(state, condition, 'blue'));
   if (redWon && blueWon) return tieBreaker;
@@ -152,16 +169,17 @@ export function withEvaluatedWinner(
   state: GameState,
   legacyConditions: readonly VictoryCondition[] = [],
   tieBreaker: PlayerId = state.activePlayer,
+  roundComplete = false,
 ): GameState {
   const scenario = scenarioForState(state);
   const winner = scenario
-    ? evaluateScenario(state, scenario, tieBreaker)
+    ? evaluateScenario(state, scenario, tieBreaker, roundComplete)
     : legacyConditions.some(condition => isVictoryConditionMet(state, condition, state.activePlayer))
       ? state.activePlayer : state.winner;
   return winner === state.winner ? state : { ...state, winner };
 }
 
-/** Round whose end triggers a decision in eligible rule-version-3 matches (#119). */
+/** Historical decision timing retained for legacy definitions and rule-version-3 matches. */
 export const DECISION_ROUND = 40;
 
 /** Scenarios decided only by elimination or capital capture have no built-in end, so they get a decision. */
@@ -172,7 +190,8 @@ export function isDecisionScenario(scenario: ScenarioDefinition): boolean {
 
 /** The decision round for this match, or undefined when no decision victory applies. */
 export function decisionRound(state: GameState, scenario: ScenarioDefinition | undefined = scenarioForState(state)): number | undefined {
-  return usesDecisionRules(state) && scenario && isDecisionScenario(scenario) ? DECISION_ROUND : undefined;
+  if (!usesDecisionRules(state) || !scenario || !isDecisionScenario(scenario)) return undefined;
+  return state.ruleVersion === BALANCED_RULE_VERSION ? scenario.decisionRound ?? DECISION_ROUND : DECISION_ROUND;
 }
 
 export interface DecisionStanding {

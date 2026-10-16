@@ -12,6 +12,7 @@ import {
   listSaveSlots,
   loadCustomScenarios,
   loadGameFromSlot,
+  MANUAL_SAVE_KEY,
   maps,
   parseReplay,
   parseSavedGame,
@@ -91,8 +92,8 @@ describe('review #155 external boundaries', () => {
     if (!created.ok) throw Error(created.error);
     const initialState = createScenarioInitialState(created.value);
     delete initialState.scenarioSnapshot;
-    saveGame(storage, 'legacy', { ...match(), mapId: source.id, initialState, gameState: initialState });
-    const old = { ...JSON.parse(storage.getItem('legacy')!), schemaVersion: 3 };
+    saveGame(storage, MANUAL_SAVE_KEY, { ...match(), mapId: source.id, initialState, gameState: initialState });
+    const old = { ...JSON.parse(storage.getItem(MANUAL_SAVE_KEY)!), schemaVersion: 3 };
     saveCustomScenario(storage, { ...source, startingGold: 20000 });
     loadCustomScenarios(storage);
     expect(parseSavedGame(JSON.stringify(old))).toMatchObject({ ok: true });

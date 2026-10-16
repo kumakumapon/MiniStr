@@ -1,6 +1,6 @@
 import { movementCost, positionKey, samePosition, terrainAt } from './terrain';
 import { playerOwnedProperties, unitAt } from './state';
-import { isEmbarkableUnit, isMergeableUnit, transportCapacity, unitStats } from './units';
+import { isEmbarkableUnit, isMergeableUnit, remainingAmmo, transportCapacity, unitStats } from './units';
 import { applyDamageVariance, forecastCombat } from './combat';
 import { nextRandom } from './rng';
 import { canProduceUnit, isPropertyTerrainKind, unitLimit } from './facilities';
@@ -9,7 +9,7 @@ import { scenarioForState } from './maps';
 import { decisionRound, decisionWinner, updateScenarioProgress, updateScenarioScores, withEvaluatedWinner } from './victory';
 import { experienceAfterCombat } from './experience';
 import { applyModernUpkeep } from './logistics';
-import { isDeployedUnit, otherPlayer, usesDecisionRules, usesModernRules, type GameResult, type GameState, type PlayerId, type Position, type Unit, type UnitKind } from './types';
+import { BALANCED_RULE_VERSION, isDeployedUnit, otherPlayer, usesDecisionRules, usesModernRules, type GameResult, type GameState, type PlayerId, type Position, type Unit, type UnitKind } from './types';
 
 const fail = <T = GameState>(error: string): GameResult<T> => ({ ok: false, error });
 const succeed = <T>(value: T): GameResult<T> => ({ ok: true, value });
@@ -203,7 +203,7 @@ export function produceUnit(state: GameState, facility: Position, kind: UnitKind
   if (!terrain || terrain.owner !== state.activePlayer || !canProduceUnit(terrain.kind, kind, productionRule, state.ruleVersion))
     return fail('An owned compatible production facility is required');
   if (unitAt(state, facility)) return fail('Production facility is occupied');
-  if (usesDecisionRules(state) && state.units.filter(unit => unit.owner === state.activePlayer).length >= unitLimit(state.board))
+  if (usesDecisionRules(state) && state.units.filter(unit => unit.owner === state.activePlayer).length >= unitLimit(state.board, state.ruleVersion))
     return fail('Unit limit reached');
   const stats = unitStats[kind];
   if (state.players[state.activePlayer].gold < stats.cost) return fail('Insufficient funds');
@@ -234,8 +234,9 @@ export function attackUnit(state: GameState, attackerId: string, defenderId: str
   const attacker = state.units.find(unit => unit.id === attackerId);
   const defender = state.units.find(unit => unit.id === defenderId);
   if (!attacker || !defender || !isDeployedUnit(attacker) || !isDeployedUnit(defender) || attacker.owner !== state.activePlayer || attacker.hasActed) return fail('Unit cannot attack');
+  if (unitStats[attacker.kind].attack <= 0) return fail('Unit has no attack capability');
   if (unitStats[attacker.kind].indirect && attacker.hasMoved) return fail('Indirect units cannot attack after moving');
-  if ((attacker.ammo ?? unitStats[attacker.kind].ammo) <= 0) return fail('Unit is out of ammunition');
+  if (remainingAmmo(attacker) <= 0) return fail('Unit is out of ammunition');
   if (defender.owner !== attacker.owner && !visibleEnemies(state, attacker.owner).some(unit => unit.id === defender.id)) return fail('Target is not visible');
   const forecast = forecastCombat(state, attacker, defender);
   if (!forecast.ok) return forecast;
@@ -258,11 +259,11 @@ export function attackUnit(state: GameState, attackerId: string, defenderId: str
   const defenderDestroyed = defender.hp - damageToDefender <= 0;
   const damagedUnits = state.units.map(unit => {
     if (unit.id === attacker.id) return {
-      ...unit, hp: Math.max(0, unit.hp - damageToAttacker), ammo: (unit.ammo ?? unitStats[unit.kind].ammo) - 1, hasActed: true,
+      ...unit, hp: Math.max(0, unit.hp - damageToAttacker), ammo: remainingAmmo(unit) - 1, hasActed: true,
       ...(modern ? { experience: experienceAfterCombat(unit, damageToDefender, defenderDestroyed) } : {}),
     };
     if (unit.id === defender.id) return {
-      ...unit, hp: Math.max(0, unit.hp - damageToDefender), ammo: canCounter ? (unit.ammo ?? unitStats[unit.kind].ammo) - 1 : unit.ammo,
+      ...unit, hp: Math.max(0, unit.hp - damageToDefender), ammo: canCounter ? remainingAmmo(unit) - 1 : unit.ammo,
       ...(modern ? { experience: experienceAfterCombat(unit, damageToAttacker, attackerDestroyed) } : {}),
     };
     return unit;
@@ -301,7 +302,7 @@ export function mergeUnits(state: GameState, unitId: string, targetId: string): 
   const removed = survivor.id === unit.id ? target : unit;
   const stats = unitStats[survivor.kind];
   const hp = Math.min(100, unit.hp + target.hp);
-  const ammo = Math.min(stats.ammo, (unit.ammo ?? stats.ammo) + (target.ammo ?? stats.ammo));
+  const ammo = Math.min(stats.ammo, remainingAmmo(unit) + remainingAmmo(target));
   const fuel = Math.min(stats.fuel, (unit.fuel ?? stats.fuel) + (target.fuel ?? stats.fuel));
   // The merged unit keeps the more experienced crew. Classic units never carry experience.
   const experience = Math.max(unit.experience ?? 0, target.experience ?? 0);
@@ -367,8 +368,11 @@ export function endTurn(state: GameState): GameState {
       turn: state.turn + (activePlayer === 'red' ? 1 : 0),
       units: progressed.units.map(unit => unit.owner === activePlayer ? { ...unit, hasMoved: false, hasActed: false } : unit),
     });
-    const upkept = applyModernUpkeep(ready, activePlayer);
-    const settled = withEvaluatedWinner({ ...upkept, units: withoutExhaustedUnits(upkept.units, activePlayer) }, [], actor);
+    // Both armies enter their first turn with full fuel. Older matches retain
+    // blue's historical opening fuel charge so their command history replays.
+    const consumeFuel = state.ruleVersion !== BALANCED_RULE_VERSION || state.turn !== 1 || activePlayer !== 'blue';
+    const upkept = applyModernUpkeep(ready, activePlayer, consumeFuel);
+    const settled = withEvaluatedWinner({ ...upkept, units: withoutExhaustedUnits(upkept.units, activePlayer) }, [], actor, actor === 'blue');
     // Decision victory at the end of the decision round (blue closes each round).
     // It is judged on the board as blue left it, before red's income and repairs,
     // so the first player's start-of-turn upkeep cannot tip the result. Aircraft

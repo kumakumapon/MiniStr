@@ -11,7 +11,11 @@ if (!asset) throw Error('Run npm run build before production UI tests');
 const source = readFileSync(resolve('dist/assets', asset), 'utf8');
 let dom: JSDOM;
 function launch(options: { storage?: Record<string, string>; denied?: boolean } = {}) {
-  dom = new JSDOM('<!doctype html><html lang="ja"><body><div id="app"></div></body></html>', { url: 'http://localhost/', runScripts: 'outside-only', pretendToBeVisual: true });
+  dom = new JSDOM('<!doctype html><html lang="ja"><body><div id="app"></div></body></html>', {
+    url: 'http://localhost/',
+    runScripts: 'outside-only',
+    pretendToBeVisual: true,
+  });
   Object.assign(dom.window, { structuredClone, TextEncoder, TextDecoder });
   dom.window.HTMLElement.prototype.scrollIntoView = () => {};
   dom.window.confirm = () => true;
@@ -61,7 +65,13 @@ describe('distributed application boundaries', () => {
       },
     };
     const initialState = createScenarioInitialState(maps[0]!);
-    saveGameToSlot(storage, 'named', 'Only named', { mapId: maps[0]!.id, difficulty: 'normal', initialState, gameState: initialState, commands: [] });
+    saveGameToSlot(storage, 'named', 'Only named', {
+      mapId: maps[0]!.id,
+      difficulty: 'normal',
+      initialState,
+      gameState: initialState,
+      commands: [],
+    });
     const document = launch({ storage: data });
     expect(document.querySelector('#title-continue')?.hasAttribute('disabled')).toBe(false);
     click('.load-save-slot[data-save-slot="named"]');
@@ -142,7 +152,12 @@ describe('distributed application boundaries', () => {
     const document = launch();
     click('.title-map-card[data-map-id="skirmish"]');
     click('#begin-operation');
-    dom.window.dispatchEvent(new dom.window.StorageEvent('storage', { key: 'ministr.save.manual', newValue: 'changed externally' }));
+    dom.window.dispatchEvent(
+      new dom.window.StorageEvent('storage', {
+        key: 'ministr.save.manual',
+        newValue: 'changed externally',
+      }),
+    );
     click('#save');
     expect(document.body.textContent).toContain('別のタブ');
     expect(dom.window.localStorage.getItem('ministr.save.manual')).toBeNull();

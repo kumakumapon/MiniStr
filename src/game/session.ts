@@ -3,7 +3,7 @@ import { MAX_EXPERIENCE } from './experience';
 import { isUnitKindAvailable } from './facilities';
 import { createScenarioInitialState, scenarioForState, scenarioHistory, scenarioDefinitionToData, scenarioCatalogRevision, type ScenarioDefinition } from './maps';
 import { ruleVersions, terrainKindSet, type GameResult, type GameState, type Position, type UnitKind } from './types';
-import { isEmbarkableUnit, transportCapacity, unitKindSet } from './units';
+import { isEmbarkableUnit, isValidUnitAmmo, transportCapacity, unitKindSet } from './units';
 import { parseBoundedJson } from './jsonBoundary';
 
 /**
@@ -96,7 +96,7 @@ function migrateSavedGame(value: Record<string, unknown>): Record<string, unknow
   return undefined;
 }
 
-/** Upgrade archived custom-map matches without registering imported definitions. */
+/** Upgrade archived built-in or custom-map matches without registering imported definitions. */
 export function restoreArchivedScenario(value: Record<string, unknown>): Record<string, unknown> {
   const initial = value.initialState;
   if (!isRecord(initial) || initial.scenarioSnapshot !== undefined || typeof value.mapId !== 'string') return value;
@@ -149,6 +149,17 @@ export function replayCommands(initialState: GameState, commands: readonly GameC
 /** Deterministic work bound, independent of the machine's clock or speed. */
 export function withinReplayBudget(state: GameState, commands: number): boolean {
   return commands * (state.board.width * state.board.height + state.units.length * 4 + 1) <= 50_000_000;
+}
+
+export const MAX_INTERACTIVE_BOARD_DIMENSION = 32;
+export const MAX_INTERACTIVE_UNITS = 128;
+/** Bounds live sessions while leaving old, self-contained saves readable for recovery/export. */
+export function withinInteractiveMatchBudget(initialState: GameState, currentState: GameState, commands: number): boolean {
+  const states = [initialState, currentState];
+  return states.every(state => state.board.width <= MAX_INTERACTIVE_BOARD_DIMENSION
+    && state.board.height <= MAX_INTERACTIVE_BOARD_DIMENSION
+    && state.units.length <= MAX_INTERACTIVE_UNITS
+    && withinReplayBudget(state, commands));
 }
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
@@ -251,7 +262,7 @@ export function isGameState(value: unknown): value is GameState {
       || typeof unit.owner !== 'string' || !players.has(unit.owner)
       || !isFiniteNumber(unit.hp) || unit.hp <= 0 || unit.hp > 100
       || (unit.fuel !== undefined && (!isFiniteNumber(unit.fuel) || unit.fuel < 0))
-      || (unit.ammo !== undefined && (!isFiniteNumber(unit.ammo) || unit.ammo < 0))
+      || !isValidUnitAmmo(unit.kind as UnitKind, unit.ammo)
       || typeof unit.hasMoved !== 'boolean' || typeof unit.hasActed !== 'boolean'
       // Experience exists only in modern-rule matches, so a classic save cannot smuggle in rank bonuses.
       || (unit.experience !== undefined && (!modern || !Number.isSafeInteger(unit.experience)
@@ -339,6 +350,8 @@ export function parseSavedGame(serialized: string): GameResult<SavedGame> {
 export function saveGame(storage: StorageLike, key: string, game: Omit<SavedGame, 'schemaVersion' | 'savedAt'>): GameResult<SavedGame> {
   const saved: SavedGame = { schemaVersion: SAVE_SCHEMA_VERSION, ...structuredClone(game), savedAt: new Date().toISOString() };
   if (!validateSavedGameShape(saved)) return { ok: false, error: 'セーブデータの内容が不正です。' };
+  if (!withinInteractiveMatchBudget(saved.initialState, saved.gameState, saved.commands.length))
+    return { ok: false, error: '対話プレイの上限を超えています。盤面は32×32、部隊は128、履歴は再現予算内にしてください。' };
   // Runtime saves originate from the already-applied command stream. Replaying
   // that entire stream for every autosave is O(n²); untrusted serialized data
   // is still replayed by parseSavedGame/loadGame before it can be used.

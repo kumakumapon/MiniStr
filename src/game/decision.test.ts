@@ -135,7 +135,7 @@ describe('unit limit (#119, rule version 3)', () => {
   it('is a quarter of the board, at least ten', () => {
     expect(unitLimit(createBoard(6, 6))).toBe(10);
     expect(unitLimit(createBoard(10, 8))).toBe(20);
-    expect(unitLimit(scenarioById('islands')!.board)).toBe(24);
+    expect(unitLimit(scenarioById('islands')!.board)).toBe(64);
   });
 
   it('blocks production at the limit, counting embarked cargo', () => {
