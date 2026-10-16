@@ -61,6 +61,7 @@ let game = start(selectedMap.id);
 let selected: string | undefined;
 let weaponSelection: { unitId: string; slot: WeaponSlot } | undefined;
 const selectedWeaponSlot = (): WeaponSlot | undefined => weaponSelection?.unitId === selected ? weaponSelection?.slot : undefined;
+let boardPointerPending = false;
 let focusedPosition: Position = { x: 0, y: 0 };
 let message: string = uiText.defaultInstruction;
 const loadedCustomScenarios = loadCustomScenarios(localStorage);
@@ -238,8 +239,14 @@ function battleSceneIsVisible(scene: BattleScene, visible: ReadonlySet<string>):
 
 // The context is intentionally created only from a real user gesture. CPU and
 // replay playback before that gesture remain silent under browser autoplay rules.
-app.addEventListener('pointerdown', () => { void soundPlayer.unlock(); void musicPlayer.unlock(); }, { capture: true });
-app.addEventListener('keydown', () => { void soundPlayer.unlock(); void musicPlayer.unlock(); }, { capture: true });
+app.addEventListener('pointerdown', event => {
+  boardPointerPending = event.target instanceof Element && event.target.closest('.tile') !== null;
+  void soundPlayer.unlock(); void musicPlayer.unlock();
+}, { capture: true });
+// Compatibility mouse events and the tile click finish before this timer.
+document.addEventListener('pointerup', () => { window.setTimeout(() => { boardPointerPending = false; }, 0); });
+document.addEventListener('pointercancel', () => { boardPointerPending = false; });
+app.addEventListener('keydown', () => { boardPointerPending = false; void soundPlayer.unlock(); void musicPlayer.unlock(); }, { capture: true });
 
 const producibleUnits = allProducibleUnitKinds;
 
@@ -339,7 +346,9 @@ function refreshFocusedTileViews(): void {
   if (inspector) inspector.outerHTML = renderTileInspector(replay?.state ?? game, renderedMap.productionRules);
   const brief = app.querySelector('#unit-brief');
   const state = replay?.state ?? game;
-  if (brief) brief.outerHTML = renderUnitBrief(state, viewer(), new Set(shownPositions(state).map(key)), selected, focusedPosition, selectedWeaponSlot(), canCommand());
+  // Expanding a focused unit's weapon list during pointerdown moves the board
+  // before pointerup, so the browser can discard the intended tile click.
+  if (brief && !boardPointerPending) brief.outerHTML = renderUnitBrief(state, viewer(), new Set(shownPositions(state).map(key)), selected, focusedPosition, selectedWeaponSlot(), canCommand());
 }
 
 /** Re-applies the width-derived default zoom unless the player has set it themselves. */
