@@ -83,7 +83,7 @@ jobs:
       - run: npm run typecheck:test
       - name: Check test discovery and environments
         run: |
-          npx vitest list --json --maxWorkers=2 > "$REPORT_DIR/test-list.json"
+          npx vitest list --no-static-parse --json --maxWorkers=2 > "$REPORT_DIR/test-list.json"
           node --input-type=module <<'NODE'
           import { readFileSync, readdirSync } from 'node:fs';
           import { join, relative } from 'node:path';
