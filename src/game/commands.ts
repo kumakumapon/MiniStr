@@ -2,6 +2,8 @@ import { movementCost, positionKey, samePosition, terrainAt } from './terrain';
 import { playerOwnedProperties, unitAt } from './state';
 import { isEmbarkableUnit, isMergeableUnit, remainingAmmo, transportCapacity, unitStats } from './units';
 import { applyDamageVariance, forecastCombat } from './combat';
+import { consumeWeaponAmmo, rearmUnit, weaponAmmo, weaponsForUnit } from './weapons';
+import type { WeaponSlot } from './units';
 import { nextRandom } from './rng';
 import { canProduceUnit, isPropertyTerrainKind, unitLimit } from './facilities';
 import { visibleEnemies, visiblePositions } from './fog';
@@ -9,7 +11,7 @@ import { scenarioForState } from './maps';
 import { decisionRound, decisionWinner, updateScenarioProgress, updateScenarioScores, withEvaluatedWinner } from './victory';
 import { experienceAfterCombat } from './experience';
 import { applyModernUpkeep } from './logistics';
-import { BALANCED_RULE_VERSION, isDeployedUnit, otherPlayer, usesDecisionRules, usesModernRules, type GameResult, type GameState, type PlayerId, type Position, type Unit, type UnitKind } from './types';
+import { BALANCED_RULE_VERSION, isDeployedUnit, otherPlayer, usesDecisionRules, usesModernRules, usesDualWeapons, type GameResult, type GameState, type PlayerId, type Position, type Unit, type UnitKind } from './types';
 
 const fail = <T = GameState>(error: string): GameResult<T> => ({ ok: false, error });
 const succeed = <T>(value: T): GameResult<T> => ({ ok: true, value });
@@ -229,24 +231,22 @@ export function captureProperty(state: GameState, unitId: string): GameResult {
   return succeed(withEvaluatedWinner(next, [{ type: 'captureCapital' }]));
 }
 
-export function attackUnit(state: GameState, attackerId: string, defenderId: string): GameResult {
+export function attackUnit(state: GameState, attackerId: string, defenderId: string, weaponSlot?: WeaponSlot): GameResult {
   if (state.winner) return fail('Game has finished');
   const attacker = state.units.find(unit => unit.id === attackerId);
   const defender = state.units.find(unit => unit.id === defenderId);
   if (!attacker || !defender || !isDeployedUnit(attacker) || !isDeployedUnit(defender) || attacker.owner !== state.activePlayer || attacker.hasActed) return fail('Unit cannot attack');
   if (unitStats[attacker.kind].attack <= 0) return fail('Unit has no attack capability');
-  if (unitStats[attacker.kind].indirect && attacker.hasMoved) return fail('Indirect units cannot attack after moving');
-  if (remainingAmmo(attacker) <= 0) return fail('Unit is out of ammunition');
+  if (!usesDualWeapons(state) && unitStats[attacker.kind].indirect && attacker.hasMoved) return fail('Indirect units cannot attack after moving');
   if (defender.owner !== attacker.owner && !visibleEnemies(state, attacker.owner).some(unit => unit.id === defender.id)) return fail('Target is not visible');
-  const forecast = forecastCombat(state, attacker, defender);
+  const forecast = forecastCombat(state, attacker, defender, weaponSlot);
   if (!forecast.ok) return forecast;
   const attackRoll = nextRandom(state.rngSeed);
   const damageToDefender = applyDamageVariance(forecast.value.damageToDefender, attackRoll.value);
   // Counterattack damage must use the defender's actual post-roll HP.  A unit
   // that the expected forecast destroys can still survive a low damage roll.
-  const counterForecast = !unitStats[attacker.kind].indirect && !unitStats[defender.kind].indirect
-    && defender.hp > damageToDefender
-    ? forecastCombat(state, { ...defender, hp: defender.hp - damageToDefender }, attacker)
+  const counterForecast = forecast.value.counterWeapon !== undefined && defender.hp > damageToDefender
+    ? forecastCombat(state, { ...defender, hp: defender.hp - damageToDefender, hasMoved: false }, attacker, forecast.value.counterWeapon)
     : undefined;
   const canCounter = counterForecast?.ok ?? false;
   const counterRoll = canCounter ? nextRandom(attackRoll.seed) : undefined;
@@ -259,11 +259,11 @@ export function attackUnit(state: GameState, attackerId: string, defenderId: str
   const defenderDestroyed = defender.hp - damageToDefender <= 0;
   const damagedUnits = state.units.map(unit => {
     if (unit.id === attacker.id) return {
-      ...unit, hp: Math.max(0, unit.hp - damageToAttacker), ammo: remainingAmmo(unit) - 1, hasActed: true,
+      ...consumeWeaponAmmo(unit, forecast.value.attackWeapon), hp: Math.max(0, unit.hp - damageToAttacker), hasActed: true,
       ...(modern ? { experience: experienceAfterCombat(unit, damageToDefender, defenderDestroyed) } : {}),
     };
     if (unit.id === defender.id) return {
-      ...unit, hp: Math.max(0, unit.hp - damageToDefender), ammo: canCounter ? remainingAmmo(unit) - 1 : unit.ammo,
+      ...(counterForecast?.ok ? consumeWeaponAmmo(unit, counterForecast.value.attackWeapon) : { ...unit, ammo: unit.ammo }), hp: Math.max(0, unit.hp - damageToDefender),
       ...(modern ? { experience: experienceAfterCombat(unit, damageToAttacker, attackerDestroyed) } : {}),
     };
     return unit;
@@ -303,13 +303,15 @@ export function mergeUnits(state: GameState, unitId: string, targetId: string): 
   const stats = unitStats[survivor.kind];
   const hp = Math.min(100, unit.hp + target.hp);
   const ammo = Math.min(stats.ammo, remainingAmmo(unit) + remainingAmmo(target));
+  const secondary = weaponsForUnit(unit.kind, state)[1];
+  const secondaryAmmo = secondary ? { secondaryAmmo: Math.min(secondary.ammo, weaponAmmo(unit, 1) + weaponAmmo(target, 1)) } : {};
   const fuel = Math.min(stats.fuel, (unit.fuel ?? stats.fuel) + (target.fuel ?? stats.fuel));
   // The merged unit keeps the more experienced crew. Classic units never carry experience.
   const experience = Math.max(unit.experience ?? 0, target.experience ?? 0);
   const units = state.units
     .filter(candidate => candidate.id !== removed.id)
     .map(candidate => candidate.id === survivor.id
-      ? { ...candidate, hp, ammo, fuel, hasMoved: true, hasActed: true, ...(experience > 0 ? { experience } : {}) }
+      ? { ...candidate, hp, ammo, ...secondaryAmmo, fuel, hasMoved: true, hasActed: true, ...(experience > 0 ? { experience } : {}) }
       : candidate);
   return succeed({ ...state, units });
 }
@@ -370,7 +372,7 @@ export function endTurn(state: GameState): GameState {
     });
     // Both armies enter their first turn with full fuel. Older matches retain
     // blue's historical opening fuel charge so their command history replays.
-    const consumeFuel = state.ruleVersion !== BALANCED_RULE_VERSION || state.turn !== 1 || activePlayer !== 'blue';
+    const consumeFuel = (state.ruleVersion ?? 0) < BALANCED_RULE_VERSION || state.turn !== 1 || activePlayer !== 'blue';
     const upkept = applyModernUpkeep(ready, activePlayer, consumeFuel);
     const settled = withEvaluatedWinner({ ...upkept, units: withoutExhaustedUnits(upkept.units, activePlayer) }, [], actor, actor === 'blue');
     // Decision victory at the end of the decision round (blue closes each round).
@@ -389,7 +391,7 @@ export function endTurn(state: GameState): GameState {
     const onOwnedProperty = !!terrain && isPropertyTerrainKind(terrain.kind) && terrain.owner === activePlayer;
     const stats = unitStats[unit.kind];
     if (onOwnedProperty) {
-      return { ...unit, hasMoved: false, hasActed: false, fuel: stats.fuel, ammo: stats.ammo, hp: Math.min(100, unit.hp + 20) };
+      return { ...rearmUnit(unit, state), hasMoved: false, hasActed: false, fuel: stats.fuel, hp: Math.min(100, unit.hp + 20) };
     }
     // Aircraft and ships consume fuel even while stationary. Ground units have
     // a zero rate, so they retain the established "immobile but present" rule.

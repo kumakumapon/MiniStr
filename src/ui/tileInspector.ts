@@ -1,6 +1,6 @@
-import { canServiceUnitAt, defaultProductionRule, defenseStars, experienceRank, isDeployedUnit, isGroundUnit, MAX_EXPERIENCE, remainingAmmo, usesModernRules, isPropertyTerrainKind, movementCost, productionKindsForRule, terrainAt, type ProductionRule, unitStats, type GameState, type PlayerId, type Position, type UnitKind } from '../game';
+import { canServiceUnitAt, defaultProductionRule, defenseStars, experienceRank, isDeployedUnit, isGroundUnit, MAX_EXPERIENCE, remainingAmmo, weaponAmmo, weaponsForUnit, usesModernRules, isPropertyTerrainKind, movementCost, productionKindsForRule, terrainAt, type ProductionRule, unitStats, type GameState, type PlayerId, type Position, type UnitKind } from '../game';
 import { capturePointsLabel, observedCapturePoints } from './fogDisplay';
-import { ownerLabel, rankNames, rankStars, sideLabel, terrainNames, unitNames, unitWeaponName } from './labels';
+import { ownerLabel, rankNames, rankStars, sideLabel, terrainNames, unitNames, unitWeaponName, weaponNames } from './labels';
 import { uiText } from './strings';
 
 export interface InspectorRow { label: string; value: string }
@@ -64,6 +64,11 @@ export function inspectTile(
     { label: '移動', value: `${stats.movement}` },
     { label: '視界', value: `${stats.vision}` },
   ];
+  const secondary = weaponsForUnit(unit.kind, state)[1];
+  if (secondary) {
+    unitRows.push({ label: `${uiText.weapon} 2`, value: `${weaponNames[secondary.kind]} · 威力 ${secondary.attack} · 射程 ${secondary.range.join('〜')} · ${uiText.ammoCapacity} ${secondary.ammo}` });
+    if (unit.owner === viewer) unitRows.push({ label: `${weaponNames[secondary.kind]} ${uiText.ammo}`, value: `${weaponAmmo(unit, 1)} / ${secondary.ammo}` });
+  }
   if (usesModernRules(state)) {
     const rank = experienceRank(unit.experience);
     unitRows.push({ label: '階級', value: `${rank ? `${rankStars(rank)} ` : ''}${rankNames[rank]}（経験 ${unit.experience ?? 0} / ${MAX_EXPERIENCE}）` });

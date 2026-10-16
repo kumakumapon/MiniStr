@@ -1,3 +1,4 @@
+import { rearmUnit } from './weapons';
 import { isPropertyTerrainKind } from './facilities';
 import { manhattanDistance, terrainAt } from './terrain';
 import { isDeployedUnit, usesModernRules, type GameState, type PlayerId, type Position, type TerrainKind, type Unit, type UnitKind } from './types';
@@ -57,7 +58,7 @@ export function adjacentToSupplyUnit(state: GameState, position: Position, owner
     && isSupplyUnit(unit.kind) && manhattanDistance(unit.position, position) === 1);
 }
 
-const withFullSupplies = (unit: Unit): Unit => ({ ...unit, fuel: unitStats[unit.kind].fuel, ammo: unitStats[unit.kind].ammo });
+const withFullSupplies = (unit: Unit, state: GameState): Unit => ({ ...rearmUnit(unit, state), fuel: unitStats[unit.kind].fuel });
 
 /**
  * Modern turn-start upkeep for `player`, applied after income has been collected:
@@ -74,15 +75,15 @@ export function applyModernUpkeep(state: GameState, player: PlayerId, consumeFue
   const suppliers = new Set(consumed.filter(unit => unit.owner === player && isDeployedUnit(unit) && isSupplyUnit(unit.kind)).map(unit => unit.id));
   const supplied = consumed.map(unit => {
     if (unit.owner !== player || !isGroundUnit(unit.kind)) return unit;
-    if (unit.embarkedIn !== undefined) return suppliers.has(unit.embarkedIn) ? withFullSupplies(unit) : unit;
-    return isDeployedUnit(unit) && adjacentToSupplyUnit({ ...state, units: consumed }, unit.position, player, unit.id) ? withFullSupplies(unit) : unit;
+    if (unit.embarkedIn !== undefined) return suppliers.has(unit.embarkedIn) ? withFullSupplies(unit, state) : unit;
+    return isDeployedUnit(unit) && adjacentToSupplyUnit({ ...state, units: consumed }, unit.position, player, unit.id) ? withFullSupplies(unit, state) : unit;
   });
   let gold = state.players[player].gold;
   const repaired = supplied.map(unit => {
     if (unit.owner !== player || !isDeployedUnit(unit) || !isServiceTile(state, unit.position, unit.kind, player)) return unit;
     const hp = affordableRepair(unit.kind, 100 - unit.hp, gold);
     gold -= repairCost(unit.kind, hp);
-    return { ...withFullSupplies(unit), hp: unit.hp + hp };
+    return { ...withFullSupplies(unit, state), hp: unit.hp + hp };
   });
   return { ...state, units: repaired, players: { ...state.players, [player]: { ...state.players[player], gold } } };
 }

@@ -17,7 +17,7 @@ import {
 
 export function playCampaignStage(progress: CampaignProgress, stage: CampaignStage, difficulty: CpuDifficulty) {
   const scenario = createCampaignScenario(progress, stage.scenarioId);
-  if (!scenario.ok) throw new Error(scenario.error);
+  if (!scenario.ok) throw new Error(`${stage.scenarioId}: ${scenario.error}`);
   const initialState = createScenarioInitialState(scenario.value);
   let state = initialState;
   const commands: GameCommand[] = [];
@@ -70,5 +70,21 @@ export function playCampaignStage(progress: CampaignProgress, stage: CampaignSta
     blueAttacks: turns.filter((turn) => turn.side === 'blue').reduce((sum, turn) => sum + (turn.counts.attack ?? 0), 0),
     milliseconds: Date.now() - started,
   };
+  if (state.winner !== 'red') {
+    const objectives = scenario.value.victoryConditions.flatMap((condition) => (condition.type === 'hold' ? condition.positions : []));
+    console.warn(
+      `Campaign reference loss: ${JSON.stringify({
+        ...summary,
+        objectives: objectives.map((position) => ({
+          ...position,
+          terrain: state.board.terrain[position.y]?.[position.x],
+          unit: state.units.find((unit) => isDeployedUnit(unit) && unit.position.x === position.x && unit.position.y === position.y),
+        })),
+        units: state.units,
+        lastTurns: turns.slice(-4),
+        lastCommands: commands.slice(-30),
+      })}`,
+    );
+  }
   return { summary, initialState, commands, finalState: state, turns, replay: serialized.value, progress: nextProgress };
 }

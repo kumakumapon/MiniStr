@@ -1,4 +1,4 @@
-import { unitWeapons, type PlayerId, type TerrainKind, type UnitKind, type WeaponKind } from '../game';
+import { unitWeapons, weaponsForUnit, type GameState, type PlayerId, type TerrainKind, type UnitKind, type WeaponKind } from '../game';
 import { getLocale, localized } from './locale';
 
 /**
@@ -32,7 +32,11 @@ export const weaponNames = localized<Record<WeaponKind, string>>({
   antiTankLauncher: 'Anti-tank rocket', heavyTankCannon: 'Heavy tank cannon', helicopterRocket: 'Helicopter rocket', heavyNavalGun: 'Heavy naval gun',
 });
 
-export function unitWeaponName(kind: UnitKind): string {
+export function unitWeaponName(kind: UnitKind, state?: Pick<GameState, 'ruleVersion'>): string {
+  if (state) {
+    const names = weaponsForUnit(kind, state).map(weapon => weaponNames[weapon.kind]);
+    if (names.length) return names.join(' / ');
+  }
   const weapon = unitWeapons[kind];
   return weapon === null ? (getLocale() === 'en' ? 'Unarmed' : '非武装') : weaponNames[weapon];
 }

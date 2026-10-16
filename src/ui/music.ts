@@ -34,6 +34,7 @@ export interface LoopingAudio {
   volume: number;
   muted?: boolean;
   currentTime?: number;
+  readonly ended?: boolean;
   play(): Promise<void>;
   pause(): void;
 }
@@ -77,9 +78,9 @@ export function saveMusicSettings(storage: StorageLike, settings: MusicSettings)
 }
 
 function createAudio(track: string = FIELD_TRACK_FILES.march): LoopingAudio {
-  const revision = track === 'frontier-theme' || track === 'battle-theme' ? '?v=brave-20261015' : '?v=campaign-20261015';
+  const revision = track === 'battle-theme' ? '?v=stinger-20261016' : track === 'frontier-theme' ? '?v=brave-20261015' : '?v=campaign-20261015';
   const audio = new Audio(`${import.meta.env.BASE_URL}assets/${track}.ogg${revision}`);
-  audio.loop = true;
+  audio.loop = track !== 'battle-theme';
   audio.preload = 'none';
   return audio;
 }
@@ -110,7 +111,7 @@ export class BackgroundMusicPlayer {
     this.audio.muted = true;
     this.battleAudio = battleAudio ?? (audio ? undefined : createAudio('battle-theme'));
     if (this.battleAudio) {
-      this.battleAudio.loop = true;
+      this.battleAudio.loop = false;
       this.battleAudio.preload = 'auto';
       this.battleAudio.volume = settings.volume;
       this.battleAudio.muted = true;
@@ -127,12 +128,12 @@ export class BackgroundMusicPlayer {
     await this.syncPlayback();
   }
 
-  setBattle(active: boolean): void {
-    if (active === this.inBattle) return;
+  setBattle(active: boolean, restart = false): void {
+    if (active === this.inBattle && !(active && restart)) return;
     this.inBattle = active;
     if (active) {
       this.battleAudio ??= createAudio('battle-theme');
-      this.battleAudio.loop = true;
+      this.battleAudio.loop = false;
       this.battleAudio.preload = 'auto';
       this.battleAudio.volume = this.settings.volume;
       if (this.battleAudio.currentTime !== undefined) this.battleAudio.currentTime = 0;
@@ -206,6 +207,7 @@ export class BackgroundMusicPlayer {
       audio.pause();
       return;
     }
+    if (this.inBattle && audio.ended) return;
     try {
       await audio.play();
       if (audio !== (this.inBattle ? this.battleAudio : this.audio) || this.settings.muted || this.settings.volume === 0) {

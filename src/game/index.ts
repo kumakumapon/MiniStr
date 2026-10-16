@@ -2,6 +2,7 @@ export * from './types';
 export * from './state';
 export * from './terrain';
 export * from './units';
+export * from './weapons';
 export * from './facilities';
 export * from './logistics';
 export * from './experience';

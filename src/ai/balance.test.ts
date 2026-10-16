@@ -1,5 +1,5 @@
 import { afterAll, describe, expect, it } from 'vitest';
-import { loadCustomScenarios, loadScenarioDefinitions, saveCustomScenario, scenarioById, type ScenarioData } from '../game';
+import { CURRENT_RULE_VERSION, loadCustomScenarios, loadScenarioDefinitions, saveCustomScenario, scenarioById, type ScenarioData } from '../game';
 import { balanceInitialState, formatBalanceReport, parseBalanceArgs, runBalance, simulateMatch, summarizeMatches, type MatchResult } from './balance';
 
 class MemoryStorage {
@@ -78,7 +78,7 @@ describe('simulateMatch', () => {
     const v2 = balanceInitialState(skirmish, 'v2', 1);
     const current = balanceInitialState(skirmish, 'modern', 1);
     expect(v2.ok && v2.value.ruleVersion).toBe(2);
-    expect(current.ok && current.value.ruleVersion).toBe(4);
+    expect(current.ok && current.value.ruleVersion).toBe(CURRENT_RULE_VERSION);
   });
 
   it('refuses classic rules on maps whose initial forces need modern rules', () => {

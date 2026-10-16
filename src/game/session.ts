@@ -4,6 +4,8 @@ import { isUnitKindAvailable } from './facilities';
 import { createScenarioInitialState, scenarioForState, scenarioHistory, scenarioDefinitionToData, scenarioCatalogRevision, type ScenarioDefinition } from './maps';
 import { ruleVersions, terrainKindSet, type GameResult, type GameState, type Position, type UnitKind } from './types';
 import { isEmbarkableUnit, isValidUnitAmmo, transportCapacity, unitKindSet } from './units';
+import { isValidSecondaryAmmo } from './weapons';
+import type { WeaponSlot } from './units';
 import { parseBoundedJson } from './jsonBoundary';
 
 /**
@@ -22,7 +24,7 @@ export const STORAGE_WARNING_BYTES = 4_000_000;
 export type GameCommand =
   | { type: 'move'; unitId: string; destination: Position }
   | { type: 'wait'; unitId: string }
-  | { type: 'attack'; unitId: string; targetId: string }
+  | { type: 'attack'; unitId: string; targetId: string; weaponSlot?: WeaponSlot }
   | { type: 'merge'; unitId: string; targetId: string }
   | { type: 'capture'; unitId: string }
   | { type: 'produce'; factory: Position; kind: UnitKind }
@@ -125,7 +127,7 @@ export function applyGameCommand(state: GameState, command: GameCommand): GameRe
   switch (command.type) {
     case 'move': return moveUnit(state, command.unitId, command.destination);
     case 'wait': return waitUnit(state, command.unitId);
-    case 'attack': return attackUnit(state, command.unitId, command.targetId);
+    case 'attack': return attackUnit(state, command.unitId, command.targetId, command.weaponSlot);
     case 'merge': return mergeUnits(state, command.unitId, command.targetId);
     case 'capture': return captureProperty(state, command.unitId);
     case 'produce': return produceUnit(state, command.factory, command.kind);
@@ -226,7 +228,8 @@ export function isGameCommand(value: unknown): value is GameCommand {
   if (value.type === 'endTurn') return true;
   if (value.type === 'move') return typeof value.unitId === 'string' && isPosition(value.destination);
   if (value.type === 'wait') return typeof value.unitId === 'string';
-  if (value.type === 'attack') return typeof value.unitId === 'string' && typeof value.targetId === 'string';
+  if (value.type === 'attack') return typeof value.unitId === 'string' && typeof value.targetId === 'string'
+    && (value.weaponSlot === undefined || value.weaponSlot === 0 || value.weaponSlot === 1);
   if (value.type === 'merge') return typeof value.unitId === 'string' && typeof value.targetId === 'string';
   if (value.type === 'capture') return typeof value.unitId === 'string';
   if (value.type === 'embark') return typeof value.unitId === 'string' && typeof value.transportId === 'string';
@@ -263,6 +266,7 @@ export function isGameState(value: unknown): value is GameState {
       || !isFiniteNumber(unit.hp) || unit.hp <= 0 || unit.hp > 100
       || (unit.fuel !== undefined && (!isFiniteNumber(unit.fuel) || unit.fuel < 0))
       || !isValidUnitAmmo(unit.kind as UnitKind, unit.ammo)
+      || !isValidSecondaryAmmo(unit.kind as UnitKind, unit.secondaryAmmo, { ruleVersion: value.ruleVersion as GameState['ruleVersion'] })
       || typeof unit.hasMoved !== 'boolean' || typeof unit.hasActed !== 'boolean'
       // Experience exists only in modern-rule matches, so a classic save cannot smuggle in rank bonuses.
       || (unit.experience !== undefined && (!modern || !Number.isSafeInteger(unit.experience)

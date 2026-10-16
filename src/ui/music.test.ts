@@ -80,7 +80,7 @@ describe('BackgroundMusicPlayer', () => {
     battle.currentTime = 4;
     player.setBattle(true);
     expect(normal.pause).toHaveBeenCalled();
-    expect(battle.loop).toBe(true);
+    expect(battle.loop).toBe(false);
     expect(battle.currentTime).toBe(0);
     expect(battle.volume).toBe(defaultMusicSettings.volume);
     const plays = battle.play.mock.calls.length;

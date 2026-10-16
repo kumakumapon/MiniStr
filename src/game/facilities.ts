@@ -94,7 +94,7 @@ export const UNIT_LIMIT_BOARD_SHARE = 0.25;
 export function unitLimit(board: Board, ruleVersion: RuleVersion | undefined = CURRENT_RULE_VERSION): number {
   const scaled = Math.max(10, Math.floor(board.width * board.height * UNIT_LIMIT_BOARD_SHARE));
   // Two capped armies stay inside the existing 128-unit interactive budget.
-  return ruleVersion === BALANCED_RULE_VERSION ? Math.min(64, scaled) : scaled;
+  return (ruleVersion ?? 0) >= BALANCED_RULE_VERSION ? Math.min(64, scaled) : scaled;
 }
 
 /** Total owned production facilities, regardless of occupancy. */

@@ -1,6 +1,6 @@
-import type { GameCommand, GameState, PlayerId, Position, TerrainKind, UnitKind } from '../game';
-import { isDeployedUnit } from '../game';
-import { unitNames, terrainNames } from './labels';
+import type { GameCommand, GameState, PlayerId, Position, TerrainKind, UnitKind, WeaponKind } from '../game';
+import { forecastCombat, isDeployedUnit, weaponsForUnit } from '../game';
+import { unitNames, terrainNames, weaponNames } from './labels';
 import { getLocale } from './locale';
 import { escapeHtml } from './strings';
 
@@ -10,6 +10,7 @@ export interface BattleParticipant {
   kind: UnitKind;
   owner: PlayerId;
   position: Position;
+  weapon?: WeaponKind;
   hpBefore: number;
   hpAfter: number;
 }
@@ -32,9 +33,14 @@ export function battleSceneForCommand(before: GameState, command: GameCommand, a
   const terrain = before.board.terrain[defenderBefore.position.y]?.[defenderBefore.position.x];
   if (!terrain) return undefined;
 
+  const forecast = forecastCombat(before, attackerBefore, defenderBefore, command.weaponSlot);
+  const attackingWeapon = forecast.ok ? weaponsForUnit(attackerBefore.kind, before)[forecast.value.attackWeapon]?.kind : undefined;
+  const counterWeapon =
+    defenderAfter && forecast.ok && forecast.value.counterWeapon !== undefined ? weaponsForUnit(defenderBefore.kind, before)[forecast.value.counterWeapon]?.kind : undefined;
   return {
     attacker: {
       kind: attackerBefore.kind,
+      weapon: attackingWeapon,
       owner: attackerBefore.owner,
       position: { ...attackerBefore.position },
       hpBefore: attackerBefore.hp,
@@ -42,6 +48,7 @@ export function battleSceneForCommand(before: GameState, command: GameCommand, a
     },
     defender: {
       kind: defenderBefore.kind,
+      weapon: counterWeapon,
       owner: defenderBefore.owner,
       position: { ...defenderBefore.position },
       hpBefore: defenderBefore.hp,
@@ -96,7 +103,7 @@ export function renderBattleScene(scene: BattleScene): string {
       <span class="battle-team-badge battle-team-badge-${unit.owner}">${unit.owner === 'red' ? '■' : '●'} ${unit.owner === 'red' ? labels.red : labels.blue}</span>
       <span class="battle-side-label">${sideLabel}</span>
       <span class="unit battle-sprite ${unit.owner} unit-${unit.kind}" aria-hidden="true"><span class="unit-art"></span></span>
-      <h3>${escapeHtml(name)}</h3>
+      <h3>${escapeHtml(name)}</h3>${unit.weapon ? `<p class="battle-weapon">${escapeHtml(weaponNames[unit.weapon])}</p>` : ''}
       <div class="battle-hp" role="meter" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${after}" aria-label="${escapeHtml(`${name} ${labels.hp} ${after}`)}">
         <span class="battle-hp-fill" style="--hp-before:${before}%;--hp-after:${after}%"></span>
       </div>
