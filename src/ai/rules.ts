@@ -492,8 +492,11 @@ function blocksProduction(state: GameState, player: PlayerId, position: Position
   if (atForceLimit(state, player, config) && tile.kind !== 'port' && tile.kind !== 'airport') return false;
   const productionRule = scenarioForState(state)?.productionRules ?? 'legacy-factory-air';
   const kinds = productionKindsForRule(productionRule, state.ruleVersion)[tile.kind] ?? [];
-  // Only a facility we could actually use this turn is being blocked.
-  if (!kinds.some(kind => unitStats[kind].cost <= state.players[player].gold)) return false;
+  if (!kinds.length) return false;
+  // Reserve ports and airports before their expensive units are affordable;
+  // otherwise cheap ground production can gridlock them before a fleet is lost.
+  if (tile.kind !== 'port' && tile.kind !== 'airport'
+    && !kinds.some(kind => unitStats[kind].cost <= state.players[player].gold)) return false;
   // Holding the facility is the right call when a visible enemy capturer could take it.
   return !knownEnemies.some(enemy => isDeployedUnit(enemy) && unitStats[enemy.kind].capturePower > 0 && manhattanDistance(enemy.position, position) <= 2);
 }
