@@ -3,7 +3,7 @@
 ## Three independent versions
 
 - Save/replay `schemaVersion: 4` is the container format. Readers accept 1 → 2 → 3 → 4 using named, adjacent, pure migrations, then strict validation. Unknown/future versions fail without writing.
-- `GameState.ruleVersion` controls game mechanics (classic, logistics/modern, decision rules, balanced opening/round-end scores). A container migration never silently enables a newer rule.
+- `GameState.ruleVersion` controls game mechanics (classic, logistics/modern, decision rules, balanced opening/round-end scores, and v5 dual weapons). A container migration never silently enables a newer rule.
 - `GameState.scenarioSnapshot` is a validated, canonical ScenarioData definition. New matches embed it so a catalog rename, replacement, deletion or another browser does not change the rules of that match. It is a definition snapshot, not a signature or proof of authorship.
 
 Campaign progress remains schema 3. Custom catalog schema remains unchanged with an optional validated `history` array. Backups have their own schema 1; they are not replays.
@@ -12,7 +12,7 @@ Campaign progress remains schema 3. Custom catalog schema remains unchanged with
 
 All JSON boundaries enforce UTF-8 size, iterative depth (64) and node count (200,000) before migration or cloning. Then they validate keys/types/ranges, reconstruct the canonical initial state, replay legal commands and compare the recorded final state/summary. A snapshot goes through the same scenario parser and never registers an imported scenario globally.
 
-Unit weapons and ammunition capacities are derived from the canonical unit kind, so weapon labels do not add saved fields or change rule versions. A present `ammo` must be a safe integer between zero and that kind's capacity, inclusive; omitted ammunition in historical data still means a full magazine. Negative, fractional, excessive and non-finite reserves are rejected before load or replay. Spectator camera choices are viewer-only state and do not enter saves, replays or CPU decisions.
+Weapon loadouts are derived from the canonical unit registry, with a primary weapon and at most one secondary weapon. New matches use `ruleVersion: 5`; classic and v2–v4 matches keep their original single weapon, damage, counters and seeded outcomes. The primary magazine remains `Unit.ammo`; v5 adds optional `Unit.secondaryAmmo`. Omission means a full magazine. Present reserves must be safe integers from zero to the corresponding weapon capacity; a secondary reserve is rejected for older rules or units without a secondary weapon. Attack commands optionally record `weaponSlot: 0 | 1`; omission selects the strongest legal weapon automatically, while an explicitly unavailable, empty, moved indirect or out-of-range weapon is rejected. Only the fired weapon spends a round. Counterattacks choose a legal direct weapon after the actual damage roll. Facilities, APC supply and merging restore/combine both magazines within their individual capacities. Enemy secondary ammunition is hidden just like primary ammunition. The save/replay container remains schema v4: the recorded game rule version controls the mechanics and older apps safely reject v5 states. Spectator camera choices are viewer-only state and do not enter saves, replays or CPU decisions.
 
 Save/replay/editor/catalog inputs are limited to 1,000,000 bytes; campaign data to 64,000; complete backup to 16,000,000. Existing command-count and board schema limits remain, but replay work is additionally limited to:
 

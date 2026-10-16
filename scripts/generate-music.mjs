@@ -1,7 +1,7 @@
 // Run in an output directory: node /path/to/scripts/generate-music.mjs [battle frontier ...].
-// With no arguments all six WAV themes are written. For the heroic pair, render
-// battle frontier together, then encode frontier at -5 dB and battle at -4.9 dB
-// with ffmpeg libvorbis -q:a 3. See public/assets/*-theme.md for the other mixes.
+// With no arguments all six WAV themes are written. Battle is a 1.95-second
+// one-shot cue; the field themes loop. Encode battle at -4.9 dB and frontier
+// at -5 dB with ffmpeg libvorbis -q:a 3. See public/assets/*-theme.md.
 // Campaign quartet: render dawn drive wasteland mist together; encode each at -5 dB, libvorbis quality 3.
 import fs from 'node:fs';
 import { Buffer } from 'node:buffer';
@@ -12,8 +12,8 @@ let seed = 12345;
 const rnd = () => { seed = (seed * 1664525 + 1013904223) >>> 0; return seed / 4294967296 * 2 - 1; };
 
 class Song {
-  constructor(sec) { this.N = Math.round(sec * SR); this.L = new Float32Array(this.N); this.R = new Float32Array(this.N); }
-  put(i, v, pan) { const k = ((i % this.N) + this.N) % this.N; const a = (pan + 1) / 2; this.L[k] += v * Math.cos(a * Math.PI / 2); this.R[k] += v * Math.sin(a * Math.PI / 2); }
+  constructor(sec, loop = true) { this.loop = loop; this.N = Math.round(sec * SR); this.L = new Float32Array(this.N); this.R = new Float32Array(this.N); }
+  put(i, v, pan) { if (!this.loop && (i < 0 || i >= this.N)) return; const k = ((i % this.N) + this.N) % this.N; const a = (pan + 1) / 2; this.L[k] += v * Math.cos(a * Math.PI / 2); this.R[k] += v * Math.sin(a * Math.PI / 2); }
 }
 const blep = (t, dt) => t < dt ? (t /= dt, t + t - t * t - 1) : t > 1 - dt ? (t = (t - 1) / dt, t * t + t + t + 1) : 0;
 
@@ -75,7 +75,7 @@ function reverb(s, wet, size = 1) {
     const fb = 0.86, damp = 0.35;
     const cbuf = combs.map(d => new Float32Array(d)), cpos = combs.map(() => 0), clp = combs.map(() => 0);
     const abuf = aps.map(d => new Float32Array(d)), apos = aps.map(() => 0);
-    for (let pass = 0; pass < 2; pass++) for (let i = 0; i < N; i++) {
+    for (let pass = 0; pass < (s.loop ? 2 : 1); pass++) for (let i = 0; i < N; i++) {
       const x = src[i]; let y = 0;
       for (let c = 0; c < combs.length; c++) {
         const b = cbuf[c], p = cpos[c], v = b[p];
@@ -84,7 +84,7 @@ function reverb(s, wet, size = 1) {
       for (let a = 0; a < aps.length; a++) {
         const b = abuf[a], p = apos[a], v = b[p]; const inp = y; y = -inp + v; b[p] = inp + v * 0.5; apos[a] = (p + 1) % b.length;
       }
-      if (pass === 1) out[ch][i] = x * (1 - wet) + y * wet * 0.35;
+      if (!s.loop || pass === 1) out[ch][i] = x * (1 - wet) + y * wet * 0.35;
     }
   });
   s.L = out[0]; s.R = out[1];
@@ -101,41 +101,41 @@ function finish(s, name, drive = 1.6) {
 const TRI = { Dm: [50, 53, 57], Gm: [43, 46, 50], Bb: [46, 50, 53], C: [48, 52, 55], F: [53, 57, 60], A: [45, 49, 52] };
 const ROOT = { Dm: 38, Gm: 31, Bb: 34, C: 36, F: 41, A: 33 };
 
-// ---------------- Battle: 168 BPM, D minor, 16 bars, urgent brass fanfare ----------------
+// ---------------- Battle: 200 BPM, D minor, 1.95s decisive brass sting ----------------
 function battle() {
-  const bpm = 168, beat = 60 / bpm, bar = beat * 4, bars = 16; const s = new Song(bar * bars);
-  const prog = ['Dm', 'Dm', 'Bb', 'C', 'Dm', 'Dm', 'Bb', 'A', 'Gm', 'Gm', 'Bb', 'F', 'Gm', 'Bb', 'C', 'A'];
-  const mel = [
-    [[0, 1.5, 74], [1.5, .5, 74], [2, 1, 77], [3, 1, 76]], [[0, 2, 74], [2, 1, 72], [3, 1, 69]],
-    [[0, 1.5, 70], [1.5, .5, 70], [2, 1, 74], [3, 1, 72]], [[0, 2, 72], [2, 1, 76], [3, 1, 79]],
-    [[0, 1.5, 81], [1.5, .5, 79], [2, 1, 77], [3, 1, 74]], [[0, 1, 77], [1, 1, 76], [2, 1, 74], [3, 1, 76]],
-    [[0, 1, 74], [1, 1, 72], [2, 1, 70], [3, 1, 72]], [[0, 2, 73], [2, 1, 76], [3, 1, 81]],
-    [[0, 1.5, 79], [1.5, .5, 79], [2, 1, 82], [3, 1, 81]], [[0, 2, 79], [2, 1, 77], [3, 1, 74]],
-    [[0, 1.5, 82], [1.5, .5, 82], [2, 1, 86], [3, 1, 84]], [[0, 2, 81], [2, 1, 77], [3, 1, 81]],
-    [[0, 1, 79], [1, 1, 82], [2, 1, 86], [3, 1, 82]], [[0, 1, 84], [1, 1, 82], [2, 1, 79], [3, 1, 82]],
-    [[0, 1, 84], [1, 1, 79], [2, 1, 76], [3, 1, 79]], [[0, 2, 85], [2, 1, 88], [3, 1, 81]],
-  ];
-  for (let b = 0; b < bars; b++) {
-    const T = b * bar, ch = prog[b], root = ROOT[ch], intense = b >= 8 ? 1.15 : 1;
-    for (const [pan, det] of [[-0.55, 9], [0.55, 11]]) for (const m of TRI[ch]) tone(s, { t: T, dur: bar, freq: mtof(m), vol: 0.05, pan, detune: det, voices: 3, attack: 0.25, release: 0.4, cutoff: 1300, res: 0.1 });
-    tone(s, { t: T, dur: bar, freq: mtof(root), vol: 0.22, voices: 1, wave: 'sin', attack: 0.01, release: 0.1 });
-    for (let e = 0; e < 8; e++) tone(s, { t: T + e * beat / 2, dur: beat / 2 * 0.85, freq: mtof(root + 12), vol: 0.17, voices: 2, detune: 6, attack: 0.005, release: 0.05, cutoff: 260, peak: 900, decay: 0.09, res: 0.3 });
-    const pat = [0, 7, 12, 7];
-    for (let k = 0; k < 16; k++) tone(s, { t: T + k * beat / 4, dur: beat / 4 * 0.8, freq: mtof(root + 24 + pat[k % 4]), vol: (k % 4 === 0 ? 0.075 : 0.05) * intense, pan: k % 2 ? 0.35 : -0.35, voices: 3, detune: 10, attack: 0.004, release: 0.04, cutoff: 700, peak: 2200, decay: 0.07, res: 0.15 });
-    for (const [bt, d, m] of mel[b]) {
-      tone(s, { t: T + bt * beat, dur: d * beat * 0.84, freq: mtof(m), vol: 0.17 * intense, pan: 0.1, voices: 4, detune: 12, attack: 0.012, release: 0.075, cutoff: 1200, peak: 3800, decay: 0.18, res: 0.12, vib: 0.004 });
-      tone(s, { t: T + bt * beat, dur: d * beat * 0.84, freq: mtof(m - 12), vol: 0.12 * intense, pan: -0.15, voices: 4, detune: 10, attack: 0.018, release: 0.085, cutoff: 850, peak: 2800, decay: 0.18, res: 0.12, vib: 0.004 });
-    }
-    for (const m of TRI[ch]) tone(s, { t: T, dur: beat * 0.9, freq: mtof(m + 12), vol: 0.06, voices: 3, detune: 12, attack: 0.01, release: 0.1, cutoff: 800, peak: 3000, decay: 0.15 });
-    taiko(s, T, 0.85, 62); kick(s, T + beat * 2, 0.7); kick(s, T + beat * 1.5, 0.45); taiko(s, T + beat * 3.5, 0.55, 70);
-    snare(s, T + beat, 0.5); snare(s, T + beat * 3, 0.55);
-    // Quiet flams and pickup strokes give the snare a military roll rather than a flat backbeat.
-    for (const q of [0.875, 2.875, 3.75]) snare(s, T + beat * q, 0.12);
-    for (let h = 0; h < 8; h++) hat(s, T + h * beat / 2, h % 2 ? 0.1 : 0.06, h % 2 ? 0.4 : -0.4);
-    if (b % 4 === 0) crash(s, T, 0.28);
-    if (b % 8 === 7) { for (let r = 0; r < 8; r++) snare(s, T + beat * 3 + r * beat / 8, 0.18 + r * 0.05); taiko(s, T + beat * 3.5, 0.9, 55); }
+  // Independent seed: rendering other themes cannot change this cue.
+  seed = 20261016;
+  const beat = 60 / 200;
+  const s = new Song(1.95, false);
+  // A rising pickup, dominant tension, then a resolved D-minor power chord.
+  const melody = [[0, .5, 74], [.5, .5, 77], [1, 1, 81], [2, .5, 84], [2.5, .5, 85], [3, 1, 86]];
+  for (const [start, length, note] of melody) {
+    for (const [octave, pan, vol] of [[0, .15, .16], [-12, -.2, .1]]) tone(s, {
+      t: start * beat, dur: length * beat * .78, freq: mtof(note + octave), vol, pan,
+      voices: 4, detune: 10, attack: .006, release: .06, cutoff: 1100, peak: 3600, decay: .12, res: .12,
+    });
   }
-  reverb(s, 0.24); finish(s, 'battle.wav', 1.5);
+  for (let step = 0; step < 8; step++) {
+    tone(s, { t: step * beat / 2, dur: .1, freq: mtof(38 + [0, 7, 12, 7][step % 4]), vol: .17, voices: 2, attack: .004, release: .04, cutoff: 350, peak: 1000, decay: .06 });
+    hat(s, step * beat / 2, .06, step % 2 ? .35 : -.35);
+  }
+  boom(s, { t: 0, f0: 130, f1: 48, dur: .32, vol: .8, click: .2 });
+  snare(s, .3, .28); snare(s, .6, .32); snare(s, .9, .38);
+  for (const t of [.975, 1.05, 1.125]) snare(s, t, .18);
+  // Final hit at 1.2s, after both combat impacts; all releases finish inside the scene.
+  for (const note of [50, 57, 62, 65, 74, 81]) tone(s, {
+    t: 1.2, dur: .28, freq: mtof(note), vol: .095, pan: note % 2 ? .4 : -.4,
+    voices: 3, detune: 9, attack: .006, release: .26, cutoff: 950, peak: 2900, decay: .2,
+  });
+  boom(s, { t: 1.2, f0: 110, f1: 46, dur: .48, vol: .9, click: .2 });
+  noiseHit(s, { t: 1.2, dur: .6, vol: .2, hp: .9, shape: 2.5 });
+  reverb(s, .18, .65);
+  // No tail wrapping. Fade the final 180ms to silence before the 2.05s scene ends.
+  for (let i = 0; i < s.N; i++) {
+    const gain = Math.min(1, i / (SR * .004), (s.N - 1 - i) / (SR * .18));
+    s.L[i] *= gain; s.R[i] *= gain;
+  }
+  finish(s, 'battle.wav', 1.5);
 }
 
 // ---------------- Frontier: 144 BPM, D minor, 16 bars, brisk heroic march ----------------

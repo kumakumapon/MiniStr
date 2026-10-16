@@ -143,7 +143,7 @@ export function updateScenarioScores(previous: GameState, next: GameState): Game
  */
 export function evaluateScenario(state: GameState, scenario: ScenarioDefinition, tieBreaker: PlayerId = state.activePlayer, roundComplete = true): PlayerId | undefined {
   if (state.winner) return state.winner;
-  if (state.ruleVersion === BALANCED_RULE_VERSION) {
+  if ((state.ruleVersion ?? 0) >= BALANCED_RULE_VERSION) {
     const nonScore = (conditions: readonly VictoryCondition[], player: PlayerId) => conditions.some(condition => condition.type !== 'score' && isVictoryConditionMet(state, condition, player));
     const redImmediate = nonScore(scenario.victoryConditions, 'red'), blueImmediate = nonScore(scenario.defeatConditions, 'blue');
     if (redImmediate || blueImmediate) return redImmediate && blueImmediate ? tieBreaker : redImmediate ? 'red' : 'blue';
@@ -191,7 +191,7 @@ export function isDecisionScenario(scenario: ScenarioDefinition): boolean {
 /** The decision round for this match, or undefined when no decision victory applies. */
 export function decisionRound(state: GameState, scenario: ScenarioDefinition | undefined = scenarioForState(state)): number | undefined {
   if (!usesDecisionRules(state) || !scenario || !isDecisionScenario(scenario)) return undefined;
-  return state.ruleVersion === BALANCED_RULE_VERSION ? scenario.decisionRound ?? DECISION_ROUND : DECISION_ROUND;
+  return (state.ruleVersion ?? 0) >= BALANCED_RULE_VERSION ? scenario.decisionRound ?? DECISION_ROUND : DECISION_ROUND;
 }
 
 export interface DecisionStanding {

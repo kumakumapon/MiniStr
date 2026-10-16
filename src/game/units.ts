@@ -9,9 +9,26 @@ export type ProductionTerrain = 'factory' | 'airport' | 'port';
 /** Semantic alias for callers that refer to production sites as facilities. */
 export type ProductionFacilityKind = ProductionTerrain;
 
+export type WeaponSlot = 0 | 1;
+export interface UnitWeapon {
+  kind: WeaponKind;
+  attack: number;
+  range: readonly [number, number];
+  ammo: number;
+  indirect: boolean;
+  effectiveness: Readonly<Record<UnitCategory, number>>;
+}
+
+const machineGun = (attack: number): UnitWeapon => ({ kind: 'machineGun', attack, range: [1, 1], ammo: 6, indirect: false,
+  effectiveness: { soft: 1, armor: 0.2, air: 0.3, sea: 0.2 } });
+const navalAntiAir: UnitWeapon = { kind: 'antiAirCannon', attack: 45, range: [1, 2], ammo: 6, indirect: false,
+  effectiveness: { soft: 0.4, armor: 0.25, air: 1.5, sea: 0.4 } };
+
 export interface UnitDefinition {
   /** Fixed weapon for this kind; attack, range and ammunition capacity are defined in stats. */
   weapon: WeaponKind | null;
+  /** One optional secondary weapon keeps the loadout at a maximum of two. */
+  secondaryWeapon?: UnitWeapon;
   category: UnitCategory;
   movementProfile: MovementProfile;
   productionTerrain: ProductionTerrain;
@@ -51,18 +68,21 @@ export const unitDefinitions = {
   },
   tank: {
     weapon: 'tankCannon',
+    secondaryWeapon: machineGun(40),
     category: 'armor', movementProfile: 'vehicle', productionTerrain: 'factory', mergeable: true,
     stats: { cost: 7000, movement: 5, attack: 75, defense: 35, capturePower: 0, range: [1, 1], fuel: 70, fuelPerTurn: 0, ammo: 6, vision: 3, indirect: false },
     effectiveness: { soft: 1.0, armor: 1.0, air: 0.35, sea: 0.6 },
   },
   artillery: {
     weapon: 'howitzer',
+    secondaryWeapon: machineGun(25),
     category: 'armor', movementProfile: 'vehicle', productionTerrain: 'factory', mergeable: true,
     stats: { cost: 6000, movement: 4, attack: 70, defense: 20, capturePower: 0, range: [2, 3], fuel: 50, fuelPerTurn: 0, ammo: 6, vision: 3, indirect: true },
     effectiveness: { soft: 1.15, armor: 1.0, air: 0.5, sea: 0.9 },
   },
   rocket: {
     weapon: 'rocketLauncher',
+    secondaryWeapon: machineGun(25),
     category: 'armor', movementProfile: 'vehicle', productionTerrain: 'factory', mergeable: true,
     stats: { cost: 12000, movement: 5, attack: 90, defense: 20, capturePower: 0, range: [3, 5], fuel: 50, fuelPerTurn: 0, ammo: 5, vision: 3, indirect: true },
     effectiveness: { soft: 1.2, armor: 1.05, air: 0.5, sea: 1.0 },
@@ -81,18 +101,21 @@ export const unitDefinitions = {
   },
   fighter: {
     weapon: 'airMissile',
+    secondaryWeapon: machineGun(45),
     category: 'air', movementProfile: 'air', productionTerrain: 'airport', mergeable: true,
     stats: { cost: 20000, movement: 8, attack: 85, defense: 15, capturePower: 0, range: [1, 1], fuel: 60, fuelPerTurn: 5, ammo: 6, vision: 5, indirect: false },
     effectiveness: { soft: 0.5, armor: 0.4, air: 1.4, sea: 0.5 },
   },
   bomber: {
     weapon: 'bomb',
+    secondaryWeapon: machineGun(30),
     category: 'air', movementProfile: 'air', productionTerrain: 'airport', mergeable: true,
     stats: { cost: 22000, movement: 7, attack: 95, defense: 10, capturePower: 0, range: [1, 1], fuel: 70, fuelPerTurn: 5, ammo: 6, vision: 4, indirect: false },
     effectiveness: { soft: 1.25, armor: 1.25, air: 0.4, sea: 1.25 },
   },
   destroyer: {
     weapon: 'navalGun',
+    secondaryWeapon: navalAntiAir,
     category: 'sea', movementProfile: 'sea', productionTerrain: 'port', mergeable: true,
     stats: { cost: 12000, movement: 6, attack: 70, defense: 30, capturePower: 0, range: [1, 1], fuel: 99, fuelPerTurn: 2, ammo: 9, vision: 4, indirect: false },
     effectiveness: { soft: 0.7, armor: 0.7, air: 1.1, sea: 1.0 },
@@ -106,24 +129,29 @@ export const unitDefinitions = {
   // Phase 9 (#114) units, available only under the modern rules.
   mech: {
     weapon: 'antiTankLauncher',
+    secondaryWeapon: { kind: 'rifle', attack: 55, range: [1, 1], ammo: 9, indirect: false,
+      effectiveness: { soft: 1, armor: 0.3, air: 0.25, sea: 0.2 } },
     category: 'soft', movementProfile: 'foot', productionTerrain: 'factory', mergeable: true, embarkable: true, modernOnly: true,
     stats: { cost: 3000, movement: 2, attack: 60, defense: 15, capturePower: 10, range: [1, 1], fuel: 70, fuelPerTurn: 0, ammo: 3, vision: 2, indirect: false },
     effectiveness: { soft: 0.9, armor: 1.15, air: 0.35, sea: 0.3 },
   },
   heavyTank: {
     weapon: 'heavyTankCannon',
+    secondaryWeapon: machineGun(45),
     category: 'armor', movementProfile: 'vehicle', productionTerrain: 'factory', mergeable: true, modernOnly: true, incomingDamageFactor: 0.7,
     stats: { cost: 16000, movement: 4, attack: 100, defense: 55, capturePower: 0, range: [1, 1], fuel: 50, fuelPerTurn: 0, ammo: 5, vision: 2, indirect: false },
     effectiveness: { soft: 1.0, armor: 1.05, air: 0.3, sea: 0.65 },
   },
   helicopter: {
     weapon: 'helicopterRocket',
+    secondaryWeapon: machineGun(35),
     category: 'air', movementProfile: 'air', productionTerrain: 'airport', mergeable: true, modernOnly: true,
     stats: { cost: 9000, movement: 6, attack: 60, defense: 10, capturePower: 0, range: [1, 1], fuel: 99, fuelPerTurn: 2, ammo: 6, vision: 3, indirect: false },
     effectiveness: { soft: 1.1, armor: 0.9, air: 0.4, sea: 0.6 },
   },
   battleship: {
     weapon: 'heavyNavalGun',
+    secondaryWeapon: navalAntiAir,
     category: 'sea', movementProfile: 'sea', productionTerrain: 'port', mergeable: true, modernOnly: true, incomingDamageFactor: 0.8,
     stats: { cost: 28000, movement: 5, attack: 90, defense: 45, capturePower: 0, range: [2, 6], fuel: 99, fuelPerTurn: 2, ammo: 6, vision: 3, indirect: true },
     effectiveness: { soft: 1.1, armor: 1.0, air: 0.2, sea: 1.0 },

@@ -1,3 +1,5 @@
+import { weaponNames } from './ui/labels';
+import { hasUsableWeapon, weaponsForUnit, type WeaponSlot } from './game';
 import './style.css';
 import { getLocale, setLocale, localizeControls, renderLocalePicker } from './ui/locale';
 import { renderLearning } from './ui/learning';
@@ -26,7 +28,7 @@ import { recordCampaignVeterans } from './game/campaign';
 import { withinInteractiveMatchBudget } from './game/session';
 const localStorage = createBrowserStorage(() => window.localStorage);
 document.documentElement.lang = setLocale(localStorage.getItem('ministr.locale'));
-import { isEmbarkableUnit, isMergeableUnit, otherPlayer, remainingAmmo, transportCapacity } from './game';
+import { isEmbarkableUnit, isMergeableUnit, otherPlayer, transportCapacity } from './game';
 import { allProducibleUnitKinds, applyGameCommand, AUTO_SAVE_KEY, availableScenarios, campaignStages, countProductionFacilities, createCampaignProgress, createReplay, createScenarioEditor, createScenarioInitialState, damageRange, decisionRound, decisionStanding, deleteSaves, experienceRank, describeVictoryCondition, enemyThreatPreview, exportScenarioEditorJson, forecastCombat, getConditionProgress, gradeCampaignBattle, hasSavedGame, hasStoredSaveData, idleProductionFacilities, importScenarioEditorJson, isCampaignScenarioUnlocked, isDeployedUnit, isUnitKindAvailable, isPropertyTerrainKind, loadCampaignProgress, loadCustomScenarios, loadGame, MANUAL_SAVE_KEY, maps, MAX_REPLAY_BYTES, parseReplay, productionKindsForRule, productionRules, reachablePositionsForPlayer, recordCampaignVictory, saveCampaignProgress, saveCustomScenario, saveGame, scenarioById, scenarioLoadError, serializeReplay, summarizeRepairs, unitLimit, usesDecisionRules, victoryReason, type CampaignGradeResult, type DeployedUnit, type GameCommand, type GameState, type PlayerId, type Position, type ProductionRule, type ReplayFile, type ScenarioEditorState, type TerrainKind, type UnitKind, type VictoryCondition, unitStats, visibleEnemies, visibleEnemyThreats, visiblePositions } from './game';
 import { chooseCpuAction, type CpuDifficulty } from './ai';
 import { nextBoardPosition } from './ui/boardNavigation';
@@ -57,6 +59,8 @@ import { deleteSaveSlot, getStorageUsage, listSaveSlots, loadGameFromSlot, saveG
 let selectedMap = maps[0]!;
 let game = start(selectedMap.id);
 let selected: string | undefined;
+let weaponSelection: { unitId: string; slot: WeaponSlot } | undefined;
+const selectedWeaponSlot = (): WeaponSlot | undefined => weaponSelection?.unitId === selected ? weaponSelection?.slot : undefined;
 let focusedPosition: Position = { x: 0, y: 0 };
 let message: string = uiText.defaultInstruction;
 const loadedCustomScenarios = loadCustomScenarios(localStorage);
@@ -180,6 +184,14 @@ const loadedCampaign = loadCampaignProgress(localStorage);
 let campaignProgress = loadedCampaign.ok ? loadedCampaign.value : createCampaignProgress();
 let campaignNotice = loadedCampaign.ok ? '' : loadedCampaign.error;
 const app = document.querySelector<HTMLDivElement>('#app')!;
+app.addEventListener('change', event => {
+  const input = event.target;
+  if (!(input instanceof HTMLSelectElement) || input.id !== 'attack-weapon' || !canCommand() || !selected) return;
+  const slot = input.value === '0' ? 0 : input.value === '1' ? 1 : undefined;
+  weaponSelection = slot === undefined ? undefined : { unitId: selected, slot };
+  focusSelector = '#attack-weapon';
+  render();
+});
 installModalFocusTrap(document);
 const focusRestoreGuard = new FocusRestoreGuard();
 document.addEventListener('focusin', () => focusRestoreGuard.noteFocusChange());
@@ -202,7 +214,7 @@ function showTacticalScene(scene: BattleScene | ActionScene): void {
   if (tacticalSceneTimer !== undefined) window.clearTimeout(tacticalSceneTimer);
   stopBattleAudio?.();
   stopBattleAudio = undefined;
-  musicPlayer.setBattle('attacker' in scene);
+  musicPlayer.setBattle('attacker' in scene, true);
   if ('attacker' in scene) stopBattleAudio = playBattleSceneAudio(scene, (cue, kind) => soundPlayer.playBattle(cue, kind));
   activeTacticalScene = scene;
   activeTacticalSceneDurationMs = 'attacker' in scene ? BATTLE_SCENE_DURATION_MS : ACTION_SCENE_DURATION_MS;
@@ -327,7 +339,7 @@ function refreshFocusedTileViews(): void {
   if (inspector) inspector.outerHTML = renderTileInspector(replay?.state ?? game, renderedMap.productionRules);
   const brief = app.querySelector('#unit-brief');
   const state = replay?.state ?? game;
-  if (brief) brief.outerHTML = renderUnitBrief(state, viewer(), new Set(shownPositions(state).map(key)), selected, focusedPosition);
+  if (brief) brief.outerHTML = renderUnitBrief(state, viewer(), new Set(shownPositions(state).map(key)), selected, focusedPosition, selectedWeaponSlot(), canCommand());
 }
 
 /** Re-applies the width-derived default zoom unless the player has set it themselves. */
@@ -339,6 +351,7 @@ function confirmReplaceMatch(): boolean {
   return game.winner !== undefined || commandHistory.length === 0 || window.confirm('進行中の対局を置き換えますか？未保存の操作は失われます。');
 }
 function resetGame(mapId: string, operation?: ScenarioDefinition): void {
+  weaponSelection = undefined;
   productionMenuOpen = false;
   productionNotice = '';
   productionReturnSelector = undefined;
@@ -753,7 +766,7 @@ function render(): void {
     const fuelWarning = fuelTurns !== undefined && fuelTurns <= 2
       ? `、燃料警告: ${unit!.fuel ?? unitStats[unit!.kind].fuel}、補給まで残り ${fuelTurns} 行動機会`
       : '';
-    const ammoEmpty = unit && !hidden && unit.owner === me && unitStats[unit.kind].ammo > 0 && remainingAmmo(unit) === 0;
+    const ammoEmpty = unit && !hidden && unit.owner === me && unitStats[unit.kind].ammo > 0 && !hasUsableWeapon(renderedGame, unit, false);
     const ammoWarning = ammoEmpty ? `、${uiText.ammoEmpty}` : '';
     const rank = unit ? experienceRank(unit.experience) : 0;
     const unitLabel = unit && !hidden ? `${sideName(matchMode, unit.owner)}の${unitNames[unit.kind]}${rank ? `（${rankNames[rank]}）` : ''}、耐久 ${unit.hp}${cargo ? `、搭載 ${unitNames[cargo.kind]}` : ''}${fuelWarning}${ammoWarning}` : '';
@@ -801,7 +814,7 @@ function render(): void {
     const facilityName = terrainNames[facility?.kind ?? productionTerrain ?? 'factory'];
     const where = buildable ? `${facilityName} (${facility.position.x + 1}, ${facility.position.y + 1})` : facilityName;
     const availability = atUnitLimit ? '部隊数が上限です' : !buildable ? '生産可能な空き施設がありません' : !affordable ? `資金不足（あと ${missing}G）` : '生産可能';
-    return `<button class="produce produce-${kind}" data-kind="${kind}" ${!canAct || atUnitLimit || !buildable || !affordable ? 'disabled' : ''} title="${where}で${unitNames[kind]}を生産 (${cost}G) — ${unitWeaponName(kind)}・${uiText.ammoCapacity} ${unitStats[kind].ammo} — ${availability}" aria-label="${where}で${unitNames[kind]}を${cost}ゴールドで生産、${availability}"><span aria-hidden="true">${unitTokens[kind]}</span>${unitNames[kind]} <em>${cost}G</em>${!affordable ? ` <small>資金不足（あと ${missing}G）</small>` : ''}</button>`;
+    return `<button class="produce produce-${kind}" data-kind="${kind}" ${!canAct || atUnitLimit || !buildable || !affordable ? 'disabled' : ''} title="${where}で${unitNames[kind]}を生産 (${cost}G) — ${unitWeaponName(kind, renderedGame)}・${uiText.ammoCapacity} ${weaponsForUnit(kind, renderedGame).map(weapon => weapon.ammo).join(' / ')} — ${availability}" aria-label="${where}で${unitNames[kind]}を${cost}ゴールドで生産、${availability}"><span aria-hidden="true">${unitTokens[kind]}</span>${unitNames[kind]} <em>${cost}G</em>${!affordable ? ` <small>資金不足（あと ${missing}G）</small>` : ''}</button>`;
   }).join('');
   const productionLauncher = `<button id="open-production" class="save-action production-launcher" ${!canAct || !idleFacilities.length || atUnitLimit ? 'disabled' : ''}>ユニット生産 <span>${idleFacilities.length}施設</span></button>`;
   const productionSummary = `<p class="production-summary">空き生産施設 <strong>${idleFacilities.length}</strong> / ${countProductionFacilities(renderedGame, me, productionRule)}${ownUnitLimit !== undefined ? `・部隊数 <strong>${ownUnitCount}</strong> / ${ownUnitLimit}` : ''}</p>`;
@@ -846,14 +859,15 @@ function render(): void {
     ? `<section class="transport-card"><p class="card-kicker">TRANSPORT OPERATION</p><strong>${cargo ? `${unitNames[cargo.kind]}を搭載中` : '輸送部隊への搭載'}</strong><span>${cargo ? '隣接する空の陸地を選んで降車させます。' : '隣接する空の輸送部隊を選んで搭載します。'}</span>${embarkTargets.map(unit => `<button class="transport-action embark" data-transport-id="${unit.id}">${unitNames[unit.kind]}に搭載</button>`).join('')}${landingTargets.map(position => `<button class="transport-action disembark" data-x="${position.x}" data-y="${position.y}">(${position.x + 1}, ${position.y + 1}) に降車</button>`).join('')}${cargo && landingTargets.length === 0 ? '<em class="transport-note">降車できる隣接陸地がありません。</em>' : ''}</section>`
     : '';
   const indirectFireBlocked = !replayMode && selectedUnit?.owner === renderedGame.activePlayer
-    && unitStats[selectedUnit.kind].indirect && selectedUnit.hasMoved && !selectedUnit.hasActed;
+    && unitStats[selectedUnit.kind].indirect && selectedUnit.hasMoved && !selectedUnit.hasActed
+    && !hasUsableWeapon(renderedGame, selectedUnit);
   const forecasts = !replayMode && selectedUnit && selectedUnit.owner === renderedGame.activePlayer && !indirectFireBlocked
-    ? visibleEnemies(renderedGame, selectedUnit.owner).map(enemy => ({ enemy, forecast: forecastCombat(renderedGame, selectedUnit, observedEnemy(enemy)) })).filter((item): item is { enemy: typeof item.enemy; forecast: Extract<typeof item.forecast, { ok: true }> } => item.forecast.ok)
+    ? visibleEnemies(renderedGame, selectedUnit.owner).map(enemy => ({ enemy, forecast: forecastCombat(renderedGame, selectedUnit, observedEnemy(enemy), selectedWeaponSlot()) })).filter((item): item is { enemy: typeof item.enemy; forecast: Extract<typeof item.forecast, { ok: true }> } => item.forecast.ok)
     : [];
   const forecastCard = forecasts.length > 0 || indirectFireBlocked ? `<section class="forecast-card"><p class="card-kicker">戦闘予測</p>${forecasts.map(({ enemy, forecast }) => {
     const outgoing = damageRange(forecast.value.damageToDefender);
     const incoming = forecast.value.possibleCounter ? { min: 0, max: forecast.value.incoming.max } : undefined;
-    return `<div class="forecast-row"><span>${unitNames[enemy.kind]}（耐久 ${enemy.hp}）</span><span class="forecast-damage">与 ${outgoing.min}〜${outgoing.max}</span><span class="forecast-counter">被 ${incoming ? `${incoming.min}〜${incoming.max}` : 'なし'}</span></div>`;
+    return `<div class="forecast-row"><span>${unitNames[enemy.kind]}（耐久 ${enemy.hp}）<small>${weaponNames[weaponsForUnit(selectedUnit!.kind, renderedGame)[forecast.value.attackWeapon]!.kind]}</small></span><span class="forecast-damage">与 ${outgoing.min}〜${outgoing.max}</span><span class="forecast-counter">被 ${incoming ? `${incoming.min}〜${incoming.max}` : 'なし'}</span></div>`;
   }).join('')}${indirectFireBlocked ? '<p class="forecast-note">間接砲は移動したターンに射撃できません。</p>' : selectedUnit!.hasActed ? '<p class="forecast-note">このユニットは行動済みです。</p>' : ''}</section>` : '';
   const summaryResult = !replayMode && renderedGame.winner ? resultCache.summarize(renderedGame, initialState, commandHistory, renderedMap.id, difficulty) : undefined;
   const summary = summaryResult?.ok ? summaryResult.value : undefined;
@@ -880,7 +894,7 @@ function render(): void {
     : { image: './assets/commander-blue.webp', alt: '青軍司令官の肖像', title: 'BLUE COMMAND', label: matchMode === 'cpu' ? '敵軍司令部' : '青軍司令部' };
   const mapTheme = `theme-${renderedMap.theme}`;
   const tileInspectorPanel = renderTileInspector(renderedGame, productionRule);
-  const unitBriefPanel = renderUnitBrief(renderedGame, me, visible, selected, focusedPosition);
+  const unitBriefPanel = renderUnitBrief(renderedGame, me, visible, selected, focusedPosition, selectedWeaponSlot(), canCommand());
   const turnStatus = !replayMode && matchMode === 'cpu' && !renderedGame.winner
     ? `<section class="map-turn-status ${cpuInProgress ? 'enemy' : 'player'}" aria-label="手番の進行"><div role="status"><strong>${renderedGame.activePlayer === 'blue' ? cpuInProgress ? uiText.enemyTurnTitle : uiText.enemyTurnPausedTitle : uiText.playerTurnTitle} · ${renderedGame.turn}</strong><p>${escapeHtml(localStorage.conflicted ? uiText.turnStopped : cpuInProgress ? uiText.enemyTurnHint : uiText.playerTurnHint)}</p></div>${canAct && !localStorage.conflicted ? `<button id="board-end-turn" class="save-action">${uiText.boardEndTurn}</button>` : ''}</section>` : '';
   // The current numbered turn is still playable; timeout is normalized to a
@@ -1695,8 +1709,11 @@ function act(position: Position): void {
     selected = target.id;
     message = `${unitNames[target.kind]}を選択しました。`;
   } else if (target?.owner === foe && selected && selectedUnitIsOwn()) {
-    if (dispatch({ type: 'attack', unitId: selected, targetId: target.id }, true)) message = '攻撃しました。';
-    selected = undefined;
+    if (dispatch({ type: 'attack', unitId: selected, targetId: target.id, ...(selectedWeaponSlot() === undefined ? {} : { weaponSlot: selectedWeaponSlot() }) }, true)) {
+      message = '攻撃しました。';
+      selected = undefined;
+      weaponSelection = undefined;
+    }
   } else if (target?.owner === foe) {
     selected = target.id;
     message = `${unitNames[target.kind]}の移動範囲と攻撃危険域を表示しています。`;

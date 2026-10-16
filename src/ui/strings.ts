@@ -92,7 +92,8 @@ const japaneseText = {
   resupply: '補給',
   resupplyAt: (facilities: string) => `自軍の${facilities}で手番開始時に全補充`,
   resupplyByApc: '・自軍APCの隣または搭載中も補充',
-  ammoGuide: '攻撃・反撃ごとに弾薬を1消費します。弾切れでは攻撃・反撃できません。対応施設やAPCで補給すると上限まで戻ります。輸送艦は非武装です。',
+  ammoGuide:
+    '武器は最大2種類。武器ごとに威力・射程・弾数が異なり、使用した武器の弾薬だけを1消費します。攻撃武器はユニット情報で選択でき、自動では相手へのダメージが最大になる使用可能な武器を選びます。反撃も自動選択。間接武器は移動後に使えませんが、副武器の機関銃などは使用できます。対応施設やAPCで両方を補給します。旧対局は従来の1武器、輸送艦は非武装です。',
   titleKicker: 'TACTICAL COMMAND',
   titleHeading: 'MiniStr',
   titleLead: '戦域を選んで作戦を開始してください。',
@@ -210,7 +211,7 @@ export const uiText = localized(japaneseText, {
   resupplyAt: (facilities) => `Fully replenished at owned ${facilities} at turn start`,
   resupplyByApc: '; also beside or aboard an allied APC',
   ammoGuide:
-    'Each attack or counterattack uses one round. Empty magazines cannot attack or counterattack. Compatible facilities or APCs restore ammunition to capacity. Landing ships are unarmed.',
+    'Units carry up to two weapons, each with its own power, range and ammunition. Only the fired weapon uses a round. Choose a weapon in unit information; Auto and counterattacks pick the strongest available weapon for the target. Indirect weapons cannot fire after moving, but direct secondary weapons can. Compatible facilities or APCs refill both magazines. Older matches keep one weapon. Landing ships are unarmed.',
   titleKicker: 'TACTICAL COMMAND',
   titleHeading: 'MiniStr',
   titleLead: 'Choose a battlefield to start an operation.',
@@ -259,6 +260,7 @@ const commandErrorMessages: Record<string, string> = {
   'Unit cannot capture': 'このユニットは占領できません。',
   'Unit cannot attack': 'このユニットは攻撃できません。',
   'Indirect units cannot attack after moving': '間接砲は移動したターンに攻撃できません。',
+  'Weapon is not available': 'この武器は装備されていません。',
   'Unit is out of ammunition': '弾薬切れのため攻撃できません。',
   'Target is not visible': '未索敵の敵ユニットは攻撃できません。',
   'A deployed embarkable unit and transport are required': '盤上の搭載可能ユニットと輸送部隊を選んでください。',

@@ -1,5 +1,5 @@
 import type { GameCommand, GameState, PlayerId, Position, TerrainKind, UnitKind } from '../game';
-import { adjacentToSupplyUnit, isDeployedUnit, isServiceTile, isSupplyUnit, unitStats } from '../game';
+import { adjacentToSupplyUnit, isDeployedUnit, isServiceTile, isSupplyUnit, weaponAmmo, weaponsForUnit, unitStats } from '../game';
 import { unitNames, terrainNames } from './labels';
 import { getLocale } from './locale';
 import { escapeHtml } from './strings';
@@ -20,7 +20,7 @@ export interface CaptureActionScene {
 }
 
 export interface LogisticsResourceChange {
-  resource: 'hp' | 'fuel' | 'ammo';
+  resource: 'hp' | 'fuel' | 'ammo' | 'secondaryAmmo';
   before: number;
   after: number;
 }
@@ -99,6 +99,11 @@ export function actionSceneForCommand(before: GameState, command: GameCommand, a
         before: ammoBefore,
         after: ammoAfter,
       });
+    if (weaponsForUnit(unit.kind, after)[1]) {
+      const beforeAmmo = weaponAmmo(previous, 1);
+      const afterAmmo = weaponAmmo(unit, 1);
+      if (afterAmmo > beforeAmmo) resources.push({ resource: 'secondaryAmmo', before: beforeAmmo, after: afterAmmo });
+    }
     if (!resources.length) continue;
 
     const carrier = unit.embarkedIn ? after.units.find((candidate) => candidate.id === unit.embarkedIn) : undefined;
@@ -204,7 +209,9 @@ function sourceLabel(source: LogisticsChange['source'], english: boolean): strin
 function renderLogisticsScene(scene: LogisticsActionScene, english: boolean): string {
   const changes = scene.changes.slice(0, 4);
   const extraCount = scene.changes.length - changes.length;
-  const resourceLabels = english ? { hp: 'HP', fuel: 'FUEL', ammo: 'AMMO' } : { hp: '耐久', fuel: '燃料', ammo: '弾薬' };
+  const resourceLabels = english
+    ? { hp: 'HP', fuel: 'FUEL', ammo: 'AMMO', secondaryAmmo: 'SECONDARY AMMO' }
+    : { hp: '耐久', fuel: '燃料', ammo: '弾薬', secondaryAmmo: '副武器弾薬' };
   return `<header class="action-scene-header">
       <div><p class="card-kicker">SUPPLY &amp; SERVICE</p><h2 id="tactical-scene-title">${english ? 'Resupply and repairs' : '補給・整備'}</h2></div>
       <span class="action-scene-terrain">${english ? `${scene.changes.length} units serviced` : `${scene.changes.length}部隊を整備`}</span>
