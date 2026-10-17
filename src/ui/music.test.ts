@@ -26,6 +26,7 @@ class FakeAudio {
   preload = '';
   volume = 1;
   currentTime = 0;
+  ended = false;
   readonly play = vi.fn(async () => {});
   readonly pause = vi.fn();
 }
@@ -78,7 +79,11 @@ describe('BackgroundMusicPlayer', () => {
     await player.unlock();
     normal.currentTime = 12;
     battle.currentTime = 4;
+    // A media element can keep ended=true until the asynchronous seek finishes.
+    battle.ended = true;
+    const beforeStart = battle.play.mock.calls.length;
     player.setBattle(true);
+    expect(battle.play).toHaveBeenCalledTimes(beforeStart + 1);
     expect(normal.pause).toHaveBeenCalled();
     expect(battle.loop).toBe(false);
     expect(battle.currentTime).toBe(0);
@@ -86,16 +91,29 @@ describe('BackgroundMusicPlayer', () => {
     const plays = battle.play.mock.calls.length;
     player.setBattle(true);
     expect(battle.play).toHaveBeenCalledTimes(plays);
+    await Promise.resolve();
+
+    // Once this scene's cue has played, a volume edit must not repeat it.
+    player.setSettings({ ...defaultMusicSettings, volume: 0.4 });
+    expect(battle.play).toHaveBeenCalledTimes(plays);
+    // Replacing the scene explicitly must replay even with the old ended flag.
+    player.setBattle(true, true);
+    expect(battle.play).toHaveBeenCalledTimes(plays + 1);
+    await Promise.resolve();
+    battle.ended = false;
 
     player.setSettings({ ...defaultMusicSettings, muted: true, volume: 0.4 });
     expect(battle.pause).toHaveBeenCalled();
     expect(battle.volume).toBe(0.4);
     player.setSettings({ ...defaultMusicSettings, muted: false, volume: 0.4 });
-    expect(battle.play).toHaveBeenCalledTimes(plays + 1);
+    expect(battle.play).toHaveBeenCalledTimes(plays + 2);
     player.setBattle(false);
     expect(normal.currentTime).toBe(12);
     expect(normal.play).toHaveBeenCalledTimes(2);
+    battle.ended = true;
+    const beforeNextBattle = battle.play.mock.calls.length;
     player.setBattle(true);
+    expect(battle.play).toHaveBeenCalledTimes(beforeNextBattle + 1);
     player.setSettings({ ...defaultMusicSettings, muted: false, volume: 0 });
     expect(battle.volume).toBe(0);
     const silentPlays = battle.play.mock.calls.length;
@@ -149,6 +167,9 @@ describe('BackgroundMusicPlayer', () => {
     audio.play.mockRejectedValueOnce(new Error('autoplay denied'));
     const player = new BackgroundMusicPlayer(defaultMusicSettings, audio);
     await expect(player.unlock()).resolves.toBeUndefined();
+    expect(audio.play).toHaveBeenCalledTimes(1);
+    await expect(player.unlock()).resolves.toBeUndefined();
+    expect(audio.play).toHaveBeenCalledTimes(2);
   });
 
   it('pauses when volume reaches zero', async () => {
