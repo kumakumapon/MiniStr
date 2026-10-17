@@ -6,7 +6,7 @@
 - `GameState.ruleVersion` controls game mechanics (classic, logistics/modern, decision rules, balanced opening/round-end scores, and v5 dual weapons). A container migration never silently enables a newer rule.
 - `GameState.scenarioSnapshot` is a validated, canonical ScenarioData definition. New matches embed it so a catalog rename, replacement, deletion or another browser does not change the rules of that match. It is a definition snapshot, not a signature or proof of authorship.
 
-Campaign progress remains schema 3. Custom catalog schema remains unchanged with an optional validated `history` array. Backups have their own schema 1; they are not replays.
+Campaign progress uses schema 4, preserving unlocked operations and best grades from schemas 1–3 and recording victorious survivors for experience inheritance. Older apps do not accept schema 4 campaign progress. Custom catalog schema remains unchanged with an optional validated `history` array. Backups have their own schema 1; they are not replays.
 
 ## Validation order and budgets
 
