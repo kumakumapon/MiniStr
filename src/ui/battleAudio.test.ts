@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { playBattleSceneAudio } from './battleAudio';
-import type { BattleScene } from './battleScene';
+import { BATTLE_SCENE_DURATION_MS, BATTLE_SCENE_TIMING, type BattleScene } from './battleScene';
 
 const scene = (): BattleScene => ({
   attacker: { kind: 'tank', owner: 'red', position: { x: 0, y: 0 }, hpBefore: 100, hpAfter: 80 },
@@ -22,15 +22,15 @@ describe('battle scene audio timeline', () => {
       return stop;
     });
     const cancel = playBattleSceneAudio(scene(), play);
-    vi.advanceTimersByTime(349);
+    vi.advanceTimersByTime(BATTLE_SCENE_TIMING.fire - 1);
     expect(play).not.toHaveBeenCalled();
     vi.advanceTimersByTime(1);
     expect(play).toHaveBeenLastCalledWith('fire', 'tank');
-    vi.advanceTimersByTime(270);
+    vi.advanceTimersByTime(BATTLE_SCENE_TIMING.impact - BATTLE_SCENE_TIMING.fire);
     expect(play).toHaveBeenLastCalledWith('impact', 'infantry');
-    vi.advanceTimersByTime(300);
+    vi.advanceTimersByTime(BATTLE_SCENE_TIMING.counterFire - BATTLE_SCENE_TIMING.impact);
     expect(play).toHaveBeenLastCalledWith('fire', 'infantry');
-    vi.advanceTimersByTime(200);
+    vi.advanceTimersByTime(BATTLE_SCENE_TIMING.counterImpact - BATTLE_SCENE_TIMING.counterFire);
     expect(play).toHaveBeenLastCalledWith('impact', 'tank');
     expect(play).toHaveBeenCalledTimes(4);
     cancel();
@@ -44,7 +44,7 @@ describe('battle scene audio timeline', () => {
     battle.attacker.hpAfter = battle.attacker.hpBefore;
     const play = vi.fn();
     const cancel = playBattleSceneAudio(battle, play);
-    vi.advanceTimersByTime(2050);
+    vi.advanceTimersByTime(BATTLE_SCENE_DURATION_MS);
     expect(play.mock.calls).toEqual([
       ['fire', 'tank'],
       ['destroy', 'infantry'],
@@ -55,7 +55,7 @@ describe('battle scene audio timeline', () => {
     battle.attacker.hpAfter = 0;
     const counter = vi.fn();
     const cancelCounter = playBattleSceneAudio(battle, counter);
-    vi.advanceTimersByTime(2050);
+    vi.advanceTimersByTime(BATTLE_SCENE_DURATION_MS);
     expect(counter.mock.calls).toEqual([
       ['fire', 'tank'],
       ['fire', 'infantry'],
@@ -69,9 +69,9 @@ describe('battle scene audio timeline', () => {
     const stop = vi.fn();
     const play = vi.fn(() => stop);
     const cancel = playBattleSceneAudio(scene(), play);
-    vi.advanceTimersByTime(350);
+    vi.advanceTimersByTime(BATTLE_SCENE_TIMING.fire);
     cancel();
-    vi.advanceTimersByTime(2050);
+    vi.advanceTimersByTime(BATTLE_SCENE_DURATION_MS);
     expect(play).toHaveBeenCalledTimes(1);
     expect(stop).toHaveBeenCalledTimes(1);
     expect(vi.getTimerCount()).toBe(0);

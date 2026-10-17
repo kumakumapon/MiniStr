@@ -78,7 +78,7 @@ export function saveMusicSettings(storage: StorageLike, settings: MusicSettings)
 }
 
 function createAudio(track: string = FIELD_TRACK_FILES.march): LoopingAudio {
-  const revision = track === 'battle-theme' ? '?v=stinger-20261016' : track === 'frontier-theme' ? '?v=brave-20261015' : '?v=campaign-20261015';
+  const revision = track === 'battle-theme' ? '?v=cinematic-20261017' : track === 'frontier-theme' ? '?v=brave-20261015' : '?v=campaign-20261015';
   const audio = new Audio(`${import.meta.env.BASE_URL}assets/${track}.ogg${revision}`);
   audio.loop = track !== 'battle-theme';
   audio.preload = 'none';
