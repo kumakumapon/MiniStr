@@ -6,7 +6,6 @@ import {
   FIELD_TRACKS,
   FIELD_TRACK_FILES,
   FIELD_TRACK_LABELS,
-  type FieldTrack,
   loadMusicSettings,
   MUSIC_SETTINGS_KEY,
   saveMusicSettings,
@@ -22,12 +21,21 @@ function storage(initial: Record<string, string> = {}): StorageLike {
 }
 
 class FakeAudio {
+  src = '';
   loop = false;
   preload = '';
   volume = 1;
+  muted = true;
   currentTime = 0;
+  readyState = 1;
   ended = false;
   paused = true;
+  readonly listeners = new Map<string, () => void>();
+  readonly addEventListener = vi.fn((type: string, listener: () => void) => this.listeners.set(type, listener));
+  readonly load = vi.fn(() => {
+    this.currentTime = 0;
+    this.paused = true;
+  });
   readonly play = vi.fn(async () => {
     this.paused = false;
   });
@@ -78,82 +86,90 @@ describe('field track setting', () => {
 
 describe('BackgroundMusicPlayer', () => {
   it('switches to battle music and restores the normal position while respecting mute and volume', async () => {
-    const normal = new FakeAudio();
-    const battle = new FakeAudio();
-    const player = new BackgroundMusicPlayer(defaultMusicSettings, normal, battle);
+    const audio = new FakeAudio();
+    const player = new BackgroundMusicPlayer(defaultMusicSettings, audio);
     await player.unlock();
-    normal.currentTime = 12;
-    battle.currentTime = 4;
+    const fieldSource = audio.src;
+    audio.currentTime = 12;
     // A media element can keep ended=true until the asynchronous seek finishes.
-    battle.ended = true;
-    const beforeStart = battle.play.mock.calls.length;
+    audio.ended = true;
+    const beforeStart = audio.play.mock.calls.length;
     player.setBattle(true);
-    expect(battle.play).toHaveBeenCalledTimes(beforeStart + 1);
-    expect(normal.pause).toHaveBeenCalled();
-    expect(battle.loop).toBe(false);
-    expect(battle.currentTime).toBe(0);
-    expect(battle.volume).toBe(defaultMusicSettings.volume);
-    const plays = battle.play.mock.calls.length;
+    expect(audio.play).toHaveBeenCalledTimes(beforeStart + 1);
+    expect(audio.src).toContain('battle-theme.ogg');
+    expect(audio.loop).toBe(false);
+    expect(audio.currentTime).toBe(0);
+    expect(audio.volume).toBe(defaultMusicSettings.volume);
+    expect(audio.muted).toBe(false);
+    const plays = audio.play.mock.calls.length;
     player.setBattle(true);
-    expect(battle.play).toHaveBeenCalledTimes(plays);
-    await Promise.resolve();
+    expect(audio.play).toHaveBeenCalledTimes(plays);
+    await player.unlock();
 
-    // Once this scene's cue has played, a volume edit must not repeat it.
+    // Once this scene's cue has played, readiness and volume edits must not repeat it.
     player.setSettings({ ...defaultMusicSettings, volume: 0.4 });
-    expect(battle.play).toHaveBeenCalledTimes(plays);
-    // Replacing the scene explicitly must replay even with the old ended flag.
+    audio.listeners.get('canplay')?.();
+    expect(audio.play).toHaveBeenCalledTimes(plays);
     player.setBattle(true, true);
-    expect(battle.play).toHaveBeenCalledTimes(plays + 1);
-    await Promise.resolve();
-    battle.ended = false;
-    const continuousPlays = battle.play.mock.calls.length;
-    const continuousPauses = battle.pause.mock.calls.length;
-    battle.currentTime = 1.875;
+    expect(audio.play).toHaveBeenCalledTimes(plays + 1);
+    await player.unlock();
+    audio.ended = false;
+    const continuousPlays = audio.play.mock.calls.length;
+    const continuousPauses = audio.pause.mock.calls.length;
+    audio.currentTime = 1.875;
     await player.unlock();
     player.setSettings({ ...defaultMusicSettings, volume: 0.4 });
-    expect(battle.play).toHaveBeenCalledTimes(continuousPlays);
-    expect(battle.pause).toHaveBeenCalledTimes(continuousPauses);
-    expect(battle.currentTime).toBe(1.875);
+    expect(audio.play).toHaveBeenCalledTimes(continuousPlays);
+    expect(audio.pause).toHaveBeenCalledTimes(continuousPauses);
+    expect(audio.currentTime).toBe(1.875);
 
     player.setSettings({ ...defaultMusicSettings, muted: true, volume: 0.4 });
-    expect(battle.pause).toHaveBeenCalled();
-    expect(battle.volume).toBe(0.4);
+    expect(audio.muted).toBe(true);
+    expect(audio.volume).toBe(0.4);
     player.setSettings({ ...defaultMusicSettings, muted: false, volume: 0.4 });
-    expect(battle.play).toHaveBeenCalledTimes(plays + 2);
+    expect(audio.play).toHaveBeenCalledTimes(plays + 2);
     player.setBattle(false);
-    expect(normal.currentTime).toBe(12);
-    expect(normal.play).toHaveBeenCalledTimes(2);
-    battle.ended = true;
-    const beforeNextBattle = battle.play.mock.calls.length;
+    expect(audio.src).toBe(fieldSource);
+    expect(audio.currentTime).toBe(12);
+    expect(audio.loop).toBe(true);
+    audio.ended = true;
+    const beforeNextBattle = audio.play.mock.calls.length;
     player.setBattle(true);
-    expect(battle.play).toHaveBeenCalledTimes(beforeNextBattle + 1);
-    player.setSettings({ ...defaultMusicSettings, muted: false, volume: 0 });
-    expect(battle.volume).toBe(0);
-    const silentPlays = battle.play.mock.calls.length;
+    expect(audio.play).toHaveBeenCalledTimes(beforeNextBattle + 1);
+    player.setSettings({ ...defaultMusicSettings, volume: 0 });
+    expect(audio.volume).toBe(0);
+    expect(audio.muted).toBe(true);
+    const silentPlays = audio.play.mock.calls.length;
     player.setBattle(false);
     player.setBattle(true);
-    expect(battle.play).toHaveBeenCalledTimes(silentPlays);
+    expect(audio.play).toHaveBeenCalledTimes(silentPlays);
   });
 
   it('cannot restart skipped battle music when a pending play resolves late', async () => {
-    const normal = new FakeAudio();
-    const battle = new FakeAudio();
-    const player = new BackgroundMusicPlayer(defaultMusicSettings, normal, battle);
+    const audio = new FakeAudio();
+    const player = new BackgroundMusicPlayer(defaultMusicSettings, audio);
     await player.unlock();
     let finish: (() => void) | undefined;
-    battle.play.mockImplementationOnce(
+    audio.play.mockImplementationOnce(
       () =>
         new Promise<void>((resolve) => {
           finish = resolve;
         }),
     );
     player.setBattle(true);
+    const pendingPlays = audio.play.mock.calls.length;
+    // Multiple gestures/readiness events share the same pending request.
+    const pendingUnlock = player.unlock();
+    audio.listeners.get('canplay')?.();
+    expect(audio.play).toHaveBeenCalledTimes(pendingPlays);
     player.setBattle(false);
-    const pauses = battle.pause.mock.calls.length;
+    const pauses = audio.pause.mock.calls.length;
     finish?.();
-    await Promise.resolve();
-    expect(battle.pause).toHaveBeenCalledTimes(pauses + 1);
-    expect(normal.play).toHaveBeenCalledTimes(2);
+    await pendingUnlock;
+    expect(audio.pause).toHaveBeenCalledTimes(pauses);
+    expect(audio.muted).toBe(false);
+    expect(audio.src).toContain('frontier-theme.ogg');
+    expect(audio.play).toHaveBeenCalledTimes(3);
   });
 
   it('starts only after unlock, loops, and responds to mute and volume settings', async () => {
@@ -163,14 +179,14 @@ describe('BackgroundMusicPlayer', () => {
     expect(audio.preload).toBe('none');
     expect(audio.volume).toBe(defaultMusicSettings.volume);
     expect(audio.play).not.toHaveBeenCalled();
+    audio.listeners.get('canplay')?.();
+    expect(audio.play).not.toHaveBeenCalled();
 
     await player.unlock();
     expect(audio.play).toHaveBeenCalledTimes(1);
-
     player.setSettings({ ...defaultMusicSettings, muted: true, volume: 0.6 });
     expect(audio.volume).toBe(0.6);
-    expect(audio.pause).toHaveBeenCalledTimes(1);
-
+    expect(audio.muted).toBe(true);
     player.setSettings({ ...defaultMusicSettings, muted: false, volume: 0.4 });
     expect(audio.play).toHaveBeenCalledTimes(2);
   });
@@ -179,7 +195,8 @@ describe('BackgroundMusicPlayer', () => {
     const audio = new FakeAudio();
     audio.play.mockRejectedValueOnce(new Error('autoplay denied'));
     const player = new BackgroundMusicPlayer(defaultMusicSettings, audio);
-    await expect(player.unlock()).resolves.toBeUndefined();
+    // A concurrent gesture must also absorb the pending rejection.
+    await expect(Promise.all([player.unlock(), player.unlock()])).resolves.toEqual([undefined, undefined]);
     expect(audio.play).toHaveBeenCalledTimes(1);
     await expect(player.unlock()).resolves.toBeUndefined();
     expect(audio.play).toHaveBeenCalledTimes(2);
@@ -191,78 +208,104 @@ describe('BackgroundMusicPlayer', () => {
     const audio = new FakeAudio();
     const player = new BackgroundMusicPlayer(defaultMusicSettings, audio);
     await player.unlock();
-    player.setSettings({ ...defaultMusicSettings, muted: false, volume: 0 });
+    player.setSettings({ ...defaultMusicSettings, volume: 0 });
     expect(audio.pause).toHaveBeenCalled();
+    expect(audio.muted).toBe(true);
   });
 });
 
 describe('BackgroundMusicPlayer field track switching', () => {
   function setup(settings = defaultMusicSettings) {
-    const created: Record<string, FakeAudio> = {};
-    const factory = vi.fn((track: FieldTrack) => (created[track] = new FakeAudio()));
-    const battle = new FakeAudio();
-    const march = new FakeAudio();
-    created.march = march;
-    const player = new BackgroundMusicPlayer(settings, march, battle, factory);
-    return { created, factory, battle, march, player };
+    const audio = new FakeAudio();
+    const player = new BackgroundMusicPlayer(settings, audio);
+    return { audio, player };
   }
-  const flush = () => new Promise((resolve) => setTimeout(resolve, 0));
 
   it('stops the old track and plays the new one after unlock', async () => {
-    const { created, march, player } = setup();
+    const { audio, player } = setup();
     await player.unlock();
     player.setSettings({ ...defaultMusicSettings, fieldTrack: 'dawn' });
-    await flush();
-    expect(march.pause).toHaveBeenCalled();
-    expect(created.dawn?.loop).toBe(true);
-    expect(created.dawn?.play).toHaveBeenCalled();
-    expect(created.dawn?.volume).toBe(defaultMusicSettings.volume);
+    await player.unlock();
+    expect(audio.pause).toHaveBeenCalledTimes(1);
+    expect(audio.src).toContain('dawn-theme.ogg');
+    expect(audio.loop).toBe(true);
+    expect(audio.play).toHaveBeenCalledTimes(2);
+    expect(audio.volume).toBe(defaultMusicSettings.volume);
   });
 
   it('reuses an element when a track is picked again', async () => {
-    const { factory, player } = setup();
-    await player.unlock();
-    player.setSettings({ ...defaultMusicSettings, fieldTrack: 'dawn' });
-    player.setSettings({ ...defaultMusicSettings, fieldTrack: 'march' });
-    player.setSettings({ ...defaultMusicSettings, fieldTrack: 'dawn' });
-    expect(factory).toHaveBeenCalledTimes(1);
+    const audio = new FakeAudio();
+    const constructor = vi.spyOn(globalThis, 'Audio').mockImplementation(function () {
+      return audio as unknown as HTMLAudioElement;
+    });
+    try {
+      const player = new BackgroundMusicPlayer(defaultMusicSettings);
+      await player.unlock();
+      audio.currentTime = 9;
+      player.setSettings({ ...defaultMusicSettings, fieldTrack: 'dawn' });
+      await player.unlock();
+      audio.currentTime = 4;
+      // Metadata is not available yet when switching back on iOS.
+      audio.readyState = 0;
+      player.setSettings(defaultMusicSettings);
+      expect(audio.currentTime).toBe(0);
+      audio.readyState = 1;
+      audio.listeners.get('loadedmetadata')?.();
+      expect(audio.currentTime).toBe(9);
+      // Pending saved seeks must survive rapid switches before metadata arrives.
+      audio.readyState = 0;
+      player.setSettings({ ...defaultMusicSettings, fieldTrack: 'dawn' });
+      player.setSettings(defaultMusicSettings);
+      player.setSettings({ ...defaultMusicSettings, fieldTrack: 'dawn' });
+      audio.readyState = 1;
+      audio.listeners.get('loadedmetadata')?.();
+      expect(audio.currentTime).toBe(4);
+      expect(audio.src).toContain('dawn-theme.ogg');
+      expect(audio.load).toHaveBeenCalledTimes(5);
+      expect(constructor).toHaveBeenCalledTimes(1);
+    } finally {
+      constructor.mockRestore();
+    }
   });
 
   it('keeps the battle theme during a switch and plays the new track afterwards', async () => {
-    const { created, battle, player } = setup();
+    const { audio, player } = setup();
     await player.unlock();
     player.setBattle(true);
-    const battlePauses = battle.pause.mock.calls.length;
+    await player.unlock();
+    const battlePauses = audio.pause.mock.calls.length;
+    const battleLoads = audio.load.mock.calls.length;
     player.setSettings({ ...defaultMusicSettings, fieldTrack: 'drive' });
-    await flush();
-    expect(battle.pause).toHaveBeenCalledTimes(battlePauses);
-    expect(created.drive?.volume).toBe(defaultMusicSettings.volume);
-    expect(created.drive?.pause).toHaveBeenCalled();
+    expect(audio.src).toContain('battle-theme.ogg');
+    expect(audio.pause).toHaveBeenCalledTimes(battlePauses);
+    expect(audio.load).toHaveBeenCalledTimes(battleLoads);
     player.setBattle(false);
-    await flush();
-    expect(battle.pause).toHaveBeenCalled();
-    expect(created.drive?.play.mock.calls.length).toBeGreaterThan(1);
+    await player.unlock();
+    expect(audio.src).toContain('drive-theme.ogg');
+    expect(audio.loop).toBe(true);
   });
 
   it('stays silent when muted and plays the chosen track once unmuted', async () => {
-    const { created, player } = setup();
+    const { audio, player } = setup();
     await player.unlock();
     const muted = { ...defaultMusicSettings, muted: true, fieldTrack: 'dawn' as const };
     player.setSettings(muted);
-    await flush();
-    expect(created.dawn?.pause).toHaveBeenCalled();
-    const playsWhileMuted = created.dawn?.play.mock.calls.length ?? 0;
+    expect(audio.src).toContain('dawn-theme.ogg');
+    expect(audio.muted).toBe(true);
+    expect(audio.paused).toBe(true);
+    const playsWhileMuted = audio.play.mock.calls.length;
     player.setSettings({ ...muted, muted: false });
-    await flush();
-    expect(created.dawn?.play.mock.calls.length).toBeGreaterThan(playsWhileMuted);
+    expect(audio.play).toHaveBeenCalledTimes(playsWhileMuted + 1);
   });
 
   it('does not play a new track before the first gesture, then starts it on unlock', async () => {
-    const { created, player } = setup();
+    const { audio, player } = setup();
     player.setSettings({ ...defaultMusicSettings, fieldTrack: 'drive' });
-    await flush();
-    expect(created.drive?.play).not.toHaveBeenCalled();
+    expect(audio.play).not.toHaveBeenCalled();
     await player.unlock();
-    expect(created.drive?.play).toHaveBeenCalled();
+    expect(audio.src).toContain('drive-theme.ogg');
+    expect(audio.play).toHaveBeenCalledTimes(1);
+    player.setBattle(false);
+    expect(audio.src).toContain('drive-theme.ogg');
   });
 });

@@ -44,7 +44,7 @@ import { centerBoardOnPosition, renderSpectatorCamera, spectatorActionPosition, 
 import { playBattleSceneAudio } from './ui/battleAudio';
 import { BATTLE_SCENE_DURATION_MS, battleSceneForCommand, renderBattleScene, type BattleScene } from './ui/battleScene';
 import { ACTION_SCENE_DURATION_MS, actionSceneForCommand, actionSceneForVisiblePositions, renderActionScene, type ActionScene } from './ui/actionScene';
-import { capturePointsLabel, displayedPositions, observedCapturePoints } from './ui/fogDisplay';
+import { capturePointsLabel, displayedPositions, isPropertyDisplayed, observedCapturePoints } from './ui/fogDisplay';
 import { loadSoundSettings, ProceduralSoundPlayer, saveSoundSettings, type SoundSettings } from './ui/sound';
 import { BackgroundMusicPlayer, FIELD_TRACKS, FIELD_TRACK_LABELS, loadMusicSettings, saveMusicSettings, type MusicSettings } from './ui/music';
 import { commandErrorMessage, escapeHtml, uiText } from './ui/strings';
@@ -239,14 +239,18 @@ function battleSceneIsVisible(scene: BattleScene, visible: ReadonlySet<string>):
 
 // The context is intentionally created only from a real user gesture. CPU and
 // replay playback before that gesture remain silent under browser autoplay rules.
+const unlockAudio = (): void => { void soundPlayer.unlock(); void musicPlayer.unlock(); };
 app.addEventListener('pointerdown', event => {
   boardPointerPending = event.target instanceof Element && event.target.closest('.tile') !== null;
-  void soundPlayer.unlock(); void musicPlayer.unlock();
+  unlockAudio();
 }, { capture: true });
 // Compatibility mouse events and the tile click finish before this timer.
 document.addEventListener('pointerup', () => { window.setTimeout(() => { boardPointerPending = false; }, 0); });
 document.addEventListener('pointercancel', () => { boardPointerPending = false; });
-app.addEventListener('keydown', () => { boardPointerPending = false; void soundPlayer.unlock(); void musicPlayer.unlock(); }, { capture: true });
+// Touch pointerdown does not grant audio activation on iOS. The trusted click
+// after touchend also covers taps and assistive activation before UI handlers.
+app.addEventListener('click', event => { if (event.isTrusted) unlockAudio(); }, { capture: true });
+app.addEventListener('keydown', () => { boardPointerPending = false; unlockAudio(); }, { capture: true });
 
 const producibleUnits = allProducibleUnitKinds;
 
@@ -783,7 +787,7 @@ function render(): void {
       ? `<span class="unit ${unit.owner} unit-${unit.kind}" aria-hidden="true"><span class="unit-art"></span><small>${unit.hp}</small><em>${unitNames[unit.kind]}${cargo ? `・${unitNames[cargo.kind]}搭載` : ''}</em><i class="unit-owner-marker">${unit.owner === me ? '自' : '敵'}</i>${cargo ? '<i class="cargo-marker">積</i>' : ''}${rank ? `<i class="rank-marker">${rankStars(rank)}</i>` : ''}${fuelWarning ? `<i class="fuel-warning">燃${fuelTurns}</i>` : ''}${ammoEmpty ? `<i class="ammo-warning">${uiText.ammo}0</i>` : ''}</span>`
       : '';
     const terrainArt = '';
-    const facility = isProperty && !hidden
+    const facility = isPropertyDisplayed(terrain, me, !hidden)
       ? `<span class="facility facility-${terrain.kind} ${propertyOwner ?? 'neutral'}" aria-hidden="true"><b>${terrain.kind === 'city' ? '市' : terrain.kind === 'factory' ? '工' : terrain.kind === 'airport' ? '空' : terrain.kind === 'port' ? '港' : '司'}</b><small>${propertyOwner === me ? '自軍' : propertyOwner === foe ? '敵軍' : '中立'}${capturePoints !== undefined ? ` ${capturePointsLabel(capturePoints)}` : ''}</small></span>`
       : '';
     // `selected` is undefined until a unit is picked, so the unit must exist too:

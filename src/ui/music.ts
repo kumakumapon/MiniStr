@@ -29,13 +29,17 @@ export const MUSIC_SETTINGS_KEY = 'ministr.music.settings';
 export const defaultMusicSettings: MusicSettings = { muted: false, volume: 0.28, fieldTrack: 'march' };
 
 export interface LoopingAudio {
+  src: string;
   loop: boolean;
   preload: string;
   volume: number;
-  muted?: boolean;
-  currentTime?: number;
-  readonly ended?: boolean;
-  readonly paused?: boolean;
+  muted: boolean;
+  currentTime: number;
+  readonly readyState: number;
+  readonly ended: boolean;
+  readonly paused: boolean;
+  addEventListener(type: 'loadedmetadata' | 'canplay', listener: () => void): void;
+  load(): void;
   play(): Promise<void>;
   pause(): void;
 }
@@ -78,159 +82,122 @@ export function saveMusicSettings(storage: StorageLike, settings: MusicSettings)
   }
 }
 
-function createAudio(track: string = FIELD_TRACK_FILES.march): LoopingAudio {
-  const revision = track === 'battle-theme' ? '?v=legato-20261017' : track === 'frontier-theme' ? '?v=brave-20261015' : '?v=campaign-20261015';
-  const audio = new Audio(`${import.meta.env.BASE_URL}assets/${track}.ogg${revision}`);
-  audio.loop = track !== 'battle-theme';
-  audio.preload = 'none';
-  return audio;
+type MusicTrack = FieldTrack | 'battle';
+
+function trackUrl(track: MusicTrack): string {
+  const file = track === 'battle' ? 'battle-theme' : FIELD_TRACK_FILES[track];
+  const revision = track === 'battle' ? 'legato-20261017' : track === 'march' ? 'brave-20261015' : 'campaign-20261015';
+  return `${import.meta.env.BASE_URL}assets/${file}.ogg?v=${revision}`;
 }
 
-/** Starts a looped soundtrack only after a user gesture unlocks browser audio. */
+/**
+ * Reuse the element unlocked by a real gesture for every BGM. iOS grants audio
+ * permission per element; silently priming a second, muted battle element does
+ * not reliably grant permission for later audible CPU-initiated playback.
+ */
 export class BackgroundMusicPlayer {
-  private audio: LoopingAudio;
-  /** Field-track elements are created when first picked and then reused. */
-  private readonly fieldAudio = new Map<FieldTrack, LoopingAudio>();
-  private readonly createField: ((track: FieldTrack) => LoopingAudio) | undefined;
-  private battleAudio: LoopingAudio | undefined;
-  private inBattle = false;
+  private track: MusicTrack;
+  private readonly fieldPositions = new Map<FieldTrack, number>();
   private activated = false;
-  private battleGeneration = 0;
-  private battleStartPending = false;
+  private generation = 0;
+  private started = false;
+  private pendingPlay: Promise<void> | undefined;
+  private pendingPosition: number | undefined;
 
   constructor(
     private settings: MusicSettings,
-    audio?: LoopingAudio,
-    battleAudio?: LoopingAudio,
-    createField?: (track: FieldTrack) => LoopingAudio,
+    private readonly audio: LoopingAudio = new Audio(),
   ) {
-    // Injected audio without a factory (tests) stays fixed; otherwise tracks come from files.
-    this.createField = createField ?? (audio ? undefined : (track) => createAudio(FIELD_TRACK_FILES[track]));
-    this.audio = audio ?? this.createField!(settings.fieldTrack);
-    this.fieldAudio.set(settings.fieldTrack, this.audio);
-    this.audio.loop = true;
-    this.audio.preload = 'none';
-    this.audio.volume = settings.volume;
-    this.audio.muted = true;
-    this.battleAudio = battleAudio ?? (audio ? undefined : createAudio('battle-theme'));
-    if (this.battleAudio) {
-      this.battleAudio.loop = false;
-      this.battleAudio.preload = 'auto';
-      this.battleAudio.volume = settings.volume;
-      this.battleAudio.muted = true;
-    }
+    this.track = settings.fieldTrack;
+    audio.muted = true;
+    audio.volume = settings.volume;
+    audio.loop = true;
+    audio.preload = 'none';
+    audio.src = trackUrl(this.track);
+    audio.addEventListener('loadedmetadata', () => this.restorePosition());
+    // A source may become ready after an earlier play request was interrupted.
+    audio.addEventListener('canplay', () => void this.syncPlayback());
   }
 
   async unlock(): Promise<void> {
-    if (!this.activated) {
-      this.activated = true;
-      // Unlock both elements during the first gesture, including browsers that grant
-      // playback permission per element. A late completion cannot restart a scene.
-      const battle = this.battleAudio;
-      if (battle && !this.inBattle) this.primeSilently(battle);
-    }
-    // A denied play or a browser suspension can recover on the next user gesture.
+    this.activated = true;
+    // Retry policy denials or device interruptions on a real user gesture.
     await this.syncPlayback();
   }
 
   setBattle(active: boolean, restart = false): void {
-    if (active === this.inBattle && !(active && restart)) return;
-    this.inBattle = active;
-    this.battleGeneration += 1;
-    this.battleStartPending = active;
-    if (active) {
-      this.battleAudio ??= createAudio('battle-theme');
-      this.battleAudio.loop = false;
-      this.battleAudio.preload = 'auto';
-      this.battleAudio.volume = this.settings.volume;
-      if (this.battleAudio.currentTime !== undefined) this.battleAudio.currentTime = 0;
-    }
-    const previous = active ? this.audio : this.battleAudio;
-    if (previous) {
-      previous.muted = true;
-      previous.pause();
-    }
+    if (active === (this.track === 'battle') && !(active && restart)) return;
+    this.selectTrack(active ? 'battle' : this.settings.fieldTrack);
     void this.syncPlayback();
   }
 
   setSettings(settings: MusicSettings): void {
-    const trackChanged = settings.fieldTrack !== this.settings.fieldTrack;
     this.settings = settings;
-    // The chosen track is only fetched when picked; a battle in progress keeps its own theme.
-    if (trackChanged && this.createField) {
-      this.audio.muted = true;
-      this.audio.pause();
-      let next = this.fieldAudio.get(settings.fieldTrack);
-      const fresh = next === undefined;
-      if (!next) {
-        next = this.createField(settings.fieldTrack);
-        next.loop = true;
-        next.preload = 'none';
-        next.muted = true;
-        this.fieldAudio.set(settings.fieldTrack, next);
-      }
-      this.audio = next;
-      // Picking a track is a user gesture: grant a new element playback permission now
-      // (per-element on some browsers) even if it must stay silent until later.
-      if (fresh && this.activated) this.primeSilently(next);
-    }
+    // Changing the field choice during a battle takes effect after that scene.
+    if (this.track !== 'battle' && this.track !== settings.fieldTrack) this.selectTrack(settings.fieldTrack);
     this.audio.volume = settings.volume;
-    if (this.battleAudio) this.battleAudio.volume = settings.volume;
-    if (!this.activated || settings.muted || settings.volume === 0) {
-      if (settings.muted || settings.volume === 0) {
-        this.audio.muted = true;
-        if (this.battleAudio) this.battleAudio.muted = true;
-        this.audio.pause();
-        this.battleAudio?.pause();
-      }
-      return;
-    }
     void this.syncPlayback();
   }
 
-  private primeSilently(audio: LoopingAudio): void {
-    // Some browsers ignore element volume. Keep an inactive track explicitly
-    // muted even while its playback permission is being unlocked.
-    audio.muted = true;
-    audio.volume = 0;
-    const restore = (): void => {
-      audio.muted = audio !== (this.inBattle ? this.battleAudio : this.audio) || this.settings.muted || this.settings.volume === 0;
-      if (audio.muted) audio.pause();
-      audio.volume = this.settings.volume;
-    };
-    void audio.play().then(restore).catch(restore);
+  private selectTrack(track: MusicTrack): void {
+    if (this.track !== 'battle') {
+      // The new source may not have metadata yet: preserve its saved position
+      // if another switch occurs before the pending seek can be applied.
+      this.fieldPositions.set(this.track, this.pendingPosition ?? this.audio.currentTime);
+    }
+    this.stopPlayback();
+    this.track = track;
+    this.started = false;
+    this.pendingPosition = track === 'battle' ? 0 : (this.fieldPositions.get(track) ?? 0);
+    this.audio.loop = track !== 'battle';
+    this.audio.preload = 'auto';
+    this.audio.src = trackUrl(track);
+    // Cancel obsolete play/seek requests, including consecutive battles on the
+    // same source. Permission remains on this one already-unlocked element.
+    this.audio.load();
+    this.restorePosition();
+  }
+
+  private restorePosition(): void {
+    // Safari cannot seek to a saved field position before metadata is ready.
+    if (this.pendingPosition === undefined || this.audio.readyState === 0) return;
+    this.audio.currentTime = this.pendingPosition;
+    this.pendingPosition = undefined;
+  }
+
+  private stopPlayback(): void {
+    this.generation += 1;
+    this.pendingPlay = undefined;
+    this.audio.muted = true;
+    this.audio.pause();
   }
 
   private async syncPlayback(): Promise<void> {
-    const audio = this.inBattle ? this.battleAudio : this.audio;
-    if (!audio) return;
-    // Silence the other elements before making the current one audible.
-    for (const field of this.fieldAudio.values()) {
-      if (field !== audio) field.muted = true;
-    }
-    if (this.battleAudio && this.battleAudio !== audio) this.battleAudio.muted = true;
-    audio.muted = !this.activated || this.settings.muted || this.settings.volume === 0;
-    if (audio.muted) {
-      audio.pause();
+    if (!this.activated || this.settings.muted || this.settings.volume === 0) {
+      this.stopPlayback();
       return;
     }
-    // Seeking is asynchronous: ended may still describe the previous battle
-    // after currentTime = 0. Only suppress replays after this scene has started.
-    if (this.inBattle && audio.ended && !this.battleStartPending) return;
-    // Gestures and volume edits must leave a running stream alone. Explicit
-    // battle starts still request playback after rewinding the same element.
-    if (audio.paused === false && !(this.inBattle && this.battleStartPending)) return;
-    const generation = this.battleGeneration;
-    const startingBattle = this.inBattle;
-    try {
-      await audio.play();
-      if (startingBattle && this.inBattle && generation === this.battleGeneration) this.battleStartPending = false;
-      if (audio !== (this.inBattle ? this.battleAudio : this.audio) || this.settings.muted || this.settings.volume === 0) {
-        audio.muted = true;
-        audio.pause();
-      }
-    } catch {
-      // Browser autoplay policy or unavailable audio: remain silent.
-    }
+    this.audio.muted = false;
+    // Do not repeat a completed battle cue on gestures, readiness events or
+    // volume edits. A new scene resets started before its asynchronous seek.
+    if (this.track === 'battle' && this.audio.ended && this.started) return;
+    if (this.pendingPlay) return this.pendingPlay;
+    if (this.audio.paused === false) return;
+    const generation = this.generation;
+    const pending = this.audio
+      .play()
+      .then(() => {
+        // A late completion belongs to an old source. Never pause or mute the
+        // element here: it may already be playing the next battle/field track.
+        if (generation === this.generation) this.started = true;
+      })
+      .catch(() => {
+        // Retry on canplay or the next gesture; gameplay remains available.
+      })
+      .finally(() => {
+        if (this.pendingPlay === pending) this.pendingPlay = undefined;
+      });
+    this.pendingPlay = pending;
+    await pending;
   }
 }

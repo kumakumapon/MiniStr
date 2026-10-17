@@ -10,6 +10,11 @@ export function displayedPositions(state: GameState, viewer: PlayerId, wholeBoar
   return Array.from({ length: state.board.height }, (_, y) => Array.from({ length: state.board.width }, (_, x) => ({ x, y }))).flat();
 }
 
+/** An owned base remains on the map without granting sight of units or capture progress. */
+export function isPropertyDisplayed(tile: Terrain, viewer: PlayerId, visible: boolean): boolean {
+  return isPropertyTerrainKind(tile.kind) && (visible || tile.owner === viewer);
+}
+
 /**
  * What the viewer may know about a property's capture progress (#125).
  * - a number: the tile is visible, so the actual value is shown;
