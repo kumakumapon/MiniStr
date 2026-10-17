@@ -35,6 +35,7 @@ export interface LoopingAudio {
   muted?: boolean;
   currentTime?: number;
   readonly ended?: boolean;
+  readonly paused?: boolean;
   play(): Promise<void>;
   pause(): void;
 }
@@ -78,7 +79,7 @@ export function saveMusicSettings(storage: StorageLike, settings: MusicSettings)
 }
 
 function createAudio(track: string = FIELD_TRACK_FILES.march): LoopingAudio {
-  const revision = track === 'battle-theme' ? '?v=cinematic-20261017' : track === 'frontier-theme' ? '?v=brave-20261015' : '?v=campaign-20261015';
+  const revision = track === 'battle-theme' ? '?v=legato-20261017' : track === 'frontier-theme' ? '?v=brave-20261015' : '?v=campaign-20261015';
   const audio = new Audio(`${import.meta.env.BASE_URL}assets/${track}.ogg${revision}`);
   audio.loop = track !== 'battle-theme';
   audio.preload = 'none';
@@ -216,6 +217,9 @@ export class BackgroundMusicPlayer {
     // Seeking is asynchronous: ended may still describe the previous battle
     // after currentTime = 0. Only suppress replays after this scene has started.
     if (this.inBattle && audio.ended && !this.battleStartPending) return;
+    // Gestures and volume edits must leave a running stream alone. Explicit
+    // battle starts still request playback after rewinding the same element.
+    if (audio.paused === false && !(this.inBattle && this.battleStartPending)) return;
     const generation = this.battleGeneration;
     const startingBattle = this.inBattle;
     try {

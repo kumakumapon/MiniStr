@@ -27,8 +27,13 @@ class FakeAudio {
   volume = 1;
   currentTime = 0;
   ended = false;
-  readonly play = vi.fn(async () => {});
-  readonly pause = vi.fn();
+  paused = true;
+  readonly play = vi.fn(async () => {
+    this.paused = false;
+  });
+  readonly pause = vi.fn(() => {
+    this.paused = true;
+  });
 }
 
 describe('music settings', () => {
@@ -101,6 +106,14 @@ describe('BackgroundMusicPlayer', () => {
     expect(battle.play).toHaveBeenCalledTimes(plays + 1);
     await Promise.resolve();
     battle.ended = false;
+    const continuousPlays = battle.play.mock.calls.length;
+    const continuousPauses = battle.pause.mock.calls.length;
+    battle.currentTime = 1.875;
+    await player.unlock();
+    player.setSettings({ ...defaultMusicSettings, volume: 0.4 });
+    expect(battle.play).toHaveBeenCalledTimes(continuousPlays);
+    expect(battle.pause).toHaveBeenCalledTimes(continuousPauses);
+    expect(battle.currentTime).toBe(1.875);
 
     player.setSettings({ ...defaultMusicSettings, muted: true, volume: 0.4 });
     expect(battle.pause).toHaveBeenCalled();
@@ -169,6 +182,8 @@ describe('BackgroundMusicPlayer', () => {
     await expect(player.unlock()).resolves.toBeUndefined();
     expect(audio.play).toHaveBeenCalledTimes(1);
     await expect(player.unlock()).resolves.toBeUndefined();
+    expect(audio.play).toHaveBeenCalledTimes(2);
+    await player.unlock();
     expect(audio.play).toHaveBeenCalledTimes(2);
   });
 

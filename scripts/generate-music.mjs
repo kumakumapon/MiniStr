@@ -101,12 +101,20 @@ function finish(s, name, drive = 1.6) {
 const TRI = { Dm: [50, 53, 57], Gm: [43, 46, 50], Bb: [46, 50, 53], C: [48, 52, 55], F: [53, 57, 60], A: [45, 49, 52] };
 const ROOT = { Dm: 38, Gm: 31, Bb: 34, C: 36, F: 41, A: 33 };
 
-// ---------------- Battle: 160 BPM, D minor, 3.5s cinematic engagement ----------------
+// ---------------- Battle: 160 BPM, D minor, 3.5s continuous cinematic phrase ----------------
 function battle() {
   // Independent seed: rendering other themes cannot change this cue.
   seed = 20261017;
   const beat = 60 / 160;
   const s = new Song(3.5, false);
+  // Sustained strings bridge all four visual phases, with overlapping 280ms
+  // releases rather than dropping out between the short brass/percussion hits.
+  for (const [t, dur, chord] of [[0, 1.4, [50, 53, 57]], [1.3, 1.3, [49, 52, 57]], [2.5, .7, [50, 53, 57]]]) {
+    for (const pan of [-.55, .55]) for (const note of chord) tone(s, {
+      t, dur, freq: mtof(note + 12), vol: .055, pan, wave: 'tri',
+      voices: 3, detune: 6, attack: .12, release: .28, cutoff: 2100, res: .08,
+    });
+  }
   // Call, strike, dominant answer, then a resolved octave fanfare.
   // Beats 2 / 3 / 5 / 6 match firing and impact in BATTLE_SCENE_TIMING.
   const melody = [
@@ -117,25 +125,25 @@ function battle() {
   ];
   for (const [start, length, note] of melody) {
     for (const [octave, pan, vol] of [[0, .18, .15], [-12, -.22, .11]]) tone(s, {
-      t: start * beat, dur: length * beat * .82, freq: mtof(note + octave), vol, pan,
-      voices: 4, detune: 8, attack: .009, release: .09, cutoff: 1000, peak: 3200, decay: .16, res: .12,
+      t: start * beat, dur: length * beat * .98, freq: mtof(note + octave), vol, pan,
+      voices: 4, detune: 8, attack: .025, release: .16, cutoff: 1000, peak: 2800, decay: .2, res: .12,
     });
   }
-  // Alternating low strings and bass keep propulsion without smearing the hits.
+  // Overlapping releases retain propulsion without gating the whole mix.
   for (let step = 0; step < 28; step++) {
     const dominant = step >= 16;
     const root = dominant ? 33 : 38;
     const pattern = dominant ? [0, 7, 12, 16] : [0, 7, 12, 15];
-    tone(s, { t: step * beat / 4, dur: .055, freq: mtof(root + 24 + pattern[step % 4]), vol: step % 4 ? .035 : .055, pan: step % 2 ? .45 : -.45, voices: 2, detune: 7, attack: .003, release: .04, cutoff: 650, peak: 1900, decay: .05 });
-    if (step % 2 === 0) tone(s, { t: step * beat / 4, dur: .1, freq: mtof(root), vol: .16, voices: 2, detune: 4, attack: .004, release: .045, cutoff: 280, peak: 800, decay: .07 });
+    tone(s, { t: step * beat / 4, dur: .08, freq: mtof(root + 24 + pattern[step % 4]), vol: step % 4 ? .035 : .055, pan: step % 2 ? .45 : -.45, voices: 2, detune: 7, attack: .012, release: .08, cutoff: 650, peak: 1600, decay: .08 });
+    if (step % 2 === 0) tone(s, { t: step * beat / 4, dur: .17, freq: mtof(root), vol: .14, voices: 2, detune: 4, attack: .012, release: .1, cutoff: 280, peak: 700, decay: .1 });
     if (step % 2 === 0) hat(s, step * beat / 4, .045, step % 4 ? .35 : -.35);
   }
   // Low brass moves from D minor to A major before the final D-minor resolution.
   for (const [start, chord] of [[0, [50, 53, 57]], [4, [45, 49, 52]]]) {
-    for (const note of chord) tone(s, { t: start * beat, dur: beat * 1.4, freq: mtof(note), vol: .065, pan: -.15, voices: 3, attack: .014, release: .18, cutoff: 800, peak: 1800, decay: .2 });
+    for (const note of chord) tone(s, { t: start * beat, dur: beat * 1.4, freq: mtof(note), vol: .065, pan: -.15, voices: 3, attack: .03, release: .28, cutoff: 800, peak: 1600, decay: .25 });
   }
   boom(s, { t: 0, f0: 110, f1: 45, dur: .28, vol: .65, click: .15 });
-  for (const q of [2, 3, 5, 6]) boom(s, { t: q * beat, f0: 125, f1: 48, dur: .24, vol: .65, click: .12 });
+  for (const q of [2, 3, 5, 6]) boom(s, { t: q * beat, f0: 125, f1: 48, dur: .28, vol: .38, click: .05 });
   for (const q of [1, 4]) snare(s, q * beat, .26);
   // Rising roll hands off to the decisive chord just before the result appears.
   for (let step = 0; step < 4; step++) snare(s, (6 + step / 4) * beat, .1 + step * .035);
@@ -143,9 +151,9 @@ function battle() {
     t: 7 * beat, dur: .42, freq: mtof(note), vol: .085, pan: note % 2 ? .4 : -.4,
     voices: 3, detune: 8, attack: .008, release: .32, cutoff: 950, peak: 2600, decay: .25,
   });
-  boom(s, { t: 7 * beat, f0: 105, f1: 43, dur: .55, vol: .85, click: .14 });
+  boom(s, { t: 7 * beat, f0: 105, f1: 43, dur: .55, vol: .55, click: .06 });
   noiseHit(s, { t: 7 * beat, dur: .7, vol: .15, hp: .9, shape: 2.5 });
-  reverb(s, .18, .8);
+  reverb(s, .22, .8);
   // No tail wrapping. Fade the final 220ms before the 3.6s scene ends.
   for (let i = 0; i < s.N; i++) {
     const gain = Math.min(1, i / (SR * .006), (s.N - 1 - i) / (SR * .22));
