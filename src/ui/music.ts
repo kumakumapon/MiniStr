@@ -94,6 +94,8 @@ export class BackgroundMusicPlayer {
   private battleAudio: LoopingAudio | undefined;
   private inBattle = false;
   private activated = false;
+  private battleGeneration = 0;
+  private battleStartPending = false;
 
   constructor(
     private settings: MusicSettings,
@@ -119,18 +121,22 @@ export class BackgroundMusicPlayer {
   }
 
   async unlock(): Promise<void> {
-    if (this.activated) return;
-    this.activated = true;
-    // Unlock both elements during the gesture, including browsers that grant
-    // playback permission per element. A late completion cannot restart a scene.
-    const battle = this.battleAudio;
-    if (battle && !this.inBattle) this.primeSilently(battle);
+    if (!this.activated) {
+      this.activated = true;
+      // Unlock both elements during the first gesture, including browsers that grant
+      // playback permission per element. A late completion cannot restart a scene.
+      const battle = this.battleAudio;
+      if (battle && !this.inBattle) this.primeSilently(battle);
+    }
+    // A denied play or a browser suspension can recover on the next user gesture.
     await this.syncPlayback();
   }
 
   setBattle(active: boolean, restart = false): void {
     if (active === this.inBattle && !(active && restart)) return;
     this.inBattle = active;
+    this.battleGeneration += 1;
+    this.battleStartPending = active;
     if (active) {
       this.battleAudio ??= createAudio('battle-theme');
       this.battleAudio.loop = false;
@@ -207,9 +213,14 @@ export class BackgroundMusicPlayer {
       audio.pause();
       return;
     }
-    if (this.inBattle && audio.ended) return;
+    // Seeking is asynchronous: ended may still describe the previous battle
+    // after currentTime = 0. Only suppress replays after this scene has started.
+    if (this.inBattle && audio.ended && !this.battleStartPending) return;
+    const generation = this.battleGeneration;
+    const startingBattle = this.inBattle;
     try {
       await audio.play();
+      if (startingBattle && this.inBattle && generation === this.battleGeneration) this.battleStartPending = false;
       if (audio !== (this.inBattle ? this.battleAudio : this.audio) || this.settings.muted || this.settings.volume === 0) {
         audio.muted = true;
         audio.pause();
