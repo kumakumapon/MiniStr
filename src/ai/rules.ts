@@ -212,7 +212,7 @@ function emptyOwnedFacility(state: GameState, player: PlayerId, kind: UnitKind):
 }
 
 /** Production reacts only to confirmed units and board topology, never hidden enemies. */
-function specialistProduction(state: GameState, player: PlayerId, visibleEnemies: readonly Unit[]): CpuAction | undefined {
+function specialistProduction(state: GameState, player: PlayerId, visibleEnemies: readonly Unit[], remoteGround = false): CpuAction | undefined {
   const gold = state.players[player].gold;
   const visible = visibleEnemies.filter(isDeployedUnit);
   const hasSea = state.board.terrain.some(row => row.some(tile => tile.kind === 'sea'));
@@ -232,6 +232,7 @@ function specialistProduction(state: GameState, player: PlayerId, visibleEnemies
     if (!ownKinds.has('helicopter') && !airDefence) candidates.push('helicopter');
   }
   for (const kind of candidates) {
+    if (remoteGround && isGroundUnit(kind) && !isEmbarkableUnit(kind)) continue;
     if (unitStats[kind].cost > gold) continue;
     const factory = emptyOwnedFacility(state, player, kind);
     if (factory) return { type: 'produce', factory, kind };
@@ -277,6 +278,8 @@ function productionAction(state: GameState, player: PlayerId, config: CpuDifficu
     .some(unit => targets.some(target => !sameLandComponent(context.landComponents, unit.position, target)));
   const hasLandingShip = state.units.some(unit => unit.owner === player && unit.kind === 'landingShip');
   const warships = state.units.filter(unit => unit.owner === player && (unit.kind === 'destroyer' || unit.kind === 'battleship')).length;
+  const remoteGround = usesOperationsRules(state) && hasRemoteInfantry && !state.board.terrain.some((row, y) => row.some((tile, x) =>
+    tile.kind === 'factory' && tile.owner === player && targets.some(target => sameLandComponent(context.landComponents, { x, y }, target))));
   // Once the service berth can be kept open, restore indirect fire support
   // before spending each income on another escort or stranded ground troops.
   if (usesOperationsRules(state) && hasRemoteInfantry && hasLandingShip
@@ -300,7 +303,7 @@ function productionAction(state: GameState, player: PlayerId, config: CpuDifficu
     // troops. Bank the replacement cost while movement clears the home port.
     return undefined;
   }
-  const specialist = specialistProduction(state, player, context.visibleEnemies);
+  const specialist = specialistProduction(state, player, context.visibleEnemies, remoteGround);
   if (specialist) return specialist;
   const supplyNeeded = usesModernRules(state) && orderedUnits(state, player).filter(unit => isGroundUnit(unit.kind) && needsSupply(unit)).length >= 2;
   if (supplyNeeded && !state.units.some(unit => unit.owner === player && isSupplyUnit(unit.kind)) && state.players[player].gold >= unitStats.apc.cost) {
@@ -309,7 +312,7 @@ function productionAction(state: GameState, player: PlayerId, config: CpuDifficu
   }
   // Transports and counters to confirmed threats are bounded one-of-a-kind orders;
   // only the bulk force mix stops at the limit.
-  if (atForceLimit(state, player, config)) return undefined;
+  if (atForceLimit(state, player, config) || remoteGround) return undefined;
   const kind = preferredProduction(state, player);
   if (!kind) return undefined;
   const factory = emptyOwnedFacility(state, player, kind);
