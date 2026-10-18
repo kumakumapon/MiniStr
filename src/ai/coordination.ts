@@ -1,4 +1,5 @@
 import { evacuationObjectives } from '../game/evacuation';
+import { isEvacuationCondition, scenarioForState } from '../game/maps';
 import { manhattanDistance } from '../game/terrain';
 import { isDeployedUnit, usesOperationsRules, type DeployedUnit, type GameState, type PlayerId, type Position, type Unit } from '../game/types';
 import { damageMultiplier, isSupplyUnit, unitCategory, unitStats } from '../game/units';
@@ -54,6 +55,21 @@ function teamPlan(state: GameState, player: PlayerId): TeamPlan {
 
 export function cpuRole(state: GameState, player: PlayerId, unitId: string): CpuRole | undefined {
   return teamPlan(state, player).roles.get(unitId);
+}
+
+/** Public mission orders prioritize confirmed defenders and opposing evacuees. */
+export function isPriorityTarget(state: GameState, player: PlayerId, target: Unit): boolean {
+  if (!usesOperationsRules(state) || target.owner === player || !isDeployedUnit(target)) return false;
+  const scenario = scenarioForState(state);
+  const own = player === 'red' ? scenario?.victoryConditions : scenario?.defeatConditions;
+  const opposing = player === 'red' ? scenario?.defeatConditions : scenario?.victoryConditions;
+  return (
+    !!own?.some(
+      (condition) =>
+        (condition.type === 'hold' || isEvacuationCondition(condition)) &&
+        condition.positions.some((position) => position.x === target.position.x && position.y === target.position.y),
+    ) || !!opposing?.some((condition) => isEvacuationCondition(condition) && condition.unitIds.includes(target.id))
+  );
 }
 
 /** Front units move first; support then follows their actual updated positions. */

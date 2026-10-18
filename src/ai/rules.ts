@@ -10,7 +10,7 @@ import { manhattanDistance, movementCost, terrainAt } from '../game/terrain';
 import { isDeployedUnit, usesDecisionRules, usesOperationsRules, usesModernRules, type Board, type DeployedUnit, type GameState, type PlayerId, type Position, type Unit, type UnitKind } from '../game/types';
 import { adjacentToSupplyUnit, isGroundUnit, isServiceTile, REPAIR_HP_PER_TURN } from '../game/logistics';
 import { isEmbarkableUnit, isMergeableUnit, isSupplyUnit, remainingAmmo, unitCategory, unitStats } from '../game/units';
-import { coordinatedOrder, coordinationValue, cpuRole, transportSafeAt } from './coordination';
+import { coordinatedOrder, coordinationValue, cpuRole, isPriorityTarget, transportSafeAt } from './coordination';
 import { canEvacuateUnit, evacuationObjectives, isEvacuationTarget } from '../game/evacuation';
 import { isEvacuationCondition } from '../game/maps';
 import { bluePlanningState, rotatePosition } from './perspective';
@@ -163,7 +163,8 @@ function attackAction(state: GameState, player: PlayerId, config: CpuDifficultyC
         const interruption = Number(interruptsCapture(state, player, b)) - Number(interruptsCapture(state, player, a));
         // Focus fire: finishing a unit removes its future attacks, so certain kills come first.
         const lethal = Number(bForecast.ok && bForecast.value.outgoing.min >= b.hp) - Number(aForecast.ok && aForecast.value.outgoing.min >= a.hp);
-        return interruption || lethal || bScore - aScore || a.hp - b.hp || unitIdOrder.compare(a.id, b.id);
+        const objective = Number(isPriorityTarget(state, player, b)) - Number(isPriorityTarget(state, player, a));
+        return interruption || lethal || objective || bScore - aScore || a.hp - b.hp || unitIdOrder.compare(a.id, b.id);
       })[0];
     if (target) return { type: 'attack', unitId: attacker.id, targetId: target.id };
   }
@@ -728,6 +729,7 @@ function strikeAction(state: GameState, player: PlayerId, config: CpuDifficultyC
           - forecast.value.damageToAttacker * stats.cost / 100
           + (lethal ? targetCost * STRIKE_LETHAL_BONUS : 0)
           + (interruption ? STRIKE_INTERRUPT_BONUS : 0)
+          + (isPriorityTarget(state, player, target) ? STRIKE_OBJECTIVE_BONUS : 0)
           + terrainDefenseReduction(tile, unit.hp) * STRIKE_COVER_VALUE;
         // Strictly better only: ties keep the first candidate in unit-id,
         // movement-preview and unit-list order, which is deterministic.
@@ -742,6 +744,8 @@ function strikeAction(state: GameState, player: PlayerId, config: CpuDifficultyC
 const STRIKE_LETHAL_BONUS = 0.5;
 /** Stopping a capture of our property outweighs any ordinary trade. */
 const STRIKE_INTERRUPT_BONUS = 3000;
+/** Prefer opening an authored mission objective over an otherwise similar trade. */
+const STRIKE_OBJECTIVE_BONUS = 1200;
 /** Value of each percent of terrain mitigation at the attack position. */
 const STRIKE_COVER_VALUE = 10;
 
