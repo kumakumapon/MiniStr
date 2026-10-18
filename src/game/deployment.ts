@@ -48,11 +48,7 @@ export function createDeploymentScenario(
   veterans?: readonly { kind: UnitKind; experience: number }[],
 ): GameResult<ScenarioDefinition> {
   const slots = deploymentSlots(scenario, player);
-  if (
-    !Array.isArray(choices) ||
-    choices.length !== slots.length ||
-    choices.some((kind, index) => !unitKindSet.has(kind) || !slots[index]!.choices.includes(kind))
-  )
+  if (!Array.isArray(choices) || choices.length !== slots.length || choices.some((kind, index) => !unitKindSet.has(kind) || !slots[index]!.choices.includes(kind)))
     return { ok: false, error: '編成の配置枠・兵科・地形または固定対象が不正です。' };
   const selected: readonly UnitKind[] = choices;
   const cost = selected.reduce((sum, kind) => sum + unitStats[kind].cost, 0);
