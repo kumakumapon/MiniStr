@@ -4,7 +4,8 @@ import { afterEach, describe, expect, it } from 'vitest';
 // jsdom is intentionally instantiated per test: startup listeners/timers cannot leak between apps.
 // @ts-expect-error The runtime is a dev dependency; production/test source does not require its optional declaration package.
 import { JSDOM } from 'jsdom';
-import { createScenarioInitialState, maps, saveGameToSlot, type StorageLike } from '../../src/game';
+import { createScenarioInitialState, maps, saveGameToSlot, type GameState, type StorageLike } from '../../src/game';
+import { operationData } from '../../src/game/operations.fixture';
 
 const asset = readdirSync('dist/assets').find((name) => /^index-.*\.js$/.test(name));
 if (!asset) throw Error('Run npm run build before production UI tests');
@@ -35,9 +36,69 @@ function click(selector: string) {
   if (!element) throw Error(`Missing UI: ${selector}`);
   element.click();
 }
+function change(selector: string, value: string) {
+  const element = dom.window.document.querySelector(selector) as HTMLSelectElement | HTMLTextAreaElement;
+  if (!element) throw Error(`Missing UI: ${selector}`);
+  element.value = value;
+  element.dispatchEvent(new dom.window.Event('change', { bubbles: true }));
+}
 afterEach(() => dom?.window.close());
 
 describe('distributed application boundaries', () => {
+  it('deploys a custom force and preserves evacuation progress through undo, save and resume', () => {
+    const document = launch();
+    click('#title-editor');
+    change('#editor-json', JSON.stringify(operationData({ id: 'distributed-withdrawal' })));
+    click('#editor-import');
+    expect(document.querySelector('#editor-notice')?.textContent).toContain('JSONを反映しました');
+    click('#editor-start');
+    change('#briefing-deployment-red-1', 'heavyTank');
+    expect(document.querySelector<HTMLButtonElement>('#begin-operation')?.disabled).toBe(true);
+    expect(document.querySelector('.deployment-error')?.textContent).toContain('予算');
+    click('#briefing-deployment-reset');
+    change('#briefing-deployment-red-1', 'infantry');
+    click('#begin-operation');
+    expect(document.querySelector('.tile[data-x="1"][data-y="2"]')?.textContent).toContain('歩');
+    click('.tile[data-x="0"][data-y="1"]');
+    expect(document.querySelector<HTMLButtonElement>('#evacuate-unit')?.disabled).toBe(true);
+    click('.tile[data-x="3"][data-y="1"]');
+    expect(document.querySelector<HTMLButtonElement>('#evacuate-unit')?.disabled).toBe(false);
+    click('#evacuate-unit');
+    expect(document.querySelector('.tile[data-x="3"][data-y="1"]')?.textContent).not.toContain('歩');
+    click('#undo');
+    expect(document.querySelector('.tile[data-x="3"][data-y="1"]')?.textContent).toContain('歩');
+    click('.tile[data-x="3"][data-y="1"]');
+    click('#evacuate-unit');
+    click('#save');
+    const saved = JSON.parse(dom.window.localStorage.getItem('ministr.save.manual')!) as { initialState: GameState; gameState: GameState };
+    expect(saved.initialState.players.red.gold).toBe(6000);
+    expect(saved.initialState.units.find((unit) => unit.id === 'r2')?.kind).toBe('infantry');
+    expect(saved.gameState.evacuatedUnits?.map((unit) => unit.id)).toEqual(['r1']);
+    click('#open-title');
+    click('.load-save-slot[data-save-slot="manual"]');
+    expect(document.querySelector('.title-overlay')).toBeNull();
+    click('.tile[data-x="1"][data-y="2"]');
+    click('.tile[data-x="3"][data-y="1"]');
+    click('#evacuate-unit');
+    expect(document.querySelector('#result-title')?.textContent).toContain('勝利');
+  });
+
+  it('validates both hotseat loadouts and ignores blue edits after returning to CPU mode', () => {
+    const document = launch();
+    click('.title-map-card[data-map-id="convoy-escort"]');
+    expect(document.querySelector<HTMLSelectElement>('#briefing-deployment-red-0')?.disabled).toBe(true);
+    click('input[name="match-mode"][value="hotseat"]');
+    change('#briefing-deployment-blue-0', 'heavyTank');
+    expect(document.querySelector<HTMLButtonElement>('#begin-operation')?.disabled).toBe(true);
+    click('input[name="match-mode"][value="cpu"]');
+    expect(document.querySelector('#briefing-deployment-blue-0')).toBeNull();
+    expect(document.querySelector<HTMLButtonElement>('#begin-operation')?.disabled).toBe(false);
+    click('#begin-operation');
+    click('.tile[data-x="1"][data-y="5"]');
+    expect(document.querySelector('#evacuate-unit')).not.toBeNull();
+    expect(document.querySelector<HTMLButtonElement>('#evacuate-unit')?.disabled).toBe(true);
+  });
+
   it('starts with unavailable storage and can play a practice operation', () => {
     const document = launch({ denied: true });
     expect(document.body.textContent).toContain('保存領域を利用できません');

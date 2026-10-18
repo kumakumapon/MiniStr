@@ -18,6 +18,7 @@ for (const viewport of [
     await expect(page.locator('#briefing-title')).toHaveText('撤退の操作確認');
     await page.locator('#briefing-deployment summary').click();
     const slot = page.locator('#briefing-deployment-red-1');
+    await slot.focus();
     await slot.selectOption('heavyTank');
     await expect(slot).toBeFocused();
     await expect(page.locator('#begin-operation')).toBeDisabled();
@@ -26,6 +27,8 @@ for (const viewport of [
     await expect(slot).toHaveValue('tank');
     await slot.selectOption('infantry');
     await expect(page.locator('#begin-operation')).toBeEnabled();
+    const briefingWidth = await page.evaluate(() => ({ width: window.innerWidth, scroll: document.documentElement.scrollWidth }));
+    expect(briefingWidth.scroll).toBeLessThanOrEqual(briefingWidth.width + 1);
     await page.screenshot({ path: testInfo.outputPath('deployment.png'), fullPage: true });
     await page.locator('#begin-operation').click();
     await expect(page.locator('.tile[data-x="1"][data-y="2"]')).toContainText('歩');
@@ -69,6 +72,12 @@ test('offers both authored operations and protects the escort loadout', async ({
   await page.locator('#briefing-deployment summary').click();
   await expect(page.locator('#briefing-deployment-red-0')).toBeDisabled();
   await expect(page.locator('#briefing-deployment-red-0')).toHaveValue('apc');
+  await page.locator('input[name="match-mode"][value="hotseat"]').check();
+  await page.locator('#briefing-deployment-blue-0').selectOption('heavyTank');
+  await expect(page.locator('#begin-operation')).toBeDisabled();
+  await page.locator('input[name="match-mode"][value="cpu"]').check();
+  await expect(page.locator('#briefing-deployment-blue-0')).toHaveCount(0);
+  await expect(page.locator('#begin-operation')).toBeEnabled();
   await page.locator('#begin-operation').click();
   await page.locator('.tile[data-x="1"][data-y="5"]').click();
   await expect(page.locator('#evacuate-unit')).toBeDisabled();

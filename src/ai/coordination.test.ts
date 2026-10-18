@@ -142,6 +142,29 @@ describe('CPU coordination', () => {
     expect(state.winner).toBe(player);
   });
 
+  it('does not issue another evacuation move to moved or acted targets', () => {
+    const initial = createScenarioInitialState(operation());
+    const state = { ...initial, units: initial.units.map((unit) => (unit.id === 'r1' ? { ...unit, hasMoved: true } : unit.id === 'r2' ? { ...unit, hasActed: true } : unit)) };
+    const action = chooseCpuAction(state, 'hard');
+    expect(action).not.toMatchObject({ type: 'move', unitId: 'r1' });
+    expect(action).not.toMatchObject({ type: 'move', unitId: 'r2' });
+    expect(applyGameCommand(state, action).ok).toBe(true);
+  });
+
+  it('keeps a protected target behind its escort requirement during move-and-attack planning too', () => {
+    const state = createScenarioInitialState(
+      operation({
+        board: { width: 3, height: 1, cells: [] },
+        initialUnits: [
+          { kind: 'tank', owner: 'red', x: 0, y: 0 },
+          { kind: 'heavyTank', owner: 'blue', x: 2, y: 0 },
+        ],
+        victoryConditions: [{ type: 'escort', unitIds: ['r1'], positions: [{ x: 1, y: 0 }], required: 1 }],
+      }),
+    );
+    expect(chooseCpuAction(state, 'hard')).toEqual({ type: 'endTurn' });
+  });
+
   it('uses visible opposing targets or their public exits and rotates evacuated snapshots', () => {
     const state = createScenarioInitialState(operation({ defeatConditions: [{ type: 'eliminate' }] }));
     expect(createCpuPlanningContext(state, 'blue', cpuDifficultyConfig.hard).targets).toEqual([{ x: 3, y: 1 }]);
