@@ -70,19 +70,19 @@ export function coordinatedOrder(state: GameState, player: PlayerId, units: read
 
 /** Small positional incentives preserve the existing capture, fire and resupply priorities. */
 export function coordinationValue(state: GameState, player: PlayerId, unit: DeployedUnit, destination: Position, targets: readonly Position[]): number {
-  if (!usesOperationsRules(state) || unitCategory[unit.kind] === 'sea') return 0;
+  if (!usesOperationsRules(state)) return 0;
+  const exits = evacuationObjectives(state, player).filter((condition) => condition.positions.some((exit) => exit.x === destination.x && exit.y === destination.y));
+  // Support should cover the exit from nearby tiles, leaving its single unit
+  // slot available for the designated evacuees.
+  if (exits.length && !exits.some((condition) => condition.unitIds.includes(unit.id))) return -150;
+  if (unitCategory[unit.kind] === 'sea') return 0;
   const plan = teamPlan(state, player);
   const role = plan.roles.get(unit.id);
   if (!targets.length || role === 'mission') return 0;
   let anchor = plan.anchors.get(unit.id);
   if (!anchor) {
     anchor = plan.frontline
-      .filter(
-        (ally) =>
-          ally.id !== unit.id &&
-          unitCategory[ally.kind] !== 'sea' &&
-          (!isSupplyUnit(unit.kind) || unitCategory[ally.kind] !== 'air'),
-      )
+      .filter((ally) => ally.id !== unit.id && unitCategory[ally.kind] !== 'sea' && (!isSupplyUnit(unit.kind) || unitCategory[ally.kind] !== 'air'))
       .sort((a, b) => manhattanDistance(a.position, unit.position) - manhattanDistance(b.position, unit.position))[0];
     if (!anchor) return 0;
     plan.anchors.set(unit.id, anchor);
