@@ -7,7 +7,7 @@ import { canProduceUnit, isPropertyTerrainKind, productionKindsForRule, unitLimi
 import { visibleEnemies as getVisibleEnemies } from '../game/fog';
 import { scenarioForState } from '../game/maps';
 import { manhattanDistance, movementCost, terrainAt } from '../game/terrain';
-import { isDeployedUnit, usesDecisionRules, usesModernRules, type Board, type DeployedUnit, type GameState, type PlayerId, type Position, type Unit, type UnitKind } from '../game/types';
+import { isDeployedUnit, usesDecisionRules, usesOperationsRules, usesModernRules, type Board, type DeployedUnit, type GameState, type PlayerId, type Position, type Unit, type UnitKind } from '../game/types';
 import { adjacentToSupplyUnit, isGroundUnit, isServiceTile, REPAIR_HP_PER_TURN } from '../game/logistics';
 import { isEmbarkableUnit, isMergeableUnit, isSupplyUnit, remainingAmmo, unitCategory, unitStats } from '../game/units';
 import { coordinatedOrder, coordinationValue, cpuRole, transportSafeAt } from './coordination';
@@ -283,6 +283,16 @@ function productionAction(state: GameState, player: PlayerId, config: CpuDifficu
     if (port && state.players[player].gold >= unitStats.landingShip.cost) return { type: 'produce', factory: port, kind: 'landingShip' };
     // Losing the transports must not start an endless queue of stranded ground
     // troops. Bank the replacement cost while movement clears the home port.
+    return undefined;
+  }
+  // An amphibious group needs indirect naval fire as well as transports and
+  // escorts. Rebuild a lost fire-support ship before buying more ground units
+  // that cannot leave the home island or dislodge a healing coastal garrison.
+  if (usesOperationsRules(state) && hasRemoteInfantry && hasLandingShip && warships >= 2
+    && !state.units.some(unit => unit.owner === player && unit.kind === 'battleship')
+    && state.board.terrain.some(row => row.some(tile => tile.kind === 'port' && tile.owner === player))) {
+    const port = emptyOwnedFacility(state, player, 'battleship');
+    if (port && state.players[player].gold >= unitStats.battleship.cost) return { type: 'produce', factory: port, kind: 'battleship' };
     return undefined;
   }
   const specialist = specialistProduction(state, player, context.visibleEnemies);
