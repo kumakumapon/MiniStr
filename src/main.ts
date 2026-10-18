@@ -1,3 +1,5 @@
+import { createDeploymentScenario, deploymentSlots, evacuationObjectives, canEvacuateUnit, isEvacuationCondition, isEvacuationTarget, operationScenarios, type GameResult } from './game';
+import { renderDeployment } from './ui/deployment';
 import { weaponNames } from './ui/labels';
 import { hasUsableWeapon, weaponsForUnit, type WeaponSlot } from './game';
 import './style.css';
@@ -58,6 +60,10 @@ import { deleteSaveSlot, getStorageUsage, listSaveSlots, loadGameFromSlot, saveG
 
 let selectedMap = maps[0]!;
 let game = start(selectedMap.id);
+let deploymentBase: ScenarioDefinition | undefined = selectedMap;
+let deploymentChoices: Record<PlayerId, UnitKind[]> = { red: deploymentSlots(selectedMap, 'red').map(slot => slot.kind), blue: deploymentSlots(selectedMap, 'blue').map(slot => slot.kind) };
+let deploymentOpen = false;
+let deploymentNotice = '';
 let selected: string | undefined;
 let weaponSelection: { unitId: string; slot: WeaponSlot } | undefined;
 const selectedWeaponSlot = (): WeaponSlot | undefined => weaponSelection?.unitId === selected ? weaponSelection?.slot : undefined;
@@ -257,6 +263,13 @@ const producibleUnits = allProducibleUnitKinds;
 
 function editorVictoryCondition(kind: VictoryCondition['type'], target: number): VictoryCondition {
   if (kind === 'eliminate' || kind === 'captureCapital') return { type: kind };
+  if (kind === 'escort' || kind === 'withdraw') {
+    const previous = editor.data.victoryConditions[0];
+    const entered = app.querySelector<HTMLInputElement>('#editor-victory-units')?.value;
+    const unitIds = entered !== undefined ? entered.split(/[\s,・]+/).filter(Boolean)
+      : previous && isEvacuationCondition(previous) ? previous.unitIds : editor.data.initialUnits.some(unit => unit.owner === 'red') ? ['r1'] : [];
+    return { type: kind, unitIds, required: Math.max(1, target), positions: previous && isEvacuationCondition(previous) ? previous.positions : [{ ...editor.selected }] };
+  }
   if (kind === 'hold') return { type: 'hold', positions: [{ ...editor.selected }], turns: Math.max(1, target) };
   if (kind === 'survive') return { type: 'survive', untilTurn: Math.max(1, target) };
   return { type: 'score', target: Math.max(1, target) };
@@ -310,7 +323,7 @@ function objectiveProgress(condition: VictoryCondition, state: GameState, player
 
 function objectiveList(conditions: readonly VictoryCondition[], state: GameState, player: PlayerId): string {
   if (conditions.length === 0) return '<li><span>条件なし</span></li>';
-  return conditions.map(condition => `<li><span>${escapeHtml(describeVictoryCondition(condition))}${condition.type === 'hold' ? ` (${condition.positions.map(position => `${position.x + 1}, ${position.y + 1}`).join(' / ')})` : ''}</span><strong>${escapeHtml(objectiveProgress(condition, state, player))}</strong></li>`).join('');
+  return conditions.map(condition => `<li><span>${escapeHtml(describeVictoryCondition(condition))}${condition.type === 'hold' || isEvacuationCondition(condition) ? ` (${condition.positions.map(position => `${position.x + 1}, ${position.y + 1}`).join(' / ')})` : ''}</span><strong>${escapeHtml(objectiveProgress(condition, state, player))}</strong></li>`).join('');
 }
 
 
@@ -360,6 +373,14 @@ function syncBoardZoom(boardWidth: number): void {
   if (boardZoomAuto) boardZoomIndex = defaultBoardZoomIndex(boardAreaWidth(window.innerWidth), boardWidth);
 }
 
+function plannedDeployment(): GameResult<ScenarioDefinition> {
+  if (!deploymentBase || deploymentBase.id === 'training') return { ok: true, value: selectedMap };
+  const veterans = campaignRun ? campaignDeployment(campaignProgress, campaignRun.scenarioId).veterans : undefined;
+  const red = createDeploymentScenario(deploymentBase, deploymentChoices.red, 'red', veterans);
+  if (!red.ok || matchMode === 'cpu') return red;
+  return createDeploymentScenario(red.value, deploymentChoices.blue, 'blue');
+}
+
 function confirmReplaceMatch(): boolean {
   return game.winner !== undefined || commandHistory.length === 0 || window.confirm('進行中の対局を置き換えますか？未保存の操作は失われます。');
 }
@@ -376,6 +397,10 @@ function resetGame(mapId: string, operation?: ScenarioDefinition): void {
   pendingPresentationEffects = [];
   pendingHandoffActionScene = undefined;
   game = start(mapId, operation);
+  deploymentBase = selectedMap;
+  deploymentChoices = { red: deploymentSlots(selectedMap, 'red').map(slot => slot.kind), blue: deploymentSlots(selectedMap, 'blue').map(slot => slot.kind) };
+  deploymentOpen = false;
+  deploymentNotice = '';
   resetSpectatorCamera();
   initialState = structuredClone(game);
   commandHistory = [];
@@ -479,6 +504,9 @@ function recordVisibleCpuAction(before: GameState, command: GameCommand): void {
   } else if (command.type === 'move') {
     const unit = visibleUnit(command.unitId);
     entry = unit && isDeployedUnit(unit) ? `敵の${unitNames[unit.kind]}が視認範囲内で移動しました。` : undefined;
+  } else if (command.type === 'evacuate') {
+    const unit = visibleUnit(command.unitId);
+    if (unit) entry = `${unitNames[unit.kind]}が脱出地点から撤退`;
   } else if (command.type === 'capture') {
     const unit = visibleUnit(command.unitId);
     entry = unit && isDeployedUnit(unit) ? `敵の${unitNames[unit.kind]}が視認範囲内の拠点を占領中です。` : undefined;
@@ -532,6 +560,7 @@ function continueSavedGame(slotId?: string): boolean {
   campaignRun = undefined;
   campaignOutcome = undefined;
   selectedMap = map;
+  deploymentBase = undefined;
   difficulty = loaded.value.difficulty;
   matchMode = loaded.value.mode ?? 'cpu';
   // Only a spectated save sets red's CPU; other formats keep the viewer's last choice.
@@ -762,7 +791,10 @@ function render(): void {
   const targetFacility = (selectedFacility && idleFacilities.find(facility => key(facility.position) === key(selectedFacility!))) || (productionMenuOpen ? idleFacilities[0] : undefined);
   const viewerAtUnitLimit = usesDecisionRules(renderedGame) && renderedGame.units.filter(unit => unit.owner === me).length >= unitLimit(renderedGame.board, renderedGame.ruleVersion);
   const idleFacilityKeys = new Set(viewerAtUnitLimit ? [] : idleFacilities.map(facility => key(facility.position)));
-  const objectivePositions = new Set(renderedMap.victoryConditions.flatMap(condition => condition.type === 'hold' ? condition.positions.map(key) : []));
+  const ownEvacuation = evacuationObjectives(renderedGame, me);
+  const exitPositions = new Set(ownEvacuation.flatMap(condition => condition.positions.map(key)));
+  const missionTargets = new Set(ownEvacuation.flatMap(condition => condition.unitIds));
+  const objectivePositions = new Set(renderedMap.victoryConditions.flatMap(condition => condition.type === 'hold' || isEvacuationCondition(condition) ? condition.positions.map(key) : []));
   const board = renderedGame.board.terrain.flatMap((row, y) => row.map((terrain, x) => {
     const unit = renderedGame.units.find(item => isDeployedUnit(item) && item.position.x === x && item.position.y === y);
     const hidden = !visible.has(`${x},${y}`);
@@ -800,7 +832,8 @@ function render(): void {
     const productionReady = !hidden && idleFacilityKeys.has(`${x},${y}`);
     const isFacilityTarget = productionReady && !!targetFacility && key(targetFacility.position) === `${x},${y}`;
     const statuses = [
-      objectivePositions.has(`${x},${y}`) ? '作戦目標地点' : '',
+      exitPositions.has(`${x},${y}`) ? '脱出地点' : objectivePositions.has(`${x},${y}`) ? '作戦目標地点' : '',
+      unit && !hidden && missionTargets.has(unit.id) ? `作戦対象 ${unit.id}` : '',
       isSelected ? '選択中' : '',
       isReachable ? '移動可能' : '',
       enemyMovement ? '選択中の敵ユニットの移動範囲' : '',
@@ -809,7 +842,7 @@ function render(): void {
       isFacilityTarget ? '生産先に選択中' : productionReady ? '生産可能' : '',
       hidden ? '未索敵' : '',
     ].filter(Boolean);
-    const stateMarker = `${objectivePositions.has(`${x},${y}`) ? '<span class="objective-marker" aria-hidden="true">目</span>' : ''}${isSelected ? '<span class="tile-state-marker selected-marker" aria-hidden="true">選</span>' : ''}${isReachable ? '<span class="tile-state-marker reachable-marker" aria-hidden="true">移</span>' : ''}${productionReady ? '<span class="tile-state-marker facility-ready-marker" aria-hidden="true">産</span>' : ''}${enemyMovement ? '<span class="tile-state-marker enemy-move-marker" aria-hidden="true">敵移</span>' : ''}${(enemyAttack || movementDanger) ? '<span class="tile-state-marker danger-marker" aria-hidden="true">危</span>' : ''}`;
+    const stateMarker = `${exitPositions.has(`${x},${y}`) ? '<span class="objective-marker evacuation-exit" aria-hidden="true">脱</span>' : objectivePositions.has(`${x},${y}`) ? '<span class="objective-marker" aria-hidden="true">目</span>' : ''}${unit && !hidden && missionTargets.has(unit.id) ? '<span class="mission-unit-marker" aria-hidden="true">任</span>' : ''}${isSelected ? '<span class="tile-state-marker selected-marker" aria-hidden="true">選</span>' : ''}${isReachable ? '<span class="tile-state-marker reachable-marker" aria-hidden="true">移</span>' : ''}${productionReady ? '<span class="tile-state-marker facility-ready-marker" aria-hidden="true">産</span>' : ''}${enemyMovement ? '<span class="tile-state-marker enemy-move-marker" aria-hidden="true">敵移</span>' : ''}${(enemyAttack || movementDanger) ? '<span class="tile-state-marker danger-marker" aria-hidden="true">危</span>' : ''}`;
     return `<button ${!canAct ? 'disabled' : ''} class="tile ${!replayMode && matchMode === 'spectate' && spectateLastAction && key(spectateLastAction) === `${x},${y}` ? 'spectate-current' : ''} ${terrain.kind} ${isSelected ? 'selected' : ''} ${isReachable ? 'reachable' : ''} ${enemyMovement ? 'enemy-move-zone' : ''} ${enemyAttack ? 'enemy-attack-zone' : ''} ${movementDanger ? 'movement-danger' : ''} ${isFacilityTarget ? 'facility-target' : ''} ${hidden ? 'fog' : ''}" data-x="${x}" data-y="${y}" data-terrain="${terrain.kind}" tabindex="${focusedPosition.x === x && focusedPosition.y === y ? '0' : '-1'}" title="${propertyLabel}${unitLabel ? ` — ${unitLabel}` : ''}${statuses.length ? ` — ${statuses.join('、')}` : ''}" aria-label="${propertyLabel}${unitLabel ? `、${unitLabel}` : ''}${statuses.length ? `、${statuses.join('、')}` : ''}">${terrainArt}${stateMarker}${facility}${label}</button>`;
   })).join('');
   const ownUnitCount = renderedGame.units.filter(unit => unit.owner === me).length;
@@ -871,6 +904,8 @@ function render(): void {
   const transportAction = !replayMode && (embarkTargets.length || cargo)
     ? `<section class="transport-card"><p class="card-kicker">TRANSPORT OPERATION</p><strong>${cargo ? `${unitNames[cargo.kind]}を搭載中` : '輸送部隊への搭載'}</strong><span>${cargo ? '隣接する空の陸地を選んで降車させます。' : '隣接する空の輸送部隊を選んで搭載します。'}</span>${embarkTargets.map(unit => `<button class="transport-action embark" data-transport-id="${unit.id}">${unitNames[unit.kind]}に搭載</button>`).join('')}${landingTargets.map(position => `<button class="transport-action disembark" data-x="${position.x}" data-y="${position.y}">(${position.x + 1}, ${position.y + 1}) に降車</button>`).join('')}${cargo && landingTargets.length === 0 ? '<em class="transport-note">降車できる隣接陸地がありません。</em>' : ''}</section>`
     : '';
+  const evacuationAction = !replayMode && selectedUnit?.owner === me && isEvacuationTarget(renderedGame, selectedUnit.id, me)
+    ? `<section class="transport-card evacuation-card"><p class="card-kicker">撤退操作</p><strong>作戦対象 ${escapeHtml(selectedUnit.id)}</strong><p>脱出地点「脱」へ移動し、未行動の状態で撤退してください。搭載部隊は先に降車させます。</p><button id="evacuate-unit" class="end-turn" ${canAct && canEvacuateUnit(renderedGame, selectedUnit.id) ? '' : 'disabled'}>脱出地点から撤退</button></section>` : '';
   const indirectFireBlocked = !replayMode && selectedUnit?.owner === renderedGame.activePlayer
     && unitStats[selectedUnit.kind].indirect && selectedUnit.hasMoved && !selectedUnit.hasActed
     && !hasUsableWeapon(renderedGame, selectedUnit);
@@ -899,7 +934,7 @@ function render(): void {
     difficultyName: matchDifficultyName(),
     campaignResult,
     campaignActions: campaignResultActions,
-    reasonLabel: victoryReason(renderedGame, renderedMap) === 'decision' ? uiText.decisionVictory : undefined,
+    reasonLabel: victoryReason(renderedGame, renderedMap) === 'objectiveLost' ? '必要な作戦対象を失いました。' : victoryReason(renderedGame, renderedMap) === 'decision' ? uiText.decisionVictory : undefined,
     sideNames: matchMode === 'cpu' ? undefined : { red: sideName(matchMode, 'red'), blue: sideName(matchMode, 'blue') },
   });
   const commander = renderedGame.activePlayer === 'red'
@@ -964,7 +999,7 @@ function render(): void {
       id: map.id, name: map.name, theme: themeNames[map.theme], width: map.board.width, height: map.board.height,
       startingGold: map.startingGold, turnLimit: map.turnLimit,
       victory: map.victoryConditions.map(describeVictoryCondition).join(' / '),
-      custom: !maps.some(builtIn => builtIn.id === map.id), selected: map.id === selectedMap.id,
+      custom: ![...maps, ...operationScenarios].some(builtIn => builtIn.id === map.id), selected: map.id === selectedMap.id,
       preview: mapPreviews.get(map) ?? (() => {
         const preview = renderMapPreview(map.board, map.initialUnits, map.theme);
         mapPreviews.set(map, preview);
@@ -976,10 +1011,13 @@ function render(): void {
     canResume: titleResumable,
     notice: titleNotice || (!localStorage.persistent ? 'ブラウザーの保存領域を利用できません。このタブ内だけに保存します。終了前にバックアップしてください。' : '') || (!hasSave() && hasStoredSave() ? uiText.titleInvalidSave : ''),
   });
+  const deployment = screens.briefingOpen ? plannedDeployment() : undefined;
   const briefing = renderBriefingOverlay({
     visible: !screens.campaignMenuOpen && !screens.titleOpen && !replayMode && screens.briefingOpen,
     backToTitle: true,
     mapName: renderedMap.name,
+    deployment: deploymentBase && deploymentBase.id !== 'training' && screens.briefingOpen ? renderDeployment(deploymentBase, deploymentChoices, matchMode === 'cpu' ? ['red'] : ['red', 'blue'], deploymentOpen, deploymentNotice) : undefined,
+    beginDisabled: deployment !== undefined && !deployment.ok,
     briefing: renderedMap.briefing,
     victoryConditions: [...renderedMap.victoryConditions.map(describeVictoryCondition), ...(renderedDecisionRound === undefined ? [] : [uiText.decisionRule(renderedDecisionRound)])],
     matchMode: campaignRun ? undefined : matchMode,
@@ -987,25 +1025,25 @@ function render(): void {
       : matchMode === 'cpu' ? undefined : { victory: '赤軍の勝利条件', defeat: '青軍の勝利条件' },
     spectateDifficulties: { red: redDifficulty, blue: difficulty, levels: cpuDifficulties.map(level => ({ value: level, label: difficultyNames[level] })) },
     defeatConditions: renderedMap.defeatConditions.map(describeVictoryCondition),
-    startingGold: campaignRun ? initialState.players.red.gold : renderedMap.startingGold,
+    startingGold: deployment?.ok ? createScenarioInitialState(deployment.value).players.red.gold : initialState.players.red.gold,
     turnLimit: renderedMap.turnLimit,
     difficultyName: matchDifficultyName(),
     campaignRun: campaignRun !== undefined,
     campaignPreparation: campaignRun ? {
       support: initialState.scenarioSnapshot?.firstPlayerBonus ?? 0,
-      veterans: initialState.units.filter(unit => unit.owner === 'red' && (unit.experience ?? 0) > 0).length,
+      veterans: deployment?.ok ? deployment.value.initialUnits.filter(unit => unit.owner === 'red' && (unit.experience ?? 0) > 0).length : initialState.units.filter(unit => unit.owner === 'red' && (unit.experience ?? 0) > 0).length,
     } : undefined,
   });
   app.innerHTML = `<main class="game-shell">
     <div class="build-info">${renderLocalePicker()}v${escapeHtml(buildInfo.version)} · ${escapeHtml(buildInfo.sha.slice(0, 12))} <button id="diagnostics-export">診断情報を保存</button></div>
     ${localStorage.conflicted ? '<p role="alert">別のタブでデータが変更されました。書き込みを停止しています。バックアップ後に再読み込みしてください。<button id="storage-reload">再読み込み</button></p>' : ''}
     ${!localStorage.persistent ? '<p class="storage-warning" role="alert">ブラウザーの保存領域を利用できません。このタブを閉じるとデータが失われます。バックアップをダウンロードしてください。</p>' : ''}
-    <header class="command-bar"><div class="brand"><span class="brand-mark" aria-hidden="true">✦</span><div><h1>MiniStr</h1><p>TACTICAL COMMAND</p></div></div><label class="map-picker">戦域<select id="map" aria-label="戦域マップを選択" ${replayMode || campaignRun ? 'disabled' : ''}>${!availableScenarios().some(map => map.id === renderedMap.id) ? `<option value="${escapeHtml(renderedMap.id)}" selected>${escapeHtml(renderedMap.name)}</option>` : ''}<optgroup label="組み込み">${maps.map(map => `<option value="${escapeHtml(map.id)}" ${map.id === renderedMap.id ? 'selected' : ''}>${escapeHtml(map.name)}</option>`).join('')}</optgroup>${availableScenarios().filter(map => !maps.some(builtIn => builtIn.id === map.id)).length ? `<optgroup label="カスタム">${availableScenarios().filter(map => !maps.some(builtIn => builtIn.id === map.id)).map(map => `<option value="${escapeHtml(map.id)}" ${map.id === renderedMap.id ? 'selected' : ''}>${escapeHtml(map.name)}</option>`).join('')}</optgroup>` : ''}</select></label>${renderedRedDifficulty ? `<label class="map-picker">${uiText.spectateRedDifficulty}<select id="red-difficulty" aria-label="赤軍CPUの難易度を選択" ${replayMode ? 'disabled' : ''}>${difficultyOptions(renderedRedDifficulty)}</select></label>` : ''}<label class="map-picker">${spectateDifficulties ? uiText.spectateBlueDifficulty : '難易度'}<select id="difficulty" aria-label="${spectateDifficulties ? '青軍CPU' : 'CPU'}の難易度を選択" ${replayMode ? 'disabled' : ''}>${difficultyOptions(renderedDifficulty)}</select></label><label class="map-picker">CPU速度<select id="cpu-speed" aria-label="CPUの行動速度を選択" ${replayMode ? 'disabled' : ''}>${COMMAND_SPEEDS.map(speed => `<option value="${speed}" ${speed === cpuSpeed ? 'selected' : ''}>${speed}x</option>`).join('')}</select></label><div class="save-controls"><button id="open-title" class="save-action" ${replayMode ? 'disabled' : ''}>${uiText.titleOpen}</button><button id="open-editor" class="save-action" ${replayMode ? 'disabled' : ''}>マップ編集</button><button id="open-campaign" class="save-action" ${replayMode ? 'disabled' : ''}>キャンペーン</button><button id="continue" class="save-action" ${replayMode || !hasSave() ? 'disabled' : ''}>続きから</button><button id="save" class="save-action" ${replayMode ? 'disabled' : ''}>${manualSaveTarget(matchMode) === 'slot' ? uiText.spectateSaveToSlot : '手動セーブ'}</button><button id="delete-save" class="save-action" ${matchSaveDeletionAllowed(matchMode) ? '' : `title="${escapeHtml(uiText.spectateNoSaveDeletion)}"`} ${replayMode || !hasStoredSave() || !matchSaveDeletionAllowed(matchMode) ? 'disabled' : ''}>対局セーブ削除</button><button id="undo" class="save-action" ${canAct && undoAllowed(matchMode) && undoStack.length > 0 ? '' : 'disabled'}>1手戻す</button><button id="import-replay" class="save-action" ${replayMode ? 'disabled' : ''}>JSON取込</button><input id="replay-file" class="visually-hidden" type="file" accept=".json,application/json" aria-label="JSONリプレイファイルを選択"></div><div class="turn-indicator ${renderedGame.activePlayer}"><span>${replayMode ? 'REPLAY' : cpuInProgress ? 'CPU THINKING' : campaignRun ? 'CAMPAIGN' : matchMode === 'spectate' ? 'SPECTATE' : 'TURN'}</span><strong>${cpuInProgress ? (matchMode === 'spectate' ? `${activeLabel} CPU 行動中` : 'CPU 行動中') : concealed ? `${activeLabel}の番` : activeLabel}</strong></div>${cpuInProgress ? '<button id="skip-cpu" class="save-action" title="CPUの残りの行動を高速に進める">CPU をスキップ</button>' : ''}${spectateControl}${wholeBoardControl}<button id="end" class="end-turn" title="現在のターンを終了" aria-label="ターンを終了する" ${!canAct ? 'disabled' : ''}>ターン終了 <span aria-hidden="true">→</span></button></header>
+    <header class="command-bar"><div class="brand"><span class="brand-mark" aria-hidden="true">✦</span><div><h1>MiniStr</h1><p>TACTICAL COMMAND</p></div></div><label class="map-picker">戦域<select id="map" aria-label="戦域マップを選択" ${replayMode || campaignRun ? 'disabled' : ''}>${!availableScenarios().some(map => map.id === renderedMap.id) ? `<option value="${escapeHtml(renderedMap.id)}" selected>${escapeHtml(renderedMap.name)}</option>` : ''}<optgroup label="組み込み">${[...maps, ...operationScenarios].map(map => `<option value="${escapeHtml(map.id)}" ${map.id === renderedMap.id ? 'selected' : ''}>${escapeHtml(map.name)}</option>`).join('')}</optgroup>${availableScenarios().filter(map => ![...maps, ...operationScenarios].some(builtIn => builtIn.id === map.id)).length ? `<optgroup label="カスタム">${availableScenarios().filter(map => ![...maps, ...operationScenarios].some(builtIn => builtIn.id === map.id)).map(map => `<option value="${escapeHtml(map.id)}" ${map.id === renderedMap.id ? 'selected' : ''}>${escapeHtml(map.name)}</option>`).join('')}</optgroup>` : ''}</select></label>${renderedRedDifficulty ? `<label class="map-picker">${uiText.spectateRedDifficulty}<select id="red-difficulty" aria-label="赤軍CPUの難易度を選択" ${replayMode ? 'disabled' : ''}>${difficultyOptions(renderedRedDifficulty)}</select></label>` : ''}<label class="map-picker">${spectateDifficulties ? uiText.spectateBlueDifficulty : '難易度'}<select id="difficulty" aria-label="${spectateDifficulties ? '青軍CPU' : 'CPU'}の難易度を選択" ${replayMode ? 'disabled' : ''}>${difficultyOptions(renderedDifficulty)}</select></label><label class="map-picker">CPU速度<select id="cpu-speed" aria-label="CPUの行動速度を選択" ${replayMode ? 'disabled' : ''}>${COMMAND_SPEEDS.map(speed => `<option value="${speed}" ${speed === cpuSpeed ? 'selected' : ''}>${speed}x</option>`).join('')}</select></label><div class="save-controls"><button id="open-title" class="save-action" ${replayMode ? 'disabled' : ''}>${uiText.titleOpen}</button><button id="open-editor" class="save-action" ${replayMode ? 'disabled' : ''}>マップ編集</button><button id="open-campaign" class="save-action" ${replayMode ? 'disabled' : ''}>キャンペーン</button><button id="continue" class="save-action" ${replayMode || !hasSave() ? 'disabled' : ''}>続きから</button><button id="save" class="save-action" ${replayMode ? 'disabled' : ''}>${manualSaveTarget(matchMode) === 'slot' ? uiText.spectateSaveToSlot : '手動セーブ'}</button><button id="delete-save" class="save-action" ${matchSaveDeletionAllowed(matchMode) ? '' : `title="${escapeHtml(uiText.spectateNoSaveDeletion)}"`} ${replayMode || !hasStoredSave() || !matchSaveDeletionAllowed(matchMode) ? 'disabled' : ''}>対局セーブ削除</button><button id="undo" class="save-action" ${canAct && undoAllowed(matchMode) && undoStack.length > 0 ? '' : 'disabled'}>1手戻す</button><button id="import-replay" class="save-action" ${replayMode ? 'disabled' : ''}>JSON取込</button><input id="replay-file" class="visually-hidden" type="file" accept=".json,application/json" aria-label="JSONリプレイファイルを選択"></div><div class="turn-indicator ${renderedGame.activePlayer}"><span>${replayMode ? 'REPLAY' : cpuInProgress ? 'CPU THINKING' : campaignRun ? 'CAMPAIGN' : matchMode === 'spectate' ? 'SPECTATE' : 'TURN'}</span><strong>${cpuInProgress ? (matchMode === 'spectate' ? `${activeLabel} CPU 行動中` : 'CPU 行動中') : concealed ? `${activeLabel}の番` : activeLabel}</strong></div>${cpuInProgress ? '<button id="skip-cpu" class="save-action" title="CPUの残りの行動を高速に進める">CPU をスキップ</button>' : ''}${spectateControl}${wholeBoardControl}<button id="end" class="end-turn" title="現在のターンを終了" aria-label="ターンを終了する" ${!canAct ? 'disabled' : ''}>ターン終了 <span aria-hidden="true">→</span></button></header>
     ${scenarioLoadError ? `<p class="scenario-warning">組み込みシナリオの読み込みに失敗したため、緊急スカーミッシュで起動しています。${escapeHtml(scenarioLoadError)}</p>` : ''}
     <section class="sound-controls" aria-label="音量設定"><label><input id="sound-muted" type="checkbox" ${!soundSettings.muted ? 'checked' : ''}> 効果音</label><label>音量 <input id="sound-volume" type="range" min="0" max="100" value="${Math.round(soundSettings.volume * 100)}" aria-label="効果音の音量"></label><label><input id="music-muted" type="checkbox" ${!musicSettings.muted ? 'checked' : ''}> BGM</label><label>BGM曲 <select id="music-track" aria-label="フィールドBGMの曲">${FIELD_TRACKS.map(track => `<option value="${track}"${musicSettings.fieldTrack === track ? ' selected' : ''}>${FIELD_TRACK_LABELS[track]}</option>`).join('')}</select></label><label>BGM音量 <input id="music-volume" type="range" min="0" max="100" value="${Math.round(musicSettings.volume * 100)}" aria-label="BGMの音量"></label></section>
     ${!hasSave() && hasStoredSave() ? `<p class="scenario-warning" role="status">${matchSaveDeletionAllowed(matchMode) ? uiText.invalidSaveWarning : uiText.invalidSaveWarningSpectating}</p>` : ''}
     ${replay ? `<section class="replay-toolbar" aria-label="リプレイ再生コントロール"><div><p class="card-kicker">REPLAY</p><strong aria-live="polite">${replay.index} / ${replay.file.commands.length} 手</strong></div><button id="replay-toggle" class="end-turn" aria-label="${replay.playing ? 'リプレイを一時停止' : replay.index >= replay.file.commands.length ? 'リプレイを最初から再生' : 'リプレイを再生'}" ${replay.file.commands.length === 0 ? 'disabled' : ''}>${replay.playing ? '一時停止' : replay.index >= replay.file.commands.length ? 'もう一度再生' : '再生'}</button><button id="replay-step" class="save-action" ${replay.playing || replay.index >= replay.file.commands.length ? 'disabled' : ''}>1手送り</button><label class="replay-speed">速度<select id="replay-speed" aria-label="リプレイ再生速度">${COMMAND_SPEEDS.map(speed => `<option value="${speed}" ${speed === replay!.speed ? 'selected' : ''}>${speed}x</option>`).join('')}</select></label>${renderReplayNavigation(replay.index, replay.file.commands.length, replay.viewpoint, replay.timeline)}<button id="replay-exit" class="save-action">リプレイを終了</button></section>` : ''}
-    ${concealed ? '' : `<section class="battle-layout"><div class="battlefield-wrap ${mapTheme}"><div class="battlefield-heading"><div><p>OPERATION MAP</p><h2>${escapeHtml(renderedMap.name)}</h2></div><p class="status-message" aria-live="polite">${escapeHtml(message)}</p></div><p id="board-instructions" class="board-instructions">盤面では矢印キーでマスを移動し、Enter または Space で選択・行動、Esc で選択を解除できます。敵部隊を選択またはフォーカスすると、移動範囲と攻撃危険域を確認できます。N キーで次の未行動部隊へ移動します。</p>${spectateCameraControls}${turnStatus}<div class="battlefield-stage">${unitBriefPanel}<div id="board-viewport" class="board-viewport" tabindex="0" aria-label="盤面スクロール領域" style="max-height:min(70vh, ${boardViewportHeight}px)"><div class="board" role="group" aria-label="${escapeHtml(renderedMap.name)}の戦術マップ" aria-describedby="board-instructions" style="grid-template-columns:repeat(${renderedGame.board.width},${tileSize}px);grid-template-rows:repeat(${renderedGame.board.height},${tileSize}px);aspect-ratio:${renderedGame.board.width} / ${renderedGame.board.height}">${board}</div></div></div>${boardZoomControls}<div class="board-production-controls">${productionLauncher}</div><div class="map-legend" aria-label="マップ凡例"><span><i class="legend-dot reachable-dot" aria-hidden="true">移</i>移動可能</span><span><i class="legend-dot danger-dot" aria-hidden="true">危</i>敵の攻撃危険域</span><span><i class="legend-dot enemy-move-dot" aria-hidden="true">敵移</i>選択敵の移動範囲</span>${wholeBoardShown ? '' : '<span><i class="legend-dot fog-dot" aria-hidden="true">?</i>未索敵</span>'}<span><i class="legend-unit ${me}-dot" aria-hidden="true">自</i>自軍${matchMode === 'cpu' ? '' : `（${sideName(matchMode, me)}）`}</span><span><i class="legend-unit ${foe}-dot" aria-hidden="true">敵</i>敵軍${matchMode === 'cpu' ? '' : `（${sideName(matchMode, foe)}）`}</span><span><i class="legend-facility" aria-hidden="true">拠</i>拠点（市・工・空・港・司）</span><span><i class="legend-dot facility-ready-dot" aria-hidden="true">産</i>生産可能</span></div>${tileInspectorPanel}</div>
+    ${concealed ? '' : `<section class="battle-layout"><div class="battlefield-wrap ${mapTheme}"><div class="battlefield-heading"><div><p>OPERATION MAP</p><h2>${escapeHtml(renderedMap.name)}</h2></div><p class="status-message" aria-live="polite">${escapeHtml(message)}</p></div><p id="board-instructions" class="board-instructions">盤面では矢印キーでマスを移動し、Enter または Space で選択・行動、Esc で選択を解除できます。敵部隊を選択またはフォーカスすると、移動範囲と攻撃危険域を確認できます。N キーで次の未行動部隊へ移動します。</p>${spectateCameraControls}${turnStatus}<div class="battlefield-stage">${unitBriefPanel}${evacuationAction}<div id="board-viewport" class="board-viewport" tabindex="0" aria-label="盤面スクロール領域" style="max-height:min(70vh, ${boardViewportHeight}px)"><div class="board" role="group" aria-label="${escapeHtml(renderedMap.name)}の戦術マップ" aria-describedby="board-instructions" style="grid-template-columns:repeat(${renderedGame.board.width},${tileSize}px);grid-template-rows:repeat(${renderedGame.board.height},${tileSize}px);aspect-ratio:${renderedGame.board.width} / ${renderedGame.board.height}">${board}</div></div></div>${boardZoomControls}<div class="board-production-controls">${productionLauncher}</div><div class="map-legend" aria-label="マップ凡例"><span><i class="legend-dot reachable-dot" aria-hidden="true">移</i>移動可能</span><span><i class="legend-dot danger-dot" aria-hidden="true">危</i>敵の攻撃危険域</span><span><i class="legend-dot enemy-move-dot" aria-hidden="true">敵移</i>選択敵の移動範囲</span>${wholeBoardShown ? '' : '<span><i class="legend-dot fog-dot" aria-hidden="true">?</i>未索敵</span>'}<span><i class="legend-unit ${me}-dot" aria-hidden="true">自</i>自軍${matchMode === 'cpu' ? '' : `（${sideName(matchMode, me)}）`}</span><span><i class="legend-unit ${foe}-dot" aria-hidden="true">敵</i>敵軍${matchMode === 'cpu' ? '' : `（${sideName(matchMode, foe)}）`}</span><span><i class="legend-facility" aria-hidden="true">拠</i>拠点（市・工・空・港・司）</span><span><i class="legend-dot facility-ready-dot" aria-hidden="true">産</i>生産可能</span></div>${tileInspectorPanel}</div>
     <aside id="command-panel" class="command-panel" aria-label="作戦情報" tabindex="-1">${objectivePanel}${unitQueuePanel}${selectedUnitActions}${cpuActivityPanel}<section class="commander-card ${renderedGame.activePlayer}"><img src="${commander.image}" alt="${commander.alt}" width="512" height="768" loading="lazy" decoding="async"><div><p>COMMANDER</p><h2>${commander.title}</h2><span>${commander.label}</span></div></section>${renderLearning(renderedGame, me, commandHistory, learningOpen)}${transportAction}${forecastCard}<section class="intel-card"><p class="card-kicker">RESOURCES</p><div class="resource-row"><span>自軍資金</span><strong>${renderedGame.players[me].gold}<small>G</small></strong></div><div class="resource-row enemy"><span>敵軍資金</span><strong>${wholeBoardShown ? renderedGame.players[foe].gold : '不明'}<small>G</small></strong></div></section><section class="intel-card"><p class="card-kicker">RECON</p><div class="recon-count"><strong>${renderedGame.units.filter(unit => unit.owner === foe && isDeployedUnit(unit) && visible.has(key(unit.position))).length}</strong><span>確認済み敵部隊</span></div></section>${renderProductionCard(productionTargetLine, productionSummary, production)}${turnSetting}${saveSlotManager}<p class="command-tip">歩兵は中立・敵軍の都市、工場、空港、港湾、司令部で<strong>占領</strong>できます。生産先は盤面の空き「産」マスを選び、工場・空港・港湾から対応する部隊を生産します。輸送艦は歩兵を1部隊搭載し、別の島へ上陸させられます。</p></aside>
   </section>${mobileActionBar}`}</main>${gameOverOverlay}${briefing}${titleOverlay}${campaignOverlay}${editorOverlay}${concealed ? renderHandoffOverlay(sideName('hotseat', renderedGame.activePlayer)) : ''}${activeTacticalScene ? ('attacker' in activeTacticalScene ? renderBattleScene(activeTacticalScene) : renderActionScene(activeTacticalScene)) : ''}${productionOverlay}`;
   document.body.classList.toggle('production-menu-open', Boolean(productionOverlay));
@@ -1343,7 +1381,7 @@ function render(): void {
       }
       const shrinking = width < currentWidth || height < currentHeight;
       if (shrinking && !window.confirm('範囲外の地形と部隊を削除してサイズを変更しますか？元に戻せます。')) return;
-      const cropped = editor.data.victoryConditions.flatMap(condition => condition.type === 'hold'
+      const cropped = editor.data.victoryConditions.flatMap(condition => condition.type === 'hold' || isEvacuationCondition(condition)
         ? condition.positions.filter(position => position.x >= width || position.y >= height).map(position => `(${position.x + 1}, ${position.y + 1})`)
         : []);
       commitEditor(resizeEditor(editor, width, height));
@@ -1390,7 +1428,13 @@ function render(): void {
     field<HTMLInputElement>('#editor-gold').oninput = () => { commitEditor({ ...editor, data: { ...editor.data, startingGold: Number(field<HTMLInputElement>('#editor-gold').value) } }, 'field:gold'); };
     field<HTMLSelectElement>('#editor-production-rule').onchange = () => { commitEditor({ ...editor, data: { ...editor.data, productionRules: field<HTMLSelectElement>('#editor-production-rule').value as ProductionRule } }); };
     const updateVictory = () => setEditorVictory(field<HTMLSelectElement>('#editor-victory').value as VictoryCondition['type'], Number(field<HTMLInputElement>('#editor-victory-target').value));
-    field<HTMLSelectElement>('#editor-victory').onchange = updateVictory;
+    field<HTMLSelectElement>('#editor-victory').onchange = () => { updateVictory(); render(); };
+    app.querySelector<HTMLInputElement>('#editor-victory-units')?.addEventListener('change', updateVictory);
+    app.querySelector<HTMLButtonElement>('#editor-use-exit')?.addEventListener('click', () => {
+      const condition = editor.data.victoryConditions[0];
+      if (condition && isEvacuationCondition(condition)) commitEditor({ ...editor, data: { ...editor.data, victoryConditions: [{ ...condition, positions: [{ ...editor.selected }] }, ...editor.data.victoryConditions.slice(1)] } });
+      render();
+    });
     field<HTMLInputElement>('#editor-victory-target').oninput = updateVictory;
     app.querySelectorAll<HTMLButtonElement>('.editor-tile').forEach(tile => tile.addEventListener('click', () => {
       commitEditor(paintEditor(editor, { x: Number(tile.dataset.editorX), y: Number(tile.dataset.editorY) }, paintMode));
@@ -1498,6 +1542,10 @@ function render(): void {
       render();
     });
     document.querySelector<HTMLButtonElement>('#wait')?.addEventListener('click', waitSelected);
+    document.querySelector<HTMLButtonElement>('#evacuate-unit')?.addEventListener('click', guardCommand(() => {
+      if (selected && dispatch({ type: 'evacuate', unitId: selected }, true)) { message = '部隊が脱出地点から撤退しました。'; selected = undefined; }
+      render();
+    }));
     document.querySelector<HTMLButtonElement>('#mobile-wait')?.addEventListener('click', waitSelected);
     // The fixed bar mirrors existing controls rather than owning any new rule.
     document.querySelector<HTMLButtonElement>('#mobile-capture')?.addEventListener('click', captureSelected);
@@ -1616,7 +1664,29 @@ function render(): void {
     if (screens.briefingOpen && commandHistory.length === 0 && !campaignRun) matchMode = parseMatchMode(input.value);
     render();
   }));
+  app.querySelector<HTMLDetailsElement>('#briefing-deployment')?.addEventListener('toggle', event => { deploymentOpen = (event.currentTarget as HTMLDetailsElement).open; });
+  app.querySelectorAll<HTMLSelectElement>('[data-deployment-player]').forEach(control => control.addEventListener('change', () => {
+    const player = control.dataset.deploymentPlayer;
+    if (player !== 'red' && player !== 'blue') return;
+    const slot = Number(control.dataset.deploymentSlot);
+    if (!deploymentBase || !Number.isInteger(slot) || slot < 0 || slot >= deploymentChoices[player].length) return;
+    const definition = deploymentSlots(deploymentBase, player)[slot];
+    if (!definition?.choices.includes(control.value as UnitKind)) return;
+    deploymentChoices[player][slot] = control.value as UnitKind;
+    deploymentNotice = ''; deploymentOpen = true; focusSelector = `#${control.id}`; render();
+  }));
+  app.querySelector<HTMLButtonElement>('#briefing-deployment-reset')?.addEventListener('click', () => {
+    if (!deploymentBase) return;
+    deploymentChoices = { red: deploymentSlots(deploymentBase, 'red').map(slot => slot.kind), blue: deploymentSlots(deploymentBase, 'blue').map(slot => slot.kind) };
+    deploymentNotice = ''; deploymentOpen = true; focusSelector = '#briefing-deployment-reset'; render();
+  });
   document.querySelector<HTMLButtonElement>('#begin-operation')?.addEventListener('click', () => {
+    if (!screens.briefingOpen) return;
+    const planned = plannedDeployment();
+    if (!planned.ok) { deploymentNotice = planned.error; deploymentOpen = true; render(); return; }
+    selectedMap = planned.value;
+    game = createScenarioInitialState(selectedMap);
+    initialState = structuredClone(game);
     screens.briefingOpen = false;
     message = matchMode === 'hotseat' ? `2人対戦を開始しました。${sideName('hotseat', game.activePlayer)}から操作してください。`
       : matchMode === 'spectate' ? uiText.spectateStarted : '作戦を開始しました。ユニットを選択してください。';
@@ -1838,7 +1908,7 @@ function runCpu(initialDelayMs = 0): void {
     if (action.type === 'endTurn') { dispatch(action); finishCpuTurn(side); return false; }
     const before = game;
     if (!dispatch(action)) {
-      const unitId = action.type === 'move' || action.type === 'wait' || action.type === 'attack' || action.type === 'merge' || action.type === 'capture' || action.type === 'embark'
+      const unitId = action.type === 'move' || action.type === 'wait' || action.type === 'evacuate' || action.type === 'attack' || action.type === 'merge' || action.type === 'capture' || action.type === 'embark'
         ? action.unitId : action.type === 'disembark' ? action.transportId : undefined;
       if (!unitId || !dispatch({ type: 'wait', unitId })) {
         message = 'CPU の行動を安全に終了しました。';

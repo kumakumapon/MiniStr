@@ -10,6 +10,9 @@ import { manhattanDistance, movementCost, terrainAt } from '../game/terrain';
 import { isDeployedUnit, usesDecisionRules, usesModernRules, type Board, type DeployedUnit, type GameState, type PlayerId, type Position, type Unit, type UnitKind } from '../game/types';
 import { adjacentToSupplyUnit, isGroundUnit, isServiceTile, REPAIR_HP_PER_TURN } from '../game/logistics';
 import { isEmbarkableUnit, isMergeableUnit, isSupplyUnit, remainingAmmo, unitCategory, unitStats } from '../game/units';
+import { coordinatedOrder, coordinationValue, cpuRole, transportSafeAt } from './coordination';
+import { canEvacuateUnit, evacuationObjectives, isEvacuationTarget } from '../game/evacuation';
+import { isEvacuationCondition } from '../game/maps';
 import { bluePlanningState, rotatePosition } from './perspective';
 
 // Production IDs interleave between armies. Numeric ordering preserves each
@@ -74,6 +77,7 @@ export type CpuAction =
   | { type: 'produce'; factory: Position; kind: UnitKind }
   | { type: 'move'; unitId: string; destination: Position }
   | { type: 'wait'; unitId: string }
+  | { type: 'evacuate'; unitId: string }
   | { type: 'embark'; unitId: string; transportId: string }
   | { type: 'disembark'; transportId: string; destination: Position }
   | { type: 'endTurn' };
@@ -302,12 +306,19 @@ function objectives(state: GameState, player: PlayerId, config: CpuDifficultyCon
   const conditions = player === 'red' ? scenario?.victoryConditions : scenario?.defeatConditions;
   const holdTargets = conditions?.flatMap(condition => condition.type === 'hold' ? condition.positions : []) ?? [];
   if (holdTargets.length) return holdTargets;
+  const ownExits = evacuationObjectives(state, player).flatMap(condition => condition.positions);
+  if (ownExits.length) return ownExits;
   if (conditions?.every(condition => condition.type === 'survive')) {
     return state.board.terrain.flatMap((row, y) => row.flatMap((tile, x) => tile.owner === player && isPropertyTerrainKind(tile.kind) ? [{ x, y }] : []));
   }
   // The opponent's authored objectives are public orders, even in fog. Defend
   // them before expanding elsewhere; no hidden unit positions are consulted.
   const opposingConditions = player === 'red' ? scenario?.defeatConditions : scenario?.victoryConditions;
+  const opposingEvacuation = opposingConditions?.filter(isEvacuationCondition) ?? [];
+  if (opposingEvacuation.length) {
+    const targets = visibleEnemies.filter(isDeployedUnit).filter(unit => opposingEvacuation.some(condition => condition.unitIds.includes(unit.id)));
+    return targets.length ? targets.map(unit => unit.position) : opposingEvacuation.flatMap(condition => condition.positions);
+  }
   const counterTargets = opposingConditions?.flatMap(condition => condition.type === 'hold' ? condition.positions : []) ?? [];
   if (counterTargets.length) return counterTargets;
   const capitals: Position[] = [];
@@ -471,7 +482,7 @@ export function evaluateCpuPosition(
   const score = conditions?.some(condition => condition.type === 'score') && isPropertyTerrainKind(terrain.kind) && terrain.owner !== player && unitStats[unit.kind].capturePower > 0 ? 35 : 0;
   // Healthy combat units leave uncaptured facilities open for the infantry.
   const captureLane = unit.hp > 50 && unitStats[unit.kind].capturePower === 0 && isPropertyTerrainKind(terrain.kind) && terrain.owner !== player ? 30 : 0;
-  return defense + supply + response + retreatCover + logistics + hold + contest + score + firePosition
+  return coordinationValue(state, player, unit, destination, targets) + defense + supply + response + retreatCover + logistics + hold + contest + score + firePosition
     - (criticalSupply && serviceDistance !== undefined ? serviceDistance : distance) * config.objectiveDistanceWeight
     - pressure * config.threatAvoidanceWeight * (1 - stalemateRelief(state))
     - retreatPressure
@@ -535,7 +546,7 @@ function transportAction(state: GameState, player: PlayerId, targets: readonly P
           .sort((a, b) => manhattanDistance(a, target) - manhattanDistance(b, target) || a.y - b.y || a.x - b.x)[0];
         if (destination) return { type: 'disembark', transportId: transport.id, destination };
       }
-      const destination = reachablePositionsForPlayer(state, transport.id, player).filter(p => manhattanDistance(p, target) < distance)
+      const destination = reachablePositionsForPlayer(state, transport.id, player).filter(p => transportSafeAt(state, transport, p, visibleEnemies) && manhattanDistance(p, target) < distance)
         .sort((a, b) => manhattanDistance(a, target) - manhattanDistance(b, target) || a.y - b.y || a.x - b.x)[0];
       if (destination) return { type: 'move', unitId: transport.id, destination };
     } else if (manhattanDistance(transport.position, target) > 6) {
@@ -589,7 +600,7 @@ function transportAction(state: GameState, player: PlayerId, targets: readonly P
     if (!target) continue;
     const currentDistance = manhattanDistance(transport.position, target);
     const destination = reachablePositionsForPlayer(state, transport.id, player)
-      .filter(position => manhattanDistance(position, target) < currentDistance
+      .filter(position => transportSafeAt(state, transport, position, visibleEnemies) && manhattanDistance(position, target) < currentDistance
         && !(terrainAt(state.board, position)?.kind === 'port' && terrainAt(state.board, position)?.owner !== player))
       .sort((a, b) => manhattanDistance(a, target) - manhattanDistance(b, target) || a.y - b.y || a.x - b.x)[0];
     if (destination) return { type: 'move', unitId: transport.id, destination };
@@ -612,7 +623,7 @@ function transportAction(state: GameState, player: PlayerId, targets: readonly P
 function moveAction(state: GameState, player: PlayerId, config: CpuDifficultyConfig, context: CpuPlanningContext): CpuAction | undefined {
   const { targets } = context;
   if (!targets.length) return undefined;
-  for (const unit of orderedUnits(state, player)) {
+  for (const unit of coordinatedOrder(state, player, orderedUnits(state, player))) {
     if (unit.hasMoved || unit.hasActed) continue;
     if (unit.kind === 'landingShip' && !state.units.some(candidate => candidate.embarkedIn === unit.id)) {
       const tile = terrainAt(state.board, unit.position);
@@ -643,6 +654,7 @@ function moveAction(state: GameState, player: PlayerId, config: CpuDifficultyCon
     // Include the current position as an explicit wait order. Unlike a zero-cost
     // move, waiting is legal even when a ground unit has no fuel left.
     const destination = [unit.position, ...reachablePositionsForPlayer(state, unit.id, player)]
+      .filter(position => transportSafeAt(state, unit, position, context.visibleEnemies))
       .map(position => ({ position, score: evaluateCpuPosition(state, player, unit, position, unitTargets, config, context.visibleEnemies) }))
       .sort((a, b) => b.score - a.score || a.position.y - b.position.y || a.position.x - b.position.x)[0]?.position;
     if (destination) {
@@ -766,6 +778,23 @@ function clearCaptureLane(state: GameState, player: PlayerId, blocker: DeployedU
   return undefined;
 }
 
+function evacuationAction(state: GameState, player: PlayerId, config: CpuDifficultyConfig, context: CpuPlanningContext): CpuAction | undefined {
+  const exits = evacuationObjectives(state, player);
+  if (!exits.length) return undefined;
+  for (const unit of orderedUnits(state, player)) {
+    if (canEvacuateUnit(state, unit.id)) return { type: 'evacuate', unitId: unit.id };
+    if (unit.hasMoved || unit.hasActed) continue;
+    const condition = exits.find(candidate => candidate.unitIds.includes(unit.id));
+    if (!condition) continue;
+    const destination = [unit.position, ...reachablePositionsForPlayer(state, unit.id, player)]
+      .filter(position => transportSafeAt(state, unit, position, context.visibleEnemies))
+      .map(position => ({ position, score: evaluateCpuPosition(state, player, unit, position, condition.positions, config, context.visibleEnemies) }))
+      .sort((a, b) => b.score - a.score || a.position.y - b.position.y || a.position.x - b.position.x)[0]?.position;
+    if (destination && (destination.x !== unit.position.x || destination.y !== unit.position.y)) return { type: 'move', unitId: unit.id, destination };
+  }
+  return undefined;
+}
+
 function chooseOrientedCpuAction(state: GameState, difficulty: CpuDifficulty, player: PlayerId): CpuAction {
   if (state.winner || player !== state.activePlayer) return { type: 'endTurn' };
   state = observeLogistics(state, player);
@@ -777,9 +806,11 @@ function chooseOrientedCpuAction(state: GameState, difficulty: CpuDifficulty, pl
   const replacementFor = (unit: DeployedUnit) => readyUnits.some(ally => ally.id !== unit.id && unitStats[ally.kind].capturePower > 0
     && !ally.hasMoved && !ally.hasActed && ally.hp >= Math.max(60, unit.hp + 30)
     && manhattanDistance(ally.position, unit.position) <= unitStats[ally.kind].movement);
-  const capture = readyUnits.find(unit => canCapture(state, unit) && (unit.hp >= 35 || !replacementFor(unit)));
+  const capture = readyUnits.find(unit => !isEvacuationTarget(state, unit.id, player) && canCapture(state, unit) && (unit.hp >= 35 || !replacementFor(unit)));
   if (capture) return { type: 'capture', unitId: capture.id };
   const context = createCpuPlanningContext(state, player, config);
+  const evacuation = evacuationAction(state, player, config, context);
+  if (evacuation) return evacuation;
   const capturers = orderedUnits(state, player).filter(unit => unitStats[unit.kind].capturePower > 0 && !unit.hasActed);
   const obstructing = readyUnits.filter(unit => !unit.hasActed && !unit.hasMoved
     && terrainAt(state.board, unit.position)?.owner !== player
@@ -808,7 +839,7 @@ function chooseOrientedCpuAction(state: GameState, difficulty: CpuDifficulty, pl
 
 /** Merge badly damaged peers only when no immediate attack was selected. */
 function mergeAction(state: GameState, player: PlayerId): CpuAction | undefined {
-  const damaged = orderedUnits(state, player).filter(unit => !unit.hasActed && unit.hp <= 50 && isMergeableUnit(unit.kind));
+  const damaged = orderedUnits(state, player).filter(unit => !unit.hasActed && unit.hp <= 50 && isMergeableUnit(unit.kind) && !isEvacuationTarget(state, unit.id, player));
   for (const unit of damaged) {
     const target = damaged.find(ally => ally.id !== unit.id && ally.kind === unit.kind && isAdjacent(unit.position, ally.position));
     if (target) return { type: 'merge', unitId: unit.id, targetId: target.id };
@@ -831,5 +862,5 @@ export function explainCpuAction(state: GameState, difficulty: CpuDifficulty = '
     defensePercent: terrainDefenseReduction(terrainAt(state.board, destination)!, unit.hp),
     supplyValue: supplyVehicleValue(observed, player, unit, destination),
   } : undefined;
-  return { action, reason: action.type, visibleEnemies: context.visibleEnemies.length, evaluation };
+  return { action, reason: action.type, role: unit ? cpuRole(observed, player, unit.id) : undefined, visibleEnemies: context.visibleEnemies.length, evaluation };
 }

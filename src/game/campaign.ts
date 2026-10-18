@@ -100,7 +100,7 @@ export function gradeCampaignBattle(metrics: CampaignBattleMetrics): GameResult<
   if (!Number.isSafeInteger(metrics.losses) || metrics.losses < 0
     || !Number.isSafeInteger(metrics.recommendedTurns) || metrics.recommendedTurns < 1)
     return fail('評価指標が不正です。');
-  const survivors = metrics.finalState.units.filter(unit => unit.owner === player);
+  const survivors = [...metrics.finalState.units, ...(metrics.finalState.evacuatedUnits ?? [])].filter(unit => unit.owner === player);
   const survivingUnits = survivors.length;
   const averageSurvivingHp = survivingUnits
     ? survivors.reduce((sum, unit) => sum + unit.hp, 0) / survivingUnits : 0;
@@ -145,7 +145,7 @@ export function recordCampaignVeterans(progress: CampaignProgress, finalState: G
   if (!isCampaignProgress(progress) || !isGameState(finalState) || finalState.winner !== 'red'
     || !finalState.scenarioId || !isCampaignScenarioCompleted(progress, finalState.scenarioId))
     return fail('生還部隊を記録できません。');
-  const veterans = finalState.units.filter(unit => unit.owner === 'red')
+  const veterans = [...finalState.units, ...(finalState.evacuatedUnits ?? [])].filter(unit => unit.owner === 'red')
     .map(unit => ({ kind: unit.kind, experience: Math.min(MAX_EXPERIENCE, (unit.experience ?? 0) + 1) }))
     .sort((a, b) => b.experience - a.experience || a.kind.localeCompare(b.kind)).slice(0, 64);
   return ok({ ...progress, veteransByScenario: { ...progress.veteransByScenario, [finalState.scenarioId]: veterans } });

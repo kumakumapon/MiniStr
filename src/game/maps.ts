@@ -3,6 +3,7 @@ import { MAX_EXPERIENCE } from './experience';
 import { hasSafeJsonStructure, parseBoundedJson } from './jsonBoundary';
 import { trainingData } from './training';
 import { expandedScenarioData } from './expandedMaps';
+import { specialOperationData } from './specialOperations';
 import { createBoard, createGameState, playerOwnedProperties } from './state';
 import { unitKindSet, unitStats } from './units';
 import { CURRENT_RULE_VERSION, terrainKindSet, type Board, type GameResult, type GameState, type PlayerId, type Position, type TerrainKind, type UnitKind } from './types';
@@ -17,7 +18,10 @@ export type VictoryCondition =
   | { type: 'captureCapital' }
   | { type: 'hold'; positions: Position[]; turns: number; requireOwnership?: boolean; groundOnly?: boolean }
   | { type: 'survive'; untilTurn: number }
-  | { type: 'score'; target: number };
+  | { type: 'score'; target: number }
+  | { type: 'escort' | 'withdraw'; unitIds: string[]; positions: Position[]; required: number };
+export type EvacuationCondition = Extract<VictoryCondition, { type: 'escort' | 'withdraw' }>;
+export const isEvacuationCondition = (condition: VictoryCondition): condition is EvacuationCondition => condition.type === 'escort' || condition.type === 'withdraw';
 export interface ScenarioDefinition extends MapDefinition {
   briefing: string;
   victoryConditions: VictoryCondition[];
@@ -88,6 +92,14 @@ const cloneJson = (value: unknown): GameResult<unknown> => {
 function parseVictoryCondition(value: unknown, width: number, height: number): VictoryCondition | undefined {
   if (!isRecord(value) || typeof value.type !== 'string') return undefined;
   if (value.type === 'eliminate' || value.type === 'captureCapital') return { type: value.type };
+  if (value.type === 'escort' || value.type === 'withdraw') {
+    if (!Array.isArray(value.unitIds) || value.unitIds.length === 0 || value.unitIds.length > 64
+      || !value.unitIds.every(id => typeof id === 'string' && /^[rb][1-9][0-9]{0,3}$/.test(id))
+      || new Set(value.unitIds).size !== value.unitIds.length
+      || !isPositiveInteger(value.required) || value.required > value.unitIds.length) return undefined;
+    const exits = parseVictoryCondition({ type: 'hold', positions: value.positions, turns: 1 }, width, height);
+    return exits?.type === 'hold' ? { type: value.type, unitIds: [...value.unitIds] as string[], positions: exits.positions, required: value.required } : undefined;
+  }
   if (value.type === 'hold') {
     if (!Array.isArray(value.positions) || value.positions.length === 0 || value.positions.length > width * height || !isPositiveInteger(value.turns)) return undefined;
     if (value.requireOwnership !== undefined && typeof value.requireOwnership !== 'boolean') return undefined;
@@ -169,9 +181,13 @@ function parseScenario(value: unknown, ids: Set<string>, options: ScenarioLoadOp
     initialUnits.push({ kind: unit.kind as UnitKind, owner: unit.owner as PlayerId, x, y,
       ...(unit.experience === undefined ? {} : { experience: unit.experience as number }) });
   }
-  const parseConditions = (conditions: unknown, label: string): GameResult<VictoryCondition[]> => {
+  const parseConditions = (conditions: unknown, label: string, player: PlayerId): GameResult<VictoryCondition[]> => {
     if (!Array.isArray(conditions) || conditions.length === 0 || conditions.length > 32) return { ok: false, error: `シナリオ「${value.id}」の${label}が不正です。` };
     const parsed = conditions.map(condition => parseVictoryCondition(condition, width, height));
+    const own = initialUnits.filter(unit => unit.owner === player);
+    if (parsed.some(condition => condition && isEvacuationCondition(condition) && condition.unitIds.some(id =>
+      !own.some((_, index) => id === `${player[0]}${index + 1}`))))
+      return { ok: false, error: `シナリオ「${value.id}」の脱出対象は自軍の初期部隊IDで指定してください。` };
     if (parsed.some(condition => condition?.type === 'hold' && condition.requireOwnership
       && condition.positions.some(position => !isPropertyTerrainKind(board.terrain[position.y]![position.x]!.kind))))
       return { ok: false, error: `シナリオ「${value.id}」の占領保持目標には拠点を指定してください。` };
@@ -179,9 +195,9 @@ function parseScenario(value: unknown, ids: Set<string>, options: ScenarioLoadOp
       ? { ok: true, value: parsed }
       : { ok: false, error: `シナリオ「${value.id}」の${label}が不正です。` };
   };
-  const victoryConditions = parseConditions(value.victoryConditions, '勝利条件');
+  const victoryConditions = parseConditions(value.victoryConditions, '勝利条件', 'red');
   if (!victoryConditions.ok) return victoryConditions;
-  const defeatConditions = parseConditions(value.defeatConditions, '敗北条件');
+  const defeatConditions = parseConditions(value.defeatConditions, '敗北条件', 'blue');
   if (!defeatConditions.ok) return defeatConditions;
   const turnLimit = value.turnLimit;
   // turnLimit is retained as a UI-friendly shorthand for legacy data. Its
@@ -335,6 +351,9 @@ const builtInCatalog = createBuiltInScenarioCatalog(builtInScenarioData);
 
 /** Validated exactly once during module initialization. */
 export const maps: readonly ScenarioDefinition[] = builtInCatalog.scenarios;
+const operationLoad = loadScenarioDefinitions(specialOperationData, { defaultProductionRule });
+if (!operationLoad.ok) throw new Error(`Operation definition is invalid: ${operationLoad.error}`);
+export const operationScenarios = operationLoad.value;
 /** Diagnostics for UI/telemetry; normal built-in data leaves this undefined. */
 export const scenarioLoadError: string | undefined = builtInCatalog.error;
 
@@ -353,7 +372,7 @@ export interface CustomScenarioCatalogSnapshot {
 }
 export function scenarioCatalogRevision(): number { return catalogRevision; }
 export function scenarioHistory(id: string): readonly ScenarioDefinition[] { return [...legacyBuiltInScenarios, ...archivedScenarios].filter(scenario => scenario.id === id); }
-export function availableScenarios(): readonly ScenarioDefinition[] { return [...maps, ...customScenarios.values()]; }
+export function availableScenarios(): readonly ScenarioDefinition[] { return [...maps, ...operationScenarios, ...customScenarios.values()]; }
 export function captureCustomScenarioCatalog(): CustomScenarioCatalogSnapshot {
   return { scenarios: [...customScenarios.values()], history: [...archivedScenarios] };
 }
@@ -362,7 +381,7 @@ export function restoreCustomScenarioCatalog(snapshot: CustomScenarioCatalogSnap
   replaceCustomScenarios(snapshot.scenarios);
 }
 export function scenarioById(id: string | undefined): ScenarioDefinition | undefined {
-  return id === undefined ? undefined : id === trainingScenario.id ? trainingScenario : maps.find(map => map.id === id) ?? customScenarios.get(id);
+  return id === undefined ? undefined : id === trainingScenario.id ? trainingScenario : maps.find(map => map.id === id) ?? operationScenarios.find(map => map.id === id) ?? customScenarios.get(id);
 }
 
 const snapshotDefinitions = new WeakMap<object, ScenarioDefinition | undefined>();
@@ -440,7 +459,7 @@ function parseCustomScenarioData(value: unknown): GameResult<readonly ScenarioDe
   if (!isRecord(value) || value.schemaVersion !== CUSTOM_SCENARIOS_SCHEMA_VERSION || !Array.isArray(value.scenarios) || value.scenarios.length > MAX_CUSTOM_SCENARIOS)
     return { ok: false, error: 'カスタムシナリオの内容が不正です。' };
   const loaded = value.scenarios.length === 0 ? { ok: true as const, value: [] } : loadScenarioDefinitions(value.scenarios);
-  if (!loaded.ok || loaded.value.some(scenario => scenario.id === trainingScenario.id || maps.some(builtIn => builtIn.id === scenario.id)))
+  if (!loaded.ok || loaded.value.some(scenario => scenario.id === trainingScenario.id || [...maps, ...operationScenarios].some(builtIn => builtIn.id === scenario.id)))
     return { ok: false, error: 'カスタムシナリオの内容が不正です。' };
   return loaded;
 }
@@ -511,7 +530,7 @@ export function loadCustomScenarios(storage: ScenarioStorageLike): GameResult<re
     if (!Array.isArray(history) || history.length > 256) return { ok: false, error: 'シナリオ履歴が不正です。' };
     for (const entry of history) {
       const revision = loadScenarioDefinitions([entry]);
-      if (!revision.ok || (revision.value[0]!.id === trainingScenario.id || maps.some(map => map.id === revision.value[0]!.id))) return { ok: false, error: 'シナリオ履歴が不正です。' };
+      if (!revision.ok || (revision.value[0]!.id === trainingScenario.id || [...maps, ...operationScenarios].some(map => map.id === revision.value[0]!.id))) return { ok: false, error: 'シナリオ履歴が不正です。' };
       archived.push(revision.value[0]!);
     }
   }
@@ -524,7 +543,7 @@ export function saveCustomScenario(storage: ScenarioStorageLike, source: Scenari
   const loaded = loadScenarioDefinitions([source]);
   if (!loaded.ok) return loaded;
   const scenario = loaded.value[0]!;
-  if (scenario.id === trainingScenario.id || maps.some(builtIn => builtIn.id === scenario.id)) return { ok: false, error: '組み込みシナリオのIDは上書きできません。' };
+  if (scenario.id === trainingScenario.id || [...maps, ...operationScenarios].some(builtIn => builtIn.id === scenario.id)) return { ok: false, error: '組み込みシナリオのIDは上書きできません。' };
   const next = new Map(customScenarios); next.set(scenario.id, scenario);
   if (next.size > MAX_CUSTOM_SCENARIOS) return { ok: false, error: `カスタムシナリオは${MAX_CUSTOM_SCENARIOS}件までです。` };
   const previous = customScenarios.get(scenario.id);

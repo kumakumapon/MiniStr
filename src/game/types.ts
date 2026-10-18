@@ -52,6 +52,8 @@ export interface PlayerState { gold: number; income: number }
 export interface GameState {
   board: Board;
   units: Unit[];
+  /** Units that reached an authored exit in rule v6; kept for results and veterans. */
+  evacuatedUnits?: Unit[];
   players: Record<PlayerId, PlayerState>;
   activePlayer: PlayerId;
   /** Completed full rounds, starting at 1 and advancing when blue hands play back to red. */
@@ -74,7 +76,7 @@ export interface GameState {
    * Phase 9 modern rules; 3 adds the unit limit and decision victory (#119);
    * 4 makes opening fuel upkeep equal, resolves score races after both turns,
    * and caps each army at 64 units; 5 adds a secondary weapon with independent
-   * damage, range and ammunition.
+   * damage, range and ammunition; 6 adds escort/withdrawal objectives and evacuation.
    */
   ruleVersion?: RuleVersion;
 }
@@ -87,10 +89,13 @@ export const DECISION_RULE_VERSION = 3 as const;
 export const BALANCED_RULE_VERSION = 4 as const;
 /** Up to two weapons with independent damage, range and magazines. */
 export const DUAL_WEAPON_RULE_VERSION = 5 as const;
+/** Escort/withdrawal objectives, explicit evacuation and coordinated CPU operations. */
+export const OPERATIONS_RULE_VERSION = 6 as const;
 /** Rule version assigned to newly started scenario matches. */
-export const CURRENT_RULE_VERSION = DUAL_WEAPON_RULE_VERSION;
-export type RuleVersion = typeof MODERN_RULE_VERSION | typeof DECISION_RULE_VERSION | typeof BALANCED_RULE_VERSION | typeof DUAL_WEAPON_RULE_VERSION;
-export const ruleVersions: readonly RuleVersion[] = [MODERN_RULE_VERSION, DECISION_RULE_VERSION, BALANCED_RULE_VERSION, DUAL_WEAPON_RULE_VERSION];
+export const CURRENT_RULE_VERSION = OPERATIONS_RULE_VERSION;
+export type RuleVersion = typeof MODERN_RULE_VERSION | typeof DECISION_RULE_VERSION | typeof BALANCED_RULE_VERSION | typeof DUAL_WEAPON_RULE_VERSION | typeof OPERATIONS_RULE_VERSION;
+export const ruleVersions: readonly RuleVersion[] = [MODERN_RULE_VERSION, DECISION_RULE_VERSION, BALANCED_RULE_VERSION, DUAL_WEAPON_RULE_VERSION, OPERATIONS_RULE_VERSION];
+export const usesOperationsRules = (state: Pick<GameState, 'ruleVersion'>): boolean => (state.ruleVersion ?? 0) >= OPERATIONS_RULE_VERSION;
 export const usesDualWeapons = (state: Pick<GameState, 'ruleVersion'>): boolean => (state.ruleVersion ?? 0) >= DUAL_WEAPON_RULE_VERSION;
 
 /** Modern features (supply vehicles, repairs, experience, new units) apply from rule version 2 on. */
