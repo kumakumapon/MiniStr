@@ -7,7 +7,7 @@ import { canProduceUnit, isPropertyTerrainKind, productionKindsForRule, unitLimi
 import { visibleEnemies as getVisibleEnemies } from '../game/fog';
 import { scenarioForState } from '../game/maps';
 import { manhattanDistance, movementCost, terrainAt } from '../game/terrain';
-import { isDeployedUnit, usesDecisionRules, usesModernRules, type Board, type DeployedUnit, type GameState, type PlayerId, type Position, type Unit, type UnitKind } from '../game/types';
+import { isDeployedUnit, usesDecisionRules, usesOperationsRules, usesModernRules, type Board, type DeployedUnit, type GameState, type PlayerId, type Position, type Unit, type UnitKind } from '../game/types';
 import { adjacentToSupplyUnit, isGroundUnit, isServiceTile, REPAIR_HP_PER_TURN } from '../game/logistics';
 import { isEmbarkableUnit, isMergeableUnit, isSupplyUnit, remainingAmmo, unitCategory, unitStats } from '../game/units';
 import { coordinatedOrder, coordinationValue, cpuRole, transportSafeAt } from './coordination';
@@ -198,6 +198,11 @@ function emptyOwnedFacility(state: GameState, player: PlayerId, kind: UnitKind):
     const occupied = state.units.some(unit => isDeployedUnit(unit)
       && unit.position.x === position.x && unit.position.y === position.y);
     if (tile?.owner === player && !occupied) {
+      // Leave a berth for a nearby returning ship instead of filling the only
+      // entrance with a new hull before the ship can reload.
+      if (usesOperationsRules(state) && tile.kind === 'port' && state.units.some(unit =>
+        unit.owner === player && isDeployedUnit(unit) && unitCategory[unit.kind] === 'sea' && needsSupply(unit)
+        && manhattanDistance(unit.position, position) <= Math.min(2, unit.fuel ?? unitStats[unit.kind].fuel))) continue;
       const productionRule = scenarioForState(state)?.productionRules ?? 'legacy-factory-air';
       if (canProduceUnit(tile.kind, kind, productionRule, state.ruleVersion)) return position;
     }
@@ -795,6 +800,21 @@ function evacuationAction(state: GameState, player: PlayerId, config: CpuDifficu
   return undefined;
 }
 
+/** Unjam a port's one-tile mouth so a returning ship can reload there. */
+function clearNavalServiceLane(state: GameState, player: PlayerId, units: readonly DeployedUnit[]): CpuAction | undefined {
+  if (!usesOperationsRules(state)) return undefined;
+  for (const unit of units) {
+    if (unitCategory[unit.kind] !== 'sea' || unit.hasMoved || unit.hasActed || !needsSupply(unit)) continue;
+    const blocker = units.find(ally => ally.id !== unit.id && !ally.hasMoved && !ally.hasActed && !needsSupply(ally)
+      && isAdjacent(unit.position, ally.position) && terrainAt(state.board, ally.position)?.kind === 'port'
+      && terrainAt(state.board, ally.position)?.owner === player);
+    if (!blocker) continue;
+    const clear = clearCaptureLane(state, player, blocker, units);
+    if (clear) return clear;
+  }
+  return undefined;
+}
+
 function chooseOrientedCpuAction(state: GameState, difficulty: CpuDifficulty, player: PlayerId): CpuAction {
   if (state.winner || player !== state.activePlayer) return { type: 'endTurn' };
   state = observeLogistics(state, player);
@@ -831,6 +851,7 @@ function chooseOrientedCpuAction(state: GameState, difficulty: CpuDifficulty, pl
   return attackAction(state, player, config, context.visibleEnemies)
     ?? strikeAction(state, player, config, context.visibleEnemies)
     ?? mergeAction(state, player)
+    ?? clearNavalServiceLane(state, player, readyUnits)
     ?? transportAction(state, player, context.targets, context.landComponents, context.visibleEnemies)
     ?? productionAction(state, player, config, context)
     ?? moveAction(state, player, config, context)
