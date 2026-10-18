@@ -956,3 +956,17 @@ body.production-menu-open { overflow: hidden; }
 .battle-weapon { margin: 0 0 6px; font-size: .75rem; color: var(--brief-muted); }
 
 @media (max-width: 480px) { .battle-team-badge { margin: -8px -5px 8px; font-size: .6875rem; letter-spacing: .05em; } }
+
+/* Predeployment stays inside the briefing so the map retains its full play area. */
+.deployment-panel { margin: 14px 0; padding: 12px; border: 1px solid #5d7667; border-radius: 8px; background: #17271f; }
+.deployment-panel summary { cursor: pointer; font-weight: 700; color: #ffe59d; }
+.deployment-panel p { font-size: .8rem; line-height: 1.5; }
+.deployment-panel fieldset { margin: 12px 0; padding: 10px; min-width: 0; border: 1px solid #425c4c; }
+.deployment-slot { display: grid; grid-template-columns: minmax(105px, 1fr) minmax(0, 2fr); align-items: center; gap: 8px; margin: 8px 0; font-size: .8rem; }
+.deployment-slot select { width: 100%; min-height: 40px; min-width: 0; }
+.deployment-error { color: #ffb0a0; font-weight: 700; }
+.deployment-budget { color: #c9e5cb; font-variant-numeric: tabular-nums; }
+.mission-unit-marker { position: absolute; z-index: 5; right: 2px; top: 2px; padding: 1px 3px; color: #14271c; background: #ffe59d; font-size: .6rem; font-style: normal; font-weight: 800; }
+.evacuation-exit { background: #8de3d0; color: #102b24; }
+.evacuation-card p { font-size: .8rem; line-height: 1.5; }
+.editor-unit-id { position: absolute; left: 1px; bottom: 0; color: #fff6c5; background: #10231de8; padding: 0 2px; font-size: .5rem; line-height: 1.2; }

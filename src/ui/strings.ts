@@ -244,6 +244,8 @@ const commandErrorMessages: Record<string, string> = {
   'Game has finished': '対局は終了しています。',
   'Unit not found': '対象のユニットが見つかりません。',
   'Embarked units cannot move': '乗船中のユニットは移動できません。',
+  'Only an unacted mission unit at an exit with no cargo can evacuate': '脱出地点にいる未行動の作戦対象を選び、搭載部隊を先に降車させてください。',
+  'Mission targets cannot merge into another unit': '作戦対象を合流で消すことはできません。',
   'Embarked units cannot wait': '乗船中のユニットは待機できません。',
   'Unit belongs to the other player': '相手軍のユニットは操作できません。',
   'Unit has already moved': 'このユニットはすでに移動済みです。',

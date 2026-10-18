@@ -1,7 +1,8 @@
+import { isEvacuationCondition } from './maps';
 import { applyEditorTool, validateEditorScenario, type ScenarioEditorState } from './editor';
 import { movementCost } from './terrain';
 import { otherPlayer, type Board, type Position, type UnitKind } from './types';
-import { unitStats, unitDefinitions } from './units';
+import { isEmbarkableUnit, unitStats, unitDefinitions } from './units';
 
 /** Static terrain reachability ignores temporary occupancy and turn budgets. */
 function canReach(board: Board, start: Position, target: Position, kind: UnitKind): boolean {
@@ -75,6 +76,13 @@ export function inspectEditorScenario(editor: ScenarioEditorState): EditorIssue[
               add('warning', `${player}: 司令部 (${x + 1}, ${y + 1}) への占領部隊の経路がありません。輸送計画を確認してください。`);
           }),
         );
+      if (isEvacuationCondition(condition)) {
+        const targets = units.filter((_, index) => condition.unitIds.includes(`${player[0]}${index + 1}`));
+        const possible = targets.filter(
+          (unit) => condition.positions.some((exit) => canReach(scenario.board, unit, exit, unit.kind)) || (waterTransport && isEmbarkableUnit(unit.kind)),
+        ).length;
+        if (possible < condition.required) add('error', `${player}: 脱出地点に到達できる作戦対象が必要数に達しません。`);
+      }
       if (condition.type === 'hold')
         for (const position of condition.positions) {
           if (!waterTransport && !reachable(position, false)) add('warning', `${player}: 保持目標 (${position.x + 1}, ${position.y + 1}) に到達できる部隊・生産経路がありません。`);

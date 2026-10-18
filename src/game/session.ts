@@ -1,10 +1,12 @@
-import { attackUnit, captureProperty, disembarkUnit, embarkUnit, endTurn, mergeUnits, moveUnit, produceUnit, waitUnit } from './commands';
+import { attackUnit, evacuateUnit, captureProperty, disembarkUnit, embarkUnit, endTurn, mergeUnits, moveUnit, produceUnit, waitUnit } from './commands';
 import { MAX_EXPERIENCE } from './experience';
 import { isUnitKindAvailable } from './facilities';
 import { createScenarioInitialState, scenarioForState, scenarioHistory, scenarioDefinitionToData, scenarioCatalogRevision, type ScenarioDefinition } from './maps';
-import { ruleVersions, terrainKindSet, type GameResult, type GameState, type Position, type UnitKind } from './types';
+import { ruleVersions, usesOperationsRules, terrainKindSet, type GameResult, type GameState, type Position, type UnitKind } from './types';
 import { isEmbarkableUnit, isValidUnitAmmo, transportCapacity, unitKindSet } from './units';
 import { isValidSecondaryAmmo } from './weapons';
+import { evacuationObjectives } from './evacuation';
+import { isEvacuationCondition } from './maps';
 import type { WeaponSlot } from './units';
 import { parseBoundedJson } from './jsonBoundary';
 
@@ -24,6 +26,7 @@ export const STORAGE_WARNING_BYTES = 4_000_000;
 export type GameCommand =
   | { type: 'move'; unitId: string; destination: Position }
   | { type: 'wait'; unitId: string }
+  | { type: 'evacuate'; unitId: string }
   | { type: 'attack'; unitId: string; targetId: string; weaponSlot?: WeaponSlot }
   | { type: 'merge'; unitId: string; targetId: string }
   | { type: 'capture'; unitId: string }
@@ -127,6 +130,7 @@ export function applyGameCommand(state: GameState, command: GameCommand): GameRe
   switch (command.type) {
     case 'move': return moveUnit(state, command.unitId, command.destination);
     case 'wait': return waitUnit(state, command.unitId);
+    case 'evacuate': return evacuateUnit(state, command.unitId);
     case 'attack': return attackUnit(state, command.unitId, command.targetId, command.weaponSlot);
     case 'merge': return mergeUnits(state, command.unitId, command.targetId);
     case 'capture': return captureProperty(state, command.unitId);
@@ -227,7 +231,7 @@ export function isGameCommand(value: unknown): value is GameCommand {
   if (!isRecord(value) || typeof value.type !== 'string') return false;
   if (value.type === 'endTurn') return true;
   if (value.type === 'move') return typeof value.unitId === 'string' && isPosition(value.destination);
-  if (value.type === 'wait') return typeof value.unitId === 'string';
+  if (value.type === 'wait' || value.type === 'evacuate') return typeof value.unitId === 'string';
   if (value.type === 'attack') return typeof value.unitId === 'string' && typeof value.targetId === 'string'
     && (value.weaponSlot === undefined || value.weaponSlot === 0 || value.weaponSlot === 1);
   if (value.type === 'merge') return typeof value.unitId === 'string' && typeof value.targetId === 'string';
@@ -253,11 +257,14 @@ export function isGameState(value: unknown): value is GameState {
 
   if (value.ruleVersion !== undefined && !ruleVersions.includes(value.ruleVersion as never)) return false;
   const modern = value.ruleVersion !== undefined;
-  if (value.units.length > 4096) return false;
+  const operations = usesOperationsRules(value as unknown as GameState);
+  if (value.evacuatedUnits !== undefined && (!operations || !Array.isArray(value.evacuatedUnits))) return false;
+  const evacuated: unknown[] = Array.isArray(value.evacuatedUnits) ? value.evacuatedUnits : [];
+  if (value.units.length + evacuated.length > 4096) return false;
   const ids = new Set<string>();
   const positions = new Set<string>();
   const unitsById = new Map<string, Record<string, unknown>>();
-  for (const unit of value.units) {
+  for (const unit of [...value.units, ...evacuated]) {
     if (!isRecord(unit) || typeof unit.id !== 'string' || ids.has(unit.id)
       || typeof unit.kind !== 'string' || !unitKindSet.has(unit.kind)
       // Modern-only units cannot appear in a classic match, even through a map's initial forces.
@@ -274,15 +281,17 @@ export function isGameState(value: unknown): value is GameState {
     const deployed = unit.position !== undefined && unit.embarkedIn === undefined;
     const embarked = unit.position === undefined && typeof unit.embarkedIn === 'string';
     if (!deployed && !embarked) return false;
+    const withdrawn = evacuated.includes(unit);
+    if (withdrawn && (!deployed || unit.hasActed !== true || unit.hasMoved !== true)) return false;
     if (deployed) {
       if (!isPosition(unit.position) || unit.position.x < 0 || unit.position.y < 0
         || unit.position.x >= (width as number) || unit.position.y >= (height as number)) return false;
       const position = `${unit.position.x},${unit.position.y}`;
-      if (positions.has(position)) return false;
-      positions.add(position);
+      if (!withdrawn && positions.has(position)) return false;
+      if (!withdrawn) positions.add(position);
     }
     ids.add(unit.id);
-    unitsById.set(unit.id, unit);
+    if (!withdrawn) unitsById.set(unit.id, unit);
   }
   const cargoByTransport = new Map<string, number>();
   for (const unit of value.units) {
@@ -294,6 +303,14 @@ export function isGameState(value: unknown): value is GameState {
     const cargoCount = (cargoByTransport.get(unit.embarkedIn as string) ?? 0) + 1;
     if (cargoCount > transportCapacity(transport.kind as UnitKind)) return false;
     cargoByTransport.set(unit.embarkedIn as string, cargoCount);
+  }
+  const scenario = typeof value.scenarioId === 'string' ? scenarioForState(value as unknown as GameState) : undefined;
+  if (!operations && scenario && [...scenario.victoryConditions, ...scenario.defeatConditions].some(isEvacuationCondition)) return false;
+  for (const entry of evacuated) {
+    const unit = entry as Record<string, unknown>;
+    const position = unit.position as Position;
+    if (!evacuationObjectives(value as unknown as GameState, unit.owner as 'red' | 'blue').some(condition =>
+      condition.unitIds.includes(unit.id as string) && condition.positions.some(exit => exit.x === position.x && exit.y === position.y))) return false;
   }
   const validPlayerState = (state: unknown) =>
     isRecord(state) && isFiniteNumber(state.gold) && state.gold >= 0

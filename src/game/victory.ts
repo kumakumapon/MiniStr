@@ -2,6 +2,7 @@ import { scenarioForState, type ScenarioDefinition, type VictoryCondition } from
 import { playerOwnedProperties } from './state';
 import { BALANCED_RULE_VERSION, isDeployedUnit, otherPlayer, usesDecisionRules, type GameState, type PlayerId, type Position } from './types';
 import { unitCategory, unitStats } from './units';
+import { evacuationImpossible } from './evacuation';
 
 export interface ConditionProgress { current: number; target: number; complete: boolean }
 
@@ -63,6 +64,11 @@ export function getConditionProgress(state: GameState, condition: VictoryConditi
       current = state.scores?.[player] ?? 0;
       target = condition.target;
       break;
+    case 'escort':
+    case 'withdraw':
+      current = (state.evacuatedUnits ?? []).filter(unit => unit.owner === player && condition.unitIds.includes(unit.id)).length;
+      target = condition.required;
+      break;
   }
   return { current, target, complete: current >= target };
 }
@@ -78,6 +84,8 @@ export function describeVictoryCondition(condition: VictoryCondition): string {
     case 'hold': return `指定${condition.requireOwnership ? '拠点を占領し、' : '地点を'}${condition.groundOnly ? '地上部隊で' : ''}${condition.turns}ターン連続で保持する`;
     case 'survive': return `${condition.untilTurn}ターンまで生存する`;
     case 'score': return `スコア${condition.target}を獲得する`;
+    case 'escort': return `護衛対象 ${condition.unitIds.join('・')} のうち${condition.required}部隊を脱出地点へ送り撤退させる（対象不足で敗北）`;
+    case 'withdraw': return `指定部隊 ${condition.unitIds.join('・')} のうち${condition.required}部隊を脱出地点から撤退させる（対象不足で敗北）`;
   }
 }
 
@@ -89,6 +97,7 @@ export function describeVictoryCondition(condition: VictoryCondition): string {
 export function countDestroyedDeployedUnits(previous: GameState, next: GameState): Record<PlayerId, number> {
   const destroyed: Record<PlayerId, number> = { red: 0, blue: 0 };
   const survivors = new Set(next.units.map(unit => unit.id));
+  for (const unit of next.evacuatedUnits ?? []) survivors.add(unit.id);
   for (const unit of previous.units) {
     if (isDeployedUnit(unit) && !survivors.has(unit.id)) destroyed[otherPlayer(unit.owner)] += 1;
   }
@@ -143,6 +152,8 @@ export function updateScenarioScores(previous: GameState, next: GameState): Game
  */
 export function evaluateScenario(state: GameState, scenario: ScenarioDefinition, tieBreaker: PlayerId = state.activePlayer, roundComplete = true): PlayerId | undefined {
   if (state.winner) return state.winner;
+  const redFailed = evacuationImpossible(state, 'red'), blueFailed = evacuationImpossible(state, 'blue');
+  if (redFailed || blueFailed) return redFailed && blueFailed ? tieBreaker : redFailed ? 'blue' : 'red';
   if ((state.ruleVersion ?? 0) >= BALANCED_RULE_VERSION) {
     const nonScore = (conditions: readonly VictoryCondition[], player: PlayerId) => conditions.some(condition => condition.type !== 'score' && isVictoryConditionMet(state, condition, player));
     const redImmediate = nonScore(scenario.victoryConditions, 'red'), blueImmediate = nonScore(scenario.defeatConditions, 'blue');
@@ -220,7 +231,7 @@ export function decisionWinner(state: GameState): PlayerId | undefined {
   return undefined;
 }
 
-export type VictoryReason = VictoryCondition['type'] | 'decision';
+export type VictoryReason = VictoryCondition['type'] | 'decision' | 'objectiveLost';
 
 /**
  * Why the match ended. Scenario conditions take precedence, matching how the
@@ -230,6 +241,7 @@ export type VictoryReason = VictoryCondition['type'] | 'decision';
  */
 export function victoryReason(state: GameState, scenario: ScenarioDefinition | undefined = scenarioForState(state)): VictoryReason | undefined {
   if (!state.winner || !scenario) return undefined;
+  if (evacuationImpossible(state, otherPlayer(state.winner))) return 'objectiveLost';
   const conditions = state.winner === 'red' ? scenario.victoryConditions : scenario.defeatConditions;
   const met = conditions.find(condition => isVictoryConditionMet(state, condition, state.winner!));
   if (met) return met.type;

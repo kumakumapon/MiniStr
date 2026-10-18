@@ -11,10 +11,23 @@ import { scenarioForState } from './maps';
 import { decisionRound, decisionWinner, updateScenarioProgress, updateScenarioScores, withEvaluatedWinner } from './victory';
 import { experienceAfterCombat } from './experience';
 import { applyModernUpkeep } from './logistics';
+import { canEvacuateUnit, isEvacuationTarget } from './evacuation';
 import { BALANCED_RULE_VERSION, isDeployedUnit, otherPlayer, usesDecisionRules, usesModernRules, usesDualWeapons, type GameResult, type GameState, type PlayerId, type Position, type Unit, type UnitKind } from './types';
 
 const fail = <T = GameState>(error: string): GameResult<T> => ({ ok: false, error });
 const succeed = <T>(value: T): GameResult<T> => ({ ok: true, value });
+
+/** Removes a designated unit only after it reaches an exit and keeps its actual surviving state. */
+export function evacuateUnit(state: GameState, unitId: string): GameResult {
+  if (!canEvacuateUnit(state, unitId)) return fail('Only an unacted mission unit at an exit with no cargo can evacuate');
+  const unit = state.units.find(candidate => candidate.id === unitId)!;
+  return succeed(withEvaluatedWinner({
+    ...state,
+    board: releaseCaptureProgress(state.board, unit),
+    units: state.units.filter(candidate => candidate.id !== unitId),
+    evacuatedUnits: [...(state.evacuatedUnits ?? []), { ...unit, hasMoved: true, hasActed: true }],
+  }));
+}
 
 /** Ends a deployed active unit's remaining turn without moving, attacking, or capturing. */
 export function waitUnit(state: GameState, unitId: string): GameResult {
@@ -283,6 +296,7 @@ function adjacent(first: Position, second: Position): boolean {
 
 /** Combines two adjacent allied units while preserving the stronger unit's identity. */
 export function mergeUnits(state: GameState, unitId: string, targetId: string): GameResult {
+  if (isEvacuationTarget(state, unitId, state.activePlayer)) return fail('Mission targets cannot merge into another unit');
   if (state.winner) return fail('Game has finished');
   const unit = state.units.find(candidate => candidate.id === unitId);
   const target = state.units.find(candidate => candidate.id === targetId);

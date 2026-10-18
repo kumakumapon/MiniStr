@@ -13,6 +13,8 @@ export * from './fog';
 export * from './threat';
 export * from './maps';
 export * from './victory';
+export * from './evacuation';
+export * from './deployment';
 export * from './session';
 export * from './replay';
 export * from './campaign';

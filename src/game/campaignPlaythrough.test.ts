@@ -15,6 +15,9 @@ import {
 const initialProgress = createCampaignProgress('2026-10-15T00:00:00.000Z');
 const runs: { before: CampaignProgress; result: ReturnType<typeof playCampaignStage> }[] = [];
 const originalMaps = campaignStages.map((stage) => structuredClone(scenarioById(stage.scenarioId)!));
+// Ten complete matches include replay validation and veteran carryover. Coverage
+// instrumentation and concurrent CPU simulations can exceed one minute in CI.
+const campaignSuiteTimeout = 120_000;
 beforeAll(() => {
   let progress = structuredClone(initialProgress);
   for (const stage of campaignStages) {
@@ -24,20 +27,24 @@ beforeAll(() => {
     runs.push({ before, result });
     progress = result.progress;
   }
-}, 60_000);
+}, campaignSuiteTimeout);
 
 describe('campaign reference playthrough', () => {
-  it('also clears the easy campaign with its own earned grades and survivors', () => {
-    let progress = structuredClone(initialProgress);
-    for (const stage of campaignStages) {
-      const result = playCampaignStage(progress, stage, 'easy');
-      expect(result.summary.winner, stage.scenarioId).toBe('red');
-      expect(result.progress.bestGrades[stage.scenarioId]).toBe(result.summary.grade);
-      expect(isCampaignProgress(result.progress)).toBe(true);
-      progress = result.progress;
-    }
-    expect(Object.keys(progress.bestGrades)).toHaveLength(10);
-  }, 60_000);
+  it(
+    'also clears the easy campaign with its own earned grades and survivors',
+    () => {
+      let progress = structuredClone(initialProgress);
+      for (const stage of campaignStages) {
+        const result = playCampaignStage(progress, stage, 'easy');
+        expect(result.summary.winner, stage.scenarioId).toBe('red');
+        expect(result.progress.bestGrades[stage.scenarioId]).toBe(result.summary.grade);
+        expect(isCampaignProgress(result.progress)).toBe(true);
+        progress = result.progress;
+      }
+      expect(Object.keys(progress.bestGrades)).toHaveLength(10);
+    },
+    campaignSuiteTimeout,
+  );
 
   it('wins all ten normal operations in order with real grades and veteran carryover', () => {
     let progress: CampaignProgress = structuredClone(initialProgress);

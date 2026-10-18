@@ -1,4 +1,4 @@
-import { scenarioDefinitionToData, scenarioForState, type ScenarioData, type VictoryCondition } from '../game/maps';
+import { isEvacuationCondition, scenarioDefinitionToData, scenarioForState, type ScenarioData, type VictoryCondition } from '../game/maps';
 import { holdConditionKey } from '../game/victory';
 import type { Board, GameState, Position } from '../game/types';
 
@@ -28,7 +28,9 @@ export function bluePlanningState(state: GameState): GameState {
   if (scenario) {
     scenarioSnapshot = snapshots.get(scenario);
     const rotateCondition = (condition: VictoryCondition): VictoryCondition =>
-      condition.type === 'hold' ? { ...condition, positions: condition.positions.map((position) => rotatePosition(position, state.board)) } : condition;
+      condition.type === 'hold' || isEvacuationCondition(condition)
+        ? { ...condition, positions: condition.positions.map((position) => rotatePosition(position, state.board)) }
+        : condition;
     if (!scenarioSnapshot) {
       const data = scenarioDefinitionToData(scenario);
       scenarioSnapshot = {
@@ -56,6 +58,9 @@ export function bluePlanningState(state: GameState): GameState {
     board,
     scenarioSnapshot,
     objectiveHoldTurns,
+    ...(state.evacuatedUnits === undefined
+      ? {}
+      : { evacuatedUnits: state.evacuatedUnits.map((unit) => (unit.position ? { ...unit, position: rotatePosition(unit.position, state.board) } : unit)) }),
     units: state.units.map((unit) => (unit.position ? { ...unit, position: rotatePosition(unit.position, state.board) } : unit)),
   };
 }
