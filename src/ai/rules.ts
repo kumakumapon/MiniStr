@@ -276,6 +276,15 @@ function productionAction(state: GameState, player: PlayerId, config: CpuDifficu
     .some(unit => targets.some(target => !sameLandComponent(context.landComponents, unit.position, target)));
   const hasLandingShip = state.units.some(unit => unit.owner === player && unit.kind === 'landingShip');
   const warships = state.units.filter(unit => unit.owner === player && (unit.kind === 'destroyer' || unit.kind === 'battleship')).length;
+  // Once the service berth can be kept open, restore indirect fire support
+  // before spending each income on another escort or stranded ground troops.
+  if (usesOperationsRules(state) && hasRemoteInfantry && hasLandingShip
+    && !state.units.some(unit => unit.owner === player && unit.kind === 'battleship')
+    && state.board.terrain.some(row => row.some(tile => tile.kind === 'port' && tile.owner === player))) {
+    const port = emptyOwnedFacility(state, player, 'battleship');
+    if (port && state.players[player].gold >= unitStats.battleship.cost) return { type: 'produce', factory: port, kind: 'battleship' };
+    return undefined;
+  }
   if (hasRemoteInfantry && hasLandingShip && warships < 2 && state.board.terrain.some(row => row.some(tile => tile.kind === 'port' && tile.owner === player))) {
     const port = emptyOwnedFacility(state, player, 'destroyer');
     if (port && state.players[player].gold >= unitStats.destroyer.cost) return { type: 'produce', factory: port, kind: 'destroyer' };

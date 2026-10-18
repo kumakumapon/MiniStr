@@ -78,7 +78,7 @@ export function coordinationValue(state: GameState, player: PlayerId, unit: Depl
   if (unitCategory[unit.kind] === 'sea') return 0;
   const plan = teamPlan(state, player);
   const role = plan.roles.get(unit.id);
-  if (!targets.length || role === 'mission') return 0;
+  if (!targets.length || role === 'mission' || role === 'frontline') return 0;
   let anchor = plan.anchors.get(unit.id);
   if (!anchor) {
     anchor = plan.frontline
@@ -90,12 +90,7 @@ export function coordinationValue(state: GameState, player: PlayerId, unit: Depl
   const targetDistance = (position: Position) => Math.min(...targets.map((target) => manhattanDistance(position, target)));
   const gap = manhattanDistance(destination, anchor.position);
   const behind = targetDistance(destination) >= targetDistance(anchor.position);
-  if (role === 'supply' || role === 'fireSupport' || role === 'airDefence') {
-    return Math.max(-18, 12 - Math.abs(gap - 2) * 5) + (behind ? 4 : -12);
-  }
-  // Combat units can still break through; a dispersed formation merely gives
-  // a modest preference to another equally good route near a friendly unit.
-  return Math.max(-8, 4 - Math.max(0, gap - 3) * 2);
+  return Math.max(-18, 12 - Math.abs(gap - 2) * 5) + (behind ? 4 : -12);
 }
 
 /** Loaded transports avoid confirmed threats until an armed escort can cover the move. */
