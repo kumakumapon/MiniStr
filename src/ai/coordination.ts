@@ -1,6 +1,5 @@
-import { evacuationObjectives } from '../game/evacuation';
-import { isEvacuationCondition, scenarioForState } from '../game/maps';
-import { manhattanDistance } from '../game/terrain';
+import { isEvacuationCondition, scenarioForState, type ScenarioDefinition } from '../game/maps';
+import { manhattanDistance, positionKey } from '../game/terrain';
 import { isDeployedUnit, usesOperationsRules, type DeployedUnit, type GameState, type PlayerId, type Position, type Unit } from '../game/types';
 import { damageMultiplier, isSupplyUnit, unitCategory, unitStats } from '../game/units';
 
@@ -11,9 +10,53 @@ interface TeamPlan {
   frontline: DeployedUnit[];
   protectedIds: Set<string>;
   loaded: Set<string>;
-  anchors: Map<string, DeployedUnit>;
+  anchors: Map<string, DeployedUnit | null>;
 }
 const plans = new WeakMap<GameState, Map<PlayerId, TeamPlan>>();
+
+interface MissionPlan {
+  missionIds: Set<string>;
+  protectedIds: Set<string>;
+  exits: Map<string, Set<string>>;
+  objectivePositions: Set<string>;
+  opposingIds: Set<string>;
+}
+const emptyMission: MissionPlan = { missionIds: new Set(), protectedIds: new Set(), exits: new Map(), objectivePositions: new Set(), opposingIds: new Set() };
+const missions = new WeakMap<ScenarioDefinition, Map<PlayerId, MissionPlan>>();
+
+/** Authored orders stay immutable for the whole match, including across waits. */
+function missionPlan(state: GameState, player: PlayerId): MissionPlan {
+  if (!usesOperationsRules(state)) return emptyMission;
+  const scenario = scenarioForState(state);
+  if (!scenario) return emptyMission;
+  let players = missions.get(scenario);
+  if (!players) {
+    players = new Map();
+    missions.set(scenario, players);
+  }
+  const cached = players.get(player);
+  if (cached) return cached;
+  const own = player === 'red' ? scenario.victoryConditions : scenario.defeatConditions;
+  const opposing = player === 'red' ? scenario.defeatConditions : scenario.victoryConditions;
+  const objectives = own.filter(isEvacuationCondition);
+  const exits = new Map<string, Set<string>>();
+  for (const condition of objectives)
+    for (const position of condition.positions) {
+      const key = positionKey(position);
+      const ids = exits.get(key) ?? new Set<string>();
+      for (const id of condition.unitIds) ids.add(id);
+      exits.set(key, ids);
+    }
+  const plan: MissionPlan = {
+    missionIds: new Set(objectives.flatMap((condition) => condition.unitIds)),
+    protectedIds: new Set(objectives.filter((condition) => condition.type === 'escort').flatMap((condition) => condition.unitIds)),
+    exits,
+    objectivePositions: new Set(own.flatMap((condition) => (condition.type === 'hold' || isEvacuationCondition(condition) ? condition.positions.map(positionKey) : []))),
+    opposingIds: new Set(opposing.filter(isEvacuationCondition).flatMap((condition) => condition.unitIds)),
+  };
+  players.set(player, plan);
+  return plan;
+}
 
 function teamPlan(state: GameState, player: PlayerId): TeamPlan {
   let players = plans.get(state);
@@ -23,9 +66,7 @@ function teamPlan(state: GameState, player: PlayerId): TeamPlan {
   }
   const cached = players.get(player);
   if (cached) return cached;
-  const objectives = evacuationObjectives(state, player);
-  const mission = new Set(objectives.flatMap((condition) => condition.unitIds));
-  const protectedIds = new Set(objectives.filter((condition) => condition.type === 'escort').flatMap((condition) => condition.unitIds));
+  const { missionIds: mission, protectedIds } = missionPlan(state, player);
   const loaded = new Set(state.units.filter((unit) => unit.owner === player && unit.embarkedIn !== undefined).map((unit) => unit.embarkedIn!));
   const own = state.units.filter((unit): unit is DeployedUnit => unit.owner === player && isDeployedUnit(unit));
   const roles = new Map(
@@ -48,7 +89,7 @@ function teamPlan(state: GameState, player: PlayerId): TeamPlan {
     ),
   );
   const frontline = own.filter((unit) => roles.get(unit.id) === 'frontline' && unit.hp >= 40);
-  const plan = { roles, frontline, protectedIds, loaded, anchors: new Map<string, DeployedUnit>() };
+  const plan = { roles, frontline, protectedIds, loaded, anchors: new Map<string, DeployedUnit | null>() };
   players.set(player, plan);
   return plan;
 }
@@ -60,16 +101,8 @@ export function cpuRole(state: GameState, player: PlayerId, unitId: string): Cpu
 /** Public mission orders prioritize confirmed defenders and opposing evacuees. */
 export function isPriorityTarget(state: GameState, player: PlayerId, target: Unit): boolean {
   if (!usesOperationsRules(state) || target.owner === player || !isDeployedUnit(target)) return false;
-  const scenario = scenarioForState(state);
-  const own = player === 'red' ? scenario?.victoryConditions : scenario?.defeatConditions;
-  const opposing = player === 'red' ? scenario?.defeatConditions : scenario?.victoryConditions;
-  return (
-    !!own?.some(
-      (condition) =>
-        (condition.type === 'hold' || isEvacuationCondition(condition)) &&
-        condition.positions.some((position) => position.x === target.position.x && position.y === target.position.y),
-    ) || !!opposing?.some((condition) => isEvacuationCondition(condition) && condition.unitIds.includes(target.id))
-  );
+  const plan = missionPlan(state, player);
+  return plan.objectivePositions.has(positionKey(target.position)) || plan.opposingIds.has(target.id);
 }
 
 /** Front units move first; support then follows their actual updated positions. */
@@ -87,20 +120,24 @@ export function coordinatedOrder(state: GameState, player: PlayerId, units: read
 /** Small positional incentives preserve the existing capture, fire and resupply priorities. */
 export function coordinationValue(state: GameState, player: PlayerId, unit: DeployedUnit, destination: Position, targets: readonly Position[]): number {
   if (!usesOperationsRules(state)) return 0;
-  const exits = evacuationObjectives(state, player).filter((condition) => condition.positions.some((exit) => exit.x === destination.x && exit.y === destination.y));
+  const exits = missionPlan(state, player).exits.get(positionKey(destination));
   // Support should cover the exit from nearby tiles, leaving its single unit
   // slot available for the designated evacuees.
-  if (exits.length && !exits.some((condition) => condition.unitIds.includes(unit.id))) return -150;
+  if (exits && !exits.has(unit.id)) return -150;
   if (unitCategory[unit.kind] === 'sea') return 0;
   const plan = teamPlan(state, player);
   const role = plan.roles.get(unit.id);
   if (!targets.length || role === 'mission' || role === 'frontline') return 0;
   let anchor = plan.anchors.get(unit.id);
+  if (anchor === null) return 0;
   if (!anchor) {
     anchor = plan.frontline
       .filter((ally) => ally.id !== unit.id && unitCategory[ally.kind] !== 'sea' && (!isSupplyUnit(unit.kind) || unitCategory[ally.kind] !== 'air'))
       .sort((a, b) => manhattanDistance(a.position, unit.position) - manhattanDistance(b.position, unit.position))[0];
-    if (!anchor) return 0;
+    if (!anchor) {
+      plan.anchors.set(unit.id, null);
+      return 0;
+    }
     plan.anchors.set(unit.id, anchor);
   }
   const targetDistance = (position: Position) => Math.min(...targets.map((target) => manhattanDistance(position, target)));
