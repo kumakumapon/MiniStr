@@ -969,3 +969,4 @@ body.production-menu-open { overflow: hidden; }
 .mission-unit-marker { position: absolute; z-index: 5; right: 2px; top: 2px; padding: 1px 3px; color: #14271c; background: #ffe59d; font-size: .6rem; font-style: normal; font-weight: 800; }
 .evacuation-exit { background: #8de3d0; color: #102b24; }
 .evacuation-card p { font-size: .8rem; line-height: 1.5; }
+.editor-unit-id { position: absolute; left: 1px; bottom: 0; color: #fff6c5; background: #10231de8; padding: 0 2px; font-size: .5rem; line-height: 1.2; }

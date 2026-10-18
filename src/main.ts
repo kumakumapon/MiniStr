@@ -879,7 +879,7 @@ function render(): void {
   const captureAction = !replayMode && canCapture ? `<section class="capture-card"><p class="card-kicker">PROPERTY ACTION</p><strong>${terrainNames[selectedTerrain!.kind]}を占領</strong><span>${selectedTerrain!.owner === foe ? '敵軍' : '中立'}拠点・占領値 ${selectedTerrain!.capturePoints ?? '—'}</span><button class="capture" id="capture" aria-label="この拠点を占領する">占領する</button></section>` : '';
   const canWait = !replayMode && selectedUnit?.owner === renderedGame.activePlayer && isDeployedUnit(selectedUnit) && !selectedUnit.hasActed;
   const waitAction = canWait ? `<section class="capture-card"><p class="card-kicker">UNIT ACTION</p><strong>${unitNames[selectedUnit!.kind]}の行動</strong><span>移動・攻撃・占領を行わず、この部隊の行動を終了します。</span><button id="wait" aria-label="選択中のユニットの行動を終了する">行動を終了</button></section>` : '';
-  const mergeTargets = !replayMode && selectedUnit?.owner === renderedGame.activePlayer && isDeployedUnit(selectedUnit) && !selectedUnit.hasActed
+  const mergeTargets = !replayMode && selectedUnit?.owner === renderedGame.activePlayer && isDeployedUnit(selectedUnit) && !selectedUnit.hasActed && !isEvacuationTarget(renderedGame, selectedUnit.id, selectedUnit.owner)
     ? renderedGame.units.filter(unit => isDeployedUnit(unit) && unit.owner === selectedUnit.owner && unit.kind === selectedUnit.kind
       && isMergeableUnit(unit.kind) && !unit.hasActed && adjacent(selectedUnit.position, unit.position))
     : [];

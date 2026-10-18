@@ -1,7 +1,7 @@
 import { evacuationObjectives } from '../game/evacuation';
 import { manhattanDistance } from '../game/terrain';
 import { isDeployedUnit, usesOperationsRules, type DeployedUnit, type GameState, type PlayerId, type Position, type Unit } from '../game/types';
-import { isSupplyUnit, unitCategory, unitStats } from '../game/units';
+import { damageMultiplier, isSupplyUnit, unitCategory, unitStats } from '../game/units';
 
 export type CpuRole = 'frontline' | 'fireSupport' | 'supply' | 'airDefence' | 'transport' | 'mission';
 
@@ -102,8 +102,8 @@ export function transportSafeAt(state: GameState, transport: DeployedUnit, desti
   const threatened = visibleEnemies.some(
     (enemy) =>
       isDeployedUnit(enemy) &&
-      unitStats[enemy.kind].attack > 0 &&
-      manhattanDistance(enemy.position, destination) <= unitStats[enemy.kind].range[1] + Math.min(2, unitStats[enemy.kind].movement),
+      (unitStats[enemy.kind].attack * damageMultiplier[enemy.kind][unitCategory[transport.kind]] * enemy.hp) / 100 >= 30 &&
+      manhattanDistance(enemy.position, destination) <= unitStats[enemy.kind].range[1] + (unitStats[enemy.kind].indirect ? 0 : Math.min(2, unitStats[enemy.kind].movement)),
   );
   if (!threatened) return true;
   return state.units.some(
@@ -114,6 +114,6 @@ export function transportSafeAt(state: GameState, transport: DeployedUnit, desti
       unitStats[ally.kind].attack > 0 &&
       ally.hp >= 40 &&
       (unitCategory[transport.kind] === 'sea' ? unitCategory[ally.kind] === 'sea' || unitCategory[ally.kind] === 'air' : unitCategory[ally.kind] !== 'sea') &&
-      manhattanDistance(ally.position, destination) <= 3,
+      manhattanDistance(ally.position, destination) <= Math.max(3, unitStats[ally.kind].range[1]),
   );
 }

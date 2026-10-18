@@ -2,7 +2,7 @@ import { isEvacuationCondition } from './maps';
 import { applyEditorTool, validateEditorScenario, type ScenarioEditorState } from './editor';
 import { movementCost } from './terrain';
 import { otherPlayer, type Board, type Position, type UnitKind } from './types';
-import { unitStats, unitDefinitions } from './units';
+import { isEmbarkableUnit, unitStats, unitDefinitions } from './units';
 
 /** Static terrain reachability ignores temporary occupancy and turn budgets. */
 function canReach(board: Board, start: Position, target: Position, kind: UnitKind): boolean {
@@ -78,7 +78,9 @@ export function inspectEditorScenario(editor: ScenarioEditorState): EditorIssue[
         );
       if (isEvacuationCondition(condition)) {
         const targets = units.filter((_, index) => condition.unitIds.includes(`${player[0]}${index + 1}`));
-        const possible = targets.filter((unit) => condition.positions.some((exit) => canReach(scenario.board, unit, exit, unit.kind))).length;
+        const possible = targets.filter(
+          (unit) => condition.positions.some((exit) => canReach(scenario.board, unit, exit, unit.kind)) || (waterTransport && isEmbarkableUnit(unit.kind)),
+        ).length;
         if (possible < condition.required) add('error', `${player}: 脱出地点に到達できる作戦対象が必要数に達しません。`);
       }
       if (condition.type === 'hold')
