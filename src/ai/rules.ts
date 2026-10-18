@@ -271,6 +271,15 @@ function productionAction(state: GameState, player: PlayerId, config: CpuDifficu
     .some(unit => targets.some(target => !sameLandComponent(context.landComponents, unit.position, target)));
   const hasLandingShip = state.units.some(unit => unit.owner === player && unit.kind === 'landingShip');
   const warships = state.units.filter(unit => unit.owner === player && (unit.kind === 'destroyer' || unit.kind === 'battleship')).length;
+  // Replacing escorts repeatedly must not consume the funds needed to restore
+  // indirect naval fire against a healing coastal garrison.
+  if (usesOperationsRules(state) && hasRemoteInfantry && hasLandingShip
+    && !state.units.some(unit => unit.owner === player && unit.kind === 'battleship')
+    && state.board.terrain.some(row => row.some(tile => tile.kind === 'port' && tile.owner === player))) {
+    const port = emptyOwnedFacility(state, player, 'battleship');
+    if (port && state.players[player].gold >= unitStats.battleship.cost) return { type: 'produce', factory: port, kind: 'battleship' };
+    return undefined;
+  }
   if (hasRemoteInfantry && hasLandingShip && warships < 2 && state.board.terrain.some(row => row.some(tile => tile.kind === 'port' && tile.owner === player))) {
     const port = emptyOwnedFacility(state, player, 'destroyer');
     if (port && state.players[player].gold >= unitStats.destroyer.cost) return { type: 'produce', factory: port, kind: 'destroyer' };
@@ -283,16 +292,6 @@ function productionAction(state: GameState, player: PlayerId, config: CpuDifficu
     if (port && state.players[player].gold >= unitStats.landingShip.cost) return { type: 'produce', factory: port, kind: 'landingShip' };
     // Losing the transports must not start an endless queue of stranded ground
     // troops. Bank the replacement cost while movement clears the home port.
-    return undefined;
-  }
-  // An amphibious group needs indirect naval fire as well as transports and
-  // escorts. Rebuild a lost fire-support ship before buying more ground units
-  // that cannot leave the home island or dislodge a healing coastal garrison.
-  if (usesOperationsRules(state) && hasRemoteInfantry && hasLandingShip && warships >= 2
-    && !state.units.some(unit => unit.owner === player && unit.kind === 'battleship')
-    && state.board.terrain.some(row => row.some(tile => tile.kind === 'port' && tile.owner === player))) {
-    const port = emptyOwnedFacility(state, player, 'battleship');
-    if (port && state.players[player].gold >= unitStats.battleship.cost) return { type: 'produce', factory: port, kind: 'battleship' };
     return undefined;
   }
   const specialist = specialistProduction(state, player, context.visibleEnemies);

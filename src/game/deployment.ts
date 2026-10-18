@@ -51,7 +51,6 @@ export function createDeploymentScenario(
   if (
     !Array.isArray(choices) ||
     choices.length !== slots.length ||
-    slots.length > 64 ||
     choices.some((kind, index) => !unitKindSet.has(kind) || !slots[index]!.choices.includes(kind))
   )
     return { ok: false, error: '編成の配置枠・兵科・地形または固定対象が不正です。' };
