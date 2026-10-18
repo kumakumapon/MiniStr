@@ -7,7 +7,7 @@ import { canProduceUnit, isPropertyTerrainKind, productionKindsForRule, unitLimi
 import { visibleEnemies as getVisibleEnemies } from '../game/fog';
 import { scenarioForState } from '../game/maps';
 import { manhattanDistance, movementCost, terrainAt } from '../game/terrain';
-import { isDeployedUnit, usesDecisionRules, usesOperationsRules, usesModernRules, type Board, type DeployedUnit, type GameState, type PlayerId, type Position, type Unit, type UnitKind } from '../game/types';
+import { isDeployedUnit, usesDecisionRules, usesModernRules, type Board, type DeployedUnit, type GameState, type PlayerId, type Position, type Unit, type UnitKind } from '../game/types';
 import { adjacentToSupplyUnit, isGroundUnit, isServiceTile, REPAIR_HP_PER_TURN } from '../game/logistics';
 import { isEmbarkableUnit, isMergeableUnit, isSupplyUnit, remainingAmmo, unitCategory, unitStats } from '../game/units';
 import { coordinatedOrder, coordinationValue, cpuRole, transportSafeAt } from './coordination';
@@ -271,15 +271,6 @@ function productionAction(state: GameState, player: PlayerId, config: CpuDifficu
     .some(unit => targets.some(target => !sameLandComponent(context.landComponents, unit.position, target)));
   const hasLandingShip = state.units.some(unit => unit.owner === player && unit.kind === 'landingShip');
   const warships = state.units.filter(unit => unit.owner === player && (unit.kind === 'destroyer' || unit.kind === 'battleship')).length;
-  // Replacing escorts repeatedly must not consume the funds needed to restore
-  // indirect naval fire against a healing coastal garrison.
-  if (usesOperationsRules(state) && hasRemoteInfantry && hasLandingShip
-    && !state.units.some(unit => unit.owner === player && unit.kind === 'battleship')
-    && state.board.terrain.some(row => row.some(tile => tile.kind === 'port' && tile.owner === player))) {
-    const port = emptyOwnedFacility(state, player, 'battleship');
-    if (port && state.players[player].gold >= unitStats.battleship.cost) return { type: 'produce', factory: port, kind: 'battleship' };
-    return undefined;
-  }
   if (hasRemoteInfantry && hasLandingShip && warships < 2 && state.board.terrain.some(row => row.some(tile => tile.kind === 'port' && tile.owner === player))) {
     const port = emptyOwnedFacility(state, player, 'destroyer');
     if (port && state.players[player].gold >= unitStats.destroyer.cost) return { type: 'produce', factory: port, kind: 'destroyer' };

@@ -61,12 +61,16 @@ export function coordinatedOrder(state: GameState, player: PlayerId, units: read
   if (!usesOperationsRules(state)) return [...units];
   const plan = teamPlan(state, player);
   const priority: Record<CpuRole, number> = { frontline: 0, fireSupport: 1, airDefence: 2, supply: 3, transport: 4, mission: 5 };
-  return [...units].sort((a, b) => priority[plan.roles.get(a.id)!] - priority[plan.roles.get(b.id)!]);
+  // Naval guns and escorts already use firing and landing routes. Keep their
+  // existing slots and order rather than fitting them into a land formation.
+  const land = units.filter((unit) => unitCategory[unit.kind] !== 'sea').sort((a, b) => priority[plan.roles.get(a.id)!] - priority[plan.roles.get(b.id)!]);
+  let index = 0;
+  return units.map((unit) => (unitCategory[unit.kind] === 'sea' ? unit : land[index++]!));
 }
 
 /** Small positional incentives preserve the existing capture, fire and resupply priorities. */
 export function coordinationValue(state: GameState, player: PlayerId, unit: DeployedUnit, destination: Position, targets: readonly Position[]): number {
-  if (!usesOperationsRules(state)) return 0;
+  if (!usesOperationsRules(state) || unitCategory[unit.kind] === 'sea') return 0;
   const plan = teamPlan(state, player);
   const role = plan.roles.get(unit.id);
   if (!targets.length || role === 'mission') return 0;
@@ -76,7 +80,7 @@ export function coordinationValue(state: GameState, player: PlayerId, unit: Depl
       .filter(
         (ally) =>
           ally.id !== unit.id &&
-          (unitCategory[unit.kind] === 'sea' ? unitCategory[ally.kind] === 'sea' : unitCategory[ally.kind] !== 'sea') &&
+          unitCategory[ally.kind] !== 'sea' &&
           (!isSupplyUnit(unit.kind) || unitCategory[ally.kind] !== 'air'),
       )
       .sort((a, b) => manhattanDistance(a.position, unit.position) - manhattanDistance(b.position, unit.position))[0];
