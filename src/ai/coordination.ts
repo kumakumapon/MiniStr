@@ -150,22 +150,35 @@ export function coordinationValue(state: GameState, player: PlayerId, unit: Depl
 export function transportSafeAt(state: GameState, transport: DeployedUnit, destination: Position, visibleEnemies: readonly Unit[]): boolean {
   if (!usesOperationsRules(state)) return true;
   const plan = teamPlan(state, transport.owner);
-  if (!plan.protectedIds.has(transport.id) && !plan.loaded.has(transport.id)) return true;
-  const threatened = visibleEnemies.some(
-    (enemy) =>
-      isDeployedUnit(enemy) &&
-      (unitStats[enemy.kind].attack * damageMultiplier[enemy.kind][unitCategory[transport.kind]] * enemy.hp) / 100 >= 30 &&
-      manhattanDistance(enemy.position, destination) <= unitStats[enemy.kind].range[1] + (unitStats[enemy.kind].indirect ? 0 : Math.min(2, unitStats[enemy.kind].movement)),
-  );
-  if (!threatened) return true;
-  return state.units.some(
-    (ally) =>
+  const protectedTarget = plan.protectedIds.has(transport.id);
+  const missionTarget = plan.roles.get(transport.id) === 'mission';
+  if (!missionTarget && !plan.loaded.has(transport.id)) return true;
+  let incoming = 0;
+  for (const enemy of visibleEnemies) {
+    if (!isDeployedUnit(enemy)) continue;
+    const potential = (unitStats[enemy.kind].attack * damageMultiplier[enemy.kind][unitCategory[transport.kind]] * enemy.hp) / 100;
+    if (
+      potential < (missionTarget ? Math.min(30, transport.hp) : 30) ||
+      manhattanDistance(enemy.position, destination) > unitStats[enemy.kind].range[1] + (unitStats[enemy.kind].indirect ? 0 : Math.min(2, unitStats[enemy.kind].movement))
+    )
+      continue;
+    incoming += potential;
+    if (!missionTarget) break;
+  }
+  if (missionTarget && incoming >= transport.hp) return false;
+  const threatened = incoming > 0;
+  if (!threatened && !protectedTarget) return true;
+  const escorts = state.units.filter(
+    (ally): ally is DeployedUnit =>
       ally.owner === transport.owner &&
       ally.id !== transport.id &&
       isDeployedUnit(ally) &&
       unitStats[ally.kind].attack > 0 &&
       ally.hp >= 40 &&
-      (unitCategory[transport.kind] === 'sea' ? unitCategory[ally.kind] === 'sea' || unitCategory[ally.kind] === 'air' : unitCategory[ally.kind] !== 'sea') &&
-      manhattanDistance(ally.position, destination) <= Math.max(3, unitStats[ally.kind].range[1]),
+      (unitCategory[transport.kind] === 'sea' ? unitCategory[ally.kind] === 'sea' || unitCategory[ally.kind] === 'air' : unitCategory[ally.kind] !== 'sea'),
   );
+  // An escort convoy must not outrun its own guards merely because the next
+  // enemy is still in fog. An isolated survivor can proceed when no threat is known.
+  if (!threatened && !escorts.length) return true;
+  return escorts.some((ally) => manhattanDistance(ally.position, destination) <= Math.max(3, unitStats[ally.kind].range[1]));
 }

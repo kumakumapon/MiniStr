@@ -154,6 +154,31 @@ describe('CPU coordination', () => {
   it('keeps a protected target behind its escort requirement during move-and-attack planning too', () => {
     const state = createScenarioInitialState(
       operation({
+        board: { width: 5, height: 1, cells: [] },
+        initialUnits: [
+          { kind: 'tank', owner: 'red', x: 0, y: 0 },
+          { kind: 'heavyTank', owner: 'blue', x: 2, y: 0 },
+        ],
+        victoryConditions: [{ type: 'escort', unitIds: ['r1'], positions: [{ x: 4, y: 0 }], required: 1 }],
+      }),
+    );
+    expect(chooseCpuAction(state, 'hard')).toEqual({ type: 'endTurn' });
+  });
+
+  it('keeps a convoy with its available guards even before any enemy is observed', () => {
+    const target = force('r1', 'apc', 0, 1),
+      guard = force('guard', 'tank', 0, 0);
+    const state = army([target, guard]);
+    expect(transportSafeAt(state, target, { x: 6, y: 1 }, [])).toBe(false);
+    expect(transportSafeAt(state, target, { x: 1, y: 1 }, [])).toBe(true);
+    expect(transportSafeAt(army([target]), target, { x: 6, y: 1 }, [])).toBe(true);
+    const enemy = force('enemy', 'tank', 4, 1, { owner: 'blue' });
+    expect(transportSafeAt(army([{ ...target, hp: 10 }, guard, enemy]), { ...target, hp: 10 }, { x: 3, y: 1 }, [enemy])).toBe(false);
+  });
+
+  it('takes an unoccupied exit and evacuates before a nearby enemy can respond', () => {
+    let state = createScenarioInitialState(
+      operation({
         board: { width: 3, height: 1, cells: [] },
         initialUnits: [
           { kind: 'tank', owner: 'red', x: 0, y: 0 },
@@ -162,7 +187,27 @@ describe('CPU coordination', () => {
         victoryConditions: [{ type: 'escort', unitIds: ['r1'], positions: [{ x: 1, y: 0 }], required: 1 }],
       }),
     );
-    expect(chooseCpuAction(state, 'hard')).toEqual({ type: 'endTurn' });
+    expect(chooseCpuAction(state, 'hard')).toEqual({ type: 'move', unitId: 'r1', destination: { x: 1, y: 0 } });
+    state = valueOf(applyGameCommand(state, chooseCpuAction(state, 'hard')));
+    expect(chooseCpuAction(state, 'hard')).toEqual({ type: 'evacuate', unitId: 'r1' });
+    expect(valueOf(applyGameCommand(state, chooseCpuAction(state, 'hard'))).winner).toBe('red');
+  });
+
+  it.each(['escort', 'withdraw'] as const)('sails an empty mission transport out of its port for %s', (type) => {
+    let state = createScenarioInitialState(
+      operation({
+        board: { width: 8, height: 1, cells: [[0, 0, 'port', 'red'], ...Array.from({ length: 7 }, (_, index) => [index + 1, 0, 'sea'] as const)] },
+        initialUnits: [
+          { kind: 'landingShip', owner: 'red', x: 0, y: 0 },
+          { kind: 'fighter', owner: 'blue', x: 7, y: 0 },
+        ],
+        victoryConditions: [{ type, unitIds: ['r1'], positions: [{ x: 4, y: 0 }], required: 1 }],
+      }),
+    );
+    expect(chooseCpuAction(state, 'hard')).toEqual({ type: 'move', unitId: 'r1', destination: { x: 4, y: 0 } });
+    state = valueOf(applyGameCommand(state, chooseCpuAction(state, 'hard')));
+    expect(chooseCpuAction(state, 'hard')).toEqual({ type: 'evacuate', unitId: 'r1' });
+    expect(valueOf(applyGameCommand(state, chooseCpuAction(state, 'hard'))).winner).toBe('red');
   });
 
   it('uses visible opposing targets or their public exits and rotates evacuated snapshots', () => {

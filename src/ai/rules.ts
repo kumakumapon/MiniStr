@@ -5,7 +5,7 @@ import { observeLogistics } from '../game/fog';
 import { endTurn, reachablePositionsForPlayer } from '../game/commands';
 import { canProduceUnit, isPropertyTerrainKind, productionKindsForRule, unitLimit } from '../game/facilities';
 import { visibleEnemies as getVisibleEnemies } from '../game/fog';
-import { scenarioForState } from '../game/maps';
+import { scenarioForState, type EvacuationCondition } from '../game/maps';
 import { manhattanDistance, movementCost, terrainAt } from '../game/terrain';
 import { isDeployedUnit, usesDecisionRules, usesOperationsRules, usesModernRules, type Board, type DeployedUnit, type GameState, type PlayerId, type Position, type Unit, type UnitKind } from '../game/types';
 import { adjacentToSupplyUnit, isGroundUnit, isServiceTile, REPAIR_HP_PER_TURN } from '../game/logistics';
@@ -567,7 +567,7 @@ function transportAction(state: GameState, player: PlayerId, targets: readonly P
       const destination = reachablePositionsForPlayer(state, transport.id, player).filter(p => transportSafeAt(state, transport, p, visibleEnemies) && manhattanDistance(p, target) < distance)
         .sort((a, b) => manhattanDistance(a, target) - manhattanDistance(b, target) || a.y - b.y || a.x - b.x)[0];
       if (destination) return { type: 'move', unitId: transport.id, destination };
-    } else if (manhattanDistance(transport.position, target) > 6) {
+    } else if (manhattanDistance(transport.position, target) > 6 && !isEvacuationTarget(state, transport.id, player)) {
       const passenger = units.find(unit => isEmbarkableUnit(unit.kind) && !unit.hasActed && isAdjacent(unit.position, transport.position));
       if (passenger) return { type: 'embark', unitId: passenger.id, transportId: transport.id };
     }
@@ -641,9 +641,15 @@ function transportAction(state: GameState, player: PlayerId, targets: readonly P
 function moveAction(state: GameState, player: PlayerId, config: CpuDifficultyConfig, context: CpuPlanningContext): CpuAction | undefined {
   const { targets } = context;
   if (!targets.length) return undefined;
+  const evacuation = evacuationObjectives(state, player);
   for (const unit of coordinatedOrder(state, player, orderedUnits(state, player))) {
     if (unit.hasMoved || unit.hasActed) continue;
-    if (unit.kind === 'landingShip' && !state.units.some(candidate => candidate.embarkedIn === unit.id)) {
+    const mission = evacuation.find(condition => condition.unitIds.includes(unit.id));
+    if (mission) {
+      const escape = moveToEvacuationExit(state, player, unit, mission);
+      if (escape) return escape;
+    }
+    if (unit.kind === 'landingShip' && !mission && !state.units.some(candidate => candidate.embarkedIn === unit.id)) {
       const tile = terrainAt(state.board, unit.position);
       if (tile?.kind === 'port' && tile.owner === player) {
         const berth = reachablePositionsForPlayer(state, unit.id, player)
@@ -655,7 +661,7 @@ function moveAction(state: GameState, player: PlayerId, config: CpuDifficultyCon
     }
     const openTargets = targets.filter(target => !state.units.some(ally => ally.owner === player && ally.id !== unit.id
       && isDeployedUnit(ally) && ally.position.x === target.x && ally.position.y === target.y));
-    const assignedTargets = openTargets.length ? openTargets : targets;
+    const assignedTargets = mission?.positions ?? (openTargets.length ? openTargets : targets);
     const scenario = scenarioForState(state);
     const conditions = player === 'red' ? scenario?.victoryConditions : scenario?.defeatConditions;
     const opposingConditions = player === 'red' ? scenario?.defeatConditions : scenario?.victoryConditions;
@@ -799,14 +805,38 @@ function clearCaptureLane(state: GameState, player: PlayerId, blocker: DeployedU
   return undefined;
 }
 
+/** Reaching an exit permits evacuation immediately, before any enemy response. */
+function moveToEvacuationExit(state: GameState, player: PlayerId, unit: DeployedUnit, condition: EvacuationCondition): CpuAction | undefined {
+  if (state.units.some(candidate => candidate.embarkedIn === unit.id)) return undefined;
+  const destination = reachablePositionsForPlayer(state, unit.id, player)
+    .find(position => condition.positions.some(exit => exit.x === position.x && exit.y === position.y));
+  return destination && { type: 'move', unitId: unit.id, destination };
+}
+
 function evacuationAction(state: GameState, player: PlayerId, config: CpuDifficultyConfig, context: CpuPlanningContext): CpuAction | undefined {
   const exits = evacuationObjectives(state, player);
   if (!exits.length) return undefined;
+  const withdrawing = new Map<(typeof exits)[number], Set<string>>();
+  for (const condition of exits) {
+    if (condition.type !== 'withdraw') continue;
+    const escaped = (state.evacuatedUnits ?? []).filter(unit => unit.owner === player && condition.unitIds.includes(unit.id)).length;
+    const candidates = state.units.filter(unit => unit.owner === player && condition.unitIds.includes(unit.id));
+    const distance = (unit: Unit) => {
+      const position = unit.position ?? state.units.find(transport => transport.id === unit.embarkedIn)?.position;
+      return position ? Math.min(...condition.positions.map(exit => manhattanDistance(position, exit))) : Infinity;
+    };
+    candidates.sort((a, b) => distance(a) - distance(b) || unitIdOrder.compare(a.id, b.id));
+    withdrawing.set(condition, new Set(candidates.slice(0, Math.max(0, condition.required - escaped)).map(unit => unit.id)));
+  }
   for (const unit of orderedUnits(state, player)) {
     if (canEvacuateUnit(state, unit.id)) return { type: 'evacuate', unitId: unit.id };
     if (unit.hasMoved || unit.hasActed) continue;
-    const condition = exits.find(candidate => candidate.unitIds.includes(unit.id));
+    // Escort targets follow the normal front/support order. A withdrawal sends
+    // only the required nearest survivors first, leaving spare units able to fight.
+    const condition = exits.find(candidate => withdrawing.get(candidate)?.has(unit.id));
     if (!condition) continue;
+    const escape = moveToEvacuationExit(state, player, unit, condition);
+    if (escape) return escape;
     const destination = [unit.position, ...reachablePositionsForPlayer(state, unit.id, player)]
       .filter(position => transportSafeAt(state, unit, position, context.visibleEnemies))
       .map(position => ({ position, score: evaluateCpuPosition(state, player, unit, position, condition.positions, config, context.visibleEnemies) }))
