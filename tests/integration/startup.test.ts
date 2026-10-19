@@ -4,8 +4,9 @@ import { afterEach, describe, expect, it } from 'vitest';
 // jsdom is intentionally instantiated per test: startup listeners/timers cannot leak between apps.
 // @ts-expect-error The runtime is a dev dependency; production/test source does not require its optional declaration package.
 import { JSDOM } from 'jsdom';
-import { createScenarioInitialState, maps, saveGameToSlot, type GameState, type StorageLike } from '../../src/game';
-import { operationData } from '../../src/game/operations.fixture';
+import { applyGameCommand, createScenarioInitialState, maps, saveGameToSlot, type GameState, type StorageLike } from '../../src/game';
+import { operation, operationData, valueOf } from '../../src/game/operations.fixture';
+import type { GameCommand } from '../../src/game/session';
 
 const asset = readdirSync('dist/assets').find((name) => /^index-.*\.js$/.test(name));
 if (!asset) throw Error('Run npm run build before production UI tests');
@@ -42,9 +43,159 @@ function change(selector: string, value: string) {
   element.value = value;
   element.dispatchEvent(new dom.window.Event('change', { bubbles: true }));
 }
+function input(selector: string, value: string) {
+  const element = dom.window.document.querySelector(selector) as HTMLInputElement;
+  if (!element) throw Error(`Missing UI: ${selector}`);
+  element.value = value;
+  element.dispatchEvent(new dom.window.Event('input', { bubbles: true }));
+}
 afterEach(() => dom?.window.close());
 
 describe('distributed application boundaries', () => {
+  it('reconstructs recon and analysis at the selected replay position without future samples', () => {
+    const initial = createScenarioInitialState(
+      operation({
+        id: 'distributed-replay-history',
+        initialUnits: [
+          { kind: 'infantry', owner: 'red', x: 0, y: 1 },
+          { kind: 'tank', owner: 'blue', x: 2, y: 1 },
+        ],
+        victoryConditions: [{ type: 'survive', untilTurn: 2 }],
+        defeatConditions: [{ type: 'survive', untilTurn: 3 }],
+      }),
+    );
+    const commands: GameCommand[] = [{ type: 'move', unitId: 'r1', destination: { x: 0, y: 3 } }, { type: 'endTurn' }, { type: 'endTurn' }];
+    let final = initial;
+    for (const command of commands) final = valueOf(applyGameCommand(final, command));
+    expect(final.winner).toBe('red');
+    const storage: Record<string, string> = {};
+    const store: StorageLike = {
+      getItem: (key) => storage[key] ?? null,
+      setItem: (key, value) => {
+        storage[key] = value;
+      },
+      removeItem: (key) => {
+        delete storage[key];
+      },
+    };
+    valueOf(saveGameToSlot(store, 'replay-history', 'Replay', { mapId: initial.scenarioId!, initialState: initial, gameState: final, commands, difficulty: 'normal' }));
+    const document = launch({ storage });
+    click('.load-save-slot[data-save-slot="replay-history"]');
+    click('#view-replay');
+    expect(document.querySelector('.recon-contact')).toBeNull();
+    change('#replay-seek', '1');
+    expect(document.querySelector('.recon-contact')).not.toBeNull();
+    change('#replay-viewpoint', 'all');
+    expect(document.querySelector('#battle-analysis')).not.toBeNull();
+    change('#replay-seek', '3');
+    expect(document.querySelectorAll('#battle-analysis tbody tr')).toHaveLength(2);
+    change('#replay-seek', '0');
+    expect(document.querySelectorAll('#battle-analysis tbody tr')).toHaveLength(1);
+    change('#replay-viewpoint', 'red');
+    expect(document.querySelector('#battle-analysis')).toBeNull();
+    expect(document.querySelector('.recon-contact')).toBeNull();
+    change('#replay-seek', '1');
+    expect(document.querySelector('.recon-contact')).not.toBeNull();
+  });
+  it('generates a custom map and persists, applies and deletes its deployment preset across startup', () => {
+    let document = launch();
+    change('#title-generator-size', '16');
+    change('#title-generator-sea', 'ocean');
+    input('#title-generator-seed', 'distributed-1');
+    click('#title-generator-create');
+    expect(document.querySelector('#briefing-title')?.textContent).toContain('distributed-1');
+    change('#briefing-deployment-red-2', 'infantry');
+    input('#briefing-preset-red-0-name', '機動部隊');
+    click('#briefing-preset-red-0-save');
+    click('#briefing-deployment-reset');
+    expect(document.querySelector<HTMLSelectElement>('#briefing-deployment-red-2')?.value).toBe('tank');
+    click('#briefing-preset-red-0-apply');
+    expect(document.querySelector<HTMLSelectElement>('#briefing-deployment-red-2')?.value).toBe('infantry');
+    click('#begin-operation');
+    click('#save');
+    const saved = JSON.parse(dom.window.localStorage.getItem('ministr.save.manual')!) as { initialState: GameState };
+    expect(saved.initialState.units.find((unit) => unit.id === 'r3')?.kind).toBe('infantry');
+    expect(saved.initialState.board.width).toBe(16);
+    const storage: Record<string, string> = {};
+    for (let index = 0; index < dom.window.localStorage.length; index++) {
+      const key = dom.window.localStorage.key(index)!;
+      storage[key] = dom.window.localStorage.getItem(key)!;
+    }
+    dom.window.close();
+    document = launch({ storage });
+    click('.title-map-card[data-map-id="generated-v1-16-ocean-distributed-1"]');
+    expect(document.querySelector<HTMLInputElement>('#briefing-preset-red-0-name')?.value).toBe('機動部隊');
+    click('#briefing-preset-red-0-apply');
+    expect(document.querySelector<HTMLSelectElement>('#briefing-deployment-red-2')?.value).toBe('infantry');
+    click('#briefing-preset-red-0-delete');
+    expect(document.querySelector<HTMLButtonElement>('#briefing-preset-red-0-apply')?.disabled).toBe(true);
+  });
+
+  it('reconstructs stale observations after undo and save/resume without exposing full analysis', () => {
+    const document = launch();
+    click('#title-editor');
+    change(
+      '#editor-json',
+      JSON.stringify(
+        operationData({
+          id: 'distributed-recon',
+          initialUnits: [
+            { kind: 'infantry', owner: 'red', x: 0, y: 1 },
+            { kind: 'tank', owner: 'blue', x: 2, y: 1 },
+          ],
+          victoryConditions: [{ type: 'survive', untilTurn: 100 }],
+          defeatConditions: [{ type: 'survive', untilTurn: 101 }],
+        }),
+      ),
+    );
+    click('#editor-import');
+    click('#editor-start');
+    click('#begin-operation');
+    click('.tile[data-x="0"][data-y="1"]');
+    click('.tile[data-x="0"][data-y="3"]');
+    expect(document.querySelector('.tile[data-x="2"][data-y="1"] .recon-contact')?.textContent).toContain('最終 T1');
+    expect(document.querySelector('#battle-analysis')).toBeNull();
+    click('#undo');
+    expect(document.querySelector('.recon-contact')).toBeNull();
+    click('.tile[data-x="0"][data-y="1"]');
+    click('.tile[data-x="0"][data-y="3"]');
+    click('#save');
+    click('#open-title');
+    click('.load-save-slot[data-save-slot="manual"]');
+    expect(document.querySelector('.recon-contact')?.textContent).toContain('最終 T1');
+    click('#recon-markers');
+    expect(document.querySelector('.recon-contact')).toBeNull();
+    expect(document.querySelector('[data-recon-x]')?.textContent).toContain('現在位置は不明');
+  });
+
+  it('shows analysis only for the explicit whole-board spectator view', () => {
+    const document = launch();
+    click('.title-map-card[data-map-id="frontier-defense"]');
+    click('input[name="match-mode"][value="spectate"]');
+    click('#begin-operation');
+    click('#spectate-toggle');
+    expect(document.querySelector('#battle-analysis')).toBeNull();
+    click('#spectate-whole-board');
+    expect(document.querySelector('#battle-analysis')).not.toBeNull();
+    change('#analysis-metric', 'losses');
+    expect(document.querySelector('.analysis-chart')?.getAttribute('data-analysis-metric')).toBe('losses');
+    click('#spectate-whole-board');
+    expect(document.querySelector('#battle-analysis')).toBeNull();
+  });
+
+  it('rejects invalid seeds and recovers corrupt presets without deleting match saves', () => {
+    const document = launch({ storage: { 'ministr.deployment.presets': '{bad', 'ministr.save.manual': 'retained' } });
+    input('#title-generator-seed', 'bad seed');
+    click('#title-generator-create');
+    expect(document.querySelector('#title-generator [role=alert]')?.textContent).toContain('seed');
+    expect(dom.window.localStorage.getItem('ministr.scenarios.custom')).toBeNull();
+    input('#title-generator-seed', 'recovery');
+    click('#title-generator-create');
+    expect(document.querySelector('[data-presets-reset]')).not.toBeNull();
+    click('[data-presets-reset]');
+    expect(document.querySelector<HTMLButtonElement>('#briefing-preset-red-0-save')?.disabled).toBe(false);
+    expect(dom.window.localStorage.getItem('ministr.save.manual')).toBe('retained');
+  });
   it('deploys a custom force and preserves evacuation progress through undo, save and resume', () => {
     const document = launch();
     click('#title-editor');

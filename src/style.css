@@ -970,3 +970,25 @@ body.production-menu-open { overflow: hidden; }
 .evacuation-exit { background: #8de3d0; color: #102b24; }
 .evacuation-card p { font-size: .8rem; line-height: 1.5; }
 .editor-unit-id { position: absolute; left: 1px; bottom: 0; color: #fff6c5; background: #10231de8; padding: 0 2px; font-size: .5rem; line-height: 1.2; }
+.map-generator, .history-panel { margin: 12px 0; padding: 12px; border: 1px solid #506b5d; border-radius: 6px; background: #15231ee8; color: #e7eee8; min-width: 0; }
+.map-generator summary, .history-panel summary { cursor: pointer; color: #f3d57c; font-weight: 700; }
+.map-generator p, .history-panel p { font-size: .8rem; line-height: 1.6; overflow-wrap: anywhere; }
+.generator-fields { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin: 12px 0; }
+.generator-fields label, .preset-row label { display: grid; gap: 5px; font-size: .8rem; min-width: 0; }
+.generator-fields select, .generator-fields input, .preset-row input, #analysis-metric { width: 100%; min-width: 0; min-height: 40px; padding: 7px; color: #edf4eb; background: #233a2e; border: 1px solid #69856f; border-radius: 4px; font: inherit; }
+.deployment-presets { margin-top: 16px; border-top: 1px solid #4b6455; padding-top: 10px; }
+.deployment-presets h4 { margin: 4px 0 8px; color: #f3d57c; font-size: .85rem; }
+.preset-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: end; gap: 8px; margin: 8px 0; }
+.preset-actions { display: flex; flex-wrap: wrap; gap: 5px; }
+.preset-actions button { min-height: 40px; }
+.recon-contact { position: absolute; inset: 4px; display: flex; flex-direction: column; align-items: center; justify-content: center; border: 1px dashed #d3bf83; border-radius: 4px; color: #e8d5a3; background: #30352c; pointer-events: none; z-index: 4; opacity: .85; }
+.recon-contact b { font-size: clamp(.7rem, 1.5vw, 1rem); }
+.recon-contact small { font-size: .5rem; }
+.recon-list, .analysis-summary { max-height: 180px; overflow-y: auto; padding-left: 20px; font-size: .75rem; line-height: 1.8; }
+.recon-list button { text-align: left; white-space: normal; overflow-wrap: anywhere; }
+.analysis-chart { display: block; width: 100%; max-height: 220px; margin: 10px 0; color: #c1d0c4; }
+.analysis-chart text { fill: #c1d0c4; font-size: 10px; }
+.analysis-table-wrap { max-height: 200px; overflow: auto; font-size: .75rem; }
+.analysis-table-wrap table { width: 100%; border-collapse: collapse; text-align: right; font-variant-numeric: tabular-nums; }
+.analysis-table-wrap th, .analysis-table-wrap td { padding: 5px; border-bottom: 1px solid #435b4b; }
+@media (max-width: 600px) { .generator-fields { grid-template-columns: 1fr; } .preset-row { grid-template-columns: 1fr; } .preset-actions { justify-content: flex-end; } }
