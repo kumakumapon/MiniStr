@@ -1,5 +1,9 @@
 import { createDeploymentScenario, deploymentSlots, evacuationObjectives, canEvacuateUnit, isEvacuationCondition, isEvacuationTarget, operationScenarios, type GameResult } from './game';
 import { renderDeployment } from './ui/deployment';
+import { BattleHistory } from './game/battleHistory';
+import { applyDeploymentPreset, deleteDeploymentPreset, loadDeploymentPresets, resetDeploymentPresets, saveDeploymentPreset } from './game/deploymentPresets';
+import { generateSymmetricMap } from './game/mapGenerator';
+import { ANALYSIS_METRICS, presetNameKey, reconContactLabel, renderBattleAnalysis, renderMapGenerator, renderReconMarker, renderReconPanel, type AnalysisMetric, type GeneratorForm } from './ui/standaloneSystems';
 import { weaponNames } from './ui/labels';
 import { hasUsableWeapon, weaponsForUnit, type WeaponSlot } from './game';
 import './style.css';
@@ -64,6 +68,17 @@ let deploymentBase: ScenarioDefinition | undefined = selectedMap;
 let deploymentChoices: Record<PlayerId, UnitKind[]> = { red: deploymentSlots(selectedMap, 'red').map(slot => slot.kind), blue: deploymentSlots(selectedMap, 'blue').map(slot => slot.kind) };
 let deploymentOpen = false;
 let deploymentNotice = '';
+const presetLoad = loadDeploymentPresets(localStorage);
+let presetCatalog = presetLoad.ok ? presetLoad.value : undefined;
+let presetNotice = presetLoad.ok ? '' : presetLoad.error;
+let presetDraftNames: Record<string, string> = {};
+const generatorForm: GeneratorForm = { size: 20, sea: 'coast', seed: 'MiniStr-1' };
+let generatorOpen = false;
+let generatorNotice = '';
+let reconOpen = false;
+let showReconMarkers = true;
+let analysisOpen = false;
+let analysisMetric: AnalysisMetric = 'units';
 let selected: string | undefined;
 let weaponSelection: { unitId: string; slot: WeaponSlot } | undefined;
 const selectedWeaponSlot = (): WeaponSlot | undefined => weaponSelection?.unitId === selected ? weaponSelection?.slot : undefined;
@@ -109,6 +124,11 @@ function closeProductionMenu(): void {
 }
 let initialState = structuredClone(game);
 let commandHistory: GameCommand[] = [];
+let insightCache: { initial: GameState; commands: readonly GameCommand[]; history: BattleHistory } | undefined;
+function historyFor(initial: GameState, commands: readonly GameCommand[]): BattleHistory {
+  if (!insightCache || insightCache.initial !== initial || insightCache.commands !== commands) insightCache = { initial, commands, history: new BattleHistory(initial, commands) };
+  return insightCache.history;
+}
 let undoStack: { state: GameState; commandCount: number }[] = [];
 interface ReplayRuntime { file: ReplayFile; state: GameState; index: number; playing: boolean; speed: CommandSpeed; timeline: ReplayTimeline; viewpoint: PlayerId | 'all' }
 let replay: ReplayRuntime | undefined;
@@ -191,6 +211,12 @@ const loadedCampaign = loadCampaignProgress(localStorage);
 let campaignProgress = loadedCampaign.ok ? loadedCampaign.value : createCampaignProgress();
 let campaignNotice = loadedCampaign.ok ? '' : loadedCampaign.error;
 const app = document.querySelector<HTMLDivElement>('#app')!;
+app.addEventListener('input', event => {
+  const input = event.target;
+  if (!(input instanceof HTMLInputElement)) return;
+  if (input.dataset.presetName) presetDraftNames[input.dataset.presetName] = input.value;
+  if (input.id === 'title-generator-seed') generatorForm.seed = input.value;
+});
 app.addEventListener('change', event => {
   const input = event.target;
   if (!(input instanceof HTMLSelectElement) || input.id !== 'attack-weapon' || !canCommand() || !selected) return;
@@ -401,6 +427,8 @@ function resetGame(mapId: string, operation?: ScenarioDefinition): void {
   deploymentChoices = { red: deploymentSlots(selectedMap, 'red').map(slot => slot.kind), blue: deploymentSlots(selectedMap, 'blue').map(slot => slot.kind) };
   deploymentOpen = false;
   deploymentNotice = '';
+  presetDraftNames = {};
+  if (presetCatalog) presetNotice = '';
   resetSpectatorCamera();
   initialState = structuredClone(game);
   commandHistory = [];
@@ -776,6 +804,14 @@ function render(): void {
   const visible = new Set(shownPositions(renderedGame).map(key));
   // No tile is fogged in the whole-board view, so the legend drops its fog entry.
   const wholeBoardShown = replay ? replay.viewpoint === 'all' : showsWholeBoard(matchMode, spectateWholeBoard, false);
+  const history = historyFor(replay?.file.initialState ?? initialState, replay?.file.commands ?? commandHistory);
+  const historyIndex = replay?.index ?? commandHistory.length;
+  const recordedContacts = !wholeBoardShown && !concealed ? history.recon(historyIndex, me) : undefined;
+  const contacts = recordedContacts?.ok ? recordedContacts.value : [];
+  const contactsByPosition = new Map(showReconMarkers ? contacts.map(contact => [key(contact.position), contact]) : []);
+  const reconPanel = !wholeBoardShown ? renderReconPanel(contacts, showReconMarkers, reconOpen) : '';
+  const analysis = wholeBoardShown ? history.analysis(historyIndex, 'all') : undefined;
+  const analysisPanel = renderBattleAnalysis(analysis?.ok ? analysis.value : undefined, analysisMetric, analysisOpen);
   const selectedUnit = renderedGame.units.find(unit => unit.id === selected);
   const movable = !replayMode && selectedUnit?.owner === me && !selectedUnit.hasMoved && !selectedUnit.hasActed
     ? new Set(reachablePositionsForPlayer(renderedGame, selectedUnit.id, me).map(key)) : new Set<string>();
@@ -798,6 +834,7 @@ function render(): void {
   const board = renderedGame.board.terrain.flatMap((row, y) => row.map((terrain, x) => {
     const unit = renderedGame.units.find(item => isDeployedUnit(item) && item.position.x === x && item.position.y === y);
     const hidden = !visible.has(`${x},${y}`);
+    const contact = hidden ? contactsByPosition.get(`${x},${y}`) : undefined;
     const terrainName = terrainNames[terrain.kind] ?? terrain.kind;
     const isProperty = isPropertyTerrainKind(terrain.kind);
     const propertyOwner = isProperty ? terrain.owner : undefined;
@@ -817,7 +854,7 @@ function render(): void {
     const unitLabel = unit && !hidden ? `${sideName(matchMode, unit.owner)}の${unitNames[unit.kind]}${rank ? `（${rankNames[rank]}）` : ''}、耐久 ${unit.hp}${cargo ? `、搭載 ${unitNames[cargo.kind]}` : ''}${fuelWarning}${ammoWarning}` : '';
     const label = unit && !hidden
       ? `<span class="unit ${unit.owner} unit-${unit.kind}" aria-hidden="true"><span class="unit-art"></span><small>${unit.hp}</small><em>${unitNames[unit.kind]}${cargo ? `・${unitNames[cargo.kind]}搭載` : ''}</em><i class="unit-owner-marker">${unit.owner === me ? '自' : '敵'}</i>${cargo ? '<i class="cargo-marker">積</i>' : ''}${rank ? `<i class="rank-marker">${rankStars(rank)}</i>` : ''}${fuelWarning ? `<i class="fuel-warning">燃${fuelTurns}</i>` : ''}${ammoEmpty ? `<i class="ammo-warning">${uiText.ammo}0</i>` : ''}</span>`
-      : '';
+      : contact ? renderReconMarker(contact) : '';
     const terrainArt = '';
     const facility = isPropertyDisplayed(terrain, me, !hidden)
       ? `<span class="facility facility-${terrain.kind} ${propertyOwner ?? 'neutral'}" aria-hidden="true"><b>${terrain.kind === 'city' ? '市' : terrain.kind === 'factory' ? '工' : terrain.kind === 'airport' ? '空' : terrain.kind === 'port' ? '港' : '司'}</b><small>${propertyOwner === me ? '自軍' : propertyOwner === foe ? '敵軍' : '中立'}${capturePoints !== undefined ? ` ${capturePointsLabel(capturePoints)}` : ''}</small></span>`
@@ -840,6 +877,7 @@ function render(): void {
       enemyAttack ? '選択中の敵ユニットの攻撃危険域' : '',
       movementDanger ? '敵の攻撃危険域' : '',
       isFacilityTarget ? '生産先に選択中' : productionReady ? '生産可能' : '',
+      contact ? reconContactLabel(contact) : '',
       hidden ? '未索敵' : '',
     ].filter(Boolean);
     const stateMarker = `${exitPositions.has(`${x},${y}`) ? '<span class="objective-marker evacuation-exit" aria-hidden="true">脱</span>' : objectivePositions.has(`${x},${y}`) ? '<span class="objective-marker" aria-hidden="true">目</span>' : ''}${unit && !hidden && missionTargets.has(unit.id) ? '<span class="mission-unit-marker" aria-hidden="true">任</span>' : ''}${isSelected ? '<span class="tile-state-marker selected-marker" aria-hidden="true">選</span>' : ''}${isReachable ? '<span class="tile-state-marker reachable-marker" aria-hidden="true">移</span>' : ''}${productionReady ? '<span class="tile-state-marker facility-ready-marker" aria-hidden="true">産</span>' : ''}${enemyMovement ? '<span class="tile-state-marker enemy-move-marker" aria-hidden="true">敵移</span>' : ''}${(enemyAttack || movementDanger) ? '<span class="tile-state-marker danger-marker" aria-hidden="true">危</span>' : ''}`;
@@ -1007,6 +1045,7 @@ function render(): void {
       })(),
     })),
     canContinue: hasSave(),
+    generator: titleVisible ? renderMapGenerator(generatorForm, generatorNotice, generatorOpen) : undefined,
     savePicker: titleVisible ? renderSaveSlotManager(listSaveSlots(localStorage), getStorageUsage(localStorage), false, matchMode === 'spectate') : '',
     canResume: titleResumable,
     notice: titleNotice || (!localStorage.persistent ? 'ブラウザーの保存領域を利用できません。このタブ内だけに保存します。終了前にバックアップしてください。' : '') || (!hasSave() && hasStoredSave() ? uiText.titleInvalidSave : ''),
@@ -1016,7 +1055,7 @@ function render(): void {
     visible: !screens.campaignMenuOpen && !screens.titleOpen && !replayMode && screens.briefingOpen,
     backToTitle: true,
     mapName: renderedMap.name,
-    deployment: deploymentBase && deploymentBase.id !== 'training' && screens.briefingOpen ? renderDeployment(deploymentBase, deploymentChoices, matchMode === 'cpu' ? ['red'] : ['red', 'blue'], deploymentOpen, deploymentNotice) : undefined,
+    deployment: deploymentBase && deploymentBase.id !== 'training' && screens.briefingOpen ? renderDeployment(deploymentBase, deploymentChoices, matchMode === 'cpu' ? ['red'] : ['red', 'blue'], deploymentOpen, deploymentNotice, { catalog: presetCatalog, notice: presetNotice, draftNames: presetDraftNames }) : undefined,
     beginDisabled: deployment !== undefined && !deployment.ok,
     briefing: renderedMap.briefing,
     victoryConditions: [...renderedMap.victoryConditions.map(describeVictoryCondition), ...(renderedDecisionRound === undefined ? [] : [uiText.decisionRule(renderedDecisionRound)])],
@@ -1043,7 +1082,7 @@ function render(): void {
     <section class="sound-controls" aria-label="音量設定"><label><input id="sound-muted" type="checkbox" ${!soundSettings.muted ? 'checked' : ''}> 効果音</label><label>音量 <input id="sound-volume" type="range" min="0" max="100" value="${Math.round(soundSettings.volume * 100)}" aria-label="効果音の音量"></label><label><input id="music-muted" type="checkbox" ${!musicSettings.muted ? 'checked' : ''}> BGM</label><label>BGM曲 <select id="music-track" aria-label="フィールドBGMの曲">${FIELD_TRACKS.map(track => `<option value="${track}"${musicSettings.fieldTrack === track ? ' selected' : ''}>${FIELD_TRACK_LABELS[track]}</option>`).join('')}</select></label><label>BGM音量 <input id="music-volume" type="range" min="0" max="100" value="${Math.round(musicSettings.volume * 100)}" aria-label="BGMの音量"></label></section>
     ${!hasSave() && hasStoredSave() ? `<p class="scenario-warning" role="status">${matchSaveDeletionAllowed(matchMode) ? uiText.invalidSaveWarning : uiText.invalidSaveWarningSpectating}</p>` : ''}
     ${replay ? `<section class="replay-toolbar" aria-label="リプレイ再生コントロール"><div><p class="card-kicker">REPLAY</p><strong aria-live="polite">${replay.index} / ${replay.file.commands.length} 手</strong></div><button id="replay-toggle" class="end-turn" aria-label="${replay.playing ? 'リプレイを一時停止' : replay.index >= replay.file.commands.length ? 'リプレイを最初から再生' : 'リプレイを再生'}" ${replay.file.commands.length === 0 ? 'disabled' : ''}>${replay.playing ? '一時停止' : replay.index >= replay.file.commands.length ? 'もう一度再生' : '再生'}</button><button id="replay-step" class="save-action" ${replay.playing || replay.index >= replay.file.commands.length ? 'disabled' : ''}>1手送り</button><label class="replay-speed">速度<select id="replay-speed" aria-label="リプレイ再生速度">${COMMAND_SPEEDS.map(speed => `<option value="${speed}" ${speed === replay!.speed ? 'selected' : ''}>${speed}x</option>`).join('')}</select></label>${renderReplayNavigation(replay.index, replay.file.commands.length, replay.viewpoint, replay.timeline)}<button id="replay-exit" class="save-action">リプレイを終了</button></section>` : ''}
-    ${concealed ? '' : `<section class="battle-layout"><div class="battlefield-wrap ${mapTheme}"><div class="battlefield-heading"><div><p>OPERATION MAP</p><h2>${escapeHtml(renderedMap.name)}</h2></div><p class="status-message" aria-live="polite">${escapeHtml(message)}</p></div><p id="board-instructions" class="board-instructions">盤面では矢印キーでマスを移動し、Enter または Space で選択・行動、Esc で選択を解除できます。敵部隊を選択またはフォーカスすると、移動範囲と攻撃危険域を確認できます。N キーで次の未行動部隊へ移動します。</p>${spectateCameraControls}${turnStatus}<div class="battlefield-stage">${unitBriefPanel}${evacuationAction}<div id="board-viewport" class="board-viewport" tabindex="0" aria-label="盤面スクロール領域" style="max-height:min(70vh, ${boardViewportHeight}px)"><div class="board" role="group" aria-label="${escapeHtml(renderedMap.name)}の戦術マップ" aria-describedby="board-instructions" style="grid-template-columns:repeat(${renderedGame.board.width},${tileSize}px);grid-template-rows:repeat(${renderedGame.board.height},${tileSize}px);aspect-ratio:${renderedGame.board.width} / ${renderedGame.board.height}">${board}</div></div></div>${boardZoomControls}<div class="board-production-controls">${productionLauncher}</div><div class="map-legend" aria-label="マップ凡例"><span><i class="legend-dot reachable-dot" aria-hidden="true">移</i>移動可能</span><span><i class="legend-dot danger-dot" aria-hidden="true">危</i>敵の攻撃危険域</span><span><i class="legend-dot enemy-move-dot" aria-hidden="true">敵移</i>選択敵の移動範囲</span>${wholeBoardShown ? '' : '<span><i class="legend-dot fog-dot" aria-hidden="true">?</i>未索敵</span>'}<span><i class="legend-unit ${me}-dot" aria-hidden="true">自</i>自軍${matchMode === 'cpu' ? '' : `（${sideName(matchMode, me)}）`}</span><span><i class="legend-unit ${foe}-dot" aria-hidden="true">敵</i>敵軍${matchMode === 'cpu' ? '' : `（${sideName(matchMode, foe)}）`}</span><span><i class="legend-facility" aria-hidden="true">拠</i>拠点（市・工・空・港・司）</span><span><i class="legend-dot facility-ready-dot" aria-hidden="true">産</i>生産可能</span></div>${tileInspectorPanel}</div>
+    ${concealed ? '' : `<section class="battle-layout"><div class="battlefield-wrap ${mapTheme}"><div class="battlefield-heading"><div><p>OPERATION MAP</p><h2>${escapeHtml(renderedMap.name)}</h2></div><p class="status-message" aria-live="polite">${escapeHtml(message)}</p></div><p id="board-instructions" class="board-instructions">盤面では矢印キーでマスを移動し、Enter または Space で選択・行動、Esc で選択を解除できます。敵部隊を選択またはフォーカスすると、移動範囲と攻撃危険域を確認できます。N キーで次の未行動部隊へ移動します。</p>${spectateCameraControls}${turnStatus}<div class="battlefield-stage">${unitBriefPanel}${evacuationAction}<div id="board-viewport" class="board-viewport" tabindex="0" aria-label="盤面スクロール領域" style="max-height:min(70vh, ${boardViewportHeight}px)"><div class="board" role="group" aria-label="${escapeHtml(renderedMap.name)}の戦術マップ" aria-describedby="board-instructions" style="grid-template-columns:repeat(${renderedGame.board.width},${tileSize}px);grid-template-rows:repeat(${renderedGame.board.height},${tileSize}px);aspect-ratio:${renderedGame.board.width} / ${renderedGame.board.height}">${board}</div></div></div>${boardZoomControls}<div class="board-production-controls">${productionLauncher}</div><div class="map-legend" aria-label="マップ凡例"><span><i class="legend-dot reachable-dot" aria-hidden="true">移</i>移動可能</span><span><i class="legend-dot danger-dot" aria-hidden="true">危</i>敵の攻撃危険域</span><span><i class="legend-dot enemy-move-dot" aria-hidden="true">敵移</i>選択敵の移動範囲</span>${wholeBoardShown ? '' : '<span><i class="legend-dot fog-dot" aria-hidden="true">?</i>未索敵</span>'}<span><i class="legend-unit ${me}-dot" aria-hidden="true">自</i>自軍${matchMode === 'cpu' ? '' : `（${sideName(matchMode, me)}）`}</span><span><i class="legend-unit ${foe}-dot" aria-hidden="true">敵</i>敵軍${matchMode === 'cpu' ? '' : `（${sideName(matchMode, foe)}）`}</span><span><i class="legend-facility" aria-hidden="true">拠</i>拠点（市・工・空・港・司）</span><span><i class="legend-dot facility-ready-dot" aria-hidden="true">産</i>生産可能</span></div>${tileInspectorPanel}${reconPanel}${analysisPanel}</div>
     <aside id="command-panel" class="command-panel" aria-label="作戦情報" tabindex="-1">${objectivePanel}${unitQueuePanel}${selectedUnitActions}${cpuActivityPanel}<section class="commander-card ${renderedGame.activePlayer}"><img src="${commander.image}" alt="${commander.alt}" width="512" height="768" loading="lazy" decoding="async"><div><p>COMMANDER</p><h2>${commander.title}</h2><span>${commander.label}</span></div></section>${renderLearning(renderedGame, me, commandHistory, learningOpen)}${transportAction}${forecastCard}<section class="intel-card"><p class="card-kicker">RESOURCES</p><div class="resource-row"><span>自軍資金</span><strong>${renderedGame.players[me].gold}<small>G</small></strong></div><div class="resource-row enemy"><span>敵軍資金</span><strong>${wholeBoardShown ? renderedGame.players[foe].gold : '不明'}<small>G</small></strong></div></section><section class="intel-card"><p class="card-kicker">RECON</p><div class="recon-count"><strong>${renderedGame.units.filter(unit => unit.owner === foe && isDeployedUnit(unit) && visible.has(key(unit.position))).length}</strong><span>確認済み敵部隊</span></div></section>${renderProductionCard(productionTargetLine, productionSummary, production)}${turnSetting}${saveSlotManager}<p class="command-tip">歩兵は中立・敵軍の都市、工場、空港、港湾、司令部で<strong>占領</strong>できます。生産先は盤面の空き「産」マスを選び、工場・空港・港湾から対応する部隊を生産します。輸送艦は歩兵を1部隊搭載し、別の島へ上陸させられます。</p></aside>
   </section>${mobileActionBar}`}</main>${gameOverOverlay}${briefing}${titleOverlay}${campaignOverlay}${editorOverlay}${concealed ? renderHandoffOverlay(sideName('hotseat', renderedGame.activePlayer)) : ''}${activeTacticalScene ? ('attacker' in activeTacticalScene ? renderBattleScene(activeTacticalScene) : renderActionScene(activeTacticalScene)) : ''}${productionOverlay}`;
   document.body.classList.toggle('production-menu-open', Boolean(productionOverlay));
@@ -1105,6 +1144,63 @@ function render(): void {
   }
   // Board commands need the side on the device to be active; menus and the result
   // screen stay usable after the match ends, whoever's turn it was.
+  app.querySelector<HTMLDetailsElement>('#recon-history')?.addEventListener('toggle', event => { reconOpen = (event.currentTarget as HTMLDetailsElement).open; });
+  app.querySelector<HTMLDetailsElement>('#battle-analysis')?.addEventListener('toggle', event => { analysisOpen = (event.currentTarget as HTMLDetailsElement).open; });
+  app.querySelector<HTMLDetailsElement>('#title-generator')?.addEventListener('toggle', event => { generatorOpen = (event.currentTarget as HTMLDetailsElement).open; });
+  app.querySelector<HTMLInputElement>('#recon-markers')?.addEventListener('change', event => { showReconMarkers = (event.currentTarget as HTMLInputElement).checked; reconOpen = true; focusSelector = '#recon-markers'; render(); });
+  app.querySelector<HTMLSelectElement>('#analysis-metric')?.addEventListener('change', event => {
+    const value = (event.currentTarget as HTMLSelectElement).value;
+    const metric = ANALYSIS_METRICS.find(candidate => candidate === value);
+    if (!metric) return;
+    analysisMetric = metric; analysisOpen = true; focusSelector = '#analysis-metric'; render();
+  });
+  app.querySelectorAll<HTMLButtonElement>('[data-recon-x]').forEach(button => button.addEventListener('click', () => {
+    const position = { x: Number(button.dataset.reconX), y: Number(button.dataset.reconY) };
+    if (!Number.isInteger(position.x) || !Number.isInteger(position.y) || position.x < 0 || position.y < 0 || position.x >= renderedGame.board.width || position.y >= renderedGame.board.height) return;
+    focusedPosition = position; centerBoardOnPosition(app, position); refreshFocusedTileViews();
+  }));
+  app.querySelector<HTMLSelectElement>('#title-generator-size')?.addEventListener('change', event => { generatorForm.size = Number((event.currentTarget as HTMLSelectElement).value); });
+  app.querySelector<HTMLSelectElement>('#title-generator-sea')?.addEventListener('change', event => { generatorForm.sea = (event.currentTarget as HTMLSelectElement).value; });
+  app.querySelector<HTMLButtonElement>('#title-generator-create')?.addEventListener('click', () => {
+    if (!screens.titleOpen || !confirmReplaceMatch()) return;
+    generatorOpen = true;
+    const generated = generateSymmetricMap(generatorForm);
+    if (!generated.ok) { generatorNotice = generated.error; focusSelector = '#title-generator-seed'; render(); return; }
+    const saved = saveCustomScenario(localStorage, scenarioDefinitionToData(generated.value));
+    if (!saved.ok) { generatorNotice = saved.error; focusSelector = '#title-generator-create'; render(); return; }
+    generatorNotice = ''; leaveTitle(); campaignRun = undefined; campaignOutcome = undefined;
+    resetGame(saved.value.id, saved.value); render();
+  });
+  app.querySelectorAll<HTMLButtonElement>('[data-preset-action]').forEach(button => button.addEventListener('click', () => {
+    if (!screens.briefingOpen || !deploymentBase) return;
+    const player = button.dataset.presetPlayer;
+    const slot = Number(button.dataset.presetSlot);
+    if ((player !== 'red' && player !== 'blue') || (player === 'blue' && matchMode === 'cpu') || !Number.isInteger(slot) || slot < 0 || slot > 2) return;
+    const action = button.dataset.presetAction;
+    const loaded = loadDeploymentPresets(localStorage);
+    if (!loaded.ok) { presetCatalog = undefined; presetNotice = loaded.error; deploymentOpen = true; focusSelector = `#briefing-presets-${player}-reset`; render(); return; }
+    presetCatalog = loaded.value;
+    if (action === 'apply') {
+      const preset = presetCatalog.presets.find(entry => entry.scenarioId === deploymentBase!.id && entry.player === player && entry.slot === slot);
+      if (!preset) return;
+      const result = applyDeploymentPreset(deploymentBase, player, preset);
+      if (result.ok) { deploymentChoices[player] = result.value; presetNotice = `「${preset.name}」を適用しました。`; deploymentNotice = ''; }
+      else presetNotice = result.error;
+    } else if (action === 'save' || action === 'delete') {
+      const name = app.querySelector<HTMLInputElement>(`#briefing-preset-${player}-${slot}-name`)?.value ?? '';
+      const result = action === 'save' ? saveDeploymentPreset(localStorage, deploymentBase, player, slot, name, deploymentChoices[player]) : deleteDeploymentPreset(localStorage, deploymentBase.id, player, slot);
+      if (result.ok) { presetCatalog = result.value; presetNotice = action === 'save' ? '編成プリセットを保存しました。' : '編成プリセットを削除しました。'; delete presetDraftNames[presetNameKey(player, slot)]; }
+      else presetNotice = result.error;
+    }
+    deploymentOpen = true; focusSelector = action === 'delete' ? `#briefing-preset-${player}-${slot}-save` : `#${button.id}`; render();
+  }));
+  app.querySelectorAll<HTMLButtonElement>('[data-presets-reset]').forEach(button => button.addEventListener('click', () => {
+    if (!window.confirm('編成プリセットの保存データを初期化しますか？必要なら先にバックアップしてください。')) return;
+    const result = resetDeploymentPresets(localStorage);
+    if (result.ok) { presetCatalog = result.value; presetNotice = '編成プリセットを初期化しました。'; presetDraftNames = {}; }
+    else presetNotice = result.error;
+    deploymentOpen = true; focusSelector = '#briefing-deployment-reset'; render();
+  }));
   app.querySelector<HTMLDetailsElement>('#learning-panel')?.addEventListener('toggle', event => { learningOpen = (event.currentTarget as HTMLDetailsElement).open; });
   app.querySelector('#title-training')?.addEventListener('click', () => {
     if (!confirmReplaceMatch()) return;
@@ -1138,6 +1234,10 @@ function render(): void {
     const restored = restoreBackup(localStorage, preview.value);
     if (restored.ok) {
       loadCustomScenarios(localStorage);
+      const restoredPresets = loadDeploymentPresets(localStorage);
+      presetCatalog = restoredPresets.ok ? restoredPresets.value : undefined;
+      presetNotice = restoredPresets.ok ? '' : restoredPresets.error;
+      presetDraftNames = {};
       const progress = loadCampaignProgress(localStorage);
       if (progress.ok) campaignProgress = progress.value;
       soundSettings = loadSoundSettings(localStorage); soundPlayer.setSettings(soundSettings); musicSettings = loadMusicSettings(localStorage); musicPlayer.setSettings(musicSettings);
