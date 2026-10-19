@@ -7,13 +7,14 @@ import { canProduceUnit, isPropertyTerrainKind, productionKindsForRule, unitLimi
 import { visibleEnemies as getVisibleEnemies } from '../game/fog';
 import { scenarioForState, type EvacuationCondition } from '../game/maps';
 import { manhattanDistance, movementCost, terrainAt } from '../game/terrain';
-import { isDeployedUnit, usesDecisionRules, usesOperationsRules, usesModernRules, type Board, type DeployedUnit, type GameState, type PlayerId, type Position, type Unit, type UnitKind } from '../game/types';
+import { isDeployedUnit, usesDecisionRules, usesOperationsRules, usesModernRules, usesReconRules, type Board, type DeployedUnit, type GameState, type PlayerId, type Position, type Unit, type UnitKind } from '../game/types';
 import { adjacentToSupplyUnit, isGroundUnit, isServiceTile, REPAIR_HP_PER_TURN } from '../game/logistics';
 import { isEmbarkableUnit, isMergeableUnit, isSupplyUnit, remainingAmmo, unitCategory, unitStats } from '../game/units';
 import { coordinatedOrder, coordinationValue, cpuRole, isPriorityTarget, transportSafeAt } from './coordination';
 import { canEvacuateUnit, evacuationObjectives, isEvacuationTarget } from '../game/evacuation';
 import { isEvacuationCondition } from '../game/maps';
 import { bluePlanningState, rotatePosition } from './perspective';
+import { chooseReconCenter } from './recon';
 
 // Production IDs interleave between armies. Numeric ordering preserves each
 // army's creation order instead of moving u10 ahead of u2.
@@ -71,6 +72,7 @@ export const cpuDifficultyConfig: Record<CpuDifficulty, CpuDifficultyConfig> = {
 export const MIN_CPU_FORCE = 4;
 
 export type CpuAction =
+  | { type: 'recon'; center: Position }
   | { type: 'capture'; unitId: string }
   | { type: 'attack'; unitId: string; targetId: string }
   | { type: 'merge'; unitId: string; targetId: string }
@@ -322,6 +324,11 @@ function productionAction(state: GameState, player: PlayerId, config: CpuDifficu
 function objectives(state: GameState, player: PlayerId, config: CpuDifficultyConfig, visibleEnemies: readonly Unit[]): Position[] {
   const scenario = scenarioForState(state);
   const conditions = player === 'red' ? scenario?.victoryConditions : scenario?.defeatConditions;
+  const controlTargets = conditions?.flatMap(condition => condition.type === 'control' ? condition.positions : []) ?? [];
+  if (controlTargets.length) {
+    const unowned = controlTargets.filter(p => terrainAt(state.board, p)?.owner !== player);
+    return unowned.length ? unowned : controlTargets;
+  }
   const holdTargets = conditions?.flatMap(condition => condition.type === 'hold' ? condition.positions : []) ?? [];
   if (holdTargets.length) return holdTargets;
   const ownExits = evacuationObjectives(state, player).flatMap(condition => condition.positions);
@@ -488,7 +495,8 @@ export function evaluateCpuPosition(
   const scenario = scenarioForState(state);
   const conditions = player === 'red' ? scenario?.victoryConditions : scenario?.defeatConditions;
   const holding = conditions?.find(condition => condition.type === 'hold' && condition.positions.some(p => p.x === destination.x && p.y === destination.y));
-  const mustCapture = terrain.owner !== player && (holding?.type === 'hold' && holding.requireOwnership
+  const controlled = conditions?.some(condition => condition.type === 'control' && condition.positions.some(p => p.x === destination.x && p.y === destination.y));
+  const mustCapture = terrain.owner !== player && (controlled || holding?.type === 'hold' && holding.requireOwnership
     || terrain.kind === 'capital' && terrain.owner !== undefined && conditions?.some(condition => condition.type === 'captureCapital'));
   // Occupying an enemy objective with armour/aircraft prevents our infantry
   // from capturing it. This applies to damaged units too: it is not a service tile.
@@ -500,7 +508,8 @@ export function evaluateCpuPosition(
   const score = conditions?.some(condition => condition.type === 'score') && isPropertyTerrainKind(terrain.kind) && terrain.owner !== player && unitStats[unit.kind].capturePower > 0 ? 35 : 0;
   // Healthy combat units leave uncaptured facilities open for the infantry.
   const captureLane = unit.hp > 50 && unitStats[unit.kind].capturePower === 0 && isPropertyTerrainKind(terrain.kind) && terrain.owner !== player ? 30 : 0;
-  return coordinationValue(state, player, unit, destination, targets) + defense + supply + response + retreatCover + logistics + hold + contest + score + firePosition
+  const control = controlled ? terrain.owner === player ? 20 : unitStats[unit.kind].capturePower > 0 ? 110 : -80 : 0;
+  return coordinationValue(state, player, unit, destination, targets) + defense + supply + response + retreatCover + logistics + hold + contest + score + control + firePosition
     - (criticalSupply && serviceDistance !== undefined ? serviceDistance : distance) * config.objectiveDistanceWeight
     - pressure * config.threatAvoidanceWeight * (1 - stalemateRelief(state))
     - retreatPressure
@@ -779,6 +788,7 @@ export function chooseCpuAction(state: GameState, difficulty: CpuDifficulty = 'n
   if (player !== 'blue') return action;
   if (action.type === 'move' || action.type === 'disembark') return { ...action, destination: rotatePosition(action.destination, state.board) };
   if (action.type === 'produce') return { ...action, factory: rotatePosition(action.factory, state.board) };
+  if (action.type === 'recon') return { ...action, center: rotatePosition(action.center, state.board) };
   return action;
 }
 
@@ -839,9 +849,20 @@ function evacuationAction(state: GameState, player: PlayerId, config: CpuDifficu
     if (escape) return escape;
     const destination = [unit.position, ...reachablePositionsForPlayer(state, unit.id, player)]
       .filter(position => transportSafeAt(state, unit, position, context.visibleEnemies))
-      .map(position => ({ position, score: evaluateCpuPosition(state, player, unit, position, condition.positions, config, context.visibleEnemies) }))
+      .map(position => ({ position, score: evaluateCpuPosition(state, player, unit, position, condition.positions, config, context.visibleEnemies)
+        // Under v7, new sight must not tempt withdrawing units into firing or service positions away from their exit.
+        - (usesReconRules(state) ? Math.min(...condition.positions.map(exit => manhattanDistance(position, exit))) * 100 : 0) }))
       .sort((a, b) => b.score - a.score || a.position.y - b.position.y || a.position.x - b.position.x)[0]?.position;
     if (destination && (destination.x !== unit.position.x || destination.y !== unit.position.y)) return { type: 'move', unitId: unit.id, destination };
+    if (usesReconRules(state)) {
+      const exitDistance = (p: Position) => Math.min(...condition.positions.map(exit => manhattanDistance(p, exit)));
+      const blocker = orderedUnits(state, player).find(ally => ally.id !== unit.id && !ally.hasMoved && !ally.hasActed
+        && isAdjacent(ally.position, unit.position) && exitDistance(ally.position) < exitDistance(unit.position));
+      if (blocker) {
+        const clear = clearCaptureLane(state, player, blocker, orderedUnits(state, player));
+        if (clear) return clear;
+      }
+    }
   }
   return undefined;
 }
@@ -874,6 +895,8 @@ function chooseOrientedCpuAction(state: GameState, difficulty: CpuDifficulty, pl
     && manhattanDistance(ally.position, unit.position) <= unitStats[ally.kind].movement);
   const capture = readyUnits.find(unit => !isEvacuationTarget(state, unit.id, player) && canCapture(state, unit) && (unit.hp >= 35 || !replacementFor(unit)));
   if (capture) return { type: 'capture', unitId: capture.id };
+  const scan = chooseReconCenter(state, player);
+  if (scan) return { type: 'recon', center: scan };
   const context = createCpuPlanningContext(state, player, config);
   const evacuation = evacuationAction(state, player, config, context);
   if (evacuation) return evacuation;

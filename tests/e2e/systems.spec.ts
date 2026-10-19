@@ -40,7 +40,7 @@ for (const viewport of [
     expect(state.initialState.units.find((unit) => unit.id === 'r3')?.kind).toBe('infantry');
     expect(state.initialState.board.width).toBe(16);
     await page.reload();
-    await page.locator(`.title-map-card[data-map-id="generated-v1-16-ocean-browser-${viewport.width}"]`).click();
+    await page.locator(`.title-map-card[data-map-id="generated-v2-16-ocean-browser-${viewport.width}"]`).click();
     await page.locator('#briefing-deployment summary').click();
     await expect(page.locator('#briefing-preset-red-0-name')).toHaveValue('機動部隊');
     await page.locator('#briefing-preset-red-0-apply').click();

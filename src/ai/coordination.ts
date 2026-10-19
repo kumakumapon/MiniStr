@@ -51,7 +51,9 @@ function missionPlan(state: GameState, player: PlayerId): MissionPlan {
     missionIds: new Set(objectives.flatMap((condition) => condition.unitIds)),
     protectedIds: new Set(objectives.filter((condition) => condition.type === 'escort').flatMap((condition) => condition.unitIds)),
     exits,
-    objectivePositions: new Set(own.flatMap((condition) => (condition.type === 'hold' || isEvacuationCondition(condition) ? condition.positions.map(positionKey) : []))),
+    objectivePositions: new Set(
+      own.flatMap((condition) => (condition.type === 'hold' || condition.type === 'control' || isEvacuationCondition(condition) ? condition.positions.map(positionKey) : [])),
+    ),
     opposingIds: new Set(opposing.filter(isEvacuationCondition).flatMap((condition) => condition.unitIds)),
   };
   players.set(player, plan);

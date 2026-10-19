@@ -1,5 +1,6 @@
 import { manhattanDistance } from './terrain';
 import { unitStats } from './units';
+import { reconPositions } from './recon';
 import { isDeployedUnit, type GameState, type PlayerId, type Position, type Unit } from './types';
 
 /** Coordinates currently visible to a player.  This is kept separate from UI so AI and rendering agree. */
@@ -13,6 +14,7 @@ export function visiblePositions(state: GameState, player: PlayerId): Position[]
       if (manhattanDistance(unit.position, position) <= range) visible.set(`${x},${y}`, position);
     }
   }
+  for (const position of reconPositions(state, player)) visible.set(`${position.x},${position.y}`, position);
   return [...visible.values()];
 }
 

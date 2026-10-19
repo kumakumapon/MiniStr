@@ -9,6 +9,8 @@ import { evacuationObjectives } from './evacuation';
 import { isEvacuationCondition } from './maps';
 import type { WeaponSlot } from './units';
 import { parseBoundedJson } from './jsonBoundary';
+import { scanArea, validRecon } from './recon';
+import { usesReconRules } from './types';
 
 /**
  * Schema v3 adds the explicit `wait` command. Malformed cargo is rejected
@@ -24,6 +26,7 @@ export const MAX_SAVE_SLOTS = 12;
 export const STORAGE_WARNING_BYTES = 4_000_000;
 
 export type GameCommand =
+  | { type: 'recon'; center: Position }
   | { type: 'move'; unitId: string; destination: Position }
   | { type: 'wait'; unitId: string }
   | { type: 'evacuate'; unitId: string }
@@ -128,6 +131,7 @@ export interface StorageLike {
 
 export function applyGameCommand(state: GameState, command: GameCommand): GameResult {
   switch (command.type) {
+    case 'recon': return scanArea(state, command.center);
     case 'move': return moveUnit(state, command.unitId, command.destination);
     case 'wait': return waitUnit(state, command.unitId);
     case 'evacuate': return evacuateUnit(state, command.unitId);
@@ -230,6 +234,7 @@ export function matchesScenarioInitialState(value: unknown, scenario: ScenarioDe
 export function isGameCommand(value: unknown): value is GameCommand {
   if (!isRecord(value) || typeof value.type !== 'string') return false;
   if (value.type === 'endTurn') return true;
+  if (value.type === 'recon') return isPosition(value.center) && Object.keys(value).sort().join() === 'center,type';
   if (value.type === 'move') return typeof value.unitId === 'string' && isPosition(value.destination);
   if (value.type === 'wait' || value.type === 'evacuate') return typeof value.unitId === 'string';
   if (value.type === 'attack') return typeof value.unitId === 'string' && typeof value.targetId === 'string'
@@ -323,6 +328,10 @@ export function isGameState(value: unknown): value is GameState {
     && (value.winner === undefined || players.has(value.winner as string))
     && (value.scenarioId === undefined ? value.scenarioSnapshot === undefined
       : typeof value.scenarioId === 'string' && scenarioForState(value as unknown as GameState) !== undefined)
+    && validRecon(value as unknown as GameState)
+    && (value.controlScores === undefined || usesReconRules(value as unknown as GameState) && !!scenario?.victoryConditions.some(condition => condition.type === 'control')
+      && isScenarioScores(value.controlScores) && Object.values(value.controlScores as Record<string, number>).every(Number.isSafeInteger))
+    && (usesReconRules(value as unknown as GameState) || !scenario?.victoryConditions.some(condition => condition.type === 'control'))
     && (value.scores === undefined || isScenarioScores(value.scores))
     && (value.objectiveHoldTurns === undefined || isHoldProgress(value.objectiveHoldTurns));
 }

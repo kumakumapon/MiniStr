@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { GENERATED_SEAS, GENERATED_SIZES, generateSymmetricMap, inspectGeneratedMap } from './mapGenerator';
-import { createScenarioInitialState, scenarioDefinitionToData } from './maps';
+import { GENERATED_SEAS, GENERATED_SIZES, generateSymmetricMap, generateSymmetricMapV1, generatedBattleSeed, inspectGeneratedMap } from './mapGenerator';
+import { createScenarioInitialState, loadScenarioDefinitions, scenarioDefinitionToData } from './maps';
 import { parseSavedGame, saveGame } from './session';
 import { valueOf } from './operations.fixture';
 
@@ -63,5 +63,40 @@ describe('symmetric map generation', () => {
     );
     for (const row of broken.board.terrain) for (const tile of row) if (tile.kind === 'capital') tile.kind = 'plain';
     expect(inspectGeneratedMap(broken)).toContain('両軍の司令部が必要です。');
+  });
+});
+
+describe('generated battle streams and old snapshots', () => {
+  it('retains V1 definitions and independently reproduces V2 terrain and combat seeds', () => {
+    const options = { size: 16 as const, sea: 'coast' as const, seed: 'legacy-stream' };
+    const old = valueOf(generateSymmetricMapV1(options)),
+      current = valueOf(generateSymmetricMap(options));
+    expect(old.id).toContain('generated-v1-');
+    expect(current.id).toContain('generated-v2-');
+    expect(current.board).toEqual(old.board);
+    expect(current.initialUnits).toEqual(old.initialUnits);
+    expect(createScenarioInitialState(old).rngSeed).toBe(1);
+    expect(createScenarioInitialState(current).rngSeed).toBe(generatedBattleSeed(options));
+    expect(generatedBattleSeed({ ...options, seed: 'other-stream' })).not.toBe(current.battleSeed);
+    const oldState = { ...createScenarioInitialState(old), ruleVersion: 6 as const };
+    const saved = valueOf(
+      saveGame({ getItem: () => null, setItem: () => {}, removeItem: () => {} }, 'old-map', {
+        mapId: old.id,
+        difficulty: 'normal',
+        initialState: oldState,
+        gameState: oldState,
+        commands: [],
+      }),
+    );
+    expect(valueOf(parseSavedGame(JSON.stringify(saved))).gameState).toEqual(oldState);
+  });
+  it('validates and exports the full unsigned battle seed range', () => {
+    const data = scenarioDefinitionToData(valueOf(generateSymmetricMap({ size: 16, sea: 'none', seed: 'range' })));
+    for (const battleSeed of [-1, 0x1_0000_0000, 1.5, null, '1']) expect(loadScenarioDefinitions([{ ...data, battleSeed }]).ok).toBe(false);
+    for (const battleSeed of [0, 0xffff_ffff]) {
+      const scenario = valueOf(loadScenarioDefinitions([{ ...data, battleSeed }]))[0]!;
+      expect(createScenarioInitialState(scenario).rngSeed).toBe(battleSeed);
+      expect(scenarioDefinitionToData(scenario).battleSeed).toBe(battleSeed);
+    }
   });
 });
