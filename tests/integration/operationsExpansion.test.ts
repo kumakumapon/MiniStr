@@ -85,7 +85,7 @@ describe('distributed recon, control and operation records', () => {
     expect(dom.window.localStorage.getItem(OPERATION_RECORDS_KEY)).toBeNull();
   });
   it('records completed human operations idempotently and presents conditions and challenge results', () => {
-    let document = launch({ [MANUAL_SAVE_KEY]: finishedDefense().serialized });
+    const document = launch({ [MANUAL_SAVE_KEY]: finishedDefense().serialized });
     click('.load-save-slot[data-save-slot="manual"]');
     expect(document.querySelector('.game-over .operation-challenges')?.textContent).toContain('達成');
     const first = dom.window.localStorage.getItem(OPERATION_RECORDS_KEY)!;
@@ -96,7 +96,7 @@ describe('distributed recon, control and operation records', () => {
     expect(document.querySelector('#operation-records')?.textContent).toContain('標準編成');
     const values = stored();
     dom.window.close();
-    document = launch(values);
+    launch(values);
     click('.load-save-slot[data-save-slot="manual"]');
     expect(dom.window.localStorage.getItem(OPERATION_RECORDS_KEY)).toBe(first);
     click('#view-replay');
@@ -108,7 +108,7 @@ describe('distributed recon, control and operation records', () => {
   });
   it('recovers corrupt records without deleting matches and supports per-condition deletion', () => {
     const save = finishedDefense().serialized;
-    let document = launch({ [MANUAL_SAVE_KEY]: save, [OPERATION_RECORDS_KEY]: '{broken' });
+    const document = launch({ [MANUAL_SAVE_KEY]: save, [OPERATION_RECORDS_KEY]: '{broken' });
     expect(document.querySelector('#operation-records [role=alert]')).not.toBeNull();
     click('#operation-records-reset');
     expect(dom.window.localStorage.getItem(MANUAL_SAVE_KEY)).toBe(save);
@@ -118,7 +118,7 @@ describe('distributed recon, control and operation records', () => {
     expect(JSON.parse(dom.window.localStorage.getItem(OPERATION_RECORDS_KEY)!).records).toEqual([]);
     expect(document.querySelector('#operation-records')?.textContent).toContain('まだありません');
     dom.window.close();
-    document = launch({ [MANUAL_SAVE_KEY]: finishedDefense('hotseat').serialized });
+    launch({ [MANUAL_SAVE_KEY]: finishedDefense('hotseat').serialized });
     click('.load-save-slot[data-save-slot="manual"]');
     expect(dom.window.localStorage.getItem(OPERATION_RECORDS_KEY)).toBeNull();
   });
