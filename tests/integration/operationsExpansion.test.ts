@@ -48,6 +48,7 @@ describe('distributed recon, control and operation records', () => {
     click('#editor-import');
     click('#editor-start');
     click('#begin-operation');
+    expect(document.querySelector('#unit-brief')?.nextElementSibling?.id).toBe('board-viewport');
     expect(document.querySelector('.tile[data-x="7"][data-y="2"] .unit')).toBeNull();
     click('#recon-target');
     dom.window.dispatchEvent(new dom.window.KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
