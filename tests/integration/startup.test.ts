@@ -123,7 +123,7 @@ describe('distributed application boundaries', () => {
     }
     dom.window.close();
     document = launch({ storage });
-    click('.title-map-card[data-map-id="generated-v1-16-ocean-distributed-1"]');
+    click('.title-map-card[data-map-id="generated-v2-16-ocean-distributed-1"]');
     expect(document.querySelector<HTMLInputElement>('#briefing-preset-red-0-name')?.value).toBe('機動部隊');
     click('#briefing-preset-red-0-apply');
     expect(document.querySelector<HTMLSelectElement>('#briefing-deployment-red-2')?.value).toBe('infantry');

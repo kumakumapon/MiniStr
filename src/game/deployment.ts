@@ -59,7 +59,9 @@ export function createDeploymentScenario(
     slots.filter((slot) => unitStats[slot.kind].capturePower > 0).length,
     Math.max(
       0,
-      ...conditions.map((condition) => (condition.type === 'captureCapital' ? 1 : condition.type === 'hold' && condition.requireOwnership ? condition.positions.length : 0)),
+      ...conditions.map((condition) =>
+        condition.type === 'captureCapital' ? 1 : condition.type === 'control' || (condition.type === 'hold' && condition.requireOwnership) ? condition.positions.length : 0,
+      ),
     ),
   );
   if (selected.filter((kind) => unitStats[kind].capturePower > 0).length < requiredCapturers)

@@ -65,6 +65,10 @@ export interface GameState {
   scenarioSnapshot?: ScenarioData;
   /** Scenario-defined score; absent values are treated as zero. */
   scores?: Partial<Record<PlayerId, number>>;
+  /** Rule v7: points from ownership of the public control objectives. */
+  controlScores?: Partial<Record<PlayerId, number>>;
+  /** Rule v7: remaining army scans and the current player's temporary scan centers. */
+  recon?: { remaining: Record<PlayerId, number>; centers: Position[] };
   /** Consecutive completed turns for each hold-condition key. */
   objectiveHoldTurns?: Partial<Record<PlayerId, Record<string, number>>>;
   /** State for the deterministic LCG consumed by commands that resolve random outcomes. */
@@ -92,9 +96,11 @@ export const DUAL_WEAPON_RULE_VERSION = 5 as const;
 /** Escort/withdrawal objectives, explicit evacuation and coordinated CPU operations. */
 export const OPERATIONS_RULE_VERSION = 6 as const;
 /** Rule version assigned to newly started scenario matches. */
-export const CURRENT_RULE_VERSION = OPERATIONS_RULE_VERSION;
-export type RuleVersion = typeof MODERN_RULE_VERSION | typeof DECISION_RULE_VERSION | typeof BALANCED_RULE_VERSION | typeof DUAL_WEAPON_RULE_VERSION | typeof OPERATIONS_RULE_VERSION;
-export const ruleVersions: readonly RuleVersion[] = [MODERN_RULE_VERSION, DECISION_RULE_VERSION, BALANCED_RULE_VERSION, DUAL_WEAPON_RULE_VERSION, OPERATIONS_RULE_VERSION];
+export const RECON_CONTROL_RULE_VERSION = 7 as const;
+export const CURRENT_RULE_VERSION = RECON_CONTROL_RULE_VERSION;
+export type RuleVersion = typeof MODERN_RULE_VERSION | typeof DECISION_RULE_VERSION | typeof BALANCED_RULE_VERSION | typeof DUAL_WEAPON_RULE_VERSION | typeof OPERATIONS_RULE_VERSION | typeof RECON_CONTROL_RULE_VERSION;
+export const ruleVersions: readonly RuleVersion[] = [MODERN_RULE_VERSION, DECISION_RULE_VERSION, BALANCED_RULE_VERSION, DUAL_WEAPON_RULE_VERSION, OPERATIONS_RULE_VERSION, RECON_CONTROL_RULE_VERSION];
+export const usesReconRules = (state: Pick<GameState, 'ruleVersion'>): boolean => (state.ruleVersion ?? 0) >= RECON_CONTROL_RULE_VERSION;
 export const usesOperationsRules = (state: Pick<GameState, 'ruleVersion'>): boolean => (state.ruleVersion ?? 0) >= OPERATIONS_RULE_VERSION;
 export const usesDualWeapons = (state: Pick<GameState, 'ruleVersion'>): boolean => (state.ruleVersion ?? 0) >= DUAL_WEAPON_RULE_VERSION;
 

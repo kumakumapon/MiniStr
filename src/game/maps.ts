@@ -5,6 +5,7 @@ import { trainingData } from './training';
 import { expandedScenarioData } from './expandedMaps';
 import { specialOperationData } from './specialOperations';
 import { standaloneOperationData } from './standaloneOperations';
+import { controlOperationData } from './controlOperations';
 import { createBoard, createGameState, playerOwnedProperties } from './state';
 import { unitKindSet, unitStats } from './units';
 import { CURRENT_RULE_VERSION, terrainKindSet, type Board, type GameResult, type GameState, type PlayerId, type Position, type TerrainKind, type UnitKind } from './types';
@@ -20,6 +21,7 @@ export type VictoryCondition =
   | { type: 'hold'; positions: Position[]; turns: number; requireOwnership?: boolean; groundOnly?: boolean }
   | { type: 'survive'; untilTurn: number }
   | { type: 'score'; target: number }
+  | { type: 'control'; positions: Position[]; target: number }
   | { type: 'escort' | 'withdraw'; unitIds: string[]; positions: Position[]; required: number };
 export type EvacuationCondition = Extract<VictoryCondition, { type: 'escort' | 'withdraw' }>;
 export const isEvacuationCondition = (condition: VictoryCondition): condition is EvacuationCondition => condition.type === 'escort' || condition.type === 'withdraw';
@@ -30,6 +32,8 @@ export interface ScenarioDefinition extends MapDefinition {
   turnLimit?: number;
   /** Optional round-end decision timing; omission retains the historical 40-round rule. */
   decisionRound?: number;
+  /** Optional deterministic combat seed, frozen in the scenario snapshot. */
+  battleSeed?: number;
   /** Rules explicitly recorded by new scenario JSON; old JSON uses factory-air compatibility. */
   productionRules: ProductionRule;
 }
@@ -51,6 +55,8 @@ export interface ScenarioData {
   turnLimit?: number;
   /** Recorded in new match snapshots so later timing changes cannot alter existing matches. */
   decisionRound?: number;
+  /** Optional deterministic combat seed, frozen in the scenario snapshot. */
+  battleSeed?: number;
   theme?: ScenarioTheme;
   /** Optional for old custom JSON. Omission intentionally selects legacy factory air production. */
   productionRules?: ProductionRule;
@@ -93,6 +99,11 @@ const cloneJson = (value: unknown): GameResult<unknown> => {
 function parseVictoryCondition(value: unknown, width: number, height: number): VictoryCondition | undefined {
   if (!isRecord(value) || typeof value.type !== 'string') return undefined;
   if (value.type === 'eliminate' || value.type === 'captureCapital') return { type: value.type };
+  if (value.type === 'control') {
+    if (!isPositiveInteger(value.target) || value.target > 100_000) return undefined;
+    const hold = parseVictoryCondition({ type: 'hold', positions: value.positions, turns: 1 }, width, height);
+    return hold?.type === 'hold' ? { type: 'control', positions: hold.positions, target: value.target } : undefined;
+  }
   if (value.type === 'escort' || value.type === 'withdraw') {
     if (!Array.isArray(value.unitIds) || value.unitIds.length === 0 || value.unitIds.length > 64
       || !value.unitIds.every(id => typeof id === 'string' && /^[rb][1-9][0-9]{0,3}$/.test(id))
@@ -189,7 +200,7 @@ function parseScenario(value: unknown, ids: Set<string>, options: ScenarioLoadOp
     if (parsed.some(condition => condition && isEvacuationCondition(condition) && condition.unitIds.some(id =>
       !own.some((_, index) => id === `${player[0]}${index + 1}`))))
       return { ok: false, error: `シナリオ「${value.id}」の脱出対象は自軍の初期部隊IDで指定してください。` };
-    if (parsed.some(condition => condition?.type === 'hold' && condition.requireOwnership
+    if (parsed.some(condition => (condition?.type === 'control' || condition?.type === 'hold' && condition.requireOwnership)
       && condition.positions.some(position => !isPropertyTerrainKind(board.terrain[position.y]![position.x]!.kind))))
       return { ok: false, error: `シナリオ「${value.id}」の占領保持目標には拠点を指定してください。` };
     return parsed.every((condition): condition is VictoryCondition => condition !== undefined)
@@ -200,12 +211,21 @@ function parseScenario(value: unknown, ids: Set<string>, options: ScenarioLoadOp
   if (!victoryConditions.ok) return victoryConditions;
   const defeatConditions = parseConditions(value.defeatConditions, '敗北条件', 'blue');
   if (!defeatConditions.ok) return defeatConditions;
+  const controls = [...victoryConditions.value, ...defeatConditions.value].filter(condition => condition.type === 'control');
+  if (controls.length) {
+    const key = (condition: Extract<VictoryCondition, { type: 'control' }>) => `${condition.target}:${condition.positions.map(p => `${p.x},${p.y}`).sort().join('|')}`;
+    if (controls.length !== 2 || !victoryConditions.value.some(condition => condition.type === 'control') || !defeatConditions.value.some(condition => condition.type === 'control')
+      || key(controls[0]!) !== key(controls[1]!) || [...victoryConditions.value, ...defeatConditions.value].some(condition => condition.type === 'score'))
+      return { ok: false, error: '拠点支配戦には両軍共通の拠点・目標点を1組指定し、従来スコアと分けてください。' };
+  }
   const turnLimit = value.turnLimit;
   // turnLimit is retained as a UI-friendly shorthand for legacy data. Its
   // gameplay effect is normalized into blue's ordinary survive condition so
   // all results are resolved through the same condition evaluator.
   if (turnLimit !== undefined && (!isPositiveInteger(turnLimit) || turnLimit >= Number.MAX_SAFE_INTEGER))
     return { ok: false, error: `シナリオ「${value.id}」のターン制限が不正です。` };
+  const battleSeed = value.battleSeed;
+  if (battleSeed !== undefined && (!Number.isSafeInteger(battleSeed) || (battleSeed as number) < 0 || (battleSeed as number) > 0xffff_ffff)) return { ok: false, error: '戦闘seedが不正です。' };
   const decisionRound = value.decisionRound;
   if (decisionRound !== undefined && (!isPositiveInteger(decisionRound) || decisionRound >= Number.MAX_SAFE_INTEGER))
     return { ok: false, error: `シナリオ「${value.id}」の判定ラウンドが不正です。` };
@@ -216,7 +236,7 @@ function parseScenario(value: unknown, ids: Set<string>, options: ScenarioLoadOp
     : [...defeatConditions.value, { type: 'survive' as const, untilTurn: turnLimit + 1 }];
   ids.add(value.id);
   return { ok: true, value: { id: value.id, name: value.name, briefing: value.briefing, startingGold, firstPlayerBonus: firstPlayerBonus as number | undefined, secondPlayerBonus: secondPlayerBonus as number | undefined, board, initialUnits, victoryConditions: victoryConditions.value, defeatConditions: normalizedDefeatConditions, turnLimit,
-    ...(decisionRound === undefined ? {} : { decisionRound: decisionRound as number }), theme: theme as ScenarioTheme, productionRules: productionRules as ProductionRule } };
+    ...(decisionRound === undefined ? {} : { decisionRound: decisionRound as number }), ...(battleSeed === undefined ? {} : { battleSeed: battleSeed as number }), theme: theme as ScenarioTheme, productionRules: productionRules as ProductionRule } };
 }
 
 /** Converts JSON-compatible scenario data into safe board state. No validation is repeated on lookup. */
@@ -352,7 +372,7 @@ const builtInCatalog = createBuiltInScenarioCatalog(builtInScenarioData);
 
 /** Validated exactly once during module initialization. */
 export const maps: readonly ScenarioDefinition[] = builtInCatalog.scenarios;
-const operationLoad = loadScenarioDefinitions([...specialOperationData, ...standaloneOperationData], { defaultProductionRule });
+const operationLoad = loadScenarioDefinitions([...specialOperationData, ...standaloneOperationData, ...controlOperationData], { defaultProductionRule });
 if (!operationLoad.ok) throw new Error(`Operation definition is invalid: ${operationLoad.error}`);
 export const operationScenarios = operationLoad.value;
 /** Diagnostics for UI/telemetry; normal built-in data leaves this undefined. */
@@ -401,7 +421,7 @@ export function scenarioForState(state: Pick<GameState, 'scenarioId' | 'scenario
 
 /** The only valid turn-one state for a scenario, shared by runtime and persistence checks. */
 export function createScenarioInitialState(scenario: ScenarioDefinition): GameState {
-  const base = createGameState(scenario.board);
+  const base = createGameState(scenario.board, scenario.battleSeed ?? 1);
   const nextId: Record<PlayerId, number> = { red: 0, blue: 0 };
   // Red is the first player, so grant its opening income before the first
   // action. Blue receives the same income when red ends the turn; this keeps
@@ -447,7 +467,7 @@ export function scenarioDefinitionToData(scenario: ScenarioDefinition): Scenario
   return { id: scenario.id, name: scenario.name, briefing: scenario.briefing, startingGold: scenario.startingGold, firstPlayerBonus: scenario.firstPlayerBonus, secondPlayerBonus: scenario.secondPlayerBonus,
     board: { width: scenario.board.width, height: scenario.board.height, cells }, initialUnits: scenario.initialUnits.map(unit => ({ ...unit })),
     victoryConditions: scenario.victoryConditions.map(condition => structuredClone(condition)), defeatConditions: exportableDefeatConditions(scenario), turnLimit: scenario.turnLimit,
-    ...(scenario.decisionRound === undefined ? {} : { decisionRound: scenario.decisionRound }), theme: scenario.theme, productionRules: scenario.productionRules };
+    ...(scenario.decisionRound === undefined ? {} : { decisionRound: scenario.decisionRound }), ...(scenario.battleSeed === undefined ? {} : { battleSeed: scenario.battleSeed }), theme: scenario.theme, productionRules: scenario.productionRules };
 }
 
 function replaceCustomScenarios(scenarios: readonly ScenarioDefinition[]): void {

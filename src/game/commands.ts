@@ -12,6 +12,7 @@ import { decisionRound, decisionWinner, updateScenarioProgress, updateScenarioSc
 import { experienceAfterCombat } from './experience';
 import { applyModernUpkeep } from './logistics';
 import { canEvacuateUnit, isEvacuationTarget } from './evacuation';
+import { updateControlScores } from './control';
 import { BALANCED_RULE_VERSION, isDeployedUnit, otherPlayer, usesDecisionRules, usesModernRules, usesDualWeapons, type GameResult, type GameState, type PlayerId, type Position, type Unit, type UnitKind } from './types';
 
 const fail = <T = GameState>(error: string): GameResult<T> => ({ ok: false, error });
@@ -374,7 +375,8 @@ export function endTurn(state: GameState): GameState {
   if (state.winner) return state;
   const actor = state.activePlayer;
   const scenario = scenarioForState(state);
-  const progressed = scenario ? updateScenarioProgress(state, scenario, actor) : state;
+  const scored = scenario ? updateControlScores(state, scenario) : state;
+  const progressed = { ...(scenario ? updateScenarioProgress(scored, scenario, actor) : scored), ...(state.recon ? { recon: { remaining: { ...state.recon.remaining }, centers: [] } } : {}) };
   const activePlayer = otherPlayer(state.activePlayer);
   if (usesModernRules(state)) {
     // Modern order: income, fuel use, supply-vehicle resupply, paid repairs, then fuel exhaustion.

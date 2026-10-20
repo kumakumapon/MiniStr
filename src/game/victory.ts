@@ -1,6 +1,6 @@
 import { scenarioForState, type ScenarioDefinition, type VictoryCondition } from './maps';
 import { playerOwnedProperties } from './state';
-import { BALANCED_RULE_VERSION, isDeployedUnit, otherPlayer, usesDecisionRules, type GameState, type PlayerId, type Position } from './types';
+import { BALANCED_RULE_VERSION, isDeployedUnit, otherPlayer, usesDecisionRules, usesReconRules, type GameState, type PlayerId, type Position } from './types';
 import { unitCategory, unitStats } from './units';
 import { evacuationImpossible } from './evacuation';
 
@@ -64,6 +64,10 @@ export function getConditionProgress(state: GameState, condition: VictoryConditi
       current = state.scores?.[player] ?? 0;
       target = condition.target;
       break;
+    case 'control':
+      current = usesReconRules(state) ? state.controlScores?.[player] ?? 0 : 0;
+      target = condition.target;
+      break;
     case 'escort':
     case 'withdraw':
       current = (state.evacuatedUnits ?? []).filter(unit => unit.owner === player && condition.unitIds.includes(unit.id)).length;
@@ -84,6 +88,7 @@ export function describeVictoryCondition(condition: VictoryCondition): string {
     case 'hold': return `指定${condition.requireOwnership ? '拠点を占領し、' : '地点を'}${condition.groundOnly ? '地上部隊で' : ''}${condition.turns}ターン連続で保持する`;
     case 'survive': return `${condition.untilTurn}ターンまで生存する`;
     case 'score': return `スコア${condition.target}を獲得する`;
+    case 'control': return `指定拠点の所有でラウンド終了時に加点し、${condition.target}点に到達する`;
     case 'escort': return `護衛対象 ${condition.unitIds.join('・')} のうち${condition.required}部隊を脱出地点へ送り撤退させる（対象不足で敗北）`;
     case 'withdraw': return `指定部隊 ${condition.unitIds.join('・')} のうち${condition.required}部隊を脱出地点から撤退させる（対象不足で敗北）`;
   }
@@ -155,14 +160,15 @@ export function evaluateScenario(state: GameState, scenario: ScenarioDefinition,
   const redFailed = evacuationImpossible(state, 'red'), blueFailed = evacuationImpossible(state, 'blue');
   if (redFailed || blueFailed) return redFailed && blueFailed ? tieBreaker : redFailed ? 'blue' : 'red';
   if ((state.ruleVersion ?? 0) >= BALANCED_RULE_VERSION) {
-    const nonScore = (conditions: readonly VictoryCondition[], player: PlayerId) => conditions.some(condition => condition.type !== 'score' && isVictoryConditionMet(state, condition, player));
+    const nonScore = (conditions: readonly VictoryCondition[], player: PlayerId) => conditions.some(condition => condition.type !== 'score' && condition.type !== 'control' && isVictoryConditionMet(state, condition, player));
     const redImmediate = nonScore(scenario.victoryConditions, 'red'), blueImmediate = nonScore(scenario.defeatConditions, 'blue');
     if (redImmediate || blueImmediate) return redImmediate && blueImmediate ? tieBreaker : redImmediate ? 'red' : 'blue';
     if (!roundComplete) return undefined;
-    const scored = (conditions: readonly VictoryCondition[], player: PlayerId) => conditions.some(condition => condition.type === 'score' && isVictoryConditionMet(state, condition, player));
+    const scored = (conditions: readonly VictoryCondition[], player: PlayerId) => conditions.some(condition => (condition.type === 'score' || condition.type === 'control') && isVictoryConditionMet(state, condition, player));
     const redScored = scored(scenario.victoryConditions, 'red'), blueScored = scored(scenario.defeatConditions, 'blue');
     if (redScored && blueScored) {
-      const red = state.scores?.red ?? 0, blue = state.scores?.blue ?? 0;
+      const scores = scenario.victoryConditions.some(condition => condition.type === 'control') ? state.controlScores : state.scores;
+      const red = scores?.red ?? 0, blue = scores?.blue ?? 0;
       return red === blue ? undefined : red > blue ? 'red' : 'blue';
     }
     return redScored ? 'red' : blueScored ? 'blue' : undefined;

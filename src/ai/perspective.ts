@@ -28,7 +28,7 @@ export function bluePlanningState(state: GameState): GameState {
   if (scenario) {
     scenarioSnapshot = snapshots.get(scenario);
     const rotateCondition = (condition: VictoryCondition): VictoryCondition =>
-      condition.type === 'hold' || isEvacuationCondition(condition)
+      condition.type === 'hold' || condition.type === 'control' || isEvacuationCondition(condition)
         ? { ...condition, positions: condition.positions.map((position) => rotatePosition(position, state.board)) }
         : condition;
     if (!scenarioSnapshot) {
@@ -58,6 +58,7 @@ export function bluePlanningState(state: GameState): GameState {
     board,
     scenarioSnapshot,
     objectiveHoldTurns,
+    ...(state.recon ? { recon: { remaining: { ...state.recon.remaining }, centers: state.recon.centers.map((center) => rotatePosition(center, state.board)) } } : {}),
     ...(state.evacuatedUnits === undefined
       ? {}
       : { evacuatedUnits: state.evacuatedUnits.map((unit) => (unit.position ? { ...unit, position: rotatePosition(unit.position, state.board) } : unit)) }),

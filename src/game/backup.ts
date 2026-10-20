@@ -1,5 +1,6 @@
 import { CAMPAIGN_STORAGE_KEY, parseCampaignProgress } from './campaign';
 import { DEPLOYMENT_PRESETS_KEY, parseDeploymentPresets } from './deploymentPresets';
+import { OPERATION_RECORDS_KEY, parseOperationRecords } from './operationRecords';
 import { parseBoundedJson } from './jsonBoundary';
 import { captureCustomScenarioCatalog, CUSTOM_SCENARIOS_KEY, loadCustomScenarios, restoreCustomScenarioCatalog } from './maps';
 import { AUTO_SAVE_KEY, MANUAL_SAVE_KEY, MAX_SAVE_SLOTS, parseSavedGame, SAVE_SLOT_INDEX_KEY, SAVE_SLOT_PREFIX, writeStorageChanges, type StorageLike } from './session';
@@ -160,6 +161,9 @@ export function restoreBackup(storage: StorageLike, source: string | BackupPrevi
         } else if (key === DEPLOYMENT_PRESETS_KEY) {
           const presets = parseDeploymentPresets(raw);
           if (!presets.ok) return presets;
+        } else if (key === OPERATION_RECORDS_KEY) {
+          const records = parseOperationRecords(raw);
+          if (!records.ok) return records;
         } else if (key === 'ministr.sound.settings') {
           const settings = parseBoundedJson(raw, 1000);
           if (

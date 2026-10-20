@@ -991,4 +991,24 @@ body.production-menu-open { overflow: hidden; }
 .analysis-table-wrap { max-height: 200px; overflow: auto; font-size: .75rem; }
 .analysis-table-wrap table { width: 100%; border-collapse: collapse; text-align: right; font-variant-numeric: tabular-nums; }
 .analysis-table-wrap th, .analysis-table-wrap td { padding: 5px; border-bottom: 1px solid #435b4b; }
+:root { --operation-panel: #182b24; --operation-border: #506b60; --operation-accent: #e8c55f; }
+.recon-control { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 8px; margin-block: 8px; border: 1px solid var(--operation-border); border-radius: 5px; background: var(--operation-panel); }
+.recon-control span { flex: 1 1 200px; color: #d4dfd5; font-size: .75rem; line-height: 1.5; }
+.recon-control button { min-height: 38px; }
+.board.recon-targeting .tile { cursor: crosshair; }
+.board.recon-targeting { outline: 2px solid var(--operation-accent); }
+.control-score { display: grid; gap: 7px; margin-block: 8px; padding: 10px; border-left: 3px solid var(--operation-accent); background: var(--operation-panel); font-size: .8rem; }
+.control-score strong { color: var(--operation-accent); }
+.control-score summary { cursor: pointer; }
+.control-score ul, .operation-challenges ul { padding-left: 20px; margin-block: 8px; }
+.operation-challenges { margin-block: 12px; padding: 10px; border: 1px solid var(--operation-border); border-radius: 5px; background: var(--operation-panel); font-size: .8rem; line-height: 1.6; }
+.operation-challenges h3 { margin: 0; color: var(--operation-accent); }
+.operation-challenges .achieved { color: #cce9ae; font-weight: 700; }
+.operation-records { max-width: 100%; margin-block: 12px; }
+.operation-records > ol { padding-left: 20px; max-height: 440px; overflow: auto; }
+.operation-records article { min-width: 0; border-bottom: 1px solid var(--operation-border); padding: 10px 2px; }
+.operation-records h3 { margin-block: 0 6px; color: var(--operation-accent); }
+.operation-records p { overflow-wrap: anywhere; }
+.operation-records .record-setup { white-space: pre-line; }
+.game-over-card { max-height: calc(100dvh - 2rem); overflow: auto; }
 @media (max-width: 600px) { .generator-fields { grid-template-columns: 1fr; } .preset-row { grid-template-columns: 1fr; } .preset-actions { justify-content: flex-end; } }

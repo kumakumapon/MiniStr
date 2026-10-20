@@ -70,7 +70,7 @@ export function inspectGeneratedMap(scenario: ScenarioDefinition): string[] {
   return [...errors];
 }
 
-export function generateSymmetricMap(input: unknown): GameResult<ScenarioDefinition> {
+export function generateSymmetricMapV1(input: unknown): GameResult<ScenarioDefinition> {
   if (!input || typeof input !== 'object' || Array.isArray(input)) return { ok: false, error: '生成条件が不正です。' };
   const options = input as Record<string, unknown>;
   if (
@@ -163,4 +163,27 @@ export function generateSymmetricMap(input: unknown): GameResult<ScenarioDefinit
   const scenario = loaded.value[0]!;
   const errors = inspectGeneratedMap(scenario);
   return errors.length ? { ok: false, error: errors.join(' ') } : { ok: true, value: scenario };
+}
+
+/** V2 gives independently named battle streams to generated seeds; V1 remains reproducible. */
+export function generatedBattleSeed(options: MapGenerationOptions): number {
+  let hash = 2166136261;
+  const value = `battle-v2:${options.size}:${options.sea}:${options.seed}`;
+  for (let at = 0; at < value.length; at++) hash = Math.imul(hash ^ value.charCodeAt(at), 16777619);
+  return hash >>> 0;
+}
+export function generateSymmetricMap(input: unknown): GameResult<ScenarioDefinition> {
+  const generated = generateSymmetricMapV1(input);
+  if (!generated.ok) return generated;
+  const scenario = generated.value;
+  const seed = generatedBattleSeed(input as MapGenerationOptions);
+  return {
+    ok: true,
+    value: {
+      ...scenario,
+      id: scenario.id.replace('generated-v1-', 'generated-v2-'),
+      battleSeed: seed,
+      briefing: scenario.briefing.replace('生成v1', `生成v2 / 戦闘seed: ${seed}`),
+    },
+  };
 }

@@ -5,14 +5,16 @@ import { valueOf } from '../game/operations.fixture';
 import { generateSymmetricMap } from '../game/mapGenerator';
 
 describe('new standalone operations and generated fronts', () => {
-  it.each(['harbor-seizure', 'frontier-defense', 'encirclement-breakout'] as const)(
+  it.each(['convoy-escort', 'fighting-withdrawal', 'harbor-seizure', 'frontier-defense', 'encirclement-breakout', 'control-crossroads', 'control-coast'] as const)(
     'completes %s against easy CPU',
     (id) => {
       const scenario = scenarioById(id)!;
       const result = valueOf(simulateMatch(scenario, 'hard', 'modern', createScenarioInitialState(scenario).rngSeed, 60, 'easy'));
       expect(result.winner).toBe('red');
-      expect(result.reason).toBe(id === 'encirclement-breakout' ? 'withdraw' : 'hold');
-      expect(result.turns).toBeLessThanOrEqual(scenario.turnLimit!);
+      expect(result.reason).toBe(
+        id.startsWith('control-') ? 'control' : id === 'convoy-escort' ? 'escort' : id === 'encirclement-breakout' || id === 'fighting-withdrawal' ? 'withdraw' : 'hold',
+      );
+      expect(result.turns).toBeLessThanOrEqual(scenario.turnLimit ?? 60);
     },
     30_000,
   );
