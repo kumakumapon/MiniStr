@@ -1,5 +1,6 @@
+import { removeEnteredFortifications } from './engineering';
 import { movementCost, positionKey, samePosition, terrainAt } from './terrain';
-import { playerOwnedProperties, unitAt } from './state';
+import { incomePropertyCount, unitAt } from './state';
 import { isEmbarkableUnit, isMergeableUnit, remainingAmmo, transportCapacity, unitStats } from './units';
 import { applyDamageVariance, forecastCombat } from './combat';
 import { consumeWeaponAmmo, rearmUnit, weaponAmmo, weaponsForUnit } from './weapons';
@@ -70,7 +71,7 @@ export function moveUnit(state: GameState, unitId: string, destination: Position
   const board = samePosition(unit.position, finalDestination)
     ? state.board
     : restoreCaptureProgressAt(releaseCaptureProgress(state.board, unit), finalDestination);
-  return succeed({ ...state, board, units: state.units.map(candidate => candidate.id === unitId ? { ...candidate, position: { ...finalDestination }, hasMoved: true, fuel } : candidate) });
+  return succeed(removeEnteredFortifications({ ...state, board, units: state.units.map(candidate => candidate.id === unitId ? { ...candidate, position: { ...finalDestination }, hasMoved: true, fuel } : candidate) }, unit, pathFromMovementCosts(state, unit, finalDestination, costs) ?? [finalDestination]));
 }
 
 /**
@@ -199,7 +200,7 @@ function releaseCaptureProgress(board: GameState['board'], unit: GameState['unit
 
 export function collectIncome(state: GameState): GameState {
   const player = state.activePlayer;
-  const income = playerOwnedProperties(state, player).length * 1000;
+  const income = incomePropertyCount(state, player) * 1000;
   return {
     ...state,
     players: {
@@ -366,9 +367,9 @@ export function disembarkUnit(state: GameState, transportId: string, destination
   const cargo = state.units.find(candidate => candidate.embarkedIn === transport.id);
   if (!cargo || !isEmbarkableUnit(cargo.kind) || cargo.owner !== transport.owner) return fail('Transport has no valid cargo');
   if (!adjacent(transport.position, destination) || unitAt(state, destination) || !canDeployEmbarkableUnit(state, destination, cargo.kind)) return fail('Destination must be an adjacent vacant land tile');
-  return succeed({ ...state, units: state.units.map(candidate => candidate.id === cargo.id
+  return succeed(removeEnteredFortifications({ ...state, units: state.units.map(candidate => candidate.id === cargo.id
     ? { ...candidate, position: { ...destination }, embarkedIn: undefined, hasMoved: true, hasActed: true }
-    : candidate.id === transport.id ? { ...candidate, hasMoved: true, hasActed: true } : candidate) });
+    : candidate.id === transport.id ? { ...candidate, hasMoved: true, hasActed: true } : candidate) }, cargo, [destination]));
 }
 
 export function endTurn(state: GameState): GameState {

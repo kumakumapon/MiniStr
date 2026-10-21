@@ -9,6 +9,8 @@ import { evacuationObjectives } from './evacuation';
 import { isEvacuationCondition } from './maps';
 import type { WeaponSlot } from './units';
 import { parseBoundedJson } from './jsonBoundary';
+import { fortifyUnit, validFortifications } from './engineering';
+import { usesFrontlineRules } from './types';
 import { scanArea, validRecon } from './recon';
 import { usesReconRules } from './types';
 
@@ -28,6 +30,7 @@ export const STORAGE_WARNING_BYTES = 4_000_000;
 export type GameCommand =
   | { type: 'recon'; center: Position }
   | { type: 'move'; unitId: string; destination: Position }
+  | { type: 'fortify'; unitId: string }
   | { type: 'wait'; unitId: string }
   | { type: 'evacuate'; unitId: string }
   | { type: 'attack'; unitId: string; targetId: string; weaponSlot?: WeaponSlot }
@@ -133,6 +136,7 @@ export function applyGameCommand(state: GameState, command: GameCommand): GameRe
   switch (command.type) {
     case 'recon': return scanArea(state, command.center);
     case 'move': return moveUnit(state, command.unitId, command.destination);
+    case 'fortify': return fortifyUnit(state, command.unitId);
     case 'wait': return waitUnit(state, command.unitId);
     case 'evacuate': return evacuateUnit(state, command.unitId);
     case 'attack': return attackUnit(state, command.unitId, command.targetId, command.weaponSlot);
@@ -236,6 +240,7 @@ export function isGameCommand(value: unknown): value is GameCommand {
   if (value.type === 'endTurn') return true;
   if (value.type === 'recon') return isPosition(value.center) && Object.keys(value).sort().join() === 'center,type';
   if (value.type === 'move') return typeof value.unitId === 'string' && isPosition(value.destination);
+  if (value.type === 'fortify') return typeof value.unitId === 'string' && Object.keys(value).sort().join() === 'type,unitId';
   if (value.type === 'wait' || value.type === 'evacuate') return typeof value.unitId === 'string';
   if (value.type === 'attack') return typeof value.unitId === 'string' && typeof value.targetId === 'string'
     && (value.weaponSlot === undefined || value.weaponSlot === 0 || value.weaponSlot === 1);
@@ -328,6 +333,8 @@ export function isGameState(value: unknown): value is GameState {
     && (value.winner === undefined || players.has(value.winner as string))
     && (value.scenarioId === undefined ? value.scenarioSnapshot === undefined
       : typeof value.scenarioId === 'string' && scenarioForState(value as unknown as GameState) !== undefined)
+    && (usesFrontlineRules(value as unknown as GameState) || !value.board.terrain.some(row => (row as {kind: string}[]).some(tile => tile.kind === 'supplyDepot')))
+    && validFortifications(value as unknown as GameState)
     && validRecon(value as unknown as GameState)
     && (value.controlScores === undefined || usesReconRules(value as unknown as GameState) && !!scenario?.victoryConditions.some(condition => condition.type === 'control')
       && isScenarioScores(value.controlScores) && Object.values(value.controlScores as Record<string, number>).every(Number.isSafeInteger))

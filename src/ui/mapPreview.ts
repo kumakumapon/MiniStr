@@ -2,6 +2,7 @@ import type { Board, PlayerId, ScenarioTheme, TerrainKind } from '../game';
 
 /** Close to the board's own tile colours, flattened for a few pixels per tile. */
 const terrainColors: Record<TerrainKind, string> = {
+  supplyDepot: '#b3a57a',
   plain: '#6e9b55',
   forest: '#3a6a45',
   road: '#b3a57a',
@@ -47,7 +48,7 @@ const ownerColors: Record<PlayerId | 'neutral', string> = {
   neutral: '#e4dccb',
 };
 
-const propertyKinds: ReadonlySet<TerrainKind> = new Set(['city', 'factory', 'airport', 'port', 'capital']);
+const propertyKinds: ReadonlySet<TerrainKind> = new Set(['city', 'factory', 'airport', 'port', 'capital', 'supplyDepot']);
 
 export interface PreviewUnit {
   owner: PlayerId;

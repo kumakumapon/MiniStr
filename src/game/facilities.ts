@@ -1,7 +1,7 @@
-import { isDeployedUnit, CURRENT_RULE_VERSION, BALANCED_RULE_VERSION, MODERN_RULE_VERSION, type Board, type GameState, type PlayerId, type Position, type TerrainKind, type UnitKind } from './types';
+import { isDeployedUnit, CURRENT_RULE_VERSION, BALANCED_RULE_VERSION, type Board, type GameState, type PlayerId, type Position, type TerrainKind, type UnitKind } from './types';
 import { unitDefinitions, unitKinds, type ProductionTerrain, type UnitDefinition } from './units';
 
-export const propertyTerrainKinds = ['city', 'factory', 'airport', 'capital', 'port'] as const;
+export const propertyTerrainKinds = ['city', 'factory', 'airport', 'capital', 'port', 'supplyDepot'] as const;
 export type PropertyTerrainKind = (typeof propertyTerrainKinds)[number];
 
 const propertyTerrainKindSet = new Set<TerrainKind>(propertyTerrainKinds);
@@ -36,25 +36,23 @@ type RuleVersion = GameState['ruleVersion'];
 
 /** Units introduced by the modern rules are unavailable in classic matches, including old saves. */
 export function isUnitKindAvailable(kind: UnitKind, ruleVersion: RuleVersion): boolean {
-  return (unitDefinitions[kind] as UnitDefinition).modernOnly !== true || ruleVersion !== undefined;
+  const definition: UnitDefinition = unitDefinitions[kind];
+  return (definition.modernOnly !== true || ruleVersion !== undefined) && (ruleVersion ?? 0) >= (definition.minimumRuleVersion ?? 0);
 }
 
 /** Classic facility-v2 production, kept for callers that predate rule versions. */
 export const productionKindsByTerrain: ProductionKindsByTerrain = buildProductionKindsByTerrain(defaultProductionRule, undefined);
-const productionTables: Record<ProductionRule, Record<'classic' | 'modern', ProductionKindsByTerrain>> = {
-  'facility-v2': { classic: productionKindsByTerrain, modern: buildProductionKindsByTerrain('facility-v2', MODERN_RULE_VERSION) },
-  'legacy-factory-air': {
-    classic: buildProductionKindsByTerrain('legacy-factory-air', undefined),
-    modern: buildProductionKindsByTerrain('legacy-factory-air', MODERN_RULE_VERSION),
-  },
-};
+const productionTables = new Map<string, ProductionKindsByTerrain>();
 
 /**
  * The single production-availability table shared by commands, the CPU, and
  * the UI. Omitting `ruleVersion` selects the classic unit roster.
  */
 export function productionKindsForRule(rule: ProductionRule = defaultProductionRule, ruleVersion?: RuleVersion): ProductionKindsByTerrain {
-  return productionTables[rule][ruleVersion !== undefined ? 'modern' : 'classic'];
+  const key = `${rule}/${ruleVersion ?? 0}`;
+  let table = productionTables.get(key);
+  if (!table) { table = buildProductionKindsByTerrain(rule, ruleVersion); productionTables.set(key, table); }
+  return table;
 }
 
 export const allProducibleUnitKinds: readonly UnitKind[] = unitKinds.filter(kind => unitDefinitions[kind].productionTerrain !== undefined);

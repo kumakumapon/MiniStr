@@ -42,6 +42,7 @@ export function inspectTile(
   const property = isPropertyTerrainKind(terrain.kind);
   const title = `${terrainNames[terrain.kind]}${property ? `（${ownerLabel(terrain.owner, viewer)}）` : ''}`;
   const rows: InspectorRow[] = [{ label: '防御', value: stars(defenseStars(terrain)) }];
+  if (terrain.kind === 'supplyDepot') rows.push({ label: '補給', value: '施設上と隣接1マスの自軍地上部隊。修理・収入・生産なし' });
   const capturePoints = observedCapturePoints(terrain, visible.has(`${position.x},${position.y}`));
   if (capturePoints !== undefined) rows.push({ label: '占領値', value: capturePointsLabel(capturePoints) });
   const producible = productionKindsForRule(productionRule, state.ruleVersion)[terrain.kind];
@@ -55,6 +56,7 @@ export function inspectTile(
     && candidate.position.x === position.x && candidate.position.y === position.y);
   if (!unit || inspection.hidden) return inspection;
   const stats = unitStats[unit.kind];
+  if (state.fortifications?.some(site => site.owner === unit.owner && site.position.x === position.x && site.position.y === position.y) && isGroundUnit(unit.kind)) rows.push({ label: '陣地防御', value: '陣地の所有軍の地上部隊 防御★+1（合計上限★4）' });
   const unitRows: InspectorRow[] = [
     { label: '耐久', value: `${unit.hp} / 100` },
     { label: uiText.weapon, value: unitWeaponName(unit.kind) },

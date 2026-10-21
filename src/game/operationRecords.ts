@@ -2,6 +2,8 @@ import { parseBoundedJson } from './jsonBoundary';
 import { availableScenarios, loadScenarioDefinitions, scenarioDefinitionToData, scenarioForState, type ScenarioData, type ScenarioDefinition } from './maps';
 import { specialOperationData } from './specialOperations';
 import { standaloneOperationData } from './standaloneOperations';
+import { frontlineOperationData } from './frontlineOperations';
+import { isUnitKindAvailable } from './facilities';
 import { controlOperationData } from './controlOperations';
 import { applyGameCommand, isGameCommand, isGameState, matchesScenarioInitialState, withinReplayBudget, type GameCommand, type StorageLike } from './session';
 import { ruleVersions, type GameResult, type GameState } from './types';
@@ -9,7 +11,9 @@ import { ruleVersions, type GameResult, type GameState } from './types';
 export const OPERATION_RECORDS_KEY = 'ministr.operations.records';
 export const MAX_OPERATION_RECORDS = 128;
 export const MAX_OPERATION_RECORD_BYTES = 384_000;
-export const operationIds: ReadonlySet<string> = new Set([...specialOperationData, ...standaloneOperationData, ...controlOperationData].map((data) => data.id));
+export const operationIds: ReadonlySet<string> = new Set(
+  [...specialOperationData, ...standaloneOperationData, ...controlOperationData, ...frontlineOperationData].map((data) => data.id),
+);
 export const OPERATION_CHALLENGES = ['swift', 'careful', 'survivors'] as const;
 export type OperationChallenge = (typeof OPERATION_CHALLENGES)[number];
 export const challengeNames: Record<OperationChallenge, string> = { swift: '規定ターン以内', careful: '味方損失2以下', survivors: '初期の味方全員生存' };
@@ -64,6 +68,8 @@ export function operationTurnTarget(id: string): number {
   if (id === 'fighting-withdrawal') return 55;
   if (id === 'frontier-defense') return 7;
   if (id === 'encirclement-breakout') return 10;
+  if (id === 'supply-ridge') return 12;
+  if (id === 'supply-contest') return 24;
   if (id.startsWith('control-')) return 20;
   return 15;
 }
@@ -114,6 +120,11 @@ export function parseOperationRecords(text: string): GameResult<OperationRecords
       !Number.isFinite(Date.parse(raw.updatedAt))
     )
       return fail('作戦戦績の値が不正です。');
+    if (
+      scenario.initialUnits.some((unit) => !isUnitKindAvailable(unit.kind, raw.ruleVersion as GameState['ruleVersion'])) ||
+      ((raw.ruleVersion as number) < 8 && scenario.board.terrain.some((row) => row.some((tile) => tile.kind === 'supplyDepot')))
+    )
+      return fail('前線機能のルール版が不正です。');
     if (scenario.victoryConditions.some((condition) => condition.type === 'control') && (raw.ruleVersion as number) < 7) return fail('拠点支配戦のルール版が不正です。');
     const record = { ...raw, configuration: configuration(scenario) } as unknown as OperationRecord;
     const key = recordKey(record);

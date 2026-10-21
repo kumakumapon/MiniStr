@@ -1,3 +1,4 @@
+import { supplyOutlook } from './frontline';
 import { isDeployedUnit, hasUsableWeapon, remainingAmmo, weaponAmmo, weaponsForUnit, unitStats, type WeaponSlot, type GameState, type PlayerId, type Position } from '../game';
 import { sideLabel, unitNames, unitWeaponName, weaponNames } from './labels';
 import { getLocale } from './locale';
@@ -38,6 +39,7 @@ export function renderUnitBrief(
     <p class="unit-brief-weapon">${escapeHtml(unitWeaponName(unit.kind, state))} · ${uiText.unitBriefRange} ${range} · ${uiText.unitBriefMovement} ${stats.movement}${empty ? ` <strong class="unit-brief-warning">${uiText.ammoEmpty}</strong>` : ''}</p>
     ${weapons.length > 1 ? `<ul class="unit-brief-weapons">${weapons.map((weapon, slot) => `<li><strong>${escapeHtml(weaponNames[weapon.kind])}</strong> · ${english ? 'Power' : '威力'} ${weapon.attack} · ${uiText.unitBriefRange} ${weapon.range.join('–')} · ${uiText.ammo} ${own ? `${weaponAmmo(unit, slot as WeaponSlot)} / ${weapon.ammo}` : uiText.unitBriefUnknown}</li>`).join('')}</ul>` : ''}
     ${own && selectedId === unit.id && weapons.length > 1 && canSelectWeapon ? `<label class="unit-weapon-select">${english ? 'Attack weapon' : '攻撃武器'} <select id="attack-weapon" ${unit.hasActed ? 'disabled' : ''}><option value="auto"${weaponSlot === undefined ? ' selected' : ''}>${english ? 'Auto (strongest available)' : '自動（使用可能な武器の最大ダメージ）'}</option>${weapons.map((weapon, slot) => `<option value="${slot}"${weaponSlot === slot ? ' selected' : ''} ${weaponAmmo(unit, slot as WeaponSlot) === 0 || (weapon.indirect && unit.hasMoved) ? 'disabled' : ''}>${escapeHtml(weaponNames[weapon.kind])} · ${english ? 'Power' : '威力'} ${weapon.attack} · ${uiText.ammo} ${weaponAmmo(unit, slot as WeaponSlot)} / ${weapon.ammo}</option>`).join('')}</select></label>` : ''}
+    ${own && supplyOutlook(state, unit) ? `<p class="supply-outlook">${escapeHtml(supplyOutlook(state, unit))}</p>` : ''}
     <dl class="unit-brief-stats">${rows.map(([label, value]) => `<div><dt>${escapeHtml(label)}</dt><dd>${escapeHtml(value)}</dd></div>`).join('')}</dl>
   </section>`;
 }

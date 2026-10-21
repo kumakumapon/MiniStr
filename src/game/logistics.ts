@@ -1,7 +1,7 @@
 import { rearmUnit } from './weapons';
 import { isPropertyTerrainKind } from './facilities';
 import { manhattanDistance, terrainAt } from './terrain';
-import { isDeployedUnit, usesModernRules, type GameState, type PlayerId, type Position, type TerrainKind, type Unit, type UnitKind } from './types';
+import { isDeployedUnit, usesFrontlineRules, usesModernRules, type GameState, type PlayerId, type Position, type TerrainKind, type Unit, type UnitKind } from './types';
 import { isSupplyUnit, unitDefinitions, unitStats, type MovementProfile } from './units';
 
 /** HP a unit on a compatible owned facility recovers at the start of its turn. */
@@ -33,9 +33,27 @@ export function isGroundUnit(kind: UnitKind): boolean {
  * Whether `unit` would be refuelled on `position` at the start of its owner's
  * turn. Classic rules service every unit on any owned property.
  */
+const depotCache = new WeakMap<GameState['board'], { position: Position; owner?: PlayerId }[]>();
+export function depotPositions(state: GameState): readonly { position: Position; owner?: PlayerId }[] {
+  let positions = depotCache.get(state.board);
+  if (!positions) {
+    positions = state.board.terrain.flatMap((row, y) => row.flatMap((tile, x) => tile.kind === 'supplyDepot' ? [{ position: { x, y }, owner: tile.owner }] : []));
+    depotCache.set(state.board, positions);
+  }
+  return positions;
+}
+export function suppliedByDepot(state: GameState, position: Position, owner: PlayerId): boolean {
+  return usesFrontlineRules(state) && depotPositions(state).some(source => source.owner === owner && manhattanDistance(position, source.position) <= 1);
+}
+
+export function resupplyAvailable(state: GameState, position: Position, kind: UnitKind, owner: PlayerId, excludeId?: string): boolean {
+  return isServiceTile(state, position, kind, owner) || usesModernRules(state) && isGroundUnit(kind)
+    && (suppliedByDepot(state, position, owner) || adjacentToSupplyUnit(state, position, owner, excludeId));
+}
+
 export function isServiceTile(state: GameState, position: Position, kind: UnitKind, owner: PlayerId): boolean {
   const terrain = terrainAt(state.board, position);
-  if (!terrain || terrain.owner !== owner || !isPropertyTerrainKind(terrain.kind)) return false;
+  if (!terrain || terrain.owner !== owner || !isPropertyTerrainKind(terrain.kind) || terrain.kind === 'supplyDepot') return false;
   return !usesModernRules(state) || canServiceUnitAt(terrain.kind, kind);
 }
 
@@ -75,8 +93,11 @@ export function applyModernUpkeep(state: GameState, player: PlayerId, consumeFue
   const suppliers = new Set(consumed.filter(unit => unit.owner === player && isDeployedUnit(unit) && isSupplyUnit(unit.kind)).map(unit => unit.id));
   const supplied = consumed.map(unit => {
     if (unit.owner !== player || !isGroundUnit(unit.kind)) return unit;
-    if (unit.embarkedIn !== undefined) return suppliers.has(unit.embarkedIn) ? withFullSupplies(unit, state) : unit;
-    return isDeployedUnit(unit) && adjacentToSupplyUnit({ ...state, units: consumed }, unit.position, player, unit.id) ? withFullSupplies(unit, state) : unit;
+    if (unit.embarkedIn !== undefined) {
+      const transport = consumed.find(candidate => candidate.id === unit.embarkedIn);
+      return suppliers.has(unit.embarkedIn) || transport && isDeployedUnit(transport) && isGroundUnit(transport.kind) && suppliedByDepot(state, transport.position, player) ? withFullSupplies(unit, state) : unit;
+    }
+    return isDeployedUnit(unit) && (suppliedByDepot(state, unit.position, player) || adjacentToSupplyUnit({ ...state, units: consumed }, unit.position, player, unit.id)) ? withFullSupplies(unit, state) : unit;
   });
   let gold = state.players[player].gold;
   const repaired = supplied.map(unit => {

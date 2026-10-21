@@ -56,6 +56,7 @@ export function bluePlanningState(state: GameState): GameState {
   return {
     ...state,
     board,
+    ...(state.fortifications ? { fortifications: state.fortifications.map((site) => ({ ...site, position: rotatePosition(site.position, state.board) })) } : {}),
     scenarioSnapshot,
     objectiveHoldTurns,
     ...(state.recon ? { recon: { remaining: { ...state.recon.remaining }, centers: state.recon.centers.map((center) => rotatePosition(center, state.board)) } } : {}),

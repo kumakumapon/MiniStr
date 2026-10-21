@@ -5,8 +5,9 @@ import { trainingData } from './training';
 import { expandedScenarioData } from './expandedMaps';
 import { specialOperationData } from './specialOperations';
 import { standaloneOperationData } from './standaloneOperations';
+import { frontlineOperationData } from './frontlineOperations';
 import { controlOperationData } from './controlOperations';
-import { createBoard, createGameState, playerOwnedProperties } from './state';
+import { createBoard, createGameState, incomePropertyCount } from './state';
 import { unitKindSet, unitStats } from './units';
 import { CURRENT_RULE_VERSION, terrainKindSet, type Board, type GameResult, type GameState, type PlayerId, type Position, type TerrainKind, type UnitKind } from './types';
 
@@ -372,7 +373,7 @@ const builtInCatalog = createBuiltInScenarioCatalog(builtInScenarioData);
 
 /** Validated exactly once during module initialization. */
 export const maps: readonly ScenarioDefinition[] = builtInCatalog.scenarios;
-const operationLoad = loadScenarioDefinitions([...specialOperationData, ...standaloneOperationData, ...controlOperationData], { defaultProductionRule });
+const operationLoad = loadScenarioDefinitions([...specialOperationData, ...standaloneOperationData, ...controlOperationData, ...frontlineOperationData], { defaultProductionRule });
 if (!operationLoad.ok) throw new Error(`Operation definition is invalid: ${operationLoad.error}`);
 export const operationScenarios = operationLoad.value;
 /** Diagnostics for UI/telemetry; normal built-in data leaves this undefined. */
@@ -427,7 +428,7 @@ export function createScenarioInitialState(scenario: ScenarioDefinition): GameSt
   // action. Blue receives the same income when red ends the turn; this keeps
   // income equal without changing the end-turn phase. Authored blue compensation
   // is a separate, one-off opening grant.
-  const redIncome = playerOwnedProperties(base, 'red').length * 1000;
+  const redIncome = incomePropertyCount(base, 'red') * 1000;
   return {
     ...base, scenarioId: scenario.id, scenarioSnapshot: scenarioDefinitionToData(scenario), ruleVersion: CURRENT_RULE_VERSION,
     players: { red: { gold: scenario.startingGold + redIncome + (scenario.firstPlayerBonus ?? 0), income: redIncome }, blue: { gold: scenario.startingGold + (scenario.secondPlayerBonus ?? 0), income: 0 } },

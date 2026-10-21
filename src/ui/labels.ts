@@ -7,17 +7,17 @@ import { getLocale, localized } from './locale';
  */
 export const terrainNames = localized<Record<TerrainKind, string>>({
   plain: '平原', forest: '森林', mountain: '山岳', road: '道路', swamp: '沼地', sea: '海',
-  city: '都市', factory: '工場', airport: '空港', port: '港湾', capital: '司令部',
-}, { plain: 'Plains', forest: 'Forest', mountain: 'Mountain', road: 'Road', swamp: 'Swamp', sea: 'Sea', city: 'City', factory: 'Factory', airport: 'Airport', port: 'Port', capital: 'Headquarters' });
+  supplyDepot: '前線補給所', city: '都市', factory: '工場', airport: '空港', port: '港湾', capital: '司令部',
+}, { supplyDepot: 'Supply depot', plain: 'Plains', forest: 'Forest', mountain: 'Mountain', road: 'Road', swamp: 'Swamp', sea: 'Sea', city: 'City', factory: 'Factory', airport: 'Airport', port: 'Port', capital: 'Headquarters' });
 
 export const unitNames = localized<Record<UnitKind, string>>({
-  infantry: '歩兵', tank: '戦車', artillery: '砲兵', fighter: '戦闘機', bomber: '爆撃機',
+  engineer: '工兵', infantry: '歩兵', tank: '戦車', artillery: '砲兵', fighter: '戦闘機', bomber: '爆撃機',
   destroyer: '駆逐艦', landingShip: '輸送艦', recon: '偵察車', rocket: '自走砲', antiAir: '対空車両', apc: '装甲兵員輸送車',
   mech: '対戦車歩兵', heavyTank: '重戦車', helicopter: '戦闘ヘリ', battleship: '戦艦',
-}, { infantry: 'Infantry', tank: 'Tank', artillery: 'Artillery', fighter: 'Fighter', bomber: 'Bomber', destroyer: 'Destroyer', landingShip: 'Landing ship', recon: 'Recon', rocket: 'Rocket artillery', antiAir: 'Anti-air', apc: 'APC', mech: 'Mech infantry', heavyTank: 'Heavy tank', helicopter: 'Helicopter', battleship: 'Battleship' });
+}, { engineer: 'Engineer', infantry: 'Infantry', tank: 'Tank', artillery: 'Artillery', fighter: 'Fighter', bomber: 'Bomber', destroyer: 'Destroyer', landingShip: 'Landing ship', recon: 'Recon', rocket: 'Rocket artillery', antiAir: 'Anti-air', apc: 'APC', mech: 'Mech infantry', heavyTank: 'Heavy tank', helicopter: 'Helicopter', battleship: 'Battleship' });
 
 export const unitTokens: Record<UnitKind, string> = {
-  infantry: '歩', tank: '戦', artillery: '砲', fighter: '空', bomber: '爆',
+  engineer: '工', infantry: '歩', tank: '戦', artillery: '砲', fighter: '空', bomber: '爆',
   destroyer: '艦', landingShip: '輸', recon: '偵', rocket: '自', antiAir: '防', apc: '装',
   mech: '対', heavyTank: '重', helicopter: 'ヘ', battleship: '巨',
 };
