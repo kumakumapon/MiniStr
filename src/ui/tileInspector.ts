@@ -56,7 +56,7 @@ export function inspectTile(
     && candidate.position.x === position.x && candidate.position.y === position.y);
   if (!unit || inspection.hidden) return inspection;
   const stats = unitStats[unit.kind];
-  if (state.fortifications?.some(site => site.owner === unit.owner && site.position.x === position.x && site.position.y === position.y) && isGroundUnit(unit.kind)) rows.push({ label: '陣地防御', value: '自軍地上部隊 防御★+1（合計上限★4）' });
+  if (state.fortifications?.some(site => site.owner === unit.owner && site.position.x === position.x && site.position.y === position.y) && isGroundUnit(unit.kind)) rows.push({ label: '陣地防御', value: '陣地の所有軍の地上部隊 防御★+1（合計上限★4）' });
   const unitRows: InspectorRow[] = [
     { label: '耐久', value: `${unit.hp} / 100` },
     { label: uiText.weapon, value: unitWeaponName(unit.kind) },

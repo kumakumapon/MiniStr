@@ -2,6 +2,7 @@ import { afterEach, describe, expect, it } from 'vitest';
 import { createBoard, createGameState, type GameState, type Unit } from '../game';
 import { fortificationAt, renderFrontlineControls, supplyOutlook, supplyRange } from './frontline';
 import { renderUnitBrief } from './unitBrief';
+import { inspectTile } from './tileInspector';
 import { setLocale } from './locale';
 
 const troop = (id: string, x: number, y: number, patch: Partial<Unit> = {}): Unit => ({
@@ -82,6 +83,14 @@ describe('frontline controls and private supply information', () => {
     expect(fortificationAt(state, { x: 3, y: 1 }, new Set(['3,1']))).toBe('');
     expect(fortificationAt(state, { x: 0, y: 0 }, new Set(['0,0']))).toBe('');
     expect(fortificationAt({ ...state, ruleVersion: 7 }, { x: 2, y: 1 }, new Set(['2,1']))).toBe('');
+  });
+  it('describes enemy cover relative to its owner and hides it outside vision', () => {
+    const state = field();
+    state.units.push(troop('enemy', 5, 3, { owner: 'blue' }));
+    state.fortifications = [{ owner: 'blue', position: { x: 5, y: 3 } }];
+    const shown = inspectTile(state, { x: 5, y: 3 }, 'red', new Set(['5,3']))!;
+    expect(shown.rows.find((row) => row.label === '陣地防御')?.value).toContain('陣地の所有軍');
+    expect(inspectTile(state, { x: 5, y: 3 }, 'red', new Set())!.rows.some((row) => row.label === '陣地防御')).toBe(false);
   });
   it('provides English labels and keeps unavailable sources out of the range', () => {
     const state = field();
