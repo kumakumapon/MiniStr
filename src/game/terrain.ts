@@ -2,6 +2,7 @@ import type { Board, Position, Terrain, TerrainKind, UnitKind } from './types';
 import { unitDefinitions, unitKinds, type MovementProfile } from './units';
 
 const movementByProfile: Record<TerrainKind, Record<MovementProfile, number>> = {
+  supplyDepot: { foot: 1, vehicle: 1, air: 1, sea: Infinity },
   plain: { foot: 1, vehicle: 1, air: 1, sea: Infinity },
   forest: { foot: 1, vehicle: 2, air: 1, sea: Infinity },
   road: { foot: 1, vehicle: 1, air: 1, sea: Infinity },
@@ -19,6 +20,7 @@ const unitMovement = (terrain: TerrainKind): Record<UnitKind, number> =>
   Object.fromEntries(unitKinds.map(kind => [kind, movementByProfile[terrain][unitDefinitions[kind].movementProfile]])) as Record<UnitKind, number>;
 
 export const terrainRules: Record<TerrainKind, { movement: Record<UnitKind, number>; defense: number }> = {
+  supplyDepot: { movement: unitMovement('supplyDepot'), defense: 1 },
   plain: { movement: unitMovement('plain'), defense: 1 },
   forest: { movement: unitMovement('forest'), defense: 2 },
   road: { movement: unitMovement('road'), defense: 0 },

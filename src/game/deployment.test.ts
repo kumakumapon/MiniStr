@@ -47,7 +47,7 @@ describe('pre-operation deployment', () => {
     });
     const slots = deploymentSlots(scenario);
     expect(slots.map((slot) => slot.id)).toEqual(['r1', 'r2', 'r3', 'r4']);
-    expect(slots[0]!.choices).toEqual(['infantry', 'mech']);
+    expect(slots[0]!.choices).toEqual(['infantry', 'mech', 'engineer']);
     expect(slots[1]).toMatchObject({ fixed: true, choices: ['fighter'] });
     expect(slots[2]!.choices).toContain('battleship');
     expect(slots[2]!.choices).not.toContain('tank');

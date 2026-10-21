@@ -1012,3 +1012,18 @@ body.production-menu-open { overflow: hidden; }
 .operation-records .record-setup { white-space: pre-line; }
 .game-over-card { max-height: calc(100dvh - 2rem); overflow: auto; }
 @media (max-width: 600px) { .generator-fields { grid-template-columns: 1fr; } .preset-row { grid-template-columns: 1fr; } .preset-actions { justify-content: flex-end; } }
+
+/* Frontline actions use the existing field palette and leave map cells clear. */
+.frontline-controls { display:flex; flex-wrap:wrap; align-items:center; gap:6px 10px; margin:0 0 8px; padding:8px; border:1px solid #81744b; background:#14281f; color:#eee8cb; font-size:.8rem; }
+.frontline-controls small { flex-basis:100%; }
+.supply-outlook { margin:4px 0; font-size:.75rem; color:#d9e3bc; overflow-wrap:anywhere; }
+.board .tile.supplyDepot, .editor-tile.supplyDepot { background:repeating-linear-gradient(45deg,#8e8d54 0 8px,#646b3f 8px 16px); }
+.tile.supply-coverage::after { content:''; position:absolute; inset:2px; border:2px dashed #7ef2b0; pointer-events:none; z-index:3; }
+.fortification-marker { position:absolute; bottom:1px; right:1px; z-index:4; padding:0 2px; border:1px solid #f4df97; color:#fff; font-size:.65rem; background:#803c28; }
+.fortification-marker.blue { background:#244f7d; }
+.unit-engineer .unit-art { background-position:0 0; filter:sepia(.4); }
+.unit-engineer::after { content:'工'; position:absolute; top:0; right:0; font-size:.65rem; color:#fff; background:#343925; padding:0 2px; }
+.frontline-controls button { min-height:36px; }
+@media(max-width:600px) { .frontline-controls button { min-height:44px; } }
+
+.facility-supplyDepot b { color:#fff3c2; text-shadow:0 1px 1px #000; }

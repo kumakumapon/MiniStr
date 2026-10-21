@@ -16,6 +16,10 @@ export function unitAt(state: GameState, position: Position): Unit | undefined {
   return state.units.find(unit => isDeployedUnit(unit) && unit.position.x === position.x && unit.position.y === position.y);
 }
 
+export function incomePropertyCount(state: GameState, player: PlayerId): number {
+  return playerOwnedProperties(state, player).filter(tile => tile.kind !== 'supplyDepot').length;
+}
+
 export function playerOwnedProperties(state: GameState, player: PlayerId): Terrain[] {
   return state.board.terrain.flat().filter(tile => tile.owner === player && isPropertyTerrainKind(tile.kind));
 }

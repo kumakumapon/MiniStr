@@ -42,6 +42,7 @@ export interface UnitDefinition {
   supplier?: true;
   /** Available only in modern-rule matches, so classic saves keep their original roster. */
   modernOnly?: true;
+  minimumRuleVersion?: number;
   /** Multiplier on damage this unit receives (heavy armour); omitted means 1. */
   incomingDamageFactor?: number;
   stats: UnitStats;
@@ -155,6 +156,11 @@ export const unitDefinitions = {
     category: 'sea', movementProfile: 'sea', productionTerrain: 'port', mergeable: true, modernOnly: true, incomingDamageFactor: 0.8,
     stats: { cost: 28000, movement: 5, attack: 90, defense: 45, capturePower: 0, range: [2, 6], fuel: 99, fuelPerTurn: 2, ammo: 6, vision: 3, indirect: true },
     effectiveness: { soft: 1.1, armor: 1.0, air: 0.2, sea: 1.0 },
+  },
+  engineer: {
+    weapon: 'rifle', category: 'soft', movementProfile: 'foot', productionTerrain: 'factory', mergeable: true, embarkable: true, modernOnly: true, minimumRuleVersion: 8,
+    stats: { cost: 3000, movement: 3, attack: 40, defense: 10, capturePower: 10, range: [1, 1], fuel: 99, fuelPerTurn: 0, ammo: 9, vision: 2, indirect: false },
+    effectiveness: { soft: 1.0, armor: 0.3, air: 0.25, sea: 0.2 },
   },
 } as const satisfies Record<string, UnitDefinition>;
 

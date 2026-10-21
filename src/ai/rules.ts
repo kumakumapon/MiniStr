@@ -1,5 +1,7 @@
 import { hasUsableWeapon, weaponAmmo, weaponsForUnit } from '../game/weapons';
 import type { WeaponSlot } from '../game/units';
+import { fortificationError, unitDefenseStars } from '../game/engineering';
+import { usesFrontlineRules } from '../game/types';
 import { forecastCombat, terrainDefenseReduction } from '../game/combat';
 import { observeLogistics } from '../game/fog';
 import { endTurn, reachablePositionsForPlayer } from '../game/commands';
@@ -8,7 +10,7 @@ import { visibleEnemies as getVisibleEnemies } from '../game/fog';
 import { scenarioForState, type EvacuationCondition } from '../game/maps';
 import { manhattanDistance, movementCost, terrainAt } from '../game/terrain';
 import { isDeployedUnit, usesDecisionRules, usesOperationsRules, usesModernRules, usesReconRules, type Board, type DeployedUnit, type GameState, type PlayerId, type Position, type Unit, type UnitKind } from '../game/types';
-import { adjacentToSupplyUnit, isGroundUnit, isServiceTile, REPAIR_HP_PER_TURN } from '../game/logistics';
+import { resupplyAvailable, isGroundUnit, isServiceTile, REPAIR_HP_PER_TURN } from '../game/logistics';
 import { isEmbarkableUnit, isMergeableUnit, isSupplyUnit, remainingAmmo, unitCategory, unitStats } from '../game/units';
 import { coordinatedOrder, coordinationValue, cpuRole, isPriorityTarget, transportSafeAt } from './coordination';
 import { canEvacuateUnit, evacuationObjectives, isEvacuationTarget } from '../game/evacuation';
@@ -73,6 +75,7 @@ export const MIN_CPU_FORCE = 4;
 
 export type CpuAction =
   | { type: 'recon'; center: Position }
+  | { type: 'fortify'; unitId: string }
   | { type: 'capture'; unitId: string }
   | { type: 'attack'; unitId: string; targetId: string }
   | { type: 'merge'; unitId: string; targetId: string }
@@ -305,6 +308,14 @@ function productionAction(state: GameState, player: PlayerId, config: CpuDifficu
     // troops. Bank the replacement cost while movement clears the home port.
     return undefined;
   }
+  if (usesFrontlineRules(state) && !atForceLimit(state, player, config) && !remoteGround
+    && state.board.terrain.some(row => row.some(tile => tile.kind === 'supplyDepot'))
+    && !state.units.some(unit => unit.owner === player && unit.kind === 'engineer')
+    && (state.fortifications?.filter(site => site.owner === player).length ?? 0) < 2
+    && state.players[player].gold >= unitStats.engineer.cost + 500) {
+    const factory = emptyOwnedFacility(state, player, 'engineer');
+    if (factory) return { type: 'produce', factory, kind: 'engineer' };
+  }
   const specialist = specialistProduction(state, player, context.visibleEnemies, remoteGround);
   if (specialist) return specialist;
   const supplyNeeded = usesModernRules(state) && orderedUnits(state, player).filter(unit => isGroundUnit(unit.kind) && needsSupply(unit)).length >= 2;
@@ -429,8 +440,7 @@ function supplyTargets(state: GameState, player: PlayerId, unit: DeployedUnit): 
   if (previous) return previous;
   const positions = state.board.terrain.flatMap((row, y) => row.flatMap((_tile, x) => {
     const position = { x, y };
-    return isServiceTile(state, position, unit.kind, player)
-      || usesModernRules(state) && isGroundUnit(unit.kind) && adjacentToSupplyUnit(state, position, player, unit.id) ? [position] : [];
+    return resupplyAvailable(state, position, unit.kind, player, unit.id) ? [position] : [];
   }));
   cache.set(unit.id, positions);
   return positions;
@@ -455,10 +465,9 @@ export function evaluateCpuPosition(
   const projected = { ...state, units: state.units.map(candidate => candidate.id === unit.id ? moved : candidate) };
   // Keep the positional value tied to the same HP-scaled mitigation used by combat.
   // At 100 HP, each star is worth 10% mitigation and 9 position points.
-  const defense = terrainDefenseReduction(terrain, unit.hp) * 0.9 * config.terrainDefenseWeight;
+  const defense = unitDefenseStars(projected, moved) * 10 * unit.hp / 100 * 0.9 * config.terrainDefenseWeight;
   // Under modern rules only compatible facilities (or, for ground units, a supply vehicle) resupply.
-  const resupplied = isServiceTile(state, destination, unit.kind, player)
-    || (usesModernRules(state) && isGroundUnit(unit.kind) && adjacentToSupplyUnit(state, destination, player, unit.id));
+  const resupplied = resupplyAvailable(state, destination, unit.kind, player, unit.id);
   const supply = needsSupply(unit) && resupplied ? 80 : 0;
   const serviceTargets = needsSupply(unit) ? supplyTargets(state, player, unit) : [];
   const serviceDistance = serviceTargets.length ? Math.min(...serviceTargets.map(position => manhattanDistance(destination, position))) : undefined;
@@ -882,6 +891,22 @@ function clearNavalServiceLane(state: GameState, player: PlayerId, units: readon
   return undefined;
 }
 
+function engineeringAction(state: GameState, player: PlayerId, context: CpuPlanningContext): CpuAction | undefined {
+  if (!usesFrontlineRules(state)) return undefined;
+  // Only establish cover near a public objective and a confirmed approaching enemy.
+  // Captures and attacks have priority; repeated rebuilding cannot delay progress.
+  const scenario = scenarioForState(state);
+  const publicTargets = scenario ? [...scenario.victoryConditions, ...scenario.defeatConditions].flatMap(condition => condition.type === 'control' || condition.type === 'hold' ? condition.positions : []) : [];
+  const sites = publicTargets.length ? publicTargets : state.board.terrain.flatMap((row, y) => row.flatMap((tile, x) => tile.kind === 'supplyDepot' ? [{ x, y }] : []));
+  const engineer = orderedUnits(state, player).find(unit => !fortificationError(state, unit.id)
+    && sites.some(target => manhattanDistance(unit.position, target) <= 2)
+    && context.visibleEnemies.some(enemy => isDeployedUnit(enemy) && manhattanDistance(unit.position, enemy.position) >= 2
+      && manhattanDistance(unit.position, enemy.position) <= 5)
+    && !orderedUnits(state, player).some(ally => ally.id !== unit.id && ally.hasMoved === false
+      && manhattanDistance(ally.position, unit.position) === 1 && unitStats[ally.kind].capturePower > 0));
+  return engineer ? { type: 'fortify', unitId: engineer.id } : undefined;
+}
+
 function chooseOrientedCpuAction(state: GameState, difficulty: CpuDifficulty, player: PlayerId): CpuAction {
   if (state.winner || player !== state.activePlayer) return { type: 'endTurn' };
   state = observeLogistics(state, player);
@@ -919,6 +944,7 @@ function chooseOrientedCpuAction(state: GameState, difficulty: CpuDifficulty, pl
   }
   return attackAction(state, player, config, context.visibleEnemies)
     ?? strikeAction(state, player, config, context.visibleEnemies)
+    ?? engineeringAction(state, player, context)
     ?? mergeAction(state, player)
     ?? clearNavalServiceLane(state, player, readyUnits)
     ?? transportAction(state, player, context.targets, context.landComponents, context.visibleEnemies)

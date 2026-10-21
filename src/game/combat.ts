@@ -1,3 +1,4 @@
+import { unitDefenseStars } from './engineering';
 import { rankDamageFactor } from './experience';
 import { defenseStars, manhattanDistance, terrainAt } from './terrain';
 import type { Terrain } from './types';
@@ -89,13 +90,13 @@ export function forecastCombat(state: GameState, attacker: Unit, defender: Unit,
   const baseRaw = weapon.attack * attacker.hp / 100 * weapon.effectiveness[unitCategory[defender.kind]];
   const rankFactor = combatDamageFactor(state, attacker, defender);
   const raw = rankFactor === 1 ? baseRaw : baseRaw * rankFactor;
-  const reduction = terrainDefenseReduction(defenderTerrain, defender.hp);
+  const reduction = unitDefenseStars(state, defender) * DEFENSE_PERCENT_PER_STAR * defender.hp / 100;
   const damageToDefender = Math.max(0, Math.round(raw * (1 - reduction / 100)));
   const defenderRemaining = Math.max(0, defender.hp - damageToDefender);
   const counter = !weapon.indirect ? selectCombatWeapon(state, defender, attacker, undefined, true) : undefined;
   const canCounter = defenderRemaining > 0 && counter?.ok === true;
   const counterRankFactor = combatDamageFactor(state, defender, attacker);
-  const counterReduction = terrainDefenseReduction(attackerTerrain, attacker.hp);
+  const counterReduction = unitDefenseStars(state, attacker) * DEFENSE_PERCENT_PER_STAR * attacker.hp / 100;
   const counterAt = (remaining: number): number => {
     if (remaining <= 0 || !counter?.ok) return 0;
     const counterWeapon = counter.value.weapon;
