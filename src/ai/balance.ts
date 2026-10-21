@@ -41,11 +41,11 @@ const MAX_COMMANDS_PER_TURN = 120;
  */
 export function balanceInitialState(scenario: ScenarioDefinition, rules: BalanceRules, seed: number): GameResult<GameState> {
   const initial = createScenarioInitialState(scenario);
-  if (rules === 'classic') {
-    const unavailable = initial.units.find(unit => !isUnitKindAvailable(unit.kind, undefined));
-    if (unavailable) return { ok: false, error: `初期配置に近代ルール専用ユニット（${unavailable.kind}）があるため、従来ルールでは計測できません。` };
-  }
   const ruleVersion = rules === 'classic' ? undefined : rules === 'v2' ? MODERN_RULE_VERSION : initial.ruleVersion;
+  const unavailable = initial.units.find(unit => !isUnitKindAvailable(unit.kind, ruleVersion));
+  if (unavailable) return { ok: false, error: `初期配置の兵科（${unavailable.kind}）は指定ルールでは計測できません。` };
+  if ((ruleVersion ?? 0) < 8 && initial.board.terrain.some(row => row.some(tile => tile.kind === 'supplyDepot')))
+    return { ok: false, error: '前線補給所はルールv8以降で計測してください。' };
   return { ok: true, value: { ...initial, rngSeed: seed >>> 0, ruleVersion } };
 }
 

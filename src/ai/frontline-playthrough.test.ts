@@ -1,9 +1,12 @@
 import { describe, expect, it } from 'vitest';
 import { createScenarioInitialState, scenarioById } from '../game';
 import { valueOf } from '../game/operations.fixture';
-import { simulateMatch } from './balance';
+import { balanceInitialState, simulateMatch } from './balance';
 
 describe('frontline operation playthroughs', () => {
+  it('rejects unavailable frontline fixtures in classic and v2 comparisons', () => {
+    for (const rules of ['classic', 'v2'] as const) expect(balanceInitialState(scenarioById('supply-contest')!, rules, 1).ok).toBe(false);
+  });
   it.each(['supply-contest', 'supply-ridge'])(
     'wins %s by its authored objective against easy',
     (id) => {

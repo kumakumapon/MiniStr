@@ -17,8 +17,10 @@ import { chooseCpuAction, type CpuDifficulty } from '../src/ai/rules';
 import { bluePlanningState } from '../src/ai/perspective';
 
 const args = process.argv.slice(2);
-if (args.length !== 4 || args[0] !== '--phase' || !['tune', 'verify', 'regression'].includes(args[1]!) || args[2] !== '--output' || !args[3])
-  throw Error('Usage: --phase tune|verify|regression --output file.jsonl');
+if (![4, 6].includes(args.length) || args[0] !== '--phase' || !['tune', 'verify', 'regression'].includes(args[1]!) || args[2] !== '--output' || !args[3])
+  throw Error('Usage: --phase tune|verify|regression --output file.jsonl [--blue-bonus 0..10000]');
+const bonus = args.length === 6 ? Number(args[5]) : undefined;
+if (args.length === 6 && (args[4] !== '--blue-bonus' || !Number.isSafeInteger(bonus) || bonus! < 0 || bonus! > 10000)) throw Error('Blue bonus must be an integer from 0 to 10000');
 const phase = args[1]!;
 const output = args[3]!;
 const files = ['src/game', 'src/ai']
@@ -39,10 +41,14 @@ writeFileSync(
   output,
   JSON.stringify({
     type: 'header',
+    blueBonusOverride: bonus,
     phase,
     revision,
     dirty,
     simulationSourceSHA256: hash.digest('hex'),
+    scriptSHA256: createHash('sha256')
+      .update(readFileSync(new URL(import.meta.url)))
+      .digest('hex'),
     maxRounds: 60,
     commandsPerTurn: 120,
     seeds: phase === 'verify' ? [23757, 31676] : phase === 'tune' ? [1, 7919] : ['authored'],
@@ -65,6 +71,8 @@ for (const scenario of scenarios)
     for (const [red, blue] of matchups)
       for (const rotated of phase === 'regression' ? [false] : [false, true]) {
         let state: GameState = { ...createScenarioInitialState(scenario), rngSeed: seed };
+        if (bonus !== undefined && scenario.id === 'supply-contest')
+          state = { ...state, players: { ...state.players, blue: { ...state.players.blue, gold: scenario.startingGold + bonus } } };
         if (rotated) state = bluePlanningState(state);
         const started = performance.now();
         const fortified: Record<PlayerId, number> = { red: 0, blue: 0 };
@@ -97,6 +105,7 @@ for (const scenario of scenarios)
         const result = {
           type: 'match',
           scenarioId: scenario.id,
+          blueOpeningBonus: scenario.id === 'supply-contest' ? (bonus ?? scenario.secondPlayerBonus ?? 0) : (scenario.secondPlayerBonus ?? 0),
           seed,
           red,
           blue,

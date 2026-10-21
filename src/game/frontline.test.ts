@@ -154,6 +154,23 @@ describe('engineer fortifications', () => {
     const air = valueOf(moveUnit({ ...state, units: [{ ...state.units[0]!, kind: 'fighter' }] }, 'm', { x: 3, y: 2 }));
     expect(air.fortifications).toEqual(state.fortifications);
   });
+  it('stops at hidden first contact and leaves sites beyond that stop intact', () => {
+    const state = { ...field(), board: createBoard(7, 1) };
+    state.units = [unit('m', 'tank', 0, 0, { fuel: 70 }), unit('hidden', 'tank', 4, 0, { owner: 'blue' })];
+    state.fortifications = [
+      { owner: 'blue', position: { x: 1, y: 0 } },
+      { owner: 'blue', position: { x: 5, y: 0 } },
+    ];
+    const next = valueOf(moveUnit(state, 'm', { x: 5, y: 0 }));
+    expect(next.units[0]!.position).toEqual({ x: 3, y: 0 });
+    expect(next.fortifications).toEqual([state.fortifications[1]]);
+  });
+  it.each([null, 42, {}, [null], [{}], [{ owner: 'red', position: [] }], Array(9).fill(null)])('rejects malformed site data %#', (raw) => {
+    const state = field();
+    Object.assign(state, { fortifications: raw });
+    expect(validFortifications(state)).toBe(false);
+    expect(fortifyUnit(field(), 'missing').ok).toBe(false);
+  });
   it('removes sites at a disembarkation destination', () => {
     const state = field();
     state.units = [unit('apc', 'apc', 1, 2), unit('cargo', 'engineer', 0, 0, { position: undefined, embarkedIn: 'apc' })];
