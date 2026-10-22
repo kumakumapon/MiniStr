@@ -6,6 +6,7 @@ export * from './weapons';
 export * from './facilities';
 export * from './logistics';
 export * from './engineering';
+export * from './bridges';
 export * from './experience';
 export * from './rng';
 export * from './commands';

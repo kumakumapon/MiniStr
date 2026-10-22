@@ -2,6 +2,7 @@ import { parseBoundedJson } from './jsonBoundary';
 import { availableScenarios, loadScenarioDefinitions, scenarioDefinitionToData, scenarioForState, type ScenarioData, type ScenarioDefinition } from './maps';
 import { specialOperationData } from './specialOperations';
 import { standaloneOperationData } from './standaloneOperations';
+import { crossingOperationData } from './crossingOperations';
 import { frontlineOperationData } from './frontlineOperations';
 import { isUnitKindAvailable } from './facilities';
 import { controlOperationData } from './controlOperations';
@@ -12,7 +13,7 @@ export const OPERATION_RECORDS_KEY = 'ministr.operations.records';
 export const MAX_OPERATION_RECORDS = 128;
 export const MAX_OPERATION_RECORD_BYTES = 384_000;
 export const operationIds: ReadonlySet<string> = new Set(
-  [...specialOperationData, ...standaloneOperationData, ...controlOperationData, ...frontlineOperationData].map((data) => data.id),
+  [...specialOperationData, ...standaloneOperationData, ...controlOperationData, ...frontlineOperationData, ...crossingOperationData].map((data) => data.id),
 );
 export const OPERATION_CHALLENGES = ['swift', 'careful', 'survivors'] as const;
 export type OperationChallenge = (typeof OPERATION_CHALLENGES)[number];
@@ -68,6 +69,8 @@ export function operationTurnTarget(id: string): number {
   if (id === 'fighting-withdrawal') return 55;
   if (id === 'frontier-defense') return 7;
   if (id === 'encirclement-breakout') return 10;
+  if (id === 'bridgehead') return 16;
+  if (id === 'river-withdrawal') return 12;
   if (id === 'supply-ridge') return 12;
   if (id === 'supply-contest') return 24;
   if (id.startsWith('control-')) return 20;

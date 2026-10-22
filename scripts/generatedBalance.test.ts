@@ -75,6 +75,20 @@ describe('bounded reproducible generated comparisons', () => {
     expect(createScenarioInitialState(base).rngSeed).toBe(1);
     expect(createScenarioInitialState(comparisonScenario({ ...config, variant: 'seeded' })).rngSeed).not.toBe(1);
   });
+  it('compares the frontline preset with the same seeded damage stream and rotated layout', () => {
+    const options = parseGeneratedBalanceArgs(['--seas', 'coast', '--seeds', 'frontline-check', '--variants', 'seeded,frontline', '--rule', '9']);
+    const cases = generatedCases(options);
+    const base = comparisonScenario(cases[0]!);
+    const config = cases.find((item) => item.variant === 'frontline')!;
+    const frontline = comparisonScenario(config);
+    expect(frontline.id).toContain('generated-v3-frontline-');
+    expect(frontline.battleSeed).toBe(base.battleSeed);
+    expect(inspectGeneratedMap(frontline)).toEqual([]);
+    expect(frontline.initialUnits.filter((unit) => unit.kind === 'engineer')).toHaveLength(2);
+    expect(frontline.board.terrain.flat().filter((tile) => tile.kind === 'supplyDepot')).toHaveLength(2);
+    const rotated = comparisonScenario({ ...config, orientation: 'rotated' });
+    expect(rotated.board.terrain[0]![0]).toEqual(frontline.board.terrain.at(-1)!.at(-1));
+  });
   it('executes legal bounded matches, records partial timeouts and leaves comparable JSONL rows', () => {
     const options = parseGeneratedBalanceArgs(['--seas', 'none', '--seeds', 'smoke', '--rounds', '1']);
     const config = generatedCases(options)[0]!;

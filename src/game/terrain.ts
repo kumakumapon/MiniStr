@@ -1,4 +1,4 @@
-import type { Board, Position, Terrain, TerrainKind, UnitKind } from './types';
+import { usesBridgeRules, type Board, type GameState, type Position, type Terrain, type TerrainKind, type UnitKind } from './types';
 import { unitDefinitions, unitKinds, type MovementProfile } from './units';
 
 const movementByProfile: Record<TerrainKind, Record<MovementProfile, number>> = {
@@ -50,3 +50,14 @@ export function movementCost(board: Board, position: Position, unit: UnitKind): 
 }
 
 export function defenseStars(terrain: Terrain): number { return terrainRules[terrain.kind].defense; }
+
+/** Public bridges change ground passage, never the underlying terrain or naval movement. */
+export function hasBridge(state: GameState, position: Position): boolean {
+  return usesBridgeRules(state) && terrainAt(state.board, position)?.kind === 'sea'
+    && !!state.bridges?.some(site => samePosition(site.position, position));
+}
+
+export function unitMovementCost(state: GameState, position: Position, unit: UnitKind): number {
+  const profile = unitDefinitions[unit].movementProfile;
+  return (profile === 'foot' || profile === 'vehicle') && hasBridge(state, position) ? 1 : movementCost(state.board, position, unit);
+}

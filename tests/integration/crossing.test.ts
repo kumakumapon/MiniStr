@@ -1,0 +1,52 @@
+import { readFileSync, readdirSync } from 'node:fs';
+import { resolve } from 'node:path';
+import { afterEach, expect, it } from 'vitest';
+// @ts-expect-error jsdom is the runtime integration dependency used by startup.test.ts.
+import { JSDOM } from 'jsdom';
+import { crossingScenarioData } from '../crossing.fixture';
+import { MANUAL_SAVE_KEY } from '../../src/game/session';
+
+const asset = readdirSync('dist/assets').find((name) => /^index-.*\.js$/.test(name));
+if (!asset) throw Error('Build before UI integration');
+const source = readFileSync(resolve('dist/assets', asset), 'utf8');
+let dom: JSDOM;
+afterEach(() => dom?.window.close());
+it('runs bridge construction through the shipped bundle and preserves costs, history and undo', () => {
+  dom = new JSDOM('<html><body><div id="app"></div></body></html>', { url: 'http://localhost/', runScripts: 'outside-only', pretendToBeVisual: true });
+  Object.assign(dom.window, { structuredClone, TextEncoder, TextDecoder });
+  dom.window.HTMLElement.prototype.scrollIntoView = () => {};
+  dom.window.confirm = () => true;
+  dom.window.eval(source);
+  const document = dom.window.document;
+  const click = (selector: string) => {
+    const target = document.querySelector(selector);
+    if (!target) throw Error(`Missing ${selector}`);
+    target.click();
+  };
+  expect(document.querySelector('[data-map-id="supply-contest"]')).not.toBeNull();
+  expect(document.querySelector('[data-map-id="supply-ridge"]')).not.toBeNull();
+  click('#title-editor');
+  const json = document.querySelector('#editor-json');
+  json.value = JSON.stringify(crossingScenarioData());
+  json.dispatchEvent(new dom.window.Event('change', { bubbles: true }));
+  click('#editor-import');
+  click('#editor-start');
+  click('#begin-operation');
+  click('.tile[data-x="3"][data-y="2"]');
+  click('#bridge-unit');
+  expect(document.querySelector('.bridge-target')).not.toBeNull();
+  click('.tile[data-x="4"][data-y="2"]');
+  click('#bridge-cancel');
+  expect(document.querySelector('.bridge-marker')).toBeNull();
+  click('#bridge-unit');
+  click('.tile[data-x="4"][data-y="2"]');
+  click('#bridge-confirm');
+  expect(document.querySelector('.bridge-marker')?.textContent).toBe('橋');
+  click('#save');
+  const saved = JSON.parse(dom.window.localStorage.getItem(MANUAL_SAVE_KEY)!);
+  expect(saved.commands).toEqual([{ type: 'bridge', unitId: 'r1', destination: { x: 4, y: 2 } }]);
+  expect(saved.gameState.players.red.gold).toBe(saved.initialState.players.red.gold - 1000);
+  click('#undo');
+  expect(document.querySelector('.bridge-marker')).toBeNull();
+  expect(document.querySelector('#unit-brief')?.nextElementSibling?.id).toBe('board-viewport');
+});

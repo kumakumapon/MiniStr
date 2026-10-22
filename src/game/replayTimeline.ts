@@ -32,6 +32,7 @@ export class ReplayTimeline {
     const command = this.file.commands[index];
     if (!command) return '';
     if (command.type === 'endTurn') return 'endTurn';
+    if (command.type === 'bridge') return 'bridge'; // Completed bridge locations are public.
     if (viewer === 'all') return command.type;
     const before = this.seek(index);
     if (!before.ok) return '';

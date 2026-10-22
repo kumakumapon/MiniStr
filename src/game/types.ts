@@ -53,6 +53,8 @@ export interface GameState {
   board: Board;
   /** Rule v8: ground cover, distinct from the original terrain. */
   fortifications?: { position: Position; owner: PlayerId }[];
+  /** Rule v9: public, permanent crossings over the original sea terrain. */
+  bridges?: { position: Position; owner: PlayerId }[];
   units: Unit[];
   /** Units that reached an authored exit in rule v6; kept for results and veterans. */
   evacuatedUnits?: Unit[];
@@ -100,10 +102,12 @@ export const OPERATIONS_RULE_VERSION = 6 as const;
 /** Rule version assigned to newly started scenario matches. */
 export const RECON_CONTROL_RULE_VERSION = 7 as const;
 export const FRONTLINE_RULE_VERSION = 8 as const;
-export const CURRENT_RULE_VERSION = FRONTLINE_RULE_VERSION;
+export const BRIDGE_RULE_VERSION = 9 as const;
+export const CURRENT_RULE_VERSION = BRIDGE_RULE_VERSION;
+export const usesBridgeRules = (state: Pick<GameState, 'ruleVersion'>): boolean => (state.ruleVersion ?? 0) >= BRIDGE_RULE_VERSION;
 export const usesFrontlineRules = (state: Pick<GameState, 'ruleVersion'>): boolean => (state.ruleVersion ?? 0) >= FRONTLINE_RULE_VERSION;
-export type RuleVersion = typeof MODERN_RULE_VERSION | typeof DECISION_RULE_VERSION | typeof BALANCED_RULE_VERSION | typeof DUAL_WEAPON_RULE_VERSION | typeof OPERATIONS_RULE_VERSION | typeof RECON_CONTROL_RULE_VERSION | typeof FRONTLINE_RULE_VERSION;
-export const ruleVersions: readonly RuleVersion[] = [MODERN_RULE_VERSION, DECISION_RULE_VERSION, BALANCED_RULE_VERSION, DUAL_WEAPON_RULE_VERSION, OPERATIONS_RULE_VERSION, RECON_CONTROL_RULE_VERSION, FRONTLINE_RULE_VERSION];
+export type RuleVersion = typeof MODERN_RULE_VERSION | typeof DECISION_RULE_VERSION | typeof BALANCED_RULE_VERSION | typeof DUAL_WEAPON_RULE_VERSION | typeof OPERATIONS_RULE_VERSION | typeof RECON_CONTROL_RULE_VERSION | typeof FRONTLINE_RULE_VERSION | typeof BRIDGE_RULE_VERSION;
+export const ruleVersions: readonly RuleVersion[] = [MODERN_RULE_VERSION, DECISION_RULE_VERSION, BALANCED_RULE_VERSION, DUAL_WEAPON_RULE_VERSION, OPERATIONS_RULE_VERSION, RECON_CONTROL_RULE_VERSION, FRONTLINE_RULE_VERSION, BRIDGE_RULE_VERSION];
 export const usesReconRules = (state: Pick<GameState, 'ruleVersion'>): boolean => (state.ruleVersion ?? 0) >= RECON_CONTROL_RULE_VERSION;
 export const usesOperationsRules = (state: Pick<GameState, 'ruleVersion'>): boolean => (state.ruleVersion ?? 0) >= OPERATIONS_RULE_VERSION;
 export const usesDualWeapons = (state: Pick<GameState, 'ruleVersion'>): boolean => (state.ruleVersion ?? 0) >= DUAL_WEAPON_RULE_VERSION;

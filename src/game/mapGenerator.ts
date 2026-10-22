@@ -1,5 +1,5 @@
 import { isPropertyTerrainKind } from './facilities';
-import { loadScenarioDefinitions, type InitialUnit, type ScenarioData, type ScenarioDefinition } from './maps';
+import { loadScenarioDefinitions, scenarioDefinitionToData, type InitialUnit, type ScenarioData, type ScenarioDefinition } from './maps';
 import { movementCost } from './terrain';
 import type { GameResult, PlayerId, Position, TerrainKind, UnitKind } from './types';
 
@@ -9,6 +9,7 @@ export interface MapGenerationOptions {
   size: (typeof GENERATED_SIZES)[number];
   sea: (typeof GENERATED_SEAS)[number];
   seed: string;
+  preset?: 'standard' | 'frontline';
 }
 type Cell = [number, number, TerrainKind, PlayerId?];
 const rotateOwner = (owner?: PlayerId) => (owner === undefined ? undefined : owner === 'red' ? 'blue' : 'red');
@@ -172,7 +173,7 @@ export function generatedBattleSeed(options: MapGenerationOptions): number {
   for (let at = 0; at < value.length; at++) hash = Math.imul(hash ^ value.charCodeAt(at), 16777619);
   return hash >>> 0;
 }
-export function generateSymmetricMap(input: unknown): GameResult<ScenarioDefinition> {
+export function generateSymmetricMapV2(input: unknown): GameResult<ScenarioDefinition> {
   const generated = generateSymmetricMapV1(input);
   if (!generated.ok) return generated;
   const scenario = generated.value;
@@ -186,4 +187,40 @@ export function generateSymmetricMap(input: unknown): GameResult<ScenarioDefinit
       briefing: scenario.briefing.replace('生成v1', `生成v2 / 戦闘seed: ${seed}`),
     },
   };
+}
+
+/** V3 is opt-in. Standard V1/V2 terrain, forces and battle streams remain identical. */
+export function generateSymmetricMap(input: unknown): GameResult<ScenarioDefinition> {
+  const options = input as Partial<MapGenerationOptions> | null;
+  if (options?.preset !== undefined && options.preset !== 'standard' && options.preset !== 'frontline') return { ok: false, error: '生成設定が不正です。' };
+  const generated = generateSymmetricMapV2(input);
+  if (!generated.ok || options?.preset !== 'frontline') return generated;
+  const data = scenarioDefinitionToData(generated.value);
+  const { width, height } = data.board;
+  const row = height / 2 - 2;
+  // Choose a connected road, never replace an income facility or an initial unit.
+  const candidate = generated.value.board.terrain
+    .flatMap((line, y) =>
+      line.flatMap((tile, x) =>
+        y < height / 2 && tile.kind === 'road' && !data.initialUnits.some((unit) => (unit.x === x && unit.y === y) || (unit.x === width - 1 - x && unit.y === height - 1 - y))
+          ? [{ x, y }]
+          : [],
+      ),
+    )
+    .sort((a, b) => Math.abs(a.x - (width / 2 - 2)) + Math.abs(a.y - row) - Math.abs(b.x - (width / 2 - 2)) - Math.abs(b.y - row) || a.y - b.y || a.x - b.x)[0];
+  if (!candidate) return { ok: false, error: '補給所の配置場所を確保できませんでした。別のseedを指定してください。' };
+  const positions = [candidate, { x: width - 1 - candidate.x, y: height - 1 - candidate.y }];
+  data.board.cells = data.board.cells.filter(([x, y]) => !positions.some((position) => position.x === x && position.y === y));
+  data.board.cells = [...data.board.cells, ...positions.map(({ x, y }): Cell => [x, y, 'supplyDepot'])];
+  const band = options.sea === 'none' ? 0 : options.sea === 'coast' ? 1 : 2;
+  const engineer = { kind: 'engineer' as const, owner: 'red' as const, x: band + 3, y: band + 4 };
+  data.initialUnits = [...data.initialUnits, engineer, { ...engineer, owner: 'blue', x: width - 1 - engineer.x, y: height - 1 - engineer.y }];
+  data.id = data.id.replace('generated-v2-', 'generated-v3-frontline-');
+  data.name = `前線補給・工兵 ${options.seed}（${width}×${height}）`;
+  data.briefing = data.briefing.replace('生成v2', '生成v3 / 前線補給・工兵') + '中立補給所2か所と各軍の工兵を追加。補給所の確保と防御陣地で進軍を支援せよ。内陸河川は生成しない。';
+  const loaded = loadScenarioDefinitions([data]);
+  if (!loaded.ok) return loaded;
+  const scenario = loaded.value[0]!;
+  const errors = inspectGeneratedMap(scenario);
+  return errors.length ? { ok: false, error: errors.join(' ') } : { ok: true, value: scenario };
 }

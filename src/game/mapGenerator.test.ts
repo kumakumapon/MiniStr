@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { GENERATED_SEAS, GENERATED_SIZES, generateSymmetricMap, generateSymmetricMapV1, generatedBattleSeed, inspectGeneratedMap } from './mapGenerator';
+import { GENERATED_SEAS, GENERATED_SIZES, generateSymmetricMap, generateSymmetricMapV1, generateSymmetricMapV2, generatedBattleSeed, inspectGeneratedMap } from './mapGenerator';
 import { createScenarioInitialState, loadScenarioDefinitions, scenarioDefinitionToData } from './maps';
 import { parseSavedGame, saveGame } from './session';
 import { valueOf } from './operations.fixture';
@@ -67,6 +67,36 @@ describe('symmetric map generation', () => {
 });
 
 describe('generated battle streams and old snapshots', () => {
+  for (const size of GENERATED_SIZES)
+    for (const sea of GENERATED_SEAS)
+      it(`adds symmetric frontline facilities and forces at ${size}/${sea}`, () => {
+        for (const seed of ['front-1', 'verify-17', '0', 'z_z-24']) {
+          const options = { size, sea, seed };
+          const old = valueOf(generateSymmetricMapV2(options));
+          expect(valueOf(generateSymmetricMap({ ...options, preset: 'standard' }))).toEqual(old);
+          const frontline = valueOf(generateSymmetricMap({ ...options, preset: 'frontline' }));
+          expect(frontline.id).toBe(`generated-v3-frontline-${size}-${sea}-${seed}`);
+          expect(frontline.initialUnits.filter((unit) => unit.kind === 'engineer')).toHaveLength(2);
+          expect(frontline.board.terrain.flat().filter((tile) => tile.kind === 'supplyDepot')).toHaveLength(2);
+          expect(inspectGeneratedMap(frontline)).toEqual([]);
+          expect(valueOf(generateSymmetricMap({ ...options, preset: 'frontline' }))).toEqual(frontline);
+          expect(frontline.battleSeed).toBe(old.battleSeed); // Paired terrain settings share the combat stream.
+          const initial = createScenarioInitialState(frontline);
+          const saved = valueOf(
+            saveGame({ getItem: () => null, setItem: () => {}, removeItem: () => {} }, 'frontline', {
+              mapId: frontline.id,
+              difficulty: 'normal',
+              initialState: initial,
+              gameState: initial,
+              commands: [],
+            }),
+          );
+          expect(valueOf(parseSavedGame(JSON.stringify(saved))).initialState).toEqual(initial);
+        }
+      });
+  it.each([null, 3, 'unknown'])('rejects an invalid preset %j', (preset) => {
+    expect(generateSymmetricMap({ size: 16, sea: 'none', seed: 'good', preset }).ok).toBe(false);
+  });
   it('retains V1 definitions and independently reproduces V2 terrain and combat seeds', () => {
     const options = { size: 16 as const, sea: 'coast' as const, seed: 'legacy-stream' };
     const old = valueOf(generateSymmetricMapV1(options)),
