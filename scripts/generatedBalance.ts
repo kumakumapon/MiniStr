@@ -17,7 +17,7 @@ export interface GeneratedBalanceOptions {
   damageSeeds: (number | 'scenario')[];
   orientations: ('normal' | 'rotated')[];
   matchups: [CpuDifficulty, CpuDifficulty][];
-  variants: ('baseline' | 'wide' | 'seeded')[];
+  variants: ('baseline' | 'wide' | 'seeded' | 'frontline')[];
   bonuses: number[];
   rounds: number;
   seconds: number;
@@ -73,7 +73,7 @@ export function parseGeneratedBalanceArgs(args: readonly string[]): GeneratedBal
     damageSeeds.some((seed) => seed !== 'scenario' && (!Number.isSafeInteger(seed) || seed < 0 || seed > 0xffff_ffff)) ||
     orientations.some((value) => value !== 'normal' && value !== 'rotated') ||
     matchups.some((pair) => pair.length !== 2 || pair.some((difficulty) => !['easy', 'normal', 'hard'].includes(difficulty))) ||
-    variants.some((value) => value !== 'baseline' && value !== 'wide' && value !== 'seeded') ||
+    variants.some((value) => value !== 'baseline' && value !== 'wide' && value !== 'seeded' && value !== 'frontline') ||
     bonuses.some((bonus) => !Number.isSafeInteger(bonus) || bonus < 0 || bonus > 20_000)
   )
     throw Error('Unsupported generated comparison settings');
@@ -123,7 +123,12 @@ export function generatedCases(options: GeneratedBalanceOptions): GeneratedCase[
 }
 
 export function comparisonScenario(config: GeneratedCase): ScenarioDefinition {
-  const generated = (config.variant === 'seeded' ? generateSymmetricMap : generateSymmetricMapV1)({ size: config.size, sea: config.sea, seed: config.seed });
+  const generated = (config.variant === 'seeded' || config.variant === 'frontline' ? generateSymmetricMap : generateSymmetricMapV1)({
+    size: config.size,
+    sea: config.sea,
+    seed: config.seed,
+    ...(config.variant === 'frontline' ? { preset: 'frontline' } : {}),
+  });
   if (!generated.ok) throw Error(generated.error);
   const scenario = structuredClone(generated.value),
     { width, height } = scenario.board;

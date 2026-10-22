@@ -45,6 +45,9 @@ import { BOARD_ZOOM_LEVELS, boardAreaWidth, boardTileSize, boardZoomPercent, def
 import { rankNames, rankStars, terrainNames, unitNames, unitTokens, unitWeaponName } from './ui/labels';
 import { describeTileInspection, inspectTile, type InspectorRow } from './ui/tileInspector';
 import { fortificationAt, renderFrontlineControls, supplyRange } from './ui/frontline';
+import { bridgeDestinations, bridgeError } from './game/bridges';
+import { hasBridge } from './game/terrain';
+import { bridgeMarker, renderBridgeControls, type BridgePending } from './ui/bridges';
 import { fortificationError } from './game/engineering';
 import { renderUnitBrief } from './ui/unitBrief';
 import { COMMAND_SPEEDS, CommandScheduler, type CommandSpeed } from './ui/commandScheduler';
@@ -83,6 +86,7 @@ let generatorNotice = '';
 let reconOpen = false;
 let showSupplyRange = false;
 let fortifyPending: string | undefined;
+let bridgePending: BridgePending | undefined;
 let reconTargeting = false;
 const recordsLoad = loadOperationRecords(localStorage);
 let operationCatalog = recordsLoad.ok ? recordsLoad.value : undefined;
@@ -552,6 +556,8 @@ function recordVisibleCpuAction(before: GameState, command: GameCommand): void {
   } else if (command.type === 'move') {
     const unit = visibleUnit(command.unitId);
     entry = unit && isDeployedUnit(unit) ? `敵の${unitNames[unit.kind]}が視認範囲内で移動しました。` : undefined;
+  } else if (command.type === 'bridge') {
+    entry = `(${command.destination.x + 1}, ${command.destination.y + 1}) に仮設橋が完成しました（公開情報）。`;
   } else if (command.type === 'fortify') {
     const actor = visibleUnit(command.unitId);
     entry = actor ? '敵の工兵が視認範囲内に陣地を設営しました。' : undefined;
@@ -813,6 +819,7 @@ function render(): void {
   syncOperationOutcome();
   if (!canCommand()) reconTargeting = false;
   if (!selected || selected !== fortifyPending || !canCommand()) fortifyPending = undefined;
+  if (bridgePending && (!canCommand() || selected !== bridgePending.unitId || bridgeError(game, bridgePending.unitId))) bridgePending = undefined;
   // A save can legitimately resume during blue's turn. Start only after its
   // loading screen has closed; the in-progress guard prevents duplicate timers.
   if (screens.current === 'battle' && matchMode === 'cpu' && !localStorage.conflicted && !cpuInProgress
@@ -828,6 +835,7 @@ function render(): void {
     else if (activeElement.matches('.title-map-card[data-map-id]')) focusSelector = `.title-map-card[data-map-id="${activeElement.dataset.mapId}"]`;
     else if (activeElement.matches('.tile[data-x][data-y]')) focusSelector = `.tile[data-x="${activeElement.dataset.x}"][data-y="${activeElement.dataset.y}"]`;
   }
+  const bridgeTargets = bridgePending ? new Set(bridgeDestinations(game, bridgePending.unitId).map(key)) : new Set<string>();
   const replayMode = replay !== undefined;
   const renderedGame = replay?.state ?? game;
   const renderedMap = replay ? scenarioForState(replay.state) ?? selectedMap : selectedMap;
@@ -920,7 +928,7 @@ function render(): void {
       hidden ? '未索敵' : '',
     ].filter(Boolean);
     const stateMarker = `${exitPositions.has(`${x},${y}`) ? '<span class="objective-marker evacuation-exit" aria-hidden="true">脱</span>' : objectivePositions.has(`${x},${y}`) ? '<span class="objective-marker" aria-hidden="true">目</span>' : ''}${unit && !hidden && missionTargets.has(unit.id) ? '<span class="mission-unit-marker" aria-hidden="true">任</span>' : ''}${isSelected ? '<span class="tile-state-marker selected-marker" aria-hidden="true">選</span>' : ''}${isReachable ? '<span class="tile-state-marker reachable-marker" aria-hidden="true">移</span>' : ''}${productionReady ? '<span class="tile-state-marker facility-ready-marker" aria-hidden="true">産</span>' : ''}${enemyMovement ? '<span class="tile-state-marker enemy-move-marker" aria-hidden="true">敵移</span>' : ''}${(enemyAttack || movementDanger) ? '<span class="tile-state-marker danger-marker" aria-hidden="true">危</span>' : ''}`;
-    return `<button ${!canAct ? 'disabled' : ''} class="tile ${!replayMode && matchMode === 'spectate' && spectateLastAction && key(spectateLastAction) === `${x},${y}` ? 'spectate-current' : ''} ${terrain.kind} ${supplyTiles.has(`${x},${y}`) ? 'supply-coverage' : ''} ${isSelected ? 'selected' : ''} ${isReachable ? 'reachable' : ''} ${enemyMovement ? 'enemy-move-zone' : ''} ${enemyAttack ? 'enemy-attack-zone' : ''} ${movementDanger ? 'movement-danger' : ''} ${isFacilityTarget ? 'facility-target' : ''} ${hidden ? 'fog' : ''}" data-x="${x}" data-y="${y}" data-terrain="${terrain.kind}" tabindex="${focusedPosition.x === x && focusedPosition.y === y ? '0' : '-1'}" title="${propertyLabel}${unitLabel ? ` — ${unitLabel}` : ''}${statuses.length ? ` — ${statuses.join('、')}` : ''}" aria-label="${propertyLabel}${unitLabel ? `、${unitLabel}` : ''}${supplyTiles.has(`${x},${y}`) ? '、自軍補給範囲' : ''}${!hidden && renderedGame.fortifications?.some(site => key(site.position) === `${x},${y}`) ? '、防御陣地' : ''}${statuses.length ? `、${statuses.join('、')}` : ''}">${terrainArt}${stateMarker}${fortificationAt(renderedGame, { x, y }, visible)}${facility}${label}</button>`;
+    return `<button ${!canAct ? 'disabled' : ''} class="tile ${!replayMode && matchMode === 'spectate' && spectateLastAction && key(spectateLastAction) === `${x},${y}` ? 'spectate-current' : ''} ${terrain.kind} ${bridgeTargets.has(`${x},${y}`) ? 'bridge-target' : ''} ${supplyTiles.has(`${x},${y}`) ? 'supply-coverage' : ''} ${isSelected ? 'selected' : ''} ${isReachable ? 'reachable' : ''} ${enemyMovement ? 'enemy-move-zone' : ''} ${enemyAttack ? 'enemy-attack-zone' : ''} ${movementDanger ? 'movement-danger' : ''} ${isFacilityTarget ? 'facility-target' : ''} ${hidden ? 'fog' : ''}" data-x="${x}" data-y="${y}" data-terrain="${terrain.kind}" tabindex="${focusedPosition.x === x && focusedPosition.y === y ? '0' : '-1'}" title="${propertyLabel}${unitLabel ? ` — ${unitLabel}` : ''}${statuses.length ? ` — ${statuses.join('、')}` : ''}" aria-label="${propertyLabel}${hasBridge(renderedGame, { x, y }) ? '、仮設橋（位置は公開）' : ''}${bridgeTargets.has(`${x},${y}`) ? '、架橋可能' : ''}${unitLabel ? `、${unitLabel}` : ''}${supplyTiles.has(`${x},${y}`) ? '、自軍補給範囲' : ''}${!hidden && renderedGame.fortifications?.some(site => key(site.position) === `${x},${y}`) ? '、防御陣地' : ''}${statuses.length ? `、${statuses.join('、')}` : ''}">${terrainArt}${bridgeMarker(renderedGame, { x, y })}${stateMarker}${fortificationAt(renderedGame, { x, y }, visible)}${facility}${label}</button>`;
   })).join('');
   const ownUnitCount = renderedGame.units.filter(unit => unit.owner === me).length;
   const ownUnitLimit = usesDecisionRules(renderedGame) ? unitLimit(renderedGame.board, renderedGame.ruleVersion) : undefined;
@@ -1121,7 +1129,7 @@ function render(): void {
     <section class="sound-controls" aria-label="音量設定"><label><input id="sound-muted" type="checkbox" ${!soundSettings.muted ? 'checked' : ''}> 効果音</label><label>音量 <input id="sound-volume" type="range" min="0" max="100" value="${Math.round(soundSettings.volume * 100)}" aria-label="効果音の音量"></label><label><input id="music-muted" type="checkbox" ${!musicSettings.muted ? 'checked' : ''}> BGM</label><label>BGM曲 <select id="music-track" aria-label="フィールドBGMの曲">${FIELD_TRACKS.map(track => `<option value="${track}"${musicSettings.fieldTrack === track ? ' selected' : ''}>${FIELD_TRACK_LABELS[track]}</option>`).join('')}</select></label><label>BGM音量 <input id="music-volume" type="range" min="0" max="100" value="${Math.round(musicSettings.volume * 100)}" aria-label="BGMの音量"></label></section>
     ${!hasSave() && hasStoredSave() ? `<p class="scenario-warning" role="status">${matchSaveDeletionAllowed(matchMode) ? uiText.invalidSaveWarning : uiText.invalidSaveWarningSpectating}</p>` : ''}
     ${replay ? `<section class="replay-toolbar" aria-label="リプレイ再生コントロール"><div><p class="card-kicker">REPLAY</p><strong aria-live="polite">${replay.index} / ${replay.file.commands.length} 手</strong></div><button id="replay-toggle" class="end-turn" aria-label="${replay.playing ? 'リプレイを一時停止' : replay.index >= replay.file.commands.length ? 'リプレイを最初から再生' : 'リプレイを再生'}" ${replay.file.commands.length === 0 ? 'disabled' : ''}>${replay.playing ? '一時停止' : replay.index >= replay.file.commands.length ? 'もう一度再生' : '再生'}</button><button id="replay-step" class="save-action" ${replay.playing || replay.index >= replay.file.commands.length ? 'disabled' : ''}>1手送り</button><label class="replay-speed">速度<select id="replay-speed" aria-label="リプレイ再生速度">${COMMAND_SPEEDS.map(speed => `<option value="${speed}" ${speed === replay!.speed ? 'selected' : ''}>${speed}x</option>`).join('')}</select></label>${renderReplayNavigation(replay.index, replay.file.commands.length, replay.viewpoint, replay.timeline)}<button id="replay-exit" class="save-action">リプレイを終了</button></section>` : ''}
-    ${concealed ? '' : `<section class="battle-layout"><div class="battlefield-wrap ${mapTheme}"><div class="battlefield-heading"><div><p>OPERATION MAP</p><h2>${escapeHtml(renderedMap.name)}</h2></div><p class="status-message" aria-live="polite">${escapeHtml(message)}</p></div><p id="board-instructions" class="board-instructions">盤面では矢印キーでマスを移動し、Enter または Space で選択・行動、Esc で選択を解除できます。敵部隊を選択またはフォーカスすると、移動範囲と攻撃危険域を確認できます。N キーで次の未行動部隊へ移動します。</p>${spectateCameraControls}${turnStatus}<div class="battlefield-stage">${!replayMode ? renderReconControl(renderedGame, me, canAct, reconTargeting) : ''}${renderControlObjective(renderedGame, renderedMap)}${evacuationAction}${renderFrontlineControls(renderedGame, me, selected, canAct && !replayMode, showSupplyRange, fortifyPending)}${unitBriefPanel}<div id="board-viewport" class="board-viewport" tabindex="0" aria-label="盤面スクロール領域" style="max-height:min(70vh, ${boardViewportHeight}px)"><div class="board ${reconTargeting ? 'recon-targeting' : ''}" role="group" aria-label="${escapeHtml(renderedMap.name)}の戦術マップ" aria-describedby="board-instructions" style="grid-template-columns:repeat(${renderedGame.board.width},${tileSize}px);grid-template-rows:repeat(${renderedGame.board.height},${tileSize}px);aspect-ratio:${renderedGame.board.width} / ${renderedGame.board.height}">${board}</div></div></div>${boardZoomControls}<div class="board-production-controls">${productionLauncher}</div><div class="map-legend" aria-label="マップ凡例"><span><i class="legend-dot reachable-dot" aria-hidden="true">移</i>移動可能</span><span><i class="legend-dot danger-dot" aria-hidden="true">危</i>敵の攻撃危険域</span><span><i class="legend-dot enemy-move-dot" aria-hidden="true">敵移</i>選択敵の移動範囲</span>${wholeBoardShown ? '' : '<span><i class="legend-dot fog-dot" aria-hidden="true">?</i>未索敵</span>'}<span><i class="legend-unit ${me}-dot" aria-hidden="true">自</i>自軍${matchMode === 'cpu' ? '' : `（${sideName(matchMode, me)}）`}</span><span><i class="legend-unit ${foe}-dot" aria-hidden="true">敵</i>敵軍${matchMode === 'cpu' ? '' : `（${sideName(matchMode, foe)}）`}</span><span><i class="legend-facility" aria-hidden="true">拠</i>拠点（市・工・空・港・司・補）</span><span><i class="legend-dot facility-ready-dot" aria-hidden="true">産</i>生産可能</span></div>${tileInspectorPanel}${reconPanel}${analysisPanel}</div>
+    ${concealed ? '' : `<section class="battle-layout"><div class="battlefield-wrap ${mapTheme}"><div class="battlefield-heading"><div><p>OPERATION MAP</p><h2>${escapeHtml(renderedMap.name)}</h2></div><p class="status-message" aria-live="polite">${escapeHtml(message)}</p></div><p id="board-instructions" class="board-instructions">盤面では矢印キーでマスを移動し、Enter または Space で選択・行動、Esc で選択を解除できます。敵部隊を選択またはフォーカスすると、移動範囲と攻撃危険域を確認できます。N キーで次の未行動部隊へ移動します。</p>${spectateCameraControls}${turnStatus}<div class="battlefield-stage">${!replayMode ? renderReconControl(renderedGame, me, canAct, reconTargeting) : ''}${renderControlObjective(renderedGame, renderedMap)}${evacuationAction}${renderFrontlineControls(renderedGame, me, selected, canAct && !replayMode, showSupplyRange, fortifyPending)}${renderBridgeControls(renderedGame, me, selected, canAct && !replayMode, bridgePending)}${unitBriefPanel}<div id="board-viewport" class="board-viewport" tabindex="0" aria-label="盤面スクロール領域" style="max-height:min(70vh, ${boardViewportHeight}px)"><div class="board ${reconTargeting ? 'recon-targeting' : ''}" role="group" aria-label="${escapeHtml(renderedMap.name)}の戦術マップ" aria-describedby="board-instructions" style="grid-template-columns:repeat(${renderedGame.board.width},${tileSize}px);grid-template-rows:repeat(${renderedGame.board.height},${tileSize}px);aspect-ratio:${renderedGame.board.width} / ${renderedGame.board.height}">${board}</div></div></div>${boardZoomControls}<div class="board-production-controls">${productionLauncher}</div><div class="map-legend" aria-label="マップ凡例"><span><i class="legend-dot reachable-dot" aria-hidden="true">移</i>移動可能</span><span><i class="legend-dot danger-dot" aria-hidden="true">危</i>敵の攻撃危険域</span><span><i class="legend-dot enemy-move-dot" aria-hidden="true">敵移</i>選択敵の移動範囲</span>${wholeBoardShown ? '' : '<span><i class="legend-dot fog-dot" aria-hidden="true">?</i>未索敵</span>'}<span><i class="legend-unit ${me}-dot" aria-hidden="true">自</i>自軍${matchMode === 'cpu' ? '' : `（${sideName(matchMode, me)}）`}</span><span><i class="legend-unit ${foe}-dot" aria-hidden="true">敵</i>敵軍${matchMode === 'cpu' ? '' : `（${sideName(matchMode, foe)}）`}</span><span><i class="legend-facility" aria-hidden="true">拠</i>拠点（市・工・空・港・司・補）</span><span><i class="legend-dot facility-ready-dot" aria-hidden="true">産</i>生産可能</span></div>${tileInspectorPanel}${reconPanel}${analysisPanel}</div>
     <aside id="command-panel" class="command-panel" aria-label="作戦情報" tabindex="-1">${objectivePanel}${unitQueuePanel}${selectedUnitActions}${cpuActivityPanel}<section class="commander-card ${renderedGame.activePlayer}"><img src="${commander.image}" alt="${commander.alt}" width="512" height="768" loading="lazy" decoding="async"><div><p>COMMANDER</p><h2>${commander.title}</h2><span>${commander.label}</span></div></section>${renderLearning(renderedGame, me, commandHistory, learningOpen)}${transportAction}${forecastCard}<section class="intel-card"><p class="card-kicker">RESOURCES</p><div class="resource-row"><span>自軍資金</span><strong>${renderedGame.players[me].gold}<small>G</small></strong></div><div class="resource-row enemy"><span>敵軍資金</span><strong>${wholeBoardShown ? renderedGame.players[foe].gold : '不明'}<small>G</small></strong></div></section><section class="intel-card"><p class="card-kicker">RECON</p><div class="recon-count"><strong>${renderedGame.units.filter(unit => unit.owner === foe && isDeployedUnit(unit) && visible.has(key(unit.position))).length}</strong><span>確認済み敵部隊</span></div></section>${renderProductionCard(productionTargetLine, productionSummary, production)}${turnSetting}${saveSlotManager}<p class="command-tip">歩兵は中立・敵軍の都市、工場、空港、港湾、司令部で<strong>占領</strong>できます。生産先は盤面の空き「産」マスを選び、工場・空港・港湾から対応する部隊を生産します。輸送艦は歩兵を1部隊搭載し、別の島へ上陸させられます。</p></aside>
   </section>${mobileActionBar}`}</main>${gameOverOverlay}${briefing}${titleOverlay}${campaignOverlay}${editorOverlay}${concealed ? renderHandoffOverlay(sideName('hotseat', renderedGame.activePlayer)) : ''}${activeTacticalScene ? ('attacker' in activeTacticalScene ? renderBattleScene(activeTacticalScene) : renderActionScene(activeTacticalScene)) : ''}${productionOverlay}`;
   document.body.classList.toggle('production-menu-open', Boolean(productionOverlay));
@@ -1186,13 +1194,25 @@ function render(): void {
   app.querySelector<HTMLButtonElement>('#supply-range')?.addEventListener('click', () => { showSupplyRange = !showSupplyRange; focusSelector = '#supply-range'; render(); });
   app.querySelector<HTMLButtonElement>('#fortify-unit')?.addEventListener('click', () => {
     if (!canCommand() || !selected || fortificationError(game, selected)) return;
-    fortifyPending = selected; focusSelector = '#fortify-confirm'; render();
+    bridgePending = undefined; fortifyPending = selected; focusSelector = '#fortify-confirm'; render();
   });
   app.querySelector<HTMLButtonElement>('#fortify-cancel')?.addEventListener('click', () => { fortifyPending = undefined; focusSelector = '#fortify-unit'; render(); });
   app.querySelector<HTMLButtonElement>('#fortify-confirm')?.addEventListener('click', () => {
     if (!canCommand() || !selected || selected !== fortifyPending) return;
     if (dispatch({ type: 'fortify', unitId: selected }, true)) message = '防御陣地を設営しました。地上部隊の防御★+1。';
     fortifyPending = undefined; render();
+  });
+  app.querySelector<HTMLButtonElement>('#bridge-unit')?.addEventListener('click', () => {
+    if (!canCommand() || !selected || !bridgeDestinations(game, selected).length) return;
+    fortifyPending = undefined; reconTargeting = false; bridgePending = { unitId: selected };
+    message = '光る水域を選択して架橋地点を確認します。Escで中止できます。';
+    focusBoardPosition(bridgeDestinations(game, selected)[0]!);
+  });
+  app.querySelector<HTMLButtonElement>('#bridge-cancel')?.addEventListener('click', () => { bridgePending = undefined; focusSelector = '#bridge-unit'; render(); });
+  app.querySelector<HTMLButtonElement>('#bridge-confirm')?.addEventListener('click', () => {
+    if (!canCommand() || !bridgePending?.destination || selected !== bridgePending.unitId) return;
+    if (dispatch({ type: 'bridge', unitId: selected, destination: bridgePending.destination }, true)) message = '仮設橋が完成しました。両軍が利用でき、完成位置は公開されます。';
+    bridgePending = undefined; render();
   });
   app.querySelector<HTMLButtonElement>('#recon-target')?.addEventListener('click', () => {
     if (!canCommand() || remainingRecon(game, viewer()) <= 0) return;
@@ -1238,6 +1258,7 @@ function render(): void {
   }));
   app.querySelector<HTMLSelectElement>('#title-generator-size')?.addEventListener('change', event => { generatorForm.size = Number((event.currentTarget as HTMLSelectElement).value); });
   app.querySelector<HTMLSelectElement>('#title-generator-sea')?.addEventListener('change', event => { generatorForm.sea = (event.currentTarget as HTMLSelectElement).value; });
+  app.querySelector<HTMLSelectElement>('#title-generator-preset')?.addEventListener('change', event => { generatorForm.preset = (event.target as HTMLSelectElement).value; });
   app.querySelector<HTMLButtonElement>('#title-generator-create')?.addEventListener('click', () => {
     if (!screens.titleOpen || !confirmReplaceMatch()) return;
     generatorOpen = true;
@@ -1657,7 +1678,7 @@ function render(): void {
   if (!replayMode) {
     app.querySelectorAll<HTMLButtonElement>('.tile').forEach(tile => {
       const position = { x: Number(tile.dataset.x), y: Number(tile.dataset.y) };
-      tile.onclick = () => { focusedPosition = position; act(position); focusBoardPosition(focusedPosition); };
+      tile.onclick = () => { focusedPosition = position; act(position); if (!bridgePending?.destination) focusBoardPosition(focusedPosition); };
       tile.onkeydown = event => handleBoardKey(event, position);
       tile.onfocus = () => {
         if (focusedPosition.x === position.x && focusedPosition.y === position.y) return;
@@ -1893,6 +1914,7 @@ function handleBoardKey(event: KeyboardEvent, position: Position): void {
     focusBoardPosition(next);
     return;
   }
+  if (event.key === 'Escape' && bridgePending) { event.preventDefault(); event.stopPropagation(); bridgePending = undefined; focusSelector = '#bridge-unit'; render(); return; }
   if (event.key === 'Escape' && selected) {
     event.preventDefault();
     selected = undefined;
@@ -1958,6 +1980,12 @@ function beginHandoffTurn(): void {
 
 function act(position: Position): void {
   if (!canCommand()) return;
+  if (bridgePending) {
+    const error = bridgeError(game, bridgePending.unitId, position);
+    if (error) message = error;
+    else { bridgePending = { ...bridgePending, destination: position }; focusSelector = '#bridge-confirm'; }
+    render(); return;
+  }
   if (reconTargeting) {
     const applied = dispatch({ type: 'recon', center: position }, true);
     if (applied) { reconTargeting = false; message = `(${position.x + 1}, ${position.y + 1}) の周辺を、この手番中だけ偵察します。`; }
@@ -2094,7 +2122,7 @@ function runCpu(initialDelayMs = 0): void {
     if (action.type === 'endTurn') { dispatch(action); finishCpuTurn(side); return false; }
     const before = game;
     if (!dispatch(action)) {
-      const unitId = action.type === 'fortify' || action.type === 'move' || action.type === 'wait' || action.type === 'evacuate' || action.type === 'attack' || action.type === 'merge' || action.type === 'capture' || action.type === 'embark'
+      const unitId = action.type === 'bridge' || action.type === 'fortify' || action.type === 'move' || action.type === 'wait' || action.type === 'evacuate' || action.type === 'attack' || action.type === 'merge' || action.type === 'capture' || action.type === 'embark'
         ? action.unitId : action.type === 'disembark' ? action.transportId : undefined;
       if (!unitId || !dispatch({ type: 'wait', unitId })) {
         message = 'CPU の行動を安全に終了しました。';
@@ -2140,6 +2168,7 @@ window.addEventListener('resize', () => {
   if (boardZoomIndex !== previous) render();
 });
 window.addEventListener('keydown', event => {
+  if (event.key === 'Escape' && bridgePending) { event.preventDefault(); bridgePending = undefined; focusSelector = '#bridge-unit'; render(); return; }
   if (event.key === 'Escape' && fortifyPending) { event.preventDefault(); fortifyPending = undefined; focusSelector = '#fortify-unit'; render(); return; }
   if (event.key === 'Escape' && reconTargeting) { event.preventDefault(); reconTargeting = false; message = '偵察を中止しました。'; focusSelector = '#recon-target'; render(); return; }
   if (productionMenuOpen) {

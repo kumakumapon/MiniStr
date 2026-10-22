@@ -1,4 +1,4 @@
-import { canServiceUnitAt, defaultProductionRule, defenseStars, experienceRank, isDeployedUnit, isGroundUnit, MAX_EXPERIENCE, remainingAmmo, weaponAmmo, weaponsForUnit, usesModernRules, isPropertyTerrainKind, movementCost, productionKindsForRule, terrainAt, type ProductionRule, unitStats, type GameState, type PlayerId, type Position, type UnitKind } from '../game';
+import { canServiceUnitAt, defaultProductionRule, defenseStars, experienceRank, isDeployedUnit, isGroundUnit, MAX_EXPERIENCE, remainingAmmo, weaponAmmo, weaponsForUnit, usesModernRules, isPropertyTerrainKind, hasBridge, unitMovementCost, productionKindsForRule, terrainAt, type ProductionRule, unitStats, type GameState, type PlayerId, type Position, type UnitKind } from '../game';
 import { capturePointsLabel, observedCapturePoints } from './fogDisplay';
 import { ownerLabel, rankNames, rankStars, sideLabel, terrainNames, unitNames, unitWeaponName, weaponNames } from './labels';
 import { uiText } from './strings';
@@ -42,13 +42,14 @@ export function inspectTile(
   const property = isPropertyTerrainKind(terrain.kind);
   const title = `${terrainNames[terrain.kind]}${property ? `（${ownerLabel(terrain.owner, viewer)}）` : ''}`;
   const rows: InspectorRow[] = [{ label: '防御', value: stars(defenseStars(terrain)) }];
+  if (hasBridge(state, position)) rows.push({ label: '仮設橋', value: '位置は両軍に公開。地上・艦船とも通行可能、1マス1部隊。地上移動コスト1' });
   if (terrain.kind === 'supplyDepot') rows.push({ label: '補給', value: '施設上と隣接1マスの自軍地上部隊。修理・収入・生産なし' });
   const capturePoints = observedCapturePoints(terrain, visible.has(`${position.x},${position.y}`));
   if (capturePoints !== undefined) rows.push({ label: '占領値', value: capturePointsLabel(capturePoints) });
   const producible = productionKindsForRule(productionRule, state.ruleVersion)[terrain.kind];
   if (producible?.length) rows.push({ label: '生産', value: producible.map(kind => unitNames[kind]).join('・') });
   if (selectedUnitKind) {
-    const cost = movementCost(state.board, position, selectedUnitKind);
+    const cost = unitMovementCost(state, position, selectedUnitKind);
     rows.push({ label: '移動コスト', value: Number.isFinite(cost) ? `${cost}` : '進入不可' });
   }
   const inspection: TileInspection = { position, title, rows, hidden: !visible.has(`${position.x},${position.y}`) };

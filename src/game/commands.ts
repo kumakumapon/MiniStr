@@ -1,5 +1,5 @@
 import { removeEnteredFortifications } from './engineering';
-import { movementCost, positionKey, samePosition, terrainAt } from './terrain';
+import { unitMovementCost, positionKey, samePosition, terrainAt } from './terrain';
 import { incomePropertyCount, unitAt } from './state';
 import { isEmbarkableUnit, isMergeableUnit, remainingAmmo, transportCapacity, unitStats } from './units';
 import { applyDamageVariance, forecastCombat } from './combat';
@@ -97,7 +97,7 @@ export function movementCosts(state: GameState, unitId: string): Map<string, num
     for (const next of [{ x: current.position.x + 1, y: current.position.y }, { x: current.position.x - 1, y: current.position.y }, { x: current.position.x, y: current.position.y + 1 }, { x: current.position.x, y: current.position.y - 1 }]) {
       const key = positionKey(next);
       if (occupied.has(key)) continue;
-      const step = movementCost(state.board, next, unit.kind);
+      const step = unitMovementCost(state, next, unit.kind);
       const total = current.cost + step;
       if (!Number.isFinite(step) || total > budget || total >= (costs.get(key) ?? Infinity)) continue;
       costs.set(key, total);
@@ -122,7 +122,7 @@ function pathFromMovementCosts(
     const current = route[route.length - 1]!;
     const currentCost = costs.get(positionKey(current));
     if (currentCost === undefined) return undefined;
-    const step = movementCost(state.board, current, unit.kind);
+    const step = unitMovementCost(state, current, unit.kind);
     const previous = [
       { x: current.x - 1, y: current.y }, { x: current.x + 1, y: current.y },
       { x: current.x, y: current.y - 1 }, { x: current.x, y: current.y + 1 },
@@ -337,7 +337,7 @@ export const mergeUnit = mergeUnits;
 
 function canDeployEmbarkableUnit(state: GameState, destination: Position, kind: UnitKind): boolean {
   const terrain = terrainAt(state.board, destination);
-  return !!terrain && terrain.kind !== 'sea' && Number.isFinite(movementCost(state.board, destination, kind));
+  return !!terrain && Number.isFinite(unitMovementCost(state, destination, kind));
 }
 
 /** Boards an adjacent allied transport. Both units are spent to prevent a same-turn crossing. */

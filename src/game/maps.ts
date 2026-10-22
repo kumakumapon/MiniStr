@@ -5,6 +5,7 @@ import { trainingData } from './training';
 import { expandedScenarioData } from './expandedMaps';
 import { specialOperationData } from './specialOperations';
 import { standaloneOperationData } from './standaloneOperations';
+import { crossingOperationData } from './crossingOperations';
 import { frontlineOperationData } from './frontlineOperations';
 import { controlOperationData } from './controlOperations';
 import { createBoard, createGameState, incomePropertyCount } from './state';
@@ -373,7 +374,7 @@ const builtInCatalog = createBuiltInScenarioCatalog(builtInScenarioData);
 
 /** Validated exactly once during module initialization. */
 export const maps: readonly ScenarioDefinition[] = builtInCatalog.scenarios;
-const operationLoad = loadScenarioDefinitions([...specialOperationData, ...standaloneOperationData, ...controlOperationData, ...frontlineOperationData], { defaultProductionRule });
+const operationLoad = loadScenarioDefinitions([...specialOperationData, ...standaloneOperationData, ...controlOperationData, ...frontlineOperationData, ...crossingOperationData], { defaultProductionRule });
 if (!operationLoad.ok) throw new Error(`Operation definition is invalid: ${operationLoad.error}`);
 export const operationScenarios = operationLoad.value;
 /** Diagnostics for UI/telemetry; normal built-in data leaves this undefined. */

@@ -1,14 +1,14 @@
 import { hasUsableWeapon, weaponAmmo, weaponsForUnit } from '../game/weapons';
 import type { WeaponSlot } from '../game/units';
 import { fortificationError, unitDefenseStars } from '../game/engineering';
-import { usesFrontlineRules } from '../game/types';
+import { usesBridgeRules, usesFrontlineRules } from '../game/types';
 import { forecastCombat, terrainDefenseReduction } from '../game/combat';
 import { observeLogistics } from '../game/fog';
 import { endTurn, reachablePositionsForPlayer } from '../game/commands';
 import { canProduceUnit, isPropertyTerrainKind, productionKindsForRule, unitLimit } from '../game/facilities';
 import { visibleEnemies as getVisibleEnemies } from '../game/fog';
 import { scenarioForState, type EvacuationCondition } from '../game/maps';
-import { manhattanDistance, movementCost, terrainAt } from '../game/terrain';
+import { manhattanDistance, unitMovementCost, terrainAt } from '../game/terrain';
 import { isDeployedUnit, usesDecisionRules, usesOperationsRules, usesModernRules, usesReconRules, type Board, type DeployedUnit, type GameState, type PlayerId, type Position, type Unit, type UnitKind } from '../game/types';
 import { resupplyAvailable, isGroundUnit, isServiceTile, REPAIR_HP_PER_TURN } from '../game/logistics';
 import { isEmbarkableUnit, isMergeableUnit, isSupplyUnit, remainingAmmo, unitCategory, unitStats } from '../game/units';
@@ -16,6 +16,7 @@ import { coordinatedOrder, coordinationValue, cpuRole, isPriorityTarget, transpo
 import { canEvacuateUnit, evacuationObjectives, isEvacuationTarget } from '../game/evacuation';
 import { isEvacuationCondition } from '../game/maps';
 import { bluePlanningState, rotatePosition } from './perspective';
+import { chooseBridgeAction, clearBridgeLane, crossingDistance } from './crossing';
 import { chooseReconCenter } from './recon';
 
 // Production IDs interleave between armies. Numeric ordering preserves each
@@ -76,6 +77,7 @@ export const MIN_CPU_FORCE = 4;
 export type CpuAction =
   | { type: 'recon'; center: Position }
   | { type: 'fortify'; unitId: string }
+  | { type: 'bridge'; unitId: string; destination: Position }
   | { type: 'capture'; unitId: string }
   | { type: 'attack'; unitId: string; targetId: string }
   | { type: 'merge'; unitId: string; targetId: string }
@@ -382,33 +384,34 @@ function isAdjacent(first: Position, second: Position): boolean {
  * Land components deliberately use infantry movement rules. This lets the CPU distinguish
  * a remote island from a route it can simply walk, without treating a port as open sea.
  */
-const landComponentCache = new WeakMap<Board, ReadonlyMap<string, number>>();
+const landComponentCache = new WeakMap<Board, { signature: string; components: ReadonlyMap<string, number> }>();
 
 /**
- * Terrain kinds never change during a match, so infantry-connected land areas can be
- * indexed once per board. Ownership changes do not invalidate this topology.
+ * Cache by board and public bridge signature. Building a bridge invalidates connectivity.
  */
-function landComponents(board: Board): ReadonlyMap<string, number> {
+function landComponents(state: GameState): ReadonlyMap<string, number> {
+  const board = state.board;
+  const signature = usesBridgeRules(state) ? (state.bridges ?? []).map(site => `${site.position.x},${site.position.y}`).join(';') : '';
   const cached = landComponentCache.get(board);
-  if (cached) return cached;
+  if (cached?.signature === signature) return cached.components;
 
   const components = new Map<string, number>();
   let componentId = 0;
   for (let y = 0; y < board.height; y += 1) for (let x = 0; x < board.width; x += 1) {
     const start = { x, y };
     const startKey = `${x},${y}`;
-    if (components.has(startKey) || !Number.isFinite(movementCost(board, start, 'infantry'))) continue;
+    if (components.has(startKey) || !Number.isFinite(unitMovementCost(state, start, 'infantry'))) continue;
     const pending = [start];
     while (pending.length) {
       const current = pending.pop()!;
       const currentKey = `${current.x},${current.y}`;
-      if (components.has(currentKey) || !Number.isFinite(movementCost(board, current, 'infantry'))) continue;
+      if (components.has(currentKey) || !Number.isFinite(unitMovementCost(state, current, 'infantry'))) continue;
       components.set(currentKey, componentId);
       for (const next of adjacentPositions(current)) pending.push(next);
     }
     componentId += 1;
   }
-  landComponentCache.set(board, components);
+  landComponentCache.set(board, { signature, components });
   return components;
 }
 
@@ -473,7 +476,7 @@ export function evaluateCpuPosition(
   const serviceDistance = serviceTargets.length ? Math.min(...serviceTargets.map(position => manhattanDistance(destination, position))) : undefined;
   // A secondary gun can cover a retreat, but does not replace a depleted primary.
   const criticalSupply = remainingAmmo(unit) === 0 && unitStats[unit.kind].ammo > 0 || (unit.fuel ?? unitStats[unit.kind].fuel) <= unitStats[unit.kind].fuelPerTurn * 2;
-  const distance = targets.length ? Math.min(...targets.map(target => manhattanDistance(destination, target))) : 0;
+  const distance = crossingDistance(state, unit.kind, destination, targets);
   const deployedEnemies = knownEnemies.filter(isDeployedUnit);
   const pressure = deployedEnemies.reduce((risk, enemy) => {
     const forecast = forecastCombat(projected, enemy, moved);
@@ -578,7 +581,7 @@ function transportAction(state: GameState, player: PlayerId, targets: readonly P
     if (cargo) {
       const distance = manhattanDistance(transport.position, target);
       if (distance <= 3) {
-        const destination = adjacentPositions(transport.position).filter(p => Number.isFinite(movementCost(state.board, p, cargo.kind)) && !knownUnitAt(state, player, p, visibleEnemies))
+        const destination = adjacentPositions(transport.position).filter(p => Number.isFinite(unitMovementCost(state, p, cargo.kind)) && !knownUnitAt(state, player, p, visibleEnemies))
           .sort((a, b) => manhattanDistance(a, target) - manhattanDistance(b, target) || a.y - b.y || a.x - b.x)[0];
         if (destination) return { type: 'disembark', transportId: transport.id, destination };
       }
@@ -596,7 +599,7 @@ function transportAction(state: GameState, player: PlayerId, targets: readonly P
     const cargo = state.units.find(unit => unit.embarkedIn === transport.id);
     if (!cargo) continue;
     const destination = adjacentPositions(transport.position)
-      .filter(position => Number.isFinite(movementCost(state.board, position, 'infantry')) && !knownUnitAt(state, player, position, visibleEnemies)
+      .filter(position => Number.isFinite(unitMovementCost(state, position, 'infantry')) && !knownUnitAt(state, player, position, visibleEnemies)
         && targets.some(target => sameLandComponent(components, position, target)))
       .map(position => ({ position, target: nearestTarget(position, targets) }))
       .filter((candidate): candidate is { position: Position; target: Position } => candidate.target !== undefined)
@@ -787,7 +790,7 @@ function guardsCapital(state: GameState, player: PlayerId, unit: DeployedUnit, v
 /** Build immutable, fog-safe data once for the current CPU order. */
 export function createCpuPlanningContext(state: GameState, player: PlayerId, config: CpuDifficultyConfig): CpuPlanningContext {
   const visibleEnemies = getVisibleEnemies(state, player);
-  return { visibleEnemies, targets: objectives(state, player, config, visibleEnemies), landComponents: landComponents(state.board) };
+  return { visibleEnemies, targets: objectives(state, player, config, visibleEnemies), landComponents: landComponents(state) };
 }
 
 /** Select the next legal high-level CPU order. The caller applies it with the game command layer. */
@@ -795,7 +798,7 @@ export function chooseCpuAction(state: GameState, difficulty: CpuDifficulty = 'n
   if (state.winner || player !== state.activePlayer) return { type: 'endTurn' };
   const action = chooseOrientedCpuAction(player === 'blue' ? bluePlanningState(state) : state, difficulty, player);
   if (player !== 'blue') return action;
-  if (action.type === 'move' || action.type === 'disembark') return { ...action, destination: rotatePosition(action.destination, state.board) };
+  if (action.type === 'move' || action.type === 'disembark' || action.type === 'bridge') return { ...action, destination: rotatePosition(action.destination, state.board) };
   if (action.type === 'produce') return { ...action, factory: rotatePosition(action.factory, state.board) };
   if (action.type === 'recon') return { ...action, center: rotatePosition(action.center, state.board) };
   return action;
@@ -816,7 +819,7 @@ function clearCaptureLane(state: GameState, player: PlayerId, blocker: DeployedU
     if (destination) return { type: 'move', unitId: unit.id, destination };
     for (const ally of allies) {
       if (seen.has(ally.id) || ally.hasMoved || ally.hasActed || !isAdjacent(unit.position, ally.position)
-        || !Number.isFinite(movementCost(state.board, ally.position, unit.kind))) continue;
+        || !Number.isFinite(unitMovementCost(state, ally.position, unit.kind))) continue;
       seen.add(ally.id);
       queue.push(ally);
     }
@@ -860,7 +863,7 @@ function evacuationAction(state: GameState, player: PlayerId, config: CpuDifficu
       .filter(position => transportSafeAt(state, unit, position, context.visibleEnemies))
       .map(position => ({ position, score: evaluateCpuPosition(state, player, unit, position, condition.positions, config, context.visibleEnemies)
         // Under v7, new sight must not tempt withdrawing units into firing or service positions away from their exit.
-        - (usesReconRules(state) ? Math.min(...condition.positions.map(exit => manhattanDistance(position, exit))) * 100 : 0) }))
+        - (usesReconRules(state) ? crossingDistance(state, unit.kind, position, condition.positions) * 100 : 0) }))
       .sort((a, b) => b.score - a.score || a.position.y - b.position.y || a.position.x - b.position.x)[0]?.position;
     if (destination && (destination.x !== unit.position.x || destination.y !== unit.position.y)) return { type: 'move', unitId: unit.id, destination };
     if (usesReconRules(state)) {
@@ -923,6 +926,10 @@ function chooseOrientedCpuAction(state: GameState, difficulty: CpuDifficulty, pl
   const scan = chooseReconCenter(state, player);
   if (scan) return { type: 'recon', center: scan };
   const context = createCpuPlanningContext(state, player, config);
+  const crossing = chooseBridgeAction(state, player, context.targets, context.visibleEnemies);
+  if (crossing) return crossing;
+  const clearance = clearBridgeLane(state, player, context.targets, context.visibleEnemies);
+  if (clearance) return clearance;
   const evacuation = evacuationAction(state, player, config, context);
   if (evacuation) return evacuation;
   const capturers = orderedUnits(state, player).filter(unit => unitStats[unit.kind].capturePower > 0 && !unit.hasActed);
