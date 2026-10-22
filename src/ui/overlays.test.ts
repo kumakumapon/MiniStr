@@ -1,4 +1,5 @@
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it } from 'vitest';
+import { setLocale } from './locale';
 import {
   renderBriefingOverlay,
   renderCampaignOverlay,
@@ -9,6 +10,8 @@ import {
   renderUnitActionCluster,
   type TitleMapCard,
 } from './overlays';
+
+afterEach(() => setLocale('ja'));
 
 describe('overlay renderers', () => {
   it('escapes dynamic game-over and campaign content at the shared UI boundary', () => {
@@ -214,6 +217,24 @@ describe('title screen (#143)', () => {
     expect(title()).toContain('id="title-cpu-speed"');
     expect(title()).toContain('<option value="1" selected>1x</option>');
     expect(title({ cpuSpeed: 4 })).toContain('<option value="4" selected>4x</option>');
+  });
+
+  it('offers automatic and every manual board zoom on the title', () => {
+    expect(title()).toContain('id="title-board-zoom" aria-label="マップ表示サイズ"');
+    expect(title()).toContain('<option value="auto" selected>自動</option>');
+    for (const [index, value] of [50, 75, 100, 125, 150, 200].entries()) {
+      const result = title({ boardZoom: { index, automatic: false } });
+      expect(result).toContain(`<option value="${value}" selected>${value}%</option>`);
+      expect(result).not.toContain('<option value="auto" selected>');
+    }
+    expect(title({ boardZoom: { index: 0, automatic: true } })).toContain('<option value="auto" selected>自動</option>');
+  });
+
+  it('labels the title zoom in English while keeping percentage values stable', () => {
+    setLocale('en');
+    expect(title()).toContain('aria-label="Map display size"');
+    expect(title()).toContain('<option value="auto" selected>Auto</option>');
+    expect(title({ boardZoom: { index: 0, automatic: false } })).toContain('<option value="50" selected>50%</option>');
   });
 
   it('marks custom maps and escapes their text', () => {
