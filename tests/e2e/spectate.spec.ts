@@ -40,7 +40,7 @@ test('spectates a CPU-versus-CPU match with pause and resume (#129)', async ({ p
   await expect(page.locator('.turn-indicator strong')).toHaveText('赤軍 CPU 行動中', { timeout: 20_000 });
 });
 
-test('spectating never autosaves over the player’s saves and keeps alternating after a skip (#129)', async ({ page }) => {
+test('spectating rejects skips, preserves player saves and keeps alternating', async ({ page }) => {
   const saveKeys = ['ministr.save.auto', 'ministr.save.manual'];
   await page.goto('/');
   await page.evaluate((keys) => keys.forEach((key) => localStorage.setItem(key, `sentinel:${key}`)), saveKeys);
@@ -49,8 +49,17 @@ test('spectating never autosaves over the player’s saves and keeps alternating
   await page.locator('input[name="match-mode"][value="spectate"]').check();
   await page.getByRole('button', { name: /単体作戦を開始/ }).click();
 
-  // Skipping finishes red's turn at once; blue then plays on its own and hands back to red.
-  await page.locator('#skip-cpu').click();
+  // Even a synthetic click on the disabled control must leave the current CPU step queued.
+  const before = await page.evaluate(() => {
+    const button = document.querySelector<HTMLButtonElement>('#skip-cpu')!;
+    const board = document.querySelector('.board')!.innerHTML;
+    const turn = document.querySelector('.turn-indicator strong')!.textContent;
+    if (!button.disabled) throw Error('Spectator skip must be disabled');
+    button.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    return { unchanged: board === document.querySelector('.board')!.innerHTML && turn === document.querySelector('.turn-indicator strong')!.textContent };
+  });
+  expect(before.unchanged).toBe(true);
+  await expect(page.locator('#skip-cpu')).toBeDisabled();
   await expect(page.locator('.turn-indicator strong')).toHaveText('青軍 CPU 行動中', { timeout: 20_000 });
   await expect(page.locator('.turn-indicator strong')).toHaveText('赤軍 CPU 行動中', { timeout: 20_000 });
 
@@ -74,7 +83,7 @@ test('sets each side’s CPU difficulty for spectating (#131)', async ({ page })
   // The header shows both sides; changes are refused while a CPU turn runs.
   await expect(page.locator('#red-difficulty')).toHaveValue('easy');
   await expect(page.locator('#difficulty')).toHaveValue('hard');
-  await expect(page.locator('#skip-cpu')).toBeVisible();
+  await expect(page.locator('#skip-cpu')).toBeDisabled();
   await page.locator('#red-difficulty').selectOption('hard');
   await expect(page.locator('#red-difficulty')).toHaveValue('easy');
 
@@ -99,7 +108,7 @@ test('shows the whole board without fog while spectating, and only then (#133)',
   await expect(page.locator('.tile.fog').first()).toBeVisible();
 
   // Switching works while the CPUs keep playing and removes every fogged tile.
-  await expect(page.locator('#skip-cpu')).toBeVisible();
+  await expect(page.locator('#skip-cpu')).toBeDisabled();
   await toggle.click();
   await expect(toggle).toHaveAttribute('aria-pressed', 'true');
   await expect(page.locator('.tile.fog')).toHaveCount(0);

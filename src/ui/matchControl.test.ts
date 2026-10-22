@@ -1,11 +1,19 @@
 import { describe, expect, it } from 'vitest';
-import { commandAllowed, cpuDifficultyFor, cpuShouldRun, handoffAfterEndTurn, menuAllowed, parseMatchMode, autosaveAllowed, manualSaveTarget, matchSaveDeletionAllowed, showsWholeBoard, sideName, spectateContinues, SPECTATE_TURN_LIMIT, undoAllowed, viewerFor, type MatchContext } from './matchControl';
+import { commandAllowed, cpuSkipAllowed, cpuDifficultyFor, cpuShouldRun, handoffAfterEndTurn, menuAllowed, parseMatchMode, autosaveAllowed, manualSaveTarget, matchSaveDeletionAllowed, showsWholeBoard, sideName, spectateContinues, SPECTATE_TURN_LIMIT, undoAllowed, viewerFor, type MatchContext } from './matchControl';
 
 const context = (patch: Partial<MatchContext> = {}): MatchContext => ({
   mode: 'cpu', activePlayer: 'red', replay: false, cpuInProgress: false, handoffPending: false, ...patch,
 });
 
 describe('match control (#116 10.5)', () => {
+  it('allows CPU skipping only during the human opponent’s active CPU turn', () => {
+    const running = context({ activePlayer: 'blue', cpuInProgress: true });
+    expect(cpuSkipAllowed(running)).toBe(true);
+    for (const patch of [
+      { mode: 'spectate' as const }, { mode: 'hotseat' as const }, { activePlayer: 'red' as const },
+      { cpuInProgress: false }, { replay: true }, { winner: 'blue' as const }, { handoffPending: true },
+    ]) expect(cpuSkipAllowed({ ...running, ...patch })).toBe(false);
+  });
   it('shows the player’s side in CPU matches and the active side in hotseat', () => {
     expect(viewerFor('cpu', 'blue')).toBe('red');
     expect(viewerFor('hotseat', 'blue')).toBe('blue');

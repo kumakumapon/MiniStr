@@ -409,6 +409,8 @@ button, select, .tile { touch-action: manipulation; }
 .title-hero > p:last-child { margin: 0; color: #b8cbbf; font-size:0.8125rem; }
 .title-menu { display: flex; flex-wrap: wrap; gap: 8px; margin: 18px 0; }
 .title-menu button { min-height: 40px; }
+.title-menu .cpu-speed-control { min-width: 0; letter-spacing: normal; }
+.title-menu .cpu-speed-control select { width: 100%; min-width: 0; min-height: 40px; }
 .title-notice { margin: 0 0 14px; padding: 9px 12px; color: #f4e4b1; font-size:0.75rem; border-left: 3px solid #d2aa49; background: #101b17; }
 .title-screen h3 { margin: 0 0 10px; color: #e5cc79; font-size:0.8125rem; letter-spacing: .08em; }
 .title-map-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 10px; margin: 0; padding: 0; list-style: none; }
@@ -1033,3 +1035,12 @@ body.production-menu-open { overflow: hidden; }
 .bridge-marker.vertical { inset:0 25%; background:repeating-linear-gradient(0deg,#d7c49a 0 5px,#655443 5px 7px); border-block:0; border-inline:3px solid #eee4c9; }
 .bridge-marker b { font-size:11px; padding:0 2px; background:#15242a; color:white; }
 .tile.bridge-target { outline:3px dashed #ffe49a; outline-offset:-4px; }
+
+/* Keep symbols inside the manually selected 22px overview tiles. */
+.board[data-zoom="50"] .unit { inset:5%; width:auto; height:auto; }
+.board[data-zoom="50"] .unit small { right:0; bottom:0; min-width:0; padding:0 1px; font-size:6px; line-height:1; }
+.board[data-zoom="50"] .unit-owner-marker { top:0; left:0; width:7px; height:7px; font-size:5px; }
+.board[data-zoom="50"] .tile-state-marker { top:1px; right:1px; width:9px; height:9px; font-size:6px; }
+.board[data-zoom="50"] .facility { padding:0 1px; max-width:60%; }
+.board[data-zoom="50"] .facility b, .board[data-zoom="50"] .bridge-marker b { font-size:7px; }
+.board[data-zoom="50"] .facility small { display:none; }

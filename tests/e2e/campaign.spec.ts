@@ -42,10 +42,12 @@ for (const viewport of [
   test(`campaign orders and nearby turn controls at ${viewport.width}px`, async ({ page }, info) => {
     await page.setViewportSize(viewport);
     await page.goto('/');
+    await page.locator('#title-cpu-speed').selectOption('2');
     await page.locator('#title-campaign').click();
     await page.locator('.campaign-start[data-campaign-id="skirmish"]').click();
     await expect(page.locator('.briefing-overlay')).toContainText('地上部隊');
     await page.locator('#begin-operation').click();
+    await expect(page.locator('#cpu-speed')).toHaveValue('2');
     await expect(page.locator('.map-turn-status')).toContainText('ターン終了');
     await expect(page.locator('#board-end-turn')).toBeEnabled();
     await page.locator('.map-turn-status').scrollIntoViewIfNeeded();

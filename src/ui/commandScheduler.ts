@@ -2,6 +2,11 @@ export const COMMAND_SPEEDS = [0.5, 1, 2, 4] as const;
 
 export type CommandSpeed = typeof COMMAND_SPEEDS[number];
 
+/** Accept only a supported option from a playback speed selector. */
+export function parseCommandSpeed(value: string): CommandSpeed | undefined {
+  return COMMAND_SPEEDS.find(speed => String(speed) === value);
+}
+
 export interface CommandSequenceOptions {
   /** Run immediately when 0 is supplied; otherwise queue the first command. */
   initialDelayMs?: number;

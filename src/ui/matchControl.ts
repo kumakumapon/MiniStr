@@ -56,6 +56,11 @@ export function cpuShouldRun(context: Pick<MatchContext, 'mode' | 'activePlayer'
   return cpuSide && context.winner === undefined && !context.replay;
 }
 
+/** Only a human-versus-CPU match can fast-forward the opponent's current turn. */
+export function cpuSkipAllowed(context: MatchContext): boolean {
+  return context.mode === 'cpu' && context.cpuInProgress && !context.handoffPending && cpuShouldRun(context);
+}
+
 /**
  * Whether a spectated match should keep chaining CPU turns without the viewer
  * pressing resume. Resuming moves `pauseAtTurn` another limit ahead.

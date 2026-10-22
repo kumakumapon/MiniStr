@@ -1,6 +1,36 @@
 import { expect, test } from '@playwright/test';
 import { crossingScenarioData } from '../crossing.fixture';
 
+test('title speed, half-size map and disabled spectator skip work together', async ({ page }) => {
+  // Keep the 4x CPU timer deterministic while exercising the visible controls.
+  const now = new Date('2026-10-22T00:00:00Z');
+  await page.clock.install({ time: now });
+  await page.clock.pauseAt(new Date(now.getTime() + 1_000));
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/');
+  await page.locator('#title-cpu-speed').focus();
+  await page.locator('#title-cpu-speed').selectOption('4');
+  await page.clock.runFor(50);
+  await expect(page.locator('#title-cpu-speed')).toBeFocused();
+  await page.locator('.title-map-card[data-map-id="skirmish"]').click();
+  await page.locator('input[name="match-mode"][value="spectate"]').check();
+  await page.locator('#begin-operation').click();
+  await expect(page.locator('#cpu-speed')).toHaveValue('4');
+  await expect(page.locator('#skip-cpu')).toBeDisabled();
+  await page.locator('#spectate-toggle').click();
+  for (let step = 0; step < 6 && (await page.locator('#board-zoom-out').isEnabled()); step++) await page.locator('#board-zoom-out').click();
+  await expect(page.locator('.board')).toHaveAttribute('data-zoom', '50');
+  expect((await page.locator('.tile').first().boundingBox())!.width).toBe(22);
+  await page.locator('#open-title').click();
+  await expect(page.locator('#title-cpu-speed')).toHaveValue('4');
+  await page.locator('#title-cpu-speed').selectOption('0.5');
+  await page.locator('#title-resume').click();
+  await expect(page.locator('#cpu-speed')).toHaveValue('0.5');
+  await page.locator('#spectate-toggle').click();
+  await expect(page.locator('#skip-cpu')).toBeDisabled();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true);
+});
+
 test('bridge keyboard confirmation and saved state survive reload', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   page.on('dialog', (dialog) => dialog.accept());

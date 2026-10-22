@@ -1,7 +1,11 @@
 import { describe, expect, it, vi } from 'vitest';
-import { CommandScheduler } from './commandScheduler';
+import { COMMAND_SPEEDS, CommandScheduler, parseCommandSpeed } from './commandScheduler';
 
 describe('CommandScheduler', () => {
+  it('accepts only supported CPU speed options', () => {
+    for (const speed of COMMAND_SPEEDS) expect(parseCommandSpeed(String(speed))).toBe(speed);
+    for (const value of ['', '0', '-1', '3', 'Infinity', 'NaN', '2x', ' 1', '1e0']) expect(parseCommandSpeed(value)).toBeUndefined();
+  });
   it('runs one immediate step, then continues at the requested interval', () => {
     vi.useFakeTimers();
     try {
