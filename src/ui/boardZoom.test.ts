@@ -13,8 +13,9 @@ describe('board zoom', () => {
 
   it('reports whole-pixel tiles and round percentages', () => {
     expect(boardTileSize(BOARD_ZOOM_LEVELS.indexOf(1))).toBe(44);
+    expect(boardTileSize(BOARD_ZOOM_LEVELS.indexOf(0.5))).toBe(22);
     expect(BOARD_ZOOM_LEVELS.every((_, index) => Number.isInteger(boardTileSize(index)))).toBe(true);
-    expect(BOARD_ZOOM_LEVELS.map((_, index) => boardZoomPercent(index))).toEqual([75, 100, 125, 150, 200]);
+    expect(BOARD_ZOOM_LEVELS.map((_, index) => boardZoomPercent(index))).toEqual([50, 75, 100, 125, 150, 200]);
   });
 
   it('reserves room for the command panel only on the two-column layout', () => {

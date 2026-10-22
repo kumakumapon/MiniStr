@@ -4,7 +4,7 @@
  * shrinking large ones below a tappable size.
  */
 export const BOARD_BASE_TILE_SIZE = 44;
-export const BOARD_ZOOM_LEVELS = [0.75, 1, 1.25, 1.5, 2] as const;
+export const BOARD_ZOOM_LEVELS = [0.5, 0.75, 1, 1.25, 1.5, 2] as const;
 /** Horizontal space the viewport loses to the battlefield frame's padding and border. */
 export const BOARD_VIEWPORT_GUTTER = 56;
 /** Kept in step with `.game-shell`, `.battle-layout`, and their breakpoints in style.css. */

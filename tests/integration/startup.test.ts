@@ -52,6 +52,26 @@ function input(selector: string, value: string) {
 afterEach(() => dom?.window.close());
 
 describe('distributed application boundaries', () => {
+  it('shares CPU speed between title and game and rejects unsupported form values', () => {
+    const document = launch();
+    const speed = (selector: string) => (document.querySelector(selector) as HTMLSelectElement).value;
+    expect(speed('#title-cpu-speed')).toBe('1');
+    change('#title-cpu-speed', '4');
+    expect(speed('#title-cpu-speed')).toBe('4');
+    change('#title-cpu-speed', '3');
+    expect(speed('#title-cpu-speed')).toBe('4');
+    click('#title-training');
+    click('#begin-operation');
+    expect(speed('#cpu-speed')).toBe('4');
+    change('#cpu-speed', '2');
+    change('#cpu-speed', 'Infinity');
+    expect(speed('#cpu-speed')).toBe('2');
+    click('#open-title');
+    expect(speed('#title-cpu-speed')).toBe('2');
+    change('#title-cpu-speed', '0.5');
+    click('#title-resume');
+    expect(speed('#cpu-speed')).toBe('0.5');
+  });
   it('reconstructs recon and analysis at the selected replay position without future samples', () => {
     const initial = createScenarioInitialState(
       operation({

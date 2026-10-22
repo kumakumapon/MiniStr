@@ -210,6 +210,12 @@ describe('title screen (#143)', () => {
     expect(result).not.toMatch(/data-map-id="skirmish" aria-current/);
   });
 
+  it('offers the shared CPU speed on the title without making a game command', () => {
+    expect(title()).toContain('id="title-cpu-speed"');
+    expect(title()).toContain('<option value="1" selected>1x</option>');
+    expect(title({ cpuSpeed: 4 })).toContain('<option value="4" selected>4x</option>');
+  });
+
   it('marks custom maps and escapes their text', () => {
     const result = title({
       maps: [card({ id: 'my-map', name: '<b>自作</b>', custom: true })],
