@@ -1,4 +1,32 @@
 import { expect, test } from '@playwright/test';
+import { crossingScenarioData } from '../crossing.fixture';
+
+test('bridge keyboard confirmation and saved state survive reload', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  page.on('dialog', (dialog) => dialog.accept());
+  await page.goto('/');
+  await page.locator('#title-editor').click();
+  await page.locator('#editor-json').fill(JSON.stringify(crossingScenarioData()));
+  await page.locator('#editor-import').click();
+  await page.locator('#editor-start').click();
+  await page.locator('#begin-operation').click();
+  await page.locator('.tile[data-x="3"][data-y="2"]').click();
+  await page.locator('#bridge-unit').click();
+  await page.keyboard.press('Escape');
+  await expect(page.locator('#bridge-unit')).toBeFocused();
+  await page.keyboard.press('Enter');
+  await expect(page.locator('.tile[data-x="4"][data-y="2"]')).toBeFocused();
+  await page.keyboard.press('Enter');
+  await expect(page.locator('#bridge-confirm')).toBeFocused();
+  await page.keyboard.press('Enter');
+  await expect(page.locator('.bridge-marker')).toHaveCount(1);
+  await page.locator('#save').click();
+  await page.reload();
+  await page.locator('.load-save-slot[data-save-slot="manual"]').click();
+  await expect(page.locator('.bridge-marker')).toHaveCount(1);
+  await expect(page.locator('.tile[data-x="8"][data-y="4"] .unit')).toHaveCount(0);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true);
+});
 
 for (const viewport of [
   { width: 360, height: 780 },
