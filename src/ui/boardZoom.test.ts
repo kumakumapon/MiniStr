@@ -1,10 +1,18 @@
 import { describe, expect, it } from 'vitest';
-import { BOARD_ZOOM_LEVELS, boardAreaWidth, boardTileSize, boardZoomPercent, clampBoardZoomIndex, defaultBoardZoomIndex } from './boardZoom';
+import { BOARD_ZOOM_LEVELS, boardAreaWidth, boardTileSize, boardZoomPercent, clampBoardZoomIndex, defaultBoardZoomIndex, parseBoardZoomIndex } from './boardZoom';
 
 const zoomFor = (windowWidth: number, boardWidth: number) =>
   BOARD_ZOOM_LEVELS[defaultBoardZoomIndex(boardAreaWidth(windowWidth), boardWidth)];
 
 describe('board zoom', () => {
+  it('accepts only the offered percentage strings', () => {
+    for (const [index, value] of ['50', '75', '100', '125', '150', '200'].entries()) {
+      expect(parseBoardZoomIndex(value)).toBe(index);
+    }
+    for (const value of ['', 'auto', '0', '-1', '80', 'Infinity', 'NaN', '50%', ' 50', '5e1']) {
+      expect(parseBoardZoomIndex(value)).toBeUndefined();
+    }
+  });
   it('keeps the zoom index inside the available levels', () => {
     expect(clampBoardZoomIndex(-3)).toBe(0);
     expect(clampBoardZoomIndex(99)).toBe(BOARD_ZOOM_LEVELS.length - 1);

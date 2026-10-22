@@ -42,7 +42,7 @@ import { allProducibleUnitKinds, applyGameCommand, AUTO_SAVE_KEY, availableScena
 import { chooseCpuAction, type CpuDifficulty } from './ai';
 import { nextBoardPosition } from './ui/boardNavigation';
 import { renderCpuSpeedControl } from './ui/cpuSpeed';
-import { BOARD_ZOOM_LEVELS, boardAreaWidth, boardTileSize, boardZoomPercent, defaultBoardZoomIndex } from './ui/boardZoom';
+import { BOARD_ZOOM_LEVELS, boardAreaWidth, boardTileSize, boardZoomPercent, defaultBoardZoomIndex, parseBoardZoomIndex } from './ui/boardZoom';
 import { rankNames, rankStars, terrainNames, unitNames, unitTokens, unitWeaponName } from './ui/labels';
 import { describeTileInspection, inspectTile, type InspectorRow } from './ui/tileInspector';
 import { fortificationAt, renderFrontlineControls, supplyRange } from './ui/frontline';
@@ -1093,6 +1093,7 @@ function render(): void {
       })(),
     })),
     cpuSpeed,
+    boardZoom: { index: boardZoomIndex, automatic: boardZoomAuto },
     canContinue: hasSave(),
     generator: titleVisible ? renderMapGenerator(generatorForm, generatorNotice, generatorOpen) + renderOperationRecords(operationCatalog, operationNotice, operationRecordsOpen) : undefined,
     savePicker: titleVisible ? renderSaveSlotManager(listSaveSlots(localStorage), getStorageUsage(localStorage), false, matchMode === 'spectate') : '',
@@ -1459,6 +1460,22 @@ function render(): void {
   };
   app.querySelector<HTMLButtonElement>('#board-zoom-out')?.addEventListener('click', changeBoardZoom(-1));
   app.querySelector<HTMLButtonElement>('#board-zoom-in')?.addEventListener('click', changeBoardZoom(1));
+  app.querySelector<HTMLSelectElement>('#title-board-zoom')?.addEventListener('change', event => {
+    if (!screens.titleOpen || replayMode) return;
+    const value = (event.currentTarget as HTMLSelectElement).value;
+    if (value === 'auto') {
+      boardZoomAuto = true;
+      syncBoardZoom(game.board.width);
+    } else {
+      const next = parseBoardZoomIndex(value);
+      if (next !== undefined) {
+        boardZoomIndex = next;
+        boardZoomAuto = false;
+      }
+    }
+    focusSelector = '#title-board-zoom';
+    render();
+  });
   document.querySelector<HTMLSelectElement>('#map')!.onchange = guardMenu(() => {
     if (!confirmReplaceMatch()) { render(); return; }
     campaignRun = undefined; campaignOutcome = undefined;

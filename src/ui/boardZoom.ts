@@ -30,6 +30,12 @@ export function boardZoomPercent(zoomIndex: number): number {
   return Math.round(BOARD_ZOOM_LEVELS[clampBoardZoomIndex(zoomIndex)]! * 100);
 }
 
+/** Parse only an offered percentage; callers handle the automatic mode separately. */
+export function parseBoardZoomIndex(value: string): number | undefined {
+  const index = BOARD_ZOOM_LEVELS.findIndex((_, candidate) => String(boardZoomPercent(candidate)) === value);
+  return index < 0 ? undefined : index;
+}
+
 /**
  * Width the board may occupy at a given window width. Derived from the layout
  * rather than measured so the default zoom is decided before the first paint.

@@ -52,6 +52,47 @@ function input(selector: string, value: string) {
 afterEach(() => dom?.window.close());
 
 describe('distributed application boundaries', () => {
+  it('shares title zoom with operations, resume and board buttons, rejecting invalid values', () => {
+    const document = launch();
+    const titleZoom = () => (document.querySelector('#title-board-zoom') as HTMLSelectElement).value;
+    const boardZoom = () => document.querySelector('.board')!.getAttribute('data-zoom');
+    expect(titleZoom()).toBe('auto');
+    change('#title-board-zoom', '50');
+    expect(titleZoom()).toBe('50');
+    for (const value of ['80', 'Infinity']) {
+      const option = document.createElement('option');
+      option.value = value;
+      document.querySelector('#title-board-zoom')!.append(option);
+      change('#title-board-zoom', value);
+      expect(titleZoom()).toBe('50');
+    }
+    const previousTitleSelect = document.querySelector('#title-board-zoom') as HTMLSelectElement;
+    click('#title-training');
+    click('#begin-operation');
+    previousTitleSelect.value = '200';
+    previousTitleSelect.dispatchEvent(new dom.window.Event('change', { bubbles: true }));
+    expect(boardZoom()).toBe('50');
+    click('#save');
+    click('#board-zoom-in');
+    click('#open-title');
+    expect(titleZoom()).toBe('75');
+    change('#title-board-zoom', '200');
+    click('#title-resume');
+    expect(boardZoom()).toBe('200');
+    click('#open-title');
+    click('#title-continue');
+    expect(boardZoom()).toBe('200');
+    click('#open-title');
+    click('.title-map-card[data-map-id="skirmish"]');
+    click('#begin-operation');
+    expect(boardZoom()).toBe('200');
+    click('#open-title');
+    change('#title-board-zoom', 'auto');
+    expect(titleZoom()).toBe('auto');
+    click('#title-resume');
+    expect(Number(boardZoom())).toBeGreaterThanOrEqual(100);
+    expect(Number(boardZoom())).toBeLessThanOrEqual(150);
+  });
   it('shares CPU speed between title and game and rejects unsupported form values', () => {
     const document = launch();
     const speed = (selector: string) => (document.querySelector(selector) as HTMLSelectElement).value;

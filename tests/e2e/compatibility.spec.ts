@@ -12,10 +12,15 @@ test('title speed, half-size map and disabled spectator skip work together', asy
   await page.locator('#title-cpu-speed').selectOption('4');
   await page.clock.runFor(50);
   await expect(page.locator('#title-cpu-speed')).toBeFocused();
+  await page.locator('#title-board-zoom').focus();
+  await page.locator('#title-board-zoom').selectOption('50');
+  await page.clock.runFor(50);
+  await expect(page.locator('#title-board-zoom')).toBeFocused();
   await page.locator('.title-map-card[data-map-id="skirmish"]').click();
   await page.locator('input[name="match-mode"][value="spectate"]').check();
   await page.locator('#begin-operation').click();
   await expect(page.locator('#cpu-speed')).toHaveValue('4');
+  await expect(page.locator('.board')).toHaveAttribute('data-zoom', '50');
   await expect(page.locator('#skip-cpu')).toBeDisabled();
   await page.locator('#spectate-toggle').click();
   for (let step = 0; step < 6 && (await page.locator('#board-zoom-out').isEnabled()); step++) await page.locator('#board-zoom-out').click();
@@ -23,9 +28,12 @@ test('title speed, half-size map and disabled spectator skip work together', asy
   expect((await page.locator('.tile').first().boundingBox())!.width).toBe(22);
   await page.locator('#open-title').click();
   await expect(page.locator('#title-cpu-speed')).toHaveValue('4');
+  await expect(page.locator('#title-board-zoom')).toHaveValue('50');
   await page.locator('#title-cpu-speed').selectOption('0.5');
+  await page.locator('#title-board-zoom').selectOption('auto');
   await page.locator('#title-resume').click();
   await expect(page.locator('#cpu-speed')).toHaveValue('0.5');
+  await expect(page.locator('.board')).toHaveAttribute('data-zoom', '100');
   await page.locator('#spectate-toggle').click();
   await expect(page.locator('#skip-cpu')).toBeDisabled();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true);
