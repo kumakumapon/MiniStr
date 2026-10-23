@@ -48,7 +48,7 @@ for (const viewport of [
     await expect(page.locator('html')).toHaveAttribute('lang', 'en');
     await expect(page.locator('.title-map-card[data-map-id="skirmish"] .title-map-name')).toHaveText('Green Border');
     await expectEnglish(page);
-    await page.screenshot({ path: testInfo.outputPath(`systems-en-${viewport.width}-title.png`), fullPage: true });
+    await page.screenshot({ path: testInfo.outputPath(`systems-en-${viewport.width}-title.png`), fullPage: false });
 
     await page.locator('.title-map-card[data-map-id="bridgehead"]').click();
     await expect(page.locator('#briefing-title')).toHaveText('Establish a Bridgehead');
@@ -56,14 +56,14 @@ for (const viewport of [
     await page.locator('#briefing-deployment summary').click();
     await expect(page.locator('#briefing-preset-red-0-name')).toHaveValue('Deployment 1');
     await expectEnglish(page);
-    await page.screenshot({ path: testInfo.outputPath(`systems-en-${viewport.width}-deployment.png`), fullPage: true });
+    await page.screenshot({ path: testInfo.outputPath(`systems-en-${viewport.width}-deployment.png`), fullPage: false });
     await page.locator('#briefing-back-to-title').click();
     await page.locator('#title-training').click();
     await page.locator('#begin-operation').click();
     await page.locator('.tile[data-x="0"][data-y="1"]').click();
     await expect(page.locator('#board-instructions')).toContainText('arrow keys');
     await expectEnglish(page);
-    await page.screenshot({ path: testInfo.outputPath(`systems-en-${viewport.width}-battle.png`), fullPage: true });
+    await page.screenshot({ path: testInfo.outputPath(`systems-en-${viewport.width}-battle.png`), fullPage: false });
     await page.locator('#open-production').click();
     await expectEnglish(page);
     await page.locator('#production-menu-close').click();

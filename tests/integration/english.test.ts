@@ -82,6 +82,7 @@ describe('English distributed UI', () => {
     click('#begin-operation');
     click('.tile[data-x="0"][data-y="1"]');
     expectEnglish('selected unit');
+    expect(document.querySelector('.command-tip')?.textContent).toContain('Infantry can capture neutral and enemy cities');
     click('#open-production');
     expectEnglish('production');
     click('#production-menu-close');

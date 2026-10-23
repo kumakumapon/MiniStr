@@ -266,10 +266,10 @@ export const englishResources: readonly (readonly [string, string])[] = [
   ['自軍資金', 'Friendly funds'],
   ['敵軍資金', 'Enemy funds'],
   ['確認済み敵部隊', 'Visible enemies'],
-  ['歩兵は中立・敵軍の都市、工場、空港、港湾、司令部で', 'Infantry can'],
+  ['歩兵は中立・敵軍の都市、工場、空港、港湾、司令部で', 'Infantry can '],
   [
     'できます。生産先は盤面の空き「産」マスを選び、工場・空港・港湾から対応する部隊を生産します。輸送艦は歩兵を1部隊搭載し、別の島へ上陸させられます。',
-    'neutral and enemy cities, factories, airports, ports and headquarters. Choose a free P tile to select a production facility. Factories, airports and ports produce the corresponding units. Landing ships carry one infantry unit to another island.',
+    ' neutral and enemy cities, factories, airports, ports and headquarters. Choose a free P tile to select a production facility. Factories, airports and ports produce the corresponding units. Landing ships carry one infantry unit to another island.',
   ],
   ['盤面スクロール領域', 'Scrollable board'],
   ['{0}の戦術マップ', '{0} tactical map'],
