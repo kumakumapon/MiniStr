@@ -54,9 +54,9 @@ describe('finite APC supplies', () => {
   });
 
   it('partially refills the secondary magazine after the primary magazine', () => {
-    const state = army([unit('truck', 'apc', 2, { supplyStock: 45 }), unit('tank', 'tank', 3, { ammo: 2, secondaryAmmo: 0, fuel: 0 })]);
+    const state = army([unit('truck', 'apc', 2, { supplyStock: 45 }), unit('tank', 'tank', 3, { ammo: 5, secondaryAmmo: 0, fuel: 0 })]);
     const next = applyModernUpkeep(state, 'red');
-    expect(find(next, 'tank')).toMatchObject({ ammo: 3, secondaryAmmo: 3, fuel: 5 });
+    expect(find(next, 'tank')).toMatchObject({ ammo: 6, secondaryAmmo: 3, fuel: 5 });
     expect(find(next, 'truck').supplyStock).toBe(0);
   });
 
