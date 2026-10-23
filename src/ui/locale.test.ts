@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it } from 'vitest';
 import { englishResources } from './english';
 import { getLocale, localizeControls, renderLocalePicker, setLocale, translateGameText, translateText } from './locale';
-import { rankNames, unitTokens } from './labels';
+import { rankNames, unitNames, unitTokens } from './labels';
 
 const japanese = /[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}]/u;
 afterEach(() => {
@@ -10,6 +10,15 @@ afterEach(() => {
 });
 
 describe('complete English display resources', () => {
+  it('translates unit names in CPU activity recorded before the language changed', () => {
+    const recordedNames = Object.fromEntries(Object.entries(unitNames));
+    const report = `敵の${unitNames.tank}が自軍の${unitNames.infantry}を攻撃しました。`;
+    setLocale('en');
+    expect(translateGameText(report)).toBe('Enemy Tank attacked friendly Infantry.');
+    for (const [kind, name] of Object.entries(recordedNames)) expect(translateGameText(name)).toBe(unitNames[kind as keyof typeof unitNames]);
+    setLocale('ja');
+    expect(translateGameText(report)).toBe(report);
+  });
   it('provides English text and preserves every template argument', () => {
     setLocale('en');
     for (const [source, english] of englishResources) {
@@ -21,7 +30,7 @@ describe('complete English display resources', () => {
 
   it('translates notifications and dialogs without translating interpolated user names', () => {
     setLocale('en');
-    for (const name of ['占領', '丘の部隊', '<img src=x> $& $1']) {
+    for (const name of ['占領', '戦車', '丘の部隊', '<img src=x> $& $1']) {
       const translated = translateText(`「${name}」にセーブしました。`);
       expect(translated).toBe(`Saved as "${name}".`);
       expect(translateText(translated)).toBe(translated);

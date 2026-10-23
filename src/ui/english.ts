@@ -1,3 +1,5 @@
+import { japaneseUnitNames, englishUnitNames } from './unitNameText';
+
 /** English display resources. IDs, authored data and saved JSON stay unchanged. */
 export const englishResources: readonly (readonly [string, string])[] = [
   ['温帯', 'Temperate'],
@@ -1235,4 +1237,5 @@ export const englishResources: readonly (readonly [string, string])[] = [
   ['敵 攻撃危険域', 'Enemy attack range'],
   ['エラー: {0}', 'Error: {0}'],
   ['注意: {0}', 'Warning: {0}'],
+  ...Object.keys(japaneseUnitNames).map((kind) => [japaneseUnitNames[kind as keyof typeof japaneseUnitNames], englishUnitNames[kind as keyof typeof englishUnitNames]] as const),
 ];

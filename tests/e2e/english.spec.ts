@@ -18,10 +18,18 @@ async function expectEnglish(page: Page) {
         if (value && japanese.test(value)) found.push(`${attribute}: ${value}`);
       }
     }
+    // Generated CSS text does not appear in the DOM text walker.
+    const engineer = document.createElement('span');
+    engineer.className = 'unit-engineer';
+    document.body.append(engineer);
+    const badge = getComputedStyle(engineer, '::after').content;
+    engineer.remove();
+    if (japanese.test(badge)) found.push(`engineer badge: ${badge}`);
     return found.slice(0, 12);
   });
   expect(remaining).toEqual([]);
-  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true);
+  const layout = await page.evaluate(() => ({ viewport: innerWidth, page: document.documentElement.scrollWidth }));
+  expect(layout.page, JSON.stringify(layout)).toBeLessThanOrEqual(layout.viewport + 1);
 }
 
 for (const viewport of [

@@ -1,3 +1,4 @@
+import { japaneseUnitNames } from './ui/unitNameText';
 import { createDeploymentScenario, deploymentSlots, evacuationObjectives, canEvacuateUnit, isEvacuationCondition, isEvacuationTarget, operationScenarios, type GameResult } from './game';
 import { renderDeployment } from './ui/deployment';
 import { BattleHistory } from './game/battleHistory';
@@ -553,11 +554,11 @@ function recordVisibleCpuAction(before: GameState, command: GameCommand): void {
     const target = before.units.find(unit => unit.id === command.targetId);
     const attacker = visibleUnit(command.unitId);
     entry = attacker && isDeployedUnit(attacker) && target?.owner === 'red'
-      ? `敵の${unitNames[attacker.kind]}が自軍の${unitNames[target.kind]}を攻撃しました。`
-      : target?.owner === 'red' ? `自軍の${unitNames[target.kind]}が攻撃を受けました。` : undefined;
+      ? `敵の${japaneseUnitNames[attacker.kind]}が自軍の${japaneseUnitNames[target.kind]}を攻撃しました。`
+      : target?.owner === 'red' ? `自軍の${japaneseUnitNames[target.kind]}が攻撃を受けました。` : undefined;
   } else if (command.type === 'move') {
     const unit = visibleUnit(command.unitId);
-    entry = unit && isDeployedUnit(unit) ? `敵の${unitNames[unit.kind]}が視認範囲内で移動しました。` : undefined;
+    entry = unit && isDeployedUnit(unit) ? `敵の${japaneseUnitNames[unit.kind]}が視認範囲内で移動しました。` : undefined;
   } else if (command.type === 'bridge') {
     entry = `(${command.destination.x + 1}, ${command.destination.y + 1}) に仮設橋が完成しました（公開情報）。`;
   } else if (command.type === 'fortify') {
@@ -565,10 +566,10 @@ function recordVisibleCpuAction(before: GameState, command: GameCommand): void {
     entry = actor ? '敵の工兵が視認範囲内に陣地を設営しました。' : undefined;
   } else if (command.type === 'evacuate') {
     const unit = visibleUnit(command.unitId);
-    if (unit) entry = `${unitNames[unit.kind]}が脱出地点から撤退`;
+    if (unit) entry = `${japaneseUnitNames[unit.kind]}が脱出地点から撤退`;
   } else if (command.type === 'capture') {
     const unit = visibleUnit(command.unitId);
-    entry = unit && isDeployedUnit(unit) ? `敵の${unitNames[unit.kind]}が視認範囲内の拠点を占領中です。` : undefined;
+    entry = unit && isDeployedUnit(unit) ? `敵の${japaneseUnitNames[unit.kind]}が視認範囲内の拠点を占領中です。` : undefined;
   }
   if (entry) cpuActivity = [...cpuActivity, entry].slice(-6);
 }
@@ -1048,7 +1049,7 @@ function render(): void {
     : '';
   const turnSetting = !replayMode ? `<section class="turn-setting"><label><input id="confirm-end-turn" type="checkbox" ${confirmEndTurnWithUnacted ? 'checked' : ''}> 未行動部隊がいる時にターン終了を確認する</label></section>` : '';
   const saveSlotManager = !replayMode && !screens.titleOpen ? renderSaveSlotManager(listSaveSlots(localStorage), getStorageUsage(localStorage), true, matchMode === 'spectate') : '';
-  const cpuActivityPanel = !replayMode && matchMode === 'cpu' ? `<section class="intel-card" aria-labelledby="cpu-activity-title"><p class="card-kicker">ENEMY ACTIVITY</p><h2 id="cpu-activity-title">直前のCPU行動</h2>${cpuActivity.length ? `<ol>${cpuActivity.map(entry => `<li>${escapeHtml(entry)}</li>`).join('')}</ol>` : '<p>視認できる敵行動はありません。</p>'}</section>` : '';
+  const cpuActivityPanel = !replayMode && matchMode === 'cpu' ? `<section class="intel-card" aria-labelledby="cpu-activity-title"><p class="card-kicker">ENEMY ACTIVITY</p><h2 id="cpu-activity-title">直前のCPU行動</h2>${cpuActivity.length ? `<ol>${cpuActivity.map(entry => `<li>${escapeHtml(translateGameText(entry))}</li>`).join('')}</ol>` : '<p>視認できる敵行動はありません。</p>'}</section>` : '';
   const campaignCards = screens.campaignMenuOpen ? campaignStages.map((stage, index) => {
     const map = maps.find(candidate => candidate.id === stage.scenarioId);
     const operation = campaignOperations[stage.scenarioId];
