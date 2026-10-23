@@ -1,6 +1,7 @@
+import { SUPPLY_CAPACITY, supplyStock } from '../game/supplyStock';
 import { isEvacuationCondition, scenarioForState, type ScenarioDefinition } from '../game/maps';
 import { manhattanDistance, positionKey } from '../game/terrain';
-import { isDeployedUnit, usesOperationsRules, type DeployedUnit, type GameState, type PlayerId, type Position, type Unit } from '../game/types';
+import { isDeployedUnit, usesFiniteSupplyRules, usesOperationsRules, type DeployedUnit, type GameState, type PlayerId, type Position, type Unit } from '../game/types';
 import { damageMultiplier, isSupplyUnit, unitCategory, unitStats } from '../game/units';
 
 export type CpuRole = 'frontline' | 'fireSupport' | 'supply' | 'airDefence' | 'transport' | 'mission';
@@ -126,7 +127,7 @@ export function coordinationValue(state: GameState, player: PlayerId, unit: Depl
   // Support should cover the exit from nearby tiles, leaving its single unit
   // slot available for the designated evacuees.
   if (exits && !exits.has(unit.id)) return -150;
-  if (unitCategory[unit.kind] === 'sea') return 0;
+  if (unitCategory[unit.kind] === 'sea' || (usesFiniteSupplyRules(state) && isSupplyUnit(unit.kind) && supplyStock(unit) <= SUPPLY_CAPACITY / 3)) return 0;
   const plan = teamPlan(state, player);
   const role = plan.roles.get(unit.id);
   if (!targets.length || role === 'mission' || role === 'frontline') return 0;

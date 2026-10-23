@@ -41,7 +41,7 @@ for (const viewport of [
   { width: 1280, height: 800 },
   { width: 390, height: 844 },
 ]) {
-  test(`English menus, board, dialogs and language round trip at ${viewport.width}`, async ({ page }, testInfo) => {
+  test(`English menus, board and dialogs at ${viewport.width}`, async ({ page }, testInfo) => {
     await page.setViewportSize(viewport);
     await page.addInitScript(() => localStorage.setItem('ministr.locale', 'en'));
     const dialogs: string[] = [];
@@ -84,6 +84,14 @@ for (const viewport of [
     await page.locator('#title-editor').click();
     await expectEnglish(page);
     await page.locator('#editor-close').click();
+  });
+
+  test(`persists the English language round trip at ${viewport.width}`, async ({ page }) => {
+    await page.setViewportSize(viewport);
+    await page.addInitScript(() => {
+      if (!localStorage.getItem('ministr.locale')) localStorage.setItem('ministr.locale', 'en');
+    });
+    await page.goto('/');
     await page.locator('.title-menu [data-locale]').selectOption('ja');
     await expect(page.locator('#title-training')).toHaveText('基本操作を練習');
     await page.locator('.title-menu [data-locale]').selectOption('en');

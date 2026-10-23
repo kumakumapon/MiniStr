@@ -1,3 +1,4 @@
+import { SUPPLY_CAPACITY, supplyStock, usesFiniteSupplyRules } from '../game';
 import { getLocale, translateGameText, translateText } from './locale';
 import { canServiceUnitAt, defaultProductionRule, defenseStars, experienceRank, isDeployedUnit, isGroundUnit, MAX_EXPERIENCE, remainingAmmo, weaponAmmo, weaponsForUnit, usesModernRules, isPropertyTerrainKind, hasBridge, unitMovementCost, productionKindsForRule, terrainAt, type ProductionRule, unitStats, type GameState, type PlayerId, type Position, type UnitKind } from '../game';
 import { capturePointsLabel, observedCapturePoints } from './fogDisplay';
@@ -77,6 +78,7 @@ export function inspectTile(
     const rank = experienceRank(unit.experience);
     unitRows.push({ label: '階級', value: `${rank ? `${rankStars(rank)} ` : ''}${rankNames[rank]}（経験 ${unit.experience ?? 0} / ${MAX_EXPERIENCE}）` });
   }
+  if (usesFiniteSupplyRules(state) && unit.kind === 'apc') unitRows.push({ label: uiText.supplyStock, value: unit.owner === viewer ? `${supplyStock(unit)} / ${SUPPLY_CAPACITY}` : uiText.unitBriefUnknown });
   const cargo = state.units.find(candidate => candidate.embarkedIn === unit.id);
   if (cargo) unitRows.push({ label: '搭載', value: unitNames[cargo.kind] });
   if (unit.owner === viewer) {

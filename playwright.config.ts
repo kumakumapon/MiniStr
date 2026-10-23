@@ -12,12 +12,12 @@ export default defineConfig({
     { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
     {
       name: 'firefox',
-      testMatch: /(?:compatibility|english)\.spec\.ts/,
+      testMatch: /(?:compatibility|english|custom-maps|finite-supplies)\.spec\.ts/,
       use: { ...devices['Desktop Firefox'] },
     },
     {
       name: 'webkit',
-      testMatch: /(?:compatibility|english)\.spec\.ts/,
+      testMatch: /(?:compatibility|english|custom-maps|finite-supplies)\.spec\.ts/,
       use: { ...devices['Desktop Safari'] },
     },
   ],

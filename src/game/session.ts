@@ -1,5 +1,6 @@
 import { attackUnit, evacuateUnit, captureProperty, disembarkUnit, embarkUnit, endTurn, mergeUnits, moveUnit, produceUnit, waitUnit } from './commands';
 import { MAX_EXPERIENCE } from './experience';
+import { isValidSupplyStock } from './supplyStock';
 import { isUnitKindAvailable } from './facilities';
 import { createScenarioInitialState, scenarioForState, scenarioHistory, scenarioDefinitionToData, scenarioCatalogRevision, type ScenarioDefinition } from './maps';
 import { ruleVersions, usesOperationsRules, terrainKindSet, type GameResult, type GameState, type Position, type UnitKind } from './types';
@@ -289,6 +290,7 @@ export function isGameState(value: unknown): value is GameState {
       || (unit.fuel !== undefined && (!isFiniteNumber(unit.fuel) || unit.fuel < 0))
       || !isValidUnitAmmo(unit.kind as UnitKind, unit.ammo)
       || !isValidSecondaryAmmo(unit.kind as UnitKind, unit.secondaryAmmo, { ruleVersion: value.ruleVersion as GameState['ruleVersion'] })
+      || !isValidSupplyStock(unit.kind, unit.supplyStock, { ruleVersion: value.ruleVersion as GameState['ruleVersion'] })
       || typeof unit.hasMoved !== 'boolean' || typeof unit.hasActed !== 'boolean'
       // Experience exists only in modern-rule matches, so a classic save cannot smuggle in rank bonuses.
       || (unit.experience !== undefined && (!modern || !Number.isSafeInteger(unit.experience)

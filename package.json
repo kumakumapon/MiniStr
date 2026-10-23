@@ -1,7 +1,7 @@
 {
   "name": "ministr",
   "private": true,
-  "version": "0.9.2",
+  "version": "0.9.3",
   "type": "module",
   "license": "MIT",
   "engines": {
@@ -24,6 +24,7 @@
     "test:ui": "vitest run --config vitest.ui.config.ts",
     "test:fast": "vitest run --exclude 'src/ai/cpuSimulation*.test.ts'",
     "test:cpu": "vitest run src/ai/cpuSimulation*.test.ts",
+    "supply:compare": "vite-node scripts/finite-supply-report.ts",
     "balance:compare": "vite-node scripts/balance-compare.ts",
     "balance": "vite-node scripts/balance-report.ts",
     "campaign:playthrough": "vite-node scripts/campaign-playthrough.ts"

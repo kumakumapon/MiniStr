@@ -26,6 +26,7 @@ export function visibleEnemies(state: GameState, player: PlayerId): Unit[] {
 /** Public enemy type/HP/rank/location; private logistics are conservatively full. */
 export function observedEnemy(unit: Unit): Unit {
   const observed = { ...unit, fuel: unitStats[unit.kind].fuel, ammo: unitStats[unit.kind].ammo, hasMoved: false, hasActed: false };
+  delete observed.supplyStock; // Enemy stock is private, including CPU planning.
   delete observed.secondaryAmmo; // Omission means full; never expose a private secondary magazine.
   return observed;
 }
