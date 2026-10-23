@@ -48,6 +48,14 @@ jobs:
       - run: npm run test:coverage
       - run: npm run build
       - run: npm run test:ui
+      - name: Use Ubuntu HTTPS mirror for browser dependencies
+        run: |
+          # Avoid the slow Azure HTTP archive while keeping Ubuntu signature checks.
+          for ubuntu_sources_file in /etc/apt/sources.list /etc/apt/sources.list.d/ubuntu.sources; do
+            if [ -f "$ubuntu_sources_file" ]; then
+              sudo sed -i 's|http://azure.archive.ubuntu.com/ubuntu|https://archive.ubuntu.com/ubuntu|g' "$ubuntu_sources_file"
+            fi
+          done
       - name: Install Playwright browsers
         run: npx playwright install --with-deps chromium firefox webkit
       - run: npm run test:e2e
