@@ -1,3 +1,4 @@
+import { getLocale, translateGameText, translateText } from './locale';
 import { canServiceUnitAt, defaultProductionRule, defenseStars, experienceRank, isDeployedUnit, isGroundUnit, MAX_EXPERIENCE, remainingAmmo, weaponAmmo, weaponsForUnit, usesModernRules, isPropertyTerrainKind, hasBridge, unitMovementCost, productionKindsForRule, terrainAt, type ProductionRule, unitStats, type GameState, type PlayerId, type Position, type UnitKind } from '../game';
 import { capturePointsLabel, observedCapturePoints } from './fogDisplay';
 import { ownerLabel, rankNames, rankStars, sideLabel, terrainNames, unitNames, unitWeaponName, weaponNames } from './labels';
@@ -92,11 +93,12 @@ export function inspectTile(
 
 /** Flat text of an inspection, used for the panel's accessible live region. */
 export function describeTileInspection(inspection: TileInspection): string {
+  const describeRow = (row: InspectorRow) => `${translateText(row.label)} ${translateGameText(row.value)}`;
   const parts = [
-    `(${inspection.position.x + 1}, ${inspection.position.y + 1}) ${inspection.title}`,
-    ...inspection.rows.map(row => `${row.label} ${row.value}`),
+    `(${inspection.position.x + 1}, ${inspection.position.y + 1}) ${translateGameText(inspection.title)}`,
+    ...inspection.rows.map(describeRow),
   ];
-  if (inspection.unit) parts.push(inspection.unit.title, ...inspection.unit.rows.map(row => `${row.label} ${row.value}`));
-  else if (inspection.hidden) parts.push('未索敵');
-  return parts.join('、');
+  if (inspection.unit) parts.push(translateGameText(inspection.unit.title), ...inspection.unit.rows.map(describeRow));
+  else if (inspection.hidden) parts.push(translateText('未索敵'));
+  return parts.join(getLocale() === 'en' ? '; ' : '、');
 }

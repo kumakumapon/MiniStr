@@ -1,4 +1,5 @@
 import type { GameState, PlayerId } from '../game';
+import { getLocale } from './locale';
 
 /**
  * 'cpu': the player (red) against the CPU (blue). 'hotseat': two people share one device.
@@ -127,6 +128,7 @@ export function undoAllowed(mode: MatchMode): boolean {
 
 /** How the screen names a side: relative to the player in CPU matches, by colour otherwise. */
 export function sideName(mode: MatchMode, player: PlayerId): string {
+  if (getLocale() === 'en') return mode === 'cpu' ? player === 'red' ? 'Player' : 'CPU' : player === 'red' ? 'Red' : 'Blue';
   if (mode !== 'cpu') return player === 'red' ? '赤軍' : '青軍';
   return player === 'red' ? 'プレイヤー' : 'CPU';
 }

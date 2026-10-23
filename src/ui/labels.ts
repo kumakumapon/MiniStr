@@ -1,3 +1,4 @@
+import { japaneseUnitNames, englishUnitNames } from './unitNameText';
 import { unitWeapons, weaponsForUnit, type GameState, type PlayerId, type TerrainKind, type UnitKind, type WeaponKind } from '../game';
 import { getLocale, localized } from './locale';
 
@@ -10,17 +11,17 @@ export const terrainNames = localized<Record<TerrainKind, string>>({
   supplyDepot: '前線補給所', city: '都市', factory: '工場', airport: '空港', port: '港湾', capital: '司令部',
 }, { supplyDepot: 'Supply depot', plain: 'Plains', forest: 'Forest', mountain: 'Mountain', road: 'Road', swamp: 'Swamp', sea: 'Sea', city: 'City', factory: 'Factory', airport: 'Airport', port: 'Port', capital: 'Headquarters' });
 
-export const unitNames = localized<Record<UnitKind, string>>({
-  engineer: '工兵', infantry: '歩兵', tank: '戦車', artillery: '砲兵', fighter: '戦闘機', bomber: '爆撃機',
-  destroyer: '駆逐艦', landingShip: '輸送艦', recon: '偵察車', rocket: '自走砲', antiAir: '対空車両', apc: '装甲兵員輸送車',
-  mech: '対戦車歩兵', heavyTank: '重戦車', helicopter: '戦闘ヘリ', battleship: '戦艦',
-}, { engineer: 'Engineer', infantry: 'Infantry', tank: 'Tank', artillery: 'Artillery', fighter: 'Fighter', bomber: 'Bomber', destroyer: 'Destroyer', landingShip: 'Landing ship', recon: 'Recon', rocket: 'Rocket artillery', antiAir: 'Anti-air', apc: 'APC', mech: 'Mech infantry', heavyTank: 'Heavy tank', helicopter: 'Helicopter', battleship: 'Battleship' });
+export const unitNames = localized(japaneseUnitNames, englishUnitNames);
 
-export const unitTokens: Record<UnitKind, string> = {
+export const unitTokens = localized<Record<UnitKind, string>>({
   engineer: '工', infantry: '歩', tank: '戦', artillery: '砲', fighter: '空', bomber: '爆',
   destroyer: '艦', landingShip: '輸', recon: '偵', rocket: '自', antiAir: '防', apc: '装',
   mech: '対', heavyTank: '重', helicopter: 'ヘ', battleship: '巨',
-};
+}, {
+  engineer: 'E', infantry: 'I', tank: 'T', artillery: 'A', fighter: 'F', bomber: 'B',
+  destroyer: 'D', landingShip: 'L', recon: 'R', rocket: 'RK', antiAir: 'AA', apc: 'AP',
+  mech: 'M', heavyTank: 'HT', helicopter: 'H', battleship: 'BS',
+});
 
 export const weaponNames = localized<Record<WeaponKind, string>>({
   rifle: '小銃', machineGun: '機関銃', tankCannon: '戦車砲', howitzer: '榴弾砲', rocketLauncher: '多連装ロケット',
@@ -42,7 +43,10 @@ export function unitWeaponName(kind: UnitKind, state?: Pick<GameState, 'ruleVers
 }
 
 /** Rank titles for experience ranks 0-3 (大戦略-style veterancy). */
-export const rankNames = ['新兵', '古参', '精鋭', '英雄'] as const;
+export const rankNames = localized<Record<number, string>>(
+  { 0: '新兵', 1: '古参', 2: '精鋭', 3: '英雄' },
+  { 0: 'Recruit', 1: 'Veteran', 2: 'Elite', 3: 'Hero' },
+);
 
 /** Compact rank marker for the board; unranked units show nothing. */
 export const rankStars = (rank: number): string => '★'.repeat(rank);

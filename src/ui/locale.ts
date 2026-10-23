@@ -1,3 +1,5 @@
+import { englishResources } from './english';
+
 export type Locale = 'ja' | 'en';
 let locale: Locale = 'ja';
 export const getLocale = (): Locale => locale;
@@ -27,7 +29,91 @@ export function formatDate(value: string): string {
       : 'Unknown date';
 }
 
-/** Static controls only: scenario prose, user names, JSON and IDs remain authored content. */
+const japaneseCharacters = /[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}]/u;
+const exactEnglish = new Map(englishResources.filter(([source]) => !/\{\d+\}/.test(source)));
+const escapeExpression = (value: string): string => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+const englishFragments = new RegExp(
+  [...exactEnglish.keys()]
+    .filter((value) => value.length >= 8)
+    .sort((a, b) => b.length - a.length)
+    .map(escapeExpression)
+    .join('|'),
+  'gu',
+);
+const englishTemplates = englishResources
+  .filter(([source]) => /\{\d+\}/.test(source))
+  .map(([source, english]) => {
+    const captures = new Map<string, number>();
+    let groups = 0;
+    let previousParameter = false;
+    const expression = source
+      .split(/(\{\d+\})/)
+      .map((part, index, parts) => {
+        if (/^\{\d+\}$/.test(part)) {
+          // Adjacent fields have no observable boundary. Keep their combined text
+          // in the first field instead of creating ambiguous backtracking groups.
+          captures.set(part, previousParameter ? 0 : ++groups);
+          const numeric = /^\s*(?:ターン|部隊|件|点|回|枠|G\b|HP\b)/.test(parts[index + 1] ?? '');
+          const capture = previousParameter ? '' : numeric ? '(-?[0-9][0-9,.]*)' : '([\\s\\S]*?)';
+          previousParameter = true;
+          return capture;
+        }
+        if (part) previousParameter = false;
+        return escapeExpression(part);
+      })
+      .join('');
+    return { expression: new RegExp(`^${expression}$`, 'u'), english, captures, specificity: source.replace(/\{\d+\}/g, '').length };
+  })
+  .sort((left, right) => right.specificity - left.specificity);
+
+function englishDisplayText(value: string, owned: boolean, depth = 0): string {
+  if (!japaneseCharacters.test(value) || value.length > 8192) return value;
+  const text = value.trim();
+  const exact = exactEnglish.get(text);
+  if (exact !== undefined) return value.replace(text, () => exact);
+  for (const template of englishTemplates) {
+    if (template.specificity < 2) continue;
+    const match = template.expression.exec(text);
+    if (!match) continue;
+    const translated = template.english.replace(/\{\d+\}/g, (parameter) => {
+      const index = template.captures.get(parameter);
+      const captured = index ? (match[index] ?? '') : '';
+      return owned && depth < 6 ? englishDisplayText(captured, true, depth + 1) : captured;
+    });
+    return value.replace(text, () => translated);
+  }
+  if (owned && depth < 6) {
+    const composed = text.replace(englishFragments, (fragment) => `${exactEnglish.get(fragment)!}${fragment.endsWith('。') ? ' ' : ''}`);
+    if (composed !== text) return value.replace(text, () => englishDisplayText(composed, true, depth + 1));
+    const bracketed = text.replace(/（([^（）]*)）/g, (_, inside: string) => ` (${englishDisplayText(inside, true, depth + 1)})`);
+    if (bracketed !== text) return value.replace(text, () => englishDisplayText(bracketed, true, depth + 1));
+    const parts = text.split(/(?=[、・／：\n])|(?= — )/u);
+    if (parts.length > 1)
+      return value.replace(text, () =>
+        parts
+          .map((part) => {
+            const translated = englishDisplayText(part, true, depth + 1);
+            if (translated !== part) return translated;
+            const separated = /^([、・／：\n]+| — )([\s\S]+)$/.exec(part);
+            return separated
+              ? `${separated[1] === '\n' ? '\n' : separated[1] === '：' ? ': ' : separated[1] === ' — ' ? ' — ' : '; '}${englishDisplayText(separated[2]!, true, depth + 1)}`
+              : part;
+          })
+          .join(''),
+      );
+    const relation = /^(.*?)の(.*?)$/.exec(text);
+    if (relation) return value.replace(text, () => `${englishDisplayText(relation[1]!, true, depth + 1)} ${englishDisplayText(relation[2]!, true, depth + 1)}`);
+  }
+  return value;
+}
+
+/** Translate UI copy while leaving interpolated names and identifiers verbatim. */
+export const translateText = (value: string): string => (locale === 'en' ? englishDisplayText(value, false) : value);
+
+/** Only for app-owned generated descriptions; never pass user-authored prose. */
+export const translateGameText = (value: string): string => (locale === 'en' ? englishDisplayText(value, true) : value);
+
+/** Legacy control aliases; general UI resources also cover dynamic copy. */
 const controls: Record<string, string> = {
   基本操作を練習: 'Practice the basics',
   診断情報を保存: 'Download diagnostics',
@@ -83,17 +169,23 @@ export function localizeControls(root: HTMLElement): void {
   const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
   while (walker.nextNode()) {
     const node = walker.currentNode;
-    if (node.parentElement?.closest('textarea, .title-map-name, .briefing-copy, .save-slot-manager strong')) continue;
+    if (node.parentElement?.closest('textarea, script, style, [data-user-content], .title-map-name, .briefing-copy, .save-slot-manager strong')) continue;
     const text = node.textContent?.trim() ?? '';
-    if (controls[text]) node.textContent = node.textContent!.replace(text, controls[text]!);
+    const owned = node.parentElement?.closest('[data-ui-copy]') && !node.parentElement.closest('[data-user-copy]');
+    const translated = controls[text] ?? (owned ? translateGameText(text) : translateText(text));
+    if (translated !== text) node.textContent = node.textContent!.replace(text, () => translated);
   }
-  root.querySelectorAll<HTMLElement>('[aria-label], [title]').forEach((element) => {
-    for (const attribute of ['aria-label', 'title']) {
+  root.querySelectorAll<HTMLElement>('[aria-label], [title], [placeholder], [alt], [label]').forEach((element) => {
+    if (element.closest('[data-user-content]')) return;
+    for (const attribute of ['aria-label', 'title', 'placeholder', 'alt', 'label']) {
+      if (element.dataset.userAttributes?.split(' ').includes(attribute)) continue;
       const text = element.getAttribute(attribute);
-      if (text && controls[text]) element.setAttribute(attribute, controls[text]!);
+      const owned = element.closest('[data-ui-copy]') && !element.closest('[data-user-copy]');
+      if (text) element.setAttribute(attribute, controls[text] ?? (owned ? translateGameText(text) : translateText(text)));
     }
   });
 }
 export function renderLocalePicker(): string {
-  return `<label>Language / 言語<select data-locale aria-label="Language / 言語"><option value="ja" ${locale === 'ja' ? 'selected' : ''}>日本語</option><option value="en" ${locale === 'en' ? 'selected' : ''}>English</option></select></label>`;
+  const label = locale === 'en' ? 'Language' : '言語 / Language';
+  return `<label>${label}<select data-locale aria-label="${label}"><option value="ja" ${locale === 'ja' ? 'selected' : ''}>${locale === 'en' ? 'Japanese' : '日本語'}</option><option value="en" ${locale === 'en' ? 'selected' : ''}>English</option></select></label>`;
 }

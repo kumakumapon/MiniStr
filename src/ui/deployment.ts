@@ -1,3 +1,4 @@
+import { translateText } from './locale';
 import { createDeploymentScenario, deploymentBudget, deploymentSlots, unitStats, type PlayerId, type ScenarioDefinition, type UnitKind } from '../game';
 import { unitNames } from './labels';
 import { escapeHtml } from './strings';
@@ -18,7 +19,7 @@ export function renderDeployment(
       const selected = choices[player];
       const cost = selected.reduce((sum, kind) => sum + unitStats[kind].cost, 0);
       const result = createDeploymentScenario(scenario, selected, player);
-      return `<fieldset><legend>${player === 'red' ? '赤軍' : '青軍'}の編成（${slots.length}枠）</legend><p class="deployment-budget" aria-live="polite">予算 ${budget}G ／ 使用 ${cost}G ／ 残り ${budget - cost}G</p>${slots.map((slot) => `<label class="deployment-slot"><span>${slot.id} (${slot.x + 1}, ${slot.y + 1})${slot.fixed ? ' 固定部隊' : ''}</span><select id="briefing-deployment-${player}-${slot.index}" data-deployment-player="${player}" data-deployment-slot="${slot.index}" aria-label="${player === 'red' ? '赤軍' : '青軍'} ${slot.id}の出撃兵科" ${slot.fixed ? 'disabled' : ''}>${slot.choices.map((kind) => `<option value="${kind}" ${selected[slot.index] === kind ? 'selected' : ''}>${escapeHtml(unitNames[kind])} (${unitStats[kind].cost}G)</option>`).join('')}</select></label>`).join('')}${!result.ok ? `<p class="deployment-error" role="alert">${escapeHtml(result.error)}</p>` : ''}${presets ? renderPresetControls(scenario.id, player, result.ok, presets) : ''}</fieldset>`;
+      return `<fieldset><legend data-ui-copy>${player === 'red' ? '赤軍' : '青軍'}の編成（${slots.length}枠）</legend><p class="deployment-budget" aria-live="polite">予算 ${budget}G ／ 使用 ${cost}G ／ 残り ${budget - cost}G</p>${slots.map((slot) => `<label class="deployment-slot"><span>${slot.id} (${slot.x + 1}, ${slot.y + 1})${slot.fixed ? ` ${translateText('固定部隊')}` : ''}</span><select data-ui-copy id="briefing-deployment-${player}-${slot.index}" data-deployment-player="${player}" data-deployment-slot="${slot.index}" aria-label="${player === 'red' ? '赤軍' : '青軍'} ${slot.id}の出撃兵科" ${slot.fixed ? 'disabled' : ''}>${slot.choices.map((kind) => `<option value="${kind}" ${selected[slot.index] === kind ? 'selected' : ''}>${escapeHtml(unitNames[kind])} (${unitStats[kind].cost}G)</option>`).join('')}</select></label>`).join('')}${!result.ok ? `<p class="deployment-error" role="alert">${escapeHtml(result.error)}</p>` : ''}${presets ? renderPresetControls(scenario.id, player, result.ok, presets) : ''}</fieldset>`;
     })
     .join(
       '',
