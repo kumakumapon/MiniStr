@@ -1045,3 +1045,13 @@ body.production-menu-open { overflow: hidden; }
 .board[data-zoom="50"] .facility { padding:0 1px; max-width:60%; }
 .board[data-zoom="50"] .facility b, .board[data-zoom="50"] .bridge-marker b { font-size:7px; }
 .board[data-zoom="50"] .facility small { display:none; }
+
+/* Custom map actions stay separate from the operation's main button. */
+.title-map-entry { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.title-map-entry .title-map-card { flex: 1; height: auto; }
+.title-map-delete { --delete-edge: #a96c60; --delete-surface: #352521; min-height: 44px; border-color: var(--delete-edge); background: var(--delete-surface); overflow-wrap: anywhere; }
+
+.briefing-supplies { margin: 14px 0; padding: 12px; border: 1px solid #506b5d; border-radius: 6px; }
+.briefing-supplies label { display: block; margin-bottom: 6px; font-weight: 700; }
+.briefing-supplies select { width: 100%; min-width: 0; min-height: 44px; padding: 7px; color: #edf4eb; background: #233a2e; border: 1px solid #69856f; border-radius: 4px; }
+.briefing-supplies p { font-size: .8rem; line-height: 1.6; overflow-wrap: anywhere; }

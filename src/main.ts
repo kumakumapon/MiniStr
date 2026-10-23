@@ -1,3 +1,4 @@
+import { BRIDGE_RULE_VERSION, CURRENT_RULE_VERSION } from './game/types';
 import { japaneseUnitNames } from './ui/unitNameText';
 import { createDeploymentScenario, deploymentSlots, evacuationObjectives, canEvacuateUnit, isEvacuationCondition, isEvacuationTarget, operationScenarios, type GameResult } from './game';
 import { renderDeployment } from './ui/deployment';
@@ -199,6 +200,7 @@ function centerSpectatorOn(position: Position): void {
 
 /** Opened from a match, so the title offers to return to it unchanged. */
 let titleResumable = false;
+let finiteSupplies = true;
 /** Why the last title action (continue, replay import) did not leave the title. */
 let titleNotice = '';
 /** A campaign menu, editor, or replay opened from the title returns to it when closed. */
@@ -437,6 +439,14 @@ function plannedDeployment(): GameResult<ScenarioDefinition> {
 function confirmReplaceMatch(): boolean {
   return game.winner !== undefined || commandHistory.length === 0 || window.confirm(translateText('進行中の対局を置き換えますか？未保存の操作は失われます。'));
 }
+function deleteCustomMapWithConfirmation(id: string): GameResult<void> | undefined {
+  if (!id) return;
+  const map = scenarioById(id);
+  if (!map || [...maps, ...operationScenarios].some(candidate => candidate.id === id)) return deleteCustomScenario(localStorage, id);
+  if (!window.confirm(uiText.customMapDeleteConfirm(scenarioDisplayName(map)))) return;
+  return deleteCustomScenario(localStorage, id);
+}
+
 function resetGame(mapId: string, operation?: ScenarioDefinition): void {
   weaponSelection = undefined;
   productionMenuOpen = false;
@@ -450,6 +460,7 @@ function resetGame(mapId: string, operation?: ScenarioDefinition): void {
   pendingPresentationEffects = [];
   pendingHandoffActionScene = undefined;
   game = start(mapId, operation);
+  if (!campaignRun && !finiteSupplies) game = { ...game, ruleVersion: BRIDGE_RULE_VERSION };
   deploymentBase = selectedMap;
   deploymentChoices = { red: deploymentSlots(selectedMap, 'red').map(slot => slot.kind), blue: deploymentSlots(selectedMap, 'blue').map(slot => slot.kind) };
   deploymentOpen = false;
@@ -1106,6 +1117,7 @@ function render(): void {
   const briefing = renderBriefingOverlay({
     visible: !screens.campaignMenuOpen && !screens.titleOpen && !replayMode && screens.briefingOpen,
     backToTitle: true,
+    finiteSupplies,
     mapName: scenarioDisplayName(renderedMap),
     deployment: deploymentBase && deploymentBase.id !== 'training' && screens.briefingOpen ? renderDeployment(deploymentBase, deploymentChoices, matchMode === 'cpu' ? ['red'] : ['red', 'blue'], deploymentOpen, deploymentNotice, { catalog: presetCatalog, notice: presetNotice, draftNames: presetDraftNames }) + renderOperationChallenges(renderedMap.id) : undefined,
     beginDisabled: deployment !== undefined && !deployment.ok,
@@ -1542,6 +1554,20 @@ function render(): void {
   document.querySelector<HTMLButtonElement>('#open-title')?.addEventListener('click', guardMenu(() => {
     screens.titleOpen = true; titleResumable = true; titleNotice = ''; render();
   }));
+  app.querySelectorAll<HTMLButtonElement>('[data-delete-custom-map]').forEach(button => button.addEventListener('click', () => {
+    if (!screens.titleOpen) return;
+    const id = button.dataset.deleteCustomMap ?? '';
+    const catalog = availableScenarios();
+    const index = catalog.findIndex(map => map.id === id);
+    const map = catalog[index];
+    const result = deleteCustomMapWithConfirmation(id);
+    if (!result) return;
+    titleNotice = result.ok ? uiText.customMapDeleted(map ? scenarioDisplayName(map) : id) : translateText(result.error);
+    const remaining = availableScenarios();
+    const next = remaining[Math.min(Math.max(0, index), remaining.length - 1)];
+    focusSelector = result.ok && next ? `.title-map-card[data-map-id="${next.id}"]` : `#title-delete-${id}`;
+    render();
+  }));
   app.querySelectorAll<HTMLButtonElement>('.title-map-card').forEach(card => card.addEventListener('click', () => {
     const mapId = card.dataset.mapId ?? '';
     if (!screens.titleOpen || !scenarioById(mapId) || !confirmReplaceMatch()) return;
@@ -1629,8 +1655,8 @@ function render(): void {
     });
     app.querySelector('#editor-delete')?.addEventListener('click', () => {
       const id = field<HTMLSelectElement>('#editor-catalog').value;
-      if (!id || !window.confirm(translateText('保存済みのマップを削除しますか？'))) return;
-      const result = deleteCustomScenario(localStorage, id);
+      const result = deleteCustomMapWithConfirmation(id);
+      if (!result) return;
       editorNotice = result.ok ? 'マップを削除しました。' : result.error; render();
     });
     app.querySelector('#editor-save')?.addEventListener('click', () => {
@@ -1895,6 +1921,15 @@ function render(): void {
     if (screens.briefingOpen && commandHistory.length === 0 && !campaignRun) matchMode = parseMatchMode(input.value);
     render();
   }));
+  app.querySelector<HTMLSelectElement>('#briefing-supply-mode')?.addEventListener('change', event => {
+    const value = (event.currentTarget as HTMLSelectElement).value;
+    if (!screens.briefingOpen || commandHistory.length > 0 || campaignRun || (value !== 'finite' && value !== 'unlimited')) return;
+    finiteSupplies = value === 'finite';
+    game = { ...game, ruleVersion: finiteSupplies ? CURRENT_RULE_VERSION : BRIDGE_RULE_VERSION };
+    initialState = structuredClone(game);
+    focusSelector = '#briefing-supply-mode';
+    render();
+  });
   app.querySelector<HTMLDetailsElement>('#briefing-deployment')?.addEventListener('toggle', event => { deploymentOpen = (event.currentTarget as HTMLDetailsElement).open; });
   app.querySelectorAll<HTMLSelectElement>('[data-deployment-player]').forEach(control => control.addEventListener('change', () => {
     const player = control.dataset.deploymentPlayer;
@@ -1917,6 +1952,7 @@ function render(): void {
     if (!planned.ok) { deploymentNotice = planned.error; deploymentOpen = true; render(); return; }
     selectedMap = planned.value;
     game = createScenarioInitialState(selectedMap);
+    if (!campaignRun && !finiteSupplies) game = { ...game, ruleVersion: BRIDGE_RULE_VERSION };
     initialState = structuredClone(game);
     screens.briefingOpen = false;
     message = matchMode === 'hotseat' ? `2人対戦を開始しました。${sideName('hotseat', game.activePlayer)}から操作してください。`

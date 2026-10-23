@@ -1,3 +1,4 @@
+import { CURRENT_RULE_VERSION } from '../game/types';
 import { expect, it } from 'vitest';
 import { applyGameCommand, createDeploymentScenario, createScenarioInitialState, scenarioById, victoryReason, type GameCommand } from '../game';
 import { isDefaultOperationRecord, operationTurnTarget, operationVictory, parseOperationRecords } from '../game/operationRecords';
@@ -22,7 +23,7 @@ it.each(['bridgehead', 'river-withdrawal'])(
     expect(victoryReason(state, scenario)).toBe(id === 'bridgehead' ? 'hold' : 'withdraw');
     expect(state.turn).toBeLessThanOrEqual(operationTurnTarget(id));
     const record = valueOf(operationVictory(initial, state, commands, 'easy'));
-    expect(record).toMatchObject({ scenarioId: id, ruleVersion: 9 });
+    expect(record).toMatchObject({ scenarioId: id, ruleVersion: CURRENT_RULE_VERSION });
     expect(record.challenges).toContain('swift');
     expect(isDefaultOperationRecord(record)).toBe(true);
     expect(valueOf(parseOperationRecords(JSON.stringify({ schemaVersion: 1, records: [record] }))).records).toEqual([record]);

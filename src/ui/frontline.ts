@@ -9,6 +9,10 @@ import {
   manhattanDistance,
   terrainAt,
   usesFrontlineRules,
+  usesFiniteSupplyRules,
+  SUPPLY_CAPACITY,
+  supplyStock,
+  stockCanSupply,
   usesModernRules,
   type GameState,
   type PlayerId,
@@ -29,25 +33,42 @@ export function supplyOutlook(state: GameState, unit: Unit): string {
     if (
       state.units.some(
         (source) =>
-          source.owner === unit.owner && source.id !== unit.id && isDeployedUnit(source) && isSupplyUnit(source.kind) && manhattanDistance(source.position, unit.position) === 1,
+          source.owner === unit.owner &&
+          source.id !== unit.id &&
+          isDeployedUnit(source) &&
+          isSupplyUnit(source.kind) &&
+          (!usesFiniteSupplyRules(state) || (supplyStock(source) > 0 && (!stockCanSupply(state, SUPPLY_CAPACITY, unit) || stockCanSupply(state, supplyStock(source), unit)))) &&
+          manhattanDistance(source.position, unit.position) === 1,
       )
     )
       sources.push(getLocale() === 'en' ? 'APC (no HP repair)' : 'APC（HP修理なし）');
   }
-  return getLocale() === 'en'
-    ? sources.length
-      ? `Next friendly turn: fuel/ammo from ${sources.join(' / ')} if position and sources remain.`
-      : 'No resupply here next turn. Position and sources may change.'
-    : sources.length
-      ? `この位置と補給源が維持されれば、次の自軍手番開始時に燃料・全武器の弾薬を補給予定：${sources.join('・')}。`
-      : 'この位置では次の自軍手番の補給なし。位置と補給源の変化に注意。';
+  const stockNote =
+    usesFiniteSupplyRules(state) && unit.kind === 'apc'
+      ? getLocale() === 'en'
+        ? `Stock ${supplyStock(unit)} / ${SUPPLY_CAPACITY}. Replenished at owned compatible facilities or supply depots; APCs cannot transfer stock. `
+        : `物資 ${supplyStock(unit)} / ${SUPPLY_CAPACITY}。自軍の対応施設・補給所で補充。APC同士で物資は移送しません。`
+      : '';
+  const limited = usesFiniteSupplyRules(state) && sources.some((source) => source.startsWith('APC'));
+  return (
+    stockNote +
+    (getLocale() === 'en'
+      ? sources.length
+        ? `Next friendly turn: ${limited ? 'partial fuel/ammo within available APC stock' : 'fuel/ammo'} from ${sources.join(' / ')} if position and sources remain.`
+        : 'No resupply here next turn. Position and sources may change.'
+      : sources.length
+        ? `この位置と補給源が維持されれば、次の自軍手番開始時に${limited ? '物資の範囲で燃料・弾薬を補給予定' : '燃料・全武器の弾薬を補給予定'}：${sources.join('・')}。`
+        : 'この位置では次の自軍手番の補給なし。位置と補給源の変化に注意。')
+  );
 }
 
 /** Tiles serviced for the selected friendly kind; no hidden enemy participates. */
 export function supplyRange(state: GameState, viewer: PlayerId, selectedId?: string): Set<string> {
   const unit = state.units.find((candidate) => candidate.id === selectedId && candidate.owner === viewer);
   const kind = unit?.kind ?? 'infantry';
-  const suppliers = state.units.filter((source) => source.owner === viewer && isDeployedUnit(source) && isSupplyUnit(source.kind));
+  const suppliers = state.units.filter(
+    (source) => source.owner === viewer && isDeployedUnit(source) && isSupplyUnit(source.kind) && (!usesFiniteSupplyRules(state) || supplyStock(source) > 0),
+  );
   const depots = state.board.terrain.flatMap((row, y) => row.flatMap((tile, x) => (tile.kind === 'supplyDepot' && tile.owner === viewer ? [{ x, y }] : [])));
   const result = new Set<string>();
   for (let y = 0; y < state.board.height; y++)

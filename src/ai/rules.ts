@@ -1,7 +1,8 @@
+import { SUPPLY_CAPACITY, stockCanSupply, supplyStock } from '../game/supplyStock';
 import { hasUsableWeapon, weaponAmmo, weaponsForUnit } from '../game/weapons';
 import type { WeaponSlot } from '../game/units';
 import { fortificationError, unitDefenseStars } from '../game/engineering';
-import { usesBridgeRules, usesFrontlineRules } from '../game/types';
+import { usesBridgeRules, usesFrontlineRules, usesFiniteSupplyRules } from '../game/types';
 import { forecastCombat, terrainDefenseReduction } from '../game/combat';
 import { observeLogistics } from '../game/fog';
 import { endTurn, reachablePositionsForPlayer } from '../game/commands';
@@ -10,7 +11,7 @@ import { visibleEnemies as getVisibleEnemies } from '../game/fog';
 import { scenarioForState, type EvacuationCondition } from '../game/maps';
 import { manhattanDistance, unitMovementCost, terrainAt } from '../game/terrain';
 import { isDeployedUnit, usesDecisionRules, usesOperationsRules, usesModernRules, usesReconRules, type Board, type DeployedUnit, type GameState, type PlayerId, type Position, type Unit, type UnitKind } from '../game/types';
-import { resupplyAvailable, isGroundUnit, isServiceTile, REPAIR_HP_PER_TURN } from '../game/logistics';
+import { fixedSupplyAvailable, resupplyAvailable, isGroundUnit, isServiceTile, REPAIR_HP_PER_TURN } from '../game/logistics';
 import { isEmbarkableUnit, isMergeableUnit, isSupplyUnit, remainingAmmo, unitCategory, unitStats } from '../game/units';
 import { coordinatedOrder, coordinationValue, cpuRole, isPriorityTarget, transportSafeAt } from './coordination';
 import { canEvacuateUnit, evacuationObjectives, isEvacuationTarget } from '../game/evacuation';
@@ -209,7 +210,7 @@ function emptyOwnedFacility(state: GameState, player: PlayerId, kind: UnitKind):
       // Leave a berth for a nearby returning ship instead of filling the only
       // entrance with a new hull before the ship can reload.
       if (usesOperationsRules(state) && tile.kind === 'port' && state.units.some(unit =>
-        unit.owner === player && isDeployedUnit(unit) && unitCategory[unit.kind] === 'sea' && needsSupply(unit)
+        unit.owner === player && isDeployedUnit(unit) && unitCategory[unit.kind] === 'sea' && needsSupply(unit, state)
         && manhattanDistance(unit.position, position) <= Math.min(2, unit.fuel ?? unitStats[unit.kind].fuel))) continue;
       const productionRule = scenarioForState(state)?.productionRules ?? 'legacy-factory-air';
       if (canProduceUnit(tile.kind, kind, productionRule, state.ruleVersion)) return position;
@@ -320,7 +321,7 @@ function productionAction(state: GameState, player: PlayerId, config: CpuDifficu
   }
   const specialist = specialistProduction(state, player, context.visibleEnemies, remoteGround);
   if (specialist) return specialist;
-  const supplyNeeded = usesModernRules(state) && orderedUnits(state, player).filter(unit => isGroundUnit(unit.kind) && needsSupply(unit)).length >= 2;
+  const supplyNeeded = usesModernRules(state) && orderedUnits(state, player).filter(unit => isGroundUnit(unit.kind) && needsSupply(unit, state)).length >= 2;
   if (supplyNeeded && !state.units.some(unit => unit.owner === player && isSupplyUnit(unit.kind)) && state.players[player].gold >= unitStats.apc.cost) {
     const factory = emptyOwnedFacility(state, player, 'apc');
     if (factory) return { type: 'produce', factory, kind: 'apc' };
@@ -424,15 +425,25 @@ function nearestTarget(position: Position, targets: readonly Position[]): Positi
   return [...targets].sort((a, b) => manhattanDistance(position, a) - manhattanDistance(position, b) || a.y - b.y || a.x - b.x)[0];
 }
 
-function needsSupply(unit: DeployedUnit): boolean {
+function needsSupply(unit: DeployedUnit, state: GameState): boolean {
   const stats = unitStats[unit.kind];
   const fuel = unit.fuel ?? stats.fuel;
   const fuelTurnsRemaining = stats.fuelPerTurn > 0 ? Math.ceil(fuel / stats.fuelPerTurn) : Infinity;
-  return fuelTurnsRemaining <= 2
+  return usesFiniteSupplyRules(state) && unit.kind === 'apc' && supplyStock(unit) <= SUPPLY_CAPACITY / 3
+    || fuelTurnsRemaining <= 2
     || fuel <= Math.max(6, Math.floor(stats.fuel / 3))
     // Preserve the primary weapon's mission: an empty secondary alone should
     // not pull a fully armed ship or artillery battery away from its objective.
     || (stats.ammo > 0 && remainingAmmo(unit) <= Math.max(1, Math.floor(stats.ammo / 3)));
+}
+
+/** Only friendly current resources are used; empty trucks return to fixed sources. */
+function cpuSupplyAvailable(state: GameState, player: PlayerId, unit: DeployedUnit, position: Position): boolean {
+  if (!usesFiniteSupplyRules(state)) return resupplyAvailable(state, position, unit.kind, player, unit.id);
+  if (fixedSupplyAvailable(state, position, unit.kind, player)) return true;
+  if (unit.kind === 'apc' && supplyStock(unit) <= SUPPLY_CAPACITY / 3) return false;
+  return isGroundUnit(unit.kind) && state.units.some(source => source.owner === player && source.id !== unit.id && source.kind === 'apc'
+    && isDeployedUnit(source) && manhattanDistance(source.position, position) === 1 && stockCanSupply(state, supplyStock(source), unit));
 }
 
 const supplyTargetCache = new WeakMap<GameState, Map<string, readonly Position[]>>();
@@ -443,7 +454,7 @@ function supplyTargets(state: GameState, player: PlayerId, unit: DeployedUnit): 
   if (previous) return previous;
   const positions = state.board.terrain.flatMap((row, y) => row.flatMap((_tile, x) => {
     const position = { x, y };
-    return resupplyAvailable(state, position, unit.kind, player, unit.id) ? [position] : [];
+    return cpuSupplyAvailable(state, player, unit, position) ? [position] : [];
   }));
   cache.set(unit.id, positions);
   return positions;
@@ -470,12 +481,12 @@ export function evaluateCpuPosition(
   // At 100 HP, each star is worth 10% mitigation and 9 position points.
   const defense = unitDefenseStars(projected, moved) * 10 * unit.hp / 100 * 0.9 * config.terrainDefenseWeight;
   // Under modern rules only compatible facilities (or, for ground units, a supply vehicle) resupply.
-  const resupplied = resupplyAvailable(state, destination, unit.kind, player, unit.id);
-  const supply = needsSupply(unit) && resupplied ? 80 : 0;
-  const serviceTargets = needsSupply(unit) ? supplyTargets(state, player, unit) : [];
+  const resupplied = cpuSupplyAvailable(state, player, unit, destination);
+  const supply = needsSupply(unit, state) && resupplied ? 80 : 0;
+  const serviceTargets = needsSupply(unit, state) ? supplyTargets(state, player, unit) : [];
   const serviceDistance = serviceTargets.length ? Math.min(...serviceTargets.map(position => manhattanDistance(destination, position))) : undefined;
   // A secondary gun can cover a retreat, but does not replace a depleted primary.
-  const criticalSupply = remainingAmmo(unit) === 0 && unitStats[unit.kind].ammo > 0 || (unit.fuel ?? unitStats[unit.kind].fuel) <= unitStats[unit.kind].fuelPerTurn * 2;
+  const criticalSupply = usesFiniteSupplyRules(state) && unit.kind === 'apc' && supplyStock(unit) <= SUPPLY_CAPACITY / 3 || remainingAmmo(unit) === 0 && unitStats[unit.kind].ammo > 0 || (unit.fuel ?? unitStats[unit.kind].fuel) <= unitStats[unit.kind].fuelPerTurn * 2;
   const distance = crossingDistance(state, unit.kind, destination, targets);
   const deployedEnemies = knownEnemies.filter(isDeployedUnit);
   const pressure = deployedEnemies.reduce((risk, enemy) => {
@@ -502,7 +513,7 @@ export function evaluateCpuPosition(
   const retreatPressure = lowHpRatio * config.lowHpRetreatWeight * pressure;
   // Parking on an owned factory/airport/port blocks production there. Units that
   // came to be serviced (low supplies or heavy damage) are exempt.
-  const blocking = !needsSupply(unit) && unit.hp > 50 && blocksProduction(state, player, destination, knownEnemies, config) ? FACILITY_BLOCK_PENALTY : 0;
+  const blocking = !needsSupply(unit, state) && unit.hp > 50 && blocksProduction(state, player, destination, knownEnemies, config) ? FACILITY_BLOCK_PENALTY : 0;
   const logistics = supplyVehicleValue(state, player, unit, destination);
   const scenario = scenarioForState(state);
   const conditions = player === 'red' ? scenario?.victoryConditions : scenario?.defeatConditions;
@@ -561,9 +572,10 @@ export function stalemateRelief(state: Pick<GameState, 'turn'>): number {
 
 /** Modern rules: a supply vehicle is worth more next to allied ground units that need resupply. */
 function supplyVehicleValue(state: GameState, player: PlayerId, unit: DeployedUnit, destination: Position): number {
-  if (!usesModernRules(state) || !isSupplyUnit(unit.kind)) return 0;
+  if (!usesModernRules(state) || !isSupplyUnit(unit.kind) || usesFiniteSupplyRules(state) && supplyStock(unit) === 0) return 0;
   const served = orderedUnits(state, player).filter(ally => ally.id !== unit.id && isGroundUnit(ally.kind)
-    && manhattanDistance(ally.position, destination) === 1 && needsSupply(ally)).length;
+    && manhattanDistance(ally.position, destination) === 1 && needsSupply(ally, state)
+    && (!usesFiniteSupplyRules(state) || stockCanSupply(state, supplyStock(unit), ally))).length;
   return Math.min(2, served) * 30;
 }
 
@@ -588,7 +600,7 @@ function transportAction(state: GameState, player: PlayerId, targets: readonly P
       const destination = reachablePositionsForPlayer(state, transport.id, player).filter(p => transportSafeAt(state, transport, p, visibleEnemies) && manhattanDistance(p, target) < distance)
         .sort((a, b) => manhattanDistance(a, target) - manhattanDistance(b, target) || a.y - b.y || a.x - b.x)[0];
       if (destination) return { type: 'move', unitId: transport.id, destination };
-    } else if (manhattanDistance(transport.position, target) > 6 && !isEvacuationTarget(state, transport.id, player)) {
+    } else if ((!usesFiniteSupplyRules(state) || supplyStock(transport) > SUPPLY_CAPACITY / 3) && manhattanDistance(transport.position, target) > 6 && !isEvacuationTarget(state, transport.id, player)) {
       const passenger = units.find(unit => isEmbarkableUnit(unit.kind) && !unit.hasActed && isAdjacent(unit.position, transport.position));
       if (passenger) return { type: 'embark', unitId: passenger.id, transportId: transport.id };
     }
@@ -733,7 +745,7 @@ function strikeAction(state: GameState, player: PlayerId, config: CpuDifficultyC
     if (!targets.length) continue;
     // Units with another job (capturing, supplying, resupplying, holding the
     // capital against a visible capturer) leave it only for a finishing blow.
-    const finishingOnly = config.strikePlanning === 'lethal' || stats.indirect || stats.capturePower > 0 || isSupplyUnit(unit.kind) || needsSupply(unit)
+    const finishingOnly = config.strikePlanning === 'lethal' || stats.indirect || stats.capturePower > 0 || isSupplyUnit(unit.kind) || needsSupply(unit, state)
       || guardsCapital(state, player, unit, visibleTargets);
     for (const destination of reachablePositionsForPlayer(state, unit.id, player)) {
       const inRange = targets.filter(target => {
@@ -883,8 +895,8 @@ function evacuationAction(state: GameState, player: PlayerId, config: CpuDifficu
 function clearNavalServiceLane(state: GameState, player: PlayerId, units: readonly DeployedUnit[]): CpuAction | undefined {
   if (!usesOperationsRules(state)) return undefined;
   for (const unit of units) {
-    if (unitCategory[unit.kind] !== 'sea' || unit.hasMoved || unit.hasActed || !needsSupply(unit)) continue;
-    const blocker = units.find(ally => ally.id !== unit.id && !ally.hasMoved && !ally.hasActed && !needsSupply(ally)
+    if (unitCategory[unit.kind] !== 'sea' || unit.hasMoved || unit.hasActed || !needsSupply(unit, state)) continue;
+    const blocker = units.find(ally => ally.id !== unit.id && !ally.hasMoved && !ally.hasActed && !needsSupply(ally, state)
       && isAdjacent(unit.position, ally.position) && terrainAt(state.board, ally.position)?.kind === 'port'
       && terrainAt(state.board, ally.position)?.owner === player);
     if (!blocker) continue;

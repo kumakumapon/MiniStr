@@ -1,3 +1,4 @@
+import { SUPPLY_CAPACITY, supplyStock, usesFiniteSupplyRules } from '../game';
 import { supplyOutlook } from './frontline';
 import { isDeployedUnit, hasUsableWeapon, remainingAmmo, weaponAmmo, weaponsForUnit, unitStats, type WeaponSlot, type GameState, type PlayerId, type Position } from '../game';
 import { sideLabel, unitNames, unitWeaponName, weaponNames } from './labels';
@@ -34,6 +35,7 @@ export function renderUnitBrief(
     [uiText.ammo, weapons.length > 1 && own ? weapons.map((weapon, slot) => `${weaponAmmo(unit, slot as WeaponSlot)} / ${weapon.ammo}`).join(' + ') : ammo],
     [uiText.unitBriefFuel, fuel],
   ];
+  if (usesFiniteSupplyRules(state) && unit.kind === 'apc') rows.push([uiText.supplyStock, own ? `${supplyStock(unit)} / ${SUPPLY_CAPACITY}` : uiText.unitBriefUnknown]);
   return `<section id="unit-brief" class="unit-brief unit-brief-${unit.owner}" aria-label="${uiText.unitBriefTitle}" data-unit-id="${escapeHtml(unit.id)}">
     <div class="unit-brief-heading"><div>${title}<h3>${escapeHtml(sideLabel(unit.owner, viewer))} ${escapeHtml(unitNames[unit.kind])}</h3></div><span class="unit-brief-position">(${unit.position.x + 1}, ${unit.position.y + 1})${status ? ` · ${status}` : ''}</span></div>
     <p class="unit-brief-weapon">${escapeHtml(unitWeaponName(unit.kind, state))} · ${uiText.unitBriefRange} ${range} · ${uiText.unitBriefMovement} ${stats.movement}${empty ? ` <strong class="unit-brief-warning">${uiText.ammoEmpty}</strong>` : ''}</p>

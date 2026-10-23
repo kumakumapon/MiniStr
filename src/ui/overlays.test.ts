@@ -244,6 +244,18 @@ describe('title screen (#143)', () => {
     expect(result).toContain('<em>カスタム</em>');
     expect(result).toContain('&lt;b&gt;自作&lt;/b&gt;');
     expect(result).not.toContain('<b>自作</b>');
+    document.body.innerHTML = result;
+    expect(document.querySelectorAll('button button')).toHaveLength(0);
+    expect(document.querySelector('[data-delete-custom-map="my-map"]')?.getAttribute('aria-label')).toBe('「<b>自作</b>」を削除');
+    expect(title()).not.toContain('data-delete-custom-map');
+  });
+
+  it('labels custom-map deletion in English while preserving authored Japanese names', () => {
+    setLocale('en');
+    document.body.innerHTML = title({ maps: [card({ id: 'my-map', name: '戦車', custom: true })] });
+    const button = document.querySelector('[data-delete-custom-map]');
+    expect(button?.textContent).toBe('Delete map');
+    expect(button?.getAttribute('aria-label')).toBe('Delete map "戦車"');
   });
 
   it('enables continue only with a save and offers to return only when opened from a match', () => {

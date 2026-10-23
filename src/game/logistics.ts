@@ -1,7 +1,8 @@
 import { rearmUnit } from './weapons';
 import { isPropertyTerrainKind } from './facilities';
 import { manhattanDistance, terrainAt } from './terrain';
-import { isDeployedUnit, usesFrontlineRules, usesModernRules, type GameState, type PlayerId, type Position, type TerrainKind, type Unit, type UnitKind } from './types';
+import { isDeployedUnit, usesFiniteSupplyRules, usesFrontlineRules, usesModernRules, type GameState, type PlayerId, type Position, type TerrainKind, type Unit, type UnitKind } from './types';
+import { SUPPLY_CAPACITY, supplyFromStock, supplyStock } from './supplyStock';
 import { isSupplyUnit, unitDefinitions, unitStats, type MovementProfile } from './units';
 
 /** HP a unit on a compatible owned facility recovers at the start of its turn. */
@@ -51,6 +52,11 @@ export function resupplyAvailable(state: GameState, position: Position, kind: Un
     && (suppliedByDepot(state, position, owner) || adjacentToSupplyUnit(state, position, owner, excludeId));
 }
 
+/** Only these sources can refill an APC's stock; APCs cannot refill each other. */
+export function fixedSupplyAvailable(state: GameState, position: Position, kind: UnitKind, owner: PlayerId): boolean {
+  return isServiceTile(state, position, kind, owner) || isGroundUnit(kind) && suppliedByDepot(state, position, owner);
+}
+
 export function isServiceTile(state: GameState, position: Position, kind: UnitKind, owner: PlayerId): boolean {
   const terrain = terrainAt(state.board, position);
   if (!terrain || terrain.owner !== owner || !isPropertyTerrainKind(terrain.kind) || terrain.kind === 'supplyDepot') return false;
@@ -73,10 +79,42 @@ export function affordableRepair(kind: UnitKind, missingHp: number, gold: number
 /** Whether a deployed allied supply unit is adjacent to `position`. */
 export function adjacentToSupplyUnit(state: GameState, position: Position, owner: PlayerId, excludeId?: string): boolean {
   return state.units.some(unit => unit.owner === owner && unit.id !== excludeId && isDeployedUnit(unit)
-    && isSupplyUnit(unit.kind) && manhattanDistance(unit.position, position) === 1);
+    && isSupplyUnit(unit.kind) && (!usesFiniteSupplyRules(state) || supplyStock(unit) > 0) && manhattanDistance(unit.position, position) === 1);
 }
 
 const withFullSupplies = (unit: Unit, state: GameState): Unit => ({ ...rearmUnit(unit, state), fuel: unitStats[unit.kind].fuel });
+
+function finiteResupply(state: GameState, player: PlayerId, consumed: Unit[]): Unit[] {
+  const fixed = (unit: Unit): boolean => {
+    if (unit.owner !== player) return false;
+    if (isDeployedUnit(unit)) return fixedSupplyAvailable(state, unit.position, unit.kind, player);
+    const transport = consumed.find(candidate => candidate.id === unit.embarkedIn);
+    return isGroundUnit(unit.kind) && !!transport && isDeployedUnit(transport) && isGroundUnit(transport.kind) && suppliedByDepot(state, transport.position, player);
+  };
+  const supplied = consumed.map(unit => {
+    if (!fixed(unit)) return unit;
+    return { ...withFullSupplies(unit, state), ...(unit.kind === 'apc' ? { supplyStock: SUPPLY_CAPACITY } : {}) };
+  });
+  const compareIds = (left: Unit, right: Unit): number => left.id < right.id ? -1 : left.id > right.id ? 1 : 0;
+  const providers = supplied.filter(unit => unit.owner === player && isDeployedUnit(unit) && isSupplyUnit(unit.kind)).sort(compareIds);
+  const stocks = new Map(providers.map(unit => [unit.id, supplyStock(unit)]));
+  const received = new Map<string, Unit>();
+  // Cargo gets priority. Stable IDs make allocation independent of array order.
+  const recipients = supplied.filter(unit => unit.owner === player && isGroundUnit(unit.kind) && !fixed(unit))
+    .sort((left, right) => Number(left.embarkedIn === undefined) - Number(right.embarkedIn === undefined) || compareIds(left, right));
+  for (const recipient of recipients) {
+    let next = recipient;
+    for (const provider of providers) {
+      if (provider.id === recipient.id || !isDeployedUnit(provider)) continue;
+      if (recipient.embarkedIn !== provider.id && (!isDeployedUnit(recipient) || manhattanDistance(recipient.position, provider.position) !== 1)) continue;
+      const delivered = supplyFromStock(state, next, stocks.get(provider.id)!);
+      stocks.set(provider.id, stocks.get(provider.id)! - delivered.spent);
+      next = delivered.unit;
+    }
+    received.set(next.id, next);
+  }
+  return supplied.map(unit => ({ ...(received.get(unit.id) ?? unit), ...(stocks.has(unit.id) ? { supplyStock: stocks.get(unit.id)! } : {}) }));
+}
 
 /**
  * Modern turn-start upkeep for `player`, applied after income has been collected:
@@ -91,7 +129,7 @@ export function applyModernUpkeep(state: GameState, player: PlayerId, consumeFue
     return consumeFuel && stats.fuelPerTurn > 0 ? { ...unit, fuel: Math.max(0, (unit.fuel ?? stats.fuel) - stats.fuelPerTurn) } : unit;
   });
   const suppliers = new Set(consumed.filter(unit => unit.owner === player && isDeployedUnit(unit) && isSupplyUnit(unit.kind)).map(unit => unit.id));
-  const supplied = consumed.map(unit => {
+  const supplied = usesFiniteSupplyRules(state) ? finiteResupply(state, player, consumed) : consumed.map(unit => {
     if (unit.owner !== player || !isGroundUnit(unit.kind)) return unit;
     if (unit.embarkedIn !== undefined) {
       const transport = consumed.find(candidate => candidate.id === unit.embarkedIn);
