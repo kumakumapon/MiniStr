@@ -1,5 +1,5 @@
 import type { SaveSlot, StorageUsage } from '../game';
-import { formatDate } from './locale';
+import { formatDate, getLocale, translateText } from './locale';
 import { escapeHtml, formatBytes, uiText } from './strings';
 
 export function renderSaveSlotManager(slots: readonly SaveSlot[], usage: StorageUsage, canSave = true, protectLegacy = false): string {
@@ -7,7 +7,7 @@ export function renderSaveSlotManager(slots: readonly SaveSlot[], usage: Storage
     ? slots
         .map(
           (slot) =>
-            `<li><div><strong>${escapeHtml(slot.name)}</strong><span>${escapeHtml(slot.mapId)}${slot.mode === 'hotseat' ? ' / 2人対戦' : slot.mode === 'spectate' ? ' / 観戦' : ''} / ${slot.turn}ターン / ${formatBytes(slot.bytes)}</span>${slot.savedAt ? `<time datetime="${escapeHtml(slot.savedAt)}">${escapeHtml(formatDate(slot.savedAt))}</time>` : ''}${slot.error ? `<p role="status">${escapeHtml(slot.error)}</p>` : ''}</div><div><button class="save-action load-save-slot" data-save-slot="${escapeHtml(slot.id)}" ${slot.status === 'corrupt' || slot.status === 'missing' ? 'disabled' : ''}>再開</button><button class="save-action delete-save-slot" data-save-slot="${escapeHtml(slot.id)}" ${protectLegacy && slot.source === 'legacy' ? 'disabled title="観戦中は対局セーブを削除できません"' : ''}>削除</button></div></li>`,
+            `<li><div><strong>${escapeHtml(slot.source === 'legacy' ? translateText(slot.name) : slot.name)}</strong><span>${escapeHtml(slot.mapId)}${slot.mode === 'hotseat' ? (getLocale() === 'en' ? ' / Two players' : ' / 2人対戦') : slot.mode === 'spectate' ? (getLocale() === 'en' ? ' / Spectating' : ' / 観戦') : ''} / ${getLocale() === 'en' ? `round ${slot.turn}` : `${slot.turn}ターン`} / ${formatBytes(slot.bytes)}</span>${slot.savedAt ? `<time datetime="${escapeHtml(slot.savedAt)}">${escapeHtml(formatDate(slot.savedAt))}</time>` : ''}${slot.error ? `<p role="status">${escapeHtml(slot.error)}</p>` : ''}</div><div><button class="save-action load-save-slot" data-save-slot="${escapeHtml(slot.id)}" ${slot.status === 'corrupt' || slot.status === 'missing' ? 'disabled' : ''}>再開</button><button class="save-action delete-save-slot" data-save-slot="${escapeHtml(slot.id)}" ${protectLegacy && slot.source === 'legacy' ? 'disabled title="観戦中は対局セーブを削除できません"' : ''}>削除</button></div></li>`,
         )
         .join('')
     : '<li class="save-slot-empty">保存済みの対局はありません。</li>';

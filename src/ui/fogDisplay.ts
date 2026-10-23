@@ -1,4 +1,5 @@
 import { isPropertyTerrainKind, visiblePositions, type GameState, type PlayerId, type Position, type Terrain } from '../game';
+import { getLocale } from './locale';
 
 /**
  * The tiles the screen may draw for `viewer`: every tile when the whole board is
@@ -31,5 +32,5 @@ export function observedCapturePoints(tile: Terrain, visible: boolean): number |
 }
 
 export function capturePointsLabel(value: number | 'unknown'): string {
-  return value === 'unknown' ? '不明' : `${value}`;
+  return value === 'unknown' ? (getLocale() === 'en' ? 'Unknown' : '不明') : `${value}`;
 }
