@@ -48,4 +48,10 @@ it('does not advertise empty APC coverage and explains how to replenish stock', 
   expect(supplyOutlook(game, rifle)).toContain('物資の範囲');
   setLocale('en');
   expect(supplyOutlook(game, rifle)).toContain('partial');
+  game.board.terrain[1]![2] = { kind: 'city', owner: 'red' };
+  expect(supplyOutlook(game, rifle)).toContain('Next friendly turn: fuel/ammo');
+  expect(supplyOutlook(game, rifle)).not.toContain('partial');
+  setLocale('ja');
+  expect(supplyOutlook(game, rifle)).toContain('燃料・全武器の弾薬を補給予定');
+  expect(supplyOutlook(game, rifle)).not.toContain('物資の範囲');
 });

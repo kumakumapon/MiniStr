@@ -49,7 +49,7 @@ export function supplyOutlook(state: GameState, unit: Unit): string {
         ? `Stock ${supplyStock(unit)} / ${SUPPLY_CAPACITY}. Replenished at owned compatible facilities or supply depots; APCs cannot transfer stock. `
         : `物資 ${supplyStock(unit)} / ${SUPPLY_CAPACITY}。自軍の対応施設・補給所で補充。APC同士で物資は移送しません。`
       : '';
-  const limited = usesFiniteSupplyRules(state) && sources.some((source) => source.startsWith('APC'));
+  const limited = usesFiniteSupplyRules(state) && sources.length === 1 && sources[0]!.startsWith('APC');
   return (
     stockNote +
     (getLocale() === 'en'
