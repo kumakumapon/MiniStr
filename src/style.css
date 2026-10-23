@@ -125,7 +125,7 @@ button:disabled, select:disabled { cursor: not-allowed; opacity: .45; }
 }
 
 .objective-card { display: grid; gap: 12px; padding: 14px; border: 1px solid #597366; border-radius: 7px; background: linear-gradient(145deg, #1c2d27, #13201c); box-shadow: inset 0 1px #ffffff0a; }
-.objective-heading { display: flex; align-items: end; justify-content: space-between; gap: 12px; padding-bottom: 10px; border-bottom: 1px solid #354b42; }
+.objective-heading { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 12px; padding-bottom: 10px; border-bottom: 1px solid #354b42; }
 .objective-heading h2 { margin: 2px 0 0; color: #f4f0e5; font-size:1.4375rem; }
 .turn-limit { flex: none; padding: 6px 9px; color: #f4d371; font-size:0.625rem; font-weight: 700; white-space: nowrap; border: 1px solid #8c7135; border-radius: 4px; background: #342d1a; }
 .turn-limit strong { margin-right: 2px; font-family: system-ui, -apple-system, 'Segoe UI', sans-serif; font-stretch: condensed; font-size:1.3125rem; }

@@ -28,8 +28,13 @@ async function expectEnglish(page: Page) {
     return found.slice(0, 12);
   });
   expect(remaining).toEqual([]);
-  const layout = await page.evaluate(() => ({ viewport: innerWidth, page: document.documentElement.scrollWidth }));
+  const layout = await page.evaluate(() => ({
+    viewport: innerWidth,
+    page: document.documentElement.scrollWidth,
+    objectives: [...document.querySelectorAll<HTMLElement>('.objective-card')].map((card) => ({ width: card.clientWidth, content: card.scrollWidth })),
+  }));
   expect(layout.page, JSON.stringify(layout)).toBeLessThanOrEqual(layout.viewport + 1);
+  for (const card of layout.objectives) expect(card.content, JSON.stringify(card)).toBeLessThanOrEqual(card.width + 1);
 }
 
 for (const viewport of [
