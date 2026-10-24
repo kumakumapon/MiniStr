@@ -33,6 +33,13 @@ UTC日付から固定条件の生成戦域を決定的に導出し、タイト�
 - UI単体、英語表示、e2e（1操作開始、キーボード、スマホ幅、記録の表示/削除、時計固定）
 - `balance:compare` で候補条件を比較し、偏りの大きい組を除外して `docs/reviews/` に記録
 
+## 再レビュー反映（実装時の必須事項）
+- **再挑戦（High）**: `#restart` の `resetGame(selectedMap.id)` は `start()` が `scenarioById` で解決するため、未保存の日替わり定義が `maps[0]` に差し替わる。日替わり対局では `resetGame(selectedMap.id, <日替わり定義>)` を使う（定義は `scenarioForState(initialState)`）。戦域セレクト（`selected: map.id === selectedMap.id`、`#map` の change）は日替わり中は読み取り専用にするか日替わりの項目を動的に追加する。`scenarioById` を使う他の経路（タイトルカード、キャンペーン離脱）も確認する。実装の最初の統合テストに「日替わり開始→再挑戦で同一定義」を含める。
+- **判定の比較（Medium）**: `scenarioDefinitionToData(再生成定義)` と `initialState.scenarioSnapshot` の完全一致（`battleSeed`、開始ボーナス、`initialUnits`、勝敗条件を含む）で判定する。再生成側も `loadScenarioDefinitions` を経由させ、`turnLimit` の正規化差で偽陰性にならないようにする。ID照合だけでは編成変更後も日替わり扱いになるため、完全一致を必須とする。テスト: 兵科を変えて戻すと記録対象、予算を使い切らない編成は非対象。
+- **変更の無効化（Medium）**: `#difficulty`、`#red-difficulty`、`#briefing-red-difficulty`、ブリーフィングの対戦形式 `match-mode`、`#briefing-supply-mode` を、表示のdisabledに加えて `main.ts` のハンドラ側でも拒否する。編成は変更可能だが記録対象外になる旨を表示する。最終防衛線は記録時の検算（ルール版・難易度・形式）。セーブ再開は保存済みの難易度で検算し、補給は `ruleVersion` で判定する。
+- **利用者設定の復元（Medium）**: `difficulty`・`matchMode`・`finiteSupplies` は日替わり開始前の値を退避し、通常戦域の開始・セーブ再開・リプレイ・キャンペーンへ移る時に復元する。
+- **ID共存（Low）**: 手動生成して保存した同条件の定義と日替わりが共存しても干渉しないことを統合テストで確認する。
+
 ## リスク
 - 生成ロジック変更で過去日付が変わる → スナップショットテストで防ぐ。
 - タイトルの要素追加による既存e2eへの影響 → 新カードは `.title-map-card` を再利用せず（`tests/e2e/title.spec.ts` が件数を検査）、キーボード順序と生成ボタン系e2eを実行して確認する。
