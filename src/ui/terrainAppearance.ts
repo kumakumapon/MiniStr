@@ -56,3 +56,47 @@ export function renderTerrainPattern(kind: TerrainKind, id: string): string {
   const image = kind === 'supplyDepot' ? depotPattern : `<image href="${atlasUrl}" width="4" height="4"/>`;
   return `<pattern id="${id}" patternUnits="userSpaceOnUse" width="1" height="1" viewBox="${viewBox}" overflow="hidden">${image}</pattern>`;
 }
+
+/** WebKit ignores CSS filter functions on SVG graphics. Use SVG 1.1 filter
+ * primitives in sRGB, derived from the same operations as the HTML board art. */
+export function renderTerrainFilter(kind: TerrainKind, theme: ScenarioTheme, id: string): string {
+  const operations = terrainFilter(kind, theme);
+  if (operations === 'none') return '';
+  const primitives = [...operations.matchAll(/(sepia|grayscale|saturate|hue-rotate|brightness)\(([\d.]+)(?:deg)?\)/g)].map(([, name, raw]) => {
+    const amount = Number(raw);
+    if (name === 'hue-rotate') return `<feColorMatrix type="hueRotate" values="${amount}"/>`;
+    if (name === 'saturate') {
+      // An explicit matrix also covers saturation above one consistently.
+      const s = amount;
+      const values = [
+        0.213 + 0.787 * s,
+        0.715 - 0.715 * s,
+        0.072 - 0.072 * s,
+        0,
+        0,
+        0.213 - 0.213 * s,
+        0.715 + 0.285 * s,
+        0.072 - 0.072 * s,
+        0,
+        0,
+        0.213 - 0.213 * s,
+        0.715 - 0.715 * s,
+        0.072 + 0.928 * s,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+      ];
+      return `<feColorMatrix type="matrix" values="${values.map((value) => Number(value.toFixed(6))).join(' ')}"/>`;
+    }
+    if (name === 'brightness')
+      return `<feComponentTransfer><feFuncR type="linear" slope="${amount}"/><feFuncG type="linear" slope="${amount}"/><feFuncB type="linear" slope="${amount}"/></feComponentTransfer>`;
+    const target = name === 'sepia' ? [0.393, 0.769, 0.189, 0.349, 0.686, 0.168, 0.272, 0.534, 0.131] : [0.2126, 0.7152, 0.0722, 0.2126, 0.7152, 0.0722, 0.2126, 0.7152, 0.0722];
+    const rows = [0, 1, 2].flatMap((row) => [0, 1, 2].map((column) => (row === column ? 1 - amount : 0) + target[row * 3 + column]! * amount).concat([0, 0]));
+    return `<feColorMatrix type="matrix" values="${[...rows, 0, 0, 0, 1, 0].join(' ')}"/>`;
+  });
+  return `<filter id="${id}" x="0" y="0" width="100%" height="100%" color-interpolation-filters="sRGB">${primitives.join('')}</filter>`;
+}

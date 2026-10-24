@@ -65,7 +65,7 @@ for (const width of [1280, 390])
           { html: preview, width: bounds.width, height: bounds.height, x },
         );
         const miniature = await page.locator('#preview-color-probe').screenshot();
-        const delta = await page.evaluate(
+        const comparison = await page.evaluate(
           async (sources) => {
             const means = await Promise.all(
               sources.map(async (source) => {
@@ -84,11 +84,19 @@ for (const width of [1280, 390])
               }),
             );
             document.querySelector('#preview-color-probe')?.remove();
-            return Math.max(...means[0]!.map((value, channel) => Math.abs(value - means[1]![channel]!)));
+            return {
+              delta: Math.max(...means[0]!.map((value, channel) => Math.abs(value - means[1]![channel]!))),
+              board: means[0],
+              preview: means[1],
+            };
           },
           [actual.toString('base64'), miniature.toString('base64')],
         );
-        expect(delta, `${theme}/${kinds[x]} mean RGB difference`).toBeLessThan(8);
+        if (comparison.delta >= 8) {
+          await testInfo.attach(`board-${kinds[x]}`, { body: actual, contentType: 'image/png' });
+          await testInfo.attach(`preview-${kinds[x]}`, { body: miniature, contentType: 'image/png' });
+        }
+        expect(comparison.delta, `${theme}/${kinds[x]} mean RGB difference: ${JSON.stringify(comparison)}`).toBeLessThan(8);
       }
       expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width + 1);
     });

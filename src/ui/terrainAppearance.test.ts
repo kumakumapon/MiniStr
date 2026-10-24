@@ -1,6 +1,6 @@
 import { afterEach, expect, it } from 'vitest';
 import { createBoard } from '../game';
-import { renderTerrainArt, renderTerrainPattern, terrainFilter } from './terrainAppearance';
+import { renderTerrainArt, renderTerrainPattern, renderTerrainFilter, terrainFilter } from './terrainAppearance';
 import { renderMapPreview } from './mapPreview';
 import { renderTerrainLegend } from './terrainLegend';
 import { setLocale } from './locale';
@@ -20,7 +20,10 @@ it.each(['temperate', 'desert', 'snow', 'urban', 'coastal'] as const)('shares ar
     expect(art).toContain(`filter:${terrainFilter(kind, theme)}`);
     expect(miniature).toContain(`data-terrain-art="${kind}"`);
     const rect = [...miniature.matchAll(/<rect class="map-preview-terrain"[^>]+>/g)].find((match) => match[0].includes(`data-terrain-art="${kind}"`))?.[0];
-    expect(rect).toContain(`style="filter:${terrainFilter(kind, theme)}"`);
+    expect(rect).toContain(terrainFilter(kind, theme) === 'none' ? 'filter="none"' : `filter="url(#`);
+    expect(miniature).not.toContain('style="filter:');
+    const filterId = rect?.match(/filter="url\(#([^)]*)\)"/)?.[1];
+    if (filterId) expect(miniature).toContain(renderTerrainFilter(kind, theme, filterId));
     expect(renderTerrainPattern(kind, 'fixed-id')).not.toContain('filter:');
     expect(renderTerrainPattern(kind, 'fixed-id')).toContain('id="fixed-id"');
     expect(legend).toContain(art);
@@ -51,4 +54,16 @@ it.each(['ja', 'en'] as const)('offers a collapsed static terrain key with suppl
   expect(html).toContain(locale === 'en' ? 'Temporary bridge' : '仮設橋');
   expect(html).toContain(locale === 'en' ? 'does not repair HP' : 'HPは修理しません');
   expect(renderTerrainLegend('desert', true)).toMatch(/<details[^>]*\sopen/);
+});
+
+it('expresses the shared color operations as native SVG filters in sRGB', () => {
+  expect(renderTerrainFilter('plain', 'temperate', 'color')).toBe('');
+  const desert = renderTerrainFilter('plain', 'desert', 'color');
+  expect(desert).toContain('color-interpolation-filters="sRGB"');
+  expect(desert).toContain('<feColorMatrix type="matrix"');
+  expect(desert).toContain('1.3935 -0.3575 -0.036');
+  expect(desert).toContain('<feColorMatrix type="hueRotate" values="350"');
+  expect(desert).toContain('<feFuncR type="linear" slope="1.05"');
+  expect(renderTerrainFilter('plain', 'snow', 'color')).toContain('0.2126 0.7152 0.0722');
+  expect(renderTerrainFilter('plain', 'constructor' as never, 'color')).toBe('');
 });
