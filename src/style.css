@@ -86,7 +86,7 @@ button { cursor: pointer; }
 .game-over { position: fixed; inset: 0; z-index: 100; display: grid; place-items: center; background: #0a1211d9; }.game-over-card { display: grid; gap: 14px; justify-items: center; padding: 34px 46px; text-align: center; border: 1px solid #e8b33b; border-radius: 10px; background: linear-gradient(150deg, #1b2a26, #101817); box-shadow: 0 25px 60px #000a; }.game-over-card h2 { margin: 0; font-family: system-ui, -apple-system, 'Segoe UI', sans-serif; font-stretch: condensed; font-size:2.375rem; color: #fff0b1; }.game-over-card .end-turn { padding: 12px 28px; }
 
 .battlefield-wrap.theme-desert::before { opacity: .18; background-image: url('/assets/desert-frontier.webp'); }
-.battlefield-wrap.theme-desert .board { border-color: #7d5b37; }.battlefield-wrap.theme-desert .tile.plain { background-image: linear-gradient(135deg, #c9944e 0 50%, #b77f3e 50%); }.battlefield-wrap.theme-desert .tile.road { background-image: linear-gradient(18deg, transparent 40%, #e0c188 41% 58%, transparent 59%), linear-gradient(#bd8747, #a76f35); }.battlefield-wrap.theme-desert .tile.mountain { filter: sepia(.28) saturate(1.2); }
+.battlefield-wrap.theme-desert .board { border-color: #7d5b37; }.battlefield-wrap.theme-desert .tile.plain { background-image: linear-gradient(135deg, #c9944e 0 50%, #b77f3e 50%); }.battlefield-wrap.theme-desert .tile.road { background-image: linear-gradient(18deg, transparent 40%, #e0c188 41% 58%, transparent 59%), linear-gradient(#bd8747, #a76f35); }
 .commander-card.blue { border-color: #427bb9; background: linear-gradient(110deg, #142033 30%, transparent), #1e426c; }.commander-card.blue p { color: #bddcff; }.commander-card.blue span { color: #d2e8ff; }
 .unit-recon, .unit-apc { border-radius: 50% 50% 16% 16%; }.unit-mech { clip-path: polygon(20% 0, 80% 0, 100% 28%, 100% 100%, 0 100%, 0 28%); border-width: 3px; }.unit-heavyTank { border-width: 3px; border-radius: 30% 30% 10% 10%; }.unit-helicopter { border-radius: 50%; }.unit-battleship { clip-path: polygon(0 60%, 100% 60%, 82% 100%, 18% 100%); border-radius: 0; }.unit-rocket { clip-path: polygon(12% 0, 88% 0, 100% 40%, 84% 100%, 16% 100%, 0 40%); border-radius: 0; }
 
@@ -497,23 +497,9 @@ button:focus-visible, select:focus-visible, input:focus-visible, summary:focus-v
 }
 
 
-/* Generated pixel-art sprite sheets scale to the existing 44px board tiles. */
-.battlefield-wrap .board .tile {
-  background-image: url('./assets/terrain-atlas.webp');
-  background-size: 400% 400%;
-  image-rendering: pixelated;
-}
-.battlefield-wrap .board .tile.plain { background-image: url('./assets/terrain-atlas.webp'); background-position: 100% 66.6667%; }
-.battlefield-wrap .board .tile.forest { background-image: url('./assets/terrain-atlas.webp'); background-position: 0 0; }
-.battlefield-wrap .board .tile.mountain { background-image: url('./assets/terrain-atlas.webp'); background-position: 33.3333% 0; }
-.battlefield-wrap .board .tile.road { background-image: url('./assets/terrain-atlas.webp'); background-position: 66.6667% 0; }
-.battlefield-wrap .board .tile.swamp { background-image: url('./assets/terrain-atlas.webp'); background-position: 0 33.3333%; }
-.battlefield-wrap .board .tile.sea { background-image: url('./assets/terrain-atlas.webp'); background-position: 33.3333% 33.3333%; }
-.battlefield-wrap .board .tile.city { background-image: url('./assets/terrain-atlas.webp'); background-position: 66.6667% 33.3333%; }
-.battlefield-wrap .board .tile.factory { background-image: url('./assets/terrain-atlas.webp'); background-position: 100% 33.3333%; }
-.battlefield-wrap .board .tile.airport { background-image: url('./assets/terrain-atlas.webp'); background-position: 0 66.6667%; }
-.battlefield-wrap .board .tile.port { background-image: url('./assets/terrain-atlas.webp'); background-position: 33.3333% 66.6667%; }
-.battlefield-wrap .board .tile.capital { background-image: url('./assets/terrain-atlas.webp'); background-position: 66.6667% 66.6667%; }
+/* Shared terrainAppearance.ts supplies board, preview and legend artwork. */
+.terrain-art { background-repeat: no-repeat; image-rendering: pixelated; }
+.map-preview-terrain, .map-preview-terrain image { image-rendering: pixelated; }
 
 .unit { overflow: visible; clip-path: none; }
 .unit-art {
@@ -1055,3 +1041,22 @@ body.production-menu-open { overflow: hidden; }
 .briefing-supplies label { display: block; margin-bottom: 6px; font-weight: 700; }
 .briefing-supplies select { width: 100%; min-width: 0; min-height: 44px; padding: 7px; color: #edf4eb; background: #233a2e; border: 1px solid #69856f; border-radius: 4px; }
 .briefing-supplies p { font-size: .8rem; line-height: 1.6; overflow-wrap: anywhere; }
+
+/* Settings and reference tools keep the playfield clear. */
+.music-controls { --music-edge:#506b60; --music-surface:#14241d; display:flex; flex-wrap:wrap; gap:10px 16px; align-items:center; min-width:0; }
+.music-controls label { min-height:44px; display:flex; flex-wrap:wrap; align-items:center; gap:6px; min-width:0; font-size:.75rem; }
+.music-controls select { min-height:44px; width:100%; max-width:290px; padding:6px; border:1px solid var(--music-edge); border-radius:4px; color:#f4f0e5; background:var(--music-surface); }
+.music-controls input[type="range"] { max-width:170px; min-height:44px; }
+.music-controls input[type="checkbox"] { min-width:20px; min-height:20px; }
+.music-hint, .music-settings-notice { flex-basis:100%; margin:0; font-size:.75rem; color:#bbccbf; overflow-wrap:anywhere; }
+.music-settings-notice:empty { display:none; }
+.music-preview-actions { display:flex; flex-wrap:wrap; gap:8px; }
+.music-preview-actions button { min-height:44px; }
+.title-music-settings, .terrain-legend { padding:8px 12px; margin-block:10px; border:1px solid #506b60; border-radius:5px; background:#14241d; }
+.title-music-settings summary, .terrain-legend summary { display:list-item; min-height:44px; padding:10px 0; cursor:pointer; color:#e5cc79; }
+.terrain-legend ul { display:flex; flex-wrap:wrap; gap:10px 18px; margin:8px 0; padding:0; list-style:none; }
+.terrain-legend li { display:flex; gap:8px; align-items:center; min-width:125px; font-size:.75rem; }
+.terrain-key-swatch, .terrain-key-bridge { position:relative; display:inline-block; width:32px; height:32px; flex:none; border:1px solid #8a9e87; overflow:hidden; }
+.terrain-key-bridge { display:grid; place-items:center; background:repeating-linear-gradient(90deg,#d7c49a 0 5px,#655443 5px 7px); font-style:normal; color:#14241d; font-weight:bold; }
+.terrain-legend p { color:#bbccbf; font-size:.75rem; line-height:1.6; }
+@media (max-width:640px) { .music-controls { flex-direction:column; align-items:stretch; } .music-controls select { max-width:100%; } }

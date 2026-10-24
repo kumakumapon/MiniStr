@@ -1,14 +1,11 @@
-import { readFileSync, readdirSync } from 'node:fs';
-import { resolve } from 'node:path';
+import { distributedSource } from './distributedSource';
 import { afterEach, expect, it } from 'vitest';
 // @ts-expect-error jsdom is the runtime integration dependency used by startup.test.ts.
 import { JSDOM } from 'jsdom';
 import { crossingScenarioData } from '../crossing.fixture';
 import { MANUAL_SAVE_KEY } from '../../src/game/session';
 
-const asset = readdirSync('dist/assets').find((name) => /^index-.*\.js$/.test(name));
-if (!asset) throw Error('Build before UI integration');
-const source = readFileSync(resolve('dist/assets', asset), 'utf8');
+const source = distributedSource();
 let dom: JSDOM;
 afterEach(() => dom?.window.close());
 it('runs bridge construction through the shipped bundle and preserves costs, history and undo', () => {

@@ -1,10 +1,12 @@
-import type { StorageLike } from '../game';
+import type { PlayerId, StorageLike } from '../game';
 
-export const FIELD_TRACKS = ['march', 'dawn', 'drive', 'wasteland', 'mist'] as const;
+export const FIELD_TRACKS = ['march', 'dawn', 'drive', 'wasteland', 'mist', 'rock-red', 'rock-blue'] as const;
 export type FieldTrack = (typeof FIELD_TRACKS)[number];
 
 /** Audio file (without extension) for each selectable field track. */
 export const FIELD_TRACK_FILES: Record<FieldTrack, string> = {
+  'rock-red': 'rock-red-theme',
+  'rock-blue': 'rock-blue-theme',
   march: 'frontier-theme',
   dawn: 'dawn-theme',
   drive: 'drive-theme',
@@ -12,6 +14,8 @@ export const FIELD_TRACK_FILES: Record<FieldTrack, string> = {
   mist: 'mist-theme',
 };
 export const FIELD_TRACK_LABELS: Record<FieldTrack, string> = {
+  'rock-red': '烈火（ロック・160 BPM）',
+  'rock-blue': '蒼雷（ロック・148 BPM）',
   march: '行進（勇壮・144 BPM）',
   dawn: '暁（凱旋・136 BPM）',
   drive: '疾走（突撃・156 BPM）',
@@ -23,10 +27,12 @@ export interface MusicSettings {
   muted: boolean;
   volume: number;
   fieldTrack: FieldTrack;
+  armyTracks: boolean;
+  blueFieldTrack: FieldTrack;
 }
 
 export const MUSIC_SETTINGS_KEY = 'ministr.music.settings';
-export const defaultMusicSettings: MusicSettings = { muted: false, volume: 0.28, fieldTrack: 'march' };
+export const defaultMusicSettings: MusicSettings = { muted: false, volume: 0.28, fieldTrack: 'march', armyTracks: true, blueFieldTrack: 'rock-blue' };
 
 export interface LoopingAudio {
   src: string;
@@ -48,14 +54,16 @@ const isFieldTrack = (value: unknown): value is FieldTrack => FIELD_TRACKS.some(
 
 function isMusicSettings(value: unknown): value is MusicSettings {
   if (typeof value !== 'object' || value === null) return false;
-  const candidate = value as { muted?: unknown; volume?: unknown; fieldTrack?: unknown };
+  const candidate = value as { muted?: unknown; volume?: unknown; fieldTrack?: unknown; armyTracks?: unknown; blueFieldTrack?: unknown };
   return (
     typeof candidate.muted === 'boolean' &&
     typeof candidate.volume === 'number' &&
     Number.isFinite(candidate.volume) &&
     candidate.volume >= 0 &&
     candidate.volume <= 1 &&
-    isFieldTrack(candidate.fieldTrack)
+    isFieldTrack(candidate.fieldTrack) &&
+    typeof candidate.armyTracks === 'boolean' &&
+    isFieldTrack(candidate.blueFieldTrack)
   );
 }
 
@@ -64,9 +72,18 @@ export function loadMusicSettings(storage: StorageLike): MusicSettings {
     const raw = storage.getItem(MUSIC_SETTINGS_KEY);
     if (!raw) return { ...defaultMusicSettings };
     const parsed: unknown = JSON.parse(raw);
-    // Settings saved before the track choice existed have no fieldTrack: keep them and default the track.
-    const candidate = typeof parsed === 'object' && parsed !== null && !('fieldTrack' in parsed) ? { ...parsed, fieldTrack: defaultMusicSettings.fieldTrack } : parsed;
-    return isMusicSettings(candidate) ? { muted: candidate.muted, volume: candidate.volume, fieldTrack: candidate.fieldTrack } : { ...defaultMusicSettings };
+    if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) return { ...defaultMusicSettings };
+    // Old choices, volume and mute survive. New army fields are defaulted only
+    // when absent; malformed explicit values are rejected rather than coerced.
+    const candidate = {
+      ...parsed,
+      ...(!('fieldTrack' in parsed) ? { fieldTrack: 'march' } : {}),
+      ...(!('armyTracks' in parsed) ? { armyTracks: defaultMusicSettings.armyTracks } : {}),
+      ...(!('blueFieldTrack' in parsed) ? { blueFieldTrack: defaultMusicSettings.blueFieldTrack } : {}),
+    };
+    return isMusicSettings(candidate)
+      ? { muted: candidate.muted, volume: candidate.volume, fieldTrack: candidate.fieldTrack, armyTracks: candidate.armyTracks, blueFieldTrack: candidate.blueFieldTrack }
+      : { ...defaultMusicSettings };
   } catch {
     return { ...defaultMusicSettings };
   }
@@ -86,7 +103,8 @@ type MusicTrack = FieldTrack | 'battle';
 
 function trackUrl(track: MusicTrack): string {
   const file = track === 'battle' ? 'battle-theme' : FIELD_TRACK_FILES[track];
-  const revision = track === 'battle' ? 'legato-20261017' : track === 'march' ? 'brave-20261015' : 'campaign-20261015';
+  const revision =
+    track === 'rock-red' || track === 'rock-blue' ? 'rock-20261024' : track === 'battle' ? 'legato-20261017' : track === 'march' ? 'brave-20261015' : 'campaign-20261015';
   return `${import.meta.env.BASE_URL}assets/${file}.ogg?v=${revision}`;
 }
 
@@ -97,6 +115,7 @@ function trackUrl(track: MusicTrack): string {
  */
 export class BackgroundMusicPlayer {
   private track: MusicTrack;
+  private army: PlayerId = 'red';
   private readonly fieldPositions = new Map<FieldTrack, number>();
   private activated = false;
   private generation = 0;
@@ -127,16 +146,29 @@ export class BackgroundMusicPlayer {
 
   setBattle(active: boolean, restart = false): void {
     if (active === (this.track === 'battle') && !(active && restart)) return;
-    this.selectTrack(active ? 'battle' : this.settings.fieldTrack);
+    this.selectTrack(active ? 'battle' : this.fieldTrack());
     void this.syncPlayback();
   }
 
   setSettings(settings: MusicSettings): void {
     this.settings = settings;
     // Changing the field choice during a battle takes effect after that scene.
-    if (this.track !== 'battle' && this.track !== settings.fieldTrack) this.selectTrack(settings.fieldTrack);
+    if (this.track !== 'battle' && this.track !== this.fieldTrack()) this.selectTrack(this.fieldTrack());
     this.audio.volume = settings.volume;
     void this.syncPlayback();
+  }
+
+  setArmy(army: PlayerId): void {
+    if (this.army === army) return;
+    this.army = army;
+    // A battle owns the source until it ends. A turn/seek during the scene
+    // only changes which army's field track will be restored afterward.
+    if (this.track !== 'battle' && this.track !== this.fieldTrack()) this.selectTrack(this.fieldTrack());
+    void this.syncPlayback();
+  }
+
+  private fieldTrack(): FieldTrack {
+    return this.settings.armyTracks && this.army === 'blue' ? this.settings.blueFieldTrack : this.settings.fieldTrack;
   }
 
   private selectTrack(track: MusicTrack): void {

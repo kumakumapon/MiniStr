@@ -1,5 +1,5 @@
 // Run in an output directory: node /path/to/scripts/generate-music.mjs [battle frontier ...].
-// With no arguments all six WAV themes are written. Battle is a 3.5-second
+// With no arguments all eight WAV themes are written. Battle is a 3.5-second
 // one-shot cue; the field themes loop. Encode battle at -5 dB and frontier
 // at -5 dB with ffmpeg libvorbis -q:a 3. See public/assets/*-theme.md.
 // Campaign quartet: render dawn drive wasteland mist together; encode each at -5 dB, libvorbis quality 3.
@@ -371,7 +371,72 @@ function mist() {
   reverb(s, 0.26, 1.1); finish(s, 'mist.wav', 1.3);
 }
 
-const renderers = { battle, frontier, dawn, drive, wasteland, mist };
+// Original rock pair: synthesized distorted power chords and backbeat.
+function guitar(s, t, dur, midi, vol, pan, palm = false) {
+  const frequency = mtof(midi),
+    start = Math.round(t * SR);
+  const length = Math.floor((dur + 0.045) * SR);
+  let smooth = 0;
+  for (let i = 0; i < length; i++) {
+    const time = i / SR,
+      phase = 2 * Math.PI * frequency * time;
+    const string = Math.sin(phase) + 0.55 * Math.sin(phase * 2) + 0.31 * Math.sin(phase * 3) + 0.12 * Math.sin(phase * 5);
+    const pick = rnd() * 0.09 * Math.exp(-time * 95);
+    const distorted = Math.tanh((string + pick) * 3.2);
+    smooth += 0.24 * (distorted - smooth);
+    const decay = palm ? Math.exp(-time * 16) : Math.exp(-time * 2.8);
+    const envelope = Math.min(1, time / 0.004) * Math.max(0, Math.min(1, (dur + 0.045 - time) / 0.045));
+    s.put(start + i, smooth * decay * envelope * vol, pan);
+  }
+}
+function rock(blue = false) {
+  seed = blue ? 202610242 : 202610241;
+  const bpm = blue ? 148 : 160,
+    beat = 60 / bpm,
+    bar = beat * 4;
+  const song = new Song(bar * 16);
+  const root = blue ? 40 : 38;
+  const progression = blue ? [0, 3, -2, -5, 0, -2, 3, -5] : [0, -2, -4, -5, 0, -4, -2, -5];
+  const melody = blue ? [76, 79, 83, 81, 79, 76, 74, 71] : [74, 77, 79, 81, 84, 81, 79, 77];
+  for (let b = 0; b < 16; b++) {
+    const time = b * bar,
+      bass = root + progression[b % progression.length];
+    // Two takes at the stereo edges, with a tiny offset and different voicing.
+    for (let step = 0; step < 8; step++) {
+      const length = step === 6 ? beat * 0.85 : beat * 0.31;
+      const palm = step !== 0 && step !== 6;
+      for (const [pan, delay] of [
+        [-0.7, 0],
+        [0.7, 0.007],
+      ]) {
+        for (const note of [bass + 12, bass + 19, bass + 24]) guitar(song, time + (step * beat) / 2 + delay, length, note, 0.16, pan, palm);
+      }
+      tone(song, { t: time + (step * beat) / 2, dur: beat * 0.4, freq: mtof(bass), vol: 0.21, voices: 1, wave: 'tri', attack: 0.006, release: 0.035, cutoff: 900 });
+      hat(song, time + (step * beat) / 2, step % 2 ? 0.085 : 0.055, step % 2 ? 0.25 : -0.25);
+    }
+    for (const q of blue ? [0, 1.5, 2.5] : [0, 1.75, 2, 3.5]) kick(song, time + q * beat, 0.57);
+    for (const q of [1, 3]) snare(song, time + q * beat, 0.46);
+    if (b % 4 === 0) crash(song, time, 0.17);
+    const motif = b < 8 ? melody : [...melody.slice(4), ...melody.slice(0, 4)];
+    for (let n = 0; n < 4; n++) {
+      const note = motif[(b * 2 + n) % motif.length] + (b === 15 && n > 1 ? -12 : 0);
+      const t = time + n * beat;
+      guitar(song, t, beat * (n === 3 ? 0.85 : 0.7), note, 0.13, blue ? -0.1 : 0.1);
+      guitar(song, t + beat * 0.75, beat * 0.4, note, 0.035, blue ? 0.4 : -0.4);
+    }
+    if (b % 4 === 3) for (let n = 0; n < 4; n++) snare(song, time + (3 + n / 4) * beat, 0.08 + n * 0.025);
+  }
+  reverb(song, 0.12, 0.55);
+  // Four milliseconds at each edge remove a sample step without an audible
+  // gap; the opening kick retains its full body after the short attack.
+  for (let i = 0; i < song.N; i++) {
+    const gain = Math.sin(Math.PI / 2 * Math.min(1, i / (SR * .004), (song.N - 1 - i) / (SR * .004)));
+    song.L[i] *= gain; song.R[i] *= gain;
+  }
+  finish(song, blue ? 'rock-blue.wav' : 'rock-red.wav', 1.45);
+}
+
+const renderers = { battle, frontier, dawn, drive, wasteland, mist, 'rock-red': () => rock(false), 'rock-blue': () => rock(true) };
 const requested = new Set(process.argv.slice(2));
 for (const name of requested) if (!Object.hasOwn(renderers, name)) throw new Error(`Unknown theme: ${name}`);
 for (const [name, render] of Object.entries(renderers)) if (requested.size === 0 || requested.has(name)) render();

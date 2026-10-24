@@ -1,5 +1,4 @@
-import { readFileSync, readdirSync } from 'node:fs';
-import { resolve } from 'node:path';
+import { distributedSource } from './distributedSource';
 import { afterEach, describe, expect, it } from 'vitest';
 // @ts-expect-error jsdom is a runtime development dependency, as in startup.test.ts.
 import { JSDOM } from 'jsdom';
@@ -7,9 +6,7 @@ import { finishedDefense, scanScenarioData } from '../operationsExpansion.fixtur
 import { OPERATION_RECORDS_KEY } from '../../src/game/operationRecords';
 import { MANUAL_SAVE_KEY } from '../../src/game/session';
 
-const asset = readdirSync('dist/assets').find((name) => /^index-.*\.js$/.test(name));
-if (!asset) throw Error('Build the product before UI tests');
-const source = readFileSync(resolve('dist/assets', asset), 'utf8');
+const source = distributedSource();
 let dom: JSDOM;
 function launch(storage: Record<string, string> = {}) {
   dom = new JSDOM('<html><body><div id="app"></div></body></html>', { url: 'http://localhost/', runScripts: 'outside-only', pretendToBeVisual: true });
