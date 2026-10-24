@@ -58,7 +58,10 @@ for (const width of [1280, 390]) {
     await page.locator('.tile[data-x="2"][data-y="1"]').click();
     await expect(page.locator('.battle-scene')).toBeVisible();
     await expect.poll(source).toContain('battle-theme.ogg');
-    await page.locator('#battle-scene-skip').click();
+    // Keyboard activation does not wait for the animated scene to become
+    // geometrically stable before its automatic 3.6-second dismissal.
+    await page.locator('#battle-scene-skip').press('Enter');
+    await expect(page.locator('.battle-scene')).toHaveCount(0);
     await expect.poll(source).toContain('rock-red-theme.ogg');
     await expect.poll(() => page.evaluate(() => (window as unknown as { musicProbe: { elements: HTMLAudioElement[] } }).musicProbe.elements[0]!.paused)).toBe(false);
 
