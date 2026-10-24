@@ -146,6 +146,25 @@ export function loadOperationRecords(storage: StorageLike): GameResult<Operation
   }
 }
 
+/** Replays a legal command prefix to the final state and derives the shared turn/loss figures (fuel losses counted; merges and evacuation excluded). */
+export function replayOperationOutcome(initial: GameState, final: GameState, commands: readonly GameCommand[]): GameResult<{ turns: number; losses: number }> {
+  let state = initial,
+    losses = 0;
+  for (const command of commands) {
+    if (!isGameCommand(command)) return fail('作戦履歴が不正です。');
+    const next = applyGameCommand(state, command);
+    if (!next.ok) return next;
+    if (command.type !== 'merge' && command.type !== 'evacuate') {
+      const surviving = new Set([...next.value.units, ...(next.value.evacuatedUnits ?? [])].map((unit) => unit.id));
+      losses += state.units.filter((unit) => unit.owner === 'red' && !surviving.has(unit.id)).length;
+    }
+    state = next.value;
+  }
+  if (canonicalOperationValue(state) !== canonicalOperationValue(final)) return fail('作戦の結果と履歴が一致しません。');
+  const turns = Math.max(1, final.turn - Number(commands.at(-1)?.type === 'endTurn' && final.activePlayer === 'red'));
+  return { ok: true, value: { turns, losses } };
+}
+
 /** Derive a victory from its legal command prefix, including fuel losses and excluding merges/evacuation. */
 export function operationVictory(initial: GameState, final: GameState, commands: readonly GameCommand[], difficulty: OperationRecord['difficulty']): GameResult<OperationRecord> {
   const scenario = scenarioForState(initial),
@@ -168,20 +187,9 @@ export function operationVictory(initial: GameState, final: GameState, commands:
     !withinReplayBudget(initial, commands.length)
   )
     return fail('この対局は単体作戦の戦績対象ではありません。');
-  let state = initial,
-    losses = 0;
-  for (const command of commands) {
-    if (!isGameCommand(command)) return fail('作戦履歴が不正です。');
-    const next = applyGameCommand(state, command);
-    if (!next.ok) return next;
-    if (command.type !== 'merge' && command.type !== 'evacuate') {
-      const surviving = new Set([...next.value.units, ...(next.value.evacuatedUnits ?? [])].map((unit) => unit.id));
-      losses += state.units.filter((unit) => unit.owner === 'red' && !surviving.has(unit.id)).length;
-    }
-    state = next.value;
-  }
-  if (canonicalOperationValue(state) !== canonicalOperationValue(final)) return fail('作戦の結果と履歴が一致しません。');
-  const turns = Math.max(1, final.turn - Number(commands.at(-1)?.type === 'endTurn' && final.activePlayer === 'red'));
+  const outcome = replayOperationOutcome(initial, final, commands);
+  if (!outcome.ok) return outcome;
+  const { turns, losses } = outcome.value;
   const surviving = new Set([...final.units, ...(final.evacuatedUnits ?? [])].map((unit) => unit.id));
   const challenges = OPERATION_CHALLENGES.filter((challenge) =>
     challenge === 'swift'
