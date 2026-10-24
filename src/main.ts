@@ -11,6 +11,8 @@ import { renderControlObjective, renderOperationChallenges, renderOperationRecor
 import { deleteOperationRecord, loadOperationRecords, operationIds, operationRevision, operationVictory, resetOperationRecords, saveOperationVictory, type OperationRecord } from './game/operationRecords';
 import { applyDeploymentPreset, deleteDeploymentPreset, loadDeploymentPresets, resetDeploymentPresets, saveDeploymentPreset } from './game/deploymentPresets';
 import { generateSymmetricMap } from './game/mapGenerator';
+import { dailyConditions, dailyDateKey, dailyDateOfScenarioId, dailyScenario, dailyVictory, deleteDailyRecord, isDailyScenarioId, isStandardDailyDefinition, loadDailyRecords, resetDailyRecords, saveDailyVictory, type DailyRecord } from './game/dailyChallenge';
+import { renderDailyBriefingNote, renderDailyCard, renderDailyResult } from './ui/dailyChallenge';
 import { ANALYSIS_METRICS, presetNameKey, reconContactLabel, renderBattleAnalysis, renderMapGenerator, renderReconMarker, renderReconPanel, type AnalysisMetric, type GeneratorForm } from './ui/standaloneSystems';
 import { weaponNames } from './ui/labels';
 import { hasUsableWeapon, weaponsForUnit, type WeaponSlot } from './game';
@@ -99,6 +101,15 @@ const recordsLoad = loadOperationRecords(localStorage);
 let operationCatalog = recordsLoad.ok ? recordsLoad.value : undefined;
 let operationNotice = recordsLoad.ok ? '' : recordsLoad.error;
 let operationRecordsOpen = false;
+const dailyLoad = loadDailyRecords(localStorage);
+let dailyCatalog = dailyLoad.ok ? dailyLoad.value : undefined;
+let dailyNotice = dailyLoad.ok ? '' : dailyLoad.error;
+let dailyRecordsOpen = false;
+let dailyOutcome: { code: string; record?: Pick<DailyRecord, 'bestTurns' | 'bestLosses'>; notice: string } | undefined;
+let dailyResultGame: GameState | undefined;
+let dailyCopyNotice = '';
+/** The clock is replaceable only here, so the date a daily match uses is decided in one place. */
+const dailyClock = (): Date => new Date();
 let operationOutcome: OperationRecord | undefined;
 let operationResultGame: GameState | undefined;
 let showReconMarkers = true;
@@ -340,6 +351,36 @@ function setEditorVictory(kind: VictoryCondition['type'], target: number): void 
   } });
 }
 
+interface MatchSettings { difficulty: CpuDifficulty; matchMode: MatchMode; finiteSupplies: boolean }
+/** The player's own settings, set aside while a daily match forces its fixed conditions. */
+let dailyUserSettings: MatchSettings | undefined;
+/** Daily-match settings parked while a replay of another match is shown. */
+let dailyParked: { user: MatchSettings; daily: MatchSettings } | undefined;
+const currentSettings = (): MatchSettings => ({ difficulty, matchMode, finiteSupplies });
+function applySettings(settings: MatchSettings): void { ({ difficulty, matchMode, finiteSupplies } = settings); }
+function restoreUserSettings(): void {
+  dailyParked = undefined;
+  if (!dailyUserSettings) return;
+  applySettings(dailyUserSettings);
+  dailyUserSettings = undefined;
+}
+/** A daily battlefield forces difficulty, match format and supplies; anything else gives the player's settings back. */
+function applyDailyStartPolicy(targetId: string): void {
+  if (!campaignRun && isDailyScenarioId(targetId)) {
+    dailyParked = undefined;
+    dailyUserSettings ??= currentSettings();
+    applySettings({ difficulty: 'normal', matchMode: 'cpu', finiteSupplies: true });
+  } else restoreUserSettings();
+}
+/** True while the fixed daily conditions must not be changed (also enforced by the handlers, not only by disabled controls). */
+const dailyLocked = (): boolean => !replay && !campaignRun && isDailyScenarioId(selectedMap.id);
+/** Retrying a daily match rebuilds the canonical definition; the id-only lookup cannot find an unsaved one. */
+function restartDefinition(): ScenarioDefinition | undefined {
+  const date = campaignRun ? undefined : dailyDateOfScenarioId(selectedMap.id);
+  const canonical = date === undefined ? undefined : dailyScenario(date);
+  return canonical?.ok ? canonical.value : undefined;
+}
+
 function start(id: string, operation?: ScenarioDefinition): GameState {
   selectedMap = operation ?? scenarioById(id) ?? maps[0]!;
   return createScenarioInitialState(selectedMap);
@@ -454,6 +495,7 @@ function deleteCustomMapWithConfirmation(id: string): GameResult<void> | undefin
 }
 
 function resetGame(mapId: string, operation?: ScenarioDefinition): void {
+  applyDailyStartPolicy(operation?.id ?? mapId);
   weaponSelection = undefined;
   productionMenuOpen = false;
   productionNotice = '';
@@ -636,6 +678,8 @@ function continueSavedGame(slotId?: string): boolean {
   cpuSkipRequested = false;
   campaignRun = undefined;
   campaignOutcome = undefined;
+  restoreUserSettings();
+  const settingsBeforeLoad = currentSettings();
   selectedMap = map;
   deploymentBase = undefined;
   difficulty = loaded.value.difficulty;
@@ -651,6 +695,8 @@ function continueSavedGame(slotId?: string): boolean {
   if (loaded.value.campaignScenarioId && isCampaignScenarioUnlocked(campaignProgress, loaded.value.campaignScenarioId)) {
     campaignRun = { scenarioId: loaded.value.campaignScenarioId };
   }
+  // A resumed daily match keeps its saved settings; the player's own are kept aside and given back on leaving it.
+  if (!campaignRun && isDailyScenarioId(map.id)) dailyUserSettings = settingsBeforeLoad;
   finishCampaignBattle();
   undoStack = [];
   selected = undefined;
@@ -732,6 +778,8 @@ function beginReplay(file: ReplayFile): void {
   cpuSkipRequested = false;
   skipCpuImmediately = undefined;
   pendingPresentationEffects = [];
+  // Watching another match is not a daily match: hand the player's settings back, and take the daily ones again on leaving.
+  if (dailyUserSettings && !isDailyScenarioId(file.mapId)) { dailyParked = { user: dailyUserSettings, daily: currentSettings() }; applySettings(dailyUserSettings); dailyUserSettings = undefined; }
   resetSpectatorCamera();
   replay = { file: structuredClone(file), state: { ...structuredClone(file.initialState), scenarioId: file.mapId }, index: 0, playing: false, speed: 1, timeline: new ReplayTimeline(file), viewpoint: 'red' };
   selected = undefined; selectedFacility = undefined; screens.briefingOpen = false; syncBoardZoom(replay.state.board.width); message = 'リプレイを読み込みました。再生ボタンで開始できます。'; render();
@@ -778,6 +826,7 @@ function scheduleReplay(): void {
 }
 function leaveReplay(): void {
   commandScheduler.cancel(); dismissTacticalScene(false); pendingPresentationEffects = []; pendingHandoffActionScene = undefined; replay = undefined; selected = undefined;
+  if (dailyParked) { dailyUserSettings = dailyParked.user; applySettings(dailyParked.daily); dailyParked = undefined; }
   message = game.winner ? '対局結果に戻りました。' : '通常の対局に戻りました。';
   backToTitleIfOpenedThere();
   render();
@@ -835,8 +884,52 @@ function syncOperationOutcome(): void {
   if (saved.ok) { operationCatalog = saved.value.catalog; operationNotice = saved.value.changed ? '最良記録と達成済み課題を更新しました。' : 'この条件のクリア記録は保存済みです。'; }
   else operationNotice = saved.error;
 }
+function syncDailyOutcome(): void {
+  if (screens.titleOpen || screens.briefingOpen || screens.campaignMenuOpen || screens.editorOpen) return;
+  const date = !replay && !campaignRun && game.winner ? dailyDateOfScenarioId(selectedMap.id) : undefined;
+  const conditions = date === undefined ? undefined : dailyConditions(date);
+  if (!conditions?.ok) { dailyOutcome = undefined; dailyResultGame = undefined; dailyCopyNotice = ''; return; }
+  if (dailyResultGame === game) return;
+  dailyResultGame = game;
+  dailyCopyNotice = '';
+  const code = conditions.value.code;
+  const result = dailyVictory(initialState, game, commandHistory, { difficulty, matchMode }, dailyClock());
+  if (!result.ok) { dailyOutcome = { code, notice: result.error }; return; }
+  const figures = { bestTurns: result.value.record.bestTurns, bestLosses: result.value.record.bestLosses };
+  const saved = saveDailyVictory(localStorage, result.value.record);
+  if (saved.ok) {
+    dailyCatalog = saved.value.catalog;
+    dailyOutcome = { code, record: figures, notice: saved.value.changed ? '日替わりチャレンジの最良記録を更新しました。' : '日替わりチャレンジの記録は保存済みです。' };
+  } else dailyOutcome = { code, record: figures, notice: saved.error };
+}
+function dailyBriefingConditions() {
+  const conditions = dailyConditions(dailyDateOfScenarioId(selectedMap.id) ?? dailyDateKey(dailyClock()));
+  if (!conditions.ok) throw Error(conditions.error);
+  return conditions.value;
+}
+function startDaily(): void {
+  if (!screens.titleOpen || !confirmReplaceMatch()) return;
+  // The date is fixed here, at the moment of starting, and carried by the scenario id from then on.
+  const scenario = dailyScenario(dailyDateKey(dailyClock()));
+  if (!scenario.ok) { dailyNotice = scenario.error; render(); return; }
+  dailyNotice = '';
+  leaveTitle(); campaignRun = undefined; campaignOutcome = undefined;
+  resetGame(scenario.value.id, scenario.value);
+  message = '作戦ブリーフィングを確認してください。';
+  render();
+}
+async function copyDailyCode(code: string): Promise<void> {
+  try {
+    await navigator.clipboard.writeText(code);
+    dailyCopyNotice = '識別子をコピーしました。';
+  } catch {
+    dailyCopyNotice = 'コピーできませんでした。識別子を選択してコピーしてください。';
+  }
+  focusSelector = '#daily-copy-id'; render();
+}
 function render(): void {
   syncOperationOutcome();
+  syncDailyOutcome();
   if (!canCommand()) reconTargeting = false;
   if (!selected || selected !== fortifyPending || !canCommand()) fortifyPending = undefined;
   if (bridgePending && (!canCommand() || selected !== bridgePending.unitId || bridgeError(game, bridgePending.unitId))) bridgePending = undefined;
@@ -1038,7 +1131,7 @@ function render(): void {
     summaryError: summaryResult && !summaryResult.ok ? summaryResult.error : undefined,
     mapName: scenarioDisplayName(renderedMap),
     difficultyName: matchDifficultyName(),
-    campaignResult: campaignResult + (operationOutcome ? renderOperationChallenges(renderedMap.id, operationOutcome) + `<p role="status">${escapeHtml(operationNotice)}</p>` : ''),
+    campaignResult: campaignResult + (operationOutcome ? renderOperationChallenges(renderedMap.id, operationOutcome) + `<p role="status">${escapeHtml(operationNotice)}</p>` : '') + (dailyOutcome && !campaignRun ? renderDailyResult({ ...dailyOutcome, copyNotice: dailyCopyNotice }) : ''),
     campaignActions: campaignResultActions,
     reasonLabel: victoryReason(renderedGame, renderedMap) === 'objectiveLost' ? '必要な作戦対象を失いました。' : victoryReason(renderedGame, renderedMap) === 'decision' ? uiText.decisionVictory : victoryReason(renderedGame, renderedMap) === 'control' ? '拠点支配得点で勝利しました。' : undefined,
     sideNames: matchMode === 'cpu' ? undefined : { red: sideName(matchMode, 'red'), blue: sideName(matchMode, 'blue') },
@@ -1116,6 +1209,10 @@ function render(): void {
     boardZoom: { index: boardZoomIndex, automatic: boardZoomAuto },
     musicSettings, musicOpen: titleMusicOpen,
     canContinue: hasSave(),
+    daily: titleVisible ? (() => {
+      const today = dailyConditions(dailyDateKey(dailyClock()));
+      return today.ok ? renderDailyCard({ conditions: today.value, today: dailyCatalog?.records.find(record => record.date === today.value.date), catalog: dailyCatalog, notice: dailyNotice, recordsOpen: dailyRecordsOpen }) : '';
+    })() : undefined,
     generator: titleVisible ? renderMapGenerator(generatorForm, generatorNotice, generatorOpen) + renderOperationRecords(operationCatalog, operationNotice, operationRecordsOpen) : undefined,
     savePicker: titleVisible ? renderSaveSlotManager(listSaveSlots(localStorage), getStorageUsage(localStorage), false, matchMode === 'spectate') : '',
     canResume: titleResumable,
@@ -1126,8 +1223,9 @@ function render(): void {
     visible: !screens.campaignMenuOpen && !screens.titleOpen && !replayMode && screens.briefingOpen,
     backToTitle: true,
     finiteSupplies,
+    fixedConditions: dailyLocked(),
     mapName: scenarioDisplayName(renderedMap),
-    deployment: deploymentBase && deploymentBase.id !== 'training' && screens.briefingOpen ? renderDeployment(deploymentBase, deploymentChoices, matchMode === 'cpu' ? ['red'] : ['red', 'blue'], deploymentOpen, deploymentNotice, { catalog: presetCatalog, notice: presetNotice, draftNames: presetDraftNames }) + renderOperationChallenges(renderedMap.id) : undefined,
+    deployment: (dailyLocked() && screens.briefingOpen ? renderDailyBriefingNote({ conditions: dailyBriefingConditions(), standard: !!deployment?.ok && isStandardDailyDefinition(deployment.value) }) : '') + (deploymentBase && deploymentBase.id !== 'training' && screens.briefingOpen ? renderDeployment(deploymentBase, deploymentChoices, matchMode === 'cpu' ? ['red'] : ['red', 'blue'], deploymentOpen, deploymentNotice, { catalog: presetCatalog, notice: presetNotice, draftNames: presetDraftNames }) + renderOperationChallenges(renderedMap.id) : ''),
     beginDisabled: deployment !== undefined && !deployment.ok,
     briefing: scenarioDisplayBriefing(renderedMap),
     victoryConditions: [...renderedMap.victoryConditions.map(conditionDescription), ...(renderedDecisionRound === undefined ? [] : [uiText.decisionRule(renderedDecisionRound)])],
@@ -1149,7 +1247,7 @@ function render(): void {
     <div class="build-info">${renderLocalePicker()}v${escapeHtml(buildInfo.version)} · ${escapeHtml(buildInfo.sha.slice(0, 12))} <button id="diagnostics-export">診断情報を保存</button></div>
     ${localStorage.conflicted ? '<p role="alert">別のタブでデータが変更されました。書き込みを停止しています。バックアップ後に再読み込みしてください。<button id="storage-reload">再読み込み</button></p>' : ''}
     ${!localStorage.persistent ? '<p class="storage-warning" role="alert">ブラウザーの保存領域を利用できません。このタブを閉じるとデータが失われます。バックアップをダウンロードしてください。</p>' : ''}
-    <header class="command-bar"><div class="brand"><span class="brand-mark" aria-hidden="true">✦</span><div><h1>MiniStr</h1><p>TACTICAL COMMAND</p></div></div><label class="map-picker">戦域<select id="map" aria-label="戦域マップを選択" ${replayMode || campaignRun ? 'disabled' : ''}>${!availableScenarios().some(map => map.id === renderedMap.id) ? `<option data-user-content value="${escapeHtml(renderedMap.id)}" selected>${escapeHtml(scenarioDisplayName(renderedMap))}</option>` : ''}<optgroup label="組み込み">${[...maps, ...operationScenarios].map(map => `<option data-user-content value="${escapeHtml(map.id)}" ${map.id === renderedMap.id ? 'selected' : ''}>${escapeHtml(scenarioDisplayName(map))}</option>`).join('')}</optgroup>${availableScenarios().filter(map => ![...maps, ...operationScenarios].some(builtIn => builtIn.id === map.id)).length ? `<optgroup label="カスタム">${availableScenarios().filter(map => ![...maps, ...operationScenarios].some(builtIn => builtIn.id === map.id)).map(map => `<option data-user-content value="${escapeHtml(map.id)}" ${map.id === renderedMap.id ? 'selected' : ''}>${escapeHtml(scenarioDisplayName(map))}</option>`).join('')}</optgroup>` : ''}</select></label>${renderedRedDifficulty ? `<label class="map-picker">${uiText.spectateRedDifficulty}<select id="red-difficulty" aria-label="赤軍CPUの難易度を選択" ${replayMode ? 'disabled' : ''}>${difficultyOptions(renderedRedDifficulty)}</select></label>` : ''}<label class="map-picker">${spectateDifficulties ? uiText.spectateBlueDifficulty : '難易度'}<select id="difficulty" aria-label="${spectateDifficulties ? '青軍CPU' : 'CPU'}の難易度を選択" ${replayMode ? 'disabled' : ''}>${difficultyOptions(renderedDifficulty)}</select></label>${renderCpuSpeedControl(cpuSpeed, 'cpu-speed', replayMode)}<div class="save-controls"><button id="open-title" class="save-action" ${replayMode ? 'disabled' : ''}>${uiText.titleOpen}</button><button id="open-editor" class="save-action" ${replayMode ? 'disabled' : ''}>マップ編集</button><button id="open-campaign" class="save-action" ${replayMode ? 'disabled' : ''}>キャンペーン</button><button id="continue" class="save-action" ${replayMode || !hasSave() ? 'disabled' : ''}>続きから</button><button id="save" class="save-action" ${replayMode ? 'disabled' : ''}>${manualSaveTarget(matchMode) === 'slot' ? uiText.spectateSaveToSlot : '手動セーブ'}</button><button id="delete-save" class="save-action" ${matchSaveDeletionAllowed(matchMode) ? '' : `title="${escapeHtml(uiText.spectateNoSaveDeletion)}"`} ${replayMode || !hasStoredSave() || !matchSaveDeletionAllowed(matchMode) ? 'disabled' : ''}>対局セーブ削除</button><button id="undo" class="save-action" ${canAct && undoAllowed(matchMode) && undoStack.length > 0 ? '' : 'disabled'}>1手戻す</button><button id="import-replay" class="save-action" ${replayMode ? 'disabled' : ''}>JSON取込</button><input id="replay-file" class="visually-hidden" type="file" accept=".json,application/json" aria-label="JSONリプレイファイルを選択"></div><div class="turn-indicator ${renderedGame.activePlayer}"><span>${replayMode ? 'REPLAY' : cpuInProgress ? 'CPU THINKING' : campaignRun ? 'CAMPAIGN' : matchMode === 'spectate' ? 'SPECTATE' : 'TURN'}</span><strong>${cpuInProgress ? (matchMode === 'spectate' ? `${activeLabel} CPU 行動中` : 'CPU 行動中') : concealed ? `${activeLabel}の番` : activeLabel}</strong></div>${cpuInProgress ? `<button id="skip-cpu" class="save-action" ${cpuSkipAllowed(matchContext()) ? '' : 'disabled'} title="${matchMode === 'spectate' ? 'CPU観戦中はスキップできません。CPU速度を変更できます。' : 'CPUの残りの行動を高速に進める'}">CPU をスキップ</button>` : ''}${spectateControl}${wholeBoardControl}<button id="end" class="end-turn" title="現在のターンを終了" aria-label="ターンを終了する" ${!canAct ? 'disabled' : ''}>ターン終了 <span aria-hidden="true">→</span></button></header>
+    <header class="command-bar"><div class="brand"><span class="brand-mark" aria-hidden="true">✦</span><div><h1>MiniStr</h1><p>TACTICAL COMMAND</p></div></div><label class="map-picker">戦域<select id="map" aria-label="戦域マップを選択" ${replayMode || campaignRun ? 'disabled' : ''}>${!availableScenarios().some(map => map.id === renderedMap.id) ? `<option data-user-content value="${escapeHtml(renderedMap.id)}" selected>${escapeHtml(scenarioDisplayName(renderedMap))}</option>` : ''}<optgroup label="組み込み">${[...maps, ...operationScenarios].map(map => `<option data-user-content value="${escapeHtml(map.id)}" ${map.id === renderedMap.id ? 'selected' : ''}>${escapeHtml(scenarioDisplayName(map))}</option>`).join('')}</optgroup>${availableScenarios().filter(map => ![...maps, ...operationScenarios].some(builtIn => builtIn.id === map.id)).length ? `<optgroup label="カスタム">${availableScenarios().filter(map => ![...maps, ...operationScenarios].some(builtIn => builtIn.id === map.id)).map(map => `<option data-user-content value="${escapeHtml(map.id)}" ${map.id === renderedMap.id ? 'selected' : ''}>${escapeHtml(scenarioDisplayName(map))}</option>`).join('')}</optgroup>` : ''}</select></label>${renderedRedDifficulty ? `<label class="map-picker">${uiText.spectateRedDifficulty}<select id="red-difficulty" aria-label="赤軍CPUの難易度を選択" ${replayMode || dailyLocked() ? 'disabled' : ''}>${difficultyOptions(renderedRedDifficulty)}</select></label>` : ''}<label class="map-picker">${spectateDifficulties ? uiText.spectateBlueDifficulty : '難易度'}<select id="difficulty" aria-label="${spectateDifficulties ? '青軍CPU' : 'CPU'}の難易度を選択" ${replayMode || dailyLocked() ? 'disabled' : ''}>${difficultyOptions(renderedDifficulty)}</select></label>${renderCpuSpeedControl(cpuSpeed, 'cpu-speed', replayMode)}<div class="save-controls"><button id="open-title" class="save-action" ${replayMode ? 'disabled' : ''}>${uiText.titleOpen}</button><button id="open-editor" class="save-action" ${replayMode ? 'disabled' : ''}>マップ編集</button><button id="open-campaign" class="save-action" ${replayMode ? 'disabled' : ''}>キャンペーン</button><button id="continue" class="save-action" ${replayMode || !hasSave() ? 'disabled' : ''}>続きから</button><button id="save" class="save-action" ${replayMode ? 'disabled' : ''}>${manualSaveTarget(matchMode) === 'slot' ? uiText.spectateSaveToSlot : '手動セーブ'}</button><button id="delete-save" class="save-action" ${matchSaveDeletionAllowed(matchMode) ? '' : `title="${escapeHtml(uiText.spectateNoSaveDeletion)}"`} ${replayMode || !hasStoredSave() || !matchSaveDeletionAllowed(matchMode) ? 'disabled' : ''}>対局セーブ削除</button><button id="undo" class="save-action" ${canAct && undoAllowed(matchMode) && undoStack.length > 0 ? '' : 'disabled'}>1手戻す</button><button id="import-replay" class="save-action" ${replayMode ? 'disabled' : ''}>JSON取込</button><input id="replay-file" class="visually-hidden" type="file" accept=".json,application/json" aria-label="JSONリプレイファイルを選択"></div><div class="turn-indicator ${renderedGame.activePlayer}"><span>${replayMode ? 'REPLAY' : cpuInProgress ? 'CPU THINKING' : campaignRun ? 'CAMPAIGN' : matchMode === 'spectate' ? 'SPECTATE' : 'TURN'}</span><strong>${cpuInProgress ? (matchMode === 'spectate' ? `${activeLabel} CPU 行動中` : 'CPU 行動中') : concealed ? `${activeLabel}の番` : activeLabel}</strong></div>${cpuInProgress ? `<button id="skip-cpu" class="save-action" ${cpuSkipAllowed(matchContext()) ? '' : 'disabled'} title="${matchMode === 'spectate' ? 'CPU観戦中はスキップできません。CPU速度を変更できます。' : 'CPUの残りの行動を高速に進める'}">CPU をスキップ</button>` : ''}${spectateControl}${wholeBoardControl}<button id="end" class="end-turn" title="現在のターンを終了" aria-label="ターンを終了する" ${!canAct ? 'disabled' : ''}>ターン終了 <span aria-hidden="true">→</span></button></header>
     ${scenarioLoadError ? `<p class="scenario-warning">組み込みシナリオの読み込みに失敗したため、緊急スカーミッシュで起動しています。${escapeHtml(scenarioLoadError)}</p>` : ''}
     <section class="sound-controls" aria-label="音量設定"><label><input id="sound-muted" type="checkbox" ${!soundSettings.muted ? 'checked' : ''}> 効果音</label><label>音量 <input id="sound-volume" type="range" min="0" max="100" value="${Math.round(soundSettings.volume * 100)}" aria-label="効果音の音量"></label>${renderMusicControls(musicSettings)}</section>
     ${!hasSave() && hasStoredSave() ? `<p class="scenario-warning" role="status">${matchSaveDeletionAllowed(matchMode) ? uiText.invalidSaveWarning : uiText.invalidSaveWarningSpectating}</p>` : ''}
@@ -1262,6 +1360,23 @@ function render(): void {
     else operationNotice = result.error;
     focusSelector = '#operation-records-heading'; render();
   }));
+  app.querySelector<HTMLButtonElement>('#daily-start')?.addEventListener('click', startDaily);
+  app.querySelector<HTMLDetailsElement>('#daily-records')?.addEventListener('toggle', event => { dailyRecordsOpen = (event.currentTarget as HTMLDetailsElement).open; });
+  app.querySelector<HTMLButtonElement>('#daily-records-reset')?.addEventListener('click', () => {
+    if (!window.confirm(translateText('日替わりチャレンジの記録のみを初期化しますか？ 対局・キャンペーン・作戦戦績は保持します。'))) return;
+    const result = resetDailyRecords(localStorage);
+    if (result.ok) { dailyCatalog = result.value; dailyNotice = '日替わりチャレンジの記録を初期化しました。'; }
+    else dailyNotice = result.error;
+    dailyRecordsOpen = true; focusSelector = '#daily-records-heading'; render();
+  });
+  app.querySelectorAll<HTMLButtonElement>('[data-daily-delete]').forEach(button => button.addEventListener('click', () => {
+    if (!window.confirm(translateText('この日の記録を削除しますか？'))) return;
+    const result = deleteDailyRecord(localStorage, button.dataset.dailyDelete ?? '');
+    if (result.ok) { dailyCatalog = result.value; dailyNotice = 'この日の記録を削除しました。'; }
+    else dailyNotice = result.error;
+    dailyRecordsOpen = true; focusSelector = '#daily-records-heading'; render();
+  }));
+  app.querySelector<HTMLButtonElement>('#daily-copy-id')?.addEventListener('click', () => { void copyDailyCode(app.querySelector('#daily-code')?.textContent ?? ''); });
   app.querySelector<HTMLButtonElement>('#result-title-menu')?.addEventListener('click', () => { app.querySelector<HTMLButtonElement>('#open-title')?.click(); });
   app.querySelectorAll<HTMLButtonElement>('[data-control-x]').forEach(button => button.addEventListener('click', () => {
     centerBoardOnPosition(app, { x: Number(button.dataset.controlX), y: Number(button.dataset.controlY) });
@@ -1350,7 +1465,7 @@ function render(): void {
     const preview = previewBackup(localStorage, text);
     if (!preview.ok) { message = preview.error; titleNotice = message; render(); return; }
     const details = `${preview.value.entryCount}件の項目、${preview.value.saveCount}件のセーブ`
-      + `${preview.value.hasScenarios ? '、カスタムシナリオあり' : ''}${preview.value.hasCampaign ? '、キャンペーン記録あり' : ''}`
+      + `${preview.value.hasScenarios ? '、カスタムシナリオあり' : ''}${preview.value.hasCampaign ? '、キャンペーン記録あり' : ''}${preview.value.hasDaily ? '、日替わりチャレンジ記録あり（旧版では復元できません）' : ''}`
       + `。復元により現在のアプリ項目${preview.value.removedEntryCount}件が削除されます。内容を完全検証してから書き込みます。`;
     if (!window.confirm(translateText(`バックアップ内容を確認してください。\n\n${translateGameText(details)}\n\n現在のデータを先にバックアップしてください。復元しますか？`))) return;
     if (!isCurrent()) return;
@@ -1361,6 +1476,10 @@ function render(): void {
       operationCatalog = restoredRecords.ok ? restoredRecords.value : undefined;
       operationNotice = restoredRecords.ok ? '' : restoredRecords.error;
       operationResultGame = undefined;
+      const restoredDaily = loadDailyRecords(localStorage);
+      dailyCatalog = restoredDaily.ok ? restoredDaily.value : undefined;
+      dailyNotice = restoredDaily.ok ? '' : restoredDaily.error;
+      dailyOutcome = undefined; dailyResultGame = game; dailyCopyNotice = '';
       const restoredPresets = loadDeploymentPresets(localStorage);
       presetCatalog = restoredPresets.ok ? restoredPresets.value : undefined;
       presetNotice = restoredPresets.ok ? '' : restoredPresets.error;
@@ -1530,11 +1649,11 @@ function render(): void {
       render();
     };
   };
-  const menuOpen = () => menuAllowed(matchContext());
+  const menuOpen = () => menuAllowed(matchContext()) && !dailyLocked();
   bindDifficulty('#difficulty', level => { difficulty = level; }, menuOpen);
   bindDifficulty('#red-difficulty', level => { redDifficulty = level; }, menuOpen);
-  bindDifficulty('#briefing-red-difficulty', level => { redDifficulty = level; }, () => screens.briefingOpen);
-  bindDifficulty('#briefing-blue-difficulty', level => { difficulty = level; }, () => screens.briefingOpen);
+  bindDifficulty('#briefing-red-difficulty', level => { redDifficulty = level; }, () => screens.briefingOpen && !dailyLocked());
+  bindDifficulty('#briefing-blue-difficulty', level => { difficulty = level; }, () => screens.briefingOpen && !dailyLocked());
   for (const selector of ['#cpu-speed', '#title-cpu-speed']) {
     app.querySelector<HTMLSelectElement>(selector)?.addEventListener('change', event => {
       if (replayMode || (selector === '#title-cpu-speed' && !screens.titleOpen)) return;
@@ -1859,7 +1978,7 @@ function render(): void {
   }
   document.querySelector<HTMLButtonElement>('#restart')?.addEventListener('click', guardMenu(() => {
     if (!confirmReplaceMatch()) return;
-    resetGame(selectedMap.id); message = 'ユニットを選択して行動してください。'; render();
+    resetGame(selectedMap.id, restartDefinition()); message = 'ユニットを選択して行動してください。'; render();
   }));
   document.querySelector<HTMLButtonElement>('#open-campaign')?.addEventListener('click', guardMenu(openCampaignMenu));
   document.querySelector<HTMLButtonElement>('#open-campaign-briefing')?.addEventListener('click', guardMenu(openCampaignMenu));
@@ -1942,12 +2061,12 @@ function render(): void {
   document.querySelector<HTMLButtonElement>('#replay-exit')?.addEventListener('click', leaveReplay);
   app.querySelectorAll<HTMLInputElement>('input[name="match-mode"]').forEach(input => input.addEventListener('change', () => {
     // The format can only change on the briefing, before any command is played.
-    if (screens.briefingOpen && commandHistory.length === 0 && !campaignRun) matchMode = parseMatchMode(input.value);
+    if (screens.briefingOpen && commandHistory.length === 0 && !campaignRun && !dailyLocked()) matchMode = parseMatchMode(input.value);
     render();
   }));
   app.querySelector<HTMLSelectElement>('#briefing-supply-mode')?.addEventListener('change', event => {
     const value = (event.currentTarget as HTMLSelectElement).value;
-    if (!screens.briefingOpen || commandHistory.length > 0 || campaignRun || (value !== 'finite' && value !== 'unlimited')) return;
+    if (!screens.briefingOpen || commandHistory.length > 0 || campaignRun || dailyLocked() || (value !== 'finite' && value !== 'unlimited')) return;
     finiteSupplies = value === 'finite';
     game = { ...game, ruleVersion: finiteSupplies ? CURRENT_RULE_VERSION : BRIDGE_RULE_VERSION };
     initialState = structuredClone(game);
