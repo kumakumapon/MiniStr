@@ -49,10 +49,10 @@ export function renderTerrainArt(kind: TerrainKind, theme: ScenarioTheme): strin
 }
 
 /** One small pattern per used terrain, then cheap row runs in the miniature. */
-export function renderTerrainPattern(kind: TerrainKind, theme: ScenarioTheme, id: string): string {
+export function renderTerrainPattern(kind: TerrainKind, id: string): string {
   kind = safeKind(kind);
   const [column, row] = cells[kind];
   const viewBox = kind === 'supplyDepot' ? '0 0 16 16' : `${column} ${row} 1 1`;
   const image = kind === 'supplyDepot' ? depotPattern : `<image href="${atlasUrl}" width="4" height="4"/>`;
-  return `<pattern id="${id}" patternUnits="userSpaceOnUse" width="1" height="1" viewBox="${viewBox}" overflow="hidden"><g style="filter:${terrainFilter(kind, theme)}">${image}</g></pattern>`;
+  return `<pattern id="${id}" patternUnits="userSpaceOnUse" width="1" height="1" viewBox="${viewBox}" overflow="hidden">${image}</pattern>`;
 }

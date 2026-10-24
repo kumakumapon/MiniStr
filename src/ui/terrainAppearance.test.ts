@@ -19,8 +19,10 @@ it.each(['temperate', 'desert', 'snow', 'urban', 'coastal'] as const)('shares ar
     const art = renderTerrainArt(kind, theme);
     expect(art).toContain(`filter:${terrainFilter(kind, theme)}`);
     expect(miniature).toContain(`data-terrain-art="${kind}"`);
-    expect(miniature).toContain(`filter:${terrainFilter(kind, theme)}`);
-    expect(renderTerrainPattern(kind, theme, 'fixed-id')).toContain('id="fixed-id"');
+    const rect = [...miniature.matchAll(/<rect class="map-preview-terrain"[^>]+>/g)].find((match) => match[0].includes(`data-terrain-art="${kind}"`))?.[0];
+    expect(rect).toContain(`style="filter:${terrainFilter(kind, theme)}"`);
+    expect(renderTerrainPattern(kind, 'fixed-id')).not.toContain('filter:');
+    expect(renderTerrainPattern(kind, 'fixed-id')).toContain('id="fixed-id"');
     expect(legend).toContain(art);
   }
   expect(miniature.match(/class="map-preview-terrain"/g)).toHaveLength(kinds.length);
@@ -28,16 +30,16 @@ it.each(['temperate', 'desert', 'snow', 'urban', 'coastal'] as const)('shares ar
 
 it('uses safe fixed fallbacks for invalid kinds and themes', () => {
   expect(renderTerrainArt('constructor' as never, 'constructor' as never)).toBe(renderTerrainArt('plain', 'temperate'));
-  expect(renderTerrainPattern('__proto__' as never, '<script>' as never, 'fixed-id')).toBe(renderTerrainPattern('plain', 'temperate', 'fixed-id'));
+  expect(renderTerrainPattern('__proto__' as never, 'fixed-id')).toBe(renderTerrainPattern('plain', 'fixed-id'));
   expect(terrainFilter('sea', 'desert')).toBe('none');
   expect(terrainFilter('plain', 'desert')).not.toBe(terrainFilter('plain', 'temperate'));
   expect(terrainFilter('plain', 'snow')).not.toBe(terrainFilter('plain', 'temperate'));
 });
 
 it('uses the forest, mountain and road cells actually present in the atlas', () => {
-  expect(renderTerrainPattern('forest', 'temperate', 'forest-key')).toContain('viewBox="1 0 1 1"');
-  expect(renderTerrainPattern('mountain', 'temperate', 'mountain-key')).toContain('viewBox="2 0 1 1"');
-  expect(renderTerrainPattern('road', 'temperate', 'road-key')).toContain('viewBox="3 0 1 1"');
+  expect(renderTerrainPattern('forest', 'forest-key')).toContain('viewBox="1 0 1 1"');
+  expect(renderTerrainPattern('mountain', 'mountain-key')).toContain('viewBox="2 0 1 1"');
+  expect(renderTerrainPattern('road', 'road-key')).toContain('viewBox="3 0 1 1"');
   expect(renderTerrainArt('forest', 'temperate')).toContain('background-position:33.333333333333336% 0%');
 });
 

@@ -1,4 +1,4 @@
-import { renderTerrainPattern } from './terrainAppearance';
+import { renderTerrainPattern, terrainFilter } from './terrainAppearance';
 import type { Board, PlayerId, ScenarioTheme, TerrainKind } from '../game';
 
 /** Close to the board's own tile colours, flattened for a few pixels per tile. */
@@ -60,8 +60,8 @@ export interface PreviewUnit {
 /**
  * A decorative SVG miniature of a map: terrain, properties in their owner's
  * colour (headquarters larger), and starting units as dots. Only numbers and
- * colours from the tables above reach the markup, so custom maps need no
- * escaping. Returns '' for a board it cannot draw.
+ * fixed atlas URLs, generated IDs and validated coordinates reach the artwork;
+ * no authored text is interpolated into the SVG. Returns '' for a board it cannot draw.
  */
 let previewSerial = 0;
 
@@ -94,7 +94,7 @@ export function renderMapPreview(board: Board, units: readonly PreviewUnit[], th
       if (x === width || kind !== textureKind) {
         if (textureKind && x > textureStart)
           artwork.push(
-            `<rect class="map-preview-terrain" data-terrain-art="${textureKind}" x="${textureStart}" y="${y}" width="${x - textureStart}" height="1" fill="url(#${patternId(textureKind)})"/>`,
+            `<rect class="map-preview-terrain" data-terrain-art="${textureKind}" x="${textureStart}" y="${y}" width="${x - textureStart}" height="1" fill="url(#${patternId(textureKind)})" style="filter:${terrainFilter(textureKind, theme)}"/>`,
           );
         textureStart = x;
         textureKind = kind;
@@ -111,5 +111,5 @@ export function renderMapPreview(board: Board, units: readonly PreviewUnit[], th
       (unit) =>
         `<circle class="map-preview-unit" cx="${unit.x + 0.5}" cy="${unit.y + 0.5}" r="0.26" fill="${ownerColors[unit.owner === 'blue' ? 'blue' : 'red']}" stroke="#0d1714" stroke-width="0.1"/>`,
     );
-  return `<svg class="map-preview" viewBox="0 0 ${width} ${height}" preserveAspectRatio="xMidYMid meet" aria-hidden="true" focusable="false" shape-rendering="crispEdges"><defs>${[...patternKinds].map((kind) => renderTerrainPattern(kind, theme, patternId(kind))).join('')}</defs>${tiles.join('')}${artwork.join('')}${properties.join('')}<g shape-rendering="geometricPrecision">${dots.join('')}</g></svg>`;
+  return `<svg class="map-preview" viewBox="0 0 ${width} ${height}" preserveAspectRatio="xMidYMid meet" aria-hidden="true" focusable="false" shape-rendering="crispEdges"><defs>${[...patternKinds].map((kind) => renderTerrainPattern(kind, patternId(kind))).join('')}</defs>${tiles.join('')}${artwork.join('')}${properties.join('')}<g shape-rendering="geometricPrecision">${dots.join('')}</g></svg>`;
 }
