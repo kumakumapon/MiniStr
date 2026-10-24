@@ -1,5 +1,4 @@
-import { readFileSync, readdirSync } from 'node:fs';
-import { resolve } from 'node:path';
+import { distributedSource } from './distributedSource';
 import { afterEach, describe, expect, it } from 'vitest';
 // jsdom is intentionally instantiated per test: startup listeners/timers cannot leak between apps.
 // @ts-expect-error The runtime is a dev dependency; production/test source does not require its optional declaration package.
@@ -8,9 +7,7 @@ import { applyGameCommand, createScenarioInitialState, maps, saveGameToSlot, typ
 import { operation, operationData, valueOf } from '../../src/game/operations.fixture';
 import type { GameCommand } from '../../src/game/session';
 
-const asset = readdirSync('dist/assets').find((name) => /^index-.*\.js$/.test(name));
-if (!asset) throw Error('Run npm run build before production UI tests');
-const source = readFileSync(resolve('dist/assets', asset), 'utf8');
+const source = distributedSource();
 let dom: JSDOM;
 function launch(options: { storage?: Record<string, string>; denied?: boolean } = {}) {
   dom = new JSDOM('<!doctype html><html lang="ja"><body><div id="app"></div></body></html>', {

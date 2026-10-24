@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs';
 import { describe, expect, it, vi } from 'vitest';
 import type { StorageLike } from '../game';
 import {
@@ -61,9 +62,25 @@ describe('music settings', () => {
 });
 
 describe('field track setting', () => {
+  it('migrates the old chosen track and validates both army preferences', () => {
+    expect(loadMusicSettings(storage({ [MUSIC_SETTINGS_KEY]: JSON.stringify({ muted: true, volume: 0.46, fieldTrack: 'mist' }) }))).toEqual({
+      ...defaultMusicSettings,
+      muted: true,
+      volume: 0.46,
+      fieldTrack: 'mist',
+    });
+    for (const patch of [{ armyTracks: 'true' }, { blueFieldTrack: 'jazz' }, { blueFieldTrack: null }]) {
+      expect(loadMusicSettings(storage({ [MUSIC_SETTINGS_KEY]: JSON.stringify({ ...defaultMusicSettings, ...patch }) }))).toEqual(defaultMusicSettings);
+      expect(saveMusicSettings(storage(), { ...defaultMusicSettings, ...patch } as never)).toBe(false);
+    }
+    const target = storage();
+    const settings = { ...defaultMusicSettings, fieldTrack: 'rock-red' as const, blueFieldTrack: 'rock-blue' as const, armyTracks: false };
+    expect(saveMusicSettings(target, settings)).toBe(true);
+    expect(loadMusicSettings(target)).toEqual(settings);
+  });
   it('reads settings saved before the track choice as the default march', () => {
     const old = storage({ [MUSIC_SETTINGS_KEY]: '{"muted":true,"volume":0.5}' });
-    expect(loadMusicSettings(old)).toEqual({ muted: true, volume: 0.5, fieldTrack: 'march' });
+    expect(loadMusicSettings(old)).toEqual({ ...defaultMusicSettings, muted: true, volume: 0.5, fieldTrack: 'march' });
   });
 
   it('keeps a valid chosen track and falls back for unknown ones', () => {
@@ -78,6 +95,9 @@ describe('field track setting', () => {
   it('ships an audio file for every selectable track', () => {
     for (const track of FIELD_TRACKS) {
       expect(FIELD_TRACK_FILES[track]).toMatch(/-theme$/);
+      const bytes = readFileSync(`public/assets/${FIELD_TRACK_FILES[track]}.ogg`);
+      expect(bytes.subarray(0, 4).toString()).toBe('OggS');
+      expect(bytes.subarray(0, 128).toString()).toContain('vorbis');
       expect(FIELD_TRACK_LABELS[track]).not.toBe('');
     }
     expect(new Set(FIELD_TRACKS.map((track) => FIELD_TRACK_FILES[track])).size).toBe(FIELD_TRACKS.length);
@@ -85,6 +105,60 @@ describe('field track setting', () => {
 });
 
 describe('BackgroundMusicPlayer', () => {
+  it('resumes each army track independently and keeps a shared track continuous', async () => {
+    const audio = new FakeAudio();
+    const player = new BackgroundMusicPlayer(defaultMusicSettings, audio);
+    await player.unlock();
+    audio.currentTime = 12;
+    player.setArmy('blue');
+    expect(audio.src).toContain('rock-blue-theme.ogg');
+    expect(audio.currentTime).toBe(0);
+    audio.currentTime = 8;
+    player.setArmy('red');
+    expect(audio.src).toContain('frontier-theme.ogg');
+    expect(audio.currentTime).toBe(12);
+    player.setArmy('blue');
+    expect(audio.currentTime).toBe(8);
+    player.setSettings({ ...defaultMusicSettings, armyTracks: false });
+    expect(audio.src).toContain('frontier-theme.ogg');
+    const loads = audio.load.mock.calls.length;
+    player.setArmy('red');
+    player.setArmy('blue');
+    expect(audio.load).toHaveBeenCalledTimes(loads);
+    expect(audio.currentTime).toBe(12);
+  });
+
+  it('defers army and preference changes until the battle cue ends', async () => {
+    const audio = new FakeAudio();
+    const player = new BackgroundMusicPlayer(defaultMusicSettings, audio);
+    await player.unlock();
+    player.setBattle(true);
+    player.setArmy('blue');
+    player.setSettings({ ...defaultMusicSettings, blueFieldTrack: 'rock-red' });
+    expect(audio.src).toContain('battle-theme.ogg');
+    expect(audio.loop).toBe(false);
+    player.setBattle(false);
+    expect(audio.src).toContain('rock-red-theme.ogg');
+    expect(audio.loop).toBe(true);
+    player.setArmy('red');
+    expect(audio.src).toContain('frontier-theme.ogg');
+  });
+
+  it('switches armies without bypassing mute or gesture activation', async () => {
+    const audio = new FakeAudio();
+    const player = new BackgroundMusicPlayer({ ...defaultMusicSettings, muted: true }, audio);
+    player.setArmy('blue');
+    expect(audio.play).not.toHaveBeenCalled();
+    await player.unlock();
+    expect(audio.play).not.toHaveBeenCalled();
+    player.setSettings(defaultMusicSettings);
+    expect(audio.src).toContain('rock-blue-theme.ogg');
+    expect(audio.play).toHaveBeenCalledTimes(1);
+    player.setSettings({ ...defaultMusicSettings, volume: 0 });
+    player.setArmy('red');
+    expect(audio.muted).toBe(true);
+    expect(audio.play).toHaveBeenCalledTimes(1);
+  });
   it('switches to battle music and restores the normal position while respecting mute and volume', async () => {
     const audio = new FakeAudio();
     const player = new BackgroundMusicPlayer(defaultMusicSettings, audio);

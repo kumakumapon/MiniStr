@@ -1,3 +1,5 @@
+import { renderMusicControls } from './musicControls';
+import type { MusicSettings } from './music';
 import { SUPPLY_CAPACITY } from '../game/supplyStock';
 import { getLocale, renderLocalePicker } from './locale';
 import { renderCpuSpeedControl } from './cpuSpeed';
@@ -133,6 +135,8 @@ export function renderTitleOverlay(options: {
   generator?: string;
   cpuSpeed?: CommandSpeed;
   boardZoom?: { index: number; automatic: boolean };
+  musicSettings?: MusicSettings;
+  musicOpen?: boolean;
 }): string {
   if (!options.visible) return '';
   const automatic = options.boardZoom?.automatic ?? true;
@@ -144,7 +148,7 @@ export function renderTitleOverlay(options: {
         `<li class="title-map-entry"><button class="title-map-card" data-map-id="${escapeHtml(map.id)}" ${map.selected ? 'aria-current="true"' : ''}>${map.preview}<span class="title-map-name">${escapeHtml(map.name)}${map.custom ? `<em>${uiText.titleCustom}</em>` : ''}</span><span class="title-map-facts"><span>${escapeHtml(map.theme)}</span><span>${uiText.titleBoard(map.width, map.height)}</span><span>${uiText.titleGold(map.startingGold)}</span><span>${uiText.titleTurnLimit(map.turnLimit)}</span></span><span class="title-map-victory">${escapeHtml(map.victory)}</span></button>${map.custom ? `<button type="button" class="save-action title-map-delete" id="title-delete-${escapeHtml(map.id)}" data-delete-custom-map="${escapeHtml(map.id)}" data-user-attributes="aria-label" aria-label="${escapeHtml(uiText.customMapDeleteLabel(map.name))}">${uiText.customMapDelete}</button>` : ''}</li>`,
     )
     .join('');
-  return `<div class="title-overlay" role="dialog" aria-modal="true" aria-labelledby="title-heading"><section class="title-screen"><header class="title-hero"><p class="card-kicker">${uiText.titleKicker}</p><h2 id="title-heading">${uiText.titleHeading}</h2><p>${uiText.titleLead}</p></header><nav class="title-menu" aria-label="${uiText.titleMenu}">${renderLocalePicker()}${renderCpuSpeedControl(options.cpuSpeed ?? 1, 'title-cpu-speed')}${zoomControl}${options.canResume ? `<button id="title-resume" class="end-turn">${uiText.titleResume}</button>` : ''}<button id="title-continue" class="save-action" ${options.canContinue ? '' : 'disabled'}>${uiText.titleContinue}</button><button id="title-training" class="save-action">基本操作を練習</button><button id="title-campaign" class="save-action">${uiText.titleCampaign}</button><button id="title-import-replay" class="save-action">${uiText.titleImportReplay}</button><button id="title-editor" class="save-action">${uiText.titleEditor}</button><input id="title-replay-file" class="visually-hidden" type="file" accept=".json,application/json" aria-label="JSONリプレイファイルを選択"></nav>${options.savePicker ?? ''}${options.generator ?? ''}${options.notice ? `<p class="title-notice" role="status">${escapeHtml(options.notice)}</p>` : ''}<section aria-labelledby="title-maps-heading"><h3 id="title-maps-heading">${uiText.titleMapsHeading}</h3><ol class="title-map-list">${cards}</ol></section></section></div>`;
+  return `<div class="title-overlay" role="dialog" aria-modal="true" aria-labelledby="title-heading"><section class="title-screen"><header class="title-hero"><p class="card-kicker">${uiText.titleKicker}</p><h2 id="title-heading">${uiText.titleHeading}</h2><p>${uiText.titleLead}</p></header><nav class="title-menu" aria-label="${uiText.titleMenu}">${renderLocalePicker()}${renderCpuSpeedControl(options.cpuSpeed ?? 1, 'title-cpu-speed')}${zoomControl}${options.canResume ? `<button id="title-resume" class="end-turn">${uiText.titleResume}</button>` : ''}<button id="title-continue" class="save-action" ${options.canContinue ? '' : 'disabled'}>${uiText.titleContinue}</button><button id="title-training" class="save-action">基本操作を練習</button><button id="title-campaign" class="save-action">${uiText.titleCampaign}</button><button id="title-import-replay" class="save-action">${uiText.titleImportReplay}</button><button id="title-editor" class="save-action">${uiText.titleEditor}</button><input id="title-replay-file" class="visually-hidden" type="file" accept=".json,application/json" aria-label="JSONリプレイファイルを選択"></nav><details id="title-music-settings" class="title-music-settings" ${options.musicOpen ? 'open' : ''}><summary>${getLocale() === 'en' ? 'BGM settings' : 'BGM設定'}</summary>${renderMusicControls(options.musicSettings, 'title-music', true)}</details>${options.savePicker ?? ''}${options.generator ?? ''}${options.notice ? `<p class="title-notice" role="status">${escapeHtml(options.notice)}</p>` : ''}<section aria-labelledby="title-maps-heading"><h3 id="title-maps-heading">${uiText.titleMapsHeading}</h3><ol class="title-map-list">${cards}</ol></section></section></div>`;
 }
 
 /**

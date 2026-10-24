@@ -1,0 +1,60 @@
+{
+  "baseSha": "a11ae1d965d05f07b70f9d97a4889dcc19539893",
+  "generatorSHA256": "4ffe06e37baffe47ac1926552a4096aa39661da94376216d9d2c38ffb4573fe0",
+  "ffmpeg": "ffmpeg version 7.1.5-0+deb13u1 Copyright (c) 2000-2026 the FFmpeg developers",
+  "notes": "Original synthesized music. Ogg container IDs may vary on re-encode; compare reproduced WAV hashes. Sample-step/RMS are engineering checks, not listening or real-device approval.",
+  "tracks": [
+    {
+      "file": "public/assets/rock-red-theme.ogg",
+      "bpm": 160,
+      "bars": 16,
+      "format": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "codec_name": "vorbis",
+            "sample_rate": "44100",
+            "channels": 2
+          }
+        ],
+        "format": {
+          "duration": "24.000000",
+          "size": "323786"
+        }
+      },
+      "sha256": "c5a9b644b6c6bdc22adefb87447124500299823cb4d91ffc1237e326520b4307",
+      "wavSHA256": "ac5b77ae6cde6a3099754e12a22ddce97510888544d51d6ae506b70c8f8bf0d0",
+      "decodedSamples": 1058400,
+      "peakDbFS": -5.666,
+      "rmsDbFS": -17.7316,
+      "loopEdgeMaxSampleStep": 0.007976
+    },
+    {
+      "file": "public/assets/rock-blue-theme.ogg",
+      "bpm": 148,
+      "bars": 16,
+      "format": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "codec_name": "vorbis",
+            "sample_rate": "44100",
+            "channels": 2
+          }
+        ],
+        "format": {
+          "duration": "25.945941",
+          "size": "343315"
+        }
+      },
+      "sha256": "262d658b0a68cd977d56427f04827f8a766beafcc07f10a5238eec37fd1ca646",
+      "wavSHA256": "61eabae693ce6cfb4ba5206aae97a8627ecb89a817c1f6aed0cd7fe01a308bc0",
+      "decodedSamples": 1144216,
+      "peakDbFS": -5.2066,
+      "rmsDbFS": -17.9222,
+      "loopEdgeMaxSampleStep": 0.004955
+    }
+  ]
+}

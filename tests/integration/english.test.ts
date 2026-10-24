@@ -1,14 +1,11 @@
-import { readFileSync, readdirSync } from 'node:fs';
-import { resolve } from 'node:path';
+import { distributedSource } from './distributedSource';
 import { afterEach, describe, expect, it } from 'vitest';
 // @ts-expect-error jsdom does not require an optional declaration package in production.
 import { JSDOM } from 'jsdom';
 import { maps, operationScenarios } from '../../src/game/maps';
 import { operationData } from '../../src/game/operations.fixture';
 
-const asset = readdirSync('dist/assets').find((name) => /^index-.*\.js$/.test(name));
-if (!asset) throw new Error('Build the app before running integration tests');
-const source = readFileSync(resolve('dist/assets', asset), 'utf8');
+const source = distributedSource();
 const japanese = /[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}]/u;
 let dom: JSDOM;
 let dialogs: string[];

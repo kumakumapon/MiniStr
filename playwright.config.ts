@@ -12,12 +12,12 @@ export default defineConfig({
     { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
     {
       name: 'firefox',
-      testMatch: /(?:compatibility|english|custom-maps|finite-supplies)\.spec\.ts/,
+      testMatch: /(?:compatibility|english|custom-maps|finite-supplies|army-music|terrain-presentation)\.spec\.ts/,
       use: { ...devices['Desktop Firefox'] },
     },
     {
       name: 'webkit',
-      testMatch: /(?:compatibility|english|custom-maps|finite-supplies)\.spec\.ts/,
+      testMatch: /(?:compatibility|english|custom-maps|finite-supplies|army-music|terrain-presentation)\.spec\.ts/,
       use: { ...devices['Desktop Safari'] },
     },
   ],

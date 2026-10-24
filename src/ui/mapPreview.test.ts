@@ -99,7 +99,7 @@ describe('map preview (#145)', () => {
     expect(svg).not.toMatch(/script|<b>|<i>|__proto__|constructor/);
     // No attribute value carries markup.
     expect(svg).not.toMatch(/="[^"]*[<>]/);
-    for (const match of svg.matchAll(/fill="([^"]*)"/g)) expect(match[1]).toMatch(/^#[0-9a-f]{6}$/);
+    for (const match of svg.matchAll(/fill="([^"]*)"/g)) expect(match[1]).toMatch(/^(?:#[0-9a-f]{6}|url\(#terrain-preview-\d+-(?:plain|city)\))$/);
   });
 
   it('draws nothing for dimensions that are not whole numbers', () => {

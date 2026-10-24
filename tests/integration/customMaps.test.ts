@@ -1,13 +1,10 @@
-import { readFileSync, readdirSync } from 'node:fs';
-import { resolve } from 'node:path';
+import { distributedSource } from './distributedSource';
 import { afterEach, expect, it } from 'vitest';
 // @ts-expect-error Optional JSDOM declarations are not required by this project.
 import { JSDOM } from 'jsdom';
 import { operationData } from '../../src/game/operations.fixture';
 
-const asset = readdirSync('dist/assets').find((name) => /^index-.*\.js$/.test(name));
-if (!asset) throw Error('Build before running UI integrations');
-const source = readFileSync(resolve('dist/assets', asset), 'utf8');
+const source = distributedSource();
 const catalogKey = 'ministr.scenarios.custom';
 const saveKey = 'ministr.save.manual';
 let dom: JSDOM;

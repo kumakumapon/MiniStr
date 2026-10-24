@@ -1,3 +1,6 @@
+import { renderTerrainArt } from './ui/terrainAppearance';
+import { renderTerrainLegend } from './ui/terrainLegend';
+import { renderMusicControls, syncMusicControls } from './ui/musicControls';
 import { BRIDGE_RULE_VERSION, CURRENT_RULE_VERSION } from './game/types';
 import { japaneseUnitNames } from './ui/unitNameText';
 import { createDeploymentScenario, deploymentSlots, evacuationObjectives, canEvacuateUnit, isEvacuationCondition, isEvacuationTarget, operationScenarios, type GameResult } from './game';
@@ -64,7 +67,7 @@ import { BATTLE_SCENE_DURATION_MS, battleSceneForCommand, renderBattleScene, typ
 import { ACTION_SCENE_DURATION_MS, actionSceneForCommand, actionSceneForVisiblePositions, renderActionScene, type ActionScene } from './ui/actionScene';
 import { capturePointsLabel, displayedPositions, isPropertyDisplayed, observedCapturePoints } from './ui/fogDisplay';
 import { loadSoundSettings, ProceduralSoundPlayer, saveSoundSettings, type SoundSettings } from './ui/sound';
-import { BackgroundMusicPlayer, FIELD_TRACKS, FIELD_TRACK_LABELS, loadMusicSettings, saveMusicSettings, type MusicSettings } from './ui/music';
+import { BackgroundMusicPlayer, FIELD_TRACKS, loadMusicSettings, saveMusicSettings, type MusicSettings } from './ui/music';
 import { commandErrorMessage, escapeHtml, uiText } from './ui/strings';
 import { renderSaveSlotManager } from './ui/saveSlots';
 import { renderMapPreview } from './ui/mapPreview';
@@ -257,6 +260,9 @@ const cpuDifficulties: readonly CpuDifficulty[] = ['easy', 'normal', 'hard'];
 const parseCpuDifficulty = (value: string): CpuDifficulty | undefined => cpuDifficulties.find(level => level === value);
 let soundSettings: SoundSettings = loadSoundSettings(localStorage);
 const soundPlayer = new ProceduralSoundPlayer(soundSettings);
+let titleMusicOpen = false;
+let terrainLegendOpen = false;
+let titleMusicPreviewArmy: PlayerId = 'red';
 let musicSettings: MusicSettings = loadMusicSettings(localStorage);
 const musicPlayer = new BackgroundMusicPlayer(musicSettings);
 let pendingPresentationEffects: PresentationEffect[] = [];
@@ -852,6 +858,7 @@ function render(): void {
   const bridgeTargets = bridgePending ? new Set(bridgeDestinations(game, bridgePending.unitId).map(key)) : new Set<string>();
   const replayMode = replay !== undefined;
   const renderedGame = replay?.state ?? game;
+  musicPlayer.setArmy(screens.titleOpen && !replay ? titleMusicPreviewArmy : renderedGame.activePlayer);
   const renderedMap = replay ? scenarioForState(replay.state) ?? selectedMap : selectedMap;
   const productionRule = renderedMap.productionRules;
   const renderedDifficulty = replay?.file.difficulty ?? difficulty;
@@ -916,7 +923,7 @@ function render(): void {
     const label = unit && !hidden
       ? `<span class="unit ${unit.owner} unit-${unit.kind}" aria-hidden="true"><span class="unit-art"></span><small>${unit.hp}</small><em>${unitNames[unit.kind]}${cargo ? `・${unitNames[cargo.kind]}搭載` : ''}</em><i class="unit-owner-marker">${unit.owner === me ? '自' : '敵'}</i>${cargo ? '<i class="cargo-marker">積</i>' : ''}${rank ? `<i class="rank-marker">${rankStars(rank)}</i>` : ''}${fuelWarning ? `<i class="fuel-warning">燃${fuelTurns}</i>` : ''}${ammoEmpty ? `<i class="ammo-warning">${uiText.ammo}0</i>` : ''}</span>`
       : contact ? renderReconMarker(contact) : '';
-    const terrainArt = '';
+    const terrainArt = hidden ? '' : renderTerrainArt(terrain.kind, renderedMap.theme);
     const facility = isPropertyDisplayed(terrain, me, !hidden)
       ? `<span class="facility facility-${terrain.kind} ${propertyOwner ?? 'neutral'}" aria-hidden="true"><b>${terrain.kind === 'supplyDepot' ? '補' : terrain.kind === 'city' ? '市' : terrain.kind === 'factory' ? '工' : terrain.kind === 'airport' ? '空' : terrain.kind === 'port' ? '港' : '司'}</b><small>${propertyOwner === me ? '自軍' : propertyOwner === foe ? '敵軍' : '中立'}${capturePoints !== undefined ? ` ${capturePointsLabel(capturePoints)}` : ''}</small></span>`
       : '';
@@ -1107,6 +1114,7 @@ function render(): void {
     })),
     cpuSpeed,
     boardZoom: { index: boardZoomIndex, automatic: boardZoomAuto },
+    musicSettings, musicOpen: titleMusicOpen,
     canContinue: hasSave(),
     generator: titleVisible ? renderMapGenerator(generatorForm, generatorNotice, generatorOpen) + renderOperationRecords(operationCatalog, operationNotice, operationRecordsOpen) : undefined,
     savePicker: titleVisible ? renderSaveSlotManager(listSaveSlots(localStorage), getStorageUsage(localStorage), false, matchMode === 'spectate') : '',
@@ -1143,10 +1151,10 @@ function render(): void {
     ${!localStorage.persistent ? '<p class="storage-warning" role="alert">ブラウザーの保存領域を利用できません。このタブを閉じるとデータが失われます。バックアップをダウンロードしてください。</p>' : ''}
     <header class="command-bar"><div class="brand"><span class="brand-mark" aria-hidden="true">✦</span><div><h1>MiniStr</h1><p>TACTICAL COMMAND</p></div></div><label class="map-picker">戦域<select id="map" aria-label="戦域マップを選択" ${replayMode || campaignRun ? 'disabled' : ''}>${!availableScenarios().some(map => map.id === renderedMap.id) ? `<option data-user-content value="${escapeHtml(renderedMap.id)}" selected>${escapeHtml(scenarioDisplayName(renderedMap))}</option>` : ''}<optgroup label="組み込み">${[...maps, ...operationScenarios].map(map => `<option data-user-content value="${escapeHtml(map.id)}" ${map.id === renderedMap.id ? 'selected' : ''}>${escapeHtml(scenarioDisplayName(map))}</option>`).join('')}</optgroup>${availableScenarios().filter(map => ![...maps, ...operationScenarios].some(builtIn => builtIn.id === map.id)).length ? `<optgroup label="カスタム">${availableScenarios().filter(map => ![...maps, ...operationScenarios].some(builtIn => builtIn.id === map.id)).map(map => `<option data-user-content value="${escapeHtml(map.id)}" ${map.id === renderedMap.id ? 'selected' : ''}>${escapeHtml(scenarioDisplayName(map))}</option>`).join('')}</optgroup>` : ''}</select></label>${renderedRedDifficulty ? `<label class="map-picker">${uiText.spectateRedDifficulty}<select id="red-difficulty" aria-label="赤軍CPUの難易度を選択" ${replayMode ? 'disabled' : ''}>${difficultyOptions(renderedRedDifficulty)}</select></label>` : ''}<label class="map-picker">${spectateDifficulties ? uiText.spectateBlueDifficulty : '難易度'}<select id="difficulty" aria-label="${spectateDifficulties ? '青軍CPU' : 'CPU'}の難易度を選択" ${replayMode ? 'disabled' : ''}>${difficultyOptions(renderedDifficulty)}</select></label>${renderCpuSpeedControl(cpuSpeed, 'cpu-speed', replayMode)}<div class="save-controls"><button id="open-title" class="save-action" ${replayMode ? 'disabled' : ''}>${uiText.titleOpen}</button><button id="open-editor" class="save-action" ${replayMode ? 'disabled' : ''}>マップ編集</button><button id="open-campaign" class="save-action" ${replayMode ? 'disabled' : ''}>キャンペーン</button><button id="continue" class="save-action" ${replayMode || !hasSave() ? 'disabled' : ''}>続きから</button><button id="save" class="save-action" ${replayMode ? 'disabled' : ''}>${manualSaveTarget(matchMode) === 'slot' ? uiText.spectateSaveToSlot : '手動セーブ'}</button><button id="delete-save" class="save-action" ${matchSaveDeletionAllowed(matchMode) ? '' : `title="${escapeHtml(uiText.spectateNoSaveDeletion)}"`} ${replayMode || !hasStoredSave() || !matchSaveDeletionAllowed(matchMode) ? 'disabled' : ''}>対局セーブ削除</button><button id="undo" class="save-action" ${canAct && undoAllowed(matchMode) && undoStack.length > 0 ? '' : 'disabled'}>1手戻す</button><button id="import-replay" class="save-action" ${replayMode ? 'disabled' : ''}>JSON取込</button><input id="replay-file" class="visually-hidden" type="file" accept=".json,application/json" aria-label="JSONリプレイファイルを選択"></div><div class="turn-indicator ${renderedGame.activePlayer}"><span>${replayMode ? 'REPLAY' : cpuInProgress ? 'CPU THINKING' : campaignRun ? 'CAMPAIGN' : matchMode === 'spectate' ? 'SPECTATE' : 'TURN'}</span><strong>${cpuInProgress ? (matchMode === 'spectate' ? `${activeLabel} CPU 行動中` : 'CPU 行動中') : concealed ? `${activeLabel}の番` : activeLabel}</strong></div>${cpuInProgress ? `<button id="skip-cpu" class="save-action" ${cpuSkipAllowed(matchContext()) ? '' : 'disabled'} title="${matchMode === 'spectate' ? 'CPU観戦中はスキップできません。CPU速度を変更できます。' : 'CPUの残りの行動を高速に進める'}">CPU をスキップ</button>` : ''}${spectateControl}${wholeBoardControl}<button id="end" class="end-turn" title="現在のターンを終了" aria-label="ターンを終了する" ${!canAct ? 'disabled' : ''}>ターン終了 <span aria-hidden="true">→</span></button></header>
     ${scenarioLoadError ? `<p class="scenario-warning">組み込みシナリオの読み込みに失敗したため、緊急スカーミッシュで起動しています。${escapeHtml(scenarioLoadError)}</p>` : ''}
-    <section class="sound-controls" aria-label="音量設定"><label><input id="sound-muted" type="checkbox" ${!soundSettings.muted ? 'checked' : ''}> 効果音</label><label>音量 <input id="sound-volume" type="range" min="0" max="100" value="${Math.round(soundSettings.volume * 100)}" aria-label="効果音の音量"></label><label><input id="music-muted" type="checkbox" ${!musicSettings.muted ? 'checked' : ''}> BGM</label><label>BGM曲 <select id="music-track" aria-label="フィールドBGMの曲">${FIELD_TRACKS.map(track => `<option value="${track}"${musicSettings.fieldTrack === track ? ' selected' : ''}>${FIELD_TRACK_LABELS[track]}</option>`).join('')}</select></label><label>BGM音量 <input id="music-volume" type="range" min="0" max="100" value="${Math.round(musicSettings.volume * 100)}" aria-label="BGMの音量"></label></section>
+    <section class="sound-controls" aria-label="音量設定"><label><input id="sound-muted" type="checkbox" ${!soundSettings.muted ? 'checked' : ''}> 効果音</label><label>音量 <input id="sound-volume" type="range" min="0" max="100" value="${Math.round(soundSettings.volume * 100)}" aria-label="効果音の音量"></label>${renderMusicControls(musicSettings)}</section>
     ${!hasSave() && hasStoredSave() ? `<p class="scenario-warning" role="status">${matchSaveDeletionAllowed(matchMode) ? uiText.invalidSaveWarning : uiText.invalidSaveWarningSpectating}</p>` : ''}
     ${replay ? `<section class="replay-toolbar" aria-label="リプレイ再生コントロール"><div><p class="card-kicker">REPLAY</p><strong aria-live="polite">${replay.index} / ${replay.file.commands.length} 手</strong></div><button id="replay-toggle" class="end-turn" aria-label="${replay.playing ? 'リプレイを一時停止' : replay.index >= replay.file.commands.length ? 'リプレイを最初から再生' : 'リプレイを再生'}" ${replay.file.commands.length === 0 ? 'disabled' : ''}>${replay.playing ? '一時停止' : replay.index >= replay.file.commands.length ? 'もう一度再生' : '再生'}</button><button id="replay-step" class="save-action" ${replay.playing || replay.index >= replay.file.commands.length ? 'disabled' : ''}>1手送り</button><label class="replay-speed">速度<select id="replay-speed" aria-label="リプレイ再生速度">${COMMAND_SPEEDS.map(speed => `<option value="${speed}" ${speed === replay!.speed ? 'selected' : ''}>${speed}x</option>`).join('')}</select></label>${renderReplayNavigation(replay.index, replay.file.commands.length, replay.viewpoint, replay.timeline)}<button id="replay-exit" class="save-action">リプレイを終了</button></section>` : ''}
-    ${concealed ? '' : `<section class="battle-layout"><div class="battlefield-wrap ${mapTheme}"><div class="battlefield-heading"><div><p>OPERATION MAP</p><h2 data-user-content>${escapeHtml(scenarioDisplayName(renderedMap))}</h2></div><p class="status-message" aria-live="polite">${escapeHtml(message)}</p></div><p id="board-instructions" class="board-instructions">盤面では矢印キーでマスを移動し、Enter または Space で選択・行動、Esc で選択を解除できます。敵部隊を選択またはフォーカスすると、移動範囲と攻撃危険域を確認できます。N キーで次の未行動部隊へ移動します。</p>${spectateCameraControls}${turnStatus}<div class="battlefield-stage">${!replayMode ? renderReconControl(renderedGame, me, canAct, reconTargeting) : ''}${renderControlObjective(renderedGame, renderedMap)}${evacuationAction}${renderFrontlineControls(renderedGame, me, selected, canAct && !replayMode, showSupplyRange, fortifyPending)}${renderBridgeControls(renderedGame, me, selected, canAct && !replayMode, bridgePending)}${unitBriefPanel}<div id="board-viewport" class="board-viewport" tabindex="0" aria-label="盤面スクロール領域" style="max-height:min(70vh, ${boardViewportHeight}px)"><div data-zoom="${boardZoomPercent(boardZoomIndex)}" class="board ${reconTargeting ? 'recon-targeting' : ''}" role="group" data-user-attributes="aria-label" aria-label="${escapeHtml(translateText(`${scenarioDisplayName(renderedMap)}の戦術マップ`))}" aria-describedby="board-instructions" style="grid-template-columns:repeat(${renderedGame.board.width},${tileSize}px);grid-template-rows:repeat(${renderedGame.board.height},${tileSize}px);aspect-ratio:${renderedGame.board.width} / ${renderedGame.board.height}">${board}</div></div></div>${boardZoomControls}<div class="board-production-controls">${productionLauncher}</div><div class="map-legend" aria-label="マップ凡例"><span><i class="legend-dot reachable-dot" aria-hidden="true">移</i>移動可能</span><span><i class="legend-dot danger-dot" aria-hidden="true">危</i>敵の攻撃危険域</span><span><i class="legend-dot enemy-move-dot" aria-hidden="true">敵移</i>選択敵の移動範囲</span>${wholeBoardShown ? '' : '<span><i class="legend-dot fog-dot" aria-hidden="true">?</i>未索敵</span>'}<span><i class="legend-unit ${me}-dot" aria-hidden="true">自</i>自軍${matchMode === 'cpu' ? '' : `（${sideName(matchMode, me)}）`}</span><span><i class="legend-unit ${foe}-dot" aria-hidden="true">敵</i>敵軍${matchMode === 'cpu' ? '' : `（${sideName(matchMode, foe)}）`}</span><span><i class="legend-facility" aria-hidden="true">拠</i>拠点（市・工・空・港・司・補）</span><span><i class="legend-dot facility-ready-dot" aria-hidden="true">産</i>生産可能</span></div>${tileInspectorPanel}${reconPanel}${analysisPanel}</div>
+    ${concealed ? '' : `<section class="battle-layout"><div class="battlefield-wrap ${mapTheme}"><div class="battlefield-heading"><div><p>OPERATION MAP</p><h2 data-user-content>${escapeHtml(scenarioDisplayName(renderedMap))}</h2></div><p class="status-message" aria-live="polite">${escapeHtml(message)}</p></div><p id="board-instructions" class="board-instructions">盤面では矢印キーでマスを移動し、Enter または Space で選択・行動、Esc で選択を解除できます。敵部隊を選択またはフォーカスすると、移動範囲と攻撃危険域を確認できます。N キーで次の未行動部隊へ移動します。</p>${spectateCameraControls}${turnStatus}<div class="battlefield-stage">${!replayMode ? renderReconControl(renderedGame, me, canAct, reconTargeting) : ''}${renderControlObjective(renderedGame, renderedMap)}${evacuationAction}${renderFrontlineControls(renderedGame, me, selected, canAct && !replayMode, showSupplyRange, fortifyPending)}${renderBridgeControls(renderedGame, me, selected, canAct && !replayMode, bridgePending)}${unitBriefPanel}<div id="board-viewport" class="board-viewport" tabindex="0" aria-label="盤面スクロール領域" style="max-height:min(70vh, ${boardViewportHeight}px)"><div data-zoom="${boardZoomPercent(boardZoomIndex)}" class="board ${reconTargeting ? 'recon-targeting' : ''}" role="group" data-user-attributes="aria-label" aria-label="${escapeHtml(translateText(`${scenarioDisplayName(renderedMap)}の戦術マップ`))}" aria-describedby="board-instructions" style="grid-template-columns:repeat(${renderedGame.board.width},${tileSize}px);grid-template-rows:repeat(${renderedGame.board.height},${tileSize}px);aspect-ratio:${renderedGame.board.width} / ${renderedGame.board.height}">${board}</div></div></div>${boardZoomControls}<div class="board-production-controls">${productionLauncher}</div><div class="map-legend" aria-label="マップ凡例"><span><i class="legend-dot reachable-dot" aria-hidden="true">移</i>移動可能</span><span><i class="legend-dot danger-dot" aria-hidden="true">危</i>敵の攻撃危険域</span><span><i class="legend-dot enemy-move-dot" aria-hidden="true">敵移</i>選択敵の移動範囲</span>${wholeBoardShown ? '' : '<span><i class="legend-dot fog-dot" aria-hidden="true">?</i>未索敵</span>'}<span><i class="legend-unit ${me}-dot" aria-hidden="true">自</i>自軍${matchMode === 'cpu' ? '' : `（${sideName(matchMode, me)}）`}</span><span><i class="legend-unit ${foe}-dot" aria-hidden="true">敵</i>敵軍${matchMode === 'cpu' ? '' : `（${sideName(matchMode, foe)}）`}</span><span><i class="legend-facility" aria-hidden="true">拠</i>拠点（市・工・空・港・司・補）</span><span><i class="legend-dot facility-ready-dot" aria-hidden="true">産</i>生産可能</span></div>${renderTerrainLegend(renderedMap.theme, terrainLegendOpen)}${tileInspectorPanel}${reconPanel}${analysisPanel}</div>
     <aside id="command-panel" class="command-panel" aria-label="作戦情報" tabindex="-1">${objectivePanel}${unitQueuePanel}${selectedUnitActions}${cpuActivityPanel}<section class="commander-card ${renderedGame.activePlayer}"><img src="${commander.image}" alt="${commander.alt}" width="512" height="768" loading="lazy" decoding="async"><div><p>COMMANDER</p><h2>${commander.title}</h2><span>${commander.label}</span></div></section>${renderLearning(renderedGame, me, commandHistory, learningOpen)}${transportAction}${forecastCard}<section class="intel-card"><p class="card-kicker">RESOURCES</p><div class="resource-row"><span>自軍資金</span><strong>${renderedGame.players[me].gold}<small>G</small></strong></div><div class="resource-row enemy"><span>敵軍資金</span><strong>${wholeBoardShown ? renderedGame.players[foe].gold : '不明'}<small>G</small></strong></div></section><section class="intel-card"><p class="card-kicker">RECON</p><div class="recon-count"><strong>${renderedGame.units.filter(unit => unit.owner === foe && isDeployedUnit(unit) && visible.has(key(unit.position))).length}</strong><span>確認済み敵部隊</span></div></section>${renderProductionCard(productionTargetLine, productionSummary, production)}${turnSetting}${saveSlotManager}<p class="command-tip">歩兵は中立・敵軍の都市、工場、空港、港湾、司令部で<strong>${getLocale() === 'en' ? 'capture' : '占領'}</strong>できます。生産先は盤面の空き「産」マスを選び、工場・空港・港湾から対応する部隊を生産します。輸送艦は歩兵を1部隊搭載し、別の島へ上陸させられます。</p></aside>
   </section>${mobileActionBar}`}</main>${gameOverOverlay}${briefing}${titleOverlay}${campaignOverlay}${editorOverlay}${concealed ? renderHandoffOverlay(sideName('hotseat', renderedGame.activePlayer)) : ''}${activeTacticalScene ? ('attacker' in activeTacticalScene ? renderBattleScene(activeTacticalScene) : renderActionScene(activeTacticalScene)) : ''}${productionOverlay}`;
   document.body.classList.toggle('production-menu-open', Boolean(productionOverlay));
@@ -1450,19 +1458,35 @@ function render(): void {
   const updateMusicSettings = (next: MusicSettings) => {
     musicSettings = next;
     musicPlayer.setSettings(next);
-    if (!saveMusicSettings(localStorage, next)) message = 'BGM設定を保存できませんでした。';
+    syncMusicControls(app, next);
+    const saved = saveMusicSettings(localStorage, next);
+    const notice = saved ? '' : translateText('BGM設定を保存できませんでした。');
+    app.querySelectorAll<HTMLElement>('.music-settings-notice').forEach(element => { element.textContent = notice; });
+    if (!saved) message = notice;
   };
-  app.querySelector<HTMLInputElement>('#music-muted')?.addEventListener('change', event => {
-    updateMusicSettings({ ...musicSettings, muted: !(event.currentTarget as HTMLInputElement).checked });
+  for (const prefix of ['music', 'title-music']) {
+    app.querySelector<HTMLInputElement>(`#${prefix}-muted`)?.addEventListener('change', event => {
+      updateMusicSettings({ ...musicSettings, muted: !(event.currentTarget as HTMLInputElement).checked });
+    });
+    app.querySelector<HTMLInputElement>(`#${prefix}-army-tracks`)?.addEventListener('change', event => {
+      updateMusicSettings({ ...musicSettings, armyTracks: (event.currentTarget as HTMLInputElement).checked });
+    });
+    for (const suffix of ['track', 'blue-track']) app.querySelector<HTMLSelectElement>(`#${prefix}-${suffix}`)?.addEventListener('change', event => {
+      const value = (event.currentTarget as HTMLSelectElement).value;
+      const track = FIELD_TRACKS.find(candidate => candidate === value);
+      if (track) updateMusicSettings({ ...musicSettings, [suffix === 'track' ? 'fieldTrack' : 'blueFieldTrack']: track });
+    });
+    app.querySelector<HTMLInputElement>(`#${prefix}-volume`)?.addEventListener('input', event => {
+      updateMusicSettings({ ...musicSettings, volume: Number((event.currentTarget as HTMLInputElement).value) / 100 });
+    });
+  }
+  for (const army of ['red', 'blue'] as const) app.querySelector<HTMLButtonElement>(`#title-music-preview-${army}`)?.addEventListener('click', () => {
+    titleMusicPreviewArmy = army;
+    musicPlayer.setArmy(army);
+    void musicPlayer.unlock();
   });
-  app.querySelector<HTMLSelectElement>('#music-track')?.addEventListener('change', event => {
-    const value = (event.currentTarget as HTMLSelectElement).value;
-    const fieldTrack = FIELD_TRACKS.find(track => track === value);
-    if (fieldTrack) updateMusicSettings({ ...musicSettings, fieldTrack });
-  });
-  app.querySelector<HTMLInputElement>('#music-volume')?.addEventListener('input', event => {
-    updateMusicSettings({ ...musicSettings, volume: Number((event.currentTarget as HTMLInputElement).value) / 100 });
-  });
+  app.querySelector<HTMLDetailsElement>('#title-music-settings')?.addEventListener('toggle', event => { titleMusicOpen = (event.currentTarget as HTMLDetailsElement).open; });
+  app.querySelector<HTMLDetailsElement>('#terrain-legend')?.addEventListener('toggle', event => { terrainLegendOpen = (event.currentTarget as HTMLDetailsElement).open; });
   const changeBoardZoom = (step: number) => () => {
     const next = boardZoomIndex + step;
     if (next < 0 || next >= BOARD_ZOOM_LEVELS.length) return;

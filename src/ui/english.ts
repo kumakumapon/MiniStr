@@ -2,6 +2,8 @@ import { japaneseUnitNames, englishUnitNames } from './unitNameText';
 
 /** English display resources. IDs, authored data and saved JSON stay unchanged. */
 export const englishResources: readonly (readonly [string, string])[] = [
+  ['烈火（ロック・160 BPM）', 'Blaze (Rock · 160 BPM)'],
+  ['蒼雷（ロック・148 BPM）', 'Blue Thunder (Rock · 148 BPM)'],
   ['温帯', 'Temperate'],
   ['砂漠', 'Desert'],
   ['雪原', 'Snowfield'],
