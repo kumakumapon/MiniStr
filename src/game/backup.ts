@@ -1,4 +1,5 @@
 import { CAMPAIGN_STORAGE_KEY, parseCampaignProgress } from './campaign';
+import { DAILY_RECORDS_KEY, parseDailyRecords } from './dailyChallenge';
 import { DEPLOYMENT_PRESETS_KEY, parseDeploymentPresets } from './deploymentPresets';
 import { OPERATION_RECORDS_KEY, parseOperationRecords } from './operationRecords';
 import { parseBoundedJson } from './jsonBoundary';
@@ -13,6 +14,8 @@ export interface BackupPreview {
   saveCount: number;
   hasScenarios: boolean;
   hasCampaign: boolean;
+  /** Present only when the backup carries daily challenge records, which versions before #230 reject. */
+  hasDaily?: boolean;
   removedEntryCount: number;
 }
 const validatedBackups = new WeakMap<BackupPreview, Map<string, string>>();
@@ -90,6 +93,7 @@ export function previewBackup(storage: StorageLike, text: string): GameResult<Ba
     saveCount,
     hasScenarios: keys.has(CUSTOM_SCENARIOS_KEY),
     hasCampaign: keys.has(CAMPAIGN_STORAGE_KEY),
+    ...(keys.has(DAILY_RECORDS_KEY) ? { hasDaily: true } : {}),
     removedEntryCount,
   };
   validatedBackups.set(preview, entries);
@@ -164,6 +168,9 @@ export function restoreBackup(storage: StorageLike, source: string | BackupPrevi
         } else if (key === OPERATION_RECORDS_KEY) {
           const records = parseOperationRecords(raw);
           if (!records.ok) return records;
+        } else if (key === DAILY_RECORDS_KEY) {
+          const daily = parseDailyRecords(raw);
+          if (!daily.ok) return daily;
         } else if (key === 'ministr.sound.settings') {
           const settings = parseBoundedJson(raw, 1000);
           if (
