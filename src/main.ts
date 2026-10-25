@@ -7,13 +7,12 @@ import { createDeploymentScenario, deploymentSlots, evacuationObjectives, canEva
 import { renderDeployment } from './ui/deployment';
 import { BattleHistory } from './game/battleHistory';
 import { remainingRecon } from './game/recon';
-import { renderControlObjective, renderOperationChallenges, renderOperationRecords, renderReconControl } from './ui/operationsExpansion';
-import { deleteOperationRecord, loadOperationRecords, operationIds, operationRevision, operationVictory, resetOperationRecords, saveOperationVictory, type OperationRecord } from './game/operationRecords';
+import { renderControlObjective, renderOperationChallenges, renderReconControl } from './ui/operationsExpansion';
+import { deleteOperationRecord, loadOperationRecords, operationIds, operationVictory, resetOperationRecords, saveOperationVictory, type OperationRecord } from './game/operationRecords';
 import { applyDeploymentPreset, deleteDeploymentPreset, loadDeploymentPresets, resetDeploymentPresets, saveDeploymentPreset } from './game/deploymentPresets';
-import { generateSymmetricMap } from './game/mapGenerator';
 import { dailyConditions, dailyDateKey, dailyDateOfScenarioId, dailyScenario, dailyVictory, deleteDailyRecord, isDailyScenarioId, isStandardDailyDefinition, loadDailyRecords, resetDailyRecords, saveDailyVictory, type DailyRecord } from './game/dailyChallenge';
-import { renderDailyBriefingNote, renderDailyCard, renderDailyResult } from './ui/dailyChallenge';
-import { ANALYSIS_METRICS, presetNameKey, reconContactLabel, renderBattleAnalysis, renderMapGenerator, renderReconMarker, renderReconPanel, type AnalysisMetric, type GeneratorForm } from './ui/standaloneSystems';
+import { renderDailyBriefingNote, renderDailyResult } from './ui/dailyChallenge';
+import { ANALYSIS_METRICS, presetNameKey, reconContactLabel, renderBattleAnalysis, renderReconMarker, renderReconPanel, type AnalysisMetric } from './ui/standaloneSystems';
 import { weaponNames } from './ui/labels';
 import { hasUsableWeapon, weaponsForUnit, type WeaponSlot } from './game';
 import './style.css';
@@ -26,6 +25,9 @@ const resultCache = new ResultCache();
 let learningOpen = false;
 import { ScreenController } from './ui/screenController';
 const screens = new ScreenController();
+import { TitleState, buildTitleOverlay } from './ui/titleScreen';
+import { bindTitleEvents, installTitleDelegation, type TitleEventDeps } from './ui/titleEvents';
+const titleState = new TitleState(screens);
 import { AsyncRequestGate } from './ui/asyncRequest';
 const fileReadGate = new AsyncRequestGate();
 import { installModalFocusTrap } from './ui/modalFocus';
@@ -75,7 +77,7 @@ import { renderSaveSlotManager } from './ui/saveSlots';
 import { renderMapPreview } from './ui/mapPreview';
 /** Previews per scenario object; a changed custom map is a new object, so it is redrawn. */
 const mapPreviews = new WeakMap<object, string>();
-import { renderBriefingOverlay, renderCampaignOverlay, renderGameOverOverlay, renderHandoffOverlay, renderProductionCard, renderTitleOverlay, renderUnitActionCluster } from './ui/overlays';
+import { renderBriefingOverlay, renderCampaignOverlay, renderGameOverOverlay, renderHandoffOverlay, renderProductionCard, renderUnitActionCluster } from './ui/overlays';
 import { commandAllowed, cpuDifficultyFor, cpuShouldRun, cpuSkipAllowed, handoffAfterEndTurn, menuAllowed, parseMatchMode, autosaveAllowed, manualSaveTarget, matchSaveDeletionAllowed, showsWholeBoard, sideName, spectateContinues, SPECTATE_TURN_LIMIT, undoAllowed, viewerFor, type MatchContext, type MatchMode } from './ui/matchControl';
 import { deleteSaveSlot, getStorageUsage, listSaveSlots, loadGameFromSlot, saveGameToSlot, type SavedGame, type ScenarioTheme } from './game';
 
@@ -89,9 +91,6 @@ const presetLoad = loadDeploymentPresets(localStorage);
 let presetCatalog = presetLoad.ok ? presetLoad.value : undefined;
 let presetNotice = presetLoad.ok ? '' : presetLoad.error;
 let presetDraftNames: Record<string, string> = {};
-const generatorForm: GeneratorForm = { size: 20, sea: 'coast', seed: 'MiniStr-1' };
-let generatorOpen = false;
-let generatorNotice = '';
 let reconOpen = false;
 let showSupplyRange = false;
 let fortifyPending: string | undefined;
@@ -100,11 +99,9 @@ let reconTargeting = false;
 const recordsLoad = loadOperationRecords(localStorage);
 let operationCatalog = recordsLoad.ok ? recordsLoad.value : undefined;
 let operationNotice = recordsLoad.ok ? '' : recordsLoad.error;
-let operationRecordsOpen = false;
 const dailyLoad = loadDailyRecords(localStorage);
 let dailyCatalog = dailyLoad.ok ? dailyLoad.value : undefined;
 let dailyNotice = dailyLoad.ok ? '' : dailyLoad.error;
-let dailyRecordsOpen = false;
 let dailyOutcome: { code: string; record?: Pick<DailyRecord, 'bestTurns' | 'bestLosses'>; notice: string } | undefined;
 let dailyResultGame: GameState | undefined;
 let dailyCopyNotice = '';
@@ -208,20 +205,7 @@ function centerSpectatorOn(position: Position): void {
   pendingBoardCenter = { ...position };
   preventBoardFocusScroll = true;
 }
-/** Opens once a map is chosen on the title screen. */
-
-/** The title screen: shown at start, and from the header between moves. */
-
-/** Opened from a match, so the title offers to return to it unchanged. */
-let titleResumable = false;
 let finiteSupplies = true;
-/** Why the last title action (continue, replay import) did not leave the title. */
-let titleNotice = '';
-/** A campaign menu, editor, or replay opened from the title returns to it when closed. */
-let returnToTitle = false;
-/** Whether that title could return to a match, restored along with it. */
-let returnToTitleResumable = false;
-const themeNames = localized<Record<ScenarioTheme, string>>({ temperate: '温帯', desert: '砂漠', snow: '雪原', urban: '市街地', coastal: '沿岸' }, { temperate: 'Temperate', desert: 'Desert', snow: 'Snowfield', urban: 'Urban', coastal: 'Coastal' });
 
 let campaignReturnToBriefing = false;
 let campaignRun: { scenarioId: string } | undefined;
@@ -252,8 +236,8 @@ app.addEventListener('input', event => {
   const input = event.target;
   if (!(input instanceof HTMLInputElement)) return;
   if (input.dataset.presetName) presetDraftNames[input.dataset.presetName] = input.value;
-  if (input.id === 'title-generator-seed') generatorForm.seed = input.value;
 });
+installTitleDelegation(app, titleState);
 app.addEventListener('change', event => {
   const input = event.target;
   if (!(input instanceof HTMLSelectElement) || input.id !== 'attack-weapon' || !canCommand() || !selected) return;
@@ -271,9 +255,7 @@ const cpuDifficulties: readonly CpuDifficulty[] = ['easy', 'normal', 'hard'];
 const parseCpuDifficulty = (value: string): CpuDifficulty | undefined => cpuDifficulties.find(level => level === value);
 let soundSettings: SoundSettings = loadSoundSettings(localStorage);
 const soundPlayer = new ProceduralSoundPlayer(soundSettings);
-let titleMusicOpen = false;
 let terrainLegendOpen = false;
-let titleMusicPreviewArmy: PlayerId = 'red';
 let musicSettings: MusicSettings = loadMusicSettings(localStorage);
 const musicPlayer = new BackgroundMusicPlayer(musicSettings);
 let pendingPresentationEffects: PresentationEffect[] = [];
@@ -713,26 +695,6 @@ function continueSavedGame(slotId?: string): boolean {
   return true;
 }
 
-function leaveTitle(): void {
-  screens.titleOpen = false;
-  titleResumable = false;
-  titleNotice = '';
-}
-/** Closing a screen that was opened from the title shows the title again. */
-function backToTitleIfOpenedThere(): void {
-  if (!returnToTitle) return;
-  returnToTitle = false;
-  screens.briefingOpen = false;
-  screens.titleOpen = true;
-  titleResumable = returnToTitleResumable;
-  returnToTitleResumable = false;
-}
-/** Leaves the title for a screen that comes back to it, keeping its way back to the match. */
-function leaveTitleAndReturn(): void {
-  returnToTitleResumable = titleResumable;
-  leaveTitle();
-  returnToTitle = true;
-}
 
 function openCampaignMenu(): void {
   campaignReturnToBriefing = screens.briefingOpen;
@@ -751,7 +713,7 @@ function startCampaignScenario(scenarioId: string): void {
   campaignRun = { scenarioId };
   campaignOutcome = undefined;
   screens.campaignMenuOpen = false;
-  returnToTitle = false;
+  titleState.clearReturn();
   // Give the player's own settings back before overriding them; resetGame would otherwise restore over this.
   restoreUserSettings();
   matchMode = 'cpu';
@@ -773,7 +735,7 @@ function beginReplay(file: ReplayFile): void {
     render();
     return;
   }
-  if (screens.titleOpen) leaveTitleAndReturn();
+  if (screens.titleOpen) titleState.leaveTitleAndReturn();
   dismissTacticalScene(false);
   commandScheduler.cancel();
   cpuInProgress = false;
@@ -830,7 +792,7 @@ function leaveReplay(): void {
   commandScheduler.cancel(); dismissTacticalScene(false); pendingPresentationEffects = []; pendingHandoffActionScene = undefined; replay = undefined; selected = undefined;
   if (dailyParked) { dailyUserSettings = dailyParked.user; applySettings(dailyParked.daily); dailyParked = undefined; }
   message = game.winner ? '対局結果に戻りました。' : '通常の対局に戻りました。';
-  backToTitleIfOpenedThere();
+  titleState.backToTitleIfOpenedThere();
   render();
 }
 function downloadReplay(): void {
@@ -854,7 +816,7 @@ function chooseReplayFile(event: Event): void {
   if (file) void importReplay(file).then(applied => {
     if (!applied) return;
     if (!screens.titleOpen) return;
-    titleNotice = message;
+    titleState.setNotice(message);
     focusSelector = '#title-import-replay';
     render();
   });
@@ -915,7 +877,7 @@ function startDaily(): void {
   const scenario = dailyScenario(dailyDateKey(dailyClock()));
   if (!scenario.ok) { dailyNotice = scenario.error; render(); return; }
   dailyNotice = '';
-  leaveTitle(); campaignRun = undefined; campaignOutcome = undefined;
+  titleState.leaveTitle(); campaignRun = undefined; campaignOutcome = undefined;
   resetGame(scenario.value.id, scenario.value);
   message = '作戦ブリーフィングを確認してください。';
   render();
@@ -931,6 +893,69 @@ async function copyDailyCode(code: string): Promise<void> {
   const status = app.querySelector('#daily-copy-status');
   if (status) status.textContent = translateText(dailyCopyNotice);
 }
+/** Record management on the title; the buttons are bound in `ui/titleEvents.ts`. */
+const operationRecordActions: TitleEventDeps['operationRecords'] = {
+  reset() {
+    if (!window.confirm(translateText('作戦戦績のみを初期化しますか？ 対局・キャンペーン・プリセットは保持します。'))) return;
+    const result = resetOperationRecords(localStorage);
+    if (result.ok) { operationCatalog = result.value; operationResultGame = undefined; operationNotice = '作戦戦績を初期化しました。'; }
+    else operationNotice = result.error;
+    focusSelector = '#operation-records-heading'; render();
+  },
+  delete(id) {
+    if (!window.confirm(translateText('この条件の戦績を削除しますか？'))) return;
+    const result = deleteOperationRecord(localStorage, id);
+    if (result.ok) { operationCatalog = result.value; operationNotice = 'この条件の戦績を削除しました。'; }
+    else operationNotice = result.error;
+    focusSelector = '#operation-records-heading'; render();
+  },
+};
+const dailyRecordActions: TitleEventDeps['dailyRecords'] = {
+  reset() {
+    if (!window.confirm(translateText('日替わりチャレンジの記録のみを初期化しますか？ 対局・キャンペーン・作戦戦績は保持します。'))) return;
+    const result = resetDailyRecords(localStorage);
+    if (result.ok) { dailyCatalog = result.value; dailyNotice = '日替わりチャレンジの記録を初期化しました。'; }
+    else dailyNotice = result.error;
+    titleState.dailyRecordsOpen = true; focusSelector = '#title-daily-records-heading'; render();
+  },
+  delete(date) {
+    if (!window.confirm(translateText('この日の記録を削除しますか？'))) return;
+    const result = deleteDailyRecord(localStorage, date);
+    if (result.ok) { dailyCatalog = result.value; dailyNotice = 'この日の記録を削除しました。'; }
+    else dailyNotice = result.error;
+    titleState.dailyRecordsOpen = true; focusSelector = '#title-daily-records-heading'; render();
+  },
+};
+const titleEventDeps: TitleEventDeps = {
+  screens,
+  state: titleState,
+  render: () => render(),
+  setFocus: selector => { focusSelector = selector; },
+  confirmReplaceMatch: () => confirmReplaceMatch(),
+  scenarios: () => availableScenarios(),
+  scenarioExists: id => scenarioById(id) !== undefined,
+  deleteCustomMap: id => deleteCustomMapWithConfirmation(id),
+  saveGeneratedMap: generated => saveCustomScenario(localStorage, scenarioDefinitionToData(generated)),
+  startGeneratedMap: saved => {
+    campaignRun = undefined; campaignOutcome = undefined;
+    resetGame(saved.id, saved);
+  },
+  startMap: mapId => {
+    campaignRun = undefined; campaignOutcome = undefined;
+    resetGame(mapId);
+    message = '作戦ブリーフィングを確認してください。';
+  },
+  startDaily: () => startDaily(),
+  continueSave: () => continueSavedGame(),
+  message: () => message,
+  openCampaign: () => openCampaignMenu(),
+  openEditor: () => { screens.editorOpen = true; editorNotice = '編集したシナリオはJSONとして書き出せます。'; render(); },
+  isCampaignRun: () => campaignRun !== undefined,
+  chooseReplayFile: event => chooseReplayFile(event),
+  previewMusic: army => { musicPlayer.setArmy(army); void musicPlayer.unlock(); },
+  operationRecords: operationRecordActions,
+  dailyRecords: dailyRecordActions,
+};
 function render(): void {
   if (screens.briefingOpen && !finiteSupplies && (game.units.some(unit => unit.kind === 'transportHelicopter') || [...deploymentChoices.red, ...deploymentChoices.blue].includes('transportHelicopter'))) {
     finiteSupplies = true; game = { ...game, ruleVersion: CURRENT_RULE_VERSION }; initialState = structuredClone(game);
@@ -959,7 +984,7 @@ function render(): void {
   const bridgeTargets = bridgePending ? new Set(bridgeDestinations(game, bridgePending.unitId).map(key)) : new Set<string>();
   const replayMode = replay !== undefined;
   const renderedGame = replay?.state ?? game;
-  musicPlayer.setArmy(screens.titleOpen && !replay ? titleMusicPreviewArmy : renderedGame.activePlayer);
+  musicPlayer.setArmy(screens.titleOpen && !replay ? titleState.musicPreviewArmy : renderedGame.activePlayer);
   const renderedMap = replay ? scenarioForState(replay.state) ?? selectedMap : selectedMap;
   const productionRule = renderedMap.productionRules;
   const renderedDifficulty = replay?.file.difficulty ?? difficulty;
@@ -1198,33 +1223,25 @@ function render(): void {
   const wholeBoardControl = !replayMode && matchMode === 'spectate' && !screens.briefingOpen && !screens.campaignMenuOpen && !screens.editorOpen
     ? `<button id="spectate-whole-board" class="save-action" aria-pressed="${spectateWholeBoard}">${uiText.spectateWholeBoard}</button>`
     : '';
-  const titleVisible = screens.titleOpen && !replayMode && !screens.campaignMenuOpen && !screens.editorOpen;
-  const titleOverlay = renderTitleOverlay({
-    visible: titleVisible,
-    // Built only while the title shows; every other redraw skips the map list.
-    maps: !titleVisible ? [] : availableScenarios().map(map => ({
-      id: map.id, name: scenarioDisplayName(map), theme: themeNames[map.theme], width: map.board.width, height: map.board.height,
-      startingGold: map.startingGold, turnLimit: map.turnLimit,
-      victory: map.victoryConditions.map(conditionDescription).join(' / ') + (operationCatalog?.records.some(record => record.scenarioId === map.id && record.revision === operationRevision(map)) ? ' ／ クリア記録あり' : ''),
-      custom: ![...maps, ...operationScenarios].some(builtIn => builtIn.id === map.id), selected: map.id === selectedMap.id,
-      preview: mapPreviews.get(map) ?? (() => {
-        const preview = renderMapPreview(map.board, map.initialUnits, map.theme);
-        mapPreviews.set(map, preview);
-        return preview;
-      })(),
-    })),
+  const titleOverlay = buildTitleOverlay({
+    state: titleState,
+    titleOpen: screens.titleOpen, replayMode, campaignMenuOpen: screens.campaignMenuOpen, editorOpen: screens.editorOpen,
+    scenarios: () => availableScenarios(),
+    selectedMapId: selectedMap.id,
+    mapPreview: map => mapPreviews.get(map) ?? (() => {
+      const preview = renderMapPreview(map.board, map.initialUnits, map.theme);
+      mapPreviews.set(map, preview);
+      return preview;
+    })(),
+    operationCatalog, operationNotice,
+    dailyCatalog, dailyNotice, dailyClock,
+    savePicker: () => renderSaveSlotManager(listSaveSlots(localStorage), getStorageUsage(localStorage), false, matchMode === 'spectate'),
     cpuSpeed,
     boardZoom: { index: boardZoomIndex, automatic: boardZoomAuto },
-    musicSettings, musicOpen: titleMusicOpen,
+    musicSettings,
     canContinue: hasSave(),
-    daily: titleVisible ? (() => {
-      const today = dailyConditions(dailyDateKey(dailyClock()));
-      return today.ok ? renderDailyCard({ conditions: today.value, today: dailyCatalog?.records.find(record => record.date === today.value.date), catalog: dailyCatalog, notice: dailyNotice, recordsOpen: dailyRecordsOpen }) : '';
-    })() : undefined,
-    generator: titleVisible ? renderMapGenerator(generatorForm, generatorNotice, generatorOpen) + renderOperationRecords(operationCatalog, operationNotice, operationRecordsOpen) : undefined,
-    savePicker: titleVisible ? renderSaveSlotManager(listSaveSlots(localStorage), getStorageUsage(localStorage), false, matchMode === 'spectate') : '',
-    canResume: titleResumable,
-    notice: titleNotice || (!localStorage.persistent ? 'ブラウザーの保存領域を利用できません。このタブ内だけに保存します。終了前にバックアップしてください。' : '') || (!hasSave() && hasStoredSave() ? uiText.titleInvalidSave : ''),
+    storagePersistent: localStorage.persistent,
+    hasStoredSave,
   });
   const deployment = screens.briefingOpen ? plannedDeployment() : undefined;
   const briefing = renderBriefingOverlay({
@@ -1307,7 +1324,7 @@ function render(): void {
         const fallback = app.querySelector<HTMLElement>('#production-facility:not(:disabled), #production-menu-close');
         (target && !('disabled' in target && target.disabled) ? target : fallback)?.focus({ preventScroll: true });
       });
-    } else window.setTimeout(() => focusRestoreGuard.isCurrent(focusTicket, renderGeneration) && document.querySelector<HTMLElement>(activeTacticalScene ? ('attacker' in activeTacticalScene ? '#battle-scene-skip' : '#tactical-scene-skip') : gameOverOverlay ? '#result-title' : editorOverlay ? '#editor-close' : campaignOverlay ? '#campaign-close' : titleOverlay ? titleFocus ?? (titleResumable ? '#title-resume' : '.title-map-card[aria-current="true"]') : concealed ? '#handoff-start' : briefingFocus ?? '#begin-operation')?.focus(), 0);
+    } else window.setTimeout(() => focusRestoreGuard.isCurrent(focusTicket, renderGeneration) && document.querySelector<HTMLElement>(activeTacticalScene ? ('attacker' in activeTacticalScene ? '#battle-scene-skip' : '#tactical-scene-skip') : gameOverOverlay ? '#result-title' : editorOverlay ? '#editor-close' : campaignOverlay ? '#campaign-close' : titleOverlay ? titleFocus ?? (titleState.resumable ? '#title-resume' : '.title-map-card[aria-current="true"]') : concealed ? '#handoff-start' : briefingFocus ?? '#begin-operation')?.focus(), 0);
   }
   else if (focusSelector) {
     const previousSelector = focusSelector;
@@ -1354,37 +1371,6 @@ function render(): void {
     if (reconTargeting) focusBoardPosition(focusedPosition);
   });
   app.querySelector<HTMLButtonElement>('#recon-cancel')?.addEventListener('click', () => { reconTargeting = false; message = '偵察を中止しました。'; focusSelector = '#recon-target'; render(); });
-  app.querySelector<HTMLDetailsElement>('#operation-records')?.addEventListener('toggle', event => { operationRecordsOpen = (event.currentTarget as HTMLDetailsElement).open; });
-  app.querySelector<HTMLButtonElement>('#operation-records-reset')?.addEventListener('click', () => {
-    if (!window.confirm(translateText('作戦戦績のみを初期化しますか？ 対局・キャンペーン・プリセットは保持します。'))) return;
-    const result = resetOperationRecords(localStorage);
-    if (result.ok) { operationCatalog = result.value; operationResultGame = undefined; operationNotice = '作戦戦績を初期化しました。'; }
-    else operationNotice = result.error;
-    focusSelector = '#operation-records-heading'; render();
-  });
-  app.querySelectorAll<HTMLButtonElement>('[data-record-delete]').forEach(button => button.addEventListener('click', () => {
-    if (!window.confirm(translateText('この条件の戦績を削除しますか？'))) return;
-    const result = deleteOperationRecord(localStorage, Number(button.dataset.recordDelete));
-    if (result.ok) { operationCatalog = result.value; operationNotice = 'この条件の戦績を削除しました。'; }
-    else operationNotice = result.error;
-    focusSelector = '#operation-records-heading'; render();
-  }));
-  app.querySelector<HTMLButtonElement>('#daily-start')?.addEventListener('click', startDaily);
-  app.querySelector<HTMLDetailsElement>('#daily-records')?.addEventListener('toggle', event => { dailyRecordsOpen = (event.currentTarget as HTMLDetailsElement).open; });
-  app.querySelector<HTMLButtonElement>('#daily-records-reset')?.addEventListener('click', () => {
-    if (!window.confirm(translateText('日替わりチャレンジの記録のみを初期化しますか？ 対局・キャンペーン・作戦戦績は保持します。'))) return;
-    const result = resetDailyRecords(localStorage);
-    if (result.ok) { dailyCatalog = result.value; dailyNotice = '日替わりチャレンジの記録を初期化しました。'; }
-    else dailyNotice = result.error;
-    dailyRecordsOpen = true; focusSelector = '#title-daily-records-heading'; render();
-  });
-  app.querySelectorAll<HTMLButtonElement>('[data-daily-delete]').forEach(button => button.addEventListener('click', () => {
-    if (!window.confirm(translateText('この日の記録を削除しますか？'))) return;
-    const result = deleteDailyRecord(localStorage, button.dataset.dailyDelete ?? '');
-    if (result.ok) { dailyCatalog = result.value; dailyNotice = 'この日の記録を削除しました。'; }
-    else dailyNotice = result.error;
-    dailyRecordsOpen = true; focusSelector = '#title-daily-records-heading'; render();
-  }));
   app.querySelector<HTMLButtonElement>('#daily-copy-id')?.addEventListener('click', () => { void copyDailyCode(app.querySelector('#daily-code')?.textContent ?? ''); });
   app.querySelector<HTMLButtonElement>('#result-title-menu')?.addEventListener('click', () => { app.querySelector<HTMLButtonElement>('#open-title')?.click(); });
   app.querySelectorAll<HTMLButtonElement>('[data-control-x]').forEach(button => button.addEventListener('click', () => {
@@ -1392,7 +1378,6 @@ function render(): void {
   }));
   app.querySelector<HTMLDetailsElement>('#recon-history')?.addEventListener('toggle', event => { reconOpen = (event.currentTarget as HTMLDetailsElement).open; });
   app.querySelector<HTMLDetailsElement>('#battle-analysis')?.addEventListener('toggle', event => { analysisOpen = (event.currentTarget as HTMLDetailsElement).open; });
-  app.querySelector<HTMLDetailsElement>('#title-generator')?.addEventListener('toggle', event => { generatorOpen = (event.currentTarget as HTMLDetailsElement).open; });
   app.querySelector<HTMLInputElement>('#recon-markers')?.addEventListener('change', event => { showReconMarkers = (event.currentTarget as HTMLInputElement).checked; reconOpen = true; focusSelector = '#recon-markers'; render(); });
   app.querySelector<HTMLSelectElement>('#analysis-metric')?.addEventListener('change', event => {
     const value = (event.currentTarget as HTMLSelectElement).value;
@@ -1405,19 +1390,6 @@ function render(): void {
     if (!Number.isInteger(position.x) || !Number.isInteger(position.y) || position.x < 0 || position.y < 0 || position.x >= renderedGame.board.width || position.y >= renderedGame.board.height) return;
     focusedPosition = position; centerBoardOnPosition(app, position); refreshFocusedTileViews();
   }));
-  app.querySelector<HTMLSelectElement>('#title-generator-size')?.addEventListener('change', event => { generatorForm.size = Number((event.currentTarget as HTMLSelectElement).value); });
-  app.querySelector<HTMLSelectElement>('#title-generator-sea')?.addEventListener('change', event => { generatorForm.sea = (event.currentTarget as HTMLSelectElement).value; });
-  app.querySelector<HTMLSelectElement>('#title-generator-preset')?.addEventListener('change', event => { generatorForm.preset = (event.target as HTMLSelectElement).value; });
-  app.querySelector<HTMLButtonElement>('#title-generator-create')?.addEventListener('click', () => {
-    if (!screens.titleOpen || !confirmReplaceMatch()) return;
-    generatorOpen = true;
-    const generated = generateSymmetricMap(generatorForm);
-    if (!generated.ok) { generatorNotice = generated.error; focusSelector = '#title-generator-seed'; render(); return; }
-    const saved = saveCustomScenario(localStorage, scenarioDefinitionToData(generated.value));
-    if (!saved.ok) { generatorNotice = saved.error; focusSelector = '#title-generator-create'; render(); return; }
-    generatorNotice = ''; leaveTitle(); campaignRun = undefined; campaignOutcome = undefined;
-    resetGame(saved.value.id, saved.value); render();
-  });
   app.querySelectorAll<HTMLButtonElement>('[data-preset-action]').forEach(button => button.addEventListener('click', () => {
     if (!screens.briefingOpen || !deploymentBase) return;
     const player = button.dataset.presetPlayer;
@@ -1451,14 +1423,14 @@ function render(): void {
   app.querySelector<HTMLDetailsElement>('#learning-panel')?.addEventListener('toggle', event => { learningOpen = (event.currentTarget as HTMLDetailsElement).open; });
   app.querySelector('#title-training')?.addEventListener('click', () => {
     if (!confirmReplaceMatch()) return;
-    leaveTitle(); campaignRun = undefined; campaignOutcome = undefined; restoreUserSettings(); matchMode = 'cpu'; difficulty = 'easy'; learningOpen = true;
+    titleState.leaveTitle(); campaignRun = undefined; campaignOutcome = undefined; restoreUserSettings(); matchMode = 'cpu'; difficulty = 'easy'; learningOpen = true;
     resetGame('training'); render();
   });
   app.querySelector('#diagnostics-export')?.addEventListener('click', () => downloadJson('ministr-diagnostics.json', diagnosticReport({ persistent: localStorage.persistent, bytes: getStorageUsage(localStorage).bytes, locale: document.documentElement.lang, viewport: { width: window.innerWidth, height: window.innerHeight } })));
   app.querySelector('#storage-reload')?.addEventListener('click', () => { if (window.confirm(translateText('進行中の未保存の操作を破棄して再読み込みしますか？'))) window.location.reload(); });
   app.querySelector('#backup-export')?.addEventListener('click', () => {
     const backup = exportBackup(localStorage);
-    if (backup.ok) downloadJson('ministr-backup.json', backup.value); else { message = backup.error; titleNotice = message; render(); }
+    if (backup.ok) downloadJson('ministr-backup.json', backup.value); else { message = backup.error; titleState.setNotice(message); render(); }
   });
   app.querySelector<HTMLInputElement>('#backup-import')?.addEventListener('change', async event => {
     const input = event.currentTarget as HTMLInputElement;
@@ -1467,12 +1439,12 @@ function render(): void {
     const request = fileReadGate.begin();
     const expectedGame = game; const expectedRevision = screens.revision;
     const isCurrent = () => fileReadGate.isCurrent(request) && screens.revision === expectedRevision && game === expectedGame;
-    if (file.size > MAX_BACKUP_BYTES) { message = 'バックアップが大きすぎます。'; titleNotice = message; render(); return; }
+    if (file.size > MAX_BACKUP_BYTES) { message = 'バックアップが大きすぎます。'; titleState.setNotice(message); render(); return; }
     let text: string;
-    try { text = await file.text(); } catch { if (!isCurrent()) return; message = 'バックアップファイルを読み込めませんでした。'; titleNotice = message; render(); return; }
+    try { text = await file.text(); } catch { if (!isCurrent()) return; message = 'バックアップファイルを読み込めませんでした。'; titleState.setNotice(message); render(); return; }
     if (!isCurrent()) return;
     const preview = previewBackup(localStorage, text);
-    if (!preview.ok) { message = preview.error; titleNotice = message; render(); return; }
+    if (!preview.ok) { message = preview.error; titleState.setNotice(message); render(); return; }
     const details = `${preview.value.entryCount}件の項目、${preview.value.saveCount}件のセーブ`
       + `${preview.value.hasScenarios ? '、カスタムシナリオあり' : ''}${preview.value.hasCampaign ? '、キャンペーン記録あり' : ''}${preview.value.hasDaily ? '、日替わりチャレンジ記録あり（旧版では復元できません）' : ''}`
       + `。復元により現在のアプリ項目${preview.value.removedEntryCount}件が削除されます。内容を完全検証してから書き込みます。`;
@@ -1500,7 +1472,7 @@ function render(): void {
       document.documentElement.lang = setLocale(localStorage.getItem('ministr.locale') === 'en' ? 'en' : 'ja');
     }
     message = restored.ok ? 'バックアップを復元しました。保存一覧から再開できます。' : restored.error;
-    titleNotice = message; render();
+    titleState.setNotice(message); render();
   });
   app.querySelectorAll<HTMLSelectElement>('[data-locale]').forEach(select => select.addEventListener('change', () => {
     document.documentElement.lang = setLocale(select.value);
@@ -1608,12 +1580,6 @@ function render(): void {
       updateMusicSettings({ ...musicSettings, volume: Number((event.currentTarget as HTMLInputElement).value) / 100 });
     });
   }
-  for (const army of ['red', 'blue'] as const) app.querySelector<HTMLButtonElement>(`#title-music-preview-${army}`)?.addEventListener('click', () => {
-    titleMusicPreviewArmy = army;
-    musicPlayer.setArmy(army);
-    void musicPlayer.unlock();
-  });
-  app.querySelector<HTMLDetailsElement>('#title-music-settings')?.addEventListener('toggle', event => { titleMusicOpen = (event.currentTarget as HTMLDetailsElement).open; });
   app.querySelector<HTMLDetailsElement>('#terrain-legend')?.addEventListener('toggle', event => { terrainLegendOpen = (event.currentTarget as HTMLDetailsElement).open; });
   const changeBoardZoom = (step: number) => () => {
     const next = boardZoomIndex + step;
@@ -1686,7 +1652,7 @@ function render(): void {
   document.querySelector<HTMLButtonElement>('#save-new-slot')?.addEventListener('click', guardMenu(() => { saveNamedSlot(); render(); }));
   app.querySelectorAll<HTMLButtonElement>('.load-save-slot').forEach(button => button.addEventListener('click', () => {
     if (!screens.titleOpen && !menuAllowed(matchContext())) return;
-    if (continueSavedGame(button.dataset.saveSlot)) leaveTitle(); else titleNotice = message;
+    if (continueSavedGame(button.dataset.saveSlot)) titleState.leaveTitle(); else titleState.setNotice(message);
     render();
   }));
   app.querySelectorAll<HTMLButtonElement>('.delete-save-slot').forEach(button => button.addEventListener('click', () => {
@@ -1702,52 +1668,11 @@ function render(): void {
   document.querySelector<HTMLButtonElement>('#open-editor')?.addEventListener('click', guardMenu(() => {
     screens.editorOpen = true; editorNotice = '編集したシナリオはJSONとして書き出せます。'; render();
   }));
-  document.querySelector<HTMLButtonElement>('#editor-close')?.addEventListener('click', () => { screens.editorOpen = false; backToTitleIfOpenedThere(); render(); });
+  document.querySelector<HTMLButtonElement>('#editor-close')?.addEventListener('click', () => { screens.editorOpen = false; titleState.backToTitleIfOpenedThere(); render(); });
   document.querySelector<HTMLButtonElement>('#open-title')?.addEventListener('click', guardMenu(() => {
-    screens.titleOpen = true; titleResumable = true; titleNotice = ''; render();
+    titleState.openFromMatch(); render();
   }));
-  app.querySelectorAll<HTMLButtonElement>('[data-delete-custom-map]').forEach(button => button.addEventListener('click', () => {
-    if (!screens.titleOpen) return;
-    const id = button.dataset.deleteCustomMap ?? '';
-    const catalog = availableScenarios();
-    const index = catalog.findIndex(map => map.id === id);
-    const map = catalog[index];
-    const result = deleteCustomMapWithConfirmation(id);
-    if (!result) return;
-    titleNotice = result.ok ? uiText.customMapDeleted(map ? scenarioDisplayName(map) : id) : translateText(result.error);
-    const remaining = availableScenarios();
-    const next = remaining[Math.min(Math.max(0, index), remaining.length - 1)];
-    focusSelector = result.ok && next ? `.title-map-card[data-map-id="${next.id}"]` : `#title-delete-${id}`;
-    render();
-  }));
-  app.querySelectorAll<HTMLButtonElement>('.title-map-card').forEach(card => card.addEventListener('click', () => {
-    const mapId = card.dataset.mapId ?? '';
-    if (!screens.titleOpen || !scenarioById(mapId) || !confirmReplaceMatch()) return;
-    leaveTitle();
-    campaignRun = undefined; campaignOutcome = undefined;
-    resetGame(mapId);
-    message = '作戦ブリーフィングを確認してください。';
-    render();
-  }));
-  document.querySelector<HTMLButtonElement>('#title-resume')?.addEventListener('click', () => { leaveTitle(); render(); });
-  document.querySelector<HTMLButtonElement>('#title-continue')?.addEventListener('click', () => {
-    if (continueSavedGame()) leaveTitle(); else titleNotice = message;
-    render();
-  });
-  document.querySelector<HTMLButtonElement>('#title-campaign')?.addEventListener('click', () => {
-    leaveTitleAndReturn(); screens.briefingOpen = false; openCampaignMenu();
-  });
-  document.querySelector<HTMLButtonElement>('#title-editor')?.addEventListener('click', () => {
-    leaveTitleAndReturn(); screens.editorOpen = true; editorNotice = '編集したシナリオはJSONとして書き出せます。'; render();
-  });
-  document.querySelector<HTMLButtonElement>('#title-import-replay')?.addEventListener('click', () => {
-    document.querySelector<HTMLInputElement>('#title-replay-file')?.click();
-  });
-  document.querySelector<HTMLInputElement>('#title-replay-file')?.addEventListener('change', chooseReplayFile);
-  document.querySelector<HTMLButtonElement>('#briefing-back-to-title')?.addEventListener('click', () => {
-    if (campaignRun) return;
-    screens.briefingOpen = false; screens.titleOpen = true; titleResumable = false; titleNotice = ''; render();
-  });
+  bindTitleEvents(app, titleEventDeps);
   if (screens.editorOpen) {
     // Keep the existing compact editor markup while adding the production rule
     // as a real form control. The value is part of the exported scenario data.
@@ -1876,7 +1801,7 @@ function render(): void {
       campaignRun = undefined;
       campaignOutcome = undefined;
       screens.editorOpen = false;
-      returnToTitle = false;
+      titleState.clearReturn();
       resetGame(saved.value.id);
       message = 'カスタムシナリオを保存して開始しました。';
       render();
@@ -1995,7 +1920,7 @@ function render(): void {
     screens.campaignMenuOpen = false;
     screens.briefingOpen = campaignReturnToBriefing;
     campaignReturnToBriefing = false;
-    backToTitleIfOpenedThere();
+    titleState.backToTitleIfOpenedThere();
     render();
   });
   document.querySelector<HTMLButtonElement>('#campaign-skirmish')?.addEventListener('click', () => {
@@ -2005,7 +1930,7 @@ function render(): void {
     if (campaignScenarioId) resetGame(campaignScenarioId);
     screens.briefingOpen = campaignScenarioId !== undefined || campaignReturnToBriefing; campaignReturnToBriefing = false;
     message = '単体戦モードに戻りました。戦域を自由に選択できます。';
-    backToTitleIfOpenedThere();
+    titleState.backToTitleIfOpenedThere();
     render();
   });
   app.querySelectorAll<HTMLButtonElement>('.campaign-start').forEach(button => {
@@ -2378,7 +2303,7 @@ window.addEventListener('storage', event => {
   if (event.key !== null && !event.key.startsWith('ministr.')) return;
   localStorage.markExternalChange();
   commandScheduler.cancel(); cpuInProgress = false; spectatePaused = matchMode === 'spectate';
-  message = '別タブの変更を検知しました。バックアップ後に再読み込みしてください。'; titleNotice = message; render();
+  message = '別タブの変更を検知しました。バックアップ後に再読み込みしてください。'; titleState.setNotice(message); render();
 });
 window.addEventListener('resize', () => {
   if (!boardZoomAuto) return;
