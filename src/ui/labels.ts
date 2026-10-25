@@ -16,11 +16,11 @@ export const unitNames = localized(japaneseUnitNames, englishUnitNames);
 export const unitTokens = localized<Record<UnitKind, string>>({
   engineer: '工', infantry: '歩', tank: '戦', artillery: '砲', fighter: '空', bomber: '爆',
   destroyer: '艦', landingShip: '輸', recon: '偵', rocket: '自', antiAir: '防', apc: '装',
-  mech: '対', heavyTank: '重', helicopter: 'ヘ', battleship: '巨',
+  mech: '対', heavyTank: '重', helicopter: 'ヘ', transportHelicopter: '搬', battleship: '巨',
 }, {
   engineer: 'E', infantry: 'I', tank: 'T', artillery: 'A', fighter: 'F', bomber: 'B',
   destroyer: 'D', landingShip: 'L', recon: 'R', rocket: 'RK', antiAir: 'AA', apc: 'AP',
-  mech: 'M', heavyTank: 'HT', helicopter: 'H', battleship: 'BS',
+  mech: 'M', heavyTank: 'HT', helicopter: 'H', transportHelicopter: 'TH', battleship: 'BS',
 });
 
 export const weaponNames = localized<Record<WeaponKind, string>>({

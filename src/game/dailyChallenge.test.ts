@@ -57,8 +57,13 @@ afterEach(() => restoreCustomScenarioCatalog(catalogAtStart));
 
 type Level = 'easy' | 'normal' | 'hard';
 /** Plays the CPU on both sides until a winner appears; returns the legal command stream. */
-function playOut(scenario: ScenarioDefinition, red: Level, blue: Level): { initial: GameState; commands: GameCommand[]; final: GameState } {
-  const initial = createScenarioInitialState(scenario);
+function playOut(
+  scenario: ScenarioDefinition,
+  red: Level,
+  blue: Level,
+  ruleVersion = CURRENT_RULE_VERSION as GameState['ruleVersion'],
+): { initial: GameState; commands: GameCommand[]; final: GameState } {
+  const initial: GameState = { ...createScenarioInitialState(scenario), ruleVersion };
   let state = initial;
   const commands: GameCommand[] = [];
   while (!state.winner && state.turn <= 40) {
@@ -261,6 +266,16 @@ describe('identifiers', () => {
 });
 
 describe('recording rules', () => {
+  it('replays and records a resumed v10 daily victory under its original rules', () => {
+    const played = playOut(must(dailyScenario(STANDARD_WIN_DATE)), 'hard', 'easy', 10);
+    const { initial, final } = played;
+    expect(final.winner).toBe('red');
+    const replay = must(createReplay({ mapId: initial.scenarioId!, difficulty: 'normal', initialState: initial, commands: played.commands }));
+    expect(must(parseReplay(must(serializeReplay(replay)))).finalState).toEqual(final);
+    const victory = must(dailyVictory(initial, final, played.commands, context));
+    expect(victory.record.ruleVersion).toBe(10);
+    expect(must(saveDailyVictory(memoryStorage(), victory.record)).retained).toBe(true);
+  });
   it('records a standard red victory with the replayed turns and losses', () => {
     for (const date of [FRONTLINE_WIN_DATE, STANDARD_WIN_DATE]) {
       const played = won(date);
@@ -352,7 +367,10 @@ describe('daily records', () => {
     expect(catalog.records[0]!.date).toBe(dateAt(MAX_DAILY_RECORDS + 4));
     expect(catalog.records.at(-1)!.date).toBe(dateAt(5));
     // A record older than every kept date is not stored at all.
+    const before = storage.data.get(DAILY_RECORDS_KEY);
     const old = must(saveDailyVictory(storage, record('2025-01-01')));
+    expect(old).toMatchObject({ changed: false, retained: false });
+    expect(storage.data.get(DAILY_RECORDS_KEY)).toBe(before);
     expect(old.catalog.records.some((entry) => entry.date === '2025-01-01')).toBe(false);
   });
   it('rejects malformed, oversized, duplicate and out-of-range data', () => {

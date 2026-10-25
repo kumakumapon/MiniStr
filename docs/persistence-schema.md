@@ -92,3 +92,9 @@ New matches use v9; recorded v8 and earlier matches keep their mechanics and CPU
 - A record is only written for a match whose embedded scenario snapshot is exactly the canonical definition of its date (see `docs/daily-challenge.md`); the stored record itself contains no scenario data, so the date is the only link to the derived battlefield. The derivation per generation is frozen.
 - Complete backups validate this key with `parseDailyRecords` before any write and reject a corrupt value without changing existing data. After a restore the in-memory records are reloaded. A backup containing this key is rejected by versions without #230 as an unsupported entry; backups made by older versions restore normally.
 - Daily matches use an unsaved scenario definition: saves, slots and replays carry the full scenario snapshot, so they do not depend on the custom scenario catalog (32 entries / 1,000,000 bytes) and never add to it.
+
+## v0.9.6のBGMバックアップ対応
+
+`ministr.music.settings` も全データの書き出し・プレビュー・復元の対象です。1000バイト上限、ミュートは真偽値、音量は有限数0〜1、曲は既知のID、陣営切り替えは真偽値を共通の設定パーサーで検証します。音量・ミュートのみの旧形式や陣営別項目がない形式も受け付け、不足項目を既定値で補います。不正値は他の項目を書き込む前に全体を拒否します。復元後はメモリ上の設定と再生器も再読込します。キー・バックアップschema1・既存の保存形式の変更はありません。
+
+輸送ヘリを使用する新規対局はルールv11（保存/リプレイschema4）。旧ルールv10以下の対局は新兵科を受け付けません。

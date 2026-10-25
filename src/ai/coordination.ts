@@ -79,7 +79,7 @@ function teamPlan(state: GameState, player: PlayerId): TeamPlan {
           unit.id,
           mission.has(unit.id)
             ? 'mission'
-            : unit.kind === 'landingShip'
+            : unit.kind === 'landingShip' || unit.kind === 'transportHelicopter'
               ? 'transport'
               : isSupplyUnit(unit.kind)
                 ? 'supply'

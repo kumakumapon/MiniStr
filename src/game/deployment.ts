@@ -28,7 +28,7 @@ export function deploymentSlots(scenario: ScenarioDefinition, player: PlayerId =
     .filter((unit) => unit.owner === player)
     .map((unit, index) => {
       const id = `${player[0]}${index + 1}`;
-      const fixed = protectedIds.has(id) || unit.kind === 'landingShip';
+      const fixed = protectedIds.has(id) || unit.kind === 'landingShip' || unit.kind === 'transportHelicopter';
       const choices = fixed
         ? [unit.kind]
         : (Object.keys(unitStats) as UnitKind[]).filter((kind) => domain(kind) === domain(unit.kind) && Number.isFinite(movementCost(scenario.board, unit, kind)));

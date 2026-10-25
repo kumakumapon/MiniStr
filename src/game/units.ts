@@ -127,6 +127,11 @@ export const unitDefinitions = {
     stats: { cost: 7000, movement: 5, attack: 0, defense: 20, capturePower: 0, range: [1, 1], fuel: 99, fuelPerTurn: 2, ammo: 0, vision: 3, indirect: false },
     effectiveness: { soft: 0, armor: 0, air: 0, sea: 0 },
   },
+  transportHelicopter: {
+    weapon: null, category: 'air', movementProfile: 'air', productionTerrain: 'airport', transportCapacity: 1, modernOnly: true, minimumRuleVersion: 11,
+    stats: { cost: 9000, movement: 6, attack: 0, defense: 10, capturePower: 0, range: [1, 1], fuel: 60, fuelPerTurn: 3, ammo: 0, vision: 3, indirect: false },
+    effectiveness: { soft: 0, armor: 0, air: 0, sea: 0 },
+  },
   // Phase 9 (#114) units, available only under the modern rules.
   mech: {
     weapon: 'antiTankLauncher',

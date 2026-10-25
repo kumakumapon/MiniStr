@@ -1,3 +1,4 @@
+import { loadMusicSettings, MUSIC_SETTINGS_KEY, defaultMusicSettings } from './musicSettings';
 import { readdirSync, readFileSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
@@ -229,12 +230,49 @@ describe('complete local backup', () => {
     const keys = new Set<string>();
     for (const file of files('src')) for (const match of readFileSync(file, 'utf8').matchAll(/'(ministr\.[A-Za-z.]*[A-Za-z])\.?'/g)) keys.add(match[1]!);
     expect([...keys]).toContain(DAILY_RECORDS_KEY);
-    // Known gap, not part of #230: music settings are written by the app but restore does not accept them yet.
-    const knownUnsupported = new Set(['ministr.music.settings']);
     const unsupported = [...keys].filter((key) => {
       const result = restoreBackup(new Store(), pack([[key.endsWith('.slot') ? `${key}.probe` : key, 'x']]));
       return !result.ok && result.error.includes('未対応の保存項目');
     });
-    expect(unsupported.filter((key) => !knownUnsupported.has(key))).toEqual([]);
+    expect(unsupported).toEqual([]);
   });
+});
+
+it.each([
+  { muted: false, volume: 0.5 },
+  { ...defaultMusicSettings, fieldTrack: 'rock-red', blueFieldTrack: 'mist', armyTracks: false },
+])('restores legacy/current BGM settings atomically: %j', (settings) => {
+  const source = new Store();
+  source.setItem(MUSIC_SETTINGS_KEY, JSON.stringify(settings));
+  const exported = exportBackup(source);
+  if (!exported.ok) throw Error(exported.error);
+  const target = new Store();
+  const preview = previewBackup(target, exported.value);
+  if (!preview.ok) throw Error(preview.error);
+  expect(restoreBackup(target, preview.value).ok).toBe(true);
+  expect(loadMusicSettings(target)).toMatchObject(settings);
+});
+it.each([
+  '{',
+  '[]',
+  'null',
+  JSON.stringify({ muted: false, volume: 1.1 }),
+  JSON.stringify({ muted: false, volume: -1 }),
+  JSON.stringify({ muted: 'false', volume: 0.5 }),
+  JSON.stringify({ ...defaultMusicSettings, fieldTrack: 'unknown' }),
+  JSON.stringify({ ...defaultMusicSettings, blueFieldTrack: null }),
+  JSON.stringify({ ...defaultMusicSettings, armyTracks: 1 }),
+  JSON.stringify({ ...defaultMusicSettings, extra: 'a'.repeat(1001) }),
+])('rejects invalid BGM before any writes: %s', (raw) => {
+  const target = new Store();
+  target.setItem('ministr.locale', 'ja');
+  target.setItem(MUSIC_SETTINGS_KEY, JSON.stringify(defaultMusicSettings));
+  const before = new Map(target.data);
+  const backup = pack([
+    ['ministr.locale', 'en'],
+    [MUSIC_SETTINGS_KEY, raw],
+  ]);
+  expect(previewBackup(target, backup).ok).toBe(false);
+  expect(restoreBackup(target, backup).ok).toBe(false);
+  expect(target.data).toEqual(before);
 });

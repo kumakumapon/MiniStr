@@ -27,7 +27,7 @@ function buildProductionKindsByTerrain(rule: ProductionRule, ruleVersion: RuleVe
   const byTerrain: Record<ProductionTerrain, UnitKind[]> = { factory: [], airport: [], port: [] };
   for (const kind of unitKinds) if (isUnitKindAvailable(kind, ruleVersion)) byTerrain[unitDefinitions[kind].productionTerrain].push(kind);
   if (rule === 'legacy-factory-air') {
-    for (const kind of byTerrain.airport) byTerrain.factory.push(kind);
+    for (const kind of byTerrain.airport) if (kind !== 'transportHelicopter') byTerrain.factory.push(kind);
   }
   return byTerrain;
 }

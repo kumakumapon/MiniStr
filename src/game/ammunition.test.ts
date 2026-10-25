@@ -99,7 +99,7 @@ describe('unit weapons and ammunition bounds', () => {
     const terrain = profile === 'air' ? 'airport' : profile === 'sea' ? 'port' : 'city';
     const state: GameState = {
       ...createGameState(createBoard(2, 1, { kind: terrain, owner: 'red' })),
-      ruleVersion: kind === 'engineer' ? 8 : 4,
+      ruleVersion: kind === 'transportHelicopter' ? 11 : kind === 'engineer' ? 8 : 4,
       units: [{ ...tank(0), kind }],
     };
     const before = structuredClone(state);

@@ -1,3 +1,4 @@
+import { MUSIC_SETTINGS_KEY, parseMusicSettings } from './musicSettings';
 import { CAMPAIGN_STORAGE_KEY, parseCampaignProgress } from './campaign';
 import { DAILY_RECORDS_KEY, parseDailyRecords } from './dailyChallenge';
 import { DEPLOYMENT_PRESETS_KEY, parseDeploymentPresets } from './deploymentPresets';
@@ -171,6 +172,8 @@ export function restoreBackup(storage: StorageLike, source: string | BackupPrevi
         } else if (key === DAILY_RECORDS_KEY) {
           const daily = parseDailyRecords(raw);
           if (!daily.ok) return daily;
+        } else if (key === MUSIC_SETTINGS_KEY) {
+          if (!parseMusicSettings(raw)) return { ok: false, error: 'BGM設定が不正です。' };
         } else if (key === 'ministr.sound.settings') {
           const settings = parseBoundedJson(raw, 1000);
           if (

@@ -3,7 +3,7 @@ import { generateSymmetricMap, type MapGenerationOptions } from './mapGenerator'
 import { loadScenarioDefinitions, scenarioDefinitionToData, scenarioForState, type ScenarioDefinition } from './maps';
 import { canonicalOperationValue, replayOperationOutcome } from './operationRecords';
 import { isGameState, matchesScenarioInitialState, withinReplayBudget, type GameCommand, type StorageLike } from './session';
-import { CURRENT_RULE_VERSION, ruleVersions, type GameResult, type GameState } from './types';
+import { CURRENT_RULE_VERSION, FINITE_SUPPLY_RULE_VERSION, ruleVersions, type GameResult, type GameState } from './types';
 
 /**
  * Daily challenge (#230). Today's battlefield is derived from the UTC date alone, with no
@@ -190,7 +190,7 @@ export function dailyVictory(
   if (!match) return fail(DAILY_ERRORS.deployment);
   if (context.matchMode !== 'cpu') return fail(DAILY_ERRORS.matchMode);
   if (context.difficulty !== 'normal') return fail(DAILY_ERRORS.difficulty);
-  if (initial.ruleVersion !== CURRENT_RULE_VERSION) return fail(DAILY_ERRORS.rules);
+  if (initial.ruleVersion !== FINITE_SUPPLY_RULE_VERSION && initial.ruleVersion !== CURRENT_RULE_VERSION) return fail(DAILY_ERRORS.rules);
   if (final.winner !== 'red') return fail(DAILY_ERRORS.unfinished);
   if (!withinReplayBudget(initial, commands.length)) return fail(DAILY_ERRORS.history);
   const outcome = replayOperationOutcome(initial, final, commands);
@@ -199,7 +199,7 @@ export function dailyVictory(
     ok: true,
     value: {
       code: match.code,
-      record: { date, generation: 'd1', ruleVersion: CURRENT_RULE_VERSION, bestTurns: outcome.value.turns, bestLosses: outcome.value.losses, updatedAt: now.toISOString() },
+      record: { date, generation: 'd1', ruleVersion: initial.ruleVersion, bestTurns: outcome.value.turns, bestLosses: outcome.value.losses, updatedAt: now.toISOString() },
     },
   };
 }
@@ -248,7 +248,7 @@ export function loadDailyRecords(storage: StorageLike): GameResult<DailyRecords>
 }
 
 /** Keeps each date's best turns and fewest losses (they may come from different matches); only the newest 60 dates are kept. */
-export function saveDailyVictory(storage: StorageLike, candidate: DailyRecord): GameResult<{ catalog: DailyRecords; changed: boolean }> {
+export function saveDailyVictory(storage: StorageLike, candidate: DailyRecord): GameResult<{ catalog: DailyRecords; changed: boolean; retained: boolean }> {
   const checked = parseDailyRecords(JSON.stringify({ schemaVersion: 1, records: [candidate] }));
   if (!checked.ok) return checked;
   candidate = checked.value.records[0]!;
@@ -266,16 +266,17 @@ export function saveDailyVictory(storage: StorageLike, candidate: DailyRecord): 
         }
       : candidate;
   if (existing && existing.ruleVersion === merged.ruleVersion && existing.bestTurns === merged.bestTurns && existing.bestLosses === merged.bestLosses)
-    return { ok: true, value: { catalog: loaded.value, changed: false } };
+    return { ok: true, value: { catalog: loaded.value, changed: false, retained: true } };
   const next = [...loaded.value.records.filter((record) => record !== existing), merged]
     .sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : 0))
     .slice(0, MAX_DAILY_RECORDS);
+  if (!next.includes(merged)) return { ok: true, value: { catalog: loaded.value, changed: false, retained: false } };
   const text = JSON.stringify({ schemaVersion: 1, records: next });
   const validated = parseDailyRecords(text);
   if (!validated.ok) return validated;
   try {
     storage.setItem(DAILY_RECORDS_KEY, text);
-    return { ok: true, value: { catalog: validated.value, changed: true } };
+    return { ok: true, value: { catalog: validated.value, changed: true, retained: true } };
   } catch {
     return fail('日替わりチャレンジの記録を保存できませんでした。既存記録は保持されています。');
   }

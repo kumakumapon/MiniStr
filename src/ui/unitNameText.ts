@@ -17,6 +17,7 @@ export const japaneseUnitNames: Record<UnitKind, string> = {
   mech: '対戦車歩兵',
   heavyTank: '重戦車',
   helicopter: '戦闘ヘリ',
+  transportHelicopter: '輸送ヘリ',
   battleship: '戦艦',
 };
 export const englishUnitNames: Record<UnitKind, string> = {
@@ -35,5 +36,6 @@ export const englishUnitNames: Record<UnitKind, string> = {
   mech: 'Mech infantry',
   heavyTank: 'Heavy tank',
   helicopter: 'Helicopter',
+  transportHelicopter: 'Transport helicopter',
   battleship: 'Battleship',
 };
