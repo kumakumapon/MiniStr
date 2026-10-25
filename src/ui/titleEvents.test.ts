@@ -62,6 +62,9 @@ function harness(options: { resumable?: boolean; scenarios?: ScenarioDefinition[
     previewMusic: vi.fn(),
     operationRecords: { reset: vi.fn(), delete: vi.fn() },
     dailyRecords: { reset: vi.fn(), delete: vi.fn() },
+    pageBase: () => ({ origin: 'https://example.test', pathname: '/MiniStr/' }),
+    clipboard: () => ({ writeText: vi.fn(() => Promise.resolve()) }),
+    clearShareHash: vi.fn(),
   };
   const draw = () => {
     app.innerHTML = buildTitleOverlay({
