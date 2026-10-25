@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi, type Mock } from 'vitest';
 import { maps } from '../game';
 import type { ScenarioDefinition } from '../game/maps';
 import { MAX_CUSTOM_SCENARIOS } from '../game/maps';
@@ -31,7 +31,7 @@ interface Harness {
   state: TitleState;
   deps: TitleEventDeps;
   focus: string[];
-  clear: ReturnType<typeof vi.fn>;
+  clear: Mock<() => void>;
   writeText: ReturnType<typeof vi.fn>;
   draw: () => void;
 }
