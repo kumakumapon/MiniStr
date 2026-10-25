@@ -94,6 +94,9 @@ describe('daily briefing and result sections', () => {
     expectNoJapanese(en);
     expect(en.textContent).toContain('This match: 9 rounds, 0 losses');
     expect(en.textContent).toContain('Copied the ID.');
+    const expired = mount(renderDailyResult({ ...view, notice: '保持期間（60日）より古い日付のため、記録は保存されませんでした。' }));
+    expectNoJapanese(expired);
+    expect(expired.textContent).toContain('older than the 60-day retention period');
     for (const [name, message] of Object.entries(DAILY_ERRORS)) {
       const section = mount(renderDailyResult({ code: conditions.code, notice: message, copyNotice: '' }));
       expectNoJapanese(section);

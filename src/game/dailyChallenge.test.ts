@@ -329,12 +329,12 @@ describe('daily records', () => {
   it('saves, merges the best of each figure, and keeps unchanged records untouched', () => {
     const storage = memoryStorage();
     const first = must(saveDailyVictory(storage, record('2026-02-03', { bestTurns: 20, bestLosses: 2 })));
-    expect(first.changed).toBe(true);
+    expect(first.status).toBe('updated');
     const merged = must(saveDailyVictory(storage, record('2026-02-03', { bestTurns: 25, bestLosses: 0, updatedAt: '2026-02-04T00:00:00.000Z' })));
-    expect(merged.changed).toBe(true);
+    expect(merged.status).toBe('updated');
     expect(merged.catalog.records).toEqual([record('2026-02-03', { bestTurns: 20, bestLosses: 0, updatedAt: '2026-02-04T00:00:00.000Z' })]);
     const before = storage.data.get(DAILY_RECORDS_KEY);
-    expect(must(saveDailyVictory(storage, record('2026-02-03', { bestTurns: 30, bestLosses: 5 }))).changed).toBe(false);
+    expect(must(saveDailyVictory(storage, record('2026-02-03', { bestTurns: 30, bestLosses: 5 }))).status).toBe('unchanged');
     expect(storage.data.get(DAILY_RECORDS_KEY)).toBe(before);
   });
   it('replaces a record made under a different rule version instead of mixing them', () => {
@@ -354,6 +354,23 @@ describe('daily records', () => {
     // A record older than every kept date is not stored at all.
     const old = must(saveDailyVictory(storage, record('2025-01-01')));
     expect(old.catalog.records.some((entry) => entry.date === '2025-01-01')).toBe(false);
+    expect(old.status).toBe('expired');
+  });
+  it('treats the oldest retained date as kept and one day older as expired without writing', () => {
+    const storage = memoryStorage();
+    for (let at = 0; at < MAX_DAILY_RECORDS; at++) saveDailyVictory(storage, record(dateAt(at + 1)));
+    const before = storage.data.get(DAILY_RECORDS_KEY);
+    expect(must(loadDailyRecords(storage)).records).toHaveLength(MAX_DAILY_RECORDS);
+    const sameDay = must(saveDailyVictory(storage, record(dateAt(1), { bestTurns: 1, updatedAt: '2026-06-01T00:00:00.000Z' })));
+    expect(sameDay.status).toBe('updated');
+    expect(sameDay.catalog.records.at(-1)).toMatchObject({ date: dateAt(1), bestTurns: 1 });
+    const stored = storage.data.get(DAILY_RECORDS_KEY);
+    expect(stored).not.toBe(before);
+    const older = must(saveDailyVictory(storage, record(dateAt(0))));
+    expect(older.status).toBe('expired');
+    expect(older.catalog.records).toHaveLength(MAX_DAILY_RECORDS);
+    expect(older.catalog.records.some((entry) => entry.date === dateAt(0))).toBe(false);
+    expect(storage.data.get(DAILY_RECORDS_KEY)).toBe(stored);
   });
   it('rejects malformed, oversized, duplicate and out-of-range data', () => {
     const wrap = (records: unknown) => JSON.stringify({ schemaVersion: 1, records });

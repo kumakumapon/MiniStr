@@ -901,7 +901,7 @@ function syncDailyOutcome(): void {
   const saved = saveDailyVictory(localStorage, result.value.record);
   if (saved.ok) {
     dailyCatalog = saved.value.catalog;
-    dailyOutcome = { code, record: figures, notice: saved.value.changed ? '日替わりチャレンジの最良記録を更新しました。' : '日替わりチャレンジの記録は保存済みです。' };
+    dailyOutcome = { code, record: figures, notice: saved.value.status === 'updated' ? '日替わりチャレンジの最良記録を更新しました。' : saved.value.status === 'expired' ? '保持期間（60日）より古い日付のため、記録は保存されませんでした。' : '日替わりチャレンジの記録は保存済みです。' };
   } else dailyOutcome = { code, record: figures, notice: saved.error };
 }
 function dailyBriefingConditions() {

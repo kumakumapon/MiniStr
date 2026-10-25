@@ -247,8 +247,13 @@ export function loadDailyRecords(storage: StorageLike): GameResult<DailyRecords>
   }
 }
 
-/** Keeps each date's best turns and fewest losses (they may come from different matches); only the newest 60 dates are kept. */
-export function saveDailyVictory(storage: StorageLike, candidate: DailyRecord): GameResult<{ catalog: DailyRecords; changed: boolean }> {
+export type DailySaveStatus = 'updated' | 'unchanged' | 'expired';
+
+/**
+ * Keeps each date's best turns and fewest losses (they may come from different matches); only the newest 60 dates are kept.
+ * 'expired' means the date is older than every retained record, so nothing was written.
+ */
+export function saveDailyVictory(storage: StorageLike, candidate: DailyRecord): GameResult<{ catalog: DailyRecords; status: DailySaveStatus }> {
   const checked = parseDailyRecords(JSON.stringify({ schemaVersion: 1, records: [candidate] }));
   if (!checked.ok) return checked;
   candidate = checked.value.records[0]!;
@@ -266,16 +271,18 @@ export function saveDailyVictory(storage: StorageLike, candidate: DailyRecord): 
         }
       : candidate;
   if (existing && existing.ruleVersion === merged.ruleVersion && existing.bestTurns === merged.bestTurns && existing.bestLosses === merged.bestLosses)
-    return { ok: true, value: { catalog: loaded.value, changed: false } };
+    return { ok: true, value: { catalog: loaded.value, status: 'unchanged' } };
   const next = [...loaded.value.records.filter((record) => record !== existing), merged]
     .sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : 0))
     .slice(0, MAX_DAILY_RECORDS);
+  if (!next.some((record) => record.date === candidate.date && record.generation === candidate.generation))
+    return { ok: true, value: { catalog: loaded.value, status: 'expired' } };
   const text = JSON.stringify({ schemaVersion: 1, records: next });
   const validated = parseDailyRecords(text);
   if (!validated.ok) return validated;
   try {
     storage.setItem(DAILY_RECORDS_KEY, text);
-    return { ok: true, value: { catalog: validated.value, changed: true } };
+    return { ok: true, value: { catalog: validated.value, status: 'updated' } };
   } catch {
     return fail('日替わりチャレンジの記録を保存できませんでした。既存記録は保持されています。');
   }
