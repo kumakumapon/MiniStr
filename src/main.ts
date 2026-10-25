@@ -925,7 +925,9 @@ async function copyDailyCode(code: string): Promise<void> {
   } catch {
     dailyCopyNotice = 'コピーできませんでした。識別子を選択してコピーしてください。';
   }
-  focusSelector = '#daily-copy-id'; render();
+  // Updated in place so the copy button keeps focus; a later redraw renders the same text.
+  const status = app.querySelector('#daily-copy-status');
+  if (status) status.textContent = translateText(dailyCopyNotice);
 }
 function render(): void {
   syncOperationOutcome();
@@ -1367,14 +1369,14 @@ function render(): void {
     const result = resetDailyRecords(localStorage);
     if (result.ok) { dailyCatalog = result.value; dailyNotice = '日替わりチャレンジの記録を初期化しました。'; }
     else dailyNotice = result.error;
-    dailyRecordsOpen = true; focusSelector = '#daily-records-heading'; render();
+    dailyRecordsOpen = true; focusSelector = '#title-daily-records-heading'; render();
   });
   app.querySelectorAll<HTMLButtonElement>('[data-daily-delete]').forEach(button => button.addEventListener('click', () => {
     if (!window.confirm(translateText('この日の記録を削除しますか？'))) return;
     const result = deleteDailyRecord(localStorage, button.dataset.dailyDelete ?? '');
     if (result.ok) { dailyCatalog = result.value; dailyNotice = 'この日の記録を削除しました。'; }
     else dailyNotice = result.error;
-    dailyRecordsOpen = true; focusSelector = '#daily-records-heading'; render();
+    dailyRecordsOpen = true; focusSelector = '#title-daily-records-heading'; render();
   }));
   app.querySelector<HTMLButtonElement>('#daily-copy-id')?.addEventListener('click', () => { void copyDailyCode(app.querySelector('#daily-code')?.textContent ?? ''); });
   app.querySelector<HTMLButtonElement>('#result-title-menu')?.addEventListener('click', () => { app.querySelector<HTMLButtonElement>('#open-title')?.click(); });
