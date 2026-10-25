@@ -901,7 +901,7 @@ function syncDailyOutcome(): void {
   const saved = saveDailyVictory(localStorage, result.value.record);
   if (saved.ok) {
     dailyCatalog = saved.value.catalog;
-    dailyOutcome = { code, record: figures, notice: saved.value.changed ? '日替わりチャレンジの最良記録を更新しました。' : '日替わりチャレンジの記録は保存済みです。' };
+    dailyOutcome = { code, record: figures, notice: !saved.value.retained ? '保持対象の最新60日より古い日付のため、記録は保存されませんでした。' : saved.value.changed ? '日替わりチャレンジの最良記録を更新しました。' : '日替わりチャレンジの記録は保存済みです。' };
   } else dailyOutcome = { code, record: figures, notice: saved.error };
 }
 function dailyBriefingConditions() {
@@ -932,6 +932,10 @@ async function copyDailyCode(code: string): Promise<void> {
   if (status) status.textContent = translateText(dailyCopyNotice);
 }
 function render(): void {
+  if (screens.briefingOpen && !finiteSupplies && (game.units.some(unit => unit.kind === 'transportHelicopter') || [...deploymentChoices.red, ...deploymentChoices.blue].includes('transportHelicopter'))) {
+    finiteSupplies = true; game = { ...game, ruleVersion: CURRENT_RULE_VERSION }; initialState = structuredClone(game);
+  }
+
   syncOperationOutcome();
   syncDailyOutcome();
   if (!canCommand()) reconTargeting = false;
@@ -1227,6 +1231,7 @@ function render(): void {
     visible: !screens.campaignMenuOpen && !screens.titleOpen && !replayMode && screens.briefingOpen,
     backToTitle: true,
     finiteSupplies,
+    requiresAirlift: [...deploymentChoices.red, ...deploymentChoices.blue].includes('transportHelicopter'),
     fixedConditions: dailyLocked(),
     mapName: scenarioDisplayName(renderedMap),
     deployment: (dailyLocked() && screens.briefingOpen ? renderDailyBriefingNote({ conditions: dailyBriefingConditions(), standard: !!deployment?.ok && isStandardDailyDefinition(deployment.value) }) : '') + (deploymentBase && deploymentBase.id !== 'training' && screens.briefingOpen ? renderDeployment(deploymentBase, deploymentChoices, matchMode === 'cpu' ? ['red'] : ['red', 'blue'], deploymentOpen, deploymentNotice, { catalog: presetCatalog, notice: presetNotice, draftNames: presetDraftNames }) + renderOperationChallenges(renderedMap.id) : ''),

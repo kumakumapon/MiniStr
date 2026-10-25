@@ -1,3 +1,4 @@
+import { chooseAirliftAction } from './airlift';
 import { SUPPLY_CAPACITY, stockCanSupply, supplyStock } from '../game/supplyStock';
 import { hasUsableWeapon, weaponAmmo, weaponsForUnit } from '../game/weapons';
 import type { WeaponSlot } from '../game/units';
@@ -6,7 +7,7 @@ import { usesBridgeRules, usesFrontlineRules, usesFiniteSupplyRules } from '../g
 import { forecastCombat, terrainDefenseReduction } from '../game/combat';
 import { observeLogistics } from '../game/fog';
 import { endTurn, reachablePositionsForPlayer } from '../game/commands';
-import { canProduceUnit, isPropertyTerrainKind, productionKindsForRule, unitLimit } from '../game/facilities';
+import { canProduceUnit, isUnitKindAvailable, isPropertyTerrainKind, productionKindsForRule, unitLimit } from '../game/facilities';
 import { visibleEnemies as getVisibleEnemies } from '../game/fog';
 import { scenarioForState, type EvacuationCondition } from '../game/maps';
 import { manhattanDistance, unitMovementCost, terrainAt } from '../game/terrain';
@@ -285,6 +286,11 @@ function productionAction(state: GameState, player: PlayerId, config: CpuDifficu
     .filter(unit => isEmbarkableUnit(unit.kind))
     .some(unit => targets.some(target => !sameLandComponent(context.landComponents, unit.position, target)));
   const hasLandingShip = state.units.some(unit => unit.owner === player && unit.kind === 'landingShip');
+  if (isUnitKindAvailable('transportHelicopter', state.ruleVersion) && hasRemoteInfantry && !hasLandingShip
+    && !state.units.some(unit => unit.owner === player && unit.kind === 'transportHelicopter')) {
+    const airport = emptyOwnedFacility(state, player, 'transportHelicopter');
+    if (airport) return state.players[player].gold >= unitStats.transportHelicopter.cost ? { type: 'produce', factory: airport, kind: 'transportHelicopter' } : undefined;
+  }
   const warships = state.units.filter(unit => unit.owner === player && (unit.kind === 'destroyer' || unit.kind === 'battleship')).length;
   const remoteGround = usesOperationsRules(state) && hasRemoteInfantry && !state.board.terrain.some((row, y) => row.some((tile, x) =>
     tile.kind === 'factory' && tile.owner === player && targets.some(target => sameLandComponent(context.landComponents, { x, y }, target))));
@@ -966,6 +972,7 @@ function chooseOrientedCpuAction(state: GameState, difficulty: CpuDifficulty, pl
     ?? engineeringAction(state, player, context)
     ?? mergeAction(state, player)
     ?? clearNavalServiceLane(state, player, readyUnits)
+    ?? chooseAirliftAction(state, player, context.targets, context.landComponents, context.visibleEnemies)
     ?? transportAction(state, player, context.targets, context.landComponents, context.visibleEnemies)
     ?? productionAction(state, player, config, context)
     ?? moveAction(state, player, config, context)

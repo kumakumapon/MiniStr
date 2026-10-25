@@ -103,7 +103,7 @@ describe('daily challenge in the distributed app', () => {
     click('#save');
     const forged = JSON.parse(dom.window.localStorage.getItem(saveKey)!);
     expect(forged.difficulty).toBe('normal');
-    expect(forged.initialState.ruleVersion).toBe(10);
+    expect(forged.initialState.ruleVersion).toBe(11);
     expect(forged.mode ?? 'cpu').toBe('cpu');
     // Nothing was written to the custom catalog: a daily battlefield never uses a slot.
     expect(dom.window.localStorage.getItem(catalogKey)).toBe(customBefore);
@@ -228,4 +228,22 @@ describe('daily challenge in the distributed app', () => {
     click('#daily-records-reset');
     expect(dom.window.localStorage.getItem(DAILY_RECORDS_KEY)).toBeNull();
   });
+});
+
+it.each(['ja', 'en'])('reports a discarded old victory truthfully in %s', (locale) => {
+  const records = Array.from({ length: 60 }, (_, i) => ({
+    date: new Date(Date.UTC(2026, 3, i + 1)).toISOString().slice(0, 10),
+    generation: 'd1',
+    ruleVersion: 11,
+    bestTurns: 10,
+    bestLosses: 0,
+    updatedAt: '2026-06-01T00:00:00.000Z',
+  }));
+  const raw = JSON.stringify({ schemaVersion: 1, records });
+  const document = launch({ locale, storage: { [saveKey]: finishedDailySave(), [DAILY_RECORDS_KEY]: raw } });
+  click('#title-continue');
+  const notice = document.querySelector('.daily-result')?.textContent ?? '';
+  expect(notice).toContain(locale === 'en' ? 'result was not saved' : '記録は保存されませんでした');
+  if (locale === 'en') expect(notice).not.toMatch(/[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}]/u);
+  expect(dom.window.localStorage.getItem(DAILY_RECORDS_KEY)).toBe(raw);
 });

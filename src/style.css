@@ -520,7 +520,7 @@ button:focus-visible, select:focus-visible, input:focus-visible, summary:focus-v
 .unit-apc .unit-art { background-position: 0 66.6667%; }
 .unit-fighter .unit-art { background-position: 33.3333% 66.6667%; }
 .unit-bomber .unit-art { background-position: 66.6667% 66.6667%; }
-.unit-helicopter .unit-art { background-position: 100% 66.6667%; }
+.unit-helicopter .unit-art, .unit-transportHelicopter .unit-art { background-position: 100% 66.6667%; }
 .unit-destroyer .unit-art { background-position: 0 100%; }
 .unit-landingShip .unit-art { background-position: 33.3333% 100%; }
 .unit-battleship .unit-art { background-position: 66.6667% 100%; }
@@ -1086,3 +1086,6 @@ body.production-menu-open { overflow: hidden; }
 .daily-warning { color: #ffb4a6; font-weight: 700; }
 .daily-result .save-action { min-height: 44px; }
 @media (max-width: 480px) { .daily-card { padding: 12px; } .daily-facts { grid-template-columns: 1fr 1fr; } }
+
+.unit-transportHelicopter { border-radius: 50%; }
+.unit-transportHelicopter::after { content: 'T'; position: absolute; left: 0; bottom: 0; padding: 0 2px; background: #14292e; color: white; font: bold 10px sans-serif; }

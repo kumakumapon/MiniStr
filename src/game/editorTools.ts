@@ -55,7 +55,9 @@ export function inspectEditorScenario(editor: ScenarioEditorState): EditorIssue[
           }
         }),
       );
-    const waterTransport = units.some((unit) => unit.kind === 'landingShip') || (canFundProduction && factories.some((tile) => tile.kind === 'port'));
+    const waterTransport =
+      units.some((unit) => unit.kind === 'landingShip' || unit.kind === 'transportHelicopter') ||
+      (canFundProduction && factories.some((tile) => tile.kind === 'port' || tile.kind === 'airport'));
     const reachable = (target: Position, capture: boolean) =>
       sources.some((unit) => (!capture || unitStats[unit.kind].capturePower > 0) && canReach(scenario.board, unit, target, unit.kind));
     const conditions = player === 'red' ? scenario.victoryConditions : scenario.defeatConditions;
@@ -88,7 +90,10 @@ export function inspectEditorScenario(editor: ScenarioEditorState): EditorIssue[
           if (!waterTransport && !reachable(position, false)) add('warning', `${player}: 保持目標 (${position.x + 1}, ${position.y + 1}) に到達できる部隊・生産経路がありません。`);
         }
     }
-    if (units.some((unit) => ['fighter', 'bomber', 'helicopter'].includes(unit.kind)) && !tiles.some((tile) => tile.kind === 'airport' && tile.owner === player))
+    if (
+      units.some((unit) => ['fighter', 'bomber', 'helicopter', 'transportHelicopter'].includes(unit.kind)) &&
+      !tiles.some((tile) => tile.kind === 'airport' && tile.owner === player)
+    )
       add('warning', `${player}: 航空部隊の補給空港がありません。燃料切れに注意してください。`);
   }
   return issues;

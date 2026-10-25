@@ -1273,6 +1273,8 @@ export const englishResources: readonly (readonly [string, string])[] = [
   ['識別子：', 'ID: '],
   ['識別子をコピー', 'Copy ID'],
   ['日替わりチャレンジの最良記録を更新しました。', 'Updated the daily challenge best record.'],
+  ['BGM設定が不正です。', 'Invalid BGM settings.'],
+  ['保持対象の最新60日より古い日付のため、記録は保存されませんでした。', 'This date is older than the 60 most recent recorded dates, so the result was not saved.'],
   ['日替わりチャレンジの記録は保存済みです。', 'This daily challenge record is already saved.'],
   ['識別子をコピーしました。', 'Copied the ID.'],
   ['コピーできませんでした。識別子を選択してコピーしてください。', 'Could not copy. Select the ID and copy it manually.'],

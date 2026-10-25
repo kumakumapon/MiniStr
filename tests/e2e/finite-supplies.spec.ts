@@ -16,7 +16,7 @@ for (const width of [1280, 390])
       if (mode === 'finite') await expect(page.locator('#unit-brief')).toContainText('300 / 300');
       await page.screenshot({ path: testInfo.outputPath(`systems-supplies-${mode}-${width}.png`) });
       await page.locator('#save').click();
-      expect(await page.evaluate(() => JSON.parse(localStorage.getItem('ministr.save.manual')!).initialState.ruleVersion)).toBe(mode === 'finite' ? 10 : 9);
+      expect(await page.evaluate(() => JSON.parse(localStorage.getItem('ministr.save.manual')!).initialState.ruleVersion)).toBe(mode === 'finite' ? 11 : 9);
       await page.reload();
       await page.locator('#title-continue').click();
       await page.locator('.tile[data-x="1"][data-y="1"]').click();
