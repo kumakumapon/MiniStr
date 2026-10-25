@@ -5,6 +5,8 @@ import type { GameResult, PlayerId, Position, TerrainKind, UnitKind } from './ty
 
 export const GENERATED_SIZES = [16, 20, 24] as const;
 export const GENERATED_SEAS = ['none', 'coast', 'ocean'] as const;
+/** The seed alphabet and length every generated-map entry point accepts. */
+export const GENERATED_SEED_PATTERN = /^[A-Za-z0-9_-]{1,24}$/;
 export interface MapGenerationOptions {
   size: (typeof GENERATED_SIZES)[number];
   sea: (typeof GENERATED_SEAS)[number];
@@ -78,7 +80,7 @@ export function generateSymmetricMapV1(input: unknown): GameResult<ScenarioDefin
     !GENERATED_SIZES.some((size) => size === options.size) ||
     !GENERATED_SEAS.some((sea) => sea === options.sea) ||
     typeof options.seed !== 'string' ||
-    !/^[A-Za-z0-9_-]{1,24}$/.test(options.seed)
+    !GENERATED_SEED_PATTERN.test(options.seed)
   )
     return { ok: false, error: 'サイズ・海域量と、英数字・ハイフン・アンダースコア1〜24文字のseedを指定してください。' };
   const size = options.size as MapGenerationOptions['size'],

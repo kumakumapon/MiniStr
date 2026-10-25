@@ -53,6 +53,19 @@ describe('standalone system controls', () => {
     expect(document.querySelector('details')?.open).toBe(true);
     expect(document.querySelector('[role=alert]')?.textContent).toBe('<bad>');
   });
+  it('offers a copy-link control with a live status region and a hidden read-only fallback', () => {
+    document.body.innerHTML = renderMapGenerator({ size: 16, sea: 'none', seed: 's' }, '', true);
+    expect(document.querySelector('#title-generator-copy-link')?.textContent).toBe('共有リンクをコピー');
+    expect(document.querySelector('#title-generator-link-status')?.getAttribute('role')).toBe('status');
+    const field = document.querySelector<HTMLInputElement>('#title-generator-link-text')!;
+    expect(field.readOnly).toBe(true);
+    expect(field.hidden).toBe(true);
+    document.body.innerHTML = renderMapGenerator({ size: 16, sea: 'none', seed: 's' }, '', true, { status: '<b>x</b>', text: 'https://e.test/#a"><img>' });
+    expect(document.querySelector('#title-generator-link-status')?.textContent).toBe('<b>x</b>');
+    expect(document.querySelector('img, b')).toBeNull();
+    expect(document.querySelector<HTMLInputElement>('#title-generator-link-text')!.hidden).toBe(false);
+    expect(document.querySelector<HTMLInputElement>('#title-generator-link-text')!.value).toBe('https://e.test/#a"><img>');
+  });
   it('labels stale positions as old observations and offers location controls', () => {
     const contact: ReconContact = { id: 'b1', kind: 'tank', position: { x: 2, y: 3 }, turn: 4, phase: 'blue' };
     expect(reconContactLabel(contact)).toContain('4ターン目青軍手番');

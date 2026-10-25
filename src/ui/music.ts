@@ -1,5 +1,6 @@
 import type { PlayerId } from '../game';
 import type { FieldTrack, MusicSettings } from '../game/musicSettings';
+import { loadMusicBuffer, wantedTrack, WebAudioMusicBackend, type MusicAudioContext, type MusicFetch, type MusicTrack } from './webAudioMusic';
 export { FIELD_TRACKS, MUSIC_SETTINGS_KEY, defaultMusicSettings, loadMusicSettings, saveMusicSettings } from '../game/musicSettings';
 export type { FieldTrack, MusicSettings } from '../game/musicSettings';
 
@@ -39,7 +40,13 @@ export interface LoopingAudio {
   pause(): void;
 }
 
-type MusicTrack = FieldTrack | 'battle';
+/** Operations shared by the two playback backends. */
+interface MusicBackend {
+  unlock(): Promise<void>;
+  setBattle(active: boolean, restart?: boolean): void;
+  setSettings(settings: MusicSettings): void;
+  setArmy(army: PlayerId): void;
+}
 
 function trackUrl(track: MusicTrack): string {
   const file = track === 'battle' ? 'battle-theme' : FIELD_TRACK_FILES[track];
@@ -49,11 +56,11 @@ function trackUrl(track: MusicTrack): string {
 }
 
 /**
- * Reuse the element unlocked by a real gesture for every BGM. iOS grants audio
+ * Element backend (fallback). Reuse the element unlocked by a real gesture for every BGM. iOS grants audio
  * permission per element; silently priming a second, muted battle element does
  * not reliably grant permission for later audible CPU-initiated playback.
  */
-export class BackgroundMusicPlayer {
+class ElementMusicBackend implements MusicBackend {
   private track: MusicTrack;
   private army: PlayerId = 'red';
   private readonly fieldPositions = new Map<FieldTrack, number>();
@@ -171,5 +178,133 @@ export class BackgroundMusicPlayer {
       });
     this.pendingPlay = pending;
     await pending;
+  }
+}
+
+export interface MusicPlayerOptions {
+  /** Returns undefined when Web Audio is unavailable. */
+  createContext?: () => MusicAudioContext | undefined;
+  fetchImpl?: MusicFetch;
+}
+
+/** A slow network must not leave the player silent: past this the element fallback takes over. */
+export const DECISION_TIMEOUT_MS = 10_000;
+
+function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
+  return new Promise<T>((resolve, reject) => {
+    const timer = setTimeout(() => reject(new Error('music load timed out')), ms);
+    promise.then(
+      (value) => {
+        clearTimeout(timer);
+        resolve(value);
+      },
+      (error: unknown) => {
+        clearTimeout(timer);
+        reject(error instanceof Error ? error : new Error('music load failed'));
+      },
+    );
+  });
+}
+
+function createBrowserContext(): MusicAudioContext | undefined {
+  const scope = globalThis as unknown as { AudioContext?: new () => MusicAudioContext; webkitAudioContext?: new () => MusicAudioContext };
+  const Context = scope.AudioContext ?? scope.webkitAudioContext;
+  // Boundary adapter: the real AudioContext satisfies MusicAudioContext structurally.
+  return Context ? new Context() : undefined;
+}
+
+/**
+ * Background music. `<audio loop>` leaves a 5-6 ms silent gap at the loop point
+ * in Chromium, so the preferred backend is Web Audio (AudioBufferSourceNode.loop
+ * is sample-accurate). The backend is chosen once, on the first unlock, and then
+ * never mixed per track: if an AudioContext cannot be created, or the current
+ * track cannot be fetched/decoded (unsupported browser, undecodable codec, or
+ * even a transient network error - these are deliberately not distinguished),
+ * the player sticks to the `<audio>` element for the rest of the session and
+ * does not retry. That fallback may complete outside the user gesture, so on iOS
+ * the element's first play() can be refused; the next unlock() retries it.
+ * Requests made before the choice is final (silent: nothing is unlocked) are
+ * only recorded; the latest ones are applied once after the choice.
+ */
+export class BackgroundMusicPlayer {
+  private readonly element: ElementMusicBackend;
+  private backend: MusicBackend | undefined;
+  private decision: Promise<void> | undefined;
+  private readonly initialSettings: MusicSettings;
+  private settings: MusicSettings;
+  private army: PlayerId = 'red';
+  private battle = false;
+
+  constructor(
+    settings: MusicSettings,
+    audio: LoopingAudio = new Audio(),
+    private readonly options: MusicPlayerOptions = {},
+  ) {
+    this.initialSettings = settings;
+    this.settings = settings;
+    this.element = new ElementMusicBackend(settings, audio);
+  }
+
+  unlock(): Promise<void> {
+    // Without Web Audio the choice is made synchronously so play() stays inside the gesture.
+    this.decision ??= this.decide();
+    if (this.backend) return this.backend.unlock();
+    return this.decision.then(() => this.backend?.unlock());
+  }
+
+  setBattle(active: boolean, restart = false): void {
+    if (active === this.battle && !(active && restart)) return;
+    this.battle = active;
+    this.backend?.setBattle(active, restart);
+  }
+
+  setSettings(settings: MusicSettings): void {
+    this.settings = settings;
+    this.backend?.setSettings(settings);
+  }
+
+  setArmy(army: PlayerId): void {
+    if (this.army === army) return;
+    this.army = army;
+    this.backend?.setArmy(army);
+  }
+
+  private async decide(): Promise<void> {
+    let ctx: MusicAudioContext | undefined;
+    try {
+      ctx = (this.options.createContext ?? createBrowserContext)();
+    } catch {
+      ctx = undefined;
+    }
+    if (!ctx) {
+      this.useElement();
+      return;
+    }
+    try {
+      // Everything up to the first await runs inside the user gesture.
+      void ctx.resume().catch(() => undefined);
+      const prime = ctx.createBufferSource();
+      prime.buffer = ctx.createBuffer(1, 1, ctx.sampleRate);
+      prime.connect(ctx.destination);
+      prime.onended = () => prime.disconnect();
+      prime.start(0);
+      const track = wantedTrack(this.settings, this.army, this.battle);
+      const fetchImpl: MusicFetch = this.options.fetchImpl ?? ((url) => globalThis.fetch(url));
+      const buffer = await withTimeout(loadMusicBuffer(ctx, trackUrl(track), fetchImpl), DECISION_TIMEOUT_MS);
+      const web = new WebAudioMusicBackend({ ctx, urlFor: trackUrl, fetchImpl }, this.settings, this.army, this.battle);
+      web.seed(track, buffer);
+      this.backend = web;
+    } catch {
+      void ctx.close().catch(() => undefined);
+      this.useElement();
+    }
+  }
+
+  private useElement(): void {
+    // Replay only what changed before the choice, so an untouched player behaves exactly as before.
+    if (this.settings !== this.initialSettings) this.element.setSettings(this.settings);
+    if (this.army !== 'red') this.element.setArmy(this.army);
+    if (this.battle) this.element.setBattle(true, true);
+    this.backend = this.element;
   }
 }

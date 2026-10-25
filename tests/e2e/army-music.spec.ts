@@ -10,19 +10,62 @@ async function prepareMusic(page: Page, width: number) {
       if (!localStorage.getItem('ministr.music.settings')) {
         localStorage.setItem('ministr.music.settings', JSON.stringify({ muted: false, volume: 0.35, fieldTrack: 'rock-red', blueFieldTrack: 'rock-blue', armyTracks: true }));
       }
-      const OriginalAudio = window.Audio;
-      const observed = { elements: [] as HTMLAudioElement[], loads: [] as string[] };
+      // Observe the real Web Audio graph: which tracks have a started, not yet stopped source.
+      const trackOf = new WeakMap<object, string>();
+      const observed = { started: [] as string[], active: new Map<AudioBufferSourceNode, string>(), peak: 0, loops: [] as boolean[], elements: [] as HTMLAudioElement[] };
       Object.assign(window, { musicProbe: observed });
+      // Browsers without Web Audio (e.g. Playwright's Windows WebKit) use the <audio> fallback: observe that too.
+      const OriginalAudio = window.Audio;
       window.Audio = function (src?: string) {
         const element = new OriginalAudio(src);
-        const load = element.load.bind(element);
-        element.load = () => {
-          observed.loads.push(element.src);
-          load();
-        };
         observed.elements.push(element);
         return element;
       } as typeof Audio;
+      const originalFetch = window.fetch.bind(window);
+      window.fetch = async (input, init) => {
+        const response = await originalFetch(input, init);
+        const url = typeof input === 'string' ? input : input instanceof URL ? input.href : input.url;
+        if (!url.includes('.ogg')) return response;
+        const arrayBuffer = response.arrayBuffer.bind(response);
+        response.arrayBuffer = async () => {
+          const data = await arrayBuffer();
+          trackOf.set(data, url);
+          return data;
+        };
+        return response;
+      };
+      const base = BaseAudioContext.prototype;
+      const decode = base.decodeAudioData;
+      base.decodeAudioData = function (this: BaseAudioContext, data: ArrayBuffer, ...rest: never[]) {
+        const url = trackOf.get(data);
+        const decoded = (decode as (...args: unknown[]) => Promise<AudioBuffer>).call(this, data, ...rest);
+        void decoded.then((buffer) => {
+          if (url) trackOf.set(buffer, url);
+        });
+        return decoded;
+      } as typeof base.decodeAudioData;
+      const createSource = base.createBufferSource;
+      base.createBufferSource = function (this: BaseAudioContext) {
+        const node = createSource.call(this);
+        const start = node.start.bind(node);
+        const stop = node.stop.bind(node);
+        const url = () => (node.buffer ? trackOf.get(node.buffer) : undefined);
+        node.start = (...args: Parameters<AudioBufferSourceNode['start']>) => {
+          start(...args);
+          const track = url();
+          if (!track) return;
+          observed.started.push(track);
+          observed.loops.push(node.loop);
+          observed.active.set(node, track);
+          observed.peak = Math.max(observed.peak, observed.active.size);
+        };
+        node.stop = (...args: Parameters<AudioBufferSourceNode['stop']>) => {
+          observed.active.delete(node);
+          stop(...args);
+        };
+        node.addEventListener('ended', () => observed.active.delete(node));
+        return node;
+      };
     },
     operationData({
       id: 'army-music',
@@ -41,7 +84,17 @@ async function prepareMusic(page: Page, width: number) {
   await page.goto('/');
 }
 
-const source = (page: Page) => page.evaluate(() => (window as unknown as { musicProbe: { elements: HTMLAudioElement[] } }).musicProbe.elements[0]!.src);
+type Probe = { started: string[]; active: Map<unknown, string>; peak: number; loops: boolean[]; elements: HTMLAudioElement[] };
+// Tracks of the sources that have started and not yet stopped. Exactly one must sound at a time.
+const playing = (page: Page) =>
+  page.evaluate(() => {
+    const probe = (window as unknown as { musicProbe: Probe }).musicProbe;
+    const elements = probe.elements.filter((element) => !element.paused && !element.muted).map((element) => element.src);
+    return [...probe.active.values(), ...elements].join(',');
+  });
+const peak = (page: Page) => page.evaluate(() => (window as unknown as { musicProbe: Probe }).musicProbe.peak);
+const elementCount = (page: Page) => page.evaluate(() => (window as unknown as { musicProbe: Probe }).musicProbe.elements.length);
+const startCount = (page: Page) => page.evaluate(() => (window as unknown as { musicProbe: Probe }).musicProbe.started.length);
 
 async function startHotseat(page: Page) {
   await page.locator('.title-map-card[data-map-id="army-music"]').click();
@@ -50,7 +103,10 @@ async function startHotseat(page: Page) {
 }
 
 async function expectSingleAudio(page: Page) {
-  expect(await page.evaluate(() => (window as unknown as { musicProbe: { elements: HTMLAudioElement[] } }).musicProbe.elements.length)).toBe(1);
+  // Never more than one music source sounds at once, and one is sounding now.
+  expect(await peak(page)).toBeLessThanOrEqual(1);
+  expect(await elementCount(page)).toBe(1);
+  await expect.poll(() => playing(page).then((tracks) => tracks.split(',').filter(Boolean).length)).toBe(1);
 }
 
 for (const width of [1280, 390]) {
@@ -60,12 +116,9 @@ for (const width of [1280, 390]) {
     await page.locator('#title-music-track').selectOption('rock-red');
     await page.locator('#title-music-blue-track').selectOption('rock-blue');
     await page.locator('#title-music-preview-blue').click();
-    await expect.poll(() => source(page)).toContain('rock-blue-theme.ogg');
-    await expect
-      .poll(() => page.evaluate(() => (window as unknown as { musicProbe: { elements: HTMLAudioElement[] } }).musicProbe.elements[0]!.readyState))
-      .toBeGreaterThanOrEqual(2);
+    await expect.poll(() => playing(page)).toContain('rock-blue-theme.ogg');
     await page.locator('#title-music-preview-red').click();
-    await expect.poll(() => source(page)).toContain('rock-red-theme.ogg');
+    await expect.poll(() => playing(page)).toContain('rock-red-theme.ogg');
     await page.screenshot({ path: testInfo.outputPath(`systems-title-music-${width}.png`) });
     await startHotseat(page);
     await expect(page.locator('#music-track')).toHaveValue('rock-red');
@@ -88,16 +141,16 @@ for (const width of [1280, 390]) {
     await page.locator('.tile[data-x="1"][data-y="1"]').click();
     await page.locator('.tile[data-x="2"][data-y="1"]').click();
     await expect(page.locator('.battle-scene')).toBeVisible();
-    await expect.poll(() => source(page)).toContain('battle-theme.ogg');
+    await expect.poll(() => playing(page)).toContain('battle-theme.ogg');
     // Keyboard activation does not wait for the animated scene to become
     // geometrically stable before its automatic 3.6-second dismissal.
     await page.locator('#battle-scene-skip').press('Enter');
     await expect(page.locator('.battle-scene')).toHaveCount(0);
-    await expect.poll(() => source(page)).toContain('rock-red-theme.ogg');
-    await expect.poll(() => page.evaluate(() => (window as unknown as { musicProbe: { elements: HTMLAudioElement[] } }).musicProbe.elements[0]!.paused)).toBe(false);
+    await expect.poll(() => playing(page)).toContain('rock-red-theme.ogg');
+    await expectSingleAudio(page);
     await page.locator('#end').click();
     await expect(page.locator('#handoff-start')).toBeVisible();
-    await expect.poll(() => source(page)).toContain('rock-blue-theme.ogg');
+    await expect.poll(() => playing(page)).toContain('rock-blue-theme.ogg');
     await expectSingleAudio(page);
   });
 
@@ -106,16 +159,17 @@ for (const width of [1280, 390]) {
     await startHotseat(page);
     await page.locator('#end').click();
     await expect(page.locator('#handoff-start')).toBeVisible();
-    await expect.poll(() => source(page)).toContain('rock-blue-theme.ogg');
+    await expect.poll(() => playing(page)).toContain('rock-blue-theme.ogg');
     await page.locator('#handoff-start').click();
     await page.locator('#end').click();
-    await expect.poll(() => source(page)).toContain('rock-red-theme.ogg');
+    await expect.poll(() => playing(page)).toContain('rock-red-theme.ogg');
     await page.locator('#handoff-start').click();
     await page.locator('#music-army-tracks').uncheck();
-    const loadCount = await page.evaluate(() => (window as unknown as { musicProbe: { loads: string[] } }).musicProbe.loads.length);
+    const startsBefore = await startCount(page);
     await page.locator('#end').click();
-    await expect.poll(() => source(page)).toContain('rock-red-theme.ogg');
-    expect(await page.evaluate(() => (window as unknown as { musicProbe: { loads: string[] } }).musicProbe.loads.length)).toBe(loadCount);
+    await expect.poll(() => playing(page)).toContain('rock-red-theme.ogg');
+    // A shared track keeps playing: no new source is started when the army changes.
+    expect(await startCount(page)).toBe(startsBefore);
     await expectSingleAudio(page);
   });
 }
