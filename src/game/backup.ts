@@ -3,6 +3,7 @@ import { DAILY_RECORDS_KEY, parseDailyRecords } from './dailyChallenge';
 import { DEPLOYMENT_PRESETS_KEY, parseDeploymentPresets } from './deploymentPresets';
 import { OPERATION_RECORDS_KEY, parseOperationRecords } from './operationRecords';
 import { parseBoundedJson } from './jsonBoundary';
+import { MUSIC_SETTINGS_KEY, parseMusicSettings } from './musicSettings';
 import { captureCustomScenarioCatalog, CUSTOM_SCENARIOS_KEY, loadCustomScenarios, restoreCustomScenarioCatalog } from './maps';
 import { AUTO_SAVE_KEY, MANUAL_SAVE_KEY, MAX_SAVE_SLOTS, parseSavedGame, SAVE_SLOT_INDEX_KEY, SAVE_SLOT_PREFIX, writeStorageChanges, type StorageLike } from './session';
 import type { GameResult } from './types';
@@ -182,6 +183,9 @@ export function restoreBackup(storage: StorageLike, source: string | BackupPrevi
             settings.value.volume > 1
           )
             return { ok: false, error: '音量設定が不正です。' };
+        } else if (key === MUSIC_SETTINGS_KEY) {
+          const music = parseMusicSettings(raw, { rejectUnknownKeys: true });
+          if (!music.ok) return music;
         } else if (key === 'ministr.confirmEndTurnWithUnacted') {
           if (!['true', 'false'].includes(raw)) return { ok: false, error: '操作設定が不正です。' };
         } else if (key === 'ministr.locale') {

@@ -2,6 +2,8 @@ import { readdirSync, readFileSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { DAILY_RECORDS_KEY, loadDailyRecords, saveDailyVictory } from './dailyChallenge';
+import { MUSIC_SETTINGS_KEY } from './musicSettings';
+import { loadMusicSettings } from '../ui/music';
 import { exportBackup, previewBackup, restoreBackup } from './backup';
 import { CUSTOM_SCENARIOS_KEY, createScenarioInitialState, loadCustomScenarios, maps, saveGameToSlot, scenarioById, scenarioDefinitionToData, type StorageLike } from './index';
 
@@ -169,6 +171,60 @@ describe('complete local backup', () => {
     expect(scenarioById('candidate-catalog-scenario')).toBeUndefined();
   });
 
+  describe('BGM settings (#236)', () => {
+    const music = { muted: true, volume: 0.5, fieldTrack: 'dawn', armyTracks: false, blueFieldTrack: 'mist' };
+    it('round trips settings through export, preview and restore, then loads them', () => {
+      const source = new Store();
+      source.setItem(MUSIC_SETTINGS_KEY, JSON.stringify(music));
+      const backup = exportBackup(source);
+      if (!backup.ok) throw Error(backup.error);
+      const target = new Store();
+      target.setItem(MUSIC_SETTINGS_KEY, JSON.stringify({ ...music, muted: false, volume: 0.9 }));
+      const preview = previewBackup(target, backup.value);
+      expect(preview.ok).toBe(true);
+      expect(restoreBackup(target, preview.ok ? preview.value : backup.value).ok).toBe(true);
+      expect(loadMusicSettings(target)).toEqual(music);
+    });
+    it('accepts the legacy format and partially missing army fields', () => {
+      for (const legacy of [
+        { muted: false, volume: 0.4 },
+        { muted: true, volume: 0, fieldTrack: 'drive' },
+        { muted: false, volume: 1, armyTracks: false },
+      ]) {
+        const storage = new Store();
+        expect(restoreBackup(storage, pack([[MUSIC_SETTINGS_KEY, JSON.stringify(legacy)]])).ok, JSON.stringify(legacy)).toBe(true);
+        expect(loadMusicSettings(storage)).toMatchObject(legacy);
+      }
+    });
+    it('rejects invalid settings without writing anything', () => {
+      const storage = new Store();
+      storage.setItem(MUSIC_SETTINGS_KEY, JSON.stringify(music));
+      storage.setItem('ministr.locale', 'ja');
+      const old = new Map(storage.data);
+      for (const raw of [
+        '{broken',
+        '[]',
+        'null',
+        JSON.stringify({ ...music, volume: 1.5 }),
+        JSON.stringify({ ...music, volume: -0.1 }),
+        JSON.stringify({ ...music, fieldTrack: 'unknown' }),
+        JSON.stringify({ ...music, blueFieldTrack: 3 }),
+        JSON.stringify({ ...music, muted: 'yes' }),
+        JSON.stringify({ ...music, armyTracks: null }),
+        JSON.stringify({ ...music, extra: 1 }),
+        JSON.stringify({ ...music, fieldTrack: 'x'.repeat(2000) }),
+      ]) {
+        const backup = pack([
+          ['ministr.locale', 'en'],
+          [MUSIC_SETTINGS_KEY, raw],
+        ]);
+        expect(restoreBackup(storage, backup).ok, raw).toBe(false);
+        expect(previewBackup(storage, backup).ok, raw).toBe(false);
+        expect(storage.data).toEqual(old);
+      }
+    });
+  });
+
   describe('daily challenge records (#230)', () => {
     const daily = (patch: object = {}) => ({
       date: '2026-02-03',
@@ -229,12 +285,10 @@ describe('complete local backup', () => {
     const keys = new Set<string>();
     for (const file of files('src')) for (const match of readFileSync(file, 'utf8').matchAll(/'(ministr\.[A-Za-z.]*[A-Za-z])\.?'/g)) keys.add(match[1]!);
     expect([...keys]).toContain(DAILY_RECORDS_KEY);
-    // Known gap, not part of #230: music settings are written by the app but restore does not accept them yet.
-    const knownUnsupported = new Set(['ministr.music.settings']);
     const unsupported = [...keys].filter((key) => {
       const result = restoreBackup(new Store(), pack([[key.endsWith('.slot') ? `${key}.probe` : key, 'x']]));
       return !result.ok && result.error.includes('未対応の保存項目');
     });
-    expect(unsupported.filter((key) => !knownUnsupported.has(key))).toEqual([]);
+    expect(unsupported).toEqual([]);
   });
 });

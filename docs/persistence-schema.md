@@ -92,3 +92,12 @@ New matches use v9; recorded v8 and earlier matches keep their mechanics and CPU
 - A record is only written for a match whose embedded scenario snapshot is exactly the canonical definition of its date (see `docs/daily-challenge.md`); the stored record itself contains no scenario data, so the date is the only link to the derived battlefield. The derivation per generation is frozen.
 - Complete backups validate this key with `parseDailyRecords` before any write and reject a corrupt value without changing existing data. After a restore the in-memory records are reloaded. A backup containing this key is rejected by versions without #230 as an unsupported entry; backups made by older versions restore normally.
 - Daily matches use an unsaved scenario definition: saves, slots and replays carry the full scenario snapshot, so they do not depend on the custom scenario catalog (32 entries / 1,000,000 bytes) and never add to it.
+
+## BGM settings (#236)
+
+`ministr.music.settings` holds the BGM settings written by the title and in-match controls. The stored format is unchanged by #236; restore merely accepts the existing key.
+
+- Shape: JSON object `{ muted, volume, fieldTrack, armyTracks, blueFieldTrack }` of at most 1,000 bytes. `muted` and `armyTracks` are booleans, `volume` is a finite number from 0 to 1, and `fieldTrack` / `blueFieldTrack` are known track IDs (`FIELD_TRACKS`).
+- Legacy format: settings saved before per-army tracks (only `muted` and `volume`, or lacking some of `fieldTrack` / `armyTracks` / `blueFieldTrack`) are accepted and the missing items default. An explicitly present but malformed item is rejected, never coerced.
+- Restore validation: `restoreBackup` (and therefore `previewBackup`) validates the key with `parseMusicSettings` in `src/game/musicSettings.ts`, shared with `loadMusicSettings`, and additionally rejects arrays, `null`, unknown extra keys, out-of-range volumes, unknown track IDs and wrong types. A rejected value fails the whole backup before any write, preserving existing data. After a restore the in-memory settings are reloaded.
+- Backups containing this key were rejected as an unsupported entry before #236; backups made by older versions restore normally.
