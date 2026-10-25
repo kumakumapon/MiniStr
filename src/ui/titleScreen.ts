@@ -1,5 +1,6 @@
 import { maps, operationScenarios, type PlayerId, type ScenarioTheme } from '../game';
 import type { ScenarioDefinition } from '../game/maps';
+import type { GeneratedShare } from '../game/shareLink';
 import { operationRevision } from '../game/operationRecords';
 import { dailyConditions, dailyDateKey } from '../game/dailyChallenge';
 import type { CommandSpeed } from './commandScheduler';
@@ -18,6 +19,14 @@ const themeNames = localized<Record<ScenarioTheme, string>>(
   { temperate: 'Temperate', desert: 'Desert', snow: 'Snowfield', urban: 'Urban', coastal: 'Coastal' },
 );
 
+/** A valid share link waiting for the player's confirmation; the map is already generated in memory only. */
+export interface PendingShare {
+  share: GeneratedShare;
+  scenario: ScenarioDefinition;
+  /** Why the last confirmation did not start the operation, announced inside the dialog. */
+  status: string;
+}
+
 /**
  * Title-screen UI state. Which screen is showing stays with `ScreenController`;
  * everything the title itself remembers between redraws lives here.
@@ -34,6 +43,16 @@ export class TitleState {
   readonly generatorForm: GeneratorForm = { size: 20, sea: 'coast', seed: 'MiniStr-1' };
   generatorOpen = false;
   generatorNotice = '';
+  /** Outcome of the last "copy share link" press, announced beside the button. */
+  generatorLinkStatus = '';
+  /** The link itself, offered in a read-only field when the clipboard is unavailable. */
+  generatorLinkText = '';
+  /** A valid link held until it can be confirmed; it is kept, not shown, while another screen is up. */
+  pendingShare: PendingShare | undefined;
+  /** Title control to refocus once the share confirmation closes ('' for the default). */
+  shareReturnFocus: string | undefined;
+  /** Why an opened link was refused; shown on the title like any other title notice. */
+  shareNotice = '';
   musicOpen = false;
   musicPreviewArmy: PlayerId = 'red';
   dailyRecordsOpen = false;
@@ -69,6 +88,7 @@ export class TitleState {
     this.screens.titleOpen = false;
     this.resumable = false;
     this.notice = '';
+    this.shareNotice = '';
   }
   /** Closing a screen that was opened from the title shows the title again. */
   backToTitleIfOpenedThere(): void {
@@ -162,13 +182,14 @@ export function buildTitleOverlay(context: TitleOverlayContext): string {
         })()
       : undefined,
     generator: titleVisible
-      ? renderMapGenerator(state.generatorForm, state.generatorNotice, state.generatorOpen) +
+      ? renderMapGenerator(state.generatorForm, state.generatorNotice, state.generatorOpen, { status: state.generatorLinkStatus, text: state.generatorLinkText }) +
         renderOperationRecords(context.operationCatalog, context.operationNotice, state.operationRecordsOpen)
       : undefined,
     savePicker: titleVisible ? context.savePicker() : '',
     canResume: state.resumable,
     notice:
       state.notice ||
+      state.shareNotice ||
       (!context.storagePersistent ? 'ブラウザーの保存領域を利用できません。このタブ内だけに保存します。終了前にバックアップしてください。' : '') ||
       (!context.canContinue && context.hasStoredSave() ? uiText.titleInvalidSave : ''),
   });

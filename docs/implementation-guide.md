@@ -52,6 +52,7 @@ flowchart TB
 | `src/game/editor.ts` | エディタ状態、編集操作、シナリオ JSON 入出力 | エディタ独自の緩い検証を作らず `maps.ts` の検証を再利用する |
 | `src/ai/rules.ts` | 難易度別の CPU 行動選択 | 合法な高レベル命令だけを返し、適用はゲームコマンド層に任せる |
 | `src/ui/titleScreen.ts`、`src/ui/titleEvents.ts` | タイトル画面の状態（`TitleState`）、描画データの組み立て、イベント束縛 | `main.ts` の変数を直接読まず、描画は値のスナップショット、操作は `TitleEventDeps` のコールバックで受け取る。DOM id と data 属性は E2E が参照する |
+| `src/game/shareLink.ts`、`src/ui/shareLinkDialog.ts` | 生成マップの共有リンク（URLハッシュ）の形式・検証と確認画面。受信と保留は `titleEvents.ts`（`installShareLink`） | 形式の版は凍結し、変える場合は新しいリンク形式の版を追加する。ハッシュは外部入力として許可リストで検証し、確認前に保存しない。詳細は `docs/share-links.md` |
 | `src/ui/` | キーボード操作、ズーム、ラベル、マス情報、演出、音、文言、セーブ一覧 | 規則ではなく表示・入力補助を担う |
 | `src/style.css` | レイアウト、レスポンシブ表示、演出 | セマンティックな操作順序を壊さない |
 
@@ -191,6 +192,7 @@ CPU 計画コンテキストは可視敵だけで構成されます。島しょ�
 - `strings.ts`: UI 日本語文言とエラー表示の変換
 - `saveSlots.ts`: セーブ一覧の HTML を生成
 - `titleScreen.ts`: タイトル画面が再描画をまたいで覚える状態（`TitleState`）と、タイトル画面の描画データの組み立て
+- `shareLinkDialog.ts`: 共有リンクの確認画面のマークアップと、他の画面が出ていない時だけ表示する判定
 - `titleEvents.ts`: タイトル画面のイベント束縛。`installTitleDelegation` は起動時に1回、`bindTitleEvents` は再描画のたびに新しい DOM へ呼ぶ
 
 DOM を変更するときは、キーボードフォーカス、`aria-label`、結果オーバーレイ表示中の背景操作、モバイルのマス情報導線を確認します。演出要素は操作対象の意味論的順序を変えないよう、タイルとは別要素として追加します。

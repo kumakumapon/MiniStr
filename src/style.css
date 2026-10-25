@@ -1089,3 +1089,24 @@ body.production-menu-open { overflow: hidden; }
 
 .unit-transportHelicopter { border-radius: 50%; }
 .unit-transportHelicopter::after { content: 'T'; position: absolute; left: 0; bottom: 0; padding: 0 2px; background: #14292e; color: white; font: bold 10px sans-serif; }
+
+.share-link-overlay { position: fixed; inset: 0; z-index: 125; display: grid; place-items: center; padding: 20px; overflow: auto; background: radial-gradient(circle at 50% 18%, #304a40f2, #07100ef7 74%); backdrop-filter: blur(6px); }
+.share-link-card { box-sizing: border-box; width: min(520px, 100%); max-height: calc(100dvh - 40px); overflow: auto; padding: 24px; border: 1px solid #d2aa49; border-radius: 10px; background: linear-gradient(155deg, #1c2d27 0 55%, #131e1a); box-shadow: 0 28px 80px #000c; }
+.share-link-card h2 { margin: 4px 0 10px; color: #fff2bd; font-size: clamp(1.375rem, 5vw, 1.875rem); overflow-wrap: anywhere; }
+.share-link-card p { margin: 0 0 12px; color: #d9e5dc; line-height: 1.6; overflow-wrap: anywhere; }
+.share-link-facts { display: grid; gap: 6px; margin: 0 0 14px; }
+.share-link-facts div { display: grid; grid-template-columns: minmax(7em, 10em) 1fr; gap: 8px; }
+.share-link-facts dt { color: #aebfb3; }
+.share-link-facts dd { margin: 0; color: #fff; overflow-wrap: anywhere; }
+.share-link-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+.share-link-actions button { flex: 1 1 12em; min-height: 44px; font-size: 1rem; }
+.generator-share { display: grid; gap: 8px; margin-top: 10px; }
+.generator-share button { justify-self: start; min-height: 44px; font-size: 1rem; }
+.generator-share input { box-sizing: border-box; width: 100%; min-width: 0; }
+.generator-share p { margin: 0; overflow-wrap: anywhere; }
+.share-link-card #share-link-status:empty { margin: 0; }
+@media (max-width: 480px) {
+  .share-link-overlay { padding: 10px; }
+  .share-link-card { padding: 18px 14px; }
+  .share-link-facts div { grid-template-columns: 1fr; gap: 0; }
+}

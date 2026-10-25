@@ -26,7 +26,8 @@ let learningOpen = false;
 import { ScreenController } from './ui/screenController';
 const screens = new ScreenController();
 import { TitleState, buildTitleOverlay } from './ui/titleScreen';
-import { bindTitleEvents, installTitleDelegation, type TitleEventDeps } from './ui/titleEvents';
+import { bindTitleEvents, installShareLink, installTitleDelegation, type TitleEventDeps } from './ui/titleEvents';
+import { renderShareLinkDialog, shareDialogVisible } from './ui/shareLinkDialog';
 const titleState = new TitleState(screens);
 import { AsyncRequestGate } from './ui/asyncRequest';
 const fileReadGate = new AsyncRequestGate();
@@ -955,7 +956,14 @@ const titleEventDeps: TitleEventDeps = {
   previewMusic: army => { musicPlayer.setArmy(army); void musicPlayer.unlock(); },
   operationRecords: operationRecordActions,
   dailyRecords: dailyRecordActions,
+  pageBase: () => ({ origin: window.location.origin, pathname: window.location.pathname }),
+  clipboard: () => navigator.clipboard,
+  clearShareHash: () => clearShareHash(),
 };
+/** Drops the share link from the address bar; `replaceState` fires no `hashchange`. */
+function clearShareHash(): void {
+  try { window.history.replaceState(null, '', window.location.pathname + window.location.search); } catch { /* the address bar is cosmetic */ }
+}
 function render(): void {
   if (screens.briefingOpen && !finiteSupplies && (game.units.some(unit => unit.kind === 'transportHelicopter') || [...deploymentChoices.red, ...deploymentChoices.blue].includes('transportHelicopter'))) {
     finiteSupplies = true; game = { ...game, ruleVersion: CURRENT_RULE_VERSION }; initialState = structuredClone(game);
@@ -1223,9 +1231,20 @@ function render(): void {
   const wholeBoardControl = !replayMode && matchMode === 'spectate' && !screens.briefingOpen && !screens.campaignMenuOpen && !screens.editorOpen
     ? `<button id="spectate-whole-board" class="save-action" aria-pressed="${spectateWholeBoard}">${uiText.spectateWholeBoard}</button>`
     : '';
+  // The share-link confirmation is a dialog of its own, so the title steps aside while it shows.
+  const shareDialogOpen = shareDialogVisible({
+    hasPending: titleState.pendingShare !== undefined, titleOpen: screens.titleOpen, replayMode,
+    campaignMenuOpen: screens.campaignMenuOpen, editorOpen: screens.editorOpen, briefingOpen: screens.briefingOpen,
+    gameOverVisible: gameOverOverlay !== '', handoffConcealed: concealed, productionMenuOpen: productionOverlay !== '',
+    tacticalSceneActive: activeTacticalScene !== undefined, cpuInProgress,
+  });
+  if (shareDialogOpen && titleState.shareReturnFocus === undefined) titleState.shareReturnFocus = focusSelector?.startsWith('#title-') || focusSelector?.startsWith('.title-map-card') ? focusSelector : '';
+  const shareDialog = shareDialogOpen && titleState.pendingShare
+    ? renderShareLinkDialog({ share: titleState.pendingShare.share, name: scenarioDisplayName(titleState.pendingShare.scenario), status: translateText(titleState.pendingShare.status) })
+    : '';
   const titleOverlay = buildTitleOverlay({
     state: titleState,
-    titleOpen: screens.titleOpen, replayMode, campaignMenuOpen: screens.campaignMenuOpen, editorOpen: screens.editorOpen,
+    titleOpen: screens.titleOpen && !shareDialogOpen, replayMode, campaignMenuOpen: screens.campaignMenuOpen, editorOpen: screens.editorOpen,
     scenarios: () => availableScenarios(),
     selectedMapId: selectedMap.id,
     mapPreview: map => mapPreviews.get(map) ?? (() => {
@@ -1280,7 +1299,7 @@ function render(): void {
     ${replay ? `<section class="replay-toolbar" aria-label="リプレイ再生コントロール"><div><p class="card-kicker">REPLAY</p><strong aria-live="polite">${replay.index} / ${replay.file.commands.length} 手</strong></div><button id="replay-toggle" class="end-turn" aria-label="${replay.playing ? 'リプレイを一時停止' : replay.index >= replay.file.commands.length ? 'リプレイを最初から再生' : 'リプレイを再生'}" ${replay.file.commands.length === 0 ? 'disabled' : ''}>${replay.playing ? '一時停止' : replay.index >= replay.file.commands.length ? 'もう一度再生' : '再生'}</button><button id="replay-step" class="save-action" ${replay.playing || replay.index >= replay.file.commands.length ? 'disabled' : ''}>1手送り</button><label class="replay-speed">速度<select id="replay-speed" aria-label="リプレイ再生速度">${COMMAND_SPEEDS.map(speed => `<option value="${speed}" ${speed === replay!.speed ? 'selected' : ''}>${speed}x</option>`).join('')}</select></label>${renderReplayNavigation(replay.index, replay.file.commands.length, replay.viewpoint, replay.timeline)}<button id="replay-exit" class="save-action">リプレイを終了</button></section>` : ''}
     ${concealed ? '' : `<section class="battle-layout"><div class="battlefield-wrap ${mapTheme}"><div class="battlefield-heading"><div><p>OPERATION MAP</p><h2 data-user-content>${escapeHtml(scenarioDisplayName(renderedMap))}</h2></div><p class="status-message" aria-live="polite">${escapeHtml(message)}</p></div><p id="board-instructions" class="board-instructions">盤面では矢印キーでマスを移動し、Enter または Space で選択・行動、Esc で選択を解除できます。敵部隊を選択またはフォーカスすると、移動範囲と攻撃危険域を確認できます。N キーで次の未行動部隊へ移動します。</p>${spectateCameraControls}${turnStatus}<div class="battlefield-stage">${!replayMode ? renderReconControl(renderedGame, me, canAct, reconTargeting) : ''}${renderControlObjective(renderedGame, renderedMap)}${evacuationAction}${renderFrontlineControls(renderedGame, me, selected, canAct && !replayMode, showSupplyRange, fortifyPending)}${renderBridgeControls(renderedGame, me, selected, canAct && !replayMode, bridgePending)}${unitBriefPanel}<div id="board-viewport" class="board-viewport" tabindex="0" aria-label="盤面スクロール領域" style="max-height:min(70vh, ${boardViewportHeight}px)"><div data-zoom="${boardZoomPercent(boardZoomIndex)}" class="board ${reconTargeting ? 'recon-targeting' : ''}" role="group" data-user-attributes="aria-label" aria-label="${escapeHtml(translateText(`${scenarioDisplayName(renderedMap)}の戦術マップ`))}" aria-describedby="board-instructions" style="grid-template-columns:repeat(${renderedGame.board.width},${tileSize}px);grid-template-rows:repeat(${renderedGame.board.height},${tileSize}px);aspect-ratio:${renderedGame.board.width} / ${renderedGame.board.height}">${board}</div></div></div>${boardZoomControls}<div class="board-production-controls">${productionLauncher}</div><div class="map-legend" aria-label="マップ凡例"><span><i class="legend-dot reachable-dot" aria-hidden="true">移</i>移動可能</span><span><i class="legend-dot danger-dot" aria-hidden="true">危</i>敵の攻撃危険域</span><span><i class="legend-dot enemy-move-dot" aria-hidden="true">敵移</i>選択敵の移動範囲</span>${wholeBoardShown ? '' : '<span><i class="legend-dot fog-dot" aria-hidden="true">?</i>未索敵</span>'}<span><i class="legend-unit ${me}-dot" aria-hidden="true">自</i>自軍${matchMode === 'cpu' ? '' : `（${sideName(matchMode, me)}）`}</span><span><i class="legend-unit ${foe}-dot" aria-hidden="true">敵</i>敵軍${matchMode === 'cpu' ? '' : `（${sideName(matchMode, foe)}）`}</span><span><i class="legend-facility" aria-hidden="true">拠</i>拠点（市・工・空・港・司・補）</span><span><i class="legend-dot facility-ready-dot" aria-hidden="true">産</i>生産可能</span></div>${renderTerrainLegend(renderedMap.theme, terrainLegendOpen)}${tileInspectorPanel}${reconPanel}${analysisPanel}</div>
     <aside id="command-panel" class="command-panel" aria-label="作戦情報" tabindex="-1">${objectivePanel}${unitQueuePanel}${selectedUnitActions}${cpuActivityPanel}<section class="commander-card ${renderedGame.activePlayer}"><img src="${commander.image}" alt="${commander.alt}" width="512" height="768" loading="lazy" decoding="async"><div><p>COMMANDER</p><h2>${commander.title}</h2><span>${commander.label}</span></div></section>${renderLearning(renderedGame, me, commandHistory, learningOpen)}${transportAction}${forecastCard}<section class="intel-card"><p class="card-kicker">RESOURCES</p><div class="resource-row"><span>自軍資金</span><strong>${renderedGame.players[me].gold}<small>G</small></strong></div><div class="resource-row enemy"><span>敵軍資金</span><strong>${wholeBoardShown ? renderedGame.players[foe].gold : '不明'}<small>G</small></strong></div></section><section class="intel-card"><p class="card-kicker">RECON</p><div class="recon-count"><strong>${renderedGame.units.filter(unit => unit.owner === foe && isDeployedUnit(unit) && visible.has(key(unit.position))).length}</strong><span>確認済み敵部隊</span></div></section>${renderProductionCard(productionTargetLine, productionSummary, production)}${turnSetting}${saveSlotManager}<p class="command-tip">歩兵は中立・敵軍の都市、工場、空港、港湾、司令部で<strong>${getLocale() === 'en' ? 'capture' : '占領'}</strong>できます。生産先は盤面の空き「産」マスを選び、工場・空港・港湾から対応する部隊を生産します。輸送艦は歩兵を1部隊搭載し、別の島へ上陸させられます。</p></aside>
-  </section>${mobileActionBar}`}</main>${gameOverOverlay}${briefing}${titleOverlay}${campaignOverlay}${editorOverlay}${concealed ? renderHandoffOverlay(sideName('hotseat', renderedGame.activePlayer)) : ''}${activeTacticalScene ? ('attacker' in activeTacticalScene ? renderBattleScene(activeTacticalScene) : renderActionScene(activeTacticalScene)) : ''}${productionOverlay}`;
+  </section>${mobileActionBar}`}</main>${gameOverOverlay}${briefing}${titleOverlay}${shareDialog}${campaignOverlay}${editorOverlay}${concealed ? renderHandoffOverlay(sideName('hotseat', renderedGame.activePlayer)) : ''}${activeTacticalScene ? ('attacker' in activeTacticalScene ? renderBattleScene(activeTacticalScene) : renderActionScene(activeTacticalScene)) : ''}${productionOverlay}`;
   document.body.classList.toggle('production-menu-open', Boolean(productionOverlay));
   restoreScroll();
   if (pendingBoardCenter && spectateCameraControls) {
@@ -1301,7 +1320,7 @@ function render(): void {
     // The CPU waits out the scene's full length; closing it early must not leave the CPU idle.
     if (dismissTacticalScene() && cpuInProgress) resumeCpuStep?.();
   });
-  if (gameOverOverlay || briefing || titleOverlay || campaignOverlay || editorOverlay || concealed || activeTacticalScene || productionOverlay) {
+  if (gameOverOverlay || briefing || titleOverlay || campaignOverlay || editorOverlay || concealed || activeTacticalScene || productionOverlay || shareDialog) {
     app.querySelector('main')?.setAttribute('inert', '');
     // A briefing control the player just changed keeps focus, so a following
     // Enter or Space does not land on the start button.
@@ -1324,7 +1343,7 @@ function render(): void {
         const fallback = app.querySelector<HTMLElement>('#production-facility:not(:disabled), #production-menu-close');
         (target && !('disabled' in target && target.disabled) ? target : fallback)?.focus({ preventScroll: true });
       });
-    } else window.setTimeout(() => focusRestoreGuard.isCurrent(focusTicket, renderGeneration) && document.querySelector<HTMLElement>(activeTacticalScene ? ('attacker' in activeTacticalScene ? '#battle-scene-skip' : '#tactical-scene-skip') : gameOverOverlay ? '#result-title' : editorOverlay ? '#editor-close' : campaignOverlay ? '#campaign-close' : titleOverlay ? titleFocus ?? (titleState.resumable ? '#title-resume' : '.title-map-card[aria-current="true"]') : concealed ? '#handoff-start' : briefingFocus ?? '#begin-operation')?.focus(), 0);
+    } else window.setTimeout(() => focusRestoreGuard.isCurrent(focusTicket, renderGeneration) && document.querySelector<HTMLElement>(activeTacticalScene ? ('attacker' in activeTacticalScene ? '#battle-scene-skip' : '#tactical-scene-skip') : gameOverOverlay ? '#result-title' : editorOverlay ? '#editor-close' : campaignOverlay ? '#campaign-close' : titleOverlay ? titleFocus ?? (titleState.resumable ? '#title-resume' : '.title-map-card[aria-current="true"]') : concealed ? '#handoff-start' : shareDialog ? (previousProductionFocus?.startsWith('#share-link-') ? previousProductionFocus : '#share-link-cancel') : briefingFocus ?? '#begin-operation')?.focus(), 0);
   }
   else if (focusSelector) {
     const previousSelector = focusSelector;
@@ -2320,7 +2339,7 @@ window.addEventListener('keydown', event => {
     return;
   }
   if (event.key === 'Escape') {
-    const close = app.querySelector<HTMLButtonElement>('#editor-close, #campaign-close, #briefing-back-to-title');
+    const close = app.querySelector<HTMLButtonElement>('#editor-close, #campaign-close, #briefing-back-to-title, #share-link-cancel');
     if (close) { event.preventDefault(); close.click(); return; }
     if (replay) { event.preventDefault(); leaveReplay(); return; }
   }
@@ -2332,4 +2351,9 @@ window.addEventListener('keydown', event => {
   selectNextUnactedUnit();
 });
 
+installShareLink(titleState, {
+  readHash: () => window.location.hash,
+  clearHash: clearShareHash,
+  onHashChange: listener => window.addEventListener('hashchange', listener),
+}, () => render());
 render();
