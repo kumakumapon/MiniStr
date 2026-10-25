@@ -194,8 +194,6 @@ describe('date to conditions', () => {
     expect(dailyConditions('2026-01-01', 'd2' as never).ok).toBe(false);
   });
   // One test per year: the sweep is CPU-bound, and short tests let the test runner keep reporting while it runs.
-  const sweptShapes = new Set<string>();
-  let sweptDays = 0;
   it.each(Array.from({ length: 11 }, (_, at) => 2026 + at))(
     'generates and validates every date of %i',
     (year) => {
@@ -210,16 +208,24 @@ describe('date to conditions', () => {
         const conditions = must(dailyConditions(date));
         expect(scenario.id.endsWith(`-${conditions.size}-${conditions.sea}-${conditions.seed}`), date).toBe(true);
         expect(dailyDateOfScenarioId(scenario.id), date).toBe(date);
-        sweptShapes.add(`${conditions.size}/${conditions.sea}/${conditions.preset}`);
       }
-      sweptDays += days;
       console.info(`daily sweep ${year}: ${days} dates in ${Math.round(performance.now() - started)} ms`);
     },
     60_000,
   );
   it('covers 2026-01-01 through 2036-12-31 and every table row', () => {
-    expect(sweptDays).toBe(4018);
-    expect(sweptShapes.size).toBe(DAILY_TABLE_D1.length);
+    // Derives the conditions only (no map generation), so this does not depend on the per-year tests above.
+    const shapes = new Set<string>();
+    let days = 0;
+    for (let index = 0; dateAt(index) <= '2036-12-31'; index++) {
+      const date = dateAt(index);
+      if (date < '2026-01-01') continue;
+      const conditions = must(dailyConditions(date));
+      shapes.add(`${conditions.size}/${conditions.sea}/${conditions.preset}`);
+      days++;
+    }
+    expect(days).toBe(4018);
+    expect(shapes.size).toBe(DAILY_TABLE_D1.length);
   });
   it('keeps past dates reproducible: the generated definitions are frozen', () => {
     const digests: Record<string, string> = {};

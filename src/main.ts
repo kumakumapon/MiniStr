@@ -752,6 +752,8 @@ function startCampaignScenario(scenarioId: string): void {
   campaignOutcome = undefined;
   screens.campaignMenuOpen = false;
   returnToTitle = false;
+  // Give the player's own settings back before overriding them; resetGame would otherwise restore over this.
+  restoreUserSettings();
   matchMode = 'cpu';
   resetGame(scenarioId, operation.value);
   message = '作戦ブリーフィングを確認してください。';
@@ -1444,7 +1446,7 @@ function render(): void {
   app.querySelector<HTMLDetailsElement>('#learning-panel')?.addEventListener('toggle', event => { learningOpen = (event.currentTarget as HTMLDetailsElement).open; });
   app.querySelector('#title-training')?.addEventListener('click', () => {
     if (!confirmReplaceMatch()) return;
-    leaveTitle(); campaignRun = undefined; campaignOutcome = undefined; matchMode = 'cpu'; difficulty = 'easy'; learningOpen = true;
+    leaveTitle(); campaignRun = undefined; campaignOutcome = undefined; restoreUserSettings(); matchMode = 'cpu'; difficulty = 'easy'; learningOpen = true;
     resetGame('training'); render();
   });
   app.querySelector('#diagnostics-export')?.addEventListener('click', () => downloadJson('ministr-diagnostics.json', diagnosticReport({ persistent: localStorage.persistent, bytes: getStorageUsage(localStorage).bytes, locale: document.documentElement.lang, viewport: { width: window.innerWidth, height: window.innerHeight } })));

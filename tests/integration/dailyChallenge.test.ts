@@ -172,6 +172,34 @@ describe('daily challenge in the distributed app', () => {
     expect(document.querySelector('#difficulty')?.hasAttribute('disabled')).toBe(false);
   });
 
+  it('starts the campaign as a CPU match after a daily match, not in the format set aside', () => {
+    const document = launch();
+    click('.title-map-card[data-map-id="skirmish"]');
+    click('input[name="match-mode"][value="hotseat"]');
+    click('#begin-operation');
+    click('#open-title');
+    click('#daily-start');
+    click('#briefing-back-to-title');
+    click('#title-campaign');
+    click('.campaign-start:not([disabled])');
+    click('#begin-operation');
+    click('#end');
+    // A restored hotseat format would stop at the device handoff instead of letting the CPU play blue.
+    expect(document.querySelector('#handoff-start')).toBeNull();
+  });
+
+  it('starts practice on easy after a daily match instead of the difficulty set aside', () => {
+    const document = launch();
+    click('.title-map-card[data-map-id="skirmish"]');
+    click('#begin-operation');
+    change('#difficulty', 'hard');
+    click('#open-title');
+    click('#daily-start');
+    click('#briefing-back-to-title');
+    click('#title-training');
+    expect((document.querySelector('#difficulty') as HTMLSelectElement).value).toBe('easy');
+  });
+
   it('keeps today and the list of records in English, and deletes or resets only daily records', () => {
     const records = JSON.stringify({
       schemaVersion: 1,
