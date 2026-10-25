@@ -193,25 +193,34 @@ describe('date to conditions', () => {
     expect(isDailyDate('2027-02-29')).toBe(false);
     expect(dailyConditions('2026-01-01', 'd2' as never).ok).toBe(false);
   });
-  it('generates and validates every date from 2026-01-01 through 2036-12-31', () => {
-    const started = performance.now();
-    let days = 0;
-    const shapes = new Set<string>();
-    for (let index = 0; dateAt(index) <= '2036-12-31'; index++) {
-      const date = dateAt(index);
-      const scenario = must(dailyScenario(date));
-      days++;
-      expect(inspectGeneratedMap(scenario), date).toEqual([]);
-      const conditions = must(dailyConditions(date));
-      expect(scenario.id.endsWith(`-${conditions.size}-${conditions.sea}-${conditions.seed}`), date).toBe(true);
-      expect(dailyDateOfScenarioId(scenario.id), date).toBe(date);
-      shapes.add(`${conditions.size}/${conditions.sea}/${conditions.preset}`);
-    }
-    expect(days).toBe(4018);
-    // Every table row occurs, so every row is covered by the sweep.
-    expect(shapes.size).toBe(DAILY_TABLE_D1.length);
-    console.info(`daily sweep: ${days} dates in ${Math.round(performance.now() - started)} ms`);
-  }, 120_000);
+  // One test per year: the sweep is CPU-bound, and short tests let the test runner keep reporting while it runs.
+  const sweptShapes = new Set<string>();
+  let sweptDays = 0;
+  it.each(Array.from({ length: 11 }, (_, at) => 2026 + at))(
+    'generates and validates every date of %i',
+    (year) => {
+      const started = performance.now();
+      let days = 0;
+      for (let index = 0; dateAt(index) <= `${year}-12-31`; index++) {
+        const date = dateAt(index);
+        if (date < `${year}-01-01`) continue;
+        const scenario = must(dailyScenario(date));
+        days++;
+        expect(inspectGeneratedMap(scenario), date).toEqual([]);
+        const conditions = must(dailyConditions(date));
+        expect(scenario.id.endsWith(`-${conditions.size}-${conditions.sea}-${conditions.seed}`), date).toBe(true);
+        expect(dailyDateOfScenarioId(scenario.id), date).toBe(date);
+        sweptShapes.add(`${conditions.size}/${conditions.sea}/${conditions.preset}`);
+      }
+      sweptDays += days;
+      console.info(`daily sweep ${year}: ${days} dates in ${Math.round(performance.now() - started)} ms`);
+    },
+    60_000,
+  );
+  it('covers 2026-01-01 through 2036-12-31 and every table row', () => {
+    expect(sweptDays).toBe(4018);
+    expect(sweptShapes.size).toBe(DAILY_TABLE_D1.length);
+  });
   it('keeps past dates reproducible: the generated definitions are frozen', () => {
     const digests: Record<string, string> = {};
     for (const date of ['2026-01-01', '2026-02-03', '2026-02-17', '2027-07-04', '2030-02-28', '2036-12-31'])

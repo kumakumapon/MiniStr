@@ -53,7 +53,7 @@ describe('daily challenge card', () => {
     expect(root.querySelector('[data-daily-delete]')?.getAttribute('aria-label')).toBe('2026-01-01の記録を削除');
     expect(root.querySelector('#daily-records')?.hasAttribute('open')).toBe(true);
     expect(root.querySelector('.daily-notice')?.textContent).toBe('削除しました');
-    expect(root.querySelector('#daily-records-heading')?.textContent).toBe('日替わりチャレンジの記録：2日分');
+    expect(root.querySelector('#title-daily-records-heading')?.textContent).toBe('日替わりチャレンジの記録：2日分');
   });
   it('offers a reset when the stored records cannot be read, without listing anything', () => {
     const root = mount(renderDailyCard({ conditions, notice: 'bad', recordsOpen: true }));
@@ -74,7 +74,7 @@ describe('daily challenge card', () => {
     expect(card.querySelector('.daily-best')?.textContent).toBe('Fastest 14 rounds, 2 losses');
     expect(card.querySelector('[data-daily-delete]')?.getAttribute('aria-label')).toBe('Delete the record for 2026-01-01');
     expect(card.textContent).toContain('The date changes at 00:00 UTC (09:00 in Japan).');
-    expect(card.querySelector('#daily-records-heading')?.textContent).toBe('Daily challenge records: 1 days');
+    expect(card.querySelector('#title-daily-records-heading')?.textContent).toBe('Daily challenge records: 1 days');
   });
 });
 
