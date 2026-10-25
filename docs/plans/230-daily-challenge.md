@@ -1,0 +1,45 @@
+# #230 日替わりチャレンジ 実装計画
+
+## 目的
+UTC日付から固定条件の生成戦域を決定的に導出し、タイトルの「今日の戦域」から1操作で開始できる。結果（最短ターン・損失）を日付別にローカル保存する。サーバー・ランキングは対象外。
+
+## 確認済みの前提
+- 生成マップは戦績の対象外（`operationRecords.ts` の `operationIds` は組み込み作戦のみ。`docs/recon-control-records.md`）。
+- 生成ボタンはカスタム作戦（上限32件・1MB）として保存する（日替わりはこの経路を使わない）。
+- 未知の `ministr.*` キーはバックアップ復元で拒否される（`backup.ts`）。
+
+## 設計判断
+1. **保存先**: 既存 `ministr.operations.records` は変更せず、別キー `ministr.daily.records`（独立 schema 1）を新設する。コンテナ schema 4・ruleVersion は変更しない。
+2. **日付→条件**: `dailyConditions(date, version='d1')` は純関数。FNV-1a で `daily-d1:<date>` をハッシュし、サイズ・海域・戦域設定を選び、seed は `D<YYYYMMDD>`。日付は `toISOString()` のUTCのみ使い、`now` は注入可能。版ごとに導出を凍結し、将来は `d2` を追加する。
+3. **識別子**: `D1-YYYYMMDD-v{2|3}`。結果画面でコピーできる。
+4. **固定条件（保存形式は変えない）**: 日替わり開始時に難易度=普通、有限補給（現行ルール）、人間の赤軍対CPUを設定し、その対局中は難易度・補給・対戦形式の変更を無効化する（ブリーフィングとメニュー）。日替わり対局かどうかは、シナリオIDの seed（`D<YYYYMMDD>`）と生成版から日付を取り出し、**保存済みスナップショットが `dailyConditions` から再生成した定義と一致するか**で判定する。これによりセーブ再開でも判定でき、セーブ形式の変更は不要。編成を変えるとスナップショットが変わるため、標準編成の判定もこの一致確認で兼ねる。記録時は ruleVersion=現行、難易度=普通、対戦形式=CPU対戦、赤が勝者も検算する。条件を満たさない対局は記録せず、理由を表示する。
+5. **結果判定**: 生成作戦は `operationVictory` を通らないため、コマンド列再生による ターン・損失の算出を共用関数に切り出して日替わり用に使う。切り出し後も既存の `operationRecords` テストが無変更で通ることを完了条件とする。
+6. **シナリオの扱い（カスタム枠を使わない）**: カスタム作戦の保存は32件・1MB上限があり、日ごとに別IDとなる日替わりを保存すると約32日で開始不能になる。このため日替わりは `saveCustomScenario` を経由せず、生成した定義を `start(mapId, operation)` へ直接渡す。再開・セーブ・リプレイは対局に同梱されるスナップショット（`scenarioForState`）で成立することを、実装の最初に統合テストで確認する。成立しない場合は、日替わり専用IDを1枠に固定して上書きする案へ切り替え、計画を更新して再レビューする。利用者が同じ条件を手動生成して保存した場合のカスタム定義には干渉しない。
+7. **記録**: `{ date, generation, ruleVersion, bestTurns, bestLosses, updatedAt }`、最新60日、件数・バイト・日付形式・重複・値域を検証。ローカル編集可能で認証付きランキングではない旨を表示する。
+8. **日付の扱い**: 開始時点で日付を確定。カードにUTC基準（日本時間9時切替）を明示する。
+9. **互換・バックアップ**: 新キーを含むバックアップは旧アプリで拒否される。docs と復元前の説明に明記する。`restoreBackup` に新キーの専用検証を追加し、復元後はメモリ上の記録を再読込する。破損データは `operationRecords` と同じ読み込み失敗時の挙動にする。`ministr.*` キーを列挙する全削除・初期化の導線を grep で洗い出して含める。
+10. **識別子の対応**: コピー用 `D1-YYYYMMDD-v{2|3}` と内部シナリオID（`generated-v2-…`）の対応を docs に記載する。
+
+## 変更範囲
+- 新規: `src/game/dailyChallenge.ts`（+test）、`src/ui/dailyChallenge.ts`（+test）、`tests/e2e/daily-challenge.spec.ts`、`docs/daily-challenge.md`
+- 変更: `src/game/backup.ts`、`src/main.ts`（状態・開始・結果記録・復元後再読込・削除）、`src/ui/overlays.ts`、`src/ui/english.ts`、`docs/persistence-schema.md`、README
+- 変更しない: 生成ロジック（`mapGenerator.ts`）、CI、Pages、`check-private-links.sh`
+
+## テスト
+- 固定日付→固定条件の表、UTC境界、2026-01-01〜2036-12-31 の全日付スイープで生成成功と `inspectGeneratedMap` 通過（実行時間を記録）、複数日付の生成物スナップショット（過去日付の再現性）
+- カスタムが32件満杯でも日替わりを開始でき、メモリ定義のままセーブ再開・リプレイできる統合テスト
+- 編成変更・難易度変更・無制限補給で記録されないこと、手動生成した同条件の対局が日替わりと同じに扱われること
+- 記録の不正値・旧データ・上限・保持日数・保存失敗時の保持、バックアップ往復と不正値拒否
+- UI単体、英語表示、e2e（1操作開始、キーボード、スマホ幅、記録の表示/削除、時計固定）
+- `balance:compare` で候補条件を比較し、偏りの大きい組を除外して `docs/reviews/` に記録
+
+## 再レビュー反映（実装時の必須事項）
+- **再挑戦（High）**: `#restart` の `resetGame(selectedMap.id)` は `start()` が `scenarioById` で解決するため、未保存の日替わり定義が `maps[0]` に差し替わる。日替わり対局では `resetGame(selectedMap.id, <日替わり定義>)` を使う（定義は `scenarioForState(initialState)`）。戦域セレクト（`selected: map.id === selectedMap.id`、`#map` の change）は日替わり中は読み取り専用にするか日替わりの項目を動的に追加する。`scenarioById` を使う他の経路（タイトルカード、キャンペーン離脱）も確認する。実装の最初の統合テストに「日替わり開始→再挑戦で同一定義」を含める。
+- **判定の比較（Medium）**: `scenarioDefinitionToData(再生成定義)` と `initialState.scenarioSnapshot` の完全一致（`battleSeed`、開始ボーナス、`initialUnits`、勝敗条件を含む）で判定する。再生成側も `loadScenarioDefinitions` を経由させ、`turnLimit` の正規化差で偽陰性にならないようにする。ID照合だけでは編成変更後も日替わり扱いになるため、完全一致を必須とする。テスト: 兵科を変えて戻すと記録対象、予算を使い切らない編成は非対象。
+- **変更の無効化（Medium）**: `#difficulty`、`#red-difficulty`、`#briefing-red-difficulty`、ブリーフィングの対戦形式 `match-mode`、`#briefing-supply-mode` を、表示のdisabledに加えて `main.ts` のハンドラ側でも拒否する。編成は変更可能だが記録対象外になる旨を表示する。最終防衛線は記録時の検算（ルール版・難易度・形式）。セーブ再開は保存済みの難易度で検算し、補給は `ruleVersion` で判定する。
+- **利用者設定の復元（Medium）**: `difficulty`・`matchMode`・`finiteSupplies` は日替わり開始前の値を退避し、通常戦域の開始・セーブ再開・リプレイ・キャンペーンへ移る時に復元する。
+- **ID共存（Low）**: 手動生成して保存した同条件の定義と日替わりが共存しても干渉しないことを統合テストで確認する。
+
+## リスク
+- 生成ロジック変更で過去日付が変わる → スナップショットテストで防ぐ。
+- タイトルの要素追加による既存e2eへの影響 → 新カードは `.title-map-card` を再利用せず（`tests/e2e/title.spec.ts` が件数を検査）、キーボード順序と生成ボタン系e2eを実行して確認する。

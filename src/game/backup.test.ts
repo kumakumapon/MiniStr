@@ -1,4 +1,7 @@
+import { readdirSync, readFileSync, statSync } from 'node:fs';
+import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
+import { DAILY_RECORDS_KEY, loadDailyRecords, saveDailyVictory } from './dailyChallenge';
 import { exportBackup, previewBackup, restoreBackup } from './backup';
 import { CUSTOM_SCENARIOS_KEY, createScenarioInitialState, loadCustomScenarios, maps, saveGameToSlot, scenarioById, scenarioDefinitionToData, type StorageLike } from './index';
 
@@ -164,5 +167,74 @@ describe('complete local backup', () => {
     expect(restored.ok).toBe(false);
     expect(scenarioById('live-catalog-scenario')?.name).toBe(liveScenario.name);
     expect(scenarioById('candidate-catalog-scenario')).toBeUndefined();
+  });
+
+  describe('daily challenge records (#230)', () => {
+    const daily = (patch: object = {}) => ({
+      date: '2026-02-03',
+      generation: 'd1',
+      ruleVersion: 10,
+      bestTurns: 12,
+      bestLosses: 1,
+      updatedAt: '2026-02-03T10:00:00.000Z',
+      ...patch,
+    });
+    const text = (records: unknown[]) => JSON.stringify({ schemaVersion: 1, records });
+
+    it('round trips the records and reloads them after a restore', () => {
+      const source = new Store();
+      expect(saveDailyVictory(source, { ...daily(), ruleVersion: 10 } as never).ok).toBe(true);
+      const backup = exportBackup(source);
+      if (!backup.ok) throw Error(backup.error);
+      const target = new Store();
+      target.setItem(DAILY_RECORDS_KEY, text([daily({ date: '2026-01-01' })]));
+      const preview = previewBackup(target, backup.value);
+      expect(preview).toMatchObject({ ok: true, value: { hasDaily: true } });
+      expect(restoreBackup(target, preview.ok ? preview.value : backup.value).ok).toBe(true);
+      const reloaded = loadDailyRecords(target);
+      expect(reloaded.ok && reloaded.value.records.map((record) => record.date)).toEqual(['2026-02-03']);
+    });
+    it('rejects invalid or corrupt daily records without touching existing data', () => {
+      const storage = new Store();
+      storage.setItem(DAILY_RECORDS_KEY, text([daily()]));
+      storage.setItem('ministr.locale', 'ja');
+      const old = new Map(storage.data);
+      for (const raw of [
+        '{broken',
+        text([daily({ date: '2026-02-30' })]),
+        text([daily({ bestTurns: 0 })]),
+        text([daily(), daily()]),
+        JSON.stringify({ schemaVersion: 2, records: [] }),
+      ]) {
+        expect(restoreBackup(storage, pack([[DAILY_RECORDS_KEY, raw]])).ok, raw).toBe(false);
+        expect(previewBackup(storage, pack([[DAILY_RECORDS_KEY, raw]])).ok, raw).toBe(false);
+        expect(storage.data).toEqual(old);
+      }
+    });
+    it('removes the records on restore when the backup does not contain them', () => {
+      const storage = new Store();
+      storage.setItem(DAILY_RECORDS_KEY, text([daily()]));
+      expect(restoreBackup(storage, pack([['ministr.locale', 'en']])).ok).toBe(true);
+      expect(storage.getItem(DAILY_RECORDS_KEY)).toBeNull();
+    });
+  });
+
+  it('knows every persisted key the application source mentions, so a new key cannot be forgotten by backup', () => {
+    const files = (directory: string): string[] =>
+      readdirSync(directory).flatMap((name) => {
+        const path = join(directory, name);
+        if (statSync(path).isDirectory()) return files(path);
+        return /\.ts$/.test(name) && !/\.(test|fixture|d)\.ts$/.test(name) ? [path] : [];
+      });
+    const keys = new Set<string>();
+    for (const file of files('src')) for (const match of readFileSync(file, 'utf8').matchAll(/'(ministr\.[A-Za-z.]*[A-Za-z])\.?'/g)) keys.add(match[1]!);
+    expect([...keys]).toContain(DAILY_RECORDS_KEY);
+    // Known gap, not part of #230: music settings are written by the app but restore does not accept them yet.
+    const knownUnsupported = new Set(['ministr.music.settings']);
+    const unsupported = [...keys].filter((key) => {
+      const result = restoreBackup(new Store(), pack([[key.endsWith('.slot') ? `${key}.probe` : key, 'x']]));
+      return !result.ok && result.error.includes('未対応の保存項目');
+    });
+    expect(unsupported.filter((key) => !knownUnsupported.has(key))).toEqual([]);
   });
 });

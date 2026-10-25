@@ -67,17 +67,19 @@ export function renderBriefingOverlay(options: {
   /** Offers a way back to the title's map list (skirmishes only). */
   backToTitle?: boolean;
   finiteSupplies?: boolean;
+  /** Daily challenge: format and supply mode are fixed, so their controls are shown but disabled. */
+  fixedConditions?: boolean;
 }): string {
   if (!options.visible) return '';
   const headings = options.conditionHeadings ?? {
     victory: uiText.victoryConditions,
     defeat: uiText.defeatConditions,
   };
-  const modeChoice = options.campaignRun || options.matchMode === undefined ? '' : renderMatchModeChoice(options.matchMode);
+  const modeChoice = options.campaignRun || options.matchMode === undefined ? '' : renderMatchModeChoice(options.matchMode, options.fixedConditions);
   const difficultyChoice =
     options.campaignRun || options.matchMode !== 'spectate' || !options.spectateDifficulties ? '' : renderSpectateDifficultyChoice(options.spectateDifficulties);
   const english = getLocale() === 'en';
-  const supplyChoice = `<section class="briefing-supplies">${options.campaignRun ? `<strong>${english ? `APC supplies: finite (${SUPPLY_CAPACITY} points)` : `補給車の物資：有限（${SUPPLY_CAPACITY}ポイント）`}</strong>` : `<label for="briefing-supply-mode">${english ? 'APC supply mode' : '補給車の物資制限'}</label><select id="briefing-supply-mode"><option value="finite" ${options.finiteSupplies !== false ? 'selected' : ''}>${english ? `Finite (${SUPPLY_CAPACITY} points per APC)` : `有限（1両${SUPPLY_CAPACITY}ポイント）`}</option><option value="unlimited" ${options.finiteSupplies === false ? 'selected' : ''}>${english ? 'Unlimited (previous rules)' : '無制限（従来方式）'}</option></select>`}<p>${english ? 'Finite: ammo costs 10 points per round, fuel costs 1 per unit. Cargo first, then adjacent units by ID; primary ammo, secondary ammo, then fuel. Cities, factories, HQs and supply depots replenish stock. APCs cannot transfer stock; no HP repairs.' : '有限時：弾薬1発10、燃料1につき1ポイント。搭載部隊、隣接部隊のID順に、主武器・副武器・燃料の順で配分します。都市・工場・司令部・補給所で物資を補充。APC同士の物資移送・HP修理は行いません。'}</p></section>`;
+  const supplyChoice = `<section class="briefing-supplies">${options.campaignRun ? `<strong>${english ? `APC supplies: finite (${SUPPLY_CAPACITY} points)` : `補給車の物資：有限（${SUPPLY_CAPACITY}ポイント）`}</strong>` : `<label for="briefing-supply-mode">${english ? 'APC supply mode' : '補給車の物資制限'}</label><select id="briefing-supply-mode" ${options.fixedConditions ? 'disabled' : ''}><option value="finite" ${options.finiteSupplies !== false ? 'selected' : ''}>${english ? `Finite (${SUPPLY_CAPACITY} points per APC)` : `有限（1両${SUPPLY_CAPACITY}ポイント）`}</option><option value="unlimited" ${options.finiteSupplies === false ? 'selected' : ''}>${english ? 'Unlimited (previous rules)' : '無制限（従来方式）'}</option></select>`}<p>${english ? 'Finite: ammo costs 10 points per round, fuel costs 1 per unit. Cargo first, then adjacent units by ID; primary ammo, secondary ammo, then fuel. Cities, factories, HQs and supply depots replenish stock. APCs cannot transfer stock; no HP repairs.' : '有限時：弾薬1発10、燃料1につき1ポイント。搭載部隊、隣接部隊のID順に、主武器・副武器・燃料の順で配分します。都市・工場・司令部・補給所で物資を補充。APC同士の物資移送・HP修理は行いません。'}</p></section>`;
   const list = (conditions: readonly string[]) => conditions.map((condition) => `<li>${escapeHtml(condition)}</li>`).join('');
   const preparation = options.campaignPreparation
     ? `<section class="campaign-preparation" aria-label="出撃支援と部隊継承"><strong>出撃支援 +${options.campaignPreparation.support}G ／ 経験継承 ${options.campaignPreparation.veterans}部隊</strong><p>初期資金は初回収入と支援込み。前作戦の生還部隊から同種の初期部隊へ経験を継承し、耐久・弾薬・燃料は全回復して出撃します。</p><p>指定地点の保持は、部隊を配置して自軍のターンを終了すると進みます。「占領して保持」の拠点では、先に歩兵などで占領してください。自軍ターン終了時に配置部隊がいなければ、連続保持はやり直しです。</p></section>`
@@ -97,8 +99,9 @@ function renderSpectateDifficultyChoice(choice: SpectateDifficultyChoice): strin
   return `<fieldset class="briefing-mode"><legend>${uiText.spectateDifficultyLegend}</legend>${select('briefing-red-difficulty', uiText.spectateRedDifficulty, choice.red)}${select('briefing-blue-difficulty', uiText.spectateBlueDifficulty, choice.blue)}</fieldset>`;
 }
 
-function renderMatchModeChoice(mode: MatchMode): string {
-  const option = (value: MatchMode, label: string) => `<label><input type="radio" name="match-mode" value="${value}" ${mode === value ? 'checked' : ''}> ${label}</label>`;
+function renderMatchModeChoice(mode: MatchMode, fixed = false): string {
+  const option = (value: MatchMode, label: string) =>
+    `<label><input type="radio" name="match-mode" value="${value}" ${mode === value ? 'checked' : ''} ${fixed ? 'disabled' : ''}> ${label}</label>`;
   return `<fieldset class="briefing-mode"><legend>${uiText.matchMode}</legend>${option('cpu', uiText.matchModeCpu)}${option('hotseat', uiText.matchModeHotseat)}${option('spectate', uiText.matchModeSpectate)}</fieldset>`;
 }
 
@@ -133,6 +136,8 @@ export function renderTitleOverlay(options: {
   notice: string;
   savePicker?: string;
   generator?: string;
+  /** Trusted markup for the daily challenge card, shown above the save and map lists. */
+  daily?: string;
   cpuSpeed?: CommandSpeed;
   boardZoom?: { index: number; automatic: boolean };
   musicSettings?: MusicSettings;
@@ -148,7 +153,7 @@ export function renderTitleOverlay(options: {
         `<li class="title-map-entry"><button class="title-map-card" data-map-id="${escapeHtml(map.id)}" ${map.selected ? 'aria-current="true"' : ''}>${map.preview}<span class="title-map-name">${escapeHtml(map.name)}${map.custom ? `<em>${uiText.titleCustom}</em>` : ''}</span><span class="title-map-facts"><span>${escapeHtml(map.theme)}</span><span>${uiText.titleBoard(map.width, map.height)}</span><span>${uiText.titleGold(map.startingGold)}</span><span>${uiText.titleTurnLimit(map.turnLimit)}</span></span><span class="title-map-victory">${escapeHtml(map.victory)}</span></button>${map.custom ? `<button type="button" class="save-action title-map-delete" id="title-delete-${escapeHtml(map.id)}" data-delete-custom-map="${escapeHtml(map.id)}" data-user-attributes="aria-label" aria-label="${escapeHtml(uiText.customMapDeleteLabel(map.name))}">${uiText.customMapDelete}</button>` : ''}</li>`,
     )
     .join('');
-  return `<div class="title-overlay" role="dialog" aria-modal="true" aria-labelledby="title-heading"><section class="title-screen"><header class="title-hero"><p class="card-kicker">${uiText.titleKicker}</p><h2 id="title-heading">${uiText.titleHeading}</h2><p>${uiText.titleLead}</p></header><nav class="title-menu" aria-label="${uiText.titleMenu}">${renderLocalePicker()}${renderCpuSpeedControl(options.cpuSpeed ?? 1, 'title-cpu-speed')}${zoomControl}${options.canResume ? `<button id="title-resume" class="end-turn">${uiText.titleResume}</button>` : ''}<button id="title-continue" class="save-action" ${options.canContinue ? '' : 'disabled'}>${uiText.titleContinue}</button><button id="title-training" class="save-action">基本操作を練習</button><button id="title-campaign" class="save-action">${uiText.titleCampaign}</button><button id="title-import-replay" class="save-action">${uiText.titleImportReplay}</button><button id="title-editor" class="save-action">${uiText.titleEditor}</button><input id="title-replay-file" class="visually-hidden" type="file" accept=".json,application/json" aria-label="JSONリプレイファイルを選択"></nav><details id="title-music-settings" class="title-music-settings" ${options.musicOpen ? 'open' : ''}><summary>${getLocale() === 'en' ? 'BGM settings' : 'BGM設定'}</summary>${renderMusicControls(options.musicSettings, 'title-music', true)}</details>${options.savePicker ?? ''}${options.generator ?? ''}${options.notice ? `<p class="title-notice" role="status">${escapeHtml(options.notice)}</p>` : ''}<section aria-labelledby="title-maps-heading"><h3 id="title-maps-heading">${uiText.titleMapsHeading}</h3><ol class="title-map-list">${cards}</ol></section></section></div>`;
+  return `<div class="title-overlay" role="dialog" aria-modal="true" aria-labelledby="title-heading"><section class="title-screen"><header class="title-hero"><p class="card-kicker">${uiText.titleKicker}</p><h2 id="title-heading">${uiText.titleHeading}</h2><p>${uiText.titleLead}</p></header><nav class="title-menu" aria-label="${uiText.titleMenu}">${renderLocalePicker()}${renderCpuSpeedControl(options.cpuSpeed ?? 1, 'title-cpu-speed')}${zoomControl}${options.canResume ? `<button id="title-resume" class="end-turn">${uiText.titleResume}</button>` : ''}<button id="title-continue" class="save-action" ${options.canContinue ? '' : 'disabled'}>${uiText.titleContinue}</button><button id="title-training" class="save-action">基本操作を練習</button><button id="title-campaign" class="save-action">${uiText.titleCampaign}</button><button id="title-import-replay" class="save-action">${uiText.titleImportReplay}</button><button id="title-editor" class="save-action">${uiText.titleEditor}</button><input id="title-replay-file" class="visually-hidden" type="file" accept=".json,application/json" aria-label="JSONリプレイファイルを選択"></nav><details id="title-music-settings" class="title-music-settings" ${options.musicOpen ? 'open' : ''}><summary>${getLocale() === 'en' ? 'BGM settings' : 'BGM設定'}</summary>${renderMusicControls(options.musicSettings, 'title-music', true)}</details>${options.daily ?? ''}${options.savePicker ?? ''}${options.generator ?? ''}${options.notice ? `<p class="title-notice" role="status">${escapeHtml(options.notice)}</p>` : ''}<section aria-labelledby="title-maps-heading"><h3 id="title-maps-heading">${uiText.titleMapsHeading}</h3><ol class="title-map-list">${cards}</ol></section></section></div>`;
 }
 
 /**

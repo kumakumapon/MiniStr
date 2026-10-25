@@ -1060,3 +1060,29 @@ body.production-menu-open { overflow: hidden; }
 .terrain-key-bridge { display:grid; place-items:center; background:repeating-linear-gradient(90deg,#d7c49a 0 5px,#655443 5px 7px); font-style:normal; color:#14241d; font-weight:bold; }
 .terrain-legend p { color:#bbccbf; font-size:.75rem; line-height:1.6; }
 @media (max-width:640px) { .music-controls { flex-direction:column; align-items:stretch; } .music-controls select { max-width:100%; } }
+/* Daily challenge (#230): its own card, deliberately not .title-map-card (title.spec counts those). */
+.daily-card { margin: 12px 0 18px; padding: 16px; border: 1px solid #d2aa49; border-radius: 8px; background: linear-gradient(135deg, #2b3a31, #17251f); color: #f4f0e5; min-width: 0; }
+.daily-card h3 { margin: 0 0 6px; font-size: 1.25rem; letter-spacing: .04em; }
+.daily-card p { margin: 6px 0; font-size: .8rem; line-height: 1.6; overflow-wrap: anywhere; }
+.daily-date { font-size: 1rem !important; font-weight: 800; }
+.daily-date small { color: #d2aa49; font-weight: 700; }
+.daily-facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 6px 14px; margin: 10px 0; }
+.daily-facts div { min-width: 0; }
+.daily-facts dt { color: #b8cbbf; font-size: .6875rem; }
+.daily-facts dd { margin: 2px 0 0; font-weight: 700; overflow-wrap: anywhere; }
+.daily-code { padding: 1px 6px; border-radius: 4px; background: #0f1a15; color: #ffe275; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; user-select: all; overflow-wrap: anywhere; }
+.daily-best { color: #e5cc79; font-weight: 700; }
+.daily-card #daily-start { margin-top: 6px; min-height: 44px; }
+.daily-notice { color: #cce9ae; }
+.daily-records { margin-top: 12px; }
+.daily-record-list { margin: 8px 0; padding: 0; list-style: none; display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 8px; }
+.daily-record-list article { padding: 8px; border: 1px solid #506b5d; border-radius: 6px; }
+.daily-record-list h4 { margin: 0; font-size: .875rem; }
+.daily-record-list .save-action { min-height: 44px; }
+.daily-briefing, .daily-result { margin-block: 12px; padding: 10px; border: 1px solid #8c7135; border-radius: 6px; background: #28291a; font-size: .8rem; line-height: 1.6; }
+.daily-briefing h3, .daily-result h3 { margin: 0 0 4px; color: #f3d57c; font-size: .875rem; }
+.daily-briefing p, .daily-result p { margin: 4px 0; overflow-wrap: anywhere; }
+.daily-ok { color: #cce9ae; font-weight: 700; }
+.daily-warning { color: #ffb4a6; font-weight: 700; }
+.daily-result .save-action { min-height: 44px; }
+@media (max-width: 480px) { .daily-card { padding: 12px; } .daily-facts { grid-template-columns: 1fr 1fr; } }
