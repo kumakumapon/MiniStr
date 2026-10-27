@@ -601,6 +601,8 @@ function recordVisibleCpuAction(before: GameState, command: GameCommand): void {
   } else if (command.type === 'move') {
     const unit = visibleUnit(command.unitId);
     entry = unit && isDeployedUnit(unit) ? `敵の${japaneseUnitNames[unit.kind]}が視認範囲内で移動しました。` : undefined;
+  } else if (command.type === 'destroyBridge') {
+    entry = getLocale() === 'en' ? 'A temporary bridge was destroyed (public information).' : '仮設橋が破壊されました（公開情報）。';
   } else if (command.type === 'bridge') {
     entry = `(${command.destination.x + 1}, ${command.destination.y + 1}) に仮設橋が完成しました（公開情報）。`;
   } else if (command.type === 'fortify') {
@@ -1370,6 +1372,13 @@ function render(): void {
     if (dispatch({ type: 'fortify', unitId: selected }, true)) message = '防御陣地を設営しました。地上部隊の防御★+1。';
     fortifyPending = undefined; render();
   });
+  app.querySelectorAll<HTMLButtonElement>('.bridge-destroy').forEach(button => button.addEventListener('click', () => {
+    if (!canCommand() || !selected) return;
+    const destination = { x: Number(button.dataset.x), y: Number(button.dataset.y) };
+    if (!window.confirm(getLocale() === 'en' ? 'Destroy this bridge? The engineer will finish its turn.' : 'この橋を破壊しますか？工兵の行動が終了します。')) return;
+    dispatch({ type: 'destroyBridge', unitId: selected, destination }, true);
+    render();
+  }));
   app.querySelector<HTMLButtonElement>('#bridge-unit')?.addEventListener('click', () => {
     if (!canCommand() || !selected || !bridgeDestinations(game, selected).length) return;
     fortifyPending = undefined; reconTargeting = false; bridgePending = { unitId: selected };

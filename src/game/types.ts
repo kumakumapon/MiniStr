@@ -107,12 +107,14 @@ export const FRONTLINE_RULE_VERSION = 8 as const;
 export const BRIDGE_RULE_VERSION = 9 as const;
 export const FINITE_SUPPLY_RULE_VERSION = 10 as const;
 export const AIRLIFT_RULE_VERSION = 11 as const;
+/** v1.1.0 candidate rules; promoted after the complete ruleset is validated. */
+export const STRATEGY_RULE_VERSION = 12 as const;
 export const CURRENT_RULE_VERSION = AIRLIFT_RULE_VERSION;
 export const usesFiniteSupplyRules = (state: Pick<GameState, 'ruleVersion'>): boolean => (state.ruleVersion ?? 0) >= FINITE_SUPPLY_RULE_VERSION;
 export const usesBridgeRules = (state: Pick<GameState, 'ruleVersion'>): boolean => (state.ruleVersion ?? 0) >= BRIDGE_RULE_VERSION;
 export const usesFrontlineRules = (state: Pick<GameState, 'ruleVersion'>): boolean => (state.ruleVersion ?? 0) >= FRONTLINE_RULE_VERSION;
-export type RuleVersion = typeof MODERN_RULE_VERSION | typeof DECISION_RULE_VERSION | typeof BALANCED_RULE_VERSION | typeof DUAL_WEAPON_RULE_VERSION | typeof OPERATIONS_RULE_VERSION | typeof RECON_CONTROL_RULE_VERSION | typeof FRONTLINE_RULE_VERSION | typeof BRIDGE_RULE_VERSION | typeof FINITE_SUPPLY_RULE_VERSION | typeof AIRLIFT_RULE_VERSION;
-export const ruleVersions: readonly RuleVersion[] = [MODERN_RULE_VERSION, DECISION_RULE_VERSION, BALANCED_RULE_VERSION, DUAL_WEAPON_RULE_VERSION, OPERATIONS_RULE_VERSION, RECON_CONTROL_RULE_VERSION, FRONTLINE_RULE_VERSION, BRIDGE_RULE_VERSION, FINITE_SUPPLY_RULE_VERSION, AIRLIFT_RULE_VERSION];
+export type RuleVersion = typeof MODERN_RULE_VERSION | typeof DECISION_RULE_VERSION | typeof BALANCED_RULE_VERSION | typeof DUAL_WEAPON_RULE_VERSION | typeof OPERATIONS_RULE_VERSION | typeof RECON_CONTROL_RULE_VERSION | typeof FRONTLINE_RULE_VERSION | typeof BRIDGE_RULE_VERSION | typeof FINITE_SUPPLY_RULE_VERSION | typeof AIRLIFT_RULE_VERSION | typeof STRATEGY_RULE_VERSION;
+export const ruleVersions: readonly RuleVersion[] = [MODERN_RULE_VERSION, DECISION_RULE_VERSION, BALANCED_RULE_VERSION, DUAL_WEAPON_RULE_VERSION, OPERATIONS_RULE_VERSION, RECON_CONTROL_RULE_VERSION, FRONTLINE_RULE_VERSION, BRIDGE_RULE_VERSION, FINITE_SUPPLY_RULE_VERSION, AIRLIFT_RULE_VERSION, STRATEGY_RULE_VERSION];
 export const usesReconRules = (state: Pick<GameState, 'ruleVersion'>): boolean => (state.ruleVersion ?? 0) >= RECON_CONTROL_RULE_VERSION;
 export const usesOperationsRules = (state: Pick<GameState, 'ruleVersion'>): boolean => (state.ruleVersion ?? 0) >= OPERATIONS_RULE_VERSION;
 export const usesDualWeapons = (state: Pick<GameState, 'ruleVersion'>): boolean => (state.ruleVersion ?? 0) >= DUAL_WEAPON_RULE_VERSION;

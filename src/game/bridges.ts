@@ -1,9 +1,37 @@
 import { visiblePositions } from './fog';
 import { movementCost, samePosition, terrainAt } from './terrain';
-import { isDeployedUnit, usesBridgeRules, type Board, type GameResult, type GameState, type Position } from './types';
+import { isDeployedUnit, STRATEGY_RULE_VERSION, usesBridgeRules, type Board, type GameResult, type GameState, type Position } from './types';
 
 export const BRIDGE_COST = 1000;
 export const MAX_BRIDGES = 2;
+
+/** Public failure text never distinguishes a hidden occupant from an unavailable site. */
+export function destroyBridgeError(state: GameState, unitId: string, destination: Position): string | undefined {
+  const unavailable = 'この地点の橋は破壊できません。';
+  if ((state.ruleVersion ?? 0) < STRATEGY_RULE_VERSION || state.winner) return unavailable;
+  const unit = state.units.find((candidate) => candidate.id === unitId);
+  if (!unit || !isDeployedUnit(unit) || unit.kind !== 'engineer' || unit.owner !== state.activePlayer || unit.hasMoved || unit.hasActed) return unavailable;
+  if (!Number.isSafeInteger(destination.x) || !Number.isSafeInteger(destination.y) || Math.abs(unit.position.x - destination.x) + Math.abs(unit.position.y - destination.y) !== 1)
+    return unavailable;
+  if (!state.bridges?.some((site) => samePosition(site.position, destination))) return unavailable;
+  if (!visiblePositions(state, unit.owner).some((position) => samePosition(position, destination))) return unavailable;
+  if (state.units.some((candidate) => isDeployedUnit(candidate) && samePosition(candidate.position, destination))) return unavailable;
+  return undefined;
+}
+
+/** No refund; removing a vacant crossing consumes the engineer's complete action. */
+export function destroyBridge(state: GameState, unitId: string, destination: Position): GameResult {
+  const error = destroyBridgeError(state, unitId, destination);
+  if (error) return { ok: false, error };
+  return {
+    ok: true,
+    value: {
+      ...state,
+      bridges: state.bridges!.filter((site) => !samePosition(site.position, destination)),
+      units: state.units.map((unit) => (unit.id === unitId ? { ...unit, hasMoved: true, hasActed: true } : unit)),
+    },
+  };
+}
 
 /** Banks must be original land passable by both infantry and vehicles; bridges cannot be chained. */
 export function bridgeBanks(board: Board, position: Position): Position[] {

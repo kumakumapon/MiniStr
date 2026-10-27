@@ -10,7 +10,7 @@ import { evacuationObjectives } from './evacuation';
 import { isEvacuationCondition } from './maps';
 import type { WeaponSlot } from './units';
 import { parseBoundedJson } from './jsonBoundary';
-import { buildBridge, validBridges } from './bridges';
+import { buildBridge, destroyBridge, validBridges } from './bridges';
 import { fortifyUnit, validFortifications } from './engineering';
 import { usesFrontlineRules } from './types';
 import { scanArea, validRecon } from './recon';
@@ -34,6 +34,7 @@ export type GameCommand =
   | { type: 'move'; unitId: string; destination: Position }
   | { type: 'fortify'; unitId: string }
   | { type: 'bridge'; unitId: string; destination: Position }
+  | { type: 'destroyBridge'; unitId: string; destination: Position }
   | { type: 'wait'; unitId: string }
   | { type: 'evacuate'; unitId: string }
   | { type: 'attack'; unitId: string; targetId: string; weaponSlot?: WeaponSlot }
@@ -140,6 +141,7 @@ export function applyGameCommand(state: GameState, command: GameCommand): GameRe
     case 'recon': return scanArea(state, command.center);
     case 'move': return moveUnit(state, command.unitId, command.destination);
     case 'bridge': return buildBridge(state, command.unitId, command.destination);
+    case 'destroyBridge': return destroyBridge(state, command.unitId, command.destination);
     case 'fortify': return fortifyUnit(state, command.unitId);
     case 'wait': return waitUnit(state, command.unitId);
     case 'evacuate': return evacuateUnit(state, command.unitId);
@@ -244,7 +246,7 @@ export function isGameCommand(value: unknown): value is GameCommand {
   if (value.type === 'endTurn') return true;
   if (value.type === 'recon') return isPosition(value.center) && Object.keys(value).sort().join() === 'center,type';
   if (value.type === 'move') return typeof value.unitId === 'string' && isPosition(value.destination);
-  if (value.type === 'bridge') return typeof value.unitId === 'string' && isPosition(value.destination)
+  if (value.type === 'bridge' || value.type === 'destroyBridge') return typeof value.unitId === 'string' && isPosition(value.destination)
     && Object.keys(value.destination).sort().join() === 'x,y' && Object.keys(value).sort().join() === 'destination,type,unitId';
   if (value.type === 'fortify') return typeof value.unitId === 'string' && Object.keys(value).sort().join() === 'type,unitId';
   if (value.type === 'wait' || value.type === 'evacuate') return typeof value.unitId === 'string';
