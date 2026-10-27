@@ -182,6 +182,7 @@ function parseScenario(value: unknown, ids: Set<string>, options: ScenarioLoadOp
   if (!Array.isArray(value.initialUnits) || value.initialUnits.length > width * height) return { ok: false, error: `シナリオ「${value.id}」の初期ユニットが不正です。` };
   const initialUnits: InitialUnit[] = [];
   const unitPositions = new Set<string>();
+  const unitCallsigns = new Set<string>();
   for (const unit of value.initialUnits) {
     if (!isRecord(unit)) return { ok: false, error: `シナリオ「${value.id}」の初期ユニットが不正です。` };
     const x = unit.x;
@@ -191,6 +192,11 @@ function parseScenario(value: unknown, ids: Set<string>, options: ScenarioLoadOp
       || !isNonNegativeInteger(x) || !isNonNegativeInteger(y) || x >= width || y >= height
       || (unit.callsign !== undefined && !validCallsign(unit.callsign))
       || (unit.experience !== undefined && (!isNonNegativeInteger(unit.experience) || unit.experience > MAX_EXPERIENCE))) return { ok: false, error: `シナリオ「${value.id}」の初期ユニットが不正です。` };
+    if (unit.callsign !== undefined) {
+      const nameKey = `${unit.owner}:${unit.callsign}`;
+      if (unitCallsigns.has(nameKey)) return { ok: false, error: '部隊名が重複しています。' };
+      unitCallsigns.add(nameKey);
+    }
     const key = `${x},${y}`;
     if (unitPositions.has(key)) return { ok: false, error: `シナリオ「${value.id}」に重複した初期ユニットがあります。` };
     unitPositions.add(key);

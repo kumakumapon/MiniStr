@@ -41,18 +41,9 @@ jobs:
         with:
           node-version: 22
           cache: npm
-      - name: Generate candidate lockfile for dependency review
-        run: |
-          npm install --package-lock-only --ignore-scripts --no-audit
-          npm update undici --package-lock-only --ignore-scripts --no-audit
-          python3 - <<'PYLOCK'
-          import base64
-          from pathlib import Path
-          data = base64.b64encode(Path('package-lock.json').read_bytes()).decode()
-          for start in range(0, len(data), 12000):
-              print('V110_LOCK:' + data[start:start + 12000])
-          PYLOCK
       - run: npm ci
+      - name: Verify dependency compatibility
+        run: npm ls vitest @vitest/coverage-v8 vite undici
       - name: Snapshot dependency audit for release review
         run: node_modules/.bin/vite-node scripts/dependency-audit.ts
       - run: npm run lint

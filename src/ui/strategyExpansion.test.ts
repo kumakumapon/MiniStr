@@ -1,5 +1,5 @@
 import { expect, it, afterEach } from 'vitest';
-import { renderArmyPolicies } from './armyPolicy';
+import { renderArmyPolicies, renderArmyPolicySummary } from './armyPolicy';
 import { renderCampaignRoster } from './campaignRoster';
 import { defaultArmyPolicies } from '../game/armyPolicy';
 import { setLocale } from './locale';
@@ -14,6 +14,7 @@ it('shows independent army policies in Japanese and English', () => {
     expect((document.querySelector('[data-army-policy="blue"]') as HTMLSelectElement).value).toBe('defensive');
     document.body.innerHTML = renderArmyPolicies(defaultArmyPolicies(), false);
     expect(document.querySelector('[data-army-policy="red"]')).toBeNull();
+    expect(renderArmyPolicySummary({ red: 'offensive', blue: 'defensive' }, true)).toContain(locale === 'en' ? 'Defensive' : '守勢');
   }
 });
 it('escapes names and offers callsign editing only for actual survivors', () => {

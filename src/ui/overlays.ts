@@ -41,7 +41,7 @@ export function renderGameOverOverlay(options: {
 
 export function renderCampaignOverlay(open: boolean, stageCount: number, notice: string, cards: string): string {
   if (!open) return '';
-  return `<div class="campaign-overlay" role="dialog" aria-modal="true" aria-labelledby="campaign-title"><section class="campaign-screen"><div class="campaign-heading"><div><p class="card-kicker">MINI CAMPAIGN</p><h2 id="campaign-title">${uiText.campaignTitle}</h2><p>${uiText.campaignDescription(stageCount)}</p></div><div class="campaign-heading-actions"><button id="campaign-skirmish" class="save-action">${uiText.campaignSkirmish}</button><button id="campaign-close" class="save-action">${uiText.close}</button></div></div>${notice ? `<p class="campaign-notice" aria-live="polite">${escapeHtml(notice)}</p>` : ''}<div class="campaign-grid">${cards}</div></section></div>`;
+  return `<div class="campaign-overlay" role="dialog" aria-modal="true" aria-labelledby="campaign-title"><section class="campaign-screen"><div class="campaign-heading"><div><p class="card-kicker">MINI CAMPAIGN</p><h2 id="campaign-title">${uiText.campaignTitle}</h2><p>${getLocale() === 'en' ? `Choose a route through ${stageCount} operations. Surviving units carry their callsigns and experience forward.` : `全${stageCount}作戦から経路を選択。生還部隊の名前と経験を次の作戦へ引き継ぎます。`}</p></div><div class="campaign-heading-actions"><button id="campaign-skirmish" class="save-action">${uiText.campaignSkirmish}</button><button id="campaign-close" class="save-action">${uiText.close}</button></div></div>${notice ? `<p class="campaign-notice" aria-live="polite">${escapeHtml(notice)}</p>` : ''}<div class="campaign-grid">${cards}</div></section></div>`;
 }
 
 export function renderBriefingOverlay(options: {

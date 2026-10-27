@@ -157,8 +157,16 @@ export function recordCampaignVeterans(progress: CampaignProgress, finalState: G
   if (!isCampaignProgress(progress) || !isGameState(finalState) || finalState.winner !== 'red'
     || !finalState.scenarioId || !isCampaignScenarioCompleted(progress, finalState.scenarioId))
     return fail('生還部隊を記録できません。');
+  const usedNames = new Set([...finalState.units, ...(finalState.evacuatedUnits ?? [])].flatMap(unit => unit.owner === 'red' && unit.callsign ? [unit.callsign] : []));
+  const generatedName = (id: string): string => {
+    const base = `V${stageIds.indexOf(finalState.scenarioId!) + 1}-${id}`.slice(0, 24);
+    let result = base, counter = 2;
+    while (usedNames.has(result)) result = `${base}-${counter++}`;
+    usedNames.add(result);
+    return result;
+  };
   const veterans = [...finalState.units, ...(finalState.evacuatedUnits ?? [])].filter(unit => unit.owner === 'red')
-    .map(unit => ({ kind: unit.kind, callsign: unit.callsign ?? `V${stageIds.indexOf(finalState.scenarioId!) + 1}-${unit.id}`, experience: Math.min(MAX_EXPERIENCE, (unit.experience ?? 0) + 1) }))
+    .map(unit => ({ kind: unit.kind, callsign: unit.callsign ?? generatedName(unit.id), experience: Math.min(MAX_EXPERIENCE, (unit.experience ?? 0) + 1) }))
     .sort((a, b) => b.experience - a.experience || a.kind.localeCompare(b.kind)).slice(0, 64);
   return ok({ ...progress, veteransByScenario: { ...progress.veteransByScenario, [finalState.scenarioId]: veterans } });
 }
@@ -201,6 +209,8 @@ export function isCampaignProgress(value: unknown): value is CampaignProgress {
           || (unit.callsign !== undefined && !validCallsign(unit.callsign))
           || typeof unit.kind !== 'string' || !unitKindSet.has(unit.kind)
           || !Number.isSafeInteger(unit.experience) || (unit.experience as number) < 1 || (unit.experience as number) > MAX_EXPERIENCE)) return false;
+      const names = veterans.flatMap(unit => isRecord(unit) && typeof unit.callsign === 'string' ? [unit.callsign] : []);
+      if (new Set(names).size !== names.length) return false;
     }
   }
   if (value.predecessors !== undefined) {

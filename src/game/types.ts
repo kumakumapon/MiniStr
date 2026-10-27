@@ -108,7 +108,7 @@ export const FRONTLINE_RULE_VERSION = 8 as const;
 export const BRIDGE_RULE_VERSION = 9 as const;
 export const FINITE_SUPPLY_RULE_VERSION = 10 as const;
 export const AIRLIFT_RULE_VERSION = 11 as const;
-/** v1.1.0 candidate rules; promoted after the complete ruleset is validated. */
+/** v1.1.0: bridge demolition and strategy expansion. */
 export const STRATEGY_RULE_VERSION = 12 as const;
 export const CURRENT_RULE_VERSION = STRATEGY_RULE_VERSION;
 export const usesFiniteSupplyRules = (state: Pick<GameState, 'ruleVersion'>): boolean => (state.ruleVersion ?? 0) >= FINITE_SUPPLY_RULE_VERSION;

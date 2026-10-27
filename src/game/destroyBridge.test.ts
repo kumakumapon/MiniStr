@@ -14,8 +14,9 @@ import {
 } from './index';
 import { operation, force, valueOf } from './operations.fixture';
 import { chooseDemolition } from '../ai/demolition';
+import { chooseCpuAction } from '../ai/rules';
 
-function initial(): GameState {
+function initial(withHold = true): GameState {
   const scenario = operation({
     startingGold: 5000,
     board: { width: 9, height: 9, cells: Array.from({ length: 9 }, (_, y) => [4, y, 'sea']) },
@@ -23,13 +24,13 @@ function initial(): GameState {
       { kind: 'engineer', owner: 'red', x: 3, y: 4 },
       { kind: 'infantry', owner: 'blue', x: 8, y: 8 },
     ],
-    victoryConditions: [{ type: 'hold', positions: [{ x: 3, y: 4 }], turns: 2 }],
+    victoryConditions: withHold ? [{ type: 'hold', positions: [{ x: 3, y: 4 }], turns: 2 }] : [{ type: 'eliminate' }],
     defeatConditions: [{ type: 'eliminate' }],
   });
   return { ...createScenarioInitialState(scenario), ruleVersion: 12 };
 }
-function ready(): GameState {
-  let state = initial();
+function ready(withHold = true): GameState {
+  let state = initial(withHold);
   for (const command of [{ type: 'bridge', unitId: 'r1', destination: { x: 4, y: 4 } }, { type: 'endTurn' }, { type: 'endTurn' }] as const)
     state = valueOf(applyGameCommand(state, command));
   return state;
@@ -87,4 +88,14 @@ it('plans against confirmed enemies and preserves nearby friendly crossings', ()
   state.units.push(force('ally', 'infantry', 3, 5));
   expect(chooseDemolition(state, 'red', [enemy])).toBeUndefined();
   expect(destroyBridge({ ...state, ruleVersion: 11 }, 'r1', { x: 4, y: 4 }).ok).toBe(false);
+});
+
+it('executes demolition through the normal CPU decision pipeline', () => {
+  const state = ready(false);
+  state.bridges = [{ owner: 'blue', position: { x: 4, y: 4 } }];
+  state.recon = { remaining: { red: 0, blue: 0 }, centers: [] };
+  state.units.push(force('approaching', 'heavyTank', 5, 4, { owner: 'blue' }));
+  const action = chooseCpuAction(state, 'normal');
+  expect(action).toEqual(command);
+  expect(valueOf(applyGameCommand(state, action)).bridges).toEqual([]);
 });

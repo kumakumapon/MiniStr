@@ -283,6 +283,7 @@ export function isGameState(value: unknown): value is GameState {
   const evacuated: unknown[] = Array.isArray(value.evacuatedUnits) ? value.evacuatedUnits : [];
   if (value.units.length + evacuated.length > 4096) return false;
   const ids = new Set<string>();
+  const callsigns = new Set<string>();
   const positions = new Set<string>();
   const unitsById = new Map<string, Record<string, unknown>>();
   for (const unit of [...value.units, ...evacuated]) {
@@ -301,6 +302,11 @@ export function isGameState(value: unknown): value is GameState {
       // Experience exists only in modern-rule matches, so a classic save cannot smuggle in rank bonuses.
       || (unit.experience !== undefined && (!modern || !Number.isSafeInteger(unit.experience)
         || (unit.experience as number) < 0 || (unit.experience as number) > MAX_EXPERIENCE))) return false;
+    if (unit.callsign !== undefined) {
+      const key = `${unit.owner}:${unit.callsign}`;
+      if (callsigns.has(key)) return false;
+      callsigns.add(key);
+    }
     const deployed = unit.position !== undefined && unit.embarkedIn === undefined;
     const embarked = unit.position === undefined && typeof unit.embarkedIn === 'string';
     if (!deployed && !embarked) return false;

@@ -17,6 +17,7 @@ for (const width of [1280, 390])
       const saved = await page.evaluate(() => JSON.parse(localStorage.getItem('ministr.save.manual')!));
       expect(saved.cpuPolicies).toEqual({ red: 'balanced', blue: 'defensive' });
       expect(saved.gameState.ruleVersion).toBe(12);
+      await expect(page.locator('.army-policy-summary')).toContainText(locale === 'en' ? 'Defensive' : '守勢');
       await page.reload();
       await page.locator('#title-continue').click();
       await page.locator('#save').click();

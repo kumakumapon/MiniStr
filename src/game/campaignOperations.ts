@@ -1,4 +1,4 @@
-import { campaignPredecessor, isCampaignProgress, isCampaignScenarioUnlocked, type CampaignGrade, type CampaignProgress } from './campaign';
+import { campaignPredecessor, campaignStages, isCampaignProgress, isCampaignScenarioUnlocked, type CampaignGrade, type CampaignProgress } from './campaign';
 import { loadScenarioDefinitions, scenarioById, scenarioDefinitionToData, type ScenarioData, type ScenarioDefinition, type VictoryCondition } from './maps';
 import type { GameResult, PlayerId, UnitKind } from './types';
 
@@ -210,10 +210,12 @@ const supportByGrade: Record<CampaignGrade, number> = { S: 2000, A: 1500, B: 100
 
 export function campaignDeployment(progress: CampaignProgress, scenarioId: string) {
   const predecessorId = campaignPredecessor(progress, scenarioId);
+  const routeSupport =
+    predecessorId && campaignStages.findIndex((stage) => stage.scenarioId === scenarioId) - campaignStages.findIndex((stage) => stage.scenarioId === predecessorId) > 1 ? 3000 : 0;
   const grade = predecessorId ? progress.bestGrades[predecessorId] : undefined;
   return {
     predecessorId,
-    support: grade ? supportByGrade[grade] : 0,
+    support: (grade ? supportByGrade[grade] : 0) + routeSupport,
     veterans: predecessorId ? structuredClone(progress.veteransByScenario?.[predecessorId] ?? []) : [],
   };
 }

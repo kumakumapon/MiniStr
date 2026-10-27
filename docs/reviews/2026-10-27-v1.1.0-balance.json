@@ -1,0 +1,2040 @@
+{
+  "baseline": {
+    "schemaVersion": 1,
+    "sha": "971ea082651e8c4e0ad1fe818238bc7cba2d0bbd",
+    "dirty": true,
+    "seeds": [
+      7919,
+      15838,
+      23757
+    ],
+    "maxRounds": 60,
+    "results": [
+      {
+        "scenarioId": "islands",
+        "difficulty": "hard",
+        "blueDifficulty": "normal",
+        "rules": "modern",
+        "seed": 7919,
+        "winner": "red",
+        "reason": "decision",
+        "turns": 61,
+        "maxUnits": 29,
+        "commands": 1355,
+        "produced": {
+          "red": {
+            "transportHelicopter": 3,
+            "landingShip": 4,
+            "helicopter": 2,
+            "infantry": 7,
+            "battleship": 4,
+            "tank": 5,
+            "destroyer": 6,
+            "fighter": 2,
+            "bomber": 4,
+            "mech": 4,
+            "heavyTank": 1,
+            "artillery": 5,
+            "antiAir": 1
+          },
+          "blue": {
+            "transportHelicopter": 7,
+            "landingShip": 13,
+            "helicopter": 2,
+            "infantry": 13,
+            "bomber": 2,
+            "destroyer": 4,
+            "tank": 1,
+            "battleship": 2,
+            "antiAir": 2,
+            "artillery": 1,
+            "mech": 3,
+            "heavyTank": 1
+          }
+        },
+        "repairCost": {
+          "red": 19710,
+          "blue": 49750
+        }
+      },
+      {
+        "scenarioId": "islands",
+        "difficulty": "normal",
+        "blueDifficulty": "hard",
+        "rules": "modern",
+        "seed": 7919,
+        "winner": "blue",
+        "reason": "eliminate",
+        "turns": 54,
+        "maxUnits": 27,
+        "commands": 1184,
+        "produced": {
+          "red": {
+            "transportHelicopter": 7,
+            "landingShip": 11,
+            "helicopter": 6,
+            "infantry": 14,
+            "heavyTank": 1,
+            "destroyer": 4,
+            "tank": 2,
+            "antiAir": 1
+          },
+          "blue": {
+            "transportHelicopter": 1,
+            "landingShip": 2,
+            "helicopter": 3,
+            "infantry": 4,
+            "battleship": 2,
+            "tank": 4,
+            "mech": 2,
+            "heavyTank": 1,
+            "artillery": 4,
+            "destroyer": 1,
+            "bomber": 3
+          }
+        },
+        "repairCost": {
+          "red": 20440,
+          "blue": 7770
+        }
+      },
+      {
+        "scenarioId": "islands",
+        "difficulty": "hard",
+        "blueDifficulty": "normal",
+        "rules": "modern",
+        "seed": 15838,
+        "winner": "red",
+        "reason": "decision",
+        "turns": 61,
+        "maxUnits": 27,
+        "commands": 1367,
+        "produced": {
+          "red": {
+            "transportHelicopter": 2,
+            "landingShip": 2,
+            "helicopter": 5,
+            "infantry": 4,
+            "battleship": 1,
+            "tank": 4,
+            "destroyer": 2,
+            "fighter": 2,
+            "bomber": 4,
+            "mech": 3,
+            "heavyTank": 1,
+            "artillery": 4
+          },
+          "blue": {
+            "transportHelicopter": 6,
+            "landingShip": 11,
+            "helicopter": 4,
+            "infantry": 22,
+            "bomber": 2,
+            "mech": 1,
+            "destroyer": 1,
+            "antiAir": 3,
+            "tank": 4,
+            "artillery": 2
+          }
+        },
+        "repairCost": {
+          "red": 6950,
+          "blue": 23600
+        }
+      },
+      {
+        "scenarioId": "islands",
+        "difficulty": "normal",
+        "blueDifficulty": "hard",
+        "rules": "modern",
+        "seed": 15838,
+        "winner": "blue",
+        "reason": "decision",
+        "turns": 61,
+        "maxUnits": 32,
+        "commands": 1376,
+        "produced": {
+          "red": {
+            "transportHelicopter": 5,
+            "landingShip": 10,
+            "helicopter": 4,
+            "infantry": 22,
+            "heavyTank": 1,
+            "destroyer": 6,
+            "mech": 2,
+            "battleship": 1,
+            "tank": 3,
+            "antiAir": 1,
+            "artillery": 2
+          },
+          "blue": {
+            "transportHelicopter": 2,
+            "landingShip": 3,
+            "helicopter": 2,
+            "infantry": 5,
+            "battleship": 1,
+            "tank": 5,
+            "mech": 3,
+            "heavyTank": 1,
+            "artillery": 4,
+            "destroyer": 2,
+            "bomber": 3
+          }
+        },
+        "repairCost": {
+          "red": 40870,
+          "blue": 28550
+        }
+      },
+      {
+        "scenarioId": "islands",
+        "difficulty": "hard",
+        "blueDifficulty": "normal",
+        "rules": "modern",
+        "seed": 23757,
+        "winner": "red",
+        "reason": "decision",
+        "turns": 61,
+        "maxUnits": 26,
+        "commands": 1329,
+        "produced": {
+          "red": {
+            "transportHelicopter": 1,
+            "landingShip": 1,
+            "helicopter": 3,
+            "infantry": 6,
+            "battleship": 2,
+            "tank": 4,
+            "destroyer": 2,
+            "fighter": 2,
+            "bomber": 3,
+            "mech": 2,
+            "heavyTank": 1,
+            "artillery": 3,
+            "antiAir": 1
+          },
+          "blue": {
+            "transportHelicopter": 9,
+            "landingShip": 14,
+            "helicopter": 1,
+            "infantry": 14,
+            "bomber": 2,
+            "destroyer": 4,
+            "antiAir": 2,
+            "tank": 2,
+            "mech": 1
+          }
+        },
+        "repairCost": {
+          "red": 10100,
+          "blue": 31310
+        }
+      },
+      {
+        "scenarioId": "islands",
+        "difficulty": "normal",
+        "blueDifficulty": "hard",
+        "rules": "modern",
+        "seed": 23757,
+        "winner": "blue",
+        "reason": "eliminate",
+        "turns": 53,
+        "maxUnits": 29,
+        "commands": 1202,
+        "produced": {
+          "red": {
+            "transportHelicopter": 5,
+            "landingShip": 7,
+            "helicopter": 4,
+            "infantry": 13,
+            "heavyTank": 2,
+            "destroyer": 2,
+            "tank": 3,
+            "antiAir": 2,
+            "battleship": 2
+          },
+          "blue": {
+            "transportHelicopter": 2,
+            "landingShip": 2,
+            "helicopter": 3,
+            "infantry": 6,
+            "battleship": 3,
+            "tank": 4,
+            "mech": 3,
+            "bomber": 3,
+            "destroyer": 4,
+            "heavyTank": 1,
+            "artillery": 4
+          }
+        },
+        "repairCost": {
+          "red": 20260,
+          "blue": 10300
+        }
+      },
+      {
+        "scenarioId": "river",
+        "difficulty": "hard",
+        "blueDifficulty": "normal",
+        "rules": "modern",
+        "seed": 7919,
+        "winner": "red",
+        "reason": "captureCapital",
+        "turns": 27,
+        "maxUnits": 53,
+        "commands": 1118,
+        "produced": {
+          "red": {
+            "destroyer": 2,
+            "infantry": 30,
+            "helicopter": 3,
+            "mech": 2,
+            "tank": 14,
+            "transportHelicopter": 1,
+            "landingShip": 1,
+            "heavyTank": 1,
+            "artillery": 10,
+            "apc": 1
+          },
+          "blue": {
+            "destroyer": 4,
+            "infantry": 8,
+            "transportHelicopter": 2,
+            "landingShip": 2,
+            "mech": 8,
+            "tank": 2,
+            "artillery": 1,
+            "bomber": 1,
+            "heavyTank": 1,
+            "helicopter": 1
+          }
+        },
+        "repairCost": {
+          "red": 9090,
+          "blue": 9740
+        }
+      },
+      {
+        "scenarioId": "river",
+        "difficulty": "normal",
+        "blueDifficulty": "hard",
+        "rules": "modern",
+        "seed": 7919,
+        "winner": "red",
+        "reason": "captureCapital",
+        "turns": 56,
+        "maxUnits": 54,
+        "commands": 2619,
+        "produced": {
+          "red": {
+            "destroyer": 3,
+            "infantry": 49,
+            "helicopter": 3,
+            "landingShip": 3,
+            "transportHelicopter": 2,
+            "mech": 6,
+            "tank": 33,
+            "artillery": 19,
+            "apc": 2,
+            "bomber": 2,
+            "antiAir": 1
+          },
+          "blue": {
+            "destroyer": 2,
+            "infantry": 28,
+            "transportHelicopter": 3,
+            "mech": 14,
+            "tank": 11,
+            "artillery": 12,
+            "landingShip": 6,
+            "bomber": 3,
+            "heavyTank": 2,
+            "helicopter": 4,
+            "apc": 2
+          }
+        },
+        "repairCost": {
+          "red": 19160,
+          "blue": 23950
+        }
+      },
+      {
+        "scenarioId": "river",
+        "difficulty": "hard",
+        "blueDifficulty": "normal",
+        "rules": "modern",
+        "seed": 15838,
+        "winner": "red",
+        "reason": "eliminate",
+        "turns": 55,
+        "maxUnits": 66,
+        "commands": 3053,
+        "produced": {
+          "red": {
+            "destroyer": 2,
+            "infantry": 54,
+            "helicopter": 4,
+            "mech": 4,
+            "tank": 37,
+            "transportHelicopter": 1,
+            "landingShip": 1,
+            "heavyTank": 2,
+            "apc": 2,
+            "artillery": 20,
+            "antiAir": 1,
+            "bomber": 1
+          },
+          "blue": {
+            "destroyer": 1,
+            "infantry": 40,
+            "transportHelicopter": 3,
+            "landingShip": 2,
+            "mech": 17,
+            "tank": 10,
+            "artillery": 12,
+            "bomber": 1,
+            "heavyTank": 2,
+            "helicopter": 3,
+            "apc": 2
+          }
+        },
+        "repairCost": {
+          "red": 19740,
+          "blue": 21890
+        }
+      },
+      {
+        "scenarioId": "river",
+        "difficulty": "normal",
+        "blueDifficulty": "hard",
+        "rules": "modern",
+        "seed": 15838,
+        "winner": "blue",
+        "reason": "captureCapital",
+        "turns": 56,
+        "maxUnits": 76,
+        "commands": 3048,
+        "produced": {
+          "red": {
+            "destroyer": 5,
+            "infantry": 26,
+            "helicopter": 3,
+            "landingShip": 8,
+            "transportHelicopter": 3,
+            "mech": 16,
+            "tank": 11,
+            "artillery": 5,
+            "heavyTank": 2,
+            "apc": 2,
+            "bomber": 1
+          },
+          "blue": {
+            "destroyer": 3,
+            "infantry": 49,
+            "transportHelicopter": 2,
+            "mech": 7,
+            "tank": 31,
+            "artillery": 15,
+            "helicopter": 4,
+            "landingShip": 1,
+            "bomber": 2,
+            "heavyTank": 2,
+            "apc": 1,
+            "antiAir": 1,
+            "battleship": 1
+          }
+        },
+        "repairCost": {
+          "red": 36950,
+          "blue": 12000
+        }
+      },
+      {
+        "scenarioId": "river",
+        "difficulty": "hard",
+        "blueDifficulty": "normal",
+        "rules": "modern",
+        "seed": 23757,
+        "winner": "red",
+        "reason": "eliminate",
+        "turns": 41,
+        "maxUnits": 56,
+        "commands": 1857,
+        "produced": {
+          "red": {
+            "destroyer": 3,
+            "infantry": 43,
+            "helicopter": 3,
+            "mech": 3,
+            "tank": 26,
+            "transportHelicopter": 2,
+            "landingShip": 1,
+            "heavyTank": 2,
+            "artillery": 16,
+            "apc": 1
+          },
+          "blue": {
+            "destroyer": 1,
+            "infantry": 17,
+            "transportHelicopter": 2,
+            "landingShip": 2,
+            "mech": 13,
+            "tank": 8,
+            "artillery": 6,
+            "bomber": 2,
+            "heavyTank": 1,
+            "helicopter": 3,
+            "apc": 1
+          }
+        },
+        "repairCost": {
+          "red": 7790,
+          "blue": 15410
+        }
+      },
+      {
+        "scenarioId": "river",
+        "difficulty": "normal",
+        "blueDifficulty": "hard",
+        "rules": "modern",
+        "seed": 23757,
+        "winner": "blue",
+        "reason": "eliminate",
+        "turns": 33,
+        "maxUnits": 51,
+        "commands": 1354,
+        "produced": {
+          "red": {
+            "destroyer": 3,
+            "infantry": 15,
+            "helicopter": 2,
+            "landingShip": 2,
+            "transportHelicopter": 2,
+            "battleship": 1,
+            "heavyTank": 1,
+            "tank": 7,
+            "artillery": 2,
+            "mech": 5
+          },
+          "blue": {
+            "destroyer": 2,
+            "infantry": 25,
+            "transportHelicopter": 1,
+            "mech": 4,
+            "tank": 22,
+            "artillery": 12,
+            "helicopter": 2,
+            "landingShip": 1,
+            "bomber": 1,
+            "apc": 2,
+            "heavyTank": 1
+          }
+        },
+        "repairCost": {
+          "red": 27150,
+          "blue": 6170
+        }
+      },
+      {
+        "scenarioId": "admiralty",
+        "difficulty": "hard",
+        "blueDifficulty": "normal",
+        "rules": "modern",
+        "seed": 7919,
+        "winner": "red",
+        "reason": "decision",
+        "turns": 61,
+        "maxUnits": 86,
+        "commands": 3941,
+        "produced": {
+          "red": {
+            "heavyTank": 2,
+            "infantry": 42,
+            "mech": 2,
+            "helicopter": 2,
+            "artillery": 27,
+            "tank": 39,
+            "transportHelicopter": 1,
+            "landingShip": 1,
+            "apc": 2,
+            "antiAir": 1,
+            "destroyer": 1,
+            "bomber": 2,
+            "battleship": 1
+          },
+          "blue": {
+            "heavyTank": 1,
+            "infantry": 52,
+            "destroyer": 3,
+            "transportHelicopter": 3,
+            "landingShip": 6,
+            "bomber": 1,
+            "mech": 14,
+            "helicopter": 4,
+            "tank": 11,
+            "artillery": 9,
+            "apc": 2,
+            "antiAir": 1,
+            "fighter": 1
+          }
+        },
+        "repairCost": {
+          "red": 26400,
+          "blue": 19940
+        }
+      },
+      {
+        "scenarioId": "admiralty",
+        "difficulty": "normal",
+        "blueDifficulty": "hard",
+        "rules": "modern",
+        "seed": 7919,
+        "winner": "blue",
+        "reason": "decision",
+        "turns": 61,
+        "maxUnits": 90,
+        "commands": 3955,
+        "produced": {
+          "red": {
+            "heavyTank": 2,
+            "infantry": 51,
+            "mech": 5,
+            "helicopter": 4,
+            "landingShip": 7,
+            "destroyer": 4,
+            "tank": 12,
+            "artillery": 12,
+            "transportHelicopter": 3,
+            "battleship": 3,
+            "apc": 2,
+            "bomber": 1
+          },
+          "blue": {
+            "heavyTank": 2,
+            "infantry": 52,
+            "mech": 4,
+            "helicopter": 5,
+            "artillery": 20,
+            "transportHelicopter": 1,
+            "landingShip": 2,
+            "bomber": 1,
+            "battleship": 1,
+            "tank": 29,
+            "destroyer": 10,
+            "apc": 2
+          }
+        },
+        "repairCost": {
+          "red": 35690,
+          "blue": 16250
+        }
+      },
+      {
+        "scenarioId": "admiralty",
+        "difficulty": "hard",
+        "blueDifficulty": "normal",
+        "rules": "modern",
+        "seed": 15838,
+        "winner": "red",
+        "reason": "decision",
+        "turns": 61,
+        "maxUnits": 82,
+        "commands": 3347,
+        "produced": {
+          "red": {
+            "heavyTank": 1,
+            "infantry": 43,
+            "mech": 3,
+            "helicopter": 5,
+            "artillery": 21,
+            "tank": 24,
+            "transportHelicopter": 2,
+            "landingShip": 2,
+            "battleship": 2,
+            "destroyer": 11,
+            "apc": 1,
+            "antiAir": 1
+          },
+          "blue": {
+            "heavyTank": 1,
+            "infantry": 48,
+            "destroyer": 7,
+            "transportHelicopter": 4,
+            "landingShip": 7,
+            "mech": 4,
+            "helicopter": 4,
+            "tank": 12,
+            "artillery": 13,
+            "battleship": 1,
+            "apc": 1,
+            "bomber": 2
+          }
+        },
+        "repairCost": {
+          "red": 60360,
+          "blue": 35890
+        }
+      },
+      {
+        "scenarioId": "admiralty",
+        "difficulty": "normal",
+        "blueDifficulty": "hard",
+        "rules": "modern",
+        "seed": 15838,
+        "winner": "blue",
+        "reason": "captureCapital",
+        "turns": 38,
+        "maxUnits": 68,
+        "commands": 1922,
+        "produced": {
+          "red": {
+            "heavyTank": 2,
+            "infantry": 20,
+            "mech": 5,
+            "helicopter": 3,
+            "landingShip": 6,
+            "destroyer": 3,
+            "transportHelicopter": 2,
+            "artillery": 2,
+            "tank": 3,
+            "bomber": 2,
+            "battleship": 1
+          },
+          "blue": {
+            "heavyTank": 1,
+            "infantry": 29,
+            "mech": 3,
+            "helicopter": 1,
+            "artillery": 15,
+            "transportHelicopter": 1,
+            "tank": 18,
+            "landingShip": 1,
+            "battleship": 1,
+            "destroyer": 3,
+            "antiAir": 1,
+            "apc": 2
+          }
+        },
+        "repairCost": {
+          "red": 29120,
+          "blue": 26480
+        }
+      },
+      {
+        "scenarioId": "admiralty",
+        "difficulty": "hard",
+        "blueDifficulty": "normal",
+        "rules": "modern",
+        "seed": 23757,
+        "winner": "red",
+        "reason": "eliminate",
+        "turns": 54,
+        "maxUnits": 76,
+        "commands": 3044,
+        "produced": {
+          "red": {
+            "heavyTank": 1,
+            "infantry": 41,
+            "mech": 3,
+            "helicopter": 2,
+            "artillery": 23,
+            "tank": 33,
+            "transportHelicopter": 1,
+            "landingShip": 1,
+            "destroyer": 2,
+            "bomber": 2,
+            "battleship": 1,
+            "apc": 2
+          },
+          "blue": {
+            "heavyTank": 1,
+            "infantry": 43,
+            "destroyer": 3,
+            "transportHelicopter": 3,
+            "landingShip": 2,
+            "battleship": 1,
+            "mech": 11,
+            "helicopter": 4,
+            "tank": 10,
+            "antiAir": 2,
+            "artillery": 6,
+            "apc": 1
+          }
+        },
+        "repairCost": {
+          "red": 19010,
+          "blue": 35320
+        }
+      },
+      {
+        "scenarioId": "admiralty",
+        "difficulty": "normal",
+        "blueDifficulty": "hard",
+        "rules": "modern",
+        "seed": 23757,
+        "winner": "blue",
+        "reason": "decision",
+        "turns": 61,
+        "maxUnits": 108,
+        "commands": 4611,
+        "produced": {
+          "red": {
+            "heavyTank": 3,
+            "infantry": 51,
+            "mech": 5,
+            "helicopter": 5,
+            "landingShip": 3,
+            "destroyer": 6,
+            "tank": 18,
+            "artillery": 16,
+            "bomber": 2,
+            "battleship": 1,
+            "apc": 3,
+            "transportHelicopter": 1
+          },
+          "blue": {
+            "heavyTank": 1,
+            "infantry": 59,
+            "mech": 4,
+            "helicopter": 5,
+            "artillery": 23,
+            "transportHelicopter": 2,
+            "landingShip": 1,
+            "battleship": 1,
+            "tank": 30,
+            "destroyer": 9,
+            "antiAir": 1,
+            "apc": 1
+          }
+        },
+        "repairCost": {
+          "red": 11920,
+          "blue": 13270
+        }
+      }
+    ],
+    "summaries": [
+      {
+        "scenarioId": "islands",
+        "difficulty": "hard",
+        "blueDifficulty": "normal",
+        "rules": "modern",
+        "games": 3,
+        "wins": {
+          "red": 3,
+          "blue": 0,
+          "none": 0
+        },
+        "averageDecidedTurns": 61,
+        "maxUnits": 29,
+        "produced": {
+          "transportHelicopter": 28,
+          "landingShip": 45,
+          "helicopter": 17,
+          "infantry": 66,
+          "battleship": 9,
+          "tank": 20,
+          "destroyer": 19,
+          "fighter": 6,
+          "bomber": 17,
+          "mech": 14,
+          "heavyTank": 4,
+          "artillery": 15,
+          "antiAir": 9
+        },
+        "averageRepairCost": 47140,
+        "reasons": {
+          "decision": 3
+        }
+      },
+      {
+        "scenarioId": "islands",
+        "difficulty": "normal",
+        "blueDifficulty": "hard",
+        "rules": "modern",
+        "games": 3,
+        "wins": {
+          "red": 0,
+          "blue": 3,
+          "none": 0
+        },
+        "averageDecidedTurns": 56,
+        "maxUnits": 32,
+        "produced": {
+          "transportHelicopter": 22,
+          "landingShip": 35,
+          "helicopter": 22,
+          "infantry": 64,
+          "heavyTank": 7,
+          "destroyer": 19,
+          "tank": 21,
+          "antiAir": 4,
+          "battleship": 9,
+          "mech": 10,
+          "artillery": 14,
+          "bomber": 9
+        },
+        "averageRepairCost": 42730,
+        "reasons": {
+          "eliminate": 2,
+          "decision": 1
+        }
+      },
+      {
+        "scenarioId": "river",
+        "difficulty": "hard",
+        "blueDifficulty": "normal",
+        "rules": "modern",
+        "games": 3,
+        "wins": {
+          "red": 3,
+          "blue": 0,
+          "none": 0
+        },
+        "averageDecidedTurns": 41,
+        "maxUnits": 66,
+        "produced": {
+          "destroyer": 13,
+          "infantry": 192,
+          "helicopter": 17,
+          "mech": 47,
+          "tank": 97,
+          "transportHelicopter": 11,
+          "landingShip": 9,
+          "heavyTank": 9,
+          "artillery": 65,
+          "apc": 7,
+          "bomber": 5,
+          "antiAir": 1
+        },
+        "averageRepairCost": 27886.666666666668,
+        "reasons": {
+          "captureCapital": 1,
+          "eliminate": 2
+        }
+      },
+      {
+        "scenarioId": "river",
+        "difficulty": "normal",
+        "blueDifficulty": "hard",
+        "rules": "modern",
+        "games": 3,
+        "wins": {
+          "red": 1,
+          "blue": 2,
+          "none": 0
+        },
+        "averageDecidedTurns": 48.333333333333336,
+        "maxUnits": 76,
+        "produced": {
+          "destroyer": 18,
+          "infantry": 192,
+          "helicopter": 18,
+          "landingShip": 21,
+          "transportHelicopter": 13,
+          "mech": 52,
+          "tank": 115,
+          "artillery": 65,
+          "apc": 9,
+          "bomber": 9,
+          "antiAir": 2,
+          "heavyTank": 8,
+          "battleship": 2
+        },
+        "averageRepairCost": 41793.333333333336,
+        "reasons": {
+          "captureCapital": 2,
+          "eliminate": 1
+        }
+      },
+      {
+        "scenarioId": "admiralty",
+        "difficulty": "hard",
+        "blueDifficulty": "normal",
+        "rules": "modern",
+        "games": 3,
+        "wins": {
+          "red": 3,
+          "blue": 0,
+          "none": 0
+        },
+        "averageDecidedTurns": 58.666666666666664,
+        "maxUnits": 86,
+        "produced": {
+          "heavyTank": 7,
+          "infantry": 269,
+          "mech": 37,
+          "helicopter": 21,
+          "artillery": 99,
+          "tank": 129,
+          "transportHelicopter": 14,
+          "landingShip": 19,
+          "apc": 9,
+          "antiAir": 5,
+          "destroyer": 27,
+          "bomber": 7,
+          "battleship": 6,
+          "fighter": 1
+        },
+        "averageRepairCost": 65640,
+        "reasons": {
+          "decision": 2,
+          "eliminate": 1
+        }
+      },
+      {
+        "scenarioId": "admiralty",
+        "difficulty": "normal",
+        "blueDifficulty": "hard",
+        "rules": "modern",
+        "games": 3,
+        "wins": {
+          "red": 0,
+          "blue": 3,
+          "none": 0
+        },
+        "averageDecidedTurns": 53.333333333333336,
+        "maxUnits": 108,
+        "produced": {
+          "heavyTank": 11,
+          "infantry": 262,
+          "mech": 26,
+          "helicopter": 23,
+          "landingShip": 20,
+          "destroyer": 35,
+          "tank": 110,
+          "artillery": 88,
+          "transportHelicopter": 10,
+          "battleship": 8,
+          "apc": 10,
+          "bomber": 6,
+          "antiAir": 2
+        },
+        "averageRepairCost": 44243.333333333336,
+        "reasons": {
+          "decision": 2,
+          "captureCapital": 1
+        }
+      }
+    ]
+  },
+  "candidate": {
+    "schemaVersion": 1,
+    "sha": "511d4095b62921d2148cb31963982d2d8835ca2d",
+    "dirty": true,
+    "seeds": [
+      7919,
+      15838,
+      23757
+    ],
+    "maxRounds": 60,
+    "results": [
+      {
+        "scenarioId": "islands",
+        "difficulty": "hard",
+        "blueDifficulty": "normal",
+        "rules": "modern",
+        "seed": 7919,
+        "winner": "red",
+        "reason": "decision",
+        "turns": 61,
+        "maxUnits": 29,
+        "commands": 1355,
+        "produced": {
+          "red": {
+            "transportHelicopter": 3,
+            "landingShip": 4,
+            "helicopter": 2,
+            "infantry": 7,
+            "battleship": 4,
+            "tank": 5,
+            "destroyer": 6,
+            "fighter": 2,
+            "bomber": 4,
+            "mech": 4,
+            "heavyTank": 1,
+            "artillery": 5,
+            "antiAir": 1
+          },
+          "blue": {
+            "transportHelicopter": 7,
+            "landingShip": 13,
+            "helicopter": 2,
+            "infantry": 13,
+            "bomber": 2,
+            "destroyer": 4,
+            "tank": 1,
+            "battleship": 2,
+            "antiAir": 2,
+            "artillery": 1,
+            "mech": 3,
+            "heavyTank": 1
+          }
+        },
+        "repairCost": {
+          "red": 19710,
+          "blue": 49750
+        }
+      },
+      {
+        "scenarioId": "islands",
+        "difficulty": "normal",
+        "blueDifficulty": "hard",
+        "rules": "modern",
+        "seed": 7919,
+        "winner": "blue",
+        "reason": "eliminate",
+        "turns": 54,
+        "maxUnits": 27,
+        "commands": 1184,
+        "produced": {
+          "red": {
+            "transportHelicopter": 7,
+            "landingShip": 11,
+            "helicopter": 6,
+            "infantry": 14,
+            "heavyTank": 1,
+            "destroyer": 4,
+            "tank": 2,
+            "antiAir": 1
+          },
+          "blue": {
+            "transportHelicopter": 1,
+            "landingShip": 2,
+            "helicopter": 3,
+            "infantry": 4,
+            "battleship": 2,
+            "tank": 4,
+            "mech": 2,
+            "heavyTank": 1,
+            "artillery": 4,
+            "destroyer": 1,
+            "bomber": 3
+          }
+        },
+        "repairCost": {
+          "red": 20440,
+          "blue": 7770
+        }
+      },
+      {
+        "scenarioId": "islands",
+        "difficulty": "hard",
+        "blueDifficulty": "normal",
+        "rules": "modern",
+        "seed": 15838,
+        "winner": "red",
+        "reason": "decision",
+        "turns": 61,
+        "maxUnits": 27,
+        "commands": 1367,
+        "produced": {
+          "red": {
+            "transportHelicopter": 2,
+            "landingShip": 2,
+            "helicopter": 5,
+            "infantry": 4,
+            "battleship": 1,
+            "tank": 4,
+            "destroyer": 2,
+            "fighter": 2,
+            "bomber": 4,
+            "mech": 3,
+            "heavyTank": 1,
+            "artillery": 4
+          },
+          "blue": {
+            "transportHelicopter": 6,
+            "landingShip": 11,
+            "helicopter": 4,
+            "infantry": 22,
+            "bomber": 2,
+            "mech": 1,
+            "destroyer": 1,
+            "antiAir": 3,
+            "tank": 4,
+            "artillery": 2
+          }
+        },
+        "repairCost": {
+          "red": 6950,
+          "blue": 23600
+        }
+      },
+      {
+        "scenarioId": "islands",
+        "difficulty": "normal",
+        "blueDifficulty": "hard",
+        "rules": "modern",
+        "seed": 15838,
+        "winner": "blue",
+        "reason": "decision",
+        "turns": 61,
+        "maxUnits": 32,
+        "commands": 1376,
+        "produced": {
+          "red": {
+            "transportHelicopter": 5,
+            "landingShip": 10,
+            "helicopter": 4,
+            "infantry": 22,
+            "heavyTank": 1,
+            "destroyer": 6,
+            "mech": 2,
+            "battleship": 1,
+            "tank": 3,
+            "antiAir": 1,
+            "artillery": 2
+          },
+          "blue": {
+            "transportHelicopter": 2,
+            "landingShip": 3,
+            "helicopter": 2,
+            "infantry": 5,
+            "battleship": 1,
+            "tank": 5,
+            "mech": 3,
+            "heavyTank": 1,
+            "artillery": 4,
+            "destroyer": 2,
+            "bomber": 3
+          }
+        },
+        "repairCost": {
+          "red": 40870,
+          "blue": 28550
+        }
+      },
+      {
+        "scenarioId": "islands",
+        "difficulty": "hard",
+        "blueDifficulty": "normal",
+        "rules": "modern",
+        "seed": 23757,
+        "winner": "red",
+        "reason": "decision",
+        "turns": 61,
+        "maxUnits": 26,
+        "commands": 1329,
+        "produced": {
+          "red": {
+            "transportHelicopter": 1,
+            "landingShip": 1,
+            "helicopter": 3,
+            "infantry": 6,
+            "battleship": 2,
+            "tank": 4,
+            "destroyer": 2,
+            "fighter": 2,
+            "bomber": 3,
+            "mech": 2,
+            "heavyTank": 1,
+            "artillery": 3,
+            "antiAir": 1
+          },
+          "blue": {
+            "transportHelicopter": 9,
+            "landingShip": 14,
+            "helicopter": 1,
+            "infantry": 14,
+            "bomber": 2,
+            "destroyer": 4,
+            "antiAir": 2,
+            "tank": 2,
+            "mech": 1
+          }
+        },
+        "repairCost": {
+          "red": 10100,
+          "blue": 31310
+        }
+      },
+      {
+        "scenarioId": "islands",
+        "difficulty": "normal",
+        "blueDifficulty": "hard",
+        "rules": "modern",
+        "seed": 23757,
+        "winner": "blue",
+        "reason": "eliminate",
+        "turns": 53,
+        "maxUnits": 29,
+        "commands": 1202,
+        "produced": {
+          "red": {
+            "transportHelicopter": 5,
+            "landingShip": 7,
+            "helicopter": 4,
+            "infantry": 13,
+            "heavyTank": 2,
+            "destroyer": 2,
+            "tank": 3,
+            "antiAir": 2,
+            "battleship": 2
+          },
+          "blue": {
+            "transportHelicopter": 2,
+            "landingShip": 2,
+            "helicopter": 3,
+            "infantry": 6,
+            "battleship": 3,
+            "tank": 4,
+            "mech": 3,
+            "bomber": 3,
+            "destroyer": 4,
+            "heavyTank": 1,
+            "artillery": 4
+          }
+        },
+        "repairCost": {
+          "red": 20260,
+          "blue": 10300
+        }
+      },
+      {
+        "scenarioId": "river",
+        "difficulty": "hard",
+        "blueDifficulty": "normal",
+        "rules": "modern",
+        "seed": 7919,
+        "winner": "red",
+        "reason": "captureCapital",
+        "turns": 27,
+        "maxUnits": 53,
+        "commands": 1118,
+        "produced": {
+          "red": {
+            "destroyer": 2,
+            "infantry": 30,
+            "helicopter": 3,
+            "mech": 2,
+            "tank": 14,
+            "transportHelicopter": 1,
+            "landingShip": 1,
+            "heavyTank": 1,
+            "artillery": 10,
+            "apc": 1
+          },
+          "blue": {
+            "destroyer": 4,
+            "infantry": 8,
+            "transportHelicopter": 2,
+            "landingShip": 2,
+            "mech": 8,
+            "tank": 2,
+            "artillery": 1,
+            "bomber": 1,
+            "heavyTank": 1,
+            "helicopter": 1
+          }
+        },
+        "repairCost": {
+          "red": 9090,
+          "blue": 9740
+        }
+      },
+      {
+        "scenarioId": "river",
+        "difficulty": "normal",
+        "blueDifficulty": "hard",
+        "rules": "modern",
+        "seed": 7919,
+        "winner": "red",
+        "reason": "captureCapital",
+        "turns": 56,
+        "maxUnits": 54,
+        "commands": 2619,
+        "produced": {
+          "red": {
+            "destroyer": 3,
+            "infantry": 49,
+            "helicopter": 3,
+            "landingShip": 3,
+            "transportHelicopter": 2,
+            "mech": 6,
+            "tank": 33,
+            "artillery": 19,
+            "apc": 2,
+            "bomber": 2,
+            "antiAir": 1
+          },
+          "blue": {
+            "destroyer": 2,
+            "infantry": 28,
+            "transportHelicopter": 3,
+            "mech": 14,
+            "tank": 11,
+            "artillery": 12,
+            "landingShip": 6,
+            "bomber": 3,
+            "heavyTank": 2,
+            "helicopter": 4,
+            "apc": 2
+          }
+        },
+        "repairCost": {
+          "red": 19160,
+          "blue": 23950
+        }
+      },
+      {
+        "scenarioId": "river",
+        "difficulty": "hard",
+        "blueDifficulty": "normal",
+        "rules": "modern",
+        "seed": 15838,
+        "winner": "red",
+        "reason": "eliminate",
+        "turns": 55,
+        "maxUnits": 66,
+        "commands": 3053,
+        "produced": {
+          "red": {
+            "destroyer": 2,
+            "infantry": 54,
+            "helicopter": 4,
+            "mech": 4,
+            "tank": 37,
+            "transportHelicopter": 1,
+            "landingShip": 1,
+            "heavyTank": 2,
+            "apc": 2,
+            "artillery": 20,
+            "antiAir": 1,
+            "bomber": 1
+          },
+          "blue": {
+            "destroyer": 1,
+            "infantry": 40,
+            "transportHelicopter": 3,
+            "landingShip": 2,
+            "mech": 17,
+            "tank": 10,
+            "artillery": 12,
+            "bomber": 1,
+            "heavyTank": 2,
+            "helicopter": 3,
+            "apc": 2
+          }
+        },
+        "repairCost": {
+          "red": 19740,
+          "blue": 21890
+        }
+      },
+      {
+        "scenarioId": "river",
+        "difficulty": "normal",
+        "blueDifficulty": "hard",
+        "rules": "modern",
+        "seed": 15838,
+        "winner": "blue",
+        "reason": "captureCapital",
+        "turns": 56,
+        "maxUnits": 76,
+        "commands": 3048,
+        "produced": {
+          "red": {
+            "destroyer": 5,
+            "infantry": 26,
+            "helicopter": 3,
+            "landingShip": 8,
+            "transportHelicopter": 3,
+            "mech": 16,
+            "tank": 11,
+            "artillery": 5,
+            "heavyTank": 2,
+            "apc": 2,
+            "bomber": 1
+          },
+          "blue": {
+            "destroyer": 3,
+            "infantry": 49,
+            "transportHelicopter": 2,
+            "mech": 7,
+            "tank": 31,
+            "artillery": 15,
+            "helicopter": 4,
+            "landingShip": 1,
+            "bomber": 2,
+            "heavyTank": 2,
+            "apc": 1,
+            "antiAir": 1,
+            "battleship": 1
+          }
+        },
+        "repairCost": {
+          "red": 36950,
+          "blue": 12000
+        }
+      },
+      {
+        "scenarioId": "river",
+        "difficulty": "hard",
+        "blueDifficulty": "normal",
+        "rules": "modern",
+        "seed": 23757,
+        "winner": "red",
+        "reason": "eliminate",
+        "turns": 41,
+        "maxUnits": 56,
+        "commands": 1857,
+        "produced": {
+          "red": {
+            "destroyer": 3,
+            "infantry": 43,
+            "helicopter": 3,
+            "mech": 3,
+            "tank": 26,
+            "transportHelicopter": 2,
+            "landingShip": 1,
+            "heavyTank": 2,
+            "artillery": 16,
+            "apc": 1
+          },
+          "blue": {
+            "destroyer": 1,
+            "infantry": 17,
+            "transportHelicopter": 2,
+            "landingShip": 2,
+            "mech": 13,
+            "tank": 8,
+            "artillery": 6,
+            "bomber": 2,
+            "heavyTank": 1,
+            "helicopter": 3,
+            "apc": 1
+          }
+        },
+        "repairCost": {
+          "red": 7790,
+          "blue": 15410
+        }
+      },
+      {
+        "scenarioId": "river",
+        "difficulty": "normal",
+        "blueDifficulty": "hard",
+        "rules": "modern",
+        "seed": 23757,
+        "winner": "blue",
+        "reason": "eliminate",
+        "turns": 33,
+        "maxUnits": 51,
+        "commands": 1354,
+        "produced": {
+          "red": {
+            "destroyer": 3,
+            "infantry": 15,
+            "helicopter": 2,
+            "landingShip": 2,
+            "transportHelicopter": 2,
+            "battleship": 1,
+            "heavyTank": 1,
+            "tank": 7,
+            "artillery": 2,
+            "mech": 5
+          },
+          "blue": {
+            "destroyer": 2,
+            "infantry": 25,
+            "transportHelicopter": 1,
+            "mech": 4,
+            "tank": 22,
+            "artillery": 12,
+            "helicopter": 2,
+            "landingShip": 1,
+            "bomber": 1,
+            "apc": 2,
+            "heavyTank": 1
+          }
+        },
+        "repairCost": {
+          "red": 27150,
+          "blue": 6170
+        }
+      },
+      {
+        "scenarioId": "admiralty",
+        "difficulty": "hard",
+        "blueDifficulty": "normal",
+        "rules": "modern",
+        "seed": 7919,
+        "winner": "red",
+        "reason": "decision",
+        "turns": 61,
+        "maxUnits": 86,
+        "commands": 3941,
+        "produced": {
+          "red": {
+            "heavyTank": 2,
+            "infantry": 42,
+            "mech": 2,
+            "helicopter": 2,
+            "artillery": 27,
+            "tank": 39,
+            "transportHelicopter": 1,
+            "landingShip": 1,
+            "apc": 2,
+            "antiAir": 1,
+            "destroyer": 1,
+            "bomber": 2,
+            "battleship": 1
+          },
+          "blue": {
+            "heavyTank": 1,
+            "infantry": 52,
+            "destroyer": 3,
+            "transportHelicopter": 3,
+            "landingShip": 6,
+            "bomber": 1,
+            "mech": 14,
+            "helicopter": 4,
+            "tank": 11,
+            "artillery": 9,
+            "apc": 2,
+            "antiAir": 1,
+            "fighter": 1
+          }
+        },
+        "repairCost": {
+          "red": 26400,
+          "blue": 19940
+        }
+      },
+      {
+        "scenarioId": "admiralty",
+        "difficulty": "normal",
+        "blueDifficulty": "hard",
+        "rules": "modern",
+        "seed": 7919,
+        "winner": "blue",
+        "reason": "decision",
+        "turns": 61,
+        "maxUnits": 90,
+        "commands": 3955,
+        "produced": {
+          "red": {
+            "heavyTank": 2,
+            "infantry": 51,
+            "mech": 5,
+            "helicopter": 4,
+            "landingShip": 7,
+            "destroyer": 4,
+            "tank": 12,
+            "artillery": 12,
+            "transportHelicopter": 3,
+            "battleship": 3,
+            "apc": 2,
+            "bomber": 1
+          },
+          "blue": {
+            "heavyTank": 2,
+            "infantry": 52,
+            "mech": 4,
+            "helicopter": 5,
+            "artillery": 20,
+            "transportHelicopter": 1,
+            "landingShip": 2,
+            "bomber": 1,
+            "battleship": 1,
+            "tank": 29,
+            "destroyer": 10,
+            "apc": 2
+          }
+        },
+        "repairCost": {
+          "red": 35690,
+          "blue": 16250
+        }
+      },
+      {
+        "scenarioId": "admiralty",
+        "difficulty": "hard",
+        "blueDifficulty": "normal",
+        "rules": "modern",
+        "seed": 15838,
+        "winner": "red",
+        "reason": "decision",
+        "turns": 61,
+        "maxUnits": 82,
+        "commands": 3347,
+        "produced": {
+          "red": {
+            "heavyTank": 1,
+            "infantry": 43,
+            "mech": 3,
+            "helicopter": 5,
+            "artillery": 21,
+            "tank": 24,
+            "transportHelicopter": 2,
+            "landingShip": 2,
+            "battleship": 2,
+            "destroyer": 11,
+            "apc": 1,
+            "antiAir": 1
+          },
+          "blue": {
+            "heavyTank": 1,
+            "infantry": 48,
+            "destroyer": 7,
+            "transportHelicopter": 4,
+            "landingShip": 7,
+            "mech": 4,
+            "helicopter": 4,
+            "tank": 12,
+            "artillery": 13,
+            "battleship": 1,
+            "apc": 1,
+            "bomber": 2
+          }
+        },
+        "repairCost": {
+          "red": 60360,
+          "blue": 35890
+        }
+      },
+      {
+        "scenarioId": "admiralty",
+        "difficulty": "normal",
+        "blueDifficulty": "hard",
+        "rules": "modern",
+        "seed": 15838,
+        "winner": "blue",
+        "reason": "captureCapital",
+        "turns": 38,
+        "maxUnits": 68,
+        "commands": 1922,
+        "produced": {
+          "red": {
+            "heavyTank": 2,
+            "infantry": 20,
+            "mech": 5,
+            "helicopter": 3,
+            "landingShip": 6,
+            "destroyer": 3,
+            "transportHelicopter": 2,
+            "artillery": 2,
+            "tank": 3,
+            "bomber": 2,
+            "battleship": 1
+          },
+          "blue": {
+            "heavyTank": 1,
+            "infantry": 29,
+            "mech": 3,
+            "helicopter": 1,
+            "artillery": 15,
+            "transportHelicopter": 1,
+            "tank": 18,
+            "landingShip": 1,
+            "battleship": 1,
+            "destroyer": 3,
+            "antiAir": 1,
+            "apc": 2
+          }
+        },
+        "repairCost": {
+          "red": 29120,
+          "blue": 26480
+        }
+      },
+      {
+        "scenarioId": "admiralty",
+        "difficulty": "hard",
+        "blueDifficulty": "normal",
+        "rules": "modern",
+        "seed": 23757,
+        "winner": "red",
+        "reason": "eliminate",
+        "turns": 54,
+        "maxUnits": 76,
+        "commands": 3044,
+        "produced": {
+          "red": {
+            "heavyTank": 1,
+            "infantry": 41,
+            "mech": 3,
+            "helicopter": 2,
+            "artillery": 23,
+            "tank": 33,
+            "transportHelicopter": 1,
+            "landingShip": 1,
+            "destroyer": 2,
+            "bomber": 2,
+            "battleship": 1,
+            "apc": 2
+          },
+          "blue": {
+            "heavyTank": 1,
+            "infantry": 43,
+            "destroyer": 3,
+            "transportHelicopter": 3,
+            "landingShip": 2,
+            "battleship": 1,
+            "mech": 11,
+            "helicopter": 4,
+            "tank": 10,
+            "antiAir": 2,
+            "artillery": 6,
+            "apc": 1
+          }
+        },
+        "repairCost": {
+          "red": 19010,
+          "blue": 35320
+        }
+      },
+      {
+        "scenarioId": "admiralty",
+        "difficulty": "normal",
+        "blueDifficulty": "hard",
+        "rules": "modern",
+        "seed": 23757,
+        "winner": "blue",
+        "reason": "decision",
+        "turns": 61,
+        "maxUnits": 108,
+        "commands": 4611,
+        "produced": {
+          "red": {
+            "heavyTank": 3,
+            "infantry": 51,
+            "mech": 5,
+            "helicopter": 5,
+            "landingShip": 3,
+            "destroyer": 6,
+            "tank": 18,
+            "artillery": 16,
+            "bomber": 2,
+            "battleship": 1,
+            "apc": 3,
+            "transportHelicopter": 1
+          },
+          "blue": {
+            "heavyTank": 1,
+            "infantry": 59,
+            "mech": 4,
+            "helicopter": 5,
+            "artillery": 23,
+            "transportHelicopter": 2,
+            "landingShip": 1,
+            "battleship": 1,
+            "tank": 30,
+            "destroyer": 9,
+            "antiAir": 1,
+            "apc": 1
+          }
+        },
+        "repairCost": {
+          "red": 11920,
+          "blue": 13270
+        }
+      }
+    ],
+    "summaries": [
+      {
+        "scenarioId": "islands",
+        "difficulty": "hard",
+        "blueDifficulty": "normal",
+        "rules": "modern",
+        "games": 3,
+        "wins": {
+          "red": 3,
+          "blue": 0,
+          "none": 0
+        },
+        "averageDecidedTurns": 61,
+        "maxUnits": 29,
+        "produced": {
+          "transportHelicopter": 28,
+          "landingShip": 45,
+          "helicopter": 17,
+          "infantry": 66,
+          "battleship": 9,
+          "tank": 20,
+          "destroyer": 19,
+          "fighter": 6,
+          "bomber": 17,
+          "mech": 14,
+          "heavyTank": 4,
+          "artillery": 15,
+          "antiAir": 9
+        },
+        "averageRepairCost": 47140,
+        "reasons": {
+          "decision": 3
+        }
+      },
+      {
+        "scenarioId": "islands",
+        "difficulty": "normal",
+        "blueDifficulty": "hard",
+        "rules": "modern",
+        "games": 3,
+        "wins": {
+          "red": 0,
+          "blue": 3,
+          "none": 0
+        },
+        "averageDecidedTurns": 56,
+        "maxUnits": 32,
+        "produced": {
+          "transportHelicopter": 22,
+          "landingShip": 35,
+          "helicopter": 22,
+          "infantry": 64,
+          "heavyTank": 7,
+          "destroyer": 19,
+          "tank": 21,
+          "antiAir": 4,
+          "battleship": 9,
+          "mech": 10,
+          "artillery": 14,
+          "bomber": 9
+        },
+        "averageRepairCost": 42730,
+        "reasons": {
+          "eliminate": 2,
+          "decision": 1
+        }
+      },
+      {
+        "scenarioId": "river",
+        "difficulty": "hard",
+        "blueDifficulty": "normal",
+        "rules": "modern",
+        "games": 3,
+        "wins": {
+          "red": 3,
+          "blue": 0,
+          "none": 0
+        },
+        "averageDecidedTurns": 41,
+        "maxUnits": 66,
+        "produced": {
+          "destroyer": 13,
+          "infantry": 192,
+          "helicopter": 17,
+          "mech": 47,
+          "tank": 97,
+          "transportHelicopter": 11,
+          "landingShip": 9,
+          "heavyTank": 9,
+          "artillery": 65,
+          "apc": 7,
+          "bomber": 5,
+          "antiAir": 1
+        },
+        "averageRepairCost": 27886.666666666668,
+        "reasons": {
+          "captureCapital": 1,
+          "eliminate": 2
+        }
+      },
+      {
+        "scenarioId": "river",
+        "difficulty": "normal",
+        "blueDifficulty": "hard",
+        "rules": "modern",
+        "games": 3,
+        "wins": {
+          "red": 1,
+          "blue": 2,
+          "none": 0
+        },
+        "averageDecidedTurns": 48.333333333333336,
+        "maxUnits": 76,
+        "produced": {
+          "destroyer": 18,
+          "infantry": 192,
+          "helicopter": 18,
+          "landingShip": 21,
+          "transportHelicopter": 13,
+          "mech": 52,
+          "tank": 115,
+          "artillery": 65,
+          "apc": 9,
+          "bomber": 9,
+          "antiAir": 2,
+          "heavyTank": 8,
+          "battleship": 2
+        },
+        "averageRepairCost": 41793.333333333336,
+        "reasons": {
+          "captureCapital": 2,
+          "eliminate": 1
+        }
+      },
+      {
+        "scenarioId": "admiralty",
+        "difficulty": "hard",
+        "blueDifficulty": "normal",
+        "rules": "modern",
+        "games": 3,
+        "wins": {
+          "red": 3,
+          "blue": 0,
+          "none": 0
+        },
+        "averageDecidedTurns": 58.666666666666664,
+        "maxUnits": 86,
+        "produced": {
+          "heavyTank": 7,
+          "infantry": 269,
+          "mech": 37,
+          "helicopter": 21,
+          "artillery": 99,
+          "tank": 129,
+          "transportHelicopter": 14,
+          "landingShip": 19,
+          "apc": 9,
+          "antiAir": 5,
+          "destroyer": 27,
+          "bomber": 7,
+          "battleship": 6,
+          "fighter": 1
+        },
+        "averageRepairCost": 65640,
+        "reasons": {
+          "decision": 2,
+          "eliminate": 1
+        }
+      },
+      {
+        "scenarioId": "admiralty",
+        "difficulty": "normal",
+        "blueDifficulty": "hard",
+        "rules": "modern",
+        "games": 3,
+        "wins": {
+          "red": 0,
+          "blue": 3,
+          "none": 0
+        },
+        "averageDecidedTurns": 53.333333333333336,
+        "maxUnits": 108,
+        "produced": {
+          "heavyTank": 11,
+          "infantry": 262,
+          "mech": 26,
+          "helicopter": 23,
+          "landingShip": 20,
+          "destroyer": 35,
+          "tank": 110,
+          "artillery": 88,
+          "transportHelicopter": 10,
+          "battleship": 8,
+          "apc": 10,
+          "bomber": 6,
+          "antiAir": 2
+        },
+        "averageRepairCost": 44243.333333333336,
+        "reasons": {
+          "decision": 2,
+          "captureCapital": 1
+        }
+      }
+    ]
+  }
+}
