@@ -1,3 +1,8 @@
+import { renderCampaignRoster } from './ui/campaignRoster';
+import { renameCampaignVeteran } from './game/campaign';
+import { campaignSuccessors } from './game/campaign';
+import { defaultArmyPolicies, isArmyPolicy } from './game/armyPolicy';
+import { renderArmyPolicies } from './ui/armyPolicy';
 import { renderTerrainArt } from './ui/terrainAppearance';
 import { renderTerrainLegend } from './ui/terrainLegend';
 import { renderMusicControls, syncMusicControls } from './ui/musicControls';
@@ -125,6 +130,7 @@ if (!loadedCustomScenarios.ok) message = loadedCustomScenarios.error;
 let difficulty: CpuDifficulty = 'normal';
 /** Spectating only: red's CPU difficulty. Saves and replays keep recording `difficulty`. */
 let redDifficulty: CpuDifficulty = 'normal';
+let cpuPolicies = defaultArmyPolicies();
 let boardZoomIndex = defaultBoardZoomIndex(boardAreaWidth(window.innerWidth), game.board.width);
 /** Cleared the first time the player uses the zoom controls, so a resize stops overriding them. */
 let boardZoomAuto = true;
@@ -528,7 +534,8 @@ function finishCampaignBattle(): void {
   if (!recorded.ok) { campaignNotice = recorded.error; return; }
   const veterans = recordCampaignVeterans(recorded.value, game);
   if (!veterans.ok) { campaignNotice = veterans.error; return; }
-  const nextScenarioId = campaignStages[campaignStages.indexOf(stage) + 1]?.scenarioId;
+  const choices = campaignSuccessors[stage.scenarioId] ?? [];
+  const nextScenarioId = choices.length === 1 ? choices[0] : undefined;
   const saved = saveCampaignProgress(localStorage, veterans.value);
   if (saved.ok) campaignProgress = veterans.value;
   campaignOutcome = { result: graded.value, persisted: saved.ok, nextScenarioId: saved.ok ? nextScenarioId : undefined,
@@ -622,6 +629,7 @@ function savedMatch(): Omit<SavedGame, 'schemaVersion' | 'savedAt'> {
   return {
     mapId: selectedMap.id, difficulty, initialState, commands: commandHistory, gameState: game,
     campaignScenarioId: campaignRun?.scenarioId, mode: matchMode,
+    ...((game.ruleVersion ?? 0) >= 12 ? { cpuPolicies: structuredClone(dailyLocked() ? defaultArmyPolicies() : cpuPolicies) } : {}),
     ...(matchMode === 'spectate' ? { redDifficulty } : {}),
   };
 }
@@ -668,6 +676,7 @@ function continueSavedGame(slotId?: string): boolean {
   selectedMap = map;
   deploymentBase = undefined;
   difficulty = loaded.value.difficulty;
+  cpuPolicies = structuredClone(loaded.value.cpuPolicies ?? defaultArmyPolicies());
   matchMode = loaded.value.mode ?? 'cpu';
   // Only a spectated save sets red's CPU; other formats keep the viewer's last choice.
   if (matchMode === 'spectate') redDifficulty = loaded.value.redDifficulty ?? difficulty;
@@ -967,7 +976,7 @@ function clearShareHash(): void {
   try { window.history.replaceState(null, '', window.location.pathname + window.location.search); } catch { /* the address bar is cosmetic */ }
 }
 function render(): void {
-  if (screens.briefingOpen && !finiteSupplies && (game.units.some(unit => unit.kind === 'transportHelicopter') || [...deploymentChoices.red, ...deploymentChoices.blue].includes('transportHelicopter'))) {
+  if (screens.briefingOpen && !finiteSupplies && (game.units.some(unit => unit.callsign !== undefined) || game.units.some(unit => unit.kind === 'transportHelicopter') || [...deploymentChoices.red, ...deploymentChoices.blue].includes('transportHelicopter'))) {
     finiteSupplies = true; game = { ...game, ruleVersion: CURRENT_RULE_VERSION }; initialState = structuredClone(game);
   }
 
@@ -1211,7 +1220,7 @@ function render(): void {
     const grade = campaignProgress.bestGrades[stage.scenarioId];
     if (!map) return `<article data-ui-copy class="campaign-stage locked"><div class="campaign-stage-number">0${index + 1}</div><div><p class="card-kicker">UNAVAILABLE</p><h3>作戦データを読み込めません</h3><p>組み込みシナリオの読み込みに失敗したため、この作戦は開始できません。</p><span>推奨 ${stage.recommendedTurns} ターン</span></div><button class="save-action" disabled>利用不可</button></article>`;
     const deployment = campaignDeployment(campaignProgress, stage.scenarioId);
-    return `<article data-ui-copy class="campaign-stage ${unlocked ? '' : 'locked'}"><div class="campaign-stage-number">${String(index + 1).padStart(2, '0')}</div><div><p class="card-kicker">${grade ? 'CLEARED' : unlocked ? 'OPEN' : 'LOCKED'} · ${escapeHtml(translateText(operation?.phase ?? ''))}</p><h3>${escapeHtml(operation?.title ?? map.name)}</h3><p>${escapeHtml(operation?.orders ?? map.briefing)}</p>${operation ? `<details class="campaign-orders"><summary>敵情・補給方針</summary><p>${escapeHtml(operation.enemyOrders)}</p><p>${escapeHtml(operation.logistics)}</p></details>` : ''}<span>目安 ${stage.recommendedTurns} ターン${operation?.deadline ? ` ／ 期限 ${operation.deadline}` : ''}</span>${unlocked ? `<p class="campaign-deployment">出撃支援 +${deployment.support}G ／ 引継候補 ${deployment.veterans.length}部隊</p>` : ''}</div>${grade ? `<strong class="campaign-grade grade-${grade.toLowerCase()}">${grade}</strong>` : ''}<button class="save-action campaign-start" data-campaign-id="${stage.scenarioId}" ${unlocked ? '' : 'disabled'}>${grade ? '再出撃' : '作戦準備'}</button></article>`;
+    return `<article data-ui-copy class="campaign-stage ${unlocked ? '' : 'locked'}"><div class="campaign-stage-number">${String(index + 1).padStart(2, '0')}</div><div><p class="card-kicker">${grade ? 'CLEARED' : unlocked ? 'OPEN' : 'LOCKED'} · ${escapeHtml(translateText(operation?.phase ?? ''))}</p><h3>${escapeHtml(operation?.title ?? map.name)}</h3><p>${escapeHtml(operation?.orders ?? map.briefing)}</p>${operation ? `<details class="campaign-orders"><summary>敵情・補給方針</summary><p>${escapeHtml(operation.enemyOrders)}</p><p>${escapeHtml(operation.logistics)}</p></details>` : ''}<span>目安 ${stage.recommendedTurns} ターン${operation?.deadline ? ` ／ 期限 ${operation.deadline}` : ''}</span>${renderCampaignRoster(stage.scenarioId, campaignProgress.veteransByScenario?.[stage.scenarioId] ?? [])}${unlocked ? `<p class="campaign-deployment">出撃支援 +${deployment.support}G ／ 引継候補 ${deployment.veterans.length}部隊</p>` : ''}</div>${grade ? `<strong class="campaign-grade grade-${grade.toLowerCase()}">${grade}</strong>` : ''}<button class="save-action campaign-start" data-campaign-id="${stage.scenarioId}" ${unlocked ? '' : 'disabled'}>${grade ? '再出撃' : '作戦準備'}</button></article>`;
   }).join('') : '';
   const campaignOverlay = renderCampaignOverlay(screens.campaignMenuOpen, campaignStages.length, campaignNotice, campaignCards);
   const editorOverlay = screens.editorOpen ? renderEditorView(editor, editorNotice, paintMode, editorHistory) : "";
@@ -1269,10 +1278,11 @@ function render(): void {
     visible: !screens.campaignMenuOpen && !screens.titleOpen && !replayMode && screens.briefingOpen,
     backToTitle: true,
     finiteSupplies,
+    requiresStrategy: game.units.some(unit => unit.callsign !== undefined),
     requiresAirlift: [...deploymentChoices.red, ...deploymentChoices.blue].includes('transportHelicopter'),
     fixedConditions: dailyLocked(),
     mapName: scenarioDisplayName(renderedMap),
-    deployment: (dailyLocked() && screens.briefingOpen ? renderDailyBriefingNote({ conditions: dailyBriefingConditions(), standard: !!deployment?.ok && isStandardDailyDefinition(deployment.value) }) : '') + (deploymentBase && deploymentBase.id !== 'training' && screens.briefingOpen ? renderDeployment(deploymentBase, deploymentChoices, matchMode === 'cpu' ? ['red'] : ['red', 'blue'], deploymentOpen, deploymentNotice, { catalog: presetCatalog, notice: presetNotice, draftNames: presetDraftNames }) + renderOperationChallenges(renderedMap.id) : ''),
+    deployment: ((game.ruleVersion ?? 0) >= 12 && !dailyLocked() && matchMode !== 'hotseat' ? renderArmyPolicies(cpuPolicies, matchMode === 'spectate') : '') + (dailyLocked() && screens.briefingOpen ? renderDailyBriefingNote({ conditions: dailyBriefingConditions(), standard: !!deployment?.ok && isStandardDailyDefinition(deployment.value) }) : '') + (deploymentBase && deploymentBase.id !== 'training' && screens.briefingOpen ? renderDeployment(deploymentBase, deploymentChoices, matchMode === 'cpu' ? ['red'] : ['red', 'blue'], deploymentOpen, deploymentNotice, { catalog: presetCatalog, notice: presetNotice, draftNames: presetDraftNames }) + renderOperationChallenges(renderedMap.id) : ''),
     beginDisabled: deployment !== undefined && !deployment.ok,
     briefing: scenarioDisplayBriefing(renderedMap),
     victoryConditions: [...renderedMap.victoryConditions.map(conditionDescription), ...(renderedDecisionRound === undefined ? [] : [uiText.decisionRule(renderedDecisionRound)])],
@@ -2026,6 +2036,24 @@ function render(): void {
     if (screens.briefingOpen && commandHistory.length === 0 && !campaignRun && !dailyLocked()) matchMode = parseMatchMode(input.value);
     render();
   }));
+  app.querySelectorAll<HTMLButtonElement>('.campaign-veteran-rename').forEach(button => button.addEventListener('click', () => {
+    if (!screens.campaignMenuOpen) return;
+    const stageId = button.dataset.veteranStage!;
+    const index = Number(button.dataset.veteranIndex);
+    const input = [...app.querySelectorAll<HTMLInputElement>('input[data-veteran-stage]')].find(control => control.dataset.veteranStage === stageId && Number(control.dataset.veteranIndex) === index);
+    const renamed = renameCampaignVeteran(campaignProgress, stageId, index, input?.value.trim() ?? '');
+    if (!renamed.ok) { campaignNotice = getLocale() === 'en' ? 'Invalid or duplicate callsign.' : '名前が不正か、同じ名前の部隊があります。'; render(); return; }
+    const saved = saveCampaignProgress(localStorage, renamed.value);
+    if (saved.ok) campaignProgress = renamed.value;
+    campaignNotice = saved.ok ? (getLocale() === 'en' ? 'Callsign saved.' : '部隊名を保存しました。') : saved.error;
+    render();
+  }));
+  app.querySelectorAll<HTMLSelectElement>('[data-army-policy]').forEach(control => control.addEventListener('change', () => {
+    const side = control.dataset.armyPolicy;
+    if (!screens.briefingOpen || commandHistory.length || dailyLocked() || (game.ruleVersion ?? 0) < 12 || (side !== 'red' && side !== 'blue') || !isArmyPolicy(control.value)) return;
+    cpuPolicies = { ...cpuPolicies, [side]: control.value };
+    render();
+  }));
   app.querySelector<HTMLSelectElement>('#briefing-supply-mode')?.addEventListener('change', event => {
     const value = (event.currentTarget as HTMLSelectElement).value;
     if (!screens.briefingOpen || commandHistory.length > 0 || campaignRun || dailyLocked() || (value !== 'finite' && value !== 'unlimited')) return;
@@ -2289,7 +2317,7 @@ function runCpu(initialDelayMs = 0): void {
     if (replay || game.activePlayer !== side || game.winner) { finishCpuTurn(side); return false; }
     if (steps >= maximumSteps) { finishCpuTurn(side, true); return false; }
     steps += 1;
-    const action = chooseCpuAction(game, cpuDifficultyFor(matchMode, side, { red: redDifficulty, blue: difficulty }));
+    const action = chooseCpuAction(game, cpuDifficultyFor(matchMode, side, { red: redDifficulty, blue: difficulty }), side, dailyLocked() ? 'balanced' : cpuPolicies[side]);
     if (action.type === 'endTurn') { dispatch(action); finishCpuTurn(side); return false; }
     const before = game;
     if (!dispatch(action)) {

@@ -103,7 +103,7 @@ describe('daily challenge in the distributed app', () => {
     click('#save');
     const forged = JSON.parse(dom.window.localStorage.getItem(saveKey)!);
     expect(forged.difficulty).toBe('normal');
-    expect(forged.initialState.ruleVersion).toBe(11);
+    expect(forged.initialState.ruleVersion).toBe(12);
     expect(forged.mode ?? 'cpu').toBe('cpu');
     // Nothing was written to the custom catalog: a daily battlefield never uses a slot.
     expect(dom.window.localStorage.getItem(catalogKey)).toBe(customBefore);

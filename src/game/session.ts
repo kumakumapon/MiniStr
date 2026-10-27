@@ -1,3 +1,5 @@
+import { validCallsign } from './veteranIdentity';
+import { validArmyPolicies, type ArmyPolicies } from './armyPolicy';
 import { attackUnit, evacuateUnit, captureProperty, disembarkUnit, embarkUnit, endTurn, mergeUnits, moveUnit, produceUnit, waitUnit } from './commands';
 import { MAX_EXPERIENCE } from './experience';
 import { isValidSupplyStock } from './supplyStock';
@@ -46,6 +48,7 @@ export type GameCommand =
   | { type: 'endTurn' };
 
 export interface SavedGame {
+  cpuPolicies?: ArmyPolicies;
   schemaVersion: typeof SAVE_SCHEMA_VERSION;
   mapId: string;
   difficulty: 'easy' | 'normal' | 'hard';
@@ -293,6 +296,7 @@ export function isGameState(value: unknown): value is GameState {
       || !isValidUnitAmmo(unit.kind as UnitKind, unit.ammo)
       || !isValidSecondaryAmmo(unit.kind as UnitKind, unit.secondaryAmmo, { ruleVersion: value.ruleVersion as GameState['ruleVersion'] })
       || !isValidSupplyStock(unit.kind, unit.supplyStock, { ruleVersion: value.ruleVersion as GameState['ruleVersion'] })
+      || (unit.callsign !== undefined && ((value.ruleVersion as number ?? 0) < 12 || !validCallsign(unit.callsign)))
       || typeof unit.hasMoved !== 'boolean' || typeof unit.hasActed !== 'boolean'
       // Experience exists only in modern-rule matches, so a classic save cannot smuggle in rank bonuses.
       || (unit.experience !== undefined && (!modern || !Number.isSafeInteger(unit.experience)
@@ -363,6 +367,7 @@ function validateSavedGameShape(value: unknown): value is SavedGame {
     // turn-one gold, board, or forces. Custom IDs resolve through the loaded,
     // persisted custom catalog rather than trusting the save payload.
     && matchesScenarioInitialState(value.initialState, scenario)
+    && (value.cpuPolicies === undefined || ((value.initialState.ruleVersion ?? 0) >= 12 && validArmyPolicies(value.cpuPolicies)))
     && (value.campaignScenarioId === undefined || value.campaignScenarioId === value.mapId)
     && (value.mode === undefined || value.mode === 'cpu' || value.mode === 'hotseat' || value.mode === 'spectate')
     // Campaigns are CPU battles only.

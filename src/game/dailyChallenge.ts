@@ -190,7 +190,7 @@ export function dailyVictory(
   if (!match) return fail(DAILY_ERRORS.deployment);
   if (context.matchMode !== 'cpu') return fail(DAILY_ERRORS.matchMode);
   if (context.difficulty !== 'normal') return fail(DAILY_ERRORS.difficulty);
-  if (initial.ruleVersion !== FINITE_SUPPLY_RULE_VERSION && initial.ruleVersion !== CURRENT_RULE_VERSION) return fail(DAILY_ERRORS.rules);
+  if (initial.ruleVersion === undefined || initial.ruleVersion < FINITE_SUPPLY_RULE_VERSION || initial.ruleVersion > CURRENT_RULE_VERSION) return fail(DAILY_ERRORS.rules);
   if (final.winner !== 'red') return fail(DAILY_ERRORS.unfinished);
   if (!withinReplayBudget(initial, commands.length)) return fail(DAILY_ERRORS.history);
   const outcome = replayOperationOutcome(initial, final, commands);

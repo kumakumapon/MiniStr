@@ -46,7 +46,7 @@ for (const width of [1280, 390])
       await page.locator('.embark').click();
       await page.locator('#save').click();
       const saved = await page.evaluate(() => JSON.parse(localStorage.getItem('ministr.save.manual')!));
-      expect(saved.gameState.ruleVersion).toBe(11);
+      expect(saved.gameState.ruleVersion).toBe(12);
       expect(saved.gameState.units.find((u: { id: string }) => u.id === 'r1').embarkedIn).toBe('r2');
       await page.reload();
       await page.locator('#title-continue').click();

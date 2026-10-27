@@ -16,6 +16,7 @@ export interface Terrain {
 }
 
 export interface Unit {
+  callsign?: string;
   id: string;
   kind: UnitKind;
   owner: PlayerId;
@@ -109,7 +110,7 @@ export const FINITE_SUPPLY_RULE_VERSION = 10 as const;
 export const AIRLIFT_RULE_VERSION = 11 as const;
 /** v1.1.0 candidate rules; promoted after the complete ruleset is validated. */
 export const STRATEGY_RULE_VERSION = 12 as const;
-export const CURRENT_RULE_VERSION = AIRLIFT_RULE_VERSION;
+export const CURRENT_RULE_VERSION = STRATEGY_RULE_VERSION;
 export const usesFiniteSupplyRules = (state: Pick<GameState, 'ruleVersion'>): boolean => (state.ruleVersion ?? 0) >= FINITE_SUPPLY_RULE_VERSION;
 export const usesBridgeRules = (state: Pick<GameState, 'ruleVersion'>): boolean => (state.ruleVersion ?? 0) >= BRIDGE_RULE_VERSION;
 export const usesFrontlineRules = (state: Pick<GameState, 'ruleVersion'>): boolean => (state.ruleVersion ?? 0) >= FRONTLINE_RULE_VERSION;

@@ -45,7 +45,7 @@ export function createDeploymentScenario(
   scenario: ScenarioDefinition,
   choices: readonly UnitKind[],
   player: PlayerId = 'red',
-  veterans?: readonly { kind: UnitKind; experience: number }[],
+  veterans?: readonly { kind: UnitKind; experience: number; callsign?: string }[],
 ): GameResult<ScenarioDefinition> {
   const slots = deploymentSlots(scenario, player);
   if (!Array.isArray(choices) || choices.length !== slots.length || choices.some((kind, index) => !unitKindSet.has(kind) || !slots[index]!.choices.includes(kind)))
@@ -67,7 +67,10 @@ export function createDeploymentScenario(
   if (selected.filter((kind) => unitStats[kind].capturePower > 0).length < requiredCapturers)
     return { ok: false, error: `占領できる歩兵系を${requiredCapturers}部隊以上残してください。` };
   const pool = (
-    veterans ?? scenario.initialUnits.filter((unit) => unit.owner === player && unit.experience !== undefined).map((unit) => ({ kind: unit.kind, experience: unit.experience! }))
+    veterans ??
+    scenario.initialUnits
+      .filter((unit) => unit.owner === player && (unit.experience !== undefined || unit.callsign !== undefined))
+      .map((unit) => ({ kind: unit.kind, experience: unit.experience ?? 0, callsign: unit.callsign }))
   )
     .map((unit) => ({ ...unit }))
     .sort((a, b) => b.experience - a.experience);
@@ -79,7 +82,8 @@ export function createDeploymentScenario(
     const veteran = veteranIndex < 0 ? undefined : pool.splice(veteranIndex, 1)[0];
     const result = { ...unit, kind };
     delete result.experience;
-    return veteran ? { ...result, experience: veteran.experience } : result;
+    delete result.callsign;
+    return veteran ? { ...result, experience: veteran.experience, ...(veteran.callsign ? { callsign: veteran.callsign } : {}) } : result;
   });
   const source = scenarioDefinitionToData(scenario);
   const bonus = player === 'red' ? 'firstPlayerBonus' : 'secondPlayerBonus';
