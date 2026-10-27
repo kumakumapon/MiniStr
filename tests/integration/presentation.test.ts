@@ -77,5 +77,5 @@ it('keeps the current game and its recorded rule when changing title BGM', () =>
   expect(after.gameState).toEqual(before.gameState);
   expect(after.initialState).toEqual(before.initialState);
   expect(after.commands).toEqual(before.commands);
-  expect(after.gameState.ruleVersion).toBe(11);
+  expect(after.gameState.ruleVersion).toBe(12);
 });

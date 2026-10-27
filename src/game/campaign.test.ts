@@ -76,10 +76,10 @@ describe('campaign progression', () => {
     expect(isCampaignScenarioUnlocked(progress, 'canyon')).toBe(false);
   });
 
-  it('records the best grade and unlocks only the next scenario', () => {
+  it('records the best grade and opens both first branches', () => {
     const first = recordCampaignVictory(createCampaignProgress(NOW), 'skirmish', 'B', NOW);
     expect(first.ok && first.value).toMatchObject({
-      unlockedScenarioIds: ['skirmish', 'islands'], bestGrades: { skirmish: 'B' },
+      unlockedScenarioIds: ['skirmish', 'islands', 'canyon'], bestGrades: { skirmish: 'B' },
     });
     if (!first.ok) return;
     const worse = recordCampaignVictory(first.value, 'skirmish', 'C', NOW);

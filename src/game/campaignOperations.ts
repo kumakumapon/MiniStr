@@ -1,4 +1,4 @@
-import { campaignStages, isCampaignProgress, isCampaignScenarioUnlocked, type CampaignGrade, type CampaignProgress } from './campaign';
+import { campaignPredecessor, campaignStages, isCampaignProgress, isCampaignScenarioUnlocked, type CampaignGrade, type CampaignProgress } from './campaign';
 import { loadScenarioDefinitions, scenarioById, scenarioDefinitionToData, type ScenarioData, type ScenarioDefinition, type VictoryCondition } from './maps';
 import type { GameResult, PlayerId, UnitKind } from './types';
 
@@ -209,12 +209,13 @@ export const campaignOperations: Readonly<Record<string, CampaignOperation>> = {
 const supportByGrade: Record<CampaignGrade, number> = { S: 2000, A: 1500, B: 1000, C: 500 };
 
 export function campaignDeployment(progress: CampaignProgress, scenarioId: string) {
-  const index = campaignStages.findIndex((stage) => stage.scenarioId === scenarioId);
-  const predecessorId = index > 0 ? campaignStages[index - 1]!.scenarioId : undefined;
+  const predecessorId = campaignPredecessor(progress, scenarioId);
+  const routeSupport =
+    predecessorId && campaignStages.findIndex((stage) => stage.scenarioId === scenarioId) - campaignStages.findIndex((stage) => stage.scenarioId === predecessorId) > 1 ? 3000 : 0;
   const grade = predecessorId ? progress.bestGrades[predecessorId] : undefined;
   return {
     predecessorId,
-    support: grade ? supportByGrade[grade] : 0,
+    support: (grade ? supportByGrade[grade] : 0) + routeSupport,
     veterans: predecessorId ? structuredClone(progress.veteransByScenario?.[predecessorId] ?? []) : [],
   };
 }
@@ -235,7 +236,7 @@ export function createCampaignScenario(progress: CampaignProgress, scenarioId: s
     if (unit.owner !== 'red') return unit;
     const index = veterans.findIndex((veteran) => veteran.kind === unit.kind);
     const veteran = index < 0 ? undefined : veterans.splice(index, 1)[0];
-    return veteran ? { ...unit, experience: veteran.experience } : unit;
+    return veteran ? { ...unit, experience: veteran.experience, ...(veteran.callsign ? { callsign: veteran.callsign } : {}) } : unit;
   });
   const victoryConditions: VictoryCondition[] = [structuredClone(operation.objective)];
   if (operation.objective.type !== 'captureCapital') victoryConditions.push({ type: 'captureCapital' });

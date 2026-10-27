@@ -86,7 +86,7 @@ it.each(['finite', 'unlimited'])('records the chosen %s supply rule and restores
   expect(document.querySelector('#unit-brief')?.textContent.includes('Supply stock')).toBe(mode === 'finite');
   click('#save');
   const saved = JSON.parse(dom.window.localStorage.getItem(saveKey));
-  expect(saved.initialState.ruleVersion).toBe(mode === 'finite' ? 11 : 9);
+  expect(saved.initialState.ruleVersion).toBe(mode === 'finite' ? 12 : 9);
   click('#continue');
   click('.tile[data-x="0"][data-y="2"]');
   expect(document.querySelector('#unit-brief')?.textContent.includes('Supply stock')).toBe(mode === 'finite');

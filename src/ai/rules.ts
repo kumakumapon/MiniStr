@@ -1,3 +1,6 @@
+import { policyConfig } from './armyPolicy';
+import type { ArmyPolicy } from '../game/armyPolicy';
+import { chooseDemolition } from './demolition';
 import { chooseAirliftAction } from './airlift';
 import { SUPPLY_CAPACITY, stockCanSupply, supplyStock } from '../game/supplyStock';
 import { hasUsableWeapon, weaponAmmo, weaponsForUnit } from '../game/weapons';
@@ -77,6 +80,7 @@ export const cpuDifficultyConfig: Record<CpuDifficulty, CpuDifficultyConfig> = {
 export const MIN_CPU_FORCE = 4;
 
 export type CpuAction =
+  | { type: 'destroyBridge'; unitId: string; destination: Position }
   | { type: 'recon'; center: Position }
   | { type: 'fortify'; unitId: string }
   | { type: 'bridge'; unitId: string; destination: Position }
@@ -812,11 +816,11 @@ export function createCpuPlanningContext(state: GameState, player: PlayerId, con
 }
 
 /** Select the next legal high-level CPU order. The caller applies it with the game command layer. */
-export function chooseCpuAction(state: GameState, difficulty: CpuDifficulty = 'normal', player: PlayerId = state.activePlayer): CpuAction {
+export function chooseCpuAction(state: GameState, difficulty: CpuDifficulty = 'normal', player: PlayerId = state.activePlayer, policy: ArmyPolicy = 'balanced'): CpuAction {
   if (state.winner || player !== state.activePlayer) return { type: 'endTurn' };
-  const action = chooseOrientedCpuAction(player === 'blue' ? bluePlanningState(state) : state, difficulty, player);
+  const action = chooseOrientedCpuAction(player === 'blue' ? bluePlanningState(state) : state, difficulty, player, (state.ruleVersion ?? 0) >= 12 ? policy : 'balanced');
   if (player !== 'blue') return action;
-  if (action.type === 'move' || action.type === 'disembark' || action.type === 'bridge') return { ...action, destination: rotatePosition(action.destination, state.board) };
+  if (action.type === 'move' || action.type === 'disembark' || action.type === 'bridge' || action.type === 'destroyBridge') return { ...action, destination: rotatePosition(action.destination, state.board) };
   if (action.type === 'produce') return { ...action, factory: rotatePosition(action.factory, state.board) };
   if (action.type === 'recon') return { ...action, center: rotatePosition(action.center, state.board) };
   return action;
@@ -928,13 +932,13 @@ function engineeringAction(state: GameState, player: PlayerId, context: CpuPlann
   return engineer ? { type: 'fortify', unitId: engineer.id } : undefined;
 }
 
-function chooseOrientedCpuAction(state: GameState, difficulty: CpuDifficulty, player: PlayerId): CpuAction {
+function chooseOrientedCpuAction(state: GameState, difficulty: CpuDifficulty, player: PlayerId, policy: ArmyPolicy = 'balanced'): CpuAction {
   if (state.winner || player !== state.activePlayer) return { type: 'endTurn' };
   state = observeLogistics(state, player);
   // Never abandon a win secured by ending this turn (notably a completed hold
   // objective) in order to seek an optional attack or move.
   if (endTurn(state).winner === player) return { type: 'endTurn' };
-  const config = cpuDifficultyConfig[difficulty];
+  const config = policyConfig(cpuDifficultyConfig[difficulty], policy);
   const readyUnits = orderedUnits(state, player);
   const replacementFor = (unit: DeployedUnit) => readyUnits.some(ally => ally.id !== unit.id && unitStats[ally.kind].capturePower > 0
     && !ally.hasMoved && !ally.hasActed && ally.hp >= Math.max(60, unit.hp + 30)
@@ -969,6 +973,7 @@ function chooseOrientedCpuAction(state: GameState, difficulty: CpuDifficulty, pl
   }
   return attackAction(state, player, config, context.visibleEnemies)
     ?? strikeAction(state, player, config, context.visibleEnemies)
+    ?? chooseDemolition(state, player, context.visibleEnemies)
     ?? engineeringAction(state, player, context)
     ?? mergeAction(state, player)
     ?? clearNavalServiceLane(state, player, readyUnits)

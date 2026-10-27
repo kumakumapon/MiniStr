@@ -23,7 +23,7 @@ export function spectatorUnits(state: GameState, visible: ReadonlySet<string>): 
 /** Prefer the acting unit's new position, retaining its last known tile if it was destroyed. */
 export function spectatorActionPosition(before: GameState, after: GameState, command: GameCommand): Position | undefined {
   if (command.type === 'recon') return { ...command.center };
-  if (command.type === 'disembark' || command.type === 'bridge') return { ...command.destination };
+  if (command.type === 'disembark' || command.type === 'bridge' || command.type === 'destroyBridge') return { ...command.destination };
   if (command.type === 'produce') return { ...command.factory };
   if (command.type === 'endTurn') {
     const unit = after.units.find((unit) => unit.owner === after.activePlayer && isDeployedUnit(unit));

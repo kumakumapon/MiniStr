@@ -1,3 +1,5 @@
+import { validCallsign } from './veteranIdentity';
+import { validArmyPolicies, type ArmyPolicies } from './armyPolicy';
 import { attackUnit, evacuateUnit, captureProperty, disembarkUnit, embarkUnit, endTurn, mergeUnits, moveUnit, produceUnit, waitUnit } from './commands';
 import { MAX_EXPERIENCE } from './experience';
 import { isValidSupplyStock } from './supplyStock';
@@ -10,7 +12,7 @@ import { evacuationObjectives } from './evacuation';
 import { isEvacuationCondition } from './maps';
 import type { WeaponSlot } from './units';
 import { parseBoundedJson } from './jsonBoundary';
-import { buildBridge, validBridges } from './bridges';
+import { buildBridge, destroyBridge, validBridges } from './bridges';
 import { fortifyUnit, validFortifications } from './engineering';
 import { usesFrontlineRules } from './types';
 import { scanArea, validRecon } from './recon';
@@ -34,6 +36,7 @@ export type GameCommand =
   | { type: 'move'; unitId: string; destination: Position }
   | { type: 'fortify'; unitId: string }
   | { type: 'bridge'; unitId: string; destination: Position }
+  | { type: 'destroyBridge'; unitId: string; destination: Position }
   | { type: 'wait'; unitId: string }
   | { type: 'evacuate'; unitId: string }
   | { type: 'attack'; unitId: string; targetId: string; weaponSlot?: WeaponSlot }
@@ -45,6 +48,7 @@ export type GameCommand =
   | { type: 'endTurn' };
 
 export interface SavedGame {
+  cpuPolicies?: ArmyPolicies;
   schemaVersion: typeof SAVE_SCHEMA_VERSION;
   mapId: string;
   difficulty: 'easy' | 'normal' | 'hard';
@@ -140,6 +144,7 @@ export function applyGameCommand(state: GameState, command: GameCommand): GameRe
     case 'recon': return scanArea(state, command.center);
     case 'move': return moveUnit(state, command.unitId, command.destination);
     case 'bridge': return buildBridge(state, command.unitId, command.destination);
+    case 'destroyBridge': return destroyBridge(state, command.unitId, command.destination);
     case 'fortify': return fortifyUnit(state, command.unitId);
     case 'wait': return waitUnit(state, command.unitId);
     case 'evacuate': return evacuateUnit(state, command.unitId);
@@ -244,7 +249,7 @@ export function isGameCommand(value: unknown): value is GameCommand {
   if (value.type === 'endTurn') return true;
   if (value.type === 'recon') return isPosition(value.center) && Object.keys(value).sort().join() === 'center,type';
   if (value.type === 'move') return typeof value.unitId === 'string' && isPosition(value.destination);
-  if (value.type === 'bridge') return typeof value.unitId === 'string' && isPosition(value.destination)
+  if (value.type === 'bridge' || value.type === 'destroyBridge') return typeof value.unitId === 'string' && isPosition(value.destination)
     && Object.keys(value.destination).sort().join() === 'x,y' && Object.keys(value).sort().join() === 'destination,type,unitId';
   if (value.type === 'fortify') return typeof value.unitId === 'string' && Object.keys(value).sort().join() === 'type,unitId';
   if (value.type === 'wait' || value.type === 'evacuate') return typeof value.unitId === 'string';
@@ -278,6 +283,7 @@ export function isGameState(value: unknown): value is GameState {
   const evacuated: unknown[] = Array.isArray(value.evacuatedUnits) ? value.evacuatedUnits : [];
   if (value.units.length + evacuated.length > 4096) return false;
   const ids = new Set<string>();
+  const callsigns = new Set<string>();
   const positions = new Set<string>();
   const unitsById = new Map<string, Record<string, unknown>>();
   for (const unit of [...value.units, ...evacuated]) {
@@ -291,10 +297,16 @@ export function isGameState(value: unknown): value is GameState {
       || !isValidUnitAmmo(unit.kind as UnitKind, unit.ammo)
       || !isValidSecondaryAmmo(unit.kind as UnitKind, unit.secondaryAmmo, { ruleVersion: value.ruleVersion as GameState['ruleVersion'] })
       || !isValidSupplyStock(unit.kind, unit.supplyStock, { ruleVersion: value.ruleVersion as GameState['ruleVersion'] })
+      || (unit.callsign !== undefined && ((value.ruleVersion as number ?? 0) < 12 || !validCallsign(unit.callsign)))
       || typeof unit.hasMoved !== 'boolean' || typeof unit.hasActed !== 'boolean'
       // Experience exists only in modern-rule matches, so a classic save cannot smuggle in rank bonuses.
       || (unit.experience !== undefined && (!modern || !Number.isSafeInteger(unit.experience)
         || (unit.experience as number) < 0 || (unit.experience as number) > MAX_EXPERIENCE))) return false;
+    if (unit.callsign !== undefined) {
+      const key = `${unit.owner}:${unit.callsign}`;
+      if (callsigns.has(key)) return false;
+      callsigns.add(key);
+    }
     const deployed = unit.position !== undefined && unit.embarkedIn === undefined;
     const embarked = unit.position === undefined && typeof unit.embarkedIn === 'string';
     if (!deployed && !embarked) return false;
@@ -361,6 +373,7 @@ function validateSavedGameShape(value: unknown): value is SavedGame {
     // turn-one gold, board, or forces. Custom IDs resolve through the loaded,
     // persisted custom catalog rather than trusting the save payload.
     && matchesScenarioInitialState(value.initialState, scenario)
+    && (value.cpuPolicies === undefined || ((value.initialState.ruleVersion ?? 0) >= 12 && validArmyPolicies(value.cpuPolicies)))
     && (value.campaignScenarioId === undefined || value.campaignScenarioId === value.mapId)
     && (value.mode === undefined || value.mode === 'cpu' || value.mode === 'hotseat' || value.mode === 'spectate')
     // Campaigns are CPU battles only.

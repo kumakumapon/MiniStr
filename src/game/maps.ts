@@ -1,3 +1,4 @@
+import { validCallsign } from './veteranIdentity';
 import { defaultProductionRule, isPropertyTerrainKind, productionRuleSet, type ProductionRule } from './facilities';
 import { MAX_EXPERIENCE } from './experience';
 import { hasSafeJsonStructure, parseBoundedJson } from './jsonBoundary';
@@ -12,7 +13,7 @@ import { createBoard, createGameState, incomePropertyCount } from './state';
 import { unitKindSet, unitStats } from './units';
 import { CURRENT_RULE_VERSION, terrainKindSet, type Board, type GameResult, type GameState, type PlayerId, type Position, type TerrainKind, type UnitKind } from './types';
 
-export interface InitialUnit { kind: UnitKind; owner: PlayerId; x: number; y: number; experience?: number }
+export interface InitialUnit { callsign?: string; kind: UnitKind; owner: PlayerId; x: number; y: number; experience?: number }
 export const scenarioThemes = ['temperate', 'desert', 'snow', 'urban', 'coastal'] as const;
 export type ScenarioTheme = (typeof scenarioThemes)[number];
 export const scenarioThemeSet: ReadonlySet<string> = new Set(scenarioThemes);
@@ -181,6 +182,7 @@ function parseScenario(value: unknown, ids: Set<string>, options: ScenarioLoadOp
   if (!Array.isArray(value.initialUnits) || value.initialUnits.length > width * height) return { ok: false, error: `シナリオ「${value.id}」の初期ユニットが不正です。` };
   const initialUnits: InitialUnit[] = [];
   const unitPositions = new Set<string>();
+  const unitCallsigns = new Set<string>();
   for (const unit of value.initialUnits) {
     if (!isRecord(unit)) return { ok: false, error: `シナリオ「${value.id}」の初期ユニットが不正です。` };
     const x = unit.x;
@@ -188,11 +190,18 @@ function parseScenario(value: unknown, ids: Set<string>, options: ScenarioLoadOp
     if (typeof unit.kind !== 'string' || !unitKindSet.has(unit.kind)
       || typeof unit.owner !== 'string' || !playerIds.has(unit.owner as PlayerId)
       || !isNonNegativeInteger(x) || !isNonNegativeInteger(y) || x >= width || y >= height
+      || (unit.callsign !== undefined && !validCallsign(unit.callsign))
       || (unit.experience !== undefined && (!isNonNegativeInteger(unit.experience) || unit.experience > MAX_EXPERIENCE))) return { ok: false, error: `シナリオ「${value.id}」の初期ユニットが不正です。` };
+    if (unit.callsign !== undefined) {
+      const nameKey = `${unit.owner}:${unit.callsign}`;
+      if (unitCallsigns.has(nameKey)) return { ok: false, error: '部隊名が重複しています。' };
+      unitCallsigns.add(nameKey);
+    }
     const key = `${x},${y}`;
     if (unitPositions.has(key)) return { ok: false, error: `シナリオ「${value.id}」に重複した初期ユニットがあります。` };
     unitPositions.add(key);
     initialUnits.push({ kind: unit.kind as UnitKind, owner: unit.owner as PlayerId, x, y,
+      ...(unit.callsign === undefined ? {} : { callsign: unit.callsign as string }),
       ...(unit.experience === undefined ? {} : { experience: unit.experience as number }) });
   }
   const parseConditions = (conditions: unknown, label: string, player: PlayerId): GameResult<VictoryCondition[]> => {
@@ -437,7 +446,8 @@ export function createScenarioInitialState(scenario: ScenarioDefinition): GameSt
       nextId[unit.owner] += 1;
       const stats = unitStats[unit.kind];
       return { id: `${unit.owner[0]}${nextId[unit.owner]}`, kind: unit.kind, owner: unit.owner, position: { x: unit.x, y: unit.y }, hp: 100, fuel: stats.fuel, ammo: stats.ammo, hasMoved: false, hasActed: false,
-        ...(unit.experience === undefined ? {} : { experience: unit.experience }) };
+        ...(unit.callsign === undefined ? {} : { callsign: unit.callsign as string }),
+      ...(unit.experience === undefined ? {} : { experience: unit.experience }) };
     }),
   };
 }

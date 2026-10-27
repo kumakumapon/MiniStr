@@ -1,3 +1,4 @@
+import { validCallsign } from './veteranIdentity';
 import { scenarioById } from './maps';
 import { parseBoundedJson } from './jsonBoundary';
 import { isGameState, type StorageLike } from './session';
@@ -5,7 +6,7 @@ import { MAX_EXPERIENCE } from './experience';
 import { unitKindSet } from './units';
 import type { GameResult, GameState, PlayerId, UnitKind } from './types';
 
-export const CAMPAIGN_SCHEMA_VERSION = 4 as const;
+export const CAMPAIGN_SCHEMA_VERSION = 5 as const;
 export const CAMPAIGN_STORAGE_KEY = 'ministr.campaign.progress';
 export const MAX_CAMPAIGN_BYTES = 64_000;
 export type CampaignGrade = 'S' | 'A' | 'B' | 'C';
@@ -33,10 +34,20 @@ export interface CampaignProgress {
   bestGrades: Partial<Record<string, CampaignGrade>>;
   updatedAt: string;
   /** The latest victorious roster for each operation; replays replace, never accumulate it. */
+  predecessors?: Partial<Record<string, string>>;
   veteransByScenario?: Partial<Record<string, CampaignVeteran[]>>;
 }
 
-export interface CampaignVeteran { kind: UnitKind; experience: number }
+export interface CampaignVeteran { kind: UnitKind; experience: number; callsign?: string }
+export const campaignSuccessors: Readonly<Record<string, readonly string[]>> = {
+  skirmish: ['islands', 'canyon'], islands: ['canyon', 'siege'], canyon: ['siege'], siege: ['river'], river: ['tundra'],
+  tundra: ['outpost', 'landing'], outpost: ['landing', 'industrial'], landing: ['industrial'], industrial: ['marsh'], marsh: [],
+};
+export function campaignPredecessor(progress: CampaignProgress, id: string): string | undefined {
+  return progress.predecessors?.[id] ?? campaignStages.filter(stage => campaignSuccessors[stage.scenarioId]?.includes(id) && progress.bestGrades[stage.scenarioId]).at(-1)?.scenarioId;
+}
+
+
 
 function migrateCampaignV1ToV2(value: Record<string, unknown>): Record<string, unknown> {
   return { ...structuredClone(value), schemaVersion: 2 };
@@ -50,7 +61,7 @@ function migrateCampaignV2ToV3(value: Record<string, unknown>): Record<string, u
 function migrateCampaign(value: Record<string, unknown>): Record<string, unknown> | undefined {
   if (value.schemaVersion === CAMPAIGN_SCHEMA_VERSION) return value;
   const v3 = value.schemaVersion === 1 ? migrateCampaignV2ToV3(migrateCampaignV1ToV2(value))
-    : value.schemaVersion === 2 ? migrateCampaignV2ToV3(value) : value.schemaVersion === 3 ? value : undefined;
+    : value.schemaVersion === 2 ? migrateCampaignV2ToV3(value) : value.schemaVersion === 3 || value.schemaVersion === 4 ? value : undefined;
   if (v3) return { ...structuredClone(v3), schemaVersion: CAMPAIGN_SCHEMA_VERSION };
   return undefined;
 }
@@ -129,10 +140,11 @@ export function recordCampaignVictory(
   const bestGrades = { ...progress.bestGrades };
   if (!previous || gradeRank[grade] > gradeRank[previous]) bestGrades[scenarioId] = grade;
   const unlocked = new Set(progress.unlockedScenarioIds);
-  const next = stageIds[index + 1];
-  if (next) unlocked.add(next);
+  const predecessors = { ...progress.predecessors };
+  for (const next of campaignSuccessors[scenarioId] ?? []) { unlocked.add(next); predecessors[next] = scenarioId; }
   return ok({
     ...(progress.veteransByScenario === undefined ? {} : { veteransByScenario: structuredClone(progress.veteransByScenario) }),
+    predecessors,
     schemaVersion: CAMPAIGN_SCHEMA_VERSION,
     unlockedScenarioIds: stageIds.filter(id => unlocked.has(id)),
     bestGrades,
@@ -145,26 +157,46 @@ export function recordCampaignVeterans(progress: CampaignProgress, finalState: G
   if (!isCampaignProgress(progress) || !isGameState(finalState) || finalState.winner !== 'red'
     || !finalState.scenarioId || !isCampaignScenarioCompleted(progress, finalState.scenarioId))
     return fail('生還部隊を記録できません。');
+  const usedNames = new Set([...finalState.units, ...(finalState.evacuatedUnits ?? [])].flatMap(unit => unit.owner === 'red' && unit.callsign ? [unit.callsign] : []));
+  const generatedName = (id: string): string => {
+    const base = `V${stageIds.indexOf(finalState.scenarioId!) + 1}-${id}`.slice(0, 24);
+    let result = base, counter = 2;
+    while (usedNames.has(result)) result = `${base}-${counter++}`;
+    usedNames.add(result);
+    return result;
+  };
   const veterans = [...finalState.units, ...(finalState.evacuatedUnits ?? [])].filter(unit => unit.owner === 'red')
-    .map(unit => ({ kind: unit.kind, experience: Math.min(MAX_EXPERIENCE, (unit.experience ?? 0) + 1) }))
+    .map(unit => ({ kind: unit.kind, callsign: unit.callsign ?? generatedName(unit.id), experience: Math.min(MAX_EXPERIENCE, (unit.experience ?? 0) + 1) }))
     .sort((a, b) => b.experience - a.experience || a.kind.localeCompare(b.kind)).slice(0, 64);
   return ok({ ...progress, veteransByScenario: { ...progress.veteransByScenario, [finalState.scenarioId]: veterans } });
+}
+
+export function renameCampaignVeteran(progress: CampaignProgress, scenarioId: string, index: number, callsign: string): GameResult<CampaignProgress> {
+  if (!isCampaignProgress(progress) || !validCallsign(callsign) || !Number.isSafeInteger(index) || index < 0) return fail('部隊名が不正です。');
+  const roster = progress.veteransByScenario?.[scenarioId];
+  if (!roster?.[index] || roster.some((unit, at) => at !== index && unit.callsign === callsign)) return fail('部隊名が不正です。');
+  const result = structuredClone(progress);
+  result.veteransByScenario![scenarioId]![index]!.callsign = callsign;
+  return ok(result);
 }
 
 export function isCampaignProgress(value: unknown): value is CampaignProgress {
   if (!isRecord(value)
     || !hasOnlyKeys(value, ['schemaVersion', 'unlockedScenarioIds', 'bestGrades', 'updatedAt',
+      ...(Object.hasOwn(value, 'predecessors') ? ['predecessors'] : []),
       ...(Object.hasOwn(value, 'veteransByScenario') ? ['veteransByScenario'] : [])])
     || value.schemaVersion !== CAMPAIGN_SCHEMA_VERSION
     || !Array.isArray(value.unlockedScenarioIds) || !isRecord(value.bestGrades)
     || typeof value.updatedAt !== 'string' || !Number.isFinite(Date.parse(value.updatedAt))
     || new Date(value.updatedAt).toISOString() !== value.updatedAt) return false;
+  const recordedGrades = value.bestGrades;
   const unlocked = value.unlockedScenarioIds;
   if (unlocked.length < 1 || unlocked.length > stageIds.length
-    || unlocked.some((id, index) => typeof id !== 'string' || id !== stageIds[index])) return false;
+    || unlocked[0] !== stageIds[0] || unlocked.some(id => typeof id !== 'string' || !stageIdSet.has(id))
+    || stageIds.filter(id => unlocked.includes(id)).join() !== unlocked.join()) return false;
   const unlockedSet = new Set(unlocked as string[]);
   for (let index = 1; index < unlocked.length; index += 1) {
-    if (!grades.has(value.bestGrades[stageIds[index - 1]!] as CampaignGrade)) return false;
+    if (!campaignStages.some(stage => campaignSuccessors[stage.scenarioId]?.includes(unlocked[index] as string) && grades.has(recordedGrades[stage.scenarioId] as CampaignGrade))) return false;
   }
   for (const [id, grade] of Object.entries(value.bestGrades)) {
     if (!stageIdSet.has(id) || !grades.has(grade as CampaignGrade) || !unlockedSet.has(id)) return false;
@@ -173,10 +205,16 @@ export function isCampaignProgress(value: unknown): value is CampaignProgress {
     if (!isRecord(value.veteransByScenario)) return false;
     for (const [id, veterans] of Object.entries(value.veteransByScenario)) {
       if (!stageIdSet.has(id) || !Object.hasOwn(value.bestGrades, id) || !Array.isArray(veterans) || veterans.length > 64
-        || veterans.some(unit => !isRecord(unit) || !hasOnlyKeys(unit, ['kind', 'experience'])
+        || veterans.some(unit => !isRecord(unit) || !hasOnlyKeys(unit, ['kind', 'experience', ...(Object.hasOwn(unit, 'callsign') ? ['callsign'] : [])])
+          || (unit.callsign !== undefined && !validCallsign(unit.callsign))
           || typeof unit.kind !== 'string' || !unitKindSet.has(unit.kind)
           || !Number.isSafeInteger(unit.experience) || (unit.experience as number) < 1 || (unit.experience as number) > MAX_EXPERIENCE)) return false;
+      const names = veterans.flatMap(unit => isRecord(unit) && typeof unit.callsign === 'string' ? [unit.callsign] : []);
+      if (new Set(names).size !== names.length) return false;
     }
+  }
+  if (value.predecessors !== undefined) {
+    if (!isRecord(value.predecessors) || Object.entries(value.predecessors).some(([id, parent]) => typeof parent !== 'string' || !stageIdSet.has(parent) || !unlockedSet.has(id) || !campaignSuccessors[parent]?.includes(id) || !grades.has(recordedGrades[parent] as CampaignGrade))) return false;
   }
   return campaignStages.every(stage => scenarioById(stage.scenarioId) !== undefined);
 }

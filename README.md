@@ -1,5 +1,12 @@
 # MiniStr
 
+## v1.1.0
+
+工兵による橋の破壊、CPU軍方針（均衡・攻勢・守勢）、名前付き継続部隊とキャンペーン分岐を追加します。新規対局はルールv12、キャンペーン進行はschema5です。旧データの読み込みを維持します。
+
+[仕様](docs/strategy-expansion.md)・[リリースノート](docs/releases/v1.1.0.md)・[公開前確認](docs/reviews/2026-10-27-v1.1.0-progress.md)。
+
+
 ブラウザで遊べるターン制戦略ゲームです。Issue #1 の仕様案（Phase 1–6）を起点に、キャンペーンと戦場の拡充、近代ルール、決着力の向上と2人対戦（Phase 7–10）、CPU同士の観戦、タイトル画面まで実装しています。
 
 🎮 **[GitHub Pages でプレイする](https://kumakumapon.github.io/MiniStr/)** | 📚 [実装仕様](#実装仕様) | 🏗️ [実装ガイド](docs/implementation-guide.md) | 🛠️ [セットアップ](#セットアップ)

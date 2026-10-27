@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { cpuDifficultyConfig, evaluateCpuPosition } from '../ai/rules';
 import {
   affordableRepair, canServiceUnitAt, createBoard, createGameState, createReplay, createScenarioInitialState, endTurn,
-  CURRENT_RULE_VERSION, isGameState, matchesScenarioInitialState, MODERN_RULE_VERSION, parseReplay, parseSavedGame, replayCommands, saveCustomScenario,
+  CURRENT_RULE_VERSION, ruleVersions, STRATEGY_RULE_VERSION, isGameState, matchesScenarioInitialState, MODERN_RULE_VERSION, parseReplay, parseSavedGame, replayCommands, saveCustomScenario,
   saveGame, serializeReplay, summarizeRepairs, summarizeReplay, unitStats, type Board, type DeployedUnit, type GameCommand, type GameState,
   type ScenarioData, type Unit,
 } from './index';
@@ -216,8 +216,16 @@ describe('rule version persistence compatibility', () => {
     expect(isGameState(modernInitial())).toBe(true);
     // Rule version 3 became valid in #119; versions outside the known set are still rejected.
     expect(isGameState({ ...modernInitial(), ruleVersion: 1 })).toBe(false);
-    expect(isGameState({ ...modernInitial(), ruleVersion: CURRENT_RULE_VERSION + 1 })).toBe(false);
+    // Registered candidate rules can be newer than the default for new matches.
+    for (const ruleVersion of [Math.max(...ruleVersions) + 1, 0, -1, 1.5, '12', null]) {
+      expect(isGameState({ ...modernInitial(), ruleVersion })).toBe(false);
+    }
     const classic = classicInitial();
     expect(isGameState({ ...classic, units: classic.units.map(candidate => ({ ...candidate, experience: 1 })) })).toBe(false);
+  });
+  it('accepts registered candidate rules without promoting the default rules', () => {
+    expect(ruleVersions).toContain(CURRENT_RULE_VERSION);
+    expect(ruleVersions).toContain(STRATEGY_RULE_VERSION);
+    expect(isGameState({ ...modernInitial(), ruleVersion: STRATEGY_RULE_VERSION })).toBe(true);
   });
 });
