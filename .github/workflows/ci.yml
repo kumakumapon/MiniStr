@@ -5,29 +5,30 @@ on:
     branches: [main]
   push:
     branches: [main]
+  workflow_call:
 
-# Fork pull requests receive GitHub's read-only token and no repository secrets.
+# Verification jobs, including fork PRs, use read-only tokens and no secrets.
 permissions:
   contents: read
-
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
 
 jobs:
   commit-hygiene:
     runs-on: ubuntu-latest
+    timeout-minutes: 5
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.ref }}-hygiene
+      cancel-in-progress: true
     steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
+          persist-credentials: false
       - name: Reject private session links in commit messages
         env:
           BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
           HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
         run: |
-          # A new branch or a force push reports an unusable base, so fall back
-          # to the pushed commit alone rather than skipping the check.
+          # An unavailable base never skips the commit and tracked-file gate.
           if ! git rev-parse --quiet --verify "${BASE_SHA}^{commit}" >/dev/null 2>&1; then
             BASE_SHA="${HEAD_SHA}^"
           fi
@@ -35,16 +36,26 @@ jobs:
 
   test-and-build:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.ref }}-quality
+      cancel-in-progress: true
     steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
-      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          node-version: 22
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
           cache: npm
+      - run: npm run test:ci
+      - run: npm install --global npm@11.9.0
       - run: npm ci
       - name: Verify dependency compatibility
-        run: npm ls vitest @vitest/coverage-v8 vite undici
-      - name: Snapshot dependency audit for release review
+        run: npm ls --all
+      - name: Snapshot dependency audit and reject high or critical findings
+        env:
+          DEPENDENCY_AUDIT_PATH: dependency-audit.json
         run: node_modules/.bin/vite-node scripts/dependency-audit.ts
       - run: npm run lint
       - run: npm run format:check
@@ -57,18 +68,85 @@ jobs:
       - name: Install Playwright browsers
         run: npx playwright install --with-deps chromium firefox webkit
       - run: npm run test:e2e
+      - name: Preserve audit evidence
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: dependency-audit
+          path: dependency-audit.json
+          if-no-files-found: ignore
+          retention-days: 14
       - name: Preserve browser screenshots and failure traces
         if: always()
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: browser-failure-traces
           path: test-results/
           retention-days: 14
       - name: Preserve standalone system screenshots
         if: always()
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: standalone-system-screenshots
           path: test-results/**/systems-*.png
           if-no-files-found: ignore
           retention-days: 14
+      - name: Upload the verified Pages build
+        if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+        uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
+        with:
+          path: dist
+
+  runtime-compatibility:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.ref }}-runtime
+      cancel-in-progress: true
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 22.13.0
+          cache: npm
+      - run: npm run test:ci
+      - run: npm install --global npm@11.9.0
+      - run: npm ci
+      - run: npm ls --all
+      - run: npm run typecheck:test
+      - run: npm test
+      - run: npm run build
+
+  deploy:
+    if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+    needs: [commit-hygiene, test-and-build, runtime-compatibility]
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    concurrency:
+      group: pages-production
+      cancel-in-progress: false
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+          package-manager-cache: false
+      - name: Confirm this build is still current main
+        id: publication
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: node scripts/pages-preflight.mjs
+      - id: deployment
+        if: steps.publication.outputs.current == 'true'
+        uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1

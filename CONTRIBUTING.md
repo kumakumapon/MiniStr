@@ -12,7 +12,7 @@ Issue reports and pull requests are welcome.
 
 ## CI for forks
 
-Pull requests from forks run the same type-check, test, and build workflow as branches in this repository. The workflow uses GitHub's `pull_request` event with read-only `contents` permission and does not receive repository secrets. GitHub Pages deployment runs only after a push to `main`, not from pull requests.
+Pull requests from forks run the same validation workflow as branches in this repository. Verification uses GitHub's `pull_request` event with read-only `contents` permission and no repository secrets. Pages deployment runs only for a push or manual run on current `main`, after every validation job succeeds. Manual feature runs validate without deploying. See [dependency and CI operations](docs/ci-maintenance.md).
 
 CI also scans the commit messages a pull request adds and fails when one links to a private coding session, so the rule above is enforced rather than only documented.
 

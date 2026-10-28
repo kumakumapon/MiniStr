@@ -1,60 +1,17 @@
 name: Deploy GitHub Pages
+
+# main pushes are verified and deployed by CI once. Manual feature runs use
+# those same gates but never upload or deploy Pages.
 on:
-  push:
-    branches: [main]
   workflow_dispatch:
+
 permissions:
   contents: read
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
-        with: { fetch-depth: 0 }
-      - name: Check published commits and tracked files
-        env:
-          BASE_SHA: ${{ github.event.before }}
-          HEAD_SHA: ${{ github.sha }}
-        run: |
-          if ! git rev-parse --quiet --verify "${BASE_SHA}^{commit}" >/dev/null 2>&1; then
-            BASE_SHA="${HEAD_SHA}^"
-          fi
-          scripts/check-private-links.sh "${BASE_SHA}..${HEAD_SHA}"
-      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
-        with: { node-version: 22, cache: npm }
-      - run: npm ci
-      - run: npm run lint
-      - run: npm run format:check
-      - run: npm run typecheck:test
-      - run: npm run test:coverage
-      - run: npm run build
-      - run: npm run test:ui
-      - name: Use Ubuntu HTTPS mirror for browser dependencies
-        run: sudo bash scripts/use-ubuntu-https-mirror.sh
-      - run: npx playwright install --with-deps chromium firefox webkit
-      - run: npm run test:e2e
-      - name: Preserve browser screenshots and failure traces
-        if: always()
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
-        with:
-          name: browser-failure-traces
-          path: test-results/
-          retention-days: 14
-      - uses: actions/upload-pages-artifact@56afc609e74202658d3ffba0e8f6dda462b719fa # v3
-        with: { path: dist }
-  deploy:
-    if: github.ref == 'refs/heads/main'
+  verify-and-deploy:
     permissions:
+      contents: read
       pages: write
       id-token: write
-    needs: build
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - id: deployment
-        uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e # v4
+    uses: ./.github/workflows/ci.yml
