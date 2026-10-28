@@ -41,14 +41,9 @@ for (const viewport of [
   { width: 1280, height: 800 },
   { width: 390, height: 844 },
 ]) {
-  test(`English menus, board and dialogs at ${viewport.width}`, async ({ page }, testInfo) => {
+  test(`English title and deployment at ${viewport.width}`, async ({ page }, testInfo) => {
     await page.setViewportSize(viewport);
     await page.addInitScript(() => localStorage.setItem('ministr.locale', 'en'));
-    const dialogs: string[] = [];
-    page.on('dialog', async (dialog) => {
-      dialogs.push(dialog.message());
-      await dialog.accept();
-    });
     await page.goto('/');
     await expect(page.locator('html')).toHaveAttribute('lang', 'en');
     await expect(page.locator('.title-map-card[data-map-id="skirmish"] .title-map-name')).toHaveText('Green Border');
@@ -63,6 +58,18 @@ for (const viewport of [
     await expectEnglish(page);
     await page.screenshot({ path: testInfo.outputPath(`systems-en-${viewport.width}-deployment.png`), fullPage: false });
     await page.locator('#briefing-back-to-title').click();
+  });
+
+  test(`English board, production and save dialogs at ${viewport.width}`, async ({ page }, testInfo) => {
+    await page.setViewportSize(viewport);
+    await page.addInitScript(() => localStorage.setItem('ministr.locale', 'en'));
+    const dialogs: string[] = [];
+    page.on('dialog', async (dialog) => {
+      dialogs.push(dialog.message());
+      await dialog.accept();
+    });
+    await page.goto('/');
+    await expect(page.locator('html')).toHaveAttribute('lang', 'en');
     await page.locator('#title-training').click();
     await page.locator('#begin-operation').click();
     await page.locator('.tile[data-x="0"][data-y="1"]').click();
@@ -78,6 +85,13 @@ for (const viewport of [
     for (const message of dialogs) expect(message).not.toMatch(/[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}]/u);
 
     await page.locator('#open-title').click();
+  });
+
+  test(`English campaign and editor menus at ${viewport.width}`, async ({ page }) => {
+    await page.setViewportSize(viewport);
+    await page.addInitScript(() => localStorage.setItem('ministr.locale', 'en'));
+    await page.goto('/');
+    await expect(page.locator('html')).toHaveAttribute('lang', 'en');
     await page.locator('#title-campaign').click();
     await expectEnglish(page);
     await page.locator('#campaign-close').click();
