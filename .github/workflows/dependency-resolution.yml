@@ -21,13 +21,13 @@ jobs:
       - run: npm install --global npm@11.9.0
       - name: Inspect compatible dependency releases
         run: |
-          for package in typescript-eslint@latest typescript@6.0.3 typescript@7.0.2 vite@8.3.5 vite-node@latest '@types/node@24' '@playwright/test@1.64.1' eslint@10.13.0; do
+          for package in typescript-eslint@8.72.1 vite-node@6.0.0; do
             echo "PACKAGE_METADATA: $package"
             npm view "$package" version engines peerDependencies dependencies --json
           done
       - name: Generate the candidate lockfile
         run: |
-          npm pkg set 'devDependencies.@playwright/test=^1.64.1' 'devDependencies.@types/node=^24.0.0' 'devDependencies.eslint=^10.13.0' 'devDependencies.typescript=~6.0.3' 'devDependencies.vite=^8.3.5'
+          npm pkg set 'devDependencies.@playwright/test=^1.64.1' 'devDependencies.@types/node=^24.0.0' 'devDependencies.eslint=^10.13.0' 'devDependencies.typescript=~6.0.3' 'devDependencies.vite=^8.3.5' 'devDependencies.typescript-eslint=^8.72.1' 'devDependencies.vite-node=^6.0.0'
           npm install --package-lock-only --ignore-scripts --no-audit
           npm ls --all --package-lock-only
           node --input-type=module <<'NODE'
