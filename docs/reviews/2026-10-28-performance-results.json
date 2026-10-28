@@ -1,0 +1,1077 @@
+{
+  "schemaVersion": 1,
+  "base": "7d3833156b040b28585b9958f5cc523fe96a2cd8",
+  "method": "Alternating baseline and candidate, three fresh processes each, 5 warmup + 30 timed operations per process. No concurrent balance/test workloads during these runs. Medians below are medians of per-process p50; raw p95/max/GC-inclusive heap deltas retained.",
+  "node": {
+    "baseline": [
+      {
+        "schemaVersion": 2,
+        "sha": "7d3833156b040b28585b9958f5cc523fe96a2cd8",
+        "sourceState": "working-tree",
+        "sourceDigest": "56316fa6a03c01976181757ad326159bc836fb48e0fd9d42931224e079bd55b3",
+        "runtime": "v24.19.0",
+        "platform": "linux",
+        "arch": "x64",
+        "cpu": "AMD EPYC 9V74 80-Core Processor",
+        "logicalCpus": 5,
+        "note": "Node only; no browser/mobile latency guarantee. Heap deltas include GC and are not a memory-leak test.",
+        "fixture": {
+          "slots": 12,
+          "commandsPerSlot": 800,
+          "replayCommands": 2400,
+          "largeBoard": [
+            32,
+            32
+          ],
+          "largeUnits": 128
+        },
+        "measurements": {
+          "coldSaveList": {
+            "samples": 30,
+            "p50Ms": 83.03723999999988,
+            "p95Ms": 99.95404400000007,
+            "maxMs": 115.5131879999999,
+            "warmup": 5,
+            "heapDeltaBytes": 31837824
+          },
+          "cachedSaveList": {
+            "samples": 30,
+            "p50Ms": 0.0162239999999656,
+            "p95Ms": 0.03818799999953626,
+            "maxMs": 0.05287000000043918,
+            "warmup": 5,
+            "heapDeltaBytes": 507616
+          },
+          "normalCpu": {
+            "samples": 30,
+            "p50Ms": 0.24709399999937887,
+            "p95Ms": 0.6140269999996235,
+            "maxMs": 0.7091110000001208,
+            "warmup": 5,
+            "heapDeltaBytes": 4178048
+          },
+          "largeCpu": {
+            "samples": 30,
+            "p50Ms": 0.42211700000007113,
+            "p95Ms": 0.5356489999994665,
+            "maxMs": 0.6052039999995031,
+            "warmup": 5,
+            "heapDeltaBytes": 11591464
+          },
+          "largeEndTurn": {
+            "samples": 30,
+            "p50Ms": 0.09526399999958812,
+            "p95Ms": 0.15510399999948277,
+            "maxMs": 0.1864110000005894,
+            "warmup": 5,
+            "heapDeltaBytes": 3479232
+          },
+          "linearReplay": {
+            "samples": 30,
+            "p50Ms": 5.417151999999987,
+            "p95Ms": 6.154687999999624,
+            "maxMs": 6.406648000000132,
+            "warmup": 5,
+            "heapDeltaBytes": 22690200
+          },
+          "coldSeek": {
+            "samples": 30,
+            "p50Ms": 5.522973000000093,
+            "p95Ms": 6.238113999999769,
+            "maxMs": 6.244852999999239,
+            "warmup": 5,
+            "heapDeltaBytes": 22730576
+          },
+          "cachedSeek": {
+            "samples": 30,
+            "p50Ms": 0.14355700000032812,
+            "p95Ms": 2.651947000000291,
+            "maxMs": 3.2193539999998393,
+            "warmup": 5,
+            "heapDeltaBytes": 2041160
+          },
+          "backwardForwardSeek": {
+            "samples": 30,
+            "p50Ms": 0.40142699999978504,
+            "p95Ms": 0.6006170000000566,
+            "maxMs": 0.7293409999992946,
+            "warmup": 5,
+            "heapDeltaBytes": 8404408
+          },
+          "fogNavigation": {
+            "samples": 30,
+            "p50Ms": 2.7381049999994502,
+            "p95Ms": 3.193734000000404,
+            "maxMs": 3.2032390000003943,
+            "warmup": 5,
+            "heapDeltaBytes": 10169592
+          }
+        }
+      },
+      {
+        "schemaVersion": 2,
+        "sha": "7d3833156b040b28585b9958f5cc523fe96a2cd8",
+        "sourceState": "working-tree",
+        "sourceDigest": "56316fa6a03c01976181757ad326159bc836fb48e0fd9d42931224e079bd55b3",
+        "runtime": "v24.19.0",
+        "platform": "linux",
+        "arch": "x64",
+        "cpu": "AMD EPYC 9V74 80-Core Processor",
+        "logicalCpus": 5,
+        "note": "Node only; no browser/mobile latency guarantee. Heap deltas include GC and are not a memory-leak test.",
+        "fixture": {
+          "slots": 12,
+          "commandsPerSlot": 800,
+          "replayCommands": 2400,
+          "largeBoard": [
+            32,
+            32
+          ],
+          "largeUnits": 128
+        },
+        "measurements": {
+          "coldSaveList": {
+            "samples": 30,
+            "p50Ms": 78.7396020000001,
+            "p95Ms": 86.31104000000005,
+            "maxMs": 86.36697000000004,
+            "warmup": 5,
+            "heapDeltaBytes": 33133320
+          },
+          "cachedSaveList": {
+            "samples": 30,
+            "p50Ms": 0.016274000000066735,
+            "p95Ms": 0.061763000000155444,
+            "maxMs": 0.07011599999987084,
+            "warmup": 5,
+            "heapDeltaBytes": 505904
+          },
+          "normalCpu": {
+            "samples": 30,
+            "p50Ms": 0.23869100000001708,
+            "p95Ms": 0.44511199999988094,
+            "maxMs": 0.4752680000001419,
+            "warmup": 5,
+            "heapDeltaBytes": 4261832
+          },
+          "largeCpu": {
+            "samples": 30,
+            "p50Ms": 0.3947360000001936,
+            "p95Ms": 0.7089309999996658,
+            "maxMs": 0.7641450000000987,
+            "warmup": 5,
+            "heapDeltaBytes": 11601496
+          },
+          "largeEndTurn": {
+            "samples": 30,
+            "p50Ms": 0.09546399999999267,
+            "p95Ms": 0.16661199999998644,
+            "maxMs": 0.19851000000016938,
+            "warmup": 5,
+            "heapDeltaBytes": 3481344
+          },
+          "linearReplay": {
+            "samples": 30,
+            "p50Ms": 5.355070000000069,
+            "p95Ms": 6.164672999999766,
+            "maxMs": 6.470906000000014,
+            "warmup": 5,
+            "heapDeltaBytes": 22628296
+          },
+          "coldSeek": {
+            "samples": 30,
+            "p50Ms": 5.571206000000075,
+            "p95Ms": 6.38520600000038,
+            "maxMs": 9.130552999999964,
+            "warmup": 5,
+            "heapDeltaBytes": 22801904
+          },
+          "cachedSeek": {
+            "samples": 30,
+            "p50Ms": 0.14423800000031406,
+            "p95Ms": 0.18808399999988978,
+            "maxMs": 0.19952200000034281,
+            "warmup": 5,
+            "heapDeltaBytes": 2043920
+          },
+          "backwardForwardSeek": {
+            "samples": 30,
+            "p50Ms": 0.4126129999999648,
+            "p95Ms": 0.5643329999998059,
+            "maxMs": 0.6023699999996097,
+            "warmup": 5,
+            "heapDeltaBytes": 8403560
+          },
+          "fogNavigation": {
+            "samples": 30,
+            "p50Ms": 2.7344599999996717,
+            "p95Ms": 3.4092799999998533,
+            "maxMs": 3.642652999999882,
+            "warmup": 5,
+            "heapDeltaBytes": -56663696
+          }
+        }
+      },
+      {
+        "schemaVersion": 2,
+        "sha": "7d3833156b040b28585b9958f5cc523fe96a2cd8",
+        "sourceState": "working-tree",
+        "sourceDigest": "56316fa6a03c01976181757ad326159bc836fb48e0fd9d42931224e079bd55b3",
+        "runtime": "v24.19.0",
+        "platform": "linux",
+        "arch": "x64",
+        "cpu": "AMD EPYC 9V74 80-Core Processor",
+        "logicalCpus": 5,
+        "note": "Node only; no browser/mobile latency guarantee. Heap deltas include GC and are not a memory-leak test.",
+        "fixture": {
+          "slots": 12,
+          "commandsPerSlot": 800,
+          "replayCommands": 2400,
+          "largeBoard": [
+            32,
+            32
+          ],
+          "largeUnits": 128
+        },
+        "measurements": {
+          "coldSaveList": {
+            "samples": 30,
+            "p50Ms": 77.92943800000012,
+            "p95Ms": 87.23863900000015,
+            "maxMs": 101.0927800000004,
+            "warmup": 5,
+            "heapDeltaBytes": -503936
+          },
+          "cachedSaveList": {
+            "samples": 30,
+            "p50Ms": 0.019649999999728607,
+            "p95Ms": 0.07363200000008874,
+            "maxMs": 0.07974999999987631,
+            "warmup": 5,
+            "heapDeltaBytes": 505912
+          },
+          "normalCpu": {
+            "samples": 30,
+            "p50Ms": 0.23844000000008236,
+            "p95Ms": 0.4212969999998677,
+            "maxMs": 0.46923900000001595,
+            "warmup": 5,
+            "heapDeltaBytes": 4079664
+          },
+          "largeCpu": {
+            "samples": 30,
+            "p50Ms": 0.49345499999981257,
+            "p95Ms": 1.0671619999998256,
+            "maxMs": 1.2370989999999438,
+            "warmup": 5,
+            "heapDeltaBytes": -54548144
+          },
+          "largeEndTurn": {
+            "samples": 30,
+            "p50Ms": 0.10982599999988452,
+            "p95Ms": 0.21585600000025806,
+            "maxMs": 0.5835670000001301,
+            "warmup": 5,
+            "heapDeltaBytes": 3485296
+          },
+          "linearReplay": {
+            "samples": 30,
+            "p50Ms": 5.203290999999808,
+            "p95Ms": 6.033706000000166,
+            "maxMs": 6.043680999999651,
+            "warmup": 5,
+            "heapDeltaBytes": -44259416
+          },
+          "coldSeek": {
+            "samples": 30,
+            "p50Ms": 5.424525999999787,
+            "p95Ms": 6.108278999999584,
+            "maxMs": 6.5133310000001075,
+            "warmup": 5,
+            "heapDeltaBytes": 22750520
+          },
+          "cachedSeek": {
+            "samples": 30,
+            "p50Ms": 0.14240500000050815,
+            "p95Ms": 0.1648989999994228,
+            "maxMs": 0.1967080000003989,
+            "warmup": 5,
+            "heapDeltaBytes": 2040960
+          },
+          "backwardForwardSeek": {
+            "samples": 30,
+            "p50Ms": 0.4063539999997374,
+            "p95Ms": 0.45802199999980076,
+            "maxMs": 0.4623990000000049,
+            "warmup": 5,
+            "heapDeltaBytes": 8404816
+          },
+          "fogNavigation": {
+            "samples": 30,
+            "p50Ms": 2.6790570000002845,
+            "p95Ms": 3.1832699999995384,
+            "maxMs": 3.2310420000003433,
+            "warmup": 5,
+            "heapDeltaBytes": 10188704
+          }
+        }
+      }
+    ],
+    "candidate": [
+      {
+        "schemaVersion": 2,
+        "sha": "7d3833156b040b28585b9958f5cc523fe96a2cd8",
+        "sourceState": "working-tree",
+        "sourceDigest": "39496e4027b3ce1a302ea250c2d41ad5cae5c42857e3fb2c265b10efd0fe2370",
+        "runtime": "v24.19.0",
+        "platform": "linux",
+        "arch": "x64",
+        "cpu": "AMD EPYC 9V74 80-Core Processor",
+        "logicalCpus": 5,
+        "note": "Node only; no browser/mobile latency guarantee. Heap deltas include GC and are not a memory-leak test.",
+        "fixture": {
+          "slots": 12,
+          "commandsPerSlot": 800,
+          "replayCommands": 2400,
+          "largeBoard": [
+            32,
+            32
+          ],
+          "largeUnits": 128
+        },
+        "measurements": {
+          "coldSaveList": {
+            "samples": 30,
+            "p50Ms": 56.87878300000011,
+            "p95Ms": 73.8972470000001,
+            "maxMs": 74.09972800000014,
+            "warmup": 5,
+            "heapDeltaBytes": 38246584
+          },
+          "cachedSaveList": {
+            "samples": 30,
+            "p50Ms": 0.016775999999936175,
+            "p95Ms": 0.04906500000015512,
+            "maxMs": 0.05688600000030419,
+            "warmup": 5,
+            "heapDeltaBytes": 507800
+          },
+          "normalCpu": {
+            "samples": 30,
+            "p50Ms": 0.22661199999993187,
+            "p95Ms": 0.45148199999994176,
+            "maxMs": 0.5446419999998398,
+            "warmup": 5,
+            "heapDeltaBytes": 3622912
+          },
+          "largeCpu": {
+            "samples": 30,
+            "p50Ms": 0.40441099999998187,
+            "p95Ms": 0.8605200000001787,
+            "maxMs": 0.8933400000000802,
+            "warmup": 5,
+            "heapDeltaBytes": 10717648
+          },
+          "largeEndTurn": {
+            "samples": 30,
+            "p50Ms": 0.08067200000004959,
+            "p95Ms": 0.3225370000000112,
+            "maxMs": 1.4090879999998833,
+            "warmup": 5,
+            "heapDeltaBytes": -63497552
+          },
+          "linearReplay": {
+            "samples": 30,
+            "p50Ms": 3.8735719999999674,
+            "p95Ms": 5.689334000000144,
+            "maxMs": 6.722284999999829,
+            "warmup": 5,
+            "heapDeltaBytes": -918344
+          },
+          "coldSeek": {
+            "samples": 30,
+            "p50Ms": 4.101936000000023,
+            "p95Ms": 4.823225999999977,
+            "maxMs": 5.1317119999998795,
+            "warmup": 5,
+            "heapDeltaBytes": -1321720
+          },
+          "cachedSeek": {
+            "samples": 30,
+            "p50Ms": 0.14250499999980093,
+            "p95Ms": 0.1964069999999083,
+            "maxMs": 0.2571490000000267,
+            "warmup": 5,
+            "heapDeltaBytes": 2041736
+          },
+          "backwardForwardSeek": {
+            "samples": 30,
+            "p50Ms": 0.37563700000009703,
+            "p95Ms": 0.5148779999999533,
+            "maxMs": 0.6395560000000842,
+            "warmup": 5,
+            "heapDeltaBytes": 6584208
+          },
+          "fogNavigation": {
+            "samples": 30,
+            "p50Ms": 1.165179999999964,
+            "p95Ms": 1.9541420000000471,
+            "maxMs": 2.098500000000058,
+            "warmup": 5,
+            "heapDeltaBytes": -40462088
+          }
+        }
+      },
+      {
+        "schemaVersion": 2,
+        "sha": "7d3833156b040b28585b9958f5cc523fe96a2cd8",
+        "sourceState": "working-tree",
+        "sourceDigest": "39496e4027b3ce1a302ea250c2d41ad5cae5c42857e3fb2c265b10efd0fe2370",
+        "runtime": "v24.19.0",
+        "platform": "linux",
+        "arch": "x64",
+        "cpu": "AMD EPYC 9V74 80-Core Processor",
+        "logicalCpus": 5,
+        "note": "Node only; no browser/mobile latency guarantee. Heap deltas include GC and are not a memory-leak test.",
+        "fixture": {
+          "slots": 12,
+          "commandsPerSlot": 800,
+          "replayCommands": 2400,
+          "largeBoard": [
+            32,
+            32
+          ],
+          "largeUnits": 128
+        },
+        "measurements": {
+          "coldSaveList": {
+            "samples": 30,
+            "p50Ms": 55.51963300000011,
+            "p95Ms": 61.74921399999994,
+            "maxMs": 69.165618,
+            "warmup": 5,
+            "heapDeltaBytes": 12001464
+          },
+          "cachedSaveList": {
+            "samples": 30,
+            "p50Ms": 0.017717000000175176,
+            "p95Ms": 0.0357640000001993,
+            "maxMs": 0.07073700000000827,
+            "warmup": 5,
+            "heapDeltaBytes": 511352
+          },
+          "normalCpu": {
+            "samples": 30,
+            "p50Ms": 0.31468500000028143,
+            "p95Ms": 0.4242810000000645,
+            "maxMs": 1.1738530000002356,
+            "warmup": 5,
+            "heapDeltaBytes": -28571704
+          },
+          "largeCpu": {
+            "samples": 30,
+            "p50Ms": 0.40490200000022014,
+            "p95Ms": 0.7864080000003923,
+            "maxMs": 0.9093339999999444,
+            "warmup": 5,
+            "heapDeltaBytes": 10717584
+          },
+          "largeEndTurn": {
+            "samples": 30,
+            "p50Ms": 0.07843899999988935,
+            "p95Ms": 0.14740299999994022,
+            "maxMs": 0.16245600000002014,
+            "warmup": 5,
+            "heapDeltaBytes": 2597688
+          },
+          "linearReplay": {
+            "samples": 30,
+            "p50Ms": 3.769365000000107,
+            "p95Ms": 6.233636999999817,
+            "maxMs": 7.794344999999794,
+            "warmup": 5,
+            "heapDeltaBytes": -1017976
+          },
+          "coldSeek": {
+            "samples": 30,
+            "p50Ms": 3.8464899999999034,
+            "p95Ms": 5.623865000000023,
+            "maxMs": 6.6138819999996485,
+            "warmup": 5,
+            "heapDeltaBytes": -723976
+          },
+          "cachedSeek": {
+            "samples": 30,
+            "p50Ms": 0.147171999999955,
+            "p95Ms": 0.19700800000009622,
+            "maxMs": 0.3259530000000268,
+            "warmup": 5,
+            "heapDeltaBytes": 2042944
+          },
+          "backwardForwardSeek": {
+            "samples": 30,
+            "p50Ms": 0.3822570000002088,
+            "p95Ms": 0.49382599999989907,
+            "maxMs": 0.6326359999998203,
+            "warmup": 5,
+            "heapDeltaBytes": 6597456
+          },
+          "fogNavigation": {
+            "samples": 30,
+            "p50Ms": 1.1152440000000752,
+            "p95Ms": 1.5901819999999134,
+            "maxMs": 1.6076079999998,
+            "warmup": 5,
+            "heapDeltaBytes": -40417744
+          }
+        }
+      },
+      {
+        "schemaVersion": 2,
+        "sha": "7d3833156b040b28585b9958f5cc523fe96a2cd8",
+        "sourceState": "working-tree",
+        "sourceDigest": "39496e4027b3ce1a302ea250c2d41ad5cae5c42857e3fb2c265b10efd0fe2370",
+        "runtime": "v24.19.0",
+        "platform": "linux",
+        "arch": "x64",
+        "cpu": "AMD EPYC 9V74 80-Core Processor",
+        "logicalCpus": 5,
+        "note": "Node only; no browser/mobile latency guarantee. Heap deltas include GC and are not a memory-leak test.",
+        "fixture": {
+          "slots": 12,
+          "commandsPerSlot": 800,
+          "replayCommands": 2400,
+          "largeBoard": [
+            32,
+            32
+          ],
+          "largeUnits": 128
+        },
+        "measurements": {
+          "coldSaveList": {
+            "samples": 30,
+            "p50Ms": 56.581476000000066,
+            "p95Ms": 59.911828000000014,
+            "maxMs": 60.212451999999985,
+            "warmup": 5,
+            "heapDeltaBytes": 13663184
+          },
+          "cachedSaveList": {
+            "samples": 30,
+            "p50Ms": 0.020911999999952968,
+            "p95Ms": 0.08893399999988105,
+            "maxMs": 0.11699599999974453,
+            "warmup": 5,
+            "heapDeltaBytes": 511312
+          },
+          "normalCpu": {
+            "samples": 30,
+            "p50Ms": 0.26682400000026973,
+            "p95Ms": 0.3871950000002471,
+            "maxMs": 0.4503199999999197,
+            "warmup": 5,
+            "heapDeltaBytes": 3597408
+          },
+          "largeCpu": {
+            "samples": 30,
+            "p50Ms": 0.4595940000003793,
+            "p95Ms": 0.7911049999997886,
+            "maxMs": 0.8893130000001293,
+            "warmup": 5,
+            "heapDeltaBytes": 10713272
+          },
+          "largeEndTurn": {
+            "samples": 30,
+            "p50Ms": 0.0998610000001463,
+            "p95Ms": 0.19998199999963617,
+            "maxMs": 1.029946000000109,
+            "warmup": 5,
+            "heapDeltaBytes": -63426216
+          },
+          "linearReplay": {
+            "samples": 30,
+            "p50Ms": 3.8766160000000127,
+            "p95Ms": 5.051922999999988,
+            "maxMs": 5.115690000000086,
+            "warmup": 5,
+            "heapDeltaBytes": -1172816
+          },
+          "coldSeek": {
+            "samples": 30,
+            "p50Ms": 3.8161159999999654,
+            "p95Ms": 4.461890999999923,
+            "maxMs": 4.789385999999922,
+            "warmup": 5,
+            "heapDeltaBytes": -641232
+          },
+          "cachedSeek": {
+            "samples": 30,
+            "p50Ms": 0.14280599999983679,
+            "p95Ms": 0.1994019999997363,
+            "maxMs": 2.2397139999998217,
+            "warmup": 5,
+            "heapDeltaBytes": 2042272
+          },
+          "backwardForwardSeek": {
+            "samples": 30,
+            "p50Ms": 0.5040619999999763,
+            "p95Ms": 2.4372019999996155,
+            "maxMs": 2.4913540000002286,
+            "warmup": 5,
+            "heapDeltaBytes": 6591920
+          },
+          "fogNavigation": {
+            "samples": 30,
+            "p50Ms": 1.2294670000001133,
+            "p95Ms": 1.8833950000002915,
+            "maxMs": 1.8902659999998832,
+            "warmup": 5,
+            "heapDeltaBytes": 26395696
+          }
+        }
+      }
+    ]
+  },
+  "browser": {
+    "baseline": [
+      {
+        "kind": "browser-performance",
+        "sourceState": "working-tree",
+        "variant": "baseline",
+        "scripts": [
+          "/assets/index-BRBkAsq9.js"
+        ],
+        "sha": "7d3833156b040b28585b9958f5cc523fe96a2cd8",
+        "browser": "chromium",
+        "browserVersion": "151.0.7922.173",
+        "board": [
+          16,
+          16
+        ],
+        "units": 64,
+        "warmup": 2,
+        "selection": [
+          91.19999999995343,
+          84.29999999993015,
+          83,
+          110.90000000002328,
+          96.80000000004657
+        ],
+        "zoom": [
+          50.20000000006985,
+          49.90000000002328,
+          49.800000000046566,
+          57.79999999993015,
+          52.800000000046566
+        ],
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.7922.34 Safari/537.36",
+        "viewport": 1280,
+        "documentWidth": 1280,
+        "domNodes": 1246,
+        "selectionTiming": {
+          "samples": 5,
+          "p50Ms": 91.19999999995343,
+          "p95Ms": 110.90000000002328,
+          "maxMs": 110.90000000002328
+        },
+        "zoomTiming": {
+          "samples": 5,
+          "p50Ms": 50.20000000006985,
+          "p95Ms": 57.79999999993015,
+          "maxMs": 57.79999999993015
+        },
+        "note": "Native handler to two animation frames; frame scheduling included. Five samples are diagnostic, not a mobile-hardware p95 guarantee. No fixed latency threshold."
+      },
+      {
+        "kind": "browser-performance",
+        "sourceState": "working-tree",
+        "variant": "baseline",
+        "scripts": [
+          "/assets/index-BRBkAsq9.js"
+        ],
+        "sha": "7d3833156b040b28585b9958f5cc523fe96a2cd8",
+        "browser": "chromium",
+        "browserVersion": "151.0.7922.173",
+        "board": [
+          16,
+          16
+        ],
+        "units": 64,
+        "warmup": 2,
+        "selection": [
+          83.09999999997672,
+          84,
+          81.80000000004657,
+          83.80000000004657,
+          80.20000000006985
+        ],
+        "zoom": [
+          50.20000000006985,
+          50.29999999993015,
+          51,
+          71.89999999990687,
+          49.800000000046566
+        ],
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.7922.34 Safari/537.36",
+        "viewport": 390,
+        "documentWidth": 390,
+        "domNodes": 1246,
+        "selectionTiming": {
+          "samples": 5,
+          "p50Ms": 83.09999999997672,
+          "p95Ms": 84,
+          "maxMs": 84
+        },
+        "zoomTiming": {
+          "samples": 5,
+          "p50Ms": 50.29999999993015,
+          "p95Ms": 71.89999999990687,
+          "maxMs": 71.89999999990687
+        },
+        "note": "Native handler to two animation frames; frame scheduling included. Five samples are diagnostic, not a mobile-hardware p95 guarantee. No fixed latency threshold."
+      },
+      {
+        "kind": "browser-performance",
+        "sourceState": "working-tree",
+        "variant": "baseline",
+        "scripts": [
+          "/assets/index-BRBkAsq9.js"
+        ],
+        "sha": "7d3833156b040b28585b9958f5cc523fe96a2cd8",
+        "browser": "chromium",
+        "browserVersion": "151.0.7922.173",
+        "board": [
+          32,
+          32
+        ],
+        "units": 128,
+        "warmup": 2,
+        "selection": [
+          162.70000000006985,
+          135.70000000006985,
+          154.80000000004657,
+          128.40000000002328,
+          136
+        ],
+        "zoom": [
+          83.29999999993015,
+          96.09999999997672,
+          99.69999999995343,
+          84.69999999995343,
+          100.80000000004657
+        ],
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.7922.34 Safari/537.36",
+        "viewport": 1280,
+        "documentWidth": 1280,
+        "domNodes": 2366,
+        "selectionTiming": {
+          "samples": 5,
+          "p50Ms": 136,
+          "p95Ms": 162.70000000006985,
+          "maxMs": 162.70000000006985
+        },
+        "zoomTiming": {
+          "samples": 5,
+          "p50Ms": 96.09999999997672,
+          "p95Ms": 100.80000000004657,
+          "maxMs": 100.80000000004657
+        },
+        "note": "Native handler to two animation frames; frame scheduling included. Five samples are diagnostic, not a mobile-hardware p95 guarantee. No fixed latency threshold."
+      },
+      {
+        "kind": "browser-performance",
+        "sourceState": "working-tree",
+        "variant": "baseline",
+        "scripts": [
+          "/assets/index-BRBkAsq9.js"
+        ],
+        "sha": "7d3833156b040b28585b9958f5cc523fe96a2cd8",
+        "browser": "chromium",
+        "browserVersion": "151.0.7922.173",
+        "board": [
+          32,
+          32
+        ],
+        "units": 128,
+        "warmup": 2,
+        "selection": [
+          134,
+          135,
+          134,
+          134,
+          132.09999999997672
+        ],
+        "zoom": [
+          99.30000000004657,
+          81.69999999995343,
+          82.59999999997672,
+          86.30000000004657,
+          81
+        ],
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.7922.34 Safari/537.36",
+        "viewport": 390,
+        "documentWidth": 390,
+        "domNodes": 2366,
+        "selectionTiming": {
+          "samples": 5,
+          "p50Ms": 134,
+          "p95Ms": 135,
+          "maxMs": 135
+        },
+        "zoomTiming": {
+          "samples": 5,
+          "p50Ms": 82.59999999997672,
+          "p95Ms": 99.30000000004657,
+          "maxMs": 99.30000000004657
+        },
+        "note": "Native handler to two animation frames; frame scheduling included. Five samples are diagnostic, not a mobile-hardware p95 guarantee. No fixed latency threshold."
+      }
+    ],
+    "candidate": [
+      {
+        "kind": "browser-performance",
+        "sourceState": "working-tree",
+        "variant": "candidate",
+        "scripts": [
+          "/assets/index-Bo-QaqwM.js"
+        ],
+        "sha": "7d3833156b040b28585b9958f5cc523fe96a2cd8",
+        "browser": "chromium",
+        "browserVersion": "151.0.7922.173",
+        "board": [
+          16,
+          16
+        ],
+        "units": 64,
+        "warmup": 2,
+        "selection": [
+          83.39999999990687,
+          100.20000000006985,
+          80.39999999990687,
+          99.30000000004657,
+          82.89999999990687
+        ],
+        "zoom": [
+          67.40000000002328,
+          48,
+          50.300000000046566,
+          50.5,
+          50
+        ],
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.7922.34 Safari/537.36",
+        "viewport": 1280,
+        "documentWidth": 1280,
+        "domNodes": 1246,
+        "selectionTiming": {
+          "samples": 5,
+          "p50Ms": 83.39999999990687,
+          "p95Ms": 100.20000000006985,
+          "maxMs": 100.20000000006985
+        },
+        "zoomTiming": {
+          "samples": 5,
+          "p50Ms": 50.300000000046566,
+          "p95Ms": 67.40000000002328,
+          "maxMs": 67.40000000002328
+        },
+        "note": "Native handler to two animation frames; frame scheduling included. Five samples are diagnostic, not a mobile-hardware p95 guarantee. No fixed latency threshold."
+      },
+      {
+        "kind": "browser-performance",
+        "sourceState": "working-tree",
+        "variant": "candidate",
+        "scripts": [
+          "/assets/index-Bo-QaqwM.js"
+        ],
+        "sha": "7d3833156b040b28585b9958f5cc523fe96a2cd8",
+        "browser": "chromium",
+        "browserVersion": "151.0.7922.173",
+        "board": [
+          16,
+          16
+        ],
+        "units": 64,
+        "warmup": 2,
+        "selection": [
+          116.70000000006985,
+          100,
+          82.79999999993015,
+          100.40000000002328,
+          83.5
+        ],
+        "zoom": [
+          49.89999999990687,
+          50.60000000009313,
+          49.90000000002328,
+          51.90000000002328,
+          47.59999999997672
+        ],
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.7922.34 Safari/537.36",
+        "viewport": 390,
+        "documentWidth": 390,
+        "domNodes": 1246,
+        "selectionTiming": {
+          "samples": 5,
+          "p50Ms": 100,
+          "p95Ms": 116.70000000006985,
+          "maxMs": 116.70000000006985
+        },
+        "zoomTiming": {
+          "samples": 5,
+          "p50Ms": 49.90000000002328,
+          "p95Ms": 51.90000000002328,
+          "maxMs": 51.90000000002328
+        },
+        "note": "Native handler to two animation frames; frame scheduling included. Five samples are diagnostic, not a mobile-hardware p95 guarantee. No fixed latency threshold."
+      },
+      {
+        "kind": "browser-performance",
+        "sourceState": "working-tree",
+        "variant": "candidate",
+        "scripts": [
+          "/assets/index-Bo-QaqwM.js"
+        ],
+        "sha": "7d3833156b040b28585b9958f5cc523fe96a2cd8",
+        "browser": "chromium",
+        "browserVersion": "151.0.7922.173",
+        "board": [
+          32,
+          32
+        ],
+        "units": 128,
+        "warmup": 2,
+        "selection": [
+          146.79999999993015,
+          150.40000000002328,
+          154.09999999997672,
+          155.10000000009313,
+          182.30000000004657
+        ],
+        "zoom": [
+          86.09999999997672,
+          95.5,
+          150.29999999993015,
+          92.89999999990687,
+          83
+        ],
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.7922.34 Safari/537.36",
+        "viewport": 1280,
+        "documentWidth": 1280,
+        "domNodes": 2366,
+        "selectionTiming": {
+          "samples": 5,
+          "p50Ms": 154.09999999997672,
+          "p95Ms": 182.30000000004657,
+          "maxMs": 182.30000000004657
+        },
+        "zoomTiming": {
+          "samples": 5,
+          "p50Ms": 92.89999999990687,
+          "p95Ms": 150.29999999993015,
+          "maxMs": 150.29999999993015
+        },
+        "note": "Native handler to two animation frames; frame scheduling included. Five samples are diagnostic, not a mobile-hardware p95 guarantee. No fixed latency threshold."
+      },
+      {
+        "kind": "browser-performance",
+        "sourceState": "working-tree",
+        "variant": "candidate",
+        "scripts": [
+          "/assets/index-Bo-QaqwM.js"
+        ],
+        "sha": "7d3833156b040b28585b9958f5cc523fe96a2cd8",
+        "browser": "chromium",
+        "browserVersion": "151.0.7922.173",
+        "board": [
+          32,
+          32
+        ],
+        "units": 128,
+        "warmup": 2,
+        "selection": [
+          149.29999999993015,
+          156.80000000004657,
+          146.70000000006985,
+          133.90000000002328,
+          134.5
+        ],
+        "zoom": [
+          83.40000000002328,
+          97.79999999993015,
+          83.29999999993015,
+          81.40000000002328,
+          82.09999999997672
+        ],
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.7922.34 Safari/537.36",
+        "viewport": 390,
+        "documentWidth": 390,
+        "domNodes": 2366,
+        "selectionTiming": {
+          "samples": 5,
+          "p50Ms": 146.70000000006985,
+          "p95Ms": 156.80000000004657,
+          "maxMs": 156.80000000004657
+        },
+        "zoomTiming": {
+          "samples": 5,
+          "p50Ms": 83.29999999993015,
+          "p95Ms": 97.79999999993015,
+          "maxMs": 97.79999999993015
+        },
+        "note": "Native handler to two animation frames; frame scheduling included. Five samples are diagnostic, not a mobile-hardware p95 guarantee. No fixed latency threshold."
+      }
+    ]
+  },
+  "comparison": {
+    "coldSaveList": {
+      "baselineMedianP50Ms": 78.7396020000001,
+      "candidateMedianP50Ms": 56.581476000000066,
+      "reductionPercent": 28.141018543629425
+    },
+    "cachedSaveList": {
+      "baselineMedianP50Ms": 0.016274000000066735,
+      "candidateMedianP50Ms": 0.017717000000175176,
+      "reductionPercent": -8.866904265100928
+    },
+    "normalCpu": {
+      "baselineMedianP50Ms": 0.23869100000001708,
+      "candidateMedianP50Ms": 0.26682400000026973,
+      "reductionPercent": -11.786368149721028
+    },
+    "largeCpu": {
+      "baselineMedianP50Ms": 0.42211700000007113,
+      "candidateMedianP50Ms": 0.40490200000022014,
+      "reductionPercent": 4.078253185692137
+    },
+    "largeEndTurn": {
+      "baselineMedianP50Ms": 0.09546399999999267,
+      "candidateMedianP50Ms": 0.08067200000004959,
+      "reductionPercent": 15.494846224696435
+    },
+    "linearReplay": {
+      "baselineMedianP50Ms": 5.355070000000069,
+      "candidateMedianP50Ms": 3.8735719999999674,
+      "reductionPercent": 27.665333973226915
+    },
+    "coldSeek": {
+      "baselineMedianP50Ms": 5.522973000000093,
+      "candidateMedianP50Ms": 3.8464899999999034,
+      "reductionPercent": 30.35472018422254
+    },
+    "cachedSeek": {
+      "baselineMedianP50Ms": 0.14355700000032812,
+      "candidateMedianP50Ms": 0.14280599999983679,
+      "reductionPercent": 0.5231371514378358
+    },
+    "backwardForwardSeek": {
+      "baselineMedianP50Ms": 0.4063539999997374,
+      "candidateMedianP50Ms": 0.3822570000002088,
+      "reductionPercent": 5.930051137565817
+    },
+    "fogNavigation": {
+      "baselineMedianP50Ms": 2.7344599999996717,
+      "candidateMedianP50Ms": 1.165179999999964,
+      "reductionPercent": 57.38902744965719
+    }
+  }
+}
