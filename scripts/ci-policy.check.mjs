@@ -102,7 +102,9 @@ test('all existing gates remain and deployment requires every verification job',
 });
 
 test('concurrency is scoped to workflow and ref, and production deployment serializes', () => {
-  assert.match(ci, /group: \$\{\{ github\.workflow \}\}-\$\{\{ github\.ref \}\}\n {2}cancel-in-progress: true/);
+  const groups = [...ci.matchAll(/group: \$\{\{ github\.workflow \}\}-\$\{\{ github\.ref \}\}-(hygiene|quality|runtime)\n {6}cancel-in-progress: true/g)].map((match) => match[1]);
+  assert.deepEqual(groups.sort(), ['hygiene', 'quality', 'runtime']);
+  assert.doesNotMatch(ci, /^concurrency:/m);
   assert.match(ci, /group: pages-production\n {6}cancel-in-progress: false/);
 });
 
