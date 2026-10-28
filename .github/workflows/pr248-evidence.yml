@@ -1,0 +1,41 @@
+name: Inspect PR 248 browser evidence
+on:
+  pull_request:
+    branches: [main]
+    paths: ['.github/workflows/pr248-evidence.yml']
+permissions:
+  contents: read
+  actions: read
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Read the existing failure artifact
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh run download 40697007011 --repo "$GITHUB_REPOSITORY" --name browser-failure-traces --dir "$RUNNER_TEMP/pr248"
+          python - <<'PY'
+          import os, pathlib, zipfile, json, base64
+          root=pathlib.Path(os.environ['RUNNER_TEMP'])/'pr248'
+          for trace in root.rglob('trace.zip'):
+            if 'terrain-presentation' not in str(trace) or not any(x in str(trace) for x in ['snow-at-1280-webkit','urban-at-1280-webkit']): continue
+            print('TRACE_CASE:',trace.parent.name)
+            before={}
+            events=[]
+            with zipfile.ZipFile(trace) as z:
+              for name in z.namelist():
+                if name.endswith('.trace'):
+                  for line in z.read(name).decode().splitlines():
+                    e=json.loads(line)
+                    if e.get('type')=='before':before[e['callId']]=e
+                    if e.get('type') in ['after','log']:events.append(e)
+            for e in events:
+              b=before.get(e.get('callId'),{})
+              if e.get('type')=='after':
+                duration=e.get('endTime',0)-b.get('startTime',0)
+                if duration>200 or e.get('error'):print(json.dumps({'api':b.get('apiName'), 'method':b.get('method'), 'params':b.get('params'), 'duration':round(duration,1), 'error':e.get('error')}))
+            image=trace.parent/'test-failed-1.png'
+            if image.exists():print('P248_IMAGE:'+trace.parent.name+':'+base64.b64encode(image.read_bytes()).decode())
+          PY
