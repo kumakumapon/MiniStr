@@ -1,41 +1,31 @@
-name: Inspect PR 248 browser evidence
+name: PR 248 terrain stress validation
 on:
   pull_request:
     branches: [main]
-    paths: ['.github/workflows/pr248-evidence.yml']
+    paths: ['.github/workflows/pr248-evidence.yml', 'tests/e2e/terrain-presentation.spec.ts', 'tests/e2e/helpers/terrainPixels.ts']
 permissions:
   contents: read
-  actions: read
 jobs:
-  inspect:
+  repeat-webkit:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 15
     steps:
-      - name: Read the existing failure artifact
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          gh run download 40697007011 --repo "$GITHUB_REPOSITORY" --name browser-failure-traces --dir "$RUNNER_TEMP/pr248"
-          python - <<'PY'
-          import os, pathlib, zipfile, json, base64
-          root=pathlib.Path(os.environ['RUNNER_TEMP'])/'pr248'
-          for trace in root.rglob('trace.zip'):
-            if 'terrain-presentation' not in str(trace) or not any(x in str(trace) for x in ['snow-at-1280-webkit','urban-at-1280-webkit']): continue
-            print('TRACE_CASE:',trace.parent.name)
-            before={}
-            events=[]
-            with zipfile.ZipFile(trace) as z:
-              for name in z.namelist():
-                if name.endswith('.trace'):
-                  for line in z.read(name).decode().splitlines():
-                    e=json.loads(line)
-                    if e.get('type')=='before':before[e['callId']]=e
-                    if e.get('type') in ['after','log']:events.append(e)
-            for e in events:
-              b=before.get(e.get('callId'),{})
-              if e.get('type')=='after':
-                duration=e.get('endTime',0)-b.get('startTime',0)
-                if duration>200 or e.get('error'):print(json.dumps({'api':b.get('apiName'), 'method':b.get('method'), 'params':b.get('params'), 'duration':round(duration,1), 'error':e.get('error')}))
-            image=trace.parent/'test-failed-1.png'
-            if image.exists():print('P248_IMAGE:'+trace.parent.name+':'+base64.b64encode(image.read_bytes()).decode())
-          PY
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm install --global npm@11.9.0
+      - run: npm ci
+      - run: npm run build
+      - run: sudo bash scripts/use-ubuntu-https-mirror.sh
+      - run: npx playwright install --with-deps webkit
+      - name: Repeat every theme and viewport five times without retries
+        run: npx playwright test tests/e2e/terrain-presentation.spec.ts --project=webkit --repeat-each=5 --workers=2 --reporter=line
+      - name: Preserve stress evidence
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: pr248-webkit-stress
+          path: test-results/
+          retention-days: 14
