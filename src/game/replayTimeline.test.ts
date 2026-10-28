@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { createReplay, createScenarioInitialState, loadScenarioDefinitions, loadCustomScenarios, parseReplay, replayCommands, type GameCommand, type ScenarioData } from './index';
 import { ReplayTimeline } from './replayTimeline';
 import { ResultCache } from '../ui/resultCache';
@@ -30,6 +30,17 @@ function fixture() {
   return created.value;
 }
 describe('portable replay analysis', () => {
+  it('evaluates each visible navigation event only once', () => {
+    const file = fixture(),
+      timeline = new ReplayTimeline(file);
+    const event = vi.spyOn(timeline, 'event').mockReturnValue('<unobserved>');
+    const html = renderReplayNavigation(82, 82, 'blue', timeline);
+    expect(event).toHaveBeenCalledTimes(8);
+    expect(event.mock.calls).toEqual(Array.from({ length: 8 }, (_, i) => [74 + i, 'blue']));
+    expect(html).toContain('&lt;unobserved&gt;');
+    event.mockReturnValue('destroyBridge');
+    expect(renderReplayNavigation(1, 82, 'blue', timeline)).toContain('橋の破壊');
+  });
   it('seeks identically to linear replay across checkpoints in either direction', () => {
     const file = fixture();
     const timeline = new ReplayTimeline(file, 2);

@@ -28,7 +28,9 @@
     "balance:compare": "vite-node scripts/balance-compare.ts",
     "balance": "vite-node scripts/balance-report.ts",
     "campaign:playthrough": "vite-node scripts/campaign-playthrough.ts",
-    "test:ci": "node --test scripts/ci-policy.check.mjs"
+    "test:ci": "node --test scripts/ci-policy.check.mjs",
+    "profile": "vite-node scripts/profile-boundaries.ts",
+    "balance:paired": "vite-node scripts/paired-balance.ts"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
