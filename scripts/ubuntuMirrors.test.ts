@@ -78,4 +78,11 @@ describe('Ubuntu HTTPS mirrors', () => {
     expect(content).toContain('uses: ./.github/workflows/ci.yml');
     expect(content).not.toContain('playwright install');
   });
+
+  it('configures the shared mirror before the terrain stability browser install', () => {
+    const workflow = readFileSync(new URL('../.github/workflows/ci.yml', import.meta.url), 'utf8').split('  terrain-stability:\n')[1]!;
+    const setup = workflow.indexOf('run: sudo bash scripts/use-ubuntu-https-mirror.sh');
+    expect(setup).toBeGreaterThan(-1);
+    expect(workflow.indexOf('run: npx playwright install --with-deps webkit')).toBeGreaterThan(setup);
+  });
 });

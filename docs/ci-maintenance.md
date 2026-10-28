@@ -19,6 +19,8 @@
 
 Pagesの独立したpush検証は廃止します。`.github/workflows/ci.yml`が検証と公開を定義し、`pages.yml`は手動起動用の呼び出しだけを持ちます。検証の省略や別runのartifact再利用は行いません。コミットと追跡ファイルのprivate-link検査、既存coverage対象・閾値、UIと3ブラウザのケースを維持します。
 
+`terrain-stability`は地形画像比較の負荷変動を確認する追加の並列ジョブです。WebKitの5テーマ×2幅と不一致検出を3回ずつ（計33件）、2worker・retryなし・各30秒のまま実行します。通常の全ブラウザ検証も維持し、公開はcommit-hygiene・test-and-build・runtime-compatibility・terrain-stabilityの4ジョブ成功後に限ります。権限は検証と同じcontents:readで、追加のSecretや公開権限は持ちません。
+
 検証のconcurrencyは各ジョブでworkflow名・ref・検証種別に分離します。workflow全体や手動呼び出し側にはconcurrencyを設定しません。同じrefの新しい検証は古い検証だけを取り消し、既に開始した公開を巻き込みません。公開ジョブは`pages-production`で直列化し、他の公開を取り消しません。直前にGitHub APIからmainのSHAを取得し、古いSHAは公開をスキップ、取得失敗や不正な応答は失敗とします。公開権限は公開ジョブだけに付与します。手動呼び出し側の権限は再利用先に許可する上限で、各検証ジョブはcontents:readに制限されます。
 
 ## 監査と失敗時の記録

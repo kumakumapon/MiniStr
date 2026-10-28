@@ -93,7 +93,7 @@ test('all existing gates remain and deployment requires every verification job',
   assert.match(ci, /scripts\/check-private-links\.sh "\$\{BASE_SHA\}\.\.\$\{HEAD_SHA\}"/);
   assert.match(ci, /node-version: 22\.13\.0/);
   assert.match(ci, /node-version: 24/);
-  assert.match(ci, /needs: \[commit-hygiene, test-and-build, runtime-compatibility\]/);
+  assert.match(ci, /needs: \[commit-hygiene, test-and-build, runtime-compatibility, terrain-stability\]/);
   assert.equal(ci.split(`if: ${publicationCondition}`).length - 1, 2);
   assert.match(ci, /if: steps\.publication\.outputs\.current == 'true'/);
   assert.match(ci, /run: node scripts\/pages-preflight\.mjs/);
@@ -102,10 +102,19 @@ test('all existing gates remain and deployment requires every verification job',
 });
 
 test('concurrency is scoped to workflow and ref, and production deployment serializes', () => {
-  const groups = [...ci.matchAll(/group: \$\{\{ github\.workflow \}\}-\$\{\{ github\.ref \}\}-(hygiene|quality|runtime)\n {6}cancel-in-progress: true/g)].map((match) => match[1]);
-  assert.deepEqual(groups.sort(), ['hygiene', 'quality', 'runtime']);
+  const groups = [...ci.matchAll(/group: \$\{\{ github\.workflow \}\}-\$\{\{ github\.ref \}\}-(hygiene|quality|runtime|terrain)\n {6}cancel-in-progress: true/g)].map(
+    (match) => match[1],
+  );
+  assert.deepEqual(groups.sort(), ['hygiene', 'quality', 'runtime', 'terrain']);
   assert.doesNotMatch(ci, /^concurrency:/m);
   assert.match(ci, /group: pages-production\n {6}cancel-in-progress: false/);
+});
+
+test('terrain stability is an additional parallel gate with the same read-only policy', () => {
+  const terrain = ci.split('  terrain-stability:\n')[1]?.split('  deploy:\n')[0];
+  assert.ok(terrain);
+  assert.match(terrain, /--project=webkit --repeat-each=3 --workers=2/);
+  assert.doesNotMatch(terrain, /permissions:|secrets:|pages: write|id-token: write|continue-on-error:|--retries/);
 });
 
 test('external actions remain SHA pinned and use the reviewed runtime updates', () => {

@@ -28,23 +28,34 @@ for (const width of [1280, 390])
       await page.goto('/');
       const card = page.locator('.title-map-card[data-map-id="terrain-colors"]');
       await card.scrollIntoViewIfNeeded();
-      const preview = await card.locator('.map-preview').evaluate((element) => element.outerHTML);
-      const cells = await card.locator('.map-preview-terrain').evaluateAll((elements) => elements.reduce((total, element) => total + Number(element.getAttribute('width')), 0));
-      expect(cells).toBe(6 * 4);
-      await card.screenshot({ path: testInfo.outputPath(`systems-terrain-${theme}-${width}-title.png`) });
+      const preview = await card.locator('.map-preview').evaluate((element) => ({
+        html: element.outerHTML,
+        cells: [...element.querySelectorAll('.map-preview-terrain')].reduce((total, cell) => total + Number(cell.getAttribute('width')), 0),
+      }));
+      expect(preview.cells).toBe(6 * 4);
+      await test.step('Capture title preview', () => card.screenshot({ path: testInfo.outputPath(`systems-terrain-${theme}-${width}-title.png`) }));
       await card.click();
       await page.locator('#begin-operation').click();
       await page.locator('#end').focus();
       await page.locator('#terrain-legend > summary').click();
-      await expect(page.locator('#terrain-legend')).toContainText('Supply depot');
-      await expect(page.locator('#terrain-legend')).toContainText('Temporary bridge');
-      await page.locator('.battlefield-wrap').screenshot({ path: testInfo.outputPath(`systems-terrain-${theme}-${width}-board.png`) });
+      await expect(page.locator('#terrain-legend')).toContainText(/Supply depot[\s\S]*Temporary bridge/);
       await page.locator('#end').focus();
       await page.mouse.move(0, 0);
       // Capture each live surface once. Repeated element screenshots exhausted
       // the shared 30s WebKit budget before the last terrain comparisons.
       const board = page.locator('.board');
-      for (let x = 0; x < 6; x++) await expect(page.locator(`.tile[data-x="${x}"][data-y="0"] .terrain-art`)).toBeVisible();
+      // One browser round trip per poll, retaining visibility checks for all
+      // six cells. Opacity is deliberately ignored, as in toBeVisible().
+      await expect
+        .poll(() =>
+          board.locator('.tile[data-y="0"] .terrain-art').evaluateAll((elements) =>
+            elements.map((element) => {
+              const bounds = element.getBoundingClientRect();
+              return { kind: element.getAttribute('data-terrain-art'), visible: getComputedStyle(element).visibility === 'visible' && bounds.width > 0 && bounds.height > 0 };
+            }),
+          ),
+        )
+        .toEqual(kinds.slice(0, 6).map((kind) => ({ kind, visible: true })));
       const geometry = await board.evaluate((element) => {
         const bounds = element.getBoundingClientRect();
         const regions = [...element.querySelectorAll<HTMLElement>('.tile[data-y="0"] .terrain-art')].map((art) => {
@@ -59,7 +70,9 @@ for (const width of [1280, 390])
         expect(region.width).toBe(cell.width);
         expect(region.height).toBe(cell.height);
       }
-      const actual = await board.screenshot({ path: testInfo.outputPath(`systems-terrain-${theme}-${width}-pixels-board.png`) });
+      // Reuse the comparison capture as the board diagnostic, instead of a
+      // second, much larger screenshot of the entire HUD and legend.
+      const actual = await test.step('Capture live board pixels', () => board.screenshot({ path: testInfo.outputPath(`systems-terrain-${theme}-${width}-board.png`) }));
       await page.evaluate(
         ({ html, width, height }) => {
           const container = document.createElement('div');
@@ -75,18 +88,20 @@ for (const width of [1280, 390])
           svg.setAttribute('height', String(height));
           document.body.append(container);
         },
-        { html: preview, width: cell.width * 6, height: cell.height },
+        { html: preview.html, width: cell.width * 6, height: cell.height },
       );
-      const miniature = await page.locator('#preview-color-probe').screenshot({ path: testInfo.outputPath(`systems-terrain-${theme}-${width}-pixels-preview.png`) });
-      const comparisons = await page.evaluate(compareTerrainCaptures, [
-        { source: actual.toString('base64'), width: geometry.width, height: geometry.height, regions: geometry.regions },
-        {
-          source: miniature.toString('base64'),
-          width: cell.width * 6,
-          height: cell.height,
-          regions: geometry.regions.map((_, x) => ({ x: x * cell.width, y: 0, width: cell.width, height: cell.height })),
-        },
-      ]);
+      const miniature = await test.step('Capture preview row pixels', () =>
+        page.locator('#preview-color-probe').screenshot({ path: testInfo.outputPath(`systems-terrain-${theme}-${width}-pixels-preview.png`) }));
+      const comparisons = await test.step('Compare all six terrain regions', () =>
+        page.evaluate(compareTerrainCaptures, [
+          { source: actual.toString('base64'), width: geometry.width, height: geometry.height, regions: geometry.regions },
+          {
+            source: miniature.toString('base64'),
+            width: cell.width * 6,
+            height: cell.height,
+            regions: geometry.regions.map((_, x) => ({ x: x * cell.width, y: 0, width: cell.width, height: cell.height })),
+          },
+        ]));
       await page.evaluate(() => document.querySelector('#preview-color-probe')?.remove());
       expect(comparisons).toHaveLength(6);
       if (comparisons.some((comparison) => comparison.delta >= 8)) {
