@@ -1,0 +1,38 @@
+name: Resolve maintenance dependencies
+on:
+  pull_request:
+    branches: [main]
+    paths: ['.github/workflows/dependency-resolution.yml']
+permissions:
+  contents: read
+concurrency:
+  group: dependency-resolution-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  resolve:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+          package-manager-cache: false
+      - run: npm install --global npm@11.9.0
+      - name: Inspect compatible dependency releases
+        run: |
+          for package in typescript-eslint@latest typescript@6.0.3 typescript@7.0.2 vite@8.3.5 vite-node@latest '@types/node@24' '@playwright/test@1.64.1' eslint@10.13.0; do
+            echo "PACKAGE_METADATA: $package"
+            npm view "$package" version engines peerDependencies dependencies --json
+          done
+      - name: Generate the candidate lockfile
+        run: |
+          npm pkg set 'devDependencies.@playwright/test=^1.64.1' 'devDependencies.@types/node=^24.0.0' 'devDependencies.eslint=^10.13.0' 'devDependencies.typescript=~6.0.3' 'devDependencies.vite=^8.3.5'
+          npm install --package-lock-only --ignore-scripts --no-audit
+          npm ls --all --package-lock-only
+          node --input-type=module <<'NODE'
+          import { readFileSync } from 'node:fs';
+          console.log('CI_PACKAGE:' + readFileSync('package.json').toString('base64'));
+          const lock = readFileSync('package-lock.json').toString('base64');
+          for (let i = 0; i < lock.length; i += 12000) console.log('CI_LOCK:' + lock.slice(i, i + 12000));
+          NODE
