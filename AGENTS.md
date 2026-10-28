@@ -7,8 +7,8 @@
 
 ## 使用技術
 
-- 言語・バージョン: TypeScript 5（`package.json` は `^5.8.3`）、strict / noUncheckedIndexedAccess
-- フレームワーク・主要ライブラリ: Vite 6、Vitest 5
+- 言語・バージョン: TypeScript 6.0（typescript-eslintの対応範囲に合わせて`~6.0.3`）、strict / noUncheckedIndexedAccess
+- フレームワーク・主要ライブラリ: Vite 8、Vitest 5
 - 実行環境: Node.js 22.13以降の22系または24系、npm 10–12
 
 ## パッケージマネージャー
@@ -42,6 +42,7 @@
 | --- | --- | --- |
 | 依存導入 | `npm ci` | lockfileに従って導入する |
 | private-sessionリンク検査 | `npm run check:links` | 変更に含めるコミット範囲も確認する |
+| CI公開条件の回帰 | `npm run test:ci` | Node標準テストのみで実行可能。CI/Pages変更時に必須 |
 | lint | `npm run lint` | 実装変更時は必須 |
 | フォーマット検査 | `npm run format:check` | 実装変更時は必須（CIでも実行） |
 | 型チェック（テストを含む） | `npm run typecheck:test` | 実装変更時は必須 |
@@ -64,7 +65,7 @@
 
 ## デプロイ上の注意
 
-- GitHub Pages は `main` へのpush後、lint・フォーマット検査・型チェック・カバレッジ付きテスト・ビルドが成功した場合に公開される。
+- GitHub Pages は `main` へのpush後、共通CIの全品質ゲートとNode 22.13互換検証が成功した場合に、同じrunで検証したdistを公開する。手動Pagesも同じCIを呼び出し、featureでは検証のみ行う。公開直前に対象SHAが現在のmainか確認する。
 - `main` へ直接反映しない。変更は作業ブランチとPull Requestで提案する。
 - Secretや個人情報、private coding sessionへのリンクをコミット・Issue・PR・ログに含めない。
 

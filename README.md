@@ -407,6 +407,8 @@ src/
 - Node.js 22.13 以上の22系、または24系
 - npm 10–12
 
+CIはNode 24とnpm 11.9.0を使用し、対応下限のNode 22.13.0でも導入・型・単体・ビルドを検証します。Node型は24系、TypeScriptはtypescript-eslintが対応する6.0系を使用します。
+
 ### インストール
 
 ```bash
@@ -440,6 +442,9 @@ npm run test:watch
 # カバレッジを計測
 npm run test:coverage
 
+# CI・Pagesの公開条件を検証（依存導入前でも実行可能）
+npm run test:ci
+
 # E2E テスト（初回は npx playwright install chromium が必要）
 npm run test:e2e
 
@@ -465,13 +470,15 @@ npm run balance:compare -- --generated --sizes 16 --seas none --seeds example --
 
 ### CI
 
-`main` への push と pull request で、lint、フォーマット検査、型チェック、カバレッジ付きの単体テスト、ビルド、E2E テスト（Chromium）を実行します。fork からの pull request も同じ検証を実行しますが、read-only の権限のみで、リポジトリの秘密情報は利用しません。
+`main` への push と pull request で、クリーン導入、依存整合性、全依存／本番依存の監査、lint、フォーマット、型、カバレッジ付き単体、ビルド、配布UI、Chromium・Firefox・WebKitの既存E2Eを実行します。Node 22.13.0の互換検証も実行します。forkからのpull requestも同じ検証をread-only権限で実行し、リポジトリの秘密情報は利用しません。
+
+監査のhigh／criticalと、監査サービスや報告形式のエラーはCIを失敗させます。その他の指摘もログと`dependency-audit` artifactに残し、更新時に確認します。監査結果は取得時点のもので、例外を自動承認しません。詳しくは[依存・CI運用](docs/ci-maintenance.md)を参照してください。
 
 あわせて、pull request が追加するコミットメッセージに私的なコーディングセッションの URL が含まれていないことを検査します（`npm run check:links` と同じ検査）。この種の行は開発ツールが自動で付与することがあるため、機械的に検出します。
 
 ### デプロイ
 
-`main` ブランチへの push で GitHub Pages に自動デプロイされます。デプロイは lint、フォーマット検査、型チェック、テスト、ビルドがすべて成功した場合にのみ実行されます。
+`main`へのpushは共通CIで一度だけ検証し、そのrunのdistをGitHub Pagesに公開します。手動の「Deploy GitHub Pages」も同じCIを呼び出します。featureの手動実行は検証のみで、mainの実行を取り消しません。公開ジョブは全検証成功後に限り書込権限を持ち、直前に対象SHAが現在のmainと一致することを確認します。
 
 ## 既知の制限
 

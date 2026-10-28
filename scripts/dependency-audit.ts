@@ -1,10 +1,18 @@
 import { spawnSync } from 'node:child_process';
+import { writeFileSync } from 'node:fs';
+import { hasBlockingFindings, parseAuditReport } from './dependencyAudit';
 
-// A snapshot for release review, not a replacement for the existing quality gates.
+const evidence: { auditScope: string; report: ReturnType<typeof parseAuditReport> }[] = [];
 for (const production of [false, true]) {
   const result = spawnSync('npm', ['audit', '--json', ...(production ? ['--omit=dev'] : [])], { encoding: 'utf8', maxBuffer: 2_000_000, timeout: 120_000 });
-  if (result.error || result.signal || (result.status !== 0 && result.status !== 1)) throw new Error('Dependency audit could not be completed.');
-  const report = JSON.parse(result.stdout) as { error?: unknown; metadata?: { vulnerabilities?: unknown }; vulnerabilities?: unknown };
-  if (report.error || !report.metadata?.vulnerabilities) throw new Error('Dependency audit returned no usable report.');
-  console.log(JSON.stringify({ auditScope: production ? 'production' : 'all', metadata: report.metadata, vulnerabilities: report.vulnerabilities }));
+  if (result.error || result.signal) throw new Error('Dependency audit could not be completed.');
+  const report = parseAuditReport(result.stdout, result.status);
+  const auditScope = production ? 'production' : 'all';
+  evidence.push({ auditScope, report });
+  console.log(JSON.stringify({ auditScope, metadata: report.metadata, vulnerabilities: report.vulnerabilities }));
 }
+
+// Preserve both scopes before failing; an npm/service error is never a zero report.
+if (process.env.DEPENDENCY_AUDIT_PATH) writeFileSync(process.env.DEPENDENCY_AUDIT_PATH, JSON.stringify({ capturedAt: new Date().toISOString(), evidence }, null, 2) + '\n');
+if (evidence.some(({ report }) => hasBlockingFindings(report)))
+  throw new Error('Dependency audit found high or critical vulnerabilities. Review the saved evidence before updating dependencies.');

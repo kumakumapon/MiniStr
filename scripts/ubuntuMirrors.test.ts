@@ -65,11 +65,17 @@ describe('Ubuntu HTTPS mirrors', () => {
     expect(() => configure(fixture({}))).not.toThrow();
   });
 
-  it.each(['ci.yml', 'pages.yml'])('runs the shared configuration before browser installation in %s', (workflow) => {
-    const content = readFileSync(new URL(`../.github/workflows/${workflow}`, import.meta.url), 'utf8');
+  it('runs the shared configuration before browser installation in the reusable CI', () => {
+    const content = readFileSync(new URL('../.github/workflows/ci.yml', import.meta.url), 'utf8');
     const setup = content.indexOf('run: sudo bash scripts/use-ubuntu-https-mirror.sh');
     const install = content.indexOf('run: npx playwright install --with-deps chromium firefox webkit');
     expect(setup).toBeGreaterThan(-1);
     expect(install).toBeGreaterThan(setup);
+  });
+
+  it('uses the same browser setup for manual Pages verification', () => {
+    const content = readFileSync(new URL('../.github/workflows/pages.yml', import.meta.url), 'utf8');
+    expect(content).toContain('uses: ./.github/workflows/ci.yml');
+    expect(content).not.toContain('playwright install');
   });
 });

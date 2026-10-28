@@ -4,9 +4,21 @@ updates:
     directory: /
     schedule: { interval: weekly }
     open-pull-requests-limit: 5
+    # Keep the compiler within typescript-eslint's supported <6.1 range.
+    # Recheck this cap when upgrading the lint toolchain (tracked in #168).
+    ignore:
+      - dependency-name: typescript
+        versions: ['>=6.1.0']
+      # Match the supported Node 24 runtime rather than future Node APIs.
+      - dependency-name: '@types/node'
+        update-types: [version-update:semver-major]
     groups:
       vitest:
         patterns: [vitest, '@vitest/*']
+      typescript-toolchain:
+        patterns: [typescript, typescript-eslint, '@typescript-eslint/*']
+      vite:
+        patterns: [vite, vite-node]
   - package-ecosystem: github-actions
     directory: /
     schedule: { interval: weekly }
