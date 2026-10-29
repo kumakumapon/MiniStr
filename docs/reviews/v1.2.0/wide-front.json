@@ -1,0 +1,126 @@
+{
+  "complete": true,
+  "simulationDigest": "b6c061d3f5d3306c8fe9e87b2d4c792382f3a1ff118a914d5f9aac8ce3ece5b4",
+  "results": [
+    {
+      "seed": 7,
+      "red": "normal",
+      "blue": "normal",
+      "redPolicy": "balanced",
+      "bluePolicy": "balanced",
+      "winner": "blue",
+      "reason": "control",
+      "turns": 24,
+      "commands": 907,
+      "digest": "6f2ac7e6f0ae5b6b94221d1b5508156e05bb147335690c224795e826126de308"
+    },
+    {
+      "seed": 7,
+      "red": "hard",
+      "blue": "easy",
+      "redPolicy": "balanced",
+      "bluePolicy": "balanced",
+      "winner": "red",
+      "reason": "control",
+      "turns": 15,
+      "commands": 566,
+      "digest": "c305395473d1ac091aed1cedfa6dfa9fd3980a1fcf010eb5cf057da4b72a86bf"
+    },
+    {
+      "seed": 7,
+      "red": "easy",
+      "blue": "hard",
+      "redPolicy": "balanced",
+      "bluePolicy": "balanced",
+      "winner": "blue",
+      "reason": "control",
+      "turns": 19,
+      "commands": 709,
+      "digest": "1420940bd8a863ec78c25a9bdb69af7f8d76cca7f4af4512af69ae31d8f765f8"
+    },
+    {
+      "seed": 7,
+      "red": "normal",
+      "blue": "normal",
+      "redPolicy": "offensive",
+      "bluePolicy": "defensive",
+      "winner": "red",
+      "reason": "control",
+      "turns": 17,
+      "commands": 682,
+      "digest": "18d54a49cbaf2ffdc46e27353887991e8afc282ec15ee9f8d4569154774985b2"
+    },
+    {
+      "seed": 7,
+      "red": "normal",
+      "blue": "normal",
+      "redPolicy": "defensive",
+      "bluePolicy": "offensive",
+      "winner": "blue",
+      "reason": "control",
+      "turns": 24,
+      "commands": 1009,
+      "digest": "3faa498e9786ef2d93a89da9e55ad23d05e9ce3ed1bce602560bd4bce017e8ea"
+    },
+    {
+      "seed": 73,
+      "red": "normal",
+      "blue": "normal",
+      "redPolicy": "balanced",
+      "bluePolicy": "balanced",
+      "winner": "red",
+      "reason": "control",
+      "turns": 26,
+      "commands": 1058,
+      "digest": "a21abf42105d471cd8cb637831bbdb174d4a040ed1d4432e5cf878a5521c571e"
+    },
+    {
+      "seed": 73,
+      "red": "hard",
+      "blue": "easy",
+      "redPolicy": "balanced",
+      "bluePolicy": "balanced",
+      "winner": "red",
+      "reason": "control",
+      "turns": 15,
+      "commands": 594,
+      "digest": "78447b1fb9637e4d18fddc4a2549cd6ce8c3eb156bfc634f67ea695e4afbbd22"
+    },
+    {
+      "seed": 73,
+      "red": "easy",
+      "blue": "hard",
+      "redPolicy": "balanced",
+      "bluePolicy": "balanced",
+      "winner": "blue",
+      "reason": "control",
+      "turns": 24,
+      "commands": 913,
+      "digest": "6da666fc0c5cfac600bc926b22c612312e5c0a3b48fb517b0a17e9966ba5a5c5"
+    },
+    {
+      "seed": 73,
+      "red": "normal",
+      "blue": "normal",
+      "redPolicy": "offensive",
+      "bluePolicy": "defensive",
+      "winner": "red",
+      "reason": "control",
+      "turns": 17,
+      "commands": 676,
+      "digest": "053ceac21dad21d0d73fba9ce9db3df395d16134332806a87192490745204b59"
+    },
+    {
+      "seed": 73,
+      "red": "normal",
+      "blue": "normal",
+      "redPolicy": "defensive",
+      "bluePolicy": "offensive",
+      "winner": "red",
+      "reason": "control",
+      "turns": 25,
+      "commands": 1004,
+      "digest": "0296f855f6278fd50d5b78b0bc0b76c6983279f47a9dd761d4f3d0067a1e82b0"
+    }
+  ]
+}
