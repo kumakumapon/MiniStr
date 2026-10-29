@@ -23,8 +23,8 @@ describe('zoom without replacing the board', () => {
       expect(updateBoardZoomView(root, 32, 24, index!)).toBe(true);
       const board = root.querySelector<HTMLElement>('.board')!;
       expect(board.dataset.zoom).toBe(String(percent));
-      expect(board.style.gridTemplateColumns).toBe(`repeat(32,${pixels}px)`);
-      expect(viewport.style.maxHeight).toBe(`min(70vh, ${24 * pixels! + 10}px)`);
+      expect(board.style.gridTemplateColumns.replace(/\s/g, '')).toBe(`repeat(32,${pixels}px)`);
+      expect(viewport.style.maxHeight.replace(/\s/g, '')).toBe(`min(70vh,${24 * pixels! + 10}px)`);
       expect(root.querySelector('.board-zoom-controls span')?.textContent).toBe(`${percent}%`);
       expect(root.querySelector<HTMLButtonElement>('#board-zoom-out')!.disabled).toBe(index === 0);
       expect(root.querySelector<HTMLButtonElement>('#board-zoom-in')!.disabled).toBe(index === 5);

@@ -69,10 +69,12 @@ for (const width of [1280, 390])
       const target = page.locator('.tile[data-x="1"][data-y="2"]');
       await expect(target).toBeFocused();
       await target.press('Enter');
+      await expect(target).toBeFocused();
       await expect(target.locator('.unit.red')).toHaveCount(1);
       await expect(second.locator('.unit.red')).toHaveCount(0);
       await expect(page.locator('.board')).toHaveAttribute('data-zoom', '50');
       expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width + 1);
+      await page.mouse.move(0, 0);
       await page.screenshot({ path: testInfo.outputPath('systems-board-response.png') });
     });
   }
