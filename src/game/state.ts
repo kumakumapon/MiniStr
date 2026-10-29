@@ -17,9 +17,19 @@ export function unitAt(state: GameState, position: Position): Unit | undefined {
 }
 
 export function incomePropertyCount(state: GameState, player: PlayerId): number {
-  return playerOwnedProperties(state, player).filter(tile => tile.kind !== 'supplyDepot').length;
+  let count = 0;
+  for (const row of state.board.terrain)
+    for (const tile of row)
+      if (tile.owner === player && tile.kind !== 'supplyDepot' && isPropertyTerrainKind(tile.kind)) count++;
+  return count;
 }
 
 export function playerOwnedProperties(state: GameState, player: PlayerId): Terrain[] {
-  return state.board.terrain.flat().filter(tile => tile.owner === player && isPropertyTerrainKind(tile.kind));
+  // Avoid flattening the whole board on every income/victory check. Read live
+  // tiles so captures and callers that mutate a board never see cached owners.
+  const properties: Terrain[] = [];
+  for (const row of state.board.terrain)
+    for (const tile of row)
+      if (tile.owner === player && isPropertyTerrainKind(tile.kind)) properties.push(tile);
+  return properties;
 }

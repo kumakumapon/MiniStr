@@ -466,6 +466,8 @@ npm run balance:compare -- --generated --sizes 16 --seas none --seeds example --
 
 `npm run balance` は引数を省略すると、全マップ × 全難易度 × 従来／近代ルール × 3シードを計測します（実行環境と条件により数分〜十数分）。結果の例と所見は `docs/reviews/2026-09-26-balance-baseline.md` を参照してください。
 
+性能の再計測は `npm run profile -- --samples 30`、配置・CPU設定を交換する先後評価は `npm run balance:paired` を使用します。fixture、上限、JSON出力と比較時の注意は[性能・先後評価の手順](docs/performance-evaluation.md)を参照してください。
+
 `npm run test:coverage` は `src/` の実装ファイルを対象にカバレッジを計測し、`vite.config.ts` の閾値を下回ると失敗します（CI と GitHub Pages のデプロイで実行）。単体テストの対象外である `src/main.ts` も集計に含めているため、全体の行カバレッジは低めに出ます。
 
 ### CI
