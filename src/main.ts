@@ -201,8 +201,12 @@ let spectateFollow = true;
 let spectateLastAction: Position | undefined;
 let spectateLocatedUnitId: string | undefined;
 let pendingBoardCenter: Position | undefined;
+let preserveBoardOnCover = true;
+let coveredBoardScroll: { left: number; top: number } | undefined;
 
 function resetSpectatorCamera(): void {
+  coveredBoardScroll = undefined;
+  preserveBoardOnCover = false;
   spectateLastAction = undefined;
   spectateLocatedUnitId = undefined;
   pendingBoardCenter = undefined;
@@ -990,8 +994,14 @@ function render(): void {
   // loading screen has closed; the in-progress guard prevents duplicate timers.
   if (screens.current === 'battle' && matchMode === 'cpu' && !localStorage.conflicted && !cpuInProgress
     && !activeTacticalScene && cpuShouldRun(matchContext())) runCpu(CPU_STEP_DELAY_MS / cpuSpeed);
+  const boardCovered = screens.titleOpen || screens.briefingOpen || screens.campaignMenuOpen;
+  if (boardCovered && preserveBoardOnCover && !coveredBoardScroll && app.querySelector('.board .tile')) {
+    const viewport = app.querySelector<HTMLElement>('#board-viewport');
+    if (viewport) coveredBoardScroll = { left: viewport.scrollLeft, top: viewport.scrollTop };
+  }
+  preserveBoardOnCover = true;
   const generation = ++renderGeneration;
-  const restoreScroll = captureRenderScroll(app, window);
+  const restoreScroll = captureRenderScroll(app, window, Boolean(pendingBoardCenter && matchMode === 'spectate' && !replay));
   const allowBoardFocusScroll = !preventBoardFocusScroll && !(matchMode === 'spectate' && spectateFollow && !replay);
   preventBoardFocusScroll = false;
   const activeElement = document.activeElement;
@@ -1045,8 +1055,10 @@ function render(): void {
   const missionTargets = new Set(ownEvacuation.flatMap(condition => condition.unitIds));
   const objectivePositions = new Set(renderedMap.victoryConditions.flatMap(condition => condition.type === 'hold' || condition.type === 'control' || isEvacuationCondition(condition) ? condition.positions.map(key) : []));
   const supplyTiles = showSupplyRange ? supplyRange(renderedGame, me, selected) : new Set<string>();
-  const board = renderedGame.board.terrain.flatMap((row, y) => row.map((terrain, x) => {
-    const unit = renderedGame.units.find(item => isDeployedUnit(item) && item.position.x === x && item.position.y === y);
+  const unitsByPosition = new Map(renderedGame.units.filter(isDeployedUnit).map(unit => [key(unit.position), unit]));
+  const cargoByTransport = new Map(renderedGame.units.filter(unit => unit.embarkedIn !== undefined).map(unit => [unit.embarkedIn!, unit]));
+  const board = boardCovered ? '' : renderedGame.board.terrain.flatMap((row, y) => row.map((terrain, x) => {
+    const unit = unitsByPosition.get(`${x},${y}`);
     const hidden = !visible.has(`${x},${y}`);
     const contact = hidden ? contactsByPosition.get(`${x},${y}`) : undefined;
     const terrainName = terrainNames[terrain.kind] ?? terrain.kind;
@@ -1055,7 +1067,7 @@ function render(): void {
     const capturePoints = observedCapturePoints(terrain, !hidden);
     const facilityDetail = translateText(terrain.kind === 'supplyDepot' ? '、周囲の地上部隊を補給（修理・収入・生産なし）' : terrain.kind === 'port' ? '、補給・艦艇を生産可能' : terrain.kind === 'airport' ? '、補給・航空ユニットを生産可能' : terrain.kind === 'factory' ? '、補給・地上ユニット生産拠点' : '');
     const propertyLabel = translateGameText(isProperty ? `${terrainName}${propertyOwner ? `（${propertyOwner === me ? '自軍' : '敵軍'}）` : '（中立）'}${capturePoints !== undefined ? `、占領値 ${capturePointsLabel(capturePoints)}` : ''}${facilityDetail}` : terrainName);
-    const cargo = unit && transportCapacity(unit.kind) > 0 ? renderedGame.units.find(candidate => candidate.embarkedIn === unit.id) : undefined;
+    const cargo = unit && transportCapacity(unit.kind) > 0 ? cargoByTransport.get(unit.id) : undefined;
     // Fuel data stays private: only warn about the player's own units, never
     // expose an enemy's exact reserve through a visible tile.
     const fuelTurns = unit && isDeployedUnit(unit) && unit.owner === me ? fuelTurnsRemaining(unit) : undefined;
@@ -1315,6 +1327,11 @@ function render(): void {
   </section>${mobileActionBar}`}</main>${gameOverOverlay}${briefing}${titleOverlay}${shareDialog}${campaignOverlay}${editorOverlay}${concealed ? renderHandoffOverlay(sideName('hotseat', renderedGame.activePlayer)) : ''}${activeTacticalScene ? ('attacker' in activeTacticalScene ? renderBattleScene(activeTacticalScene) : renderActionScene(activeTacticalScene)) : ''}${productionOverlay}`;
   document.body.classList.toggle('production-menu-open', Boolean(productionOverlay));
   restoreScroll();
+  if (!boardCovered && coveredBoardScroll) {
+    const viewport = app.querySelector<HTMLElement>('#board-viewport');
+    if (viewport) { viewport.scrollLeft = coveredBoardScroll.left; viewport.scrollTop = coveredBoardScroll.top; }
+    coveredBoardScroll = undefined;
+  }
   if (pendingBoardCenter && spectateCameraControls) {
     centerBoardOnPosition(app, pendingBoardCenter);
     pendingBoardCenter = undefined;
@@ -1625,16 +1642,16 @@ function render(): void {
     if (next < 0 || next >= BOARD_ZOOM_LEVELS.length) return;
     boardZoomIndex = next;
     boardZoomAuto = false;
-    if (matchMode === 'spectate' && !replay) {
-      centerSpectatorOn(focusedPosition);
-      render();
-      return;
-    }
     const state = replay?.state ?? game;
     if (!updateBoardZoomView(app, state.board.width, state.board.height, boardZoomIndex)) {
       focusSelector = `.tile[data-x="${focusedPosition.x}"][data-y="${focusedPosition.y}"]`;
       render();
       return;
+    }
+    if (matchMode === 'spectate' && !replay) {
+      centerBoardOnPosition(app, focusedPosition);
+      pendingBoardCenter = undefined;
+      preventBoardFocusScroll = true;
     }
     // Match the full render's focus policy and invalidate its old focus tickets.
     renderGeneration++;

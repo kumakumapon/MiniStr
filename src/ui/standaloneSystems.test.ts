@@ -44,10 +44,11 @@ describe('standalone system controls', () => {
   it.each(['none', 'coast', 'ocean'])('exposes reproducible generation settings for %s', (sea) => {
     document.body.innerHTML = renderMapGenerator({ size: 16, sea, seed: 'seed-1' }, '', false);
     expect(document.querySelector('details')?.open).toBe(false);
-    expect(document.querySelectorAll('#title-generator-size option')).toHaveLength(3);
+    expect(document.querySelectorAll('#title-generator-size option')).toHaveLength(4);
     expect(document.querySelector<HTMLSelectElement>('#title-generator-sea')?.value).toBe(sea);
     expect(document.querySelector<HTMLInputElement>('#title-generator-seed')?.maxLength).toBe(24);
     expect(document.querySelector('#title-generator-create')).not.toBeNull();
+    expect(document.querySelector('#title-generator-size option[value="32"]')?.textContent).toBe('32×32');
     document.body.innerHTML = renderMapGenerator({ size: 24, sea, seed: '"><img src=x>' }, '<bad>', true);
     expect(document.querySelector('img')).toBeNull();
     expect(document.querySelector('details')?.open).toBe(true);

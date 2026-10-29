@@ -38,3 +38,19 @@ npm run balance:paired -- --sizes 16,20,24 --seas none,coast,ocean --seeds eval-
 - 機械評価では人間の遊びやすさは判定できません。未使用seed・生成条件と人間の対局で追加確認し、小標本から全マップの補正やCPU重みを一括変更しません。
 
 今回の計測値と判断は[2026-10-28の記録](reviews/2026-10-28-performance-balance.md)を参照。
+
+
+## v1.2.0の観戦・保持メモリ・広域作戦
+
+```sh
+# 配布buildをpreviewで起動してから実行（出力パス、識別名）
+PROFILE_BASE_URL=http://127.0.0.1:4173/ node scripts/profile-spectator.mjs /tmp/spectator.json candidate
+# ローカルの既設Chromiumを使う場合だけCHROMIUM_PATHを指定
+node --expose-gc node_modules/vite-node/vite-node.mjs scripts/profile-retention.ts > /tmp/retention.json
+npm run balance:paired -- --sizes 16,24,32 --seas none,coast,ocean --seeds Hold-E,Hold-F --variants frontline --policies offensive:defensive --max-games 36 --seconds 3600 --output /tmp/defense.jsonl
+npx vite-node scripts/wide-front-report.ts /tmp/wide-front.json
+```
+
+観戦計測は16／32盤面、PC1280／390pxで部隊への移動・ズーム・タイトルへの遷移を2回warm-up＋30標本で計測します。タイトルの初回readyMsと作戦開始は各実行1標本の参考値です。計測用の対局は停止し、native handlerから2frameまでを測ります。変更前後を同じ実行環境で交互3回測定してください。
+
+保持メモリは2,000指令のリプレイを保持したまま、タイムラインを5回生成・seek・解放し、各段階で明示的GCを行います。最初のcycleをwarm-upとし、16／32盤面の保持量とseek時間を比較します。ファイル本体・命令配列のメモリを解放した値ではなく、ブラウザのリーク不存在を証明する測定でもありません。製品のチェックポイントは最大32、盤面セル数に応じて合計8,192セル相当を目安に削減し、初期地点を含む最低2個を保持します。

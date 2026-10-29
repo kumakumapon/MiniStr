@@ -19,7 +19,7 @@ describe('new standalone operations and generated fronts', () => {
     30_000,
   );
 
-  for (const size of [16, 20, 24] as const)
+  for (const size of [16, 20, 24, 32] as const)
     it.each(['none', 'coast', 'ocean'] as const)(
       `plays a generated ${size}/%s front with legal commands`,
       (sea) => {

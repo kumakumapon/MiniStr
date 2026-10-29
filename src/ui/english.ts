@@ -2,6 +2,11 @@ import { japaneseUnitNames, englishUnitNames } from './unitNameText';
 
 /** English display resources. IDs, authored data and saved JSON stay unchanged. */
 export const englishResources: readonly (readonly [string, string])[] = [
+  ['広域戦線32', 'Wide Front 32'],
+  [
+    '32×32の広域戦線。中央の補給所2か所の所有で各ラウンド1点ずつ獲得し、20点で勝利。敵司令部の占領でも勝利する。前線工場から増援し、砲兵と補給車を連携させよ。両軍は180度回転対称、後攻補償+2000G。90ターン終了時に判定。',
+    'A 32×32 battlefield. Each central supply depot earns its owner one point per round; reach 20 points or capture enemy headquarters to win. Reinforce from frontline factories and coordinate artillery with supply vehicles. Both armies are rotationally symmetric; the second player receives +2000G. The match is adjudicated after round 90.',
+  ],
   ['烈火（ロック・160 BPM）', 'Blaze (Rock · 160 BPM)'],
   ['蒼雷（ロック・148 BPM）', 'Blue Thunder (Rock · 148 BPM)'],
   ['温帯', 'Temperate'],

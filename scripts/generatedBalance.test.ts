@@ -49,7 +49,7 @@ describe('bounded reproducible generated comparisons', () => {
       ['--seeds', 'a,a'],
       ['--seeds', ''],
       ['--seeds', 'bad/seed'],
-      ['--sizes', '32'],
+      ['--sizes', '30'],
       ['--seas', 'unknown'],
       ['--damage-seeds', '-1'],
       ['--orientations', 'sideways'],

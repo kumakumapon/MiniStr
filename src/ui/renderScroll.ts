@@ -1,7 +1,7 @@
 /** DOM redraws replace scroll containers. Restore them before restoring focus. */
-export function captureRenderScroll(root: ParentNode, viewport: Window): () => void {
+export function captureRenderScroll(root: ParentNode, viewport: Window, skipBoard = false): () => void {
   const page = { x: viewport.scrollX, y: viewport.scrollY };
-  const containers = ['board-viewport', 'production-menu-body'].map((id) => {
+  const containers = (skipBoard ? ['production-menu-body'] : ['board-viewport', 'production-menu-body']).map((id) => {
     const element = root.querySelector<HTMLElement>(`#${id}`);
     return { id, left: element?.scrollLeft ?? 0, top: element?.scrollTop ?? 0 };
   });

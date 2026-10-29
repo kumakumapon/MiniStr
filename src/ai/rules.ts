@@ -1,3 +1,4 @@
+import { supportedAttack } from './supportAttack';
 import { policyConfig } from './armyPolicy';
 import type { ArmyPolicy } from '../game/armyPolicy';
 import { chooseDemolition } from './demolition';
@@ -34,6 +35,8 @@ export type CpuDifficulty = 'easy' | 'normal' | 'hard';
 export interface CpuDifficultyConfig {
   /** Extra damage, over expected counter-damage, required before taking a non-lethal attack. */
   attackSafetyMargin: number;
+  /** Defensive policy coordinates ready support and profitable repair-cover exchanges. */
+  coordinatedDefense?: boolean;
   /** Whether a capital is preferred over other enemy objectives when moving. */
   prioritizeCapital: boolean;
   /** Multiplier for projected damage from visible enemy counterattacks. */
@@ -132,7 +135,8 @@ function favorableAttack(state: GameState, attacker: DeployedUnit, target: Unit,
   const leniency = Math.min(MAX_ATTACK_LENIENCY,
     stalemateRelief(state) * 25 + garrisonAllowance(state, attacker, target, result.value.damageToDefender, result.value.damageToAttacker));
   return result.value.outgoing.min >= target.hp
-    || result.value.damageToDefender >= result.value.damageToAttacker + config.attackSafetyMargin - leniency;
+    || result.value.damageToDefender >= result.value.damageToAttacker + config.attackSafetyMargin - leniency
+    || Boolean(config.coordinatedDefense && supportedAttack(state, attacker, target, true));
 }
 
 /** Upper bound on the extra retaliation any leniency may accept. */

@@ -1,0 +1,193 @@
+{
+  "baseCommit": "16f14ec49075e643c1ebe455e244974eeb32abe1",
+  "candidateCommit": "f9173af7c46fba3e1fbbc6f724a501a29fbed12f",
+  "method": "Identical harness; sequential baseline then candidate, explicit GC, five cycles, first discarded as warm-up. Four medians; six distant seeks each. Same replay file remains retained. This is incremental ReplayTimeline heap, not total application heap or browser leak proof.",
+  "summary": [
+    {
+      "size": 16,
+      "before": {
+        "retainedBytes": 342804.0,
+        "afterReleaseBytes": 9360.0,
+        "seekMs": 94.68050500000004
+      },
+      "after": {
+        "retainedBytes": 343620.0,
+        "afterReleaseBytes": 10048.0,
+        "seekMs": 91.09579200000002
+      }
+    },
+    {
+      "size": 32,
+      "before": {
+        "retainedBytes": 727656.0,
+        "afterReleaseBytes": 14512.0,
+        "seekMs": 151.3810430000001
+      },
+      "after": {
+        "retainedBytes": 327124.0,
+        "afterReleaseBytes": 17132.0,
+        "seekMs": 227.1772900000002
+      }
+    }
+  ],
+  "raw": {
+    "before": {
+      "runtime": "v24.19.0",
+      "sourceSha": "working-tree",
+      "sourceDigest": "e41713f92ed644ac7ae91dc83c590fadc3d6699e648b6209ace4da28d69a98f7",
+      "commands": 2000,
+      "rows": [
+        {
+          "size": 16,
+          "cycle": 0,
+          "retainedBytes": 166936,
+          "afterReleaseBytes": -168064,
+          "seekMs": 113.36779100000001
+        },
+        {
+          "size": 16,
+          "cycle": 1,
+          "retainedBytes": 347544,
+          "afterReleaseBytes": 13896,
+          "seekMs": 96.85606099999995
+        },
+        {
+          "size": 16,
+          "cycle": 2,
+          "retainedBytes": 334664,
+          "afterReleaseBytes": 808,
+          "seekMs": 92.50494900000012
+        },
+        {
+          "size": 16,
+          "cycle": 3,
+          "retainedBytes": 338064,
+          "afterReleaseBytes": 4824,
+          "seekMs": 97.2919589999999
+        },
+        {
+          "size": 16,
+          "cycle": 4,
+          "retainedBytes": 349080,
+          "afterReleaseBytes": 26272,
+          "seekMs": 89.95102999999995
+        },
+        {
+          "size": 32,
+          "cycle": 0,
+          "retainedBytes": 795120,
+          "afterReleaseBytes": 81824,
+          "seekMs": 146.3598750000001
+        },
+        {
+          "size": 32,
+          "cycle": 1,
+          "retainedBytes": 681472,
+          "afterReleaseBytes": -31760,
+          "seekMs": 149.22786399999995
+        },
+        {
+          "size": 32,
+          "cycle": 2,
+          "retainedBytes": 739608,
+          "afterReleaseBytes": 26376,
+          "seekMs": 155.8155959999999
+        },
+        {
+          "size": 32,
+          "cycle": 3,
+          "retainedBytes": 745136,
+          "afterReleaseBytes": 31768,
+          "seekMs": 152.84007500000007
+        },
+        {
+          "size": 32,
+          "cycle": 4,
+          "retainedBytes": 715704,
+          "afterReleaseBytes": 2648,
+          "seekMs": 149.9220110000001
+        }
+      ],
+      "note": "Explicit GC; each cycle retains a timeline then releases it. The replay file stays alive. Heap values vary and do not prove absence of browser leaks."
+    },
+    "after": {
+      "runtime": "v24.19.0",
+      "sourceSha": "working-tree",
+      "sourceDigest": "fdb181c74e55d6600d063a2d1ff62064a10bbbd2f2a8d857d0f05ae3d5f1dc31",
+      "commands": 2000,
+      "rows": [
+        {
+          "size": 16,
+          "cycle": 0,
+          "retainedBytes": 124960,
+          "afterReleaseBytes": -209960,
+          "seekMs": 90.55020400000001
+        },
+        {
+          "size": 16,
+          "cycle": 1,
+          "retainedBytes": 340136,
+          "afterReleaseBytes": 6368,
+          "seekMs": 90.81125799999995
+        },
+        {
+          "size": 16,
+          "cycle": 2,
+          "retainedBytes": 335608,
+          "afterReleaseBytes": 1456,
+          "seekMs": 91.38032600000008
+        },
+        {
+          "size": 16,
+          "cycle": 3,
+          "retainedBytes": 347104,
+          "afterReleaseBytes": 13728,
+          "seekMs": 103.92360699999995
+        },
+        {
+          "size": 16,
+          "cycle": 4,
+          "retainedBytes": 361456,
+          "afterReleaseBytes": 27304,
+          "seekMs": 84.0741700000001
+        },
+        {
+          "size": 32,
+          "cycle": 0,
+          "retainedBytes": 401152,
+          "afterReleaseBytes": 91896,
+          "seekMs": 206.18644900000004
+        },
+        {
+          "size": 32,
+          "cycle": 1,
+          "retainedBytes": 302952,
+          "afterReleaseBytes": -6240,
+          "seekMs": 230.35881200000017
+        },
+        {
+          "size": 32,
+          "cycle": 2,
+          "retainedBytes": 325536,
+          "afterReleaseBytes": 15352,
+          "seekMs": 245.1797200000001
+        },
+        {
+          "size": 32,
+          "cycle": 3,
+          "retainedBytes": 338768,
+          "afterReleaseBytes": 29384,
+          "seekMs": 223.99576800000023
+        },
+        {
+          "size": 32,
+          "cycle": 4,
+          "retainedBytes": 328712,
+          "afterReleaseBytes": 18912,
+          "seekMs": 202.735721
+        }
+      ],
+      "note": "Explicit GC; each cycle retains a timeline then releases it. The replay file stays alive. Heap values vary and do not prove absence of browser leaks."
+    }
+  }
+}

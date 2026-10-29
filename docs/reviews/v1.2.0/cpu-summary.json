@@ -1,0 +1,214 @@
+{
+  "baseCommit": "16f14ec49075e643c1ebe455e244974eeb32abe1",
+  "candidateCommit": "f9173af7c46fba3e1fbbc6f724a501a29fbed12f",
+  "candidateSimulationDigest": "b6c061d3f5d3306c8fe9e87b2d4c792382f3a1ff118a914d5f9aac8ce3ece5b4",
+  "baselineAdaptation": "Backport only src/game/mapGenerator.ts for 32x32 generation. CPU sources unchanged.",
+  "notes": [
+    "538 games include before/after, correlated return legs, rejected trials and repeat checks; not 538 independent observations.",
+    "Tune-A/B: tuning. Verify-C/D: rejected broad policy/supply trial validation. Hold-E/F: independent adopted defensive-policy validation.",
+    "Final training-after and validation-after repeat the adopted diagnostic runs after source freeze; all 72 repeated defensive-policy command digests match.",
+    "All 36 balanced-policy training command digests, winners, reasons, turns and commands match baseline.",
+    "Rejected broad-policy training used expected-counter risk; later rejected validation used maximum-counter risk. Both also changed supply desired gap. Neither is the release implementation.",
+    "CPU timing in parallel simulation runs must not be used as the controlled performance comparison."
+  ],
+  "files": [
+    {
+      "file": "training-before.jsonl",
+      "games": 72,
+      "sha256": "6fbc6b64f7b69524702150ae885223508f076e75f1353dc75140e3d3cc85d604",
+      "simulationDigest": "159d80384d757a68beec504d16fa39d8bae6eb742dd9c9a516f8a2aadf637115",
+      "complete": true,
+      "wins": {
+        "red": 40,
+        "blue": 32
+      }
+    },
+    {
+      "file": "rejected-trial-training.jsonl",
+      "games": 72,
+      "sha256": "70c53a41399d45b1b761a66fa82b006f63f54031833712ed2fcff311c17eb80d",
+      "simulationDigest": "07ab7adc2ce085cfc42db88f5603571b8b3c699e42b1e68fabb9b96284f3556d",
+      "complete": true,
+      "wins": {
+        "red": 34,
+        "blue": 38
+      }
+    },
+    {
+      "file": "rejected-trial-validation-before.jsonl",
+      "games": 72,
+      "sha256": "9b5e33e09e295522eff25eafde1676d8d30e061d87e6d0f33a66e8d5eadc043f",
+      "simulationDigest": "159d80384d757a68beec504d16fa39d8bae6eb742dd9c9a516f8a2aadf637115",
+      "complete": true,
+      "wins": {
+        "red": 38,
+        "blue": 34
+      }
+    },
+    {
+      "file": "rejected-trial-validation-after.jsonl",
+      "games": 72,
+      "sha256": "ca9c3182e60491354b3339c4580d2644dabc2da4b3a1a841280879b192ed46f6",
+      "simulationDigest": "ae00bd32a568ae67ec8536c61afca69e4717cfcad39319de3cd9357fdcb69428",
+      "complete": true,
+      "wins": {
+        "blue": 33,
+        "red": 39
+      }
+    },
+    {
+      "file": "diagnostic-adopted-training.jsonl",
+      "games": 36,
+      "sha256": "47989b13ab7292eaa7450d51d54702803e0145730628213023e41c3650d07073",
+      "simulationDigest": "f1d746437a2b3596eb3a2ddb8df008ccdc9eb93c6e8caa6a99785b8e5adf6eee",
+      "complete": true,
+      "wins": {
+        "red": 23,
+        "blue": 13
+      }
+    },
+    {
+      "file": "validation-before.jsonl",
+      "games": 36,
+      "sha256": "11efdc7404cf1b257f328ab082379f56cfdd90294099b3b25a4ac1c57b905c9c",
+      "simulationDigest": "159d80384d757a68beec504d16fa39d8bae6eb742dd9c9a516f8a2aadf637115",
+      "complete": true,
+      "wins": {
+        "red": 19,
+        "blue": 17
+      }
+    },
+    {
+      "file": "diagnostic-adopted-validation.jsonl",
+      "games": 36,
+      "sha256": "bf08d528b68e1f1badc2e74bce2c9c40dc47d5d14c525396691d7bac20722665",
+      "simulationDigest": "b6c061d3f5d3306c8fe9e87b2d4c792382f3a1ff118a914d5f9aac8ce3ece5b4",
+      "complete": true,
+      "wins": {
+        "red": 18,
+        "blue": 18
+      }
+    },
+    {
+      "file": "training-after.jsonl",
+      "games": 72,
+      "sha256": "00ce1f2c721d6559288a92fb7dca667cf48f81c0e47e7e8f14a8086636dc3b04",
+      "simulationDigest": "b6c061d3f5d3306c8fe9e87b2d4c792382f3a1ff118a914d5f9aac8ce3ece5b4",
+      "complete": true,
+      "wins": {
+        "red": 44,
+        "blue": 28
+      }
+    },
+    {
+      "file": "validation-after.jsonl",
+      "games": 36,
+      "sha256": "13080e944e89f65a5a85c7465b8304965e06817888ab5bd711692d574327873b",
+      "simulationDigest": "b6c061d3f5d3306c8fe9e87b2d4c792382f3a1ff118a914d5f9aac8ce3ece5b4",
+      "complete": true,
+      "wins": {
+        "red": 18,
+        "blue": 18
+      }
+    },
+    {
+      "file": "difficulty.jsonl",
+      "games": 24,
+      "sha256": "1b57013844a58a5e5f944490bd8b08def99d03c7f7abc0e89145dedc19d8fb3a",
+      "simulationDigest": "b6c061d3f5d3306c8fe9e87b2d4c792382f3a1ff118a914d5f9aac8ce3ece5b4",
+      "complete": true,
+      "wins": {
+        "red": 13,
+        "blue": 11
+      }
+    }
+  ],
+  "wideFrontFile": "wide-front.json",
+  "gamesTotal": 538,
+  "defensiveSummary": [
+    {
+      "condition": "training",
+      "size": 16,
+      "before": {
+        "games": 12,
+        "defensiveWins": 2,
+        "undecided": 0
+      },
+      "after": {
+        "games": 12,
+        "defensiveWins": 3,
+        "undecided": 0
+      }
+    },
+    {
+      "condition": "training",
+      "size": 24,
+      "before": {
+        "games": 12,
+        "defensiveWins": 1,
+        "undecided": 0
+      },
+      "after": {
+        "games": 12,
+        "defensiveWins": 0,
+        "undecided": 0
+      }
+    },
+    {
+      "condition": "training",
+      "size": 32,
+      "before": {
+        "games": 12,
+        "defensiveWins": 0,
+        "undecided": 0
+      },
+      "after": {
+        "games": 12,
+        "defensiveWins": 2,
+        "undecided": 0
+      }
+    },
+    {
+      "condition": "validation",
+      "size": 16,
+      "before": {
+        "games": 12,
+        "defensiveWins": 2,
+        "undecided": 0
+      },
+      "after": {
+        "games": 12,
+        "defensiveWins": 2,
+        "undecided": 0
+      }
+    },
+    {
+      "condition": "validation",
+      "size": 24,
+      "before": {
+        "games": 12,
+        "defensiveWins": 1,
+        "undecided": 0
+      },
+      "after": {
+        "games": 12,
+        "defensiveWins": 1,
+        "undecided": 0
+      }
+    },
+    {
+      "condition": "validation",
+      "size": 32,
+      "before": {
+        "games": 12,
+        "defensiveWins": 0,
+        "undecided": 0
+      },
+      "after": {
+        "games": 12,
+        "defensiveWins": 3,
+        "undecided": 0
+      }
+    }
+  ]
+}

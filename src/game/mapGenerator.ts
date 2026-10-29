@@ -3,7 +3,9 @@ import { loadScenarioDefinitions, scenarioDefinitionToData, type InitialUnit, ty
 import { movementCost } from './terrain';
 import type { GameResult, PlayerId, Position, TerrainKind, UnitKind } from './types';
 
-export const GENERATED_SIZES = [16, 20, 24] as const;
+export const GENERATED_SIZES = [16, 20, 24, 32] as const;
+/** Preserve released rectangular maps; the new large battlefield is square. */
+export const generatedHeight = (size: number): number => (size === 32 ? 32 : size - 4);
 export const GENERATED_SEAS = ['none', 'coast', 'ocean'] as const;
 /** The seed alphabet and length every generated-map entry point accepts. */
 export const GENERATED_SEED_PATTERN = /^[A-Za-z0-9_-]{1,24}$/;
@@ -87,7 +89,7 @@ export function generateSymmetricMapV1(input: unknown): GameResult<ScenarioDefin
     sea = options.sea as MapGenerationOptions['sea'],
     seed = options.seed;
   const width = size,
-    height = size - 4;
+    height = generatedHeight(size);
   const band = sea === 'none' ? 0 : sea === 'coast' ? 1 : 2;
   const baseX = band + 1,
     baseY = band + 1;

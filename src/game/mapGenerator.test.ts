@@ -11,7 +11,7 @@ describe('symmetric map generation', () => {
         for (const seed of ['MiniStr-1', 'different', '0', 'z_z-24']) {
           const scenario = valueOf(generateSymmetricMap({ size, sea, seed }));
           expect(inspectGeneratedMap(scenario)).toEqual([]);
-          expect(scenario.board).toMatchObject({ width: size, height: size - 4 });
+          expect(scenario.board).toMatchObject({ width: size, height: size === 32 ? 32 : size - 4 });
           expect(scenario.initialUnits.filter((unit) => unit.owner === 'red')).toHaveLength(sea === 'none' ? 7 : 8);
           expect(scenario.board.terrain.flat().some((tile) => tile.kind === 'sea')).toBe(sea !== 'none');
           expect(createScenarioInitialState(scenario).scenarioSnapshot).toEqual(scenarioDefinitionToData(scenario));
@@ -40,7 +40,7 @@ describe('symmetric map generation', () => {
     null,
     [],
     {},
-    { size: 32, sea: 'none', seed: 'a' },
+    { size: 30, sea: 'none', seed: 'a' },
     { size: 16, sea: 'invalid', seed: 'a' },
     { size: 16, sea: 'none', seed: '' },
     { size: 16, sea: 'none', seed: '../unsafe' },
