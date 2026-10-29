@@ -49,6 +49,8 @@ Linux／Chromium151.0.7922.173、同じ32×32「広域戦線32」、CPU速度4�
 - 最初の単体実行はsandboxのbash起動制限で3件失敗し、負荷が重なったRPC timeoutも発生。子プロセス起動可能な実行で、重い並列数を分けた全体再実行は成功。timeout・retry・assertion・coverage基準は緩和していない。
 - 旧配布UI fixtureの2件は、起動後に直接localStorageを改変していた。破損fixtureを起動前へ移し、外部変更fixtureは実データとstorageAreaを含む通知に修正した。元の盤面保持・破損表示／削除・別タブ書き込み保護を維持する。
 - 新規ブラウザfixtureの初回失敗はhotseatの自動保存を仮定したことと、再開時の受け渡し画面を開けなかったことによる。手動保存と受け渡し操作を明示し、保存・救出・再開まで成功した。
+- CPU遅延読込によってentryが共有helperをESM exportするようになり、JSDOMのclassic-script評価が56件全て構文エラーになった。配布ソースhelperで末尾の共有export宣言だけを除外し、従来のimport.meta.url置換と併せて評価する。ゲーム本体・assertionは維持し、実ブラウザでは変更しない実際のmodule graphを確認する。
+- 最終ビルドのChromiumでは保存／Worker6件と広域作戦4件、計10件が成功。
 - 手元の依存はVite6.4.3／Vitest3.2.7／Playwright1.62.1で正式lockfileと異なる。ネットワーク許可はcdn.playwright.devのみでregistry.npmjs.orgからの導入は実行できない。正式版の導入・coverage・全ブラウザはGitHub CIで確認する。
 
 ゲーム規則v12、対局／リプレイschema4、キャンペーンschema5、版番号1.2.0を維持。既存の記録済みリプレイ・生成seed・CPU規則を変えない。localStorageの完全同時書き込みを原子的に直列化する保証、全状態のメモリ上限、実機確認は今回の完了とは扱わない。救出は対局だけで、戦績・キャンペーン進行・設定の統合ではない。現在のカタログで検証できない対局は除外する。
