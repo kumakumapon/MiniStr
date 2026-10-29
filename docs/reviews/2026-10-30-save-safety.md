@@ -52,6 +52,7 @@ Linux／Chromium151.0.7922.173、同じ32×32「広域戦線32」、CPU速度4�
 - CPU遅延読込によってentryが共有helperをESM exportするようになり、JSDOMのclassic-script評価が56件全て構文エラーになった。配布ソースhelperで末尾の共有export宣言だけを除外し、従来のimport.meta.url置換と併せて評価する。ゲーム本体・assertionは維持し、実ブラウザでは変更しない実際のmodule graphを確認する。
 - ESM対応後は配布UIのassertion56件は通過したが、閉じたJSDOMへCPUの非同期エラーが返り2件のunhandled rejectionが発生した。画面revision・実行状態・DOM接続をエラー時にも確認し、pagehideでWorkerと非同期取込を破棄する修正を追加。最終結果はPR本文に記録する。
 - 最終ビルドのChromiumでは保存／Worker6件と広域作戦4件、計10件が成功。
+- 正式lockfileのCI run40975018522では単体1,340件・coverage・Node22互換性・WebKit反復が成功したが、Vite8が裸のimport.metaを生成して配布UI56件が構文エラーになった。JSDOM用変換をurlだけからmodule metadata全体へ対応させる。アプリの実module graphは変更しない。
 - 手元の依存はVite6.4.3／Vitest3.2.7／Playwright1.62.1で正式lockfileと異なる。ネットワーク許可はcdn.playwright.devのみでregistry.npmjs.orgからの導入は実行できない。正式版の導入・coverage・全ブラウザはGitHub CIで確認する。
 
 ゲーム規則v12、対局／リプレイschema4、キャンペーンschema5、版番号1.2.0を維持。既存の記録済みリプレイ・生成seed・CPU規則を変えない。localStorageの完全同時書き込みを原子的に直列化する保証、全状態のメモリ上限、実機確認は今回の完了とは扱わない。救出は対局だけで、戦績・キャンペーン進行・設定の統合ではない。現在のカタログで検証できない対局は除外する。
