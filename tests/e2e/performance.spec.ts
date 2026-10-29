@@ -36,30 +36,43 @@ for (const width of [1280, 390])
       // handlers in-page so driver/network latency is not counted as game time.
       await page.locator('.tile[data-x="0"][data-y="0"]').click();
       await expect(page.locator('.selected-marker')).toHaveCount(1);
-      const result = await page.evaluate(async () => {
-        const frame = () => new Promise<void>((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve())));
-        const selection: number[] = [],
-          zoom: number[] = [];
-        for (let i = 0; i < 7; i++) {
-          const start = performance.now();
-          document.querySelector<HTMLButtonElement>(`.tile[data-x="${i % 3}"][data-y="0"]`)!.click();
-          await frame();
-          if (!document.querySelector('.selected-marker')) throw Error('Selection did not render');
-          if (i >= 2) selection.push(performance.now() - start);
-          const zoomStart = performance.now();
-          document.querySelector<HTMLButtonElement>(i % 2 ? '#board-zoom-out' : '#board-zoom-in')!.click();
-          await frame();
-          if (i >= 2) zoom.push(performance.now() - zoomStart);
-        }
-        return {
-          selection,
-          zoom,
-          userAgent: navigator.userAgent,
-          viewport: innerWidth,
-          documentWidth: document.documentElement.scrollWidth,
-          domNodes: document.querySelectorAll('*').length,
-        };
-      });
+      const profile = process.env.BOARD_CPU_PROFILE ? await page.context().newCDPSession(page) : undefined;
+      if (profile) {
+        await profile.send('Profiler.enable');
+        await profile.send('Profiler.start');
+      }
+      const result = await page.evaluate(
+        async (samples) => {
+          const frame = () => new Promise<void>((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve())));
+          const selection: number[] = [],
+            zoom: number[] = [];
+          for (let i = 0; i < samples + 2; i++) {
+            const start = performance.now();
+            document.querySelector<HTMLButtonElement>(`.tile[data-x="${i % 3}"][data-y="0"]`)!.click();
+            await frame();
+            if (!document.querySelector('.selected-marker')) throw Error('Selection did not render');
+            if (i >= 2) selection.push(performance.now() - start);
+            const zoomStart = performance.now();
+            document.querySelector<HTMLButtonElement>(i % 2 ? '#board-zoom-out' : '#board-zoom-in')!.click();
+            await frame();
+            if (i >= 2) zoom.push(performance.now() - zoomStart);
+          }
+          return {
+            selection,
+            zoom,
+            userAgent: navigator.userAgent,
+            viewport: innerWidth,
+            documentWidth: document.documentElement.scrollWidth,
+            domNodes: document.querySelectorAll('*').length,
+          };
+        },
+        Number(process.env.PERF_SAMPLES ?? 5),
+      );
+      if (profile) {
+        const data = await profile.send('Profiler.stop');
+        writeFileSync(testInfo.outputPath('board.cpuprofile'), JSON.stringify(data.profile));
+        await profile.detach();
+      }
       expect(result.documentWidth).toBeLessThanOrEqual(width + 1);
       const report = {
         kind: 'browser-performance',
@@ -75,7 +88,7 @@ for (const width of [1280, 390])
         ...result,
         selectionTiming: timingSummary(result.selection),
         zoomTiming: timingSummary(result.zoom),
-        note: 'Native handler to two animation frames; frame scheduling included. Five samples are diagnostic, not a mobile-hardware p95 guarantee. No fixed latency threshold.',
+        note: 'Native handler to two animation frames; frame scheduling included. Samples are diagnostic, not a mobile-hardware p95 guarantee. No fixed latency threshold.',
       };
       const body = JSON.stringify(report, null, 2);
       writeFileSync(testInfo.outputPath('systems-performance.json'), body);

@@ -13,6 +13,15 @@ Node計測は5回warm-up後の30標本からnearest-rankのp50／p95／最大値
 
 ブラウザ計測は16／32マス、1280／390pxでユニット選択とズームを確認します。実ポインタ操作で導線を検証してから、native click handlerから2つのanimation frameまでを測り、Playwrightの通信時間を除きます。2回のwarm-upと5標本、ブラウザ版・配布bundle名・DOM数・画面画像をtest-resultsに保存します。フレーム待ちを含む診断値であり、5標本や390px幅を実機のp95保証として扱いません。CIには端末依存の速度閾値を設定しません。
 
+### 盤面応答を詳しく測る場合
+
+```sh
+PERF_SAMPLES=30 npx playwright test tests/e2e/performance.spec.ts --project=chromium --workers=1
+BOARD_CPU_PROFILE=1 npx playwright test tests/e2e/performance.spec.ts --project=chromium --grep '32x32 at 1280' --workers=1
+```
+
+`PERF_SAMPLES`は1〜100（通常CIは既定5）。CPU profileはChromiumのCDPを使い、各test-results内へboard.cpuprofileを保存します。プロファイラーを有効にした時間は通常測定と混ぜません。変更前／後は同じテスト・依存・端末で交互に3回以上計測し、配布bundle名とソースを照合します。今回の[盤面応答改善記録](reviews/2026-10-29-board-response.md)を参照してください。
+
 ## CPU・先後の対比較
 
 ```sh

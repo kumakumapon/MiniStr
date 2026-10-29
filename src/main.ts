@@ -1,3 +1,4 @@
+import { updateBoardZoomView } from './ui/boardZoomView';
 import { renderCampaignRoster } from './ui/campaignRoster';
 import { renameCampaignVeteran } from './game/campaign';
 import { campaignSuccessors } from './game/campaign';
@@ -1626,8 +1627,23 @@ function render(): void {
     boardZoomAuto = false;
     if (matchMode === 'spectate' && !replay) {
       centerSpectatorOn(focusedPosition);
-    } else focusSelector = `.tile[data-x="${focusedPosition.x}"][data-y="${focusedPosition.y}"]`;
-    render();
+      render();
+      return;
+    }
+    const state = replay?.state ?? game;
+    if (!updateBoardZoomView(app, state.board.width, state.board.height, boardZoomIndex)) {
+      focusSelector = `.tile[data-x="${focusedPosition.x}"][data-y="${focusedPosition.y}"]`;
+      render();
+      return;
+    }
+    // Match the full render's focus policy and invalidate its old focus tickets.
+    renderGeneration++;
+    focusSelector = undefined;
+    const tile = app.querySelector<HTMLButtonElement>(`.tile[data-x="${focusedPosition.x}"][data-y="${focusedPosition.y}"]`);
+    const target = tile && !tile.disabled ? tile : app.querySelector<HTMLElement>('#command-panel');
+    if (!preventBoardFocusScroll && target === tile) tile?.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+    preventBoardFocusScroll = false;
+    target?.focus({ preventScroll: true });
   };
   app.querySelector<HTMLButtonElement>('#board-zoom-out')?.addEventListener('click', changeBoardZoom(-1));
   app.querySelector<HTMLButtonElement>('#board-zoom-in')?.addEventListener('click', changeBoardZoom(1));
@@ -1848,7 +1864,14 @@ function render(): void {
   if (!replayMode) {
     app.querySelectorAll<HTMLButtonElement>('.tile').forEach(tile => {
       const position = { x: Number(tile.dataset.x), y: Number(tile.dataset.y) };
-      tile.onclick = () => { focusedPosition = position; act(position); if (!bridgePending?.destination) focusBoardPosition(focusedPosition); };
+      tile.onclick = () => {
+        focusedPosition = position;
+        focusSelector = `.tile[data-x="${position.x}"][data-y="${position.y}"]`;
+        act(position); // act already renders; a second render would replace the board twice.
+        if (!bridgePending?.destination && !productionMenuOpen) {
+          app.querySelector<HTMLElement>(`.tile[data-x="${focusedPosition.x}"][data-y="${focusedPosition.y}"]`)?.focus({ preventScroll: true });
+        }
+      };
       tile.onkeydown = event => handleBoardKey(event, position);
       tile.onfocus = () => {
         if (focusedPosition.x === position.x && focusedPosition.y === position.y) return;
@@ -2118,7 +2141,6 @@ function handleBoardKey(event: KeyboardEvent, position: Position): void {
     event.preventDefault();
     selected = undefined;
     message = 'ユニットの選択を解除しました。';
-    render();
     focusBoardPosition(position);
   }
 }
