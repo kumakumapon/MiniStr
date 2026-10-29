@@ -5,11 +5,13 @@ import type { GameResult, GameState, PlayerId } from './types';
 
 /** Bounded checkpoints accelerate backward/forward seeks without rerunning AI. */
 export class ReplayTimeline {
+  private readonly checkpointLimit: number;
   private checkpoints = new Map<number, GameState>();
   constructor(
     private readonly file: ReplayFile,
     private readonly interval = 32,
   ) {
+    this.checkpointLimit = Math.max(2, Math.min(32, Math.floor(8192 / (file.initialState.board.width * file.initialState.board.height))));
     this.checkpoints.set(0, structuredClone(file.initialState));
   }
   seek(index: number): GameResult<GameState> {
@@ -21,7 +23,7 @@ export class ReplayTimeline {
       if (!applied.ok) return applied;
       state = applied.value;
       if ((i + 1) % this.interval === 0) {
-        if (this.checkpoints.size >= 32) this.checkpoints.delete([...this.checkpoints.keys()].find((key) => key !== 0)!);
+        if (this.checkpoints.size >= this.checkpointLimit && !this.checkpoints.has(i + 1)) this.checkpoints.delete([...this.checkpoints.keys()].find((key) => key !== 0)!);
         this.checkpoints.set(i + 1, state);
       }
     }
