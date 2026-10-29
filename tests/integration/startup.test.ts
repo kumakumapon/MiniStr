@@ -356,17 +356,25 @@ describe('distributed application boundaries', () => {
     click('#begin-operation');
     click('.tile[data-x="0"][data-y="1"]');
     click('.tile[data-x="0"][data-y="2"]');
-    const before = document.querySelector('.board')?.innerHTML;
+    // Movement feedback now survives the first render. Compare every persistent
+    // board node while allowing its temporary presentation overlay to expire.
+    const boardMarkup = () => {
+      const board = document.querySelector('.board')!.cloneNode(true) as HTMLElement;
+      board.querySelectorAll('.presentation-effect').forEach((effect) => effect.remove());
+      return board.innerHTML;
+    };
+    const before = boardMarkup();
+    expect(document.querySelector('.tile[data-x="0"][data-y="2"] .unit.red')).not.toBeNull();
     dom.window.localStorage.setItem('ministr.save.manual', '{broken');
     // Invoke the guarded menu handler even though the continue button reflects valid-save presence.
     document.querySelector('#continue')?.dispatchEvent(new dom.window.MouseEvent('click', { bubbles: true }));
-    expect(document.querySelector('.board')?.innerHTML).toBe(before);
+    expect(boardMarkup()).toBe(before);
     click('#open-title');
     expect(document.querySelector('.load-save-slot[data-save-slot="manual"]')?.hasAttribute('disabled')).toBe(true);
     click('.delete-save-slot[data-save-slot="manual"]');
     expect(dom.window.localStorage.getItem('ministr.save.manual')).toBeNull();
     click('#title-resume');
-    expect(document.querySelector('.board')?.innerHTML).toBe(before);
+    expect(boardMarkup()).toBe(before);
   });
 
   it('opens editor, blocks empty operation, paints and undoes without losing the draft', () => {
