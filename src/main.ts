@@ -2376,12 +2376,14 @@ function resumeSpectate(): void {
 function runCpu(initialDelayMs = 0): void {
   if (cpuInProgress || screens.current !== 'battle' || localStorage.conflicted || !cpuShouldRun(matchContext())) return;
   const side = game.activePlayer;
+  const runRevision = screens.revision;
   cpuInProgress = true;
   if (matchMode === 'cpu') cpuActivity = [];
   const maximumSteps = Math.max(30, game.units.filter(unit => isDeployedUnit(unit) && unit.owner === side).length * 3 + 5);
   let steps = 0;
   const advance = async (): Promise<boolean> => {
     try { return await advanceStep(); } catch (error) {
+      if (!document?.body || !app.isConnected || screens.revision !== runRevision || !cpuInProgress) return false;
       // An unexpected failure must not leave the CPU permanently "in progress".
       console.error(error);
       finishCpuTurn(side);
@@ -2445,6 +2447,7 @@ window.addEventListener('storage', event => {
   if (event.storageArea !== window.localStorage || (event.key !== null && !event.key.startsWith('ministr.'))) return;
   if (localStorage.checkForChanges()) pauseForStorageConflict();
 });
+window.addEventListener('pagehide', () => { commandScheduler.cancel(); fileReadGate.invalidate(); cpuInProgress = false; });
 window.addEventListener('focus', () => { if (localStorage.checkForChanges()) pauseForStorageConflict(); });
 document.addEventListener('visibilitychange', () => {
   if (!document.hidden && localStorage.checkForChanges()) pauseForStorageConflict();
