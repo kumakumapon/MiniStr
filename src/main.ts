@@ -1,3 +1,7 @@
+import { CpuPlanner } from './ui/cpuPlanner';
+import { previewSaveRecovery, restoreRecoveredSaves } from './game/saveRecovery';
+import { UndoHistory } from './ui/undoHistory';
+import { StateMemo } from './ui/stateMemo';
 import { updateBoardZoomView } from './ui/boardZoomView';
 import { renderCampaignRoster } from './ui/campaignRoster';
 import { renameCampaignVeteran } from './game/campaign';
@@ -56,7 +60,7 @@ const localStorage = createBrowserStorage(() => window.localStorage);
 document.documentElement.lang = setLocale(localStorage.getItem('ministr.locale'));
 import { isEmbarkableUnit, isMergeableUnit, otherPlayer, transportCapacity } from './game';
 import { allProducibleUnitKinds, applyGameCommand, AUTO_SAVE_KEY, availableScenarios, campaignStages, countProductionFacilities, createCampaignProgress, createReplay, createScenarioEditor, createScenarioInitialState, damageRange, decisionRound, decisionStanding, deleteSaves, experienceRank, enemyThreatPreview, exportScenarioEditorJson, forecastCombat, getConditionProgress, gradeCampaignBattle, hasSavedGame, hasStoredSaveData, idleProductionFacilities, importScenarioEditorJson, isCampaignScenarioUnlocked, isDeployedUnit, isUnitKindAvailable, isPropertyTerrainKind, loadCampaignProgress, loadCustomScenarios, loadGame, MANUAL_SAVE_KEY, maps, MAX_REPLAY_BYTES, parseReplay, productionKindsForRule, productionRules, reachablePositionsForPlayer, recordCampaignVictory, saveCampaignProgress, saveCustomScenario, saveGame, scenarioById, scenarioLoadError, serializeReplay, summarizeRepairs, unitLimit, usesDecisionRules, victoryReason, type CampaignGradeResult, type DeployedUnit, type GameCommand, type GameState, type PlayerId, type Position, type ProductionRule, type ReplayFile, type ScenarioEditorState, type TerrainKind, type UnitKind, type VictoryCondition, unitStats, visibleEnemies, visibleEnemyThreats, visiblePositions } from './game';
-import { chooseCpuAction, type CpuDifficulty } from './ai';
+import { type CpuDifficulty } from './ai';
 import { nextBoardPosition } from './ui/boardNavigation';
 import { renderCpuSpeedControl } from './ui/cpuSpeed';
 import { BOARD_ZOOM_LEVELS, boardAreaWidth, boardTileSize, boardZoomPercent, defaultBoardZoomIndex, parseBoardZoomIndex } from './ui/boardZoom';
@@ -170,10 +174,12 @@ function historyFor(initial: GameState, commands: readonly GameCommand[]): Battl
   if (!insightCache || insightCache.initial !== initial || insightCache.commands !== commands) insightCache = { initial, commands, history: new BattleHistory(initial, commands) };
   return insightCache.history;
 }
-let undoStack: { state: GameState; commandCount: number }[] = [];
+const renderMemo = new StateMemo<GameState>();
+let undoStack = new UndoHistory(() => initialState, () => commandHistory);
 interface ReplayRuntime { file: ReplayFile; state: GameState; index: number; playing: boolean; speed: CommandSpeed; timeline: ReplayTimeline; viewpoint: PlayerId | 'all' }
 let replay: ReplayRuntime | undefined;
-const commandScheduler = new CommandScheduler();
+const cpuPlanner = new CpuPlanner(() => new Worker(new URL('./ui/cpuWorker.ts', import.meta.url), { type: 'module' }));
+const commandScheduler = new CommandScheduler(() => cpuPlanner.cancel());
 let cpuInProgress = false;
 let cpuSkipRequested = false;
 let cpuActivity: string[] = [];
@@ -400,7 +406,9 @@ function viewer(): PlayerId {
 }
 /** Tiles the screen may draw for the current viewer (see `showsWholeBoard`). */
 function shownPositions(state: GameState): Position[] {
-  return displayedPositions(state, viewer(), replay ? replay.viewpoint === 'all' : showsWholeBoard(matchMode, spectateWholeBoard, false));
+  const player = viewer();
+  const whole = replay ? replay.viewpoint === 'all' : showsWholeBoard(matchMode, spectateWholeBoard, false);
+  return renderMemo.get(state, `visibility:${player}:${whole}`, () => displayedPositions(state, player, whole));
 }
 function canCommand(): boolean {
   return commandAllowed(matchContext());
@@ -512,7 +520,7 @@ function resetGame(mapId: string, operation?: ScenarioDefinition): void {
   resetSpectatorCamera();
   initialState = structuredClone(game);
   commandHistory = [];
-  undoStack = [];
+  undoStack = new UndoHistory(() => initialState, () => commandHistory);
   selected = undefined;
   selectedFacility = undefined;
   focusedPosition = { x: 0, y: 0 };
@@ -697,7 +705,7 @@ function continueSavedGame(slotId?: string): boolean {
   // A resumed daily match keeps its saved settings; the player's own are kept aside and given back on leaving it.
   if (!campaignRun && isDailyScenarioId(map.id)) dailyUserSettings = settingsBeforeLoad;
   finishCampaignBattle();
-  undoStack = [];
+  undoStack = new UndoHistory(() => initialState, () => commandHistory);
   selected = undefined;
   selectedFacility = undefined;
   focusedPosition = { x: 0, y: 0 };
@@ -1029,24 +1037,24 @@ function render(): void {
   const wholeBoardShown = replay ? replay.viewpoint === 'all' : showsWholeBoard(matchMode, spectateWholeBoard, false);
   const history = historyFor(replay?.file.initialState ?? initialState, replay?.file.commands ?? commandHistory);
   const historyIndex = replay?.index ?? commandHistory.length;
-  const recordedContacts = !wholeBoardShown && !concealed ? history.recon(historyIndex, me) : undefined;
+  const recordedContacts = !boardCovered && !wholeBoardShown && !concealed ? history.recon(historyIndex, me) : undefined;
   const contacts = recordedContacts?.ok ? recordedContacts.value : [];
   const contactsByPosition = new Map(showReconMarkers ? contacts.map(contact => [key(contact.position), contact]) : []);
   const reconPanel = !wholeBoardShown ? renderReconPanel(contacts, showReconMarkers, reconOpen) : '';
-  const analysis = wholeBoardShown ? history.analysis(historyIndex, 'all') : undefined;
+  const analysis = !boardCovered && wholeBoardShown ? history.analysis(historyIndex, 'all') : undefined;
   const analysisPanel = renderBattleAnalysis(analysis?.ok ? analysis.value : undefined, analysisMetric, analysisOpen);
   const selectedUnit = renderedGame.units.find(unit => unit.id === selected);
   const movable = !replayMode && selectedUnit?.owner === me && !selectedUnit.hasMoved && !selectedUnit.hasActed
-    ? new Set(reachablePositionsForPlayer(renderedGame, selectedUnit.id, me).map(key)) : new Set<string>();
+    ? renderMemo.get(renderedGame, `move:${me}:${selectedUnit.id}`, () => new Set(reachablePositionsForPlayer(renderedGame, selectedUnit.id, me).map(key))) : new Set<string>();
   const focusedUnit = renderedGame.units.find(unit => isDeployedUnit(unit) && key(unit.position) === key(focusedPosition));
   const previewedEnemy = selectedUnit?.owner === foe && isDeployedUnit(selectedUnit)
     ? selectedUnit
     : focusedUnit?.owner === foe && isDeployedUnit(focusedUnit) && visible.has(key(focusedUnit.position)) ? focusedUnit : undefined;
-  const previewedEnemyThreat = previewedEnemy ? enemyThreatPreview(renderedGame, previewedEnemy.id, me) : { movement: new Set<string>(), attack: new Set<string>() };
-  const knownEnemyThreats = selectedUnit?.owner === me ? visibleEnemyThreats(renderedGame, me) : new Set<string>();
+  const previewedEnemyThreat = !boardCovered && previewedEnemy ? renderMemo.get(renderedGame, `enemy:${me}:${previewedEnemy.id}`, () => enemyThreatPreview(renderedGame, previewedEnemy.id, me)) : { movement: new Set<string>(), attack: new Set<string>() };
+  const knownEnemyThreats = !boardCovered && selectedUnit?.owner === me ? renderMemo.get(renderedGame, `threats:${me}`, () => visibleEnemyThreats(renderedGame, me)) : new Set<string>();
   // Resolved before the board is drawn so idle facilities can be marked on the
   // tiles that produce, not only counted in the panel.
-  const idleFacilities = idleProductionFacilities(renderedGame, me, productionRule);
+  const idleFacilities = renderMemo.get(renderedGame, `facilities:${me}:${productionRule}`, () => idleProductionFacilities(renderedGame, me, productionRule));
   const targetFacility = (selectedFacility && idleFacilities.find(facility => key(facility.position) === key(selectedFacility!))) || (productionMenuOpen ? idleFacilities[0] : undefined);
   const viewerAtUnitLimit = usesDecisionRules(renderedGame) && renderedGame.units.filter(unit => unit.owner === me).length >= unitLimit(renderedGame.board, renderedGame.ruleVersion);
   const idleFacilityKeys = new Set(viewerAtUnitLimit ? [] : idleFacilities.map(facility => key(facility.position)));
@@ -1066,7 +1074,7 @@ function render(): void {
     const propertyOwner = isProperty ? terrain.owner : undefined;
     const capturePoints = observedCapturePoints(terrain, !hidden);
     const facilityDetail = translateText(terrain.kind === 'supplyDepot' ? '、周囲の地上部隊を補給（修理・収入・生産なし）' : terrain.kind === 'port' ? '、補給・艦艇を生産可能' : terrain.kind === 'airport' ? '、補給・航空ユニットを生産可能' : terrain.kind === 'factory' ? '、補給・地上ユニット生産拠点' : '');
-    const propertyLabel = translateGameText(isProperty ? `${terrainName}${propertyOwner ? `（${propertyOwner === me ? '自軍' : '敵軍'}）` : '（中立）'}${capturePoints !== undefined ? `、占領値 ${capturePointsLabel(capturePoints)}` : ''}${facilityDetail}` : terrainName);
+    const propertyLabel = renderMemo.get(renderedGame, `terrain-label:${getLocale()}:${me}:${terrain.kind}:${propertyOwner}:${capturePoints}`, () => translateGameText(isProperty ? `${terrainName}${propertyOwner ? `（${propertyOwner === me ? '自軍' : '敵軍'}）` : '（中立）'}${capturePoints !== undefined ? `、占領値 ${capturePointsLabel(capturePoints)}` : ''}${facilityDetail}` : terrainName));
     const cargo = unit && transportCapacity(unit.kind) > 0 ? cargoByTransport.get(unit.id) : undefined;
     // Fuel data stays private: only warn about the player's own units, never
     // expose an enemy's exact reserve through a visible tile.
@@ -1081,7 +1089,7 @@ function render(): void {
     const label = unit && !hidden
       ? `<span class="unit ${unit.owner} unit-${unit.kind}" aria-hidden="true"><span class="unit-art"></span><small>${unit.hp}</small><em>${unitNames[unit.kind]}${cargo ? `・${unitNames[cargo.kind]}搭載` : ''}</em><i class="unit-owner-marker">${unit.owner === me ? '自' : '敵'}</i>${cargo ? '<i class="cargo-marker">積</i>' : ''}${rank ? `<i class="rank-marker">${rankStars(rank)}</i>` : ''}${fuelWarning ? `<i class="fuel-warning">燃${fuelTurns}</i>` : ''}${ammoEmpty ? `<i class="ammo-warning">${uiText.ammo}0</i>` : ''}</span>`
       : contact ? renderReconMarker(contact) : '';
-    const terrainArt = hidden ? '' : renderTerrainArt(terrain.kind, renderedMap.theme);
+    const terrainArt = hidden ? '' : renderMemo.get(renderedGame, `terrain-art:${terrain.kind}:${renderedMap.theme}`, () => renderTerrainArt(terrain.kind, renderedMap.theme));
     const facility = isPropertyDisplayed(terrain, me, !hidden)
       ? `<span class="facility facility-${terrain.kind} ${propertyOwner ?? 'neutral'}" aria-hidden="true"><b>${terrain.kind === 'supplyDepot' ? '補' : terrain.kind === 'city' ? '市' : terrain.kind === 'factory' ? '工' : terrain.kind === 'airport' ? '空' : terrain.kind === 'port' ? '港' : '司'}</b><small>${propertyOwner === me ? '自軍' : propertyOwner === foe ? '敵軍' : '中立'}${capturePoints !== undefined ? ` ${capturePointsLabel(capturePoints)}` : ''}</small></span>`
       : '';
@@ -1278,7 +1286,7 @@ function render(): void {
     })(),
     operationCatalog, operationNotice,
     dailyCatalog, dailyNotice, dailyClock,
-    savePicker: () => renderSaveSlotManager(listSaveSlots(localStorage), getStorageUsage(localStorage), false, matchMode === 'spectate'),
+    savePicker: () => (localStorage.conflicted ? `<p role="alert">${getLocale() === 'en' ? 'Another tab changed the data. Export your match before reloading.' : '別タブで変更されました。現在の対局を書き出してから再読み込みしてください。'}<button id="storage-session-export">${getLocale() === 'en' ? 'Export current match' : '現在の対局を書き出す'}</button><button id="storage-reload">${getLocale() === 'en' ? 'Reload' : '再読み込み'}</button></p>` : '') + renderSaveSlotManager(listSaveSlots(localStorage), getStorageUsage(localStorage), false, matchMode === 'spectate'),
     cpuSpeed,
     boardZoom: { index: boardZoomIndex, automatic: boardZoomAuto },
     musicSettings,
@@ -1315,7 +1323,7 @@ function render(): void {
   });
   app.innerHTML = `<main class="game-shell">
     <div class="build-info">${renderLocalePicker()}v${escapeHtml(buildInfo.version)} · ${escapeHtml(buildInfo.sha.slice(0, 12))} <button id="diagnostics-export">診断情報を保存</button></div>
-    ${localStorage.conflicted ? '<p role="alert">別のタブでデータが変更されました。書き込みを停止しています。バックアップ後に再読み込みしてください。<button id="storage-reload">再読み込み</button></p>' : ''}
+    ${localStorage.conflicted && !screens.titleOpen ? `<p role="alert">別のタブでデータが変更されました。書き込みを停止しています。バックアップ後に再読み込みしてください。<button id="storage-session-export">${getLocale() === 'en' ? 'Export current match' : '現在の対局を書き出す'}</button><button id="storage-reload">再読み込み</button></p>` : ''}
     ${!localStorage.persistent ? '<p class="storage-warning" role="alert">ブラウザーの保存領域を利用できません。このタブを閉じるとデータが失われます。バックアップをダウンロードしてください。</p>' : ''}
     <header class="command-bar"><div class="brand"><span class="brand-mark" aria-hidden="true">✦</span><div><h1>MiniStr</h1><p>TACTICAL COMMAND</p></div></div><label class="map-picker">戦域<select id="map" aria-label="戦域マップを選択" ${replayMode || campaignRun ? 'disabled' : ''}>${!availableScenarios().some(map => map.id === renderedMap.id) ? `<option data-user-content value="${escapeHtml(renderedMap.id)}" selected>${escapeHtml(scenarioDisplayName(renderedMap))}</option>` : ''}<optgroup label="組み込み">${[...maps, ...operationScenarios].map(map => `<option data-user-content value="${escapeHtml(map.id)}" ${map.id === renderedMap.id ? 'selected' : ''}>${escapeHtml(scenarioDisplayName(map))}</option>`).join('')}</optgroup>${availableScenarios().filter(map => ![...maps, ...operationScenarios].some(builtIn => builtIn.id === map.id)).length ? `<optgroup label="カスタム">${availableScenarios().filter(map => ![...maps, ...operationScenarios].some(builtIn => builtIn.id === map.id)).map(map => `<option data-user-content value="${escapeHtml(map.id)}" ${map.id === renderedMap.id ? 'selected' : ''}>${escapeHtml(scenarioDisplayName(map))}</option>`).join('')}</optgroup>` : ''}</select></label>${renderedRedDifficulty ? `<label class="map-picker">${uiText.spectateRedDifficulty}<select id="red-difficulty" aria-label="赤軍CPUの難易度を選択" ${replayMode || dailyLocked() ? 'disabled' : ''}>${difficultyOptions(renderedRedDifficulty)}</select></label>` : ''}<label class="map-picker">${spectateDifficulties ? uiText.spectateBlueDifficulty : '難易度'}<select id="difficulty" aria-label="${spectateDifficulties ? '青軍CPU' : 'CPU'}の難易度を選択" ${replayMode || dailyLocked() ? 'disabled' : ''}>${difficultyOptions(renderedDifficulty)}</select></label>${renderCpuSpeedControl(cpuSpeed, 'cpu-speed', replayMode)}<div class="save-controls"><button id="open-title" class="save-action" ${replayMode ? 'disabled' : ''}>${uiText.titleOpen}</button><button id="open-editor" class="save-action" ${replayMode ? 'disabled' : ''}>マップ編集</button><button id="open-campaign" class="save-action" ${replayMode ? 'disabled' : ''}>キャンペーン</button><button id="continue" class="save-action" ${replayMode || !hasSave() ? 'disabled' : ''}>続きから</button><button id="save" class="save-action" ${replayMode ? 'disabled' : ''}>${manualSaveTarget(matchMode) === 'slot' ? uiText.spectateSaveToSlot : '手動セーブ'}</button><button id="delete-save" class="save-action" ${matchSaveDeletionAllowed(matchMode) ? '' : `title="${escapeHtml(uiText.spectateNoSaveDeletion)}"`} ${replayMode || !hasStoredSave() || !matchSaveDeletionAllowed(matchMode) ? 'disabled' : ''}>対局セーブ削除</button><button id="undo" class="save-action" ${canAct && undoAllowed(matchMode) && undoStack.length > 0 ? '' : 'disabled'}>1手戻す</button><button id="import-replay" class="save-action" ${replayMode ? 'disabled' : ''}>JSON取込</button><input id="replay-file" class="visually-hidden" type="file" accept=".json,application/json" aria-label="JSONリプレイファイルを選択"></div><div class="turn-indicator ${renderedGame.activePlayer}"><span>${replayMode ? 'REPLAY' : cpuInProgress ? 'CPU THINKING' : campaignRun ? 'CAMPAIGN' : matchMode === 'spectate' ? 'SPECTATE' : 'TURN'}</span><strong>${cpuInProgress ? (matchMode === 'spectate' ? `${activeLabel} CPU 行動中` : 'CPU 行動中') : concealed ? `${activeLabel}の番` : activeLabel}</strong></div>${cpuInProgress ? `<button id="skip-cpu" class="save-action" ${cpuSkipAllowed(matchContext()) ? '' : 'disabled'} title="${matchMode === 'spectate' ? 'CPU観戦中はスキップできません。CPU速度を変更できます。' : 'CPUの残りの行動を高速に進める'}">CPU をスキップ</button>` : ''}${spectateControl}${wholeBoardControl}<button id="end" class="end-turn" title="現在のターンを終了" aria-label="ターンを終了する" ${!canAct ? 'disabled' : ''}>ターン終了 <span aria-hidden="true">→</span></button></header>
     ${scenarioLoadError ? `<p class="scenario-warning">組み込みシナリオの読み込みに失敗したため、緊急スカーミッシュで起動しています。${escapeHtml(scenarioLoadError)}</p>` : ''}
@@ -1483,7 +1491,37 @@ function render(): void {
     resetGame('training'); render();
   });
   app.querySelector('#diagnostics-export')?.addEventListener('click', () => downloadJson('ministr-diagnostics.json', diagnosticReport({ persistent: localStorage.persistent, bytes: getStorageUsage(localStorage).bytes, locale: document.documentElement.lang, viewport: { width: window.innerWidth, height: window.innerHeight } })));
+  app.querySelector('#storage-session-export')?.addEventListener('click', () => {
+    const target = { getItem: () => null, removeItem: () => {}, setItem: (_key: string, value: string) => downloadJson('ministr-current-match.json', value) };
+    const result = saveGame(target, 'export', savedMatch());
+    if (!result.ok) { message = result.error; titleState.setNotice(message); render(); }
+  });
   app.querySelector('#storage-reload')?.addEventListener('click', () => { if (window.confirm(translateText('進行中の未保存の操作を破棄して再読み込みしますか？'))) window.location.reload(); });
+  app.querySelectorAll<HTMLButtonElement>('.export-save-slot').forEach(button => button.addEventListener('click', () => {
+    const id = button.dataset.saveSlot ?? '';
+    const key = id === 'manual' ? MANUAL_SAVE_KEY : id === 'auto' ? AUTO_SAVE_KEY : /^[a-z0-9][a-z0-9-]{0,47}$/.test(id) ? `ministr.save.slot.${id}` : undefined;
+    const raw = key ? localStorage.getItem(key) : null;
+    if (raw !== null) downloadJson(`ministr-save-${id}.json`, raw);
+  }));
+  app.querySelector<HTMLInputElement>('#save-recovery-import')?.addEventListener('change', async event => {
+    const input = event.currentTarget as HTMLInputElement;
+    const file = input.files?.[0]; input.value = '';
+    if (!file) return;
+    const request = fileReadGate.begin();
+    const expectedRevision = screens.revision; const expectedGame = game;
+    const current = () => fileReadGate.isCurrent(request) && expectedRevision === screens.revision && expectedGame === game && !localStorage.conflicted;
+    const notify = (text: string) => { message = text; titleState.setNotice(text); render(); };
+    if (file.size > MAX_BACKUP_BYTES) { notify(translateText('バックアップが大きすぎます。')); return; }
+    let text: string;
+    try { text = await file.text(); } catch { if (current()) notify(getLocale() === 'en' ? 'Could not read recovery file.' : '救出ファイルを読み込めませんでした。'); return; }
+    if (!current()) return;
+    const preview = previewSaveRecovery(text);
+    if (!preview.ok) { notify(getLocale() === 'en' ? preview.error : '救出できる対局がありません。元のファイルを保持してください。'); return; }
+    const prompt = getLocale() === 'en' ? `Add ${preview.value.recovered} valid matches as new slots? ${preview.value.rejected} damaged matches skipped. Existing data will be retained.` : `正常な対局${preview.value.recovered}件を新しいスロットへ追加しますか？破損した対局${preview.value.rejected}件は除外します。既存データは保持します。`;
+    if (!window.confirm(prompt) || !current()) return;
+    const restored = restoreRecoveredSaves(localStorage, preview.value, () => `recovered-${crypto.randomUUID().slice(0, 20)}`);
+    notify(restored.ok ? (getLocale() === 'en' ? 'Recovered matches added. Original data retained.' : '対局を救出しました。元のデータは保持しています。') : (getLocale() === 'en' ? restored.error : '救出できませんでした。スロットの空き容量と保存領域を確認してください。'));
+  });
   app.querySelector('#backup-export')?.addEventListener('click', () => {
     const backup = exportBackup(localStorage);
     if (backup.ok) downloadJson('ministr-backup.json', backup.value); else { message = backup.error; titleState.setNotice(message); render(); }
@@ -2184,7 +2222,7 @@ function endPlayerTurn(): void {
   if (dispatch({ type: 'endTurn' })) {
     selected = undefined;
     selectedFacility = undefined;
-    undoStack = [];
+    undoStack = new UndoHistory(() => initialState, () => commandHistory);
     if (handoffAfterEndTurn(matchMode, game)) {
       // Hide the previous side's view before anything else is drawn.
       handoffPending = true;
@@ -2294,7 +2332,7 @@ function finishCpuTurn(side: PlayerId, reachedLimit = false): void {
   } finally {
     cpuSkipRequested = false;
   }
-  undoStack = [];
+  undoStack = new UndoHistory(() => initialState, () => commandHistory);
   if (matchMode === 'spectate') {
     message = reachedLimit ? 'CPU の行動上限に達したため、ターンを終了しました。' : uiText.spectateTurnEnded(sideName(matchMode, side));
     turnStartNotice = '';
@@ -2342,8 +2380,8 @@ function runCpu(initialDelayMs = 0): void {
   if (matchMode === 'cpu') cpuActivity = [];
   const maximumSteps = Math.max(30, game.units.filter(unit => isDeployedUnit(unit) && unit.owner === side).length * 3 + 5);
   let steps = 0;
-  const advance = (): boolean => {
-    try { return advanceStep(); } catch (error) {
+  const advance = async (): Promise<boolean> => {
+    try { return await advanceStep(); } catch (error) {
       // An unexpected failure must not leave the CPU permanently "in progress".
       console.error(error);
       finishCpuTurn(side);
@@ -2352,11 +2390,15 @@ function runCpu(initialDelayMs = 0): void {
       return false;
     }
   };
-  const advanceStep = (): boolean => {
-    if (replay || game.activePlayer !== side || game.winner) { finishCpuTurn(side); return false; }
+  const advanceStep = async (): Promise<boolean> => {
+    if (localStorage.checkForChanges()) { pauseForStorageConflict(); return false; }
+    if (replay || screens.current !== 'battle' || game.activePlayer !== side || game.winner) { finishCpuTurn(side); return false; }
     if (steps >= maximumSteps) { finishCpuTurn(side, true); return false; }
     steps += 1;
-    const action = chooseCpuAction(game, cpuDifficultyFor(matchMode, side, { red: redDifficulty, blue: difficulty }), side, dailyLocked() ? 'balanced' : cpuPolicies[side]);
+    const expectedGame = game; const revision = screens.revision;
+    const action = await cpuPlanner.plan({ state: game, difficulty: cpuDifficultyFor(matchMode, side, { red: redDifficulty, blue: difficulty }), side, policy: dailyLocked() ? 'balanced' : cpuPolicies[side] });
+    if (!action || game !== expectedGame || screens.revision !== revision || !cpuInProgress || replay || spectatePaused && matchMode === 'spectate') return false;
+    if (localStorage.checkForChanges()) { pauseForStorageConflict(); return false; }
     if (action.type === 'endTurn') { dispatch(action); finishCpuTurn(side); return false; }
     const before = game;
     if (!dispatch(action)) {
@@ -2394,11 +2436,18 @@ function runCpu(initialDelayMs = 0): void {
 }
 // Orientation changes and window resizes re-derive the default zoom, but never
 // overrule a rate the player set with the zoom controls.
-window.addEventListener('storage', event => {
-  if (event.key !== null && !event.key.startsWith('ministr.')) return;
-  localStorage.markExternalChange();
+function pauseForStorageConflict(): void {
   commandScheduler.cancel(); cpuInProgress = false; spectatePaused = matchMode === 'spectate';
+  fileReadGate.invalidate();
   message = '別タブの変更を検知しました。バックアップ後に再読み込みしてください。'; titleState.setNotice(message); render();
+}
+window.addEventListener('storage', event => {
+  if (event.storageArea !== window.localStorage || (event.key !== null && !event.key.startsWith('ministr.'))) return;
+  if (localStorage.checkForChanges()) pauseForStorageConflict();
+});
+window.addEventListener('focus', () => { if (localStorage.checkForChanges()) pauseForStorageConflict(); });
+document.addEventListener('visibilitychange', () => {
+  if (!document.hidden && localStorage.checkForChanges()) pauseForStorageConflict();
 });
 window.addEventListener('resize', () => {
   if (!boardZoomAuto) return;

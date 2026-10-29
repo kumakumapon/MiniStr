@@ -1,0 +1,49 @@
+{
+  "variant": "after",
+  "browser": "151.0.7922.173",
+  "warmupCycles": 1,
+  "rows": [
+    {
+      "cycle": 0,
+      "heap": 5730720,
+      "documents": 1,
+      "nodes": 6951,
+      "jsEventListeners": 149
+    },
+    {
+      "cycle": 1,
+      "heap": 5874128,
+      "documents": 1,
+      "nodes": 6951,
+      "jsEventListeners": 149
+    },
+    {
+      "cycle": 2,
+      "heap": 5931624,
+      "documents": 1,
+      "nodes": 6951,
+      "jsEventListeners": 149
+    },
+    {
+      "cycle": 3,
+      "heap": 5953436,
+      "documents": 1,
+      "nodes": 6951,
+      "jsEventListeners": 149
+    },
+    {
+      "cycle": 4,
+      "heap": 5970020,
+      "documents": 1,
+      "nodes": 6951,
+      "jsEventListeners": 149
+    },
+    {
+      "cycle": 5,
+      "heap": 5972132,
+      "documents": 1,
+      "nodes": 6951,
+      "jsEventListeners": 149
+    }
+  ]
+}

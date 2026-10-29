@@ -1,0 +1,12 @@
+{
+  "src/main.ts": "670732b964d5415bb64a117a5cd2775a3ab6536b383fcba6db4e53bec4a34f19",
+  "src/ui/cpuPlanner.ts": "2c6e764f6832d4409469aa2d9a170a0dd0cdff00a5f1b837ca46c950c9960994",
+  "src/ui/cpuWorker.ts": "ba9020e30dab2fcd5e73a80b1f066afbc4e37074635af2e28bc6b1f18c36deaa",
+  "src/ui/cpuFallback.ts": "1f60a452002f75f1720d88abf819529ec730202b60f5e53499e360609413c473",
+  "src/ui/stateMemo.ts": "0de87d0ac12f44cef4bf7e32543f873a47c6383d75cfeffa5795513c37918353",
+  "src/ui/undoHistory.ts": "2e7d4f408c0bb7f80f6def0c2fe54deac520a855c4e9bf6efa60bff08244483b",
+  "src/game/battleHistory.ts": "4fa545ca7da2c2377c42a8550acaa2b07f6930c082a380647304b4d7589bb3a3",
+  "scripts/profile-continuous.mjs": "7c470953b7c0f89e3917c250b6e8364898d3f9c6ae2388d4db12141a96470321",
+  "scripts/profile-save-runtime.ts": "6a55ee4c04d083e35ef4af4ba49a36f9d759163c9401ef5dd4bfded94164f457",
+  "scripts/profile-session-memory.mjs": "f5f3e85539d26e7bab20cb50db5f69db708b497b8bb700af996be478fce0ca96"
+}

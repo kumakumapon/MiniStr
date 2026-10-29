@@ -351,7 +351,7 @@ describe('distributed application boundaries', () => {
   });
 
   it('keeps the board when loading fails and exposes invalid entries for deletion', () => {
-    const document = launch();
+    const document = launch({ storage: { 'ministr.save.manual': '{broken' } });
     click('.title-map-card[data-map-id="skirmish"]');
     click('#begin-operation');
     click('.tile[data-x="0"][data-y="1"]');
@@ -365,7 +365,6 @@ describe('distributed application boundaries', () => {
     };
     const before = boardMarkup();
     expect(document.querySelector('.tile[data-x="0"][data-y="2"] .unit.red')).not.toBeNull();
-    dom.window.localStorage.setItem('ministr.save.manual', '{broken');
     // Invoke the guarded menu handler even though the continue button reflects valid-save presence.
     document.querySelector('#continue')?.dispatchEvent(new dom.window.MouseEvent('click', { bubbles: true }));
     expect(boardMarkup()).toBe(before);
@@ -430,14 +429,16 @@ describe('distributed application boundaries', () => {
     const document = launch();
     click('.title-map-card[data-map-id="skirmish"]');
     click('#begin-operation');
+    dom.window.localStorage.setItem('ministr.save.manual', 'changed externally');
     dom.window.dispatchEvent(
       new dom.window.StorageEvent('storage', {
+        storageArea: dom.window.localStorage,
         key: 'ministr.save.manual',
         newValue: 'changed externally',
       }),
     );
     click('#save');
     expect(document.body.textContent).toContain('別のタブ');
-    expect(dom.window.localStorage.getItem('ministr.save.manual')).toBeNull();
+    expect(dom.window.localStorage.getItem('ministr.save.manual')).toBe('changed externally');
   });
 });
