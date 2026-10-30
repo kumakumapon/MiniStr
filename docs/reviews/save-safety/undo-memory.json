@@ -1,0 +1,136 @@
+{
+  "node": "v24.19.0",
+  "commands": 1000,
+  "undos": 20,
+  "warmupCycles": 1,
+  "rows": [
+    {
+      "size": 16,
+      "cycle": 0,
+      "variant": "array",
+      "retainedBytes": 610840,
+      "undoMs": 0.021682999999939057,
+      "afterReleaseBytes": 27880
+    },
+    {
+      "size": 16,
+      "cycle": 0,
+      "variant": "bounded",
+      "retainedBytes": 93416,
+      "undoMs": 0.17035699999996723,
+      "afterReleaseBytes": 11344
+    },
+    {
+      "size": 16,
+      "cycle": 1,
+      "variant": "bounded",
+      "retainedBytes": 105600,
+      "undoMs": 0.028702999999950407,
+      "afterReleaseBytes": 48496
+    },
+    {
+      "size": 16,
+      "cycle": 1,
+      "variant": "array",
+      "retainedBytes": 718848,
+      "undoMs": 0.010876999999936743,
+      "afterReleaseBytes": 36992
+    },
+    {
+      "size": 16,
+      "cycle": 2,
+      "variant": "array",
+      "retainedBytes": 720056,
+      "undoMs": 0.01512300000013056,
+      "afterReleaseBytes": 37584
+    },
+    {
+      "size": 16,
+      "cycle": 2,
+      "variant": "bounded",
+      "retainedBytes": 93264,
+      "undoMs": 0.025137999999969907,
+      "afterReleaseBytes": 36120
+    },
+    {
+      "size": 16,
+      "cycle": 3,
+      "variant": "bounded",
+      "retainedBytes": 90464,
+      "undoMs": 0.02578899999980422,
+      "afterReleaseBytes": 33328
+    },
+    {
+      "size": 16,
+      "cycle": 3,
+      "variant": "array",
+      "retainedBytes": 712600,
+      "undoMs": 0.010275999999976193,
+      "afterReleaseBytes": 30128
+    },
+    {
+      "size": 32,
+      "cycle": 0,
+      "variant": "array",
+      "retainedBytes": 744976,
+      "undoMs": 0.016124000000218075,
+      "afterReleaseBytes": 62504
+    },
+    {
+      "size": 32,
+      "cycle": 0,
+      "variant": "bounded",
+      "retainedBytes": 103392,
+      "undoMs": 202.0141920000001,
+      "afterReleaseBytes": 190672
+    },
+    {
+      "size": 32,
+      "cycle": 1,
+      "variant": "bounded",
+      "retainedBytes": 16560,
+      "undoMs": 143.45135899999968,
+      "afterReleaseBytes": -6800
+    },
+    {
+      "size": 32,
+      "cycle": 1,
+      "variant": "array",
+      "retainedBytes": 658752,
+      "undoMs": 0.010416000000077474,
+      "afterReleaseBytes": -164704
+    },
+    {
+      "size": 32,
+      "cycle": 2,
+      "variant": "array",
+      "retainedBytes": 778760,
+      "undoMs": 0.009825000000091677,
+      "afterReleaseBytes": 30792
+    },
+    {
+      "size": 32,
+      "cycle": 2,
+      "variant": "bounded",
+      "retainedBytes": 112344,
+      "undoMs": 183.54877899999974,
+      "afterReleaseBytes": 221264
+    },
+    {
+      "size": 32,
+      "cycle": 3,
+      "variant": "bounded",
+      "retainedBytes": 14080,
+      "undoMs": 175.33173099999976,
+      "afterReleaseBytes": 22936
+    },
+    {
+      "size": 32,
+      "cycle": 3,
+      "variant": "array",
+      "retainedBytes": 655560,
+      "undoMs": 0.014422000000195112,
+      "afterReleaseBytes": -166864
+    }
+  ]
+}

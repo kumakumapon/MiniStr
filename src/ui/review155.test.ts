@@ -36,7 +36,8 @@ describe('UI boundaries and exclusive screens', () => {
     storage.setItem('ministr.new', 'value');
     expect(localStorage.getItem('ministr.new')).toBe('value');
     localStorage.removeItem('ministr.new');
-    expect(storage.getItem('ministr.new')).toBeNull();
+    expect(storage.getItem('ministr.new')).toBe('value');
+    expect(storage.checkForChanges()).toBe(true);
     storage.markExternalChange();
     expect(storage.conflicted).toBe(true);
     expect(() => storage.setItem('ministr.old', 'overwritten')).toThrow();

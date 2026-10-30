@@ -74,3 +74,7 @@ describe('whole-board spectating view (#133)', () => {
     expect(has(whole, 19, 1)).toBe(true);
   });
 });
+
+it('never lets malformed capture points become markup', () => {
+  expect(capturePointsLabel('<img src=x>' as never)).toBe('NaN');
+});

@@ -49,6 +49,38 @@ function input(selector: string, value: string) {
 afterEach(() => dom?.window.close());
 
 describe('distributed application boundaries', () => {
+  it('rejects a saved unit ID containing markup before it reaches the board', () => {
+    const data: Record<string, string> = {};
+    const storage: StorageLike = {
+      getItem: (key) => data[key] ?? null,
+      setItem: (key, value) => {
+        data[key] = value;
+      },
+      removeItem: (key) => {
+        delete data[key];
+      },
+    };
+    const initialState = createScenarioInitialState(maps[0]!);
+    valueOf(
+      saveGameToSlot(storage, 'html-safe', 'HTML boundary', {
+        mapId: maps[0]!.id,
+        difficulty: 'normal',
+        initialState,
+        gameState: initialState,
+        commands: [],
+      }),
+    );
+    const id = initialState.units.find((unit) => unit.owner === 'red')!.id;
+    for (const key of Object.keys(data)) data[key] = data[key]!.replaceAll(JSON.stringify(id), JSON.stringify('r1"><img data-injected="true" src="x">'));
+    const document = launch({ storage: data });
+    expect(document.querySelector('.load-save-slot[data-save-slot="html-safe"]')?.hasAttribute('disabled')).toBe(true);
+    expect(document.querySelector('[data-injected]')).toBeNull();
+    click('#title-training');
+    click('#begin-operation');
+    expect(document.querySelectorAll('.board .tile').length).toBeGreaterThan(0);
+    expect(document.querySelector('[data-injected]')).toBeNull();
+  });
+
   it('shares title zoom with operations, resume and board buttons, rejecting invalid values', () => {
     const document = launch();
     const titleZoom = () => (document.querySelector('#title-board-zoom') as HTMLSelectElement).value;
@@ -351,7 +383,7 @@ describe('distributed application boundaries', () => {
   });
 
   it('keeps the board when loading fails and exposes invalid entries for deletion', () => {
-    const document = launch();
+    const document = launch({ storage: { 'ministr.save.manual': '{broken' } });
     click('.title-map-card[data-map-id="skirmish"]');
     click('#begin-operation');
     click('.tile[data-x="0"][data-y="1"]');
@@ -365,7 +397,6 @@ describe('distributed application boundaries', () => {
     };
     const before = boardMarkup();
     expect(document.querySelector('.tile[data-x="0"][data-y="2"] .unit.red')).not.toBeNull();
-    dom.window.localStorage.setItem('ministr.save.manual', '{broken');
     // Invoke the guarded menu handler even though the continue button reflects valid-save presence.
     document.querySelector('#continue')?.dispatchEvent(new dom.window.MouseEvent('click', { bubbles: true }));
     expect(boardMarkup()).toBe(before);
@@ -430,14 +461,16 @@ describe('distributed application boundaries', () => {
     const document = launch();
     click('.title-map-card[data-map-id="skirmish"]');
     click('#begin-operation');
+    dom.window.localStorage.setItem('ministr.save.manual', 'changed externally');
     dom.window.dispatchEvent(
       new dom.window.StorageEvent('storage', {
+        storageArea: dom.window.localStorage,
         key: 'ministr.save.manual',
         newValue: 'changed externally',
       }),
     );
     click('#save');
     expect(document.body.textContent).toContain('別のタブ');
-    expect(dom.window.localStorage.getItem('ministr.save.manual')).toBeNull();
+    expect(dom.window.localStorage.getItem('ministr.save.manual')).toBe('changed externally');
   });
 });

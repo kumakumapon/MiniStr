@@ -14,9 +14,15 @@ for (const width of [1280, 390])
       await page.locator('input[name="match-mode"][value="spectate"]').check();
       await page.locator('#begin-operation').click();
       await expect(page.locator('.board .tile')).toHaveCount(1024);
+      // Worker completion is independent of Playwright's paused timer clock.
+      // Isolate zoom identity from legitimate CPU state updates.
+      await page.locator('#spectate-toggle').click();
+      await expect(page.locator('#spectate-toggle')).toHaveAttribute('aria-pressed', 'true');
       const board = await page.locator('.board').elementHandle();
       await page.locator('#board-zoom-in').click();
       expect(await board!.evaluate((node) => node === document.querySelector('.board'))).toBe(true);
+      await page.locator('#spectate-toggle').click();
+      await expect(page.locator('#spectate-toggle')).toHaveAttribute('aria-pressed', 'false');
       await page.clock.runFor(400);
       await expect(page.locator('.spectate-current')).toHaveCount(1);
       await page.locator('#spectate-toggle').click();

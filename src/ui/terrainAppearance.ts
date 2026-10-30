@@ -17,8 +17,9 @@ const cells: Record<TerrainKind, readonly [number, number]> = {
   supplyDepot: [2, 1],
 };
 const themes: readonly ScenarioTheme[] = ['temperate', 'desert', 'snow', 'urban', 'coastal'];
-const safeKind = (kind: TerrainKind): TerrainKind => (Object.hasOwn(cells, kind) ? kind : 'plain');
-const safeTheme = (theme: ScenarioTheme): ScenarioTheme => (themes.includes(theme) ? theme : 'temperate');
+const terrainKinds = Object.keys(cells) as TerrainKind[];
+const safeKind = (kind: TerrainKind): TerrainKind => terrainKinds.find((known) => known === kind) ?? 'plain';
+const safeTheme = (theme: ScenarioTheme): ScenarioTheme => themes.find((known) => known === theme) ?? 'temperate';
 
 export function terrainFilter(kind: TerrainKind, theme: ScenarioTheme): string {
   kind = safeKind(kind);

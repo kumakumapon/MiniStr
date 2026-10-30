@@ -12,7 +12,7 @@ export interface CommandSequenceOptions {
   initialDelayMs?: number;
   nextDelayMs: () => number;
   /** Apply one command and return whether another command should be queued. */
-  step: () => boolean;
+  step: () => boolean | Promise<boolean>;
 }
 
 /** Owns the one cancellable timer used for command-by-command animation. */
@@ -20,7 +20,10 @@ export class CommandScheduler {
   private timer: ReturnType<typeof setTimeout> | undefined;
   private generation = 0;
 
+  constructor(private onCancel: () => void = () => {}) {}
+
   cancel(): void {
+    this.onCancel();
     this.generation += 1;
     if (this.timer !== undefined) clearTimeout(this.timer);
     this.timer = undefined;
@@ -32,8 +35,12 @@ export class CommandScheduler {
     const advance = (): void => {
       if (generation !== this.generation) return;
       this.timer = undefined;
-      if (!options.step() || generation !== this.generation) return;
-      this.timer = setTimeout(advance, options.nextDelayMs());
+      const schedule = (more: boolean): void => {
+        if (more && generation === this.generation) this.timer = setTimeout(advance, options.nextDelayMs());
+      };
+      const result = options.step();
+      if (typeof result === 'boolean') schedule(result);
+      else void result.then(schedule);
     };
     if (options.initialDelayMs === 0) advance();
     else this.timer = setTimeout(advance, options.initialDelayMs ?? options.nextDelayMs());

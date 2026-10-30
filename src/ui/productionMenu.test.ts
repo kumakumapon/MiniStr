@@ -2,6 +2,21 @@ import { describe, expect, it } from 'vitest';
 import { renderProductionMenu } from './productionMenu';
 
 describe('production menu', () => {
+  it('never treats malformed coordinates or funds as HTML', () => {
+    const payload = '"><img data-injected="true" src="x">';
+    document.body.innerHTML = renderProductionMenu({
+      facilities: [{ position: { x: payload as never, y: payload as never }, kind: 'factory', kinds: ['infantry'] }],
+      target: undefined,
+      funds: payload as never,
+      summary: '',
+      units: '',
+      notice: payload,
+    });
+    expect(document.querySelector('[data-injected]')).toBeNull();
+    expect(document.querySelector('option')?.value).toBe('NaN,NaN');
+    expect(document.querySelector('[role="status"]')?.textContent).toBe(payload);
+  });
+
   it('keeps the selected facility, funds and feedback available above the roster', () => {
     document.body.innerHTML = renderProductionMenu({
       facilities: [

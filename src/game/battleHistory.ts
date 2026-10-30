@@ -69,7 +69,7 @@ export class BattleHistory {
   private observe(): void {
     for (const player of ['red', 'blue'] as const) {
       const visible = new Set(visiblePositions(this.state, player).map((p) => `${p.x},${p.y}`));
-      const enemies = visibleEnemies(this.state, player).filter(isDeployedUnit);
+      const enemies = this.state.units.filter(isDeployedUnit).filter((unit) => unit.owner !== player && visible.has(`${unit.position.x},${unit.position.y}`));
       const current = new Map(enemies.map((unit) => [unit.id, unit]));
       const memory = this.contacts[player];
       for (const [id, contact] of memory) {

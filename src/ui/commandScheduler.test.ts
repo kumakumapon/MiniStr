@@ -45,3 +45,29 @@ describe('CommandScheduler', () => {
     }
   });
 });
+
+it('does not reschedule a worker result after cancellation or replacement', async () => {
+  vi.useFakeTimers();
+  try {
+    const scheduler = new CommandScheduler();
+    let finish!: (value: boolean) => void;
+    scheduler.start({
+      initialDelayMs: 0,
+      step: () =>
+        new Promise<boolean>((resolve) => {
+          finish = resolve;
+        }),
+      nextDelayMs: () => 1,
+    });
+    scheduler.cancel();
+    finish(true);
+    await Promise.resolve();
+    expect(vi.getTimerCount()).toBe(0);
+    let calls = 0;
+    scheduler.start({ initialDelayMs: 0, step: () => Promise.resolve(++calls < 2), nextDelayMs: () => 1 });
+    await vi.runAllTimersAsync();
+    expect(calls).toBe(2);
+  } finally {
+    vi.useRealTimers();
+  }
+});
