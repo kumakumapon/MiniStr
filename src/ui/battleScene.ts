@@ -118,12 +118,12 @@ export function renderBattleScene(scene: BattleScene): string {
     const result = after === 0 ? `<span class="battle-destroyed">${labels.destroyed}</span>` : '';
     const hitClass = incomingDamage > 0 ? ' battle-hit' : '';
     const fireClass = role === 'attacker' || scene.attacker.hpAfter < scene.attacker.hpBefore ? ' battle-firing' : '';
-    return `<article class="battle-combatant battle-${role} battle-team-${unit.owner}${hitClass}${fireClass}${after === 0 ? ' battle-destroyed-unit' : ''}">
-      <span class="battle-team-badge battle-team-badge-${unit.owner}">${unit.owner === 'red' ? '■' : '●'} ${unit.owner === 'red' ? labels.red : labels.blue}</span>
+    return `<article class="battle-combatant battle-${role} battle-team-${escapeHtml(unit.owner)}${hitClass}${fireClass}${after === 0 ? ' battle-destroyed-unit' : ''}">
+      <span class="battle-team-badge battle-team-badge-${escapeHtml(unit.owner)}">${unit.owner === 'red' ? '■' : '●'} ${unit.owner === 'red' ? labels.red : labels.blue}</span>
       <span class="battle-side-label">${sideLabel}</span>
       <div class="battle-unit-stage" aria-hidden="true">
         <span class="battle-target-lock"></span>
-        <span class="unit battle-sprite ${unit.owner} unit-${unit.kind}"><span class="unit-art"></span></span>
+        <span class="unit battle-sprite ${escapeHtml(unit.owner)} unit-${escapeHtml(unit.kind)}"><span class="unit-art"></span></span>
         <span class="battle-impact-ring"></span>
       </div>
       <h3>${escapeHtml(name)}</h3>${unit.weapon ? `<p class="battle-weapon">${escapeHtml(weaponNames[unit.weapon])}</p>` : ''}
@@ -143,7 +143,7 @@ export function renderBattleScene(scene: BattleScene): string {
     .map(([key, value]) => `--battle-${key}:${value}ms`)
     .join(';');
   return `<div class="battle-scene-backdrop" role="dialog" aria-modal="true" aria-labelledby="battle-scene-title">
-    <section class="battle-scene battle-terrain-${scene.terrain}${counterClass}" style="${timingStyle};--battle-duration:${Number(BATTLE_SCENE_DURATION_MS)}ms">
+    <section class="battle-scene battle-terrain-${escapeHtml(scene.terrain)}${counterClass}" style="${timingStyle};--battle-duration:${Number(BATTLE_SCENE_DURATION_MS)}ms">
       <header class="battle-scene-header">
         <div><p class="card-kicker">TACTICAL ENGAGEMENT</p><h2 id="battle-scene-title">${labels.title}</h2></div>
         <span class="battle-scene-terrain">${labels.terrain} · ${escapeHtml(terrainNames[scene.terrain])}</span>

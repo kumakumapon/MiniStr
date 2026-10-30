@@ -1067,6 +1067,7 @@ function render(): void {
   const unitsByPosition = new Map(renderedGame.units.filter(isDeployedUnit).map(unit => [key(unit.position), unit]));
   const cargoByTransport = new Map(renderedGame.units.filter(unit => unit.embarkedIn !== undefined).map(unit => [unit.embarkedIn!, unit]));
   const terrainArtwork = new Map<TerrainKind, string>();
+  const terrainLabels = new Map<string, string>();
   const board = boardCovered ? '' : renderedGame.board.terrain.flatMap((row, y) => row.map((terrain, x) => {
     const unit = unitsByPosition.get(`${x},${y}`);
     const hidden = !visible.has(`${x},${y}`);
@@ -1076,7 +1077,9 @@ function render(): void {
     const propertyOwner = isProperty ? terrain.owner : undefined;
     const capturePoints = observedCapturePoints(terrain, !hidden);
     const facilityDetail = translateText(terrain.kind === 'supplyDepot' ? '、周囲の地上部隊を補給（修理・収入・生産なし）' : terrain.kind === 'port' ? '、補給・艦艇を生産可能' : terrain.kind === 'airport' ? '、補給・航空ユニットを生産可能' : terrain.kind === 'factory' ? '、補給・地上ユニット生産拠点' : '');
-    const propertyLabel = escapeHtml(renderMemo.get(renderedGame, `terrain-label:${getLocale()}:${me}:${terrain.kind}:${propertyOwner}:${capturePoints}`, () => translateGameText(isProperty ? `${terrainName}${propertyOwner ? `（${propertyOwner === me ? '自軍' : '敵軍'}）` : '（中立）'}${capturePoints !== undefined ? `、占領値 ${capturePointsLabel(capturePoints)}` : ''}${facilityDetail}` : terrainName)));
+    const terrainLabelKey = `${terrain.kind}:${propertyOwner}:${capturePoints}`;
+    if (!terrainLabels.has(terrainLabelKey)) terrainLabels.set(terrainLabelKey, escapeHtml(translateGameText(isProperty ? `${terrainName}${propertyOwner ? `（${propertyOwner === me ? '自軍' : '敵軍'}）` : '（中立）'}${capturePoints !== undefined ? `、占領値 ${capturePointsLabel(capturePoints)}` : ''}${facilityDetail}` : terrainName)));
+    const propertyLabel = terrainLabels.get(terrainLabelKey)!;
     const cargo = unit && transportCapacity(unit.kind) > 0 ? cargoByTransport.get(unit.id) : undefined;
     // Fuel data stays private: only warn about the player's own units, never
     // expose an enemy's exact reserve through a visible tile.
@@ -1195,7 +1198,7 @@ function render(): void {
   const summaryResult = !replayMode && renderedGame.winner ? resultCache.summarize(renderedGame, initialState, commandHistory, renderedMap.id, difficulty) : undefined;
   const summary = summaryResult?.ok ? summaryResult.value : undefined;
   const campaignResult = campaignRun && campaignOutcome
-    ? `<section class="campaign-result"><span class="campaign-grade grade-${campaignOutcome.result.grade.toLowerCase()}">${campaignOutcome.result.grade}</span><div><strong>作戦評価</strong><p>${Number(campaignOutcome.result.score)}点・残存 ${Number(campaignOutcome.result.survivingUnits)}部隊・損失 ${Number(campaignOutcome.result.losses)}部隊</p>${campaignOutcome.persisted ? `<p>経験を記録：${Number(campaignOutcome.veteranCount)}部隊${campaignOutcome.nextScenarioId ? '・次作戦の同種部隊へ継承' : '・全作戦完了'}</p>` : `<p class="campaign-save-error">${escapeHtml(campaignNotice)}</p>`}</div></section>`
+    ? `<section class="campaign-result"><span class="campaign-grade grade-${escapeHtml(campaignOutcome.result.grade.toLowerCase())}">${escapeHtml(campaignOutcome.result.grade)}</span><div><strong>作戦評価</strong><p>${Number(campaignOutcome.result.score)}点・残存 ${Number(campaignOutcome.result.survivingUnits)}部隊・損失 ${Number(campaignOutcome.result.losses)}部隊</p>${campaignOutcome.persisted ? `<p>経験を記録：${Number(campaignOutcome.veteranCount)}部隊${campaignOutcome.nextScenarioId ? '・次作戦の同種部隊へ継承' : '・全作戦完了'}</p>` : `<p class="campaign-save-error">${escapeHtml(campaignNotice)}</p>`}</div></section>`
     : '';
   const campaignResultActions = campaignRun
     ? `<button id="campaign-retry" class="save-action">再挑戦</button><button id="campaign-back" class="save-action">キャンペーンへ戻る</button>${campaignOutcome?.nextScenarioId ? '<button id="campaign-next" class="end-turn">次の戦場へ</button>' : ''}`
@@ -1244,7 +1247,7 @@ function render(): void {
     const grade = campaignProgress.bestGrades[stage.scenarioId];
     if (!map) return `<article data-ui-copy class="campaign-stage locked"><div class="campaign-stage-number">0${Number(index + 1)}</div><div><p class="card-kicker">UNAVAILABLE</p><h3>作戦データを読み込めません</h3><p>組み込みシナリオの読み込みに失敗したため、この作戦は開始できません。</p><span>推奨 ${Number(stage.recommendedTurns)} ターン</span></div><button class="save-action" disabled>利用不可</button></article>`;
     const deployment = campaignDeployment(campaignProgress, stage.scenarioId);
-    return `<article data-ui-copy class="campaign-stage ${unlocked ? '' : 'locked'}"><div class="campaign-stage-number">${String(index + 1).padStart(2, '0')}</div><div><p class="card-kicker">${grade ? 'CLEARED' : unlocked ? 'OPEN' : 'LOCKED'} · ${escapeHtml(translateText(operation?.phase ?? ''))}</p><h3>${escapeHtml(operation?.title ?? map.name)}</h3><p>${escapeHtml(operation?.orders ?? map.briefing)}</p>${operation ? `<details class="campaign-orders"><summary>敵情・補給方針</summary><p>${escapeHtml(operation.enemyOrders)}</p><p>${escapeHtml(operation.logistics)}</p></details>` : ''}<span>目安 ${Number(stage.recommendedTurns)} ターン${operation?.deadline ? ` ／ 期限 ${Number(operation.deadline)}` : ''}</span>${renderCampaignRoster(stage.scenarioId, campaignProgress.veteransByScenario?.[stage.scenarioId] ?? [])}${unlocked ? `<p class="campaign-deployment">出撃支援 +${Number(deployment.support)}G ／ 引継候補 ${deployment.veterans.length}部隊</p>` : ''}</div>${grade ? `<strong class="campaign-grade grade-${grade.toLowerCase()}">${grade}</strong>` : ''}<button class="save-action campaign-start" data-campaign-id="${stage.scenarioId}" ${unlocked ? '' : 'disabled'}>${grade ? '再出撃' : '作戦準備'}</button></article>`;
+    return `<article data-ui-copy class="campaign-stage ${unlocked ? '' : 'locked'}"><div class="campaign-stage-number">${String(index + 1).padStart(2, '0')}</div><div><p class="card-kicker">${grade ? 'CLEARED' : unlocked ? 'OPEN' : 'LOCKED'} · ${escapeHtml(translateText(operation?.phase ?? ''))}</p><h3>${escapeHtml(operation?.title ?? map.name)}</h3><p>${escapeHtml(operation?.orders ?? map.briefing)}</p>${operation ? `<details class="campaign-orders"><summary>敵情・補給方針</summary><p>${escapeHtml(operation.enemyOrders)}</p><p>${escapeHtml(operation.logistics)}</p></details>` : ''}<span>目安 ${Number(stage.recommendedTurns)} ターン${operation?.deadline ? ` ／ 期限 ${Number(operation.deadline)}` : ''}</span>${renderCampaignRoster(stage.scenarioId, campaignProgress.veteransByScenario?.[stage.scenarioId] ?? [])}${unlocked ? `<p class="campaign-deployment">出撃支援 +${Number(deployment.support)}G ／ 引継候補 ${deployment.veterans.length}部隊</p>` : ''}</div>${grade ? `<strong class="campaign-grade grade-${escapeHtml(grade.toLowerCase())}">${escapeHtml(grade)}</strong>` : ''}<button class="save-action campaign-start" data-campaign-id="${stage.scenarioId}" ${unlocked ? '' : 'disabled'}>${grade ? '再出撃' : '作戦準備'}</button></article>`;
   }).join('') : '';
   const campaignOverlay = renderCampaignOverlay(screens.campaignMenuOpen, campaignStages.length, campaignNotice, campaignCards);
   const editorOverlay = screens.editorOpen ? renderEditorView(editor, editorNotice, paintMode, editorHistory) : "";

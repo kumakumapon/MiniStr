@@ -194,7 +194,7 @@ function renderCaptureScene(scene: CaptureActionScene, english: boolean): string
       </div>
     </div>
     <div class="action-capture-progress" role="meter" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${Math.round(scene.progressAfter)}" aria-label="${english ? 'Capture progress' : '占領の進行度'}">
-      <span class="action-capture-progress-fill ${scene.owner}" style="--capture-before:${Number(scene.progressBefore)}%;--capture-after:${Number(scene.progressAfter)}%"></span>
+      <span class="action-capture-progress-fill ${escapeHtml(scene.owner)}" style="--capture-before:${Number(scene.progressBefore)}%;--capture-after:${Number(scene.progressAfter)}%"></span>
     </div>
     <p class="action-scene-detail">${detail} <strong>${Math.round(scene.progressAfter)}%</strong></p>`;
 }
@@ -238,7 +238,7 @@ export function renderActionScene(scene: ActionScene): string {
   const english = getLocale() === 'en';
   const content = scene.kind === 'capture' ? renderCaptureScene(scene, english) : renderLogisticsScene(scene, english);
   return `<div class="tactical-scene-backdrop" role="dialog" aria-modal="true" aria-labelledby="tactical-scene-title">
-    <section class="action-scene action-scene-${scene.kind}">${content}
+    <section class="action-scene action-scene-${escapeHtml(scene.kind)}">${content}
       <button id="tactical-scene-skip" class="action-scene-skip" type="button">${english ? 'Skip scene' : '演出をスキップ'}</button>
     </section>
   </div>`;
