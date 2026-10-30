@@ -56,7 +56,9 @@ test('CPU worker pauses, resumes and never applies results after returning to ti
   await page.locator('input[name="match-mode"][value="spectate"]').check();
   await page.locator('#begin-operation').click();
   await expect(page.locator('.spectate-current')).toHaveCount(1);
+  const pauseControl = await page.locator('#spectate-toggle').elementHandle();
   await page.locator('#spectate-toggle').click();
+  expect(await pauseControl!.evaluate((node) => node === document.querySelector('#spectate-toggle'))).toBe(true);
   await expect(page.locator('#spectate-toggle')).toHaveAttribute('aria-pressed', 'true');
   const paused = await page.locator('.board').innerHTML();
   await page.waitForTimeout(600);
