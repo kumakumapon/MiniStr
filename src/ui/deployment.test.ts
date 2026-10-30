@@ -72,3 +72,12 @@ describe('deployment and evacuation controls', () => {
     expect(document.querySelector('[data-editor-x="7"][data-editor-y="2"]')?.getAttribute('aria-label')).toContain('b1');
   });
 });
+
+it.each(['x', 'y'] as const)('does not interpret a malformed deployment %s coordinate as HTML', (axis) => {
+  const scenario = operation({ victoryConditions: [{ type: 'escort', unitIds: ['r1'], positions: [{ x: 3, y: 1 }], required: 1 }] });
+  scenario.initialUnits[0]![axis] = '<img data-injected="true" src="x">' as never;
+  const choices = { red: deploymentSlots(scenario).map((slot) => slot.kind), blue: [] };
+  document.body.innerHTML = renderDeployment(scenario, choices, ['red'], true, '');
+  expect(document.querySelector('[data-injected]')).toBeNull();
+  expect(document.querySelector('.deployment-slot span')?.textContent).toContain('NaN');
+});
