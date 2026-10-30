@@ -1,3 +1,4 @@
+import { decodeCpuResponse } from './cpuResponse';
 import type { CpuDifficulty } from '../ai';
 import type { ArmyPolicy } from '../game/armyPolicy';
 import type { GameCommand } from '../game/session';
@@ -35,7 +36,13 @@ export class CpuPlanner {
       worker.onmessage = (event) => {
         if (this.worker !== worker) return;
         this.pending = undefined;
-        resolve(event.data as GameCommand);
+        try {
+          resolve(decodeCpuResponse(event.data, input.state));
+        } catch {
+          worker.terminate();
+          this.worker = undefined;
+          reject(Error('Invalid CPU worker response'));
+        }
       };
       worker.onerror = () => {
         if (this.worker !== worker) return;

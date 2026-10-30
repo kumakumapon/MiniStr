@@ -34,3 +34,13 @@ it('reuses the worker and releases it on errors', async () => {
   expect(factory).toHaveBeenCalledOnce();
   expect(worker.terminate).toHaveBeenCalledOnce();
 });
+
+it('rejects malformed worker messages and releases the failed worker', async () => {
+  const worker = { terminate: vi.fn(), postMessage: vi.fn(), onmessage: null as Worker['onmessage'], onerror: null as Worker['onerror'] };
+  const planner = new CpuPlanner(() => worker as unknown as Worker);
+  const result = planner.plan(input());
+  const rejected = expect(result).rejects.toThrow('Invalid CPU worker response');
+  worker.onmessage!.call(worker as unknown as Worker, { data: { type: 'move', unitId: 'r1', destination: { x: '<img src=x>', y: 1 } } } as MessageEvent);
+  await rejected;
+  expect(worker.terminate).toHaveBeenCalledOnce();
+});

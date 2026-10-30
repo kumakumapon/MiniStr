@@ -172,13 +172,13 @@ function parseScenario(value: unknown, ids: Set<string>, options: ScenarioLoadOp
     // scenario) as `null`, since JSON.stringify turns an `undefined` array
     // element into `null` rather than omitting it. Treat the two the same.
     const owner = rawOwner === null ? undefined : rawOwner;
-    if (!Number.isSafeInteger(x) || !Number.isSafeInteger(y) || x < 0 || y < 0 || x >= width || y >= height
+    if (typeof x !== 'number' || typeof y !== 'number' || !Number.isSafeInteger(x) || !Number.isSafeInteger(y) || x < 0 || y < 0 || x >= width || y >= height
       || typeof terrain !== 'string' || !terrainKindSet.has(terrain)
       || (owner !== undefined && (typeof owner !== 'string' || !playerIds.has(owner as PlayerId)))) return { ok: false, error: `シナリオ「${value.id}」の地形セルが不正です。` };
     const key = `${x},${y}`;
     if (occupiedCells.has(key)) return { ok: false, error: `シナリオ「${value.id}」に重複した地形セルがあります。` };
     occupiedCells.add(key);
-    board.terrain[y]![x] = { kind: terrain as TerrainKind, owner: owner as PlayerId | undefined, capturePoints: isPropertyTerrainKind(terrain as TerrainKind) ? 20 : undefined };
+    board.terrain[Number(y)]![Number(x)] = { kind: terrain as TerrainKind, owner: owner as PlayerId | undefined, capturePoints: isPropertyTerrainKind(terrain as TerrainKind) ? 20 : undefined };
   }
   if (!Array.isArray(value.initialUnits) || value.initialUnits.length > width * height) return { ok: false, error: `シナリオ「${value.id}」の初期ユニットが不正です。` };
   const initialUnits: InitialUnit[] = [];
