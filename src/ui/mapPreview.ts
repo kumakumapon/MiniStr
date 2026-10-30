@@ -16,7 +16,6 @@ const terrainColors: Record<TerrainKind, string> = {
   port: '#8c9a86',
   capital: '#8c9a86',
 };
-const previewTerrainKinds = Object.keys(terrainColors) as TerrainKind[];
 
 /** Per-theme tweaks that mirror `.theme-* .tile.*` in style.css. */
 const themeColors: Partial<Record<ScenarioTheme, Partial<Record<TerrainKind, string>>>> = {
@@ -84,7 +83,7 @@ export function renderMapPreview(board: Board, units: readonly PreviewUnit[], th
     let textureKind: TerrainKind | undefined;
     for (let x = 0; x <= width; x += 1) {
       const tile = x < width ? board.terrain[y]?.[x] : undefined;
-      const kind = previewTerrainKinds.find((known) => known === tile?.kind) ?? 'plain';
+      const kind = tile && Object.hasOwn(colors, tile.kind) ? tile.kind : 'plain';
       const color = x < width ? colors[kind] : '';
       if (color !== runColor) {
         if (runColor) tiles.push(`<rect x="${runStart}" y="${y}" width="${x - runStart}" height="1" fill="${runColor}"/>`);
@@ -110,7 +109,7 @@ export function renderMapPreview(board: Board, units: readonly PreviewUnit[], th
     .filter((unit) => Number.isInteger(unit.x) && Number.isInteger(unit.y) && unit.x >= 0 && unit.y >= 0 && unit.x < width && unit.y < height)
     .map(
       (unit) =>
-        `<circle class="map-preview-unit" cx="${Number(unit.x + 0.5)}" cy="${Number(unit.y + 0.5)}" r="0.26" fill="${ownerColors[unit.owner === 'blue' ? 'blue' : 'red']}" stroke="#0d1714" stroke-width="0.1"/>`,
+        `<circle class="map-preview-unit" cx="${unit.x + 0.5}" cy="${unit.y + 0.5}" r="0.26" fill="${ownerColors[unit.owner === 'blue' ? 'blue' : 'red']}" stroke="#0d1714" stroke-width="0.1"/>`,
     );
-  return `<svg class="map-preview" viewBox="0 0 ${Number(width)} ${Number(height)}" preserveAspectRatio="xMidYMid meet" aria-hidden="true" focusable="false" shape-rendering="crispEdges"><defs>${[...patternKinds].map((kind) => renderTerrainPattern(kind, patternId(kind)) + renderTerrainFilter(kind, theme, `${patternId(kind)}-color`)).join('')}</defs>${tiles.join('')}${artwork.join('')}${properties.join('')}<g shape-rendering="geometricPrecision">${dots.join('')}</g></svg>`;
+  return `<svg class="map-preview" viewBox="0 0 ${width} ${height}" preserveAspectRatio="xMidYMid meet" aria-hidden="true" focusable="false" shape-rendering="crispEdges"><defs>${[...patternKinds].map((kind) => renderTerrainPattern(kind, patternId(kind)) + renderTerrainFilter(kind, theme, `${patternId(kind)}-color`)).join('')}</defs>${tiles.join('')}${artwork.join('')}${properties.join('')}<g shape-rendering="geometricPrecision">${dots.join('')}</g></svg>`;
 }

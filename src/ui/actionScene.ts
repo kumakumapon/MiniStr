@@ -157,7 +157,7 @@ export function actionSceneForCommand(before: GameState, command: GameCommand, a
 
 /** Removes action details outside the current viewer's visible tiles. */
 export function actionSceneForVisiblePositions(scene: ActionScene, visible: ReadonlySet<string>): ActionScene | undefined {
-  const seen = (position: Position) => visible.has(`${Number(position.x)},${Number(position.y)}`);
+  const seen = (position: Position) => visible.has(`${position.x},${position.y}`);
   if (scene.kind === 'capture') return seen(scene.position) ? scene : undefined;
   const changes = scene.changes
     .filter((change) => seen(change.position))
@@ -194,7 +194,7 @@ function renderCaptureScene(scene: CaptureActionScene, english: boolean): string
       </div>
     </div>
     <div class="action-capture-progress" role="meter" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${Math.round(scene.progressAfter)}" aria-label="${english ? 'Capture progress' : '占領の進行度'}">
-      <span class="action-capture-progress-fill ${escapeHtml(scene.owner)}" style="--capture-before:${Number(scene.progressBefore)}%;--capture-after:${Number(scene.progressAfter)}%"></span>
+      <span class="action-capture-progress-fill ${scene.owner}" style="--capture-before:${scene.progressBefore}%;--capture-after:${scene.progressAfter}%"></span>
     </div>
     <p class="action-scene-detail">${detail} <strong>${Math.round(scene.progressAfter)}%</strong></p>`;
 }
@@ -219,17 +219,17 @@ function renderLogisticsScene(scene: LogisticsActionScene, english: boolean): st
     <div class="action-logistics-list">
       ${changes
         .map(
-          (change, index) => `<article class="action-logistics-card" style="--item-index:${Number(index)}">
+          (change, index) => `<article class="action-logistics-card" style="--item-index:${index}">
         ${unitSprite(change.kind, change.owner, unitNames[change.kind])}
         <div class="action-logistics-info">
           <strong>${escapeHtml(unitNames[change.kind])}</strong>
           <span class="action-logistics-source">${escapeHtml(sourceLabel(change.source, english))}</span>
-          <ul>${change.resources.map((resource) => `<li><span>${resourceLabels[resource.resource]}</span><b>${Number(resource.before)} → ${Number(resource.after)}</b></li>`).join('')}</ul>
+          <ul>${change.resources.map((resource) => `<li><span>${resourceLabels[resource.resource]}</span><b>${resource.before} → ${resource.after}</b></li>`).join('')}</ul>
         </div>
       </article>`,
         )
         .join('')}
-      ${extraCount > 0 ? `<p class="action-logistics-extra">${english ? `and ${Number(extraCount)} more` : `ほか ${Number(extraCount)}部隊`}</p>` : ''}
+      ${extraCount > 0 ? `<p class="action-logistics-extra">${english ? `and ${extraCount} more` : `ほか ${extraCount}部隊`}</p>` : ''}
     </div>`;
 }
 
@@ -238,7 +238,7 @@ export function renderActionScene(scene: ActionScene): string {
   const english = getLocale() === 'en';
   const content = scene.kind === 'capture' ? renderCaptureScene(scene, english) : renderLogisticsScene(scene, english);
   return `<div class="tactical-scene-backdrop" role="dialog" aria-modal="true" aria-labelledby="tactical-scene-title">
-    <section class="action-scene action-scene-${escapeHtml(scene.kind)}">${content}
+    <section class="action-scene action-scene-${scene.kind}">${content}
       <button id="tactical-scene-skip" class="action-scene-skip" type="button">${english ? 'Skip scene' : '演出をスキップ'}</button>
     </section>
   </div>`;

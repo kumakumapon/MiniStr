@@ -1,4 +1,3 @@
-import { escapeHtml } from './strings';
 import type { GameCommand, GameState, PlayerId, Position, UnitKind } from '../game';
 import { isDeployedUnit } from '../game';
 import { unitTokens } from './labels';
@@ -104,7 +103,7 @@ export function renderPresentationEffects(root: ParentNode, effects: readonly Pr
       const to = atTile(board, effect.to);
       if (!from || !to) continue;
       const ghost = document.createElement('span');
-      ghost.className = `presentation-effect movement-ghost ${escapeHtml(effect.owner)}`;
+      ghost.className = `presentation-effect movement-ghost ${effect.owner}`;
       ghost.textContent = unitTokens[effect.kind];
       ghost.style.left = `${from.offsetLeft + from.offsetWidth * .235}px`;
       ghost.style.top = `${from.offsetTop + from.offsetHeight * .235}px`;
@@ -119,7 +118,7 @@ export function renderPresentationEffects(root: ParentNode, effects: readonly Pr
     const tile = atTile(board, effect.position);
     if (!tile) continue;
     const marker = document.createElement('span');
-    marker.className = `presentation-effect ${escapeHtml(effect.type)}-feedback`;
+    marker.className = `presentation-effect ${effect.type}-feedback`;
     marker.style.left = `${tile.offsetLeft}px`;
     marker.style.top = `${tile.offsetTop}px`;
     marker.style.width = `${tile.offsetWidth}px`;

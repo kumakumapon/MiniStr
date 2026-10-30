@@ -19,16 +19,16 @@ import { escapeHtml } from './strings';
 export function renderReconControl(state: GameState, player: PlayerId, enabled: boolean, targeting: boolean): string {
   if (!usesReconRules(state)) return '';
   const remaining = remainingRecon(state, player);
-  return `<section class="recon-control" aria-label="広域偵察"><button id="recon-target" class="save-action" aria-pressed="${targeting}" ${!enabled || remaining === 0 ? 'disabled' : ''}>広域偵察：残り${Number(remaining)}回</button>${targeting ? '<button id="recon-cancel" class="save-action">中止</button>' : ''}<span id="recon-instructions" role="status">${targeting ? '偵察するマスを選択してください。Escでも中止できます。' : `指定マスから半径${Number(RECON_RADIUS)}。自軍のこの手番中だけ視認します。`}</span></section>`;
+  return `<section class="recon-control" aria-label="広域偵察"><button id="recon-target" class="save-action" aria-pressed="${targeting}" ${!enabled || remaining === 0 ? 'disabled' : ''}>広域偵察：残り${remaining}回</button>${targeting ? '<button id="recon-cancel" class="save-action">中止</button>' : ''}<span id="recon-instructions" role="status">${targeting ? '偵察するマスを選択してください。Escでも中止できます。' : `指定マスから半径${RECON_RADIUS}。自軍のこの手番中だけ視認します。`}</span></section>`;
 }
 export function renderControlObjective(state: GameState, scenario: ScenarioDefinition): string {
   const objective = controlObjective(scenario);
   if (!objective) return '';
-  return `<section data-ui-copy class="control-score" aria-label="拠点支配得点"><strong>拠点支配：赤 ${state.controlScores?.red ?? 0} ／ 青 ${state.controlScores?.blue ?? 0}（目標${Number(objective.target)}）</strong><details><summary>支配拠点と得点規則</summary><p>所有する各拠点につきラウンド終了時に1点。常駐は不要。同時到達は高得点側が勝利し、同点は継続します。拠点の所有と得点は両軍へ公開されます。</p><ul>${objective.positions.map((p) => `<li><button class="save-action" data-control-x="${Number(p.x)}" data-control-y="${Number(p.y)}">(${Number(p.x + 1)}, ${Number(p.y + 1)})：${state.board.terrain[p.y]![p.x]!.owner === 'red' ? '赤軍' : state.board.terrain[p.y]![p.x]!.owner === 'blue' ? '青軍' : '中立'}</button></li>`).join('')}</ul></details></section>`;
+  return `<section data-ui-copy class="control-score" aria-label="拠点支配得点"><strong>拠点支配：赤 ${state.controlScores?.red ?? 0} ／ 青 ${state.controlScores?.blue ?? 0}（目標${objective.target}）</strong><details><summary>支配拠点と得点規則</summary><p>所有する各拠点につきラウンド終了時に1点。常駐は不要。同時到達は高得点側が勝利し、同点は継続します。拠点の所有と得点は両軍へ公開されます。</p><ul>${objective.positions.map((p) => `<li><button class="save-action" data-control-x="${p.x}" data-control-y="${p.y}">(${p.x + 1}, ${p.y + 1})：${state.board.terrain[p.y]![p.x]!.owner === 'red' ? '赤軍' : state.board.terrain[p.y]![p.x]!.owner === 'blue' ? '青軍' : '中立'}</button></li>`).join('')}</ul></details></section>`;
 }
 export function renderOperationChallenges(id: string, record?: OperationRecord): string {
   if (!operationIds.has(id)) return '';
-  return `<section data-ui-copy class="operation-challenges" aria-label="追加チャレンジ"><h3>追加チャレンジ</h3><p>勝利とは別の達成課題です。能力・資金の報酬はありません。</p><ul>${OPERATION_CHALLENGES.map((challenge) => `<li class="${record?.challenges.includes(challenge) ? 'achieved' : ''}">${translateText(record?.challenges.includes(challenge) ? '✓ 達成' : record ? '未達成' : '目標')}${getLocale() === 'en' ? ': ' : '：'}${translateText(challenge === 'swift' ? `${operationTurnTarget(id)}ターン以内` : challengeNames[challenge])}</li>`).join('')}</ul>${record ? `<p>今回の記録：${Number(record.bestTurns)}ターン ／ 味方損失${Number(record.bestLosses)}</p>` : ''}</section>`;
+  return `<section data-ui-copy class="operation-challenges" aria-label="追加チャレンジ"><h3>追加チャレンジ</h3><p>勝利とは別の達成課題です。能力・資金の報酬はありません。</p><ul>${OPERATION_CHALLENGES.map((challenge) => `<li class="${record?.challenges.includes(challenge) ? 'achieved' : ''}">${translateText(record?.challenges.includes(challenge) ? '✓ 達成' : record ? '未達成' : '目標')}${getLocale() === 'en' ? ': ' : '：'}${translateText(challenge === 'swift' ? `${operationTurnTarget(id)}ターン以内` : challengeNames[challenge])}</li>`).join('')}</ul>${record ? `<p>今回の記録：${record.bestTurns}ターン ／ 味方損失${record.bestLosses}</p>` : ''}</section>`;
 }
 function setupDescription(record: OperationRecord): string {
   const loaded = loadScenarioDefinitions([JSON.parse(record.configuration)]);
@@ -39,9 +39,9 @@ function setupDescription(record: OperationRecord): string {
     .map((player) => {
       const army = scenario.initialUnits
         .filter((unit) => unit.owner === player)
-        .map((unit) => `${unitNames[unit.kind]} (${Number(unit.x + 1)},${Number(unit.y + 1)})`)
+        .map((unit) => `${unitNames[unit.kind]} (${unit.x + 1},${unit.y + 1})`)
         .join('・');
-      return `${player === 'red' ? '赤軍' : '青軍'}：開始${Number(state.players[player].gold)}G ／ ${army}`;
+      return `${player === 'red' ? '赤軍' : '青軍'}：開始${state.players[player].gold}G ／ ${army}`;
     })
     .join('\n');
 }
@@ -54,7 +54,7 @@ export function renderOperationRecords(catalog: OperationRecords | undefined, no
             .map((record, index) => {
               const current = availableScenarios().find((scenario) => scenario.id === record.scenarioId);
               const currentVersion = !!current && operationRevision(current) === record.revision;
-              return `<li><article><h3>${escapeHtml(current?.name ?? record.scenarioId)}</h3><p>${record.difficulty === 'easy' ? '易しい' : record.difficulty === 'hard' ? '難しい' : '普通'} ／ ${isDefaultOperationRecord(record) ? '標準編成' : '編成変更'} ／ ${currentVersion ? '現行作戦' : '旧作戦'} ／ ${record.ruleVersion >= 7 ? '広域偵察あり' : '旧ルール'} ／ ${getLocale() === 'en' ? (record.ruleVersion >= 10 ? 'Finite APC supplies' : 'Unlimited APC supplies') : record.ruleVersion >= 10 ? '補給車の物資：有限' : '補給車の物資：無制限'}</p><p>クリア済み・最短${Number(record.bestTurns)}ターン・最小損失${Number(record.bestLosses)}</p><p>達成：${record.challenges.length ? record.challenges.map((challenge) => escapeHtml(translateText(challengeNames[challenge]))).join(' ／ ') : '追加課題なし'}</p><details><summary>編成条件</summary><p class="record-setup">${escapeHtml(setupDescription(record))}</p></details><button class="save-action" data-record-delete="${Number(index)}">この条件の戦績を削除</button></article></li>`;
+              return `<li><article><h3>${escapeHtml(current?.name ?? record.scenarioId)}</h3><p>${record.difficulty === 'easy' ? '易しい' : record.difficulty === 'hard' ? '難しい' : '普通'} ／ ${isDefaultOperationRecord(record) ? '標準編成' : '編成変更'} ／ ${currentVersion ? '現行作戦' : '旧作戦'} ／ ${record.ruleVersion >= 7 ? '広域偵察あり' : '旧ルール'} ／ ${getLocale() === 'en' ? (record.ruleVersion >= 10 ? 'Finite APC supplies' : 'Unlimited APC supplies') : record.ruleVersion >= 10 ? '補給車の物資：有限' : '補給車の物資：無制限'}</p><p>クリア済み・最短${record.bestTurns}ターン・最小損失${record.bestLosses}</p><p>達成：${record.challenges.length ? record.challenges.map((challenge) => escapeHtml(translateText(challengeNames[challenge]))).join(' ／ ') : '追加課題なし'}</p><details><summary>編成条件</summary><p class="record-setup">${escapeHtml(setupDescription(record))}</p></details><button class="save-action" data-record-delete="${index}">この条件の戦績を削除</button></article></li>`;
             })
             .join('')}</ol>`
         : '<p>クリア記録はまだありません。</p>'

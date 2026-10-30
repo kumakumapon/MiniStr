@@ -289,3 +289,20 @@ describe('title screen (#143)', () => {
     expect(briefing(false)).not.toContain('briefing-back-to-title');
   });
 });
+
+it.each([undefined, 60, '<img data-injected="true" src="x">'] as const)('renders the briefing turn limit safely: %s', (turnLimit) => {
+  document.body.innerHTML = renderBriefingOverlay({
+    visible: true,
+    mapName: 'Map',
+    briefing: '',
+    victoryConditions: [],
+    defeatConditions: [],
+    startingGold: 1000,
+    turnLimit: turnLimit as number | undefined,
+    difficultyName: 'Normal',
+    campaignRun: false,
+  });
+  expect(document.querySelector('[data-injected]')).toBeNull();
+  const limit = document.querySelectorAll('.briefing-meta strong')[1]?.textContent;
+  expect(limit).toBe(turnLimit === undefined ? 'なし' : typeof turnLimit === 'number' ? '60' : 'NaN');
+});

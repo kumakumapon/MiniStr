@@ -8,7 +8,7 @@ export function renderSpectatorCamera(state: GameState, visible: ReadonlySet<str
   return `<div class="spectate-camera-controls" role="group" aria-label="${uiText.spectateCamera}">
     <button id="spectate-follow" class="save-action spectate-follow" aria-pressed="${follow}"><span aria-hidden="true">${follow ? '✓' : '○'}</span> ${uiText.spectateFollow}</button>
     <label class="spectate-locate">${uiText.spectateLocate}<select id="spectate-locate-unit" ${units.length ? '' : 'disabled'}>
-      <option value="">${uiText.spectateChooseUnit}</option>${units.map((unit) => `<option value="${escapeHtml(unit.id)}" ${unit.id === locatedUnitId ? 'selected' : ''}>${escapeHtml(sideName('spectate', unit.owner))} ${escapeHtml(unitNames[unit.kind])} (${Number(unit.position.x + 1)}, ${Number(unit.position.y + 1)}) · ${escapeHtml(unit.id)}</option>`).join('')}
+      <option value="">${uiText.spectateChooseUnit}</option>${units.map((unit) => `<option value="${escapeHtml(unit.id)}" ${unit.id === locatedUnitId ? 'selected' : ''}>${escapeHtml(sideName('spectate', unit.owner))} ${escapeHtml(unitNames[unit.kind])} (${Number(unit.position.x) + 1}, ${Number(unit.position.y) + 1}) · ${escapeHtml(unit.id)}</option>`).join('')}
     </select></label>
   </div>`;
 }
@@ -16,7 +16,7 @@ export function renderSpectatorCamera(state: GameState, visible: ReadonlySet<str
 /** Only offer units currently shown to the spectator, including in the fogged viewpoint. */
 export function spectatorUnits(state: GameState, visible: ReadonlySet<string>): DeployedUnit[] {
   return state.units
-    .filter((unit): unit is DeployedUnit => isDeployedUnit(unit) && visible.has(`${Number(unit.position.x)},${Number(unit.position.y)}`))
+    .filter((unit): unit is DeployedUnit => isDeployedUnit(unit) && visible.has(`${unit.position.x},${unit.position.y}`))
     .sort((a, b) => a.owner.localeCompare(b.owner) || a.id.localeCompare(b.id, 'en', { numeric: true }));
 }
 
@@ -43,7 +43,7 @@ export function spectatorActionPosition(before: GameState, after: GameState, com
 export function centerBoardOnPosition(root: ParentNode, position: Position): void {
   if (!Number.isSafeInteger(position.x) || !Number.isSafeInteger(position.y) || position.x < 0 || position.y < 0) return;
   const viewport = root.querySelector<HTMLElement>('#board-viewport');
-  const tile = viewport?.querySelector<HTMLElement>(`.tile[data-x="${Number(position.x)}"][data-y="${Number(position.y)}"]`);
+  const tile = viewport?.querySelector<HTMLElement>(`.tile[data-x="${position.x}"][data-y="${position.y}"]`);
   if (!viewport || !tile) return;
   const frame = viewport.getBoundingClientRect();
   const target = tile.getBoundingClientRect();

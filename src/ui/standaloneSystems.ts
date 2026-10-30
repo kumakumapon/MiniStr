@@ -11,7 +11,7 @@ export interface PresetView {
   notice: string;
   draftNames: Readonly<Record<string, string>>;
 }
-export const presetNameKey = (player: PlayerId, slot: number) => `${player}-${Number(slot)}`;
+export const presetNameKey = (player: PlayerId, slot: number) => `${player}-${slot}`;
 
 export function renderPresetControls(scenarioId: string, player: PlayerId, canSave: boolean, view: PresetView): string {
   if (!view.catalog)
@@ -21,8 +21,8 @@ export function renderPresetControls(scenarioId: string, player: PlayerId, canSa
   ]
     .map((slot) => {
       const preset = view.catalog!.presets.find((entry) => entry.scenarioId === scenarioId && entry.player === player && entry.slot === slot);
-      const name = view.draftNames[presetNameKey(player, slot)] ?? preset?.name ?? translateText(`編成${Number(slot + 1)}`);
-      return `<div class="preset-row"><label>プリセット${Number(slot + 1)}<input id="briefing-preset-${player}-${Number(slot)}-name" data-preset-name="${player}-${Number(slot)}" maxlength="24" value="${escapeHtml(name)}" aria-label="${player === 'red' ? '赤軍' : '青軍'}プリセット${Number(slot + 1)}の名前"></label><div class="preset-actions">${(['save', 'apply', 'delete'] as const).map((action) => `<button id="briefing-preset-${player}-${Number(slot)}-${action}" class="save-action" data-preset-action="${action}" data-preset-player="${player}" data-preset-slot="${Number(slot)}" ${(action === 'save' ? !canSave : !preset) ? 'disabled' : ''}>${action === 'save' ? (preset ? '上書き保存' : '保存') : action === 'apply' ? '適用' : '削除'}</button>`).join('')}</div></div>`;
+      const name = view.draftNames[presetNameKey(player, slot)] ?? preset?.name ?? translateText(`編成${slot + 1}`);
+      return `<div class="preset-row"><label>プリセット${slot + 1}<input id="briefing-preset-${player}-${slot}-name" data-preset-name="${player}-${slot}" maxlength="24" value="${escapeHtml(name)}" aria-label="${player === 'red' ? '赤軍' : '青軍'}プリセット${slot + 1}の名前"></label><div class="preset-actions">${(['save', 'apply', 'delete'] as const).map((action) => `<button id="briefing-preset-${player}-${slot}-${action}" class="save-action" data-preset-action="${action}" data-preset-player="${player}" data-preset-slot="${slot}" ${(action === 'save' ? !canSave : !preset) ? 'disabled' : ''}>${action === 'save' ? (preset ? '上書き保存' : '保存') : action === 'apply' ? '適用' : '削除'}</button>`).join('')}</div></div>`;
     })
     .join('')}${view.notice ? `<p data-user-copy role="status">${escapeHtml(view.notice)}</p>` : ''}</section>`;
 }
@@ -44,13 +44,13 @@ export function renderMapGenerator(form: GeneratorForm, notice: string, open: bo
 }
 
 export function reconContactLabel(contact: ReconContact): string {
-  return `${unitNames[contact.kind]}の最終確認 (${Number(contact.position.x + 1)}, ${Number(contact.position.y + 1)})・${Number(contact.turn)}ターン目${contact.phase === 'red' ? '赤軍' : '青軍'}手番。現在位置は不明`;
+  return `${unitNames[contact.kind]}の最終確認 (${contact.position.x + 1}, ${contact.position.y + 1})・${contact.turn}ターン目${contact.phase === 'red' ? '赤軍' : '青軍'}手番。現在位置は不明`;
 }
 export function renderReconMarker(contact: ReconContact): string {
-  return `<span class="recon-contact" aria-hidden="true"><b>? ${unitTokens[contact.kind]}</b><small>最終 T${Number(contact.turn)}</small></span>`;
+  return `<span class="recon-contact" aria-hidden="true"><b>? ${unitTokens[contact.kind]}</b><small>最終 T${contact.turn}</small></span>`;
 }
 export function renderReconPanel(contacts: readonly ReconContact[], showMarkers: boolean, open: boolean): string {
-  return `<details data-ui-copy id="recon-history" class="history-panel" ${open ? 'open' : ''}><summary>索敵記録：最終確認 ${contacts.length}部隊</summary><p>過去に見えた位置です。現在そこにいるとは限りません。再索敵して空になった地点の記録は消去します。</p><label><input id="recon-markers" type="checkbox" ${showMarkers ? 'checked' : ''}> 最終確認位置をマップに表示</label>${contacts.length ? `<ul class="recon-list">${contacts.map((contact) => `<li><button class="save-action" data-recon-x="${Number(contact.position.x)}" data-recon-y="${Number(contact.position.y)}">${escapeHtml(reconContactLabel(contact))}</button></li>`).join('')}</ul>` : '<p>現在の視界外になった敵の記録はありません。</p>'}</details>`;
+  return `<details data-ui-copy id="recon-history" class="history-panel" ${open ? 'open' : ''}><summary>索敵記録：最終確認 ${contacts.length}部隊</summary><p>過去に見えた位置です。現在そこにいるとは限りません。再索敵して空になった地点の記録は消去します。</p><label><input id="recon-markers" type="checkbox" ${showMarkers ? 'checked' : ''}> 最終確認位置をマップに表示</label>${contacts.length ? `<ul class="recon-list">${contacts.map((contact) => `<li><button class="save-action" data-recon-x="${contact.position.x}" data-recon-y="${contact.position.y}">${escapeHtml(reconContactLabel(contact))}</button></li>`).join('')}</ul>` : '<p>現在の視界外になった敵の記録はありません。</p>'}</details>`;
 }
 
 export type AnalysisMetric = keyof AnalysisSide;
@@ -61,13 +61,13 @@ export function renderBattleAnalysis(analysis: BattleAnalysis | undefined, metri
   const samples = analysis.samples;
   const max = Math.max(1, ...samples.flatMap((sample) => [sample.red[metric], sample.blue[metric]]));
   const points = (player: PlayerId) =>
-    samples.map((sample, index) => `${Number(16 + (index * 288) / Math.max(1, samples.length - 1))},${124 - (sample[player][metric] * 108) / max}`).join(' ');
-  return `<details data-ui-copy id="battle-analysis" class="history-panel" ${open ? 'open' : ''}><summary>観戦分析：兵力・収入・損失</summary><p>全体視点の情報です。各ターン最後の記録を最大256ターン表示し、現在のターンは途中経過です。撤退・合流は損失に数えません。</p><label>表示項目<select id="analysis-metric">${ANALYSIS_METRICS.map((value) => `<option value="${value}" ${value === metric ? 'selected' : ''}>${labels[value]}</option>`).join('')}</select></label><svg class="analysis-chart" data-analysis-metric="${metric}" viewBox="0 0 320 145" role="img" aria-label="${labels[metric]}の推移。実線は赤軍、破線は青軍。数値は下の表を参照"><path d="M16 16V124H304" stroke="currentColor" fill="none"/><polyline points="${points('red')}" fill="none" stroke="#ff9393" stroke-width="3"/><polyline points="${points('blue')}" fill="none" stroke="#8bc9ff" stroke-width="3" stroke-dasharray="6 3"/><text x="16" y="140">T${samples[0]?.turn ?? 0}</text><text x="275" y="140">T${samples.at(-1)?.turn ?? 0}</text></svg><div class="analysis-table-wrap"><table><caption>${labels[metric]}：赤軍／青軍</caption><thead><tr><th>ターン</th><th>赤軍（実線）</th><th>青軍（破線）</th></tr></thead><tbody>${samples.map((sample) => `<tr><th>${Number(sample.turn)}</th><td>${Number(sample.red[metric])}</td><td>${Number(sample.blue[metric])}</td></tr>`).join('')}</tbody></table></div><h4>直近のターン要約</h4><ol class="analysis-summary">${analysis.summaries
+    samples.map((sample, index) => `${16 + (index * 288) / Math.max(1, samples.length - 1)},${124 - (sample[player][metric] * 108) / max}`).join(' ');
+  return `<details data-ui-copy id="battle-analysis" class="history-panel" ${open ? 'open' : ''}><summary>観戦分析：兵力・収入・損失</summary><p>全体視点の情報です。各ターン最後の記録を最大256ターン表示し、現在のターンは途中経過です。撤退・合流は損失に数えません。</p><label>表示項目<select id="analysis-metric">${ANALYSIS_METRICS.map((value) => `<option value="${value}" ${value === metric ? 'selected' : ''}>${labels[value]}</option>`).join('')}</select></label><svg class="analysis-chart" data-analysis-metric="${metric}" viewBox="0 0 320 145" role="img" aria-label="${labels[metric]}の推移。実線は赤軍、破線は青軍。数値は下の表を参照"><path d="M16 16V124H304" stroke="currentColor" fill="none"/><polyline points="${points('red')}" fill="none" stroke="#ff9393" stroke-width="3"/><polyline points="${points('blue')}" fill="none" stroke="#8bc9ff" stroke-width="3" stroke-dasharray="6 3"/><text x="16" y="140">T${samples[0]?.turn ?? 0}</text><text x="275" y="140">T${samples.at(-1)?.turn ?? 0}</text></svg><div class="analysis-table-wrap"><table><caption>${labels[metric]}：赤軍／青軍</caption><thead><tr><th>ターン</th><th>赤軍（実線）</th><th>青軍（破線）</th></tr></thead><tbody>${samples.map((sample) => `<tr><th>${sample.turn}</th><td>${sample.red[metric]}</td><td>${sample.blue[metric]}</td></tr>`).join('')}</tbody></table></div><h4>直近のターン要約</h4><ol class="analysis-summary">${analysis.summaries
     .slice(-8)
     .reverse()
     .map(
       (summary) =>
-        `<li>T${Number(summary.turn)}：攻撃${Number(summary.attacks)}・生産${Number(summary.produced)}・占領${Number(summary.captured)}・撤退${Number(summary.evacuated)}・損失 赤${Number(summary.losses.red)}／青${Number(summary.losses.blue)}</li>`,
+        `<li>T${summary.turn}：攻撃${summary.attacks}・生産${summary.produced}・占領${summary.captured}・撤退${summary.evacuated}・損失 赤${summary.losses.red}／青${summary.losses.blue}</li>`,
     )
     .join('')}</ol></details>`;
 }

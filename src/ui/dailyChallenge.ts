@@ -5,7 +5,7 @@ const seaNames = { none: '海域なし', coast: '海域少なめ', ocean: '海�
 const presetNames = { standard: '標準', frontline: '前線補給・工兵' } as const;
 
 /** Board size as shown elsewhere (`W×H`): generated boards are `size x (size - 4)`. */
-export const dailyBoardLabel = (size: number): string => `${Number(size)}×${size - 4}`;
+export const dailyBoardLabel = (size: number): string => `${size}×${size - 4}`;
 
 export interface DailyCardView {
   conditions: DailyConditions;
@@ -20,7 +20,7 @@ export interface DailyCardView {
 function facts(conditions: DailyConditions): string {
   return `<dl class="daily-facts"><div><dt>識別子</dt><dd><code class="daily-code">${escapeHtml(conditions.code)}</code></dd></div><div><dt>盤面</dt><dd>${dailyBoardLabel(conditions.size)}</dd></div><div><dt>海域</dt><dd>${seaNames[conditions.sea]}</dd></div><div><dt>種別</dt><dd>${presetNames[conditions.preset]}</dd></div></dl>`;
 }
-const bestText = (record: Pick<DailyRecord, 'bestTurns' | 'bestLosses'>): string => `最短${Number(record.bestTurns)}ターン・損失${Number(record.bestLosses)}`;
+const bestText = (record: Pick<DailyRecord, 'bestTurns' | 'bestLosses'>): string => `最短${record.bestTurns}ターン・損失${record.bestLosses}`;
 
 /** The title's "today's battlefield" card. It deliberately does not reuse `.title-map-card`. */
 export function renderDailyCard(view: DailyCardView): string {

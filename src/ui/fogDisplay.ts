@@ -32,5 +32,5 @@ export function observedCapturePoints(tile: Terrain, visible: boolean): number |
 }
 
 export function capturePointsLabel(value: number | 'unknown'): string {
-  return value === 'unknown' ? (getLocale() === 'en' ? 'Unknown' : '不明') : `${value}`;
+  return value === 'unknown' ? (getLocale() === 'en' ? 'Unknown' : '不明') : `${Number(value)}`;
 }
