@@ -428,7 +428,7 @@ function objectiveProgress(condition: VictoryCondition, state: GameState, player
 
 function objectiveList(conditions: readonly VictoryCondition[], state: GameState, player: PlayerId): string {
   if (conditions.length === 0) return '<li><span>条件なし</span></li>';
-  return conditions.map(condition => `<li><span>${escapeHtml(conditionDescription(condition))}${condition.type === 'hold' || condition.type === 'control' || isEvacuationCondition(condition) ? ` (${condition.positions.map(position => `${position.x + 1}, ${position.y + 1}`).join(' / ')})` : ''}</span><strong>${escapeHtml(objectiveProgress(condition, state, player))}</strong></li>`).join('');
+  return conditions.map(condition => `<li><span>${escapeHtml(conditionDescription(condition))}${condition.type === 'hold' || condition.type === 'control' || isEvacuationCondition(condition) ? ` (${condition.positions.map(position => `${Number(position.x) + 1}, ${Number(position.y) + 1}`).join(' / ')})` : ''}</span><strong>${escapeHtml(objectiveProgress(condition, state, player))}</strong></li>`).join('');
 }
 
 
@@ -625,7 +625,7 @@ function recordVisibleCpuAction(before: GameState, command: GameCommand): void {
   } else if (command.type === 'destroyBridge') {
     entry = getLocale() === 'en' ? 'A temporary bridge was destroyed (public information).' : '仮設橋が破壊されました（公開情報）。';
   } else if (command.type === 'bridge') {
-    entry = `(${command.destination.x + 1}, ${command.destination.y + 1}) に仮設橋が完成しました（公開情報）。`;
+    entry = `(${Number(command.destination.x) + 1}, ${Number(command.destination.y) + 1}) に仮設橋が完成しました（公開情報）。`;
   } else if (command.type === 'fortify') {
     const actor = visibleUnit(command.unitId);
     entry = actor ? '敵の工兵が視認範囲内に陣地を設営しました。' : undefined;
@@ -1087,7 +1087,7 @@ function render(): void {
     const ammoEmpty = unit && !hidden && unit.owner === me && unitStats[unit.kind].ammo > 0 && !hasUsableWeapon(renderedGame, unit, false);
     const ammoWarning = ammoEmpty ? `、${uiText.ammoEmpty}` : '';
     const rank = unit ? experienceRank(unit.experience) : 0;
-    const unitLabel = translateGameText(unit && !hidden ? `${sideName(matchMode, unit.owner)}の${unitNames[unit.kind]}${rank ? `（${rankNames[rank]}）` : ''}、耐久 ${unit.hp}${cargo ? `、搭載 ${unitNames[cargo.kind]}` : ''}${fuelWarning}${ammoWarning}` : '');
+    const unitLabel = escapeHtml(translateGameText(unit && !hidden ? `${sideName(matchMode, unit.owner)}の${unitNames[unit.kind]}${rank ? `（${rankNames[rank]}）` : ''}、耐久 ${unit.hp}${cargo ? `、搭載 ${unitNames[cargo.kind]}` : ''}${fuelWarning}${ammoWarning}` : ''));
     const label = unit && !hidden
       ? `<span class="unit ${unit.owner} unit-${unit.kind}" aria-hidden="true"><span class="unit-art"></span><small>${unit.hp}</small><em>${unitNames[unit.kind]}${cargo ? `・${unitNames[cargo.kind]}搭載` : ''}</em><i class="unit-owner-marker">${unit.owner === me ? '自' : '敵'}</i>${cargo ? '<i class="cargo-marker">積</i>' : ''}${rank ? `<i class="rank-marker">${rankStars(rank)}</i>` : ''}${fuelWarning ? `<i class="fuel-warning">燃${fuelTurns}</i>` : ''}${ammoEmpty ? `<i class="ammo-warning">${uiText.ammo}0</i>` : ''}</span>`
       : contact ? renderReconMarker(contact) : '';
@@ -1118,7 +1118,7 @@ function render(): void {
       hidden ? '未索敵' : '',
     ].filter(Boolean).map(translateText);
     const stateMarker = `${exitPositions.has(`${x},${y}`) ? '<span class="objective-marker evacuation-exit" aria-hidden="true">脱</span>' : objectivePositions.has(`${x},${y}`) ? '<span class="objective-marker" aria-hidden="true">目</span>' : ''}${unit && !hidden && missionTargets.has(unit.id) ? '<span class="mission-unit-marker" aria-hidden="true">任</span>' : ''}${isSelected ? '<span class="tile-state-marker selected-marker" aria-hidden="true">選</span>' : ''}${isReachable ? '<span class="tile-state-marker reachable-marker" aria-hidden="true">移</span>' : ''}${productionReady ? '<span class="tile-state-marker facility-ready-marker" aria-hidden="true">産</span>' : ''}${enemyMovement ? '<span class="tile-state-marker enemy-move-marker" aria-hidden="true">敵移</span>' : ''}${(enemyAttack || movementDanger) ? '<span class="tile-state-marker danger-marker" aria-hidden="true">危</span>' : ''}`;
-    return `<button data-ui-copy ${!canAct ? 'disabled' : ''} class="tile ${!replayMode && matchMode === 'spectate' && spectateLastAction && key(spectateLastAction) === `${x},${y}` ? 'spectate-current' : ''} ${terrain.kind} ${bridgeTargets.has(`${x},${y}`) ? 'bridge-target' : ''} ${supplyTiles.has(`${x},${y}`) ? 'supply-coverage' : ''} ${isSelected ? 'selected' : ''} ${isReachable ? 'reachable' : ''} ${enemyMovement ? 'enemy-move-zone' : ''} ${enemyAttack ? 'enemy-attack-zone' : ''} ${movementDanger ? 'movement-danger' : ''} ${isFacilityTarget ? 'facility-target' : ''} ${hidden ? 'fog' : ''}" data-x="${x}" data-y="${y}" data-terrain="${terrain.kind}" tabindex="${focusedPosition.x === x && focusedPosition.y === y ? '0' : '-1'}" title="${propertyLabel}${unitLabel ? ` — ${unitLabel}` : ''}${statuses.length ? ` — ${statuses.join('、')}` : ''}" aria-label="${propertyLabel}${hasBridge(renderedGame, { x, y }) ? '、仮設橋（位置は公開）' : ''}${bridgeTargets.has(`${x},${y}`) ? '、架橋可能' : ''}${unitLabel ? `、${unitLabel}` : ''}${supplyTiles.has(`${x},${y}`) ? '、自軍補給範囲' : ''}${!hidden && renderedGame.fortifications?.some(site => key(site.position) === `${x},${y}`) ? '、防御陣地' : ''}${statuses.length ? `、${statuses.join('、')}` : ''}">${terrainArt}${bridgeMarker(renderedGame, { x, y })}${stateMarker}${fortificationAt(renderedGame, { x, y }, visible)}${facility}${label}</button>`;
+    return `<button data-ui-copy ${!canAct ? 'disabled' : ''} class="tile ${!replayMode && matchMode === 'spectate' && spectateLastAction && key(spectateLastAction) === `${x},${y}` ? 'spectate-current' : ''} ${terrain.kind} ${bridgeTargets.has(`${x},${y}`) ? 'bridge-target' : ''} ${supplyTiles.has(`${x},${y}`) ? 'supply-coverage' : ''} ${isSelected ? 'selected' : ''} ${isReachable ? 'reachable' : ''} ${enemyMovement ? 'enemy-move-zone' : ''} ${enemyAttack ? 'enemy-attack-zone' : ''} ${movementDanger ? 'movement-danger' : ''} ${isFacilityTarget ? 'facility-target' : ''} ${hidden ? 'fog' : ''}" data-x="${x}" data-y="${y}" data-terrain="${terrain.kind}" tabindex="${focusedPosition.x === x && focusedPosition.y === y ? '0' : '-1'}" title="${propertyLabel}${unitLabel ? ` — ${unitLabel}` : ''}${statuses.length ? ` — ${escapeHtml(statuses.join('、'))}` : ''}" aria-label="${propertyLabel}${hasBridge(renderedGame, { x, y }) ? '、仮設橋（位置は公開）' : ''}${bridgeTargets.has(`${x},${y}`) ? '、架橋可能' : ''}${unitLabel ? `、${unitLabel}` : ''}${supplyTiles.has(`${x},${y}`) ? '、自軍補給範囲' : ''}${!hidden && renderedGame.fortifications?.some(site => key(site.position) === `${x},${y}`) ? '、防御陣地' : ''}${statuses.length ? `、${escapeHtml(statuses.join('、'))}` : ''}">${terrainArt}${bridgeMarker(renderedGame, { x, y })}${stateMarker}${fortificationAt(renderedGame, { x, y }, visible)}${facility}${label}</button>`;
   })).join('');
   const ownUnitCount = renderedGame.units.filter(unit => unit.owner === me).length;
   const ownUnitLimit = usesDecisionRules(renderedGame) ? unitLimit(renderedGame.board, renderedGame.ruleVersion) : undefined;
@@ -1133,14 +1133,14 @@ function render(): void {
     const missing = Math.max(0, cost - renderedGame.players[me].gold);
     const productionTerrain = (['port', 'airport', 'factory'] as const).find(terrain => productionKindsForRule(productionRule, renderedGame.ruleVersion)[terrain]?.includes(kind));
     const facilityName = terrainNames[facility?.kind ?? productionTerrain ?? 'factory'];
-    const where = buildable ? `${facilityName} (${facility.position.x + 1}, ${facility.position.y + 1})` : facilityName;
+    const where = buildable ? `${facilityName} (${Number(facility.position.x) + 1}, ${Number(facility.position.y) + 1})` : facilityName;
     const availability = atUnitLimit ? '部隊数が上限です' : !buildable ? '生産可能な空き施設がありません' : !affordable ? `資金不足（あと ${missing}G）` : '生産可能';
-    return `<button data-ui-copy class="produce produce-${kind}" data-kind="${kind}" ${!canAct || atUnitLimit || !buildable || !affordable ? 'disabled' : ''} title="${where}で${unitNames[kind]}を生産 (${cost}G) — ${unitWeaponName(kind, renderedGame)}・${uiText.ammoCapacity} ${weaponsForUnit(kind, renderedGame).map(weapon => weapon.ammo).join(' / ')} — ${availability}" aria-label="${where}で${unitNames[kind]}を${cost}ゴールドで生産、${availability}"><span aria-hidden="true">${unitTokens[kind]}</span>${unitNames[kind]} <em>${cost}G</em>${!affordable ? ` <small>資金不足（あと ${missing}G）</small>` : ''}</button>`;
+    return `<button data-ui-copy class="produce produce-${kind}" data-kind="${kind}" ${!canAct || atUnitLimit || !buildable || !affordable ? 'disabled' : ''} title="${escapeHtml(where)}で${unitNames[kind]}を生産 (${cost}G) — ${unitWeaponName(kind, renderedGame)}・${uiText.ammoCapacity} ${weaponsForUnit(kind, renderedGame).map(weapon => weapon.ammo).join(' / ')} — ${availability}" aria-label="${escapeHtml(where)}で${unitNames[kind]}を${cost}ゴールドで生産、${availability}"><span aria-hidden="true">${unitTokens[kind]}</span>${unitNames[kind]} <em>${cost}G</em>${!affordable ? ` <small>資金不足（あと ${missing}G）</small>` : ''}</button>`;
   }).join('');
   const productionLauncher = `<button id="open-production" class="save-action production-launcher" ${!canAct || !idleFacilities.length || atUnitLimit ? 'disabled' : ''}>ユニット生産 <span>${idleFacilities.length}施設</span></button>`;
   const productionSummary = `<p data-ui-copy class="production-summary">空き生産施設 <strong>${idleFacilities.length}</strong> / ${countProductionFacilities(renderedGame, me, productionRule)}${ownUnitLimit !== undefined ? `・部隊数 <strong>${ownUnitCount}</strong> / ${ownUnitLimit}` : ''}</p>`;
   const productionTargetLine = targetFacility
-    ? `<p class="production-target">生産先 <strong>${terrainNames[targetFacility.kind]} (${targetFacility.position.x + 1}, ${targetFacility.position.y + 1})</strong><button id="clear-production-facility" class="save-action">自動選択</button></p>`
+    ? `<p class="production-target">生産先 <strong>${escapeHtml(terrainNames[targetFacility.kind])} (${Number(targetFacility.position.x) + 1}, ${Number(targetFacility.position.y) + 1})</strong><button id="clear-production-facility" class="save-action">自動選択</button></p>`
     : '<p class="production-target">生産先 <strong>自動選択</strong>（盤面の「産」マスを選ぶと指定できます）</p>';
   const productionOverlay = productionMenuOpen && canAct ? renderProductionMenu({
     facilities: idleFacilities, target: targetFacility?.position, funds: renderedGame.players[me].gold,
@@ -1159,7 +1159,7 @@ function render(): void {
       && isMergeableUnit(unit.kind) && !unit.hasActed && adjacent(selectedUnit.position, unit.position))
     : [];
   const mergeAction = mergeTargets.length > 0
-    ? `<section class="capture-card merge-card"><p class="card-kicker">UNIT ACTION</p><strong>${unitNames[selectedUnit!.kind]}を合流</strong><span>隣接する同種部隊を1部隊にまとめます。耐久・補給値を合算し、選択中の部隊が行動済みになります。</span>${mergeTargets.map(unit => `<button class="merge" data-target-id="${escapeHtml(unit.id)}">${unitNames[unit.kind]}（${unit.position!.x + 1}, ${unit.position!.y + 1}）と合流</button>`).join('')}</section>`
+    ? `<section class="capture-card merge-card"><p class="card-kicker">UNIT ACTION</p><strong>${unitNames[selectedUnit!.kind]}を合流</strong><span>隣接する同種部隊を1部隊にまとめます。耐久・補給値を合算し、選択中の部隊が行動済みになります。</span>${mergeTargets.map(unit => `<button class="merge" data-target-id="${escapeHtml(unit.id)}">${unitNames[unit.kind]}（${Number(unit.position!.x) + 1}, ${Number(unit.position!.y) + 1}）と合流</button>`).join('')}</section>`
     : '';
   const selectedUnitActions = renderUnitActionCluster([captureAction, waitAction, mergeAction]);
   const embarkTargets = selectedUnit?.owner === renderedGame.activePlayer && isDeployedUnit(selectedUnit) && isEmbarkableUnit(selectedUnit.kind) && !selectedUnit.hasActed
@@ -1177,7 +1177,7 @@ function render(): void {
       })
     : [];
   const transportAction = !replayMode && (embarkTargets.length || cargo)
-    ? `<section class="transport-card"><p class="card-kicker">TRANSPORT OPERATION</p><strong>${cargo ? `${unitNames[cargo.kind]}を搭載中` : '輸送部隊への搭載'}</strong><span>${cargo ? '隣接する空の陸地を選んで降車させます。' : '隣接する空の輸送部隊を選んで搭載します。'}</span>${embarkTargets.map(unit => `<button class="transport-action embark" data-transport-id="${unit.id}">${unitNames[unit.kind]}に搭載</button>`).join('')}${landingTargets.map(position => `<button class="transport-action disembark" data-x="${position.x}" data-y="${position.y}">(${position.x + 1}, ${position.y + 1}) に降車</button>`).join('')}${cargo && landingTargets.length === 0 ? '<em class="transport-note">降車できる隣接陸地がありません。</em>' : ''}</section>`
+    ? `<section class="transport-card"><p class="card-kicker">TRANSPORT OPERATION</p><strong>${cargo ? `${unitNames[cargo.kind]}を搭載中` : '輸送部隊への搭載'}</strong><span>${cargo ? '隣接する空の陸地を選んで降車させます。' : '隣接する空の輸送部隊を選んで搭載します。'}</span>${embarkTargets.map(unit => `<button class="transport-action embark" data-transport-id="${escapeHtml(unit.id)}">${unitNames[unit.kind]}に搭載</button>`).join('')}${landingTargets.map(position => `<button class="transport-action disembark" data-x="${Number(position.x)}" data-y="${Number(position.y)}">(${Number(position.x) + 1}, ${Number(position.y) + 1}) に降車</button>`).join('')}${cargo && landingTargets.length === 0 ? '<em class="transport-note">降車できる隣接陸地がありません。</em>' : ''}</section>`
     : '';
   const evacuationAction = !replayMode && selectedUnit?.owner === me && isEvacuationTarget(renderedGame, selectedUnit.id, me)
     ? `<section class="transport-card evacuation-card"><p class="card-kicker">撤退操作</p><strong>作戦対象 ${escapeHtml(selectedUnit.id)}</strong><p>脱出地点「脱」へ移動し、未行動の状態で撤退してください。搭載部隊は先に降車させます。</p><button id="evacuate-unit" class="end-turn" ${canAct && canEvacuateUnit(renderedGame, selectedUnit.id) ? '' : 'disabled'}>脱出地点から撤退</button></section>` : '';
@@ -1228,7 +1228,7 @@ function render(): void {
   const decisionPanel = renderedDecisionRound === undefined ? '' : `<div class="objective-group decision"><h3>判定</h3><ul><li><span>${escapeHtml(uiText.decisionRule(renderedDecisionRound))}</span><strong>拠点 ${decisionStanding(renderedGame, me).properties} 対 ${decisionStanding(renderedGame, foe).properties}・残り ${Math.max(0, renderedDecisionRound - renderedGame.turn + 1)}</strong></li></ul></div>`;
   const objectivePanel = `<section class="objective-card" aria-labelledby="objective-title"><div class="objective-heading"><div><p class="card-kicker">MISSION</p><h2 id="objective-title">作戦目標</h2></div>${remainingTurns !== undefined ? `<span class="turn-limit"><strong>${remainingTurns}</strong> 残りターン</span>` : renderedDecisionRound !== undefined ? `<span class="turn-limit"><strong>${Math.max(0, renderedDecisionRound - renderedGame.turn + 1)}</strong> 判定まで</span>` : `<span class="turn-limit unlimited">制限なし</span>`}</div><div class="objective-group victory"><h3>勝利条件</h3><ul>${me === 'red' ? objectiveList(renderedMap.victoryConditions, renderedGame, 'red') : objectiveList(renderedMap.defeatConditions, renderedGame, 'blue')}</ul></div><div class="objective-group defeat"><h3>敗北条件</h3><ul>${me === 'red' ? objectiveList(renderedMap.defeatConditions, renderedGame, 'blue') : objectiveList(renderedMap.victoryConditions, renderedGame, 'red')}</ul></div>${decisionPanel}${campaignRun ? `<details class="campaign-orders"><summary>作戦指令・補給方針</summary><p data-user-content>${escapeHtml(scenarioDisplayBriefing(renderedMap))}</p></details>` : ''}</section>`;
   const unactedUnits = !replayMode && canAct ? unactedOwnUnits(renderedGame, me) : [];
-  const unitQueuePanel = !replayMode ? `<section class="unit-queue-card" aria-labelledby="unit-queue-title"><div><p class="card-kicker">UNIT STATUS</p><h2 id="unit-queue-title">未行動部隊 <strong>${unactedUnits.length}</strong></h2></div>${unactedUnits.length ? `<ol>${unactedUnits.map(unit => `<li><button class="unit-queue-item" data-unit-id="${unit.id}" aria-label="${unitNames[unit.kind]}、耐久 ${unit.hp}、マス ${unit.position.x + 1}、${unit.position.y + 1} を選択"><span class="${unit.owner}" aria-hidden="true">${unitTokens[unit.kind]}</span>${unitNames[unit.kind]} <em>${unit.hp}</em></button></li>`).join('')}</ol><button id="next-unit" class="save-action" ${canAct ? '' : 'disabled'}>次の未行動部隊 <kbd>N</kbd></button>` : '<p class="unit-queue-empty">未行動の自軍ユニットはありません。</p>'}</section>` : '';
+  const unitQueuePanel = !replayMode ? `<section class="unit-queue-card" aria-labelledby="unit-queue-title"><div><p class="card-kicker">UNIT STATUS</p><h2 id="unit-queue-title">未行動部隊 <strong>${unactedUnits.length}</strong></h2></div>${unactedUnits.length ? `<ol>${unactedUnits.map(unit => `<li><button class="unit-queue-item" data-unit-id="${escapeHtml(unit.id)}" aria-label="${unitNames[unit.kind]}、耐久 ${unit.hp}、マス ${Number(unit.position.x) + 1}、${Number(unit.position.y) + 1} を選択"><span class="${unit.owner}" aria-hidden="true">${unitTokens[unit.kind]}</span>${unitNames[unit.kind]} <em>${unit.hp}</em></button></li>`).join('')}</ol><button id="next-unit" class="save-action" ${canAct ? '' : 'disabled'}>次の未行動部隊 <kbd>N</kbd></button>` : '<p class="unit-queue-empty">未行動の自軍ユニットはありません。</p>'}</section>` : '';
   // Phones put the command panel a long scroll below the board, so the actions a
   // turn actually needs stay reachable in a bar fixed to the bottom of the screen.
   const mobileActionBar = !replayMode
@@ -1830,7 +1830,7 @@ function render(): void {
       const shrinking = width < currentWidth || height < currentHeight;
       if (shrinking && !window.confirm(translateText('範囲外の地形と部隊を削除してサイズを変更しますか？元に戻せます。'))) return;
       const cropped = editor.data.victoryConditions.flatMap(condition => condition.type === 'hold' || condition.type === 'control' || isEvacuationCondition(condition)
-        ? condition.positions.filter(position => position.x >= width || position.y >= height).map(position => `(${position.x + 1}, ${position.y + 1})`)
+        ? condition.positions.filter(position => position.x >= width || position.y >= height).map(position => `(${Number(position.x) + 1}, ${Number(position.y) + 1})`)
         : []);
       commitEditor(resizeEditor(editor, width, height));
       editorNotice = cropped.length ? `盤面外になる保持目標があります: ${cropped.join('、')}。勝利条件を修正してください。` : shrinking ? '盤面を縮小しました。範囲外の地形と部隊は削除されました。' : '盤面サイズを変更しました。';
@@ -1963,13 +1963,13 @@ function render(): void {
       const facility = chosen ?? facilities.find(candidate => candidate.kinds.includes(kind));
       if (!facility || !facility.kinds.includes(kind)) {
         message = chosen
-          ? `${terrainNames[chosen.kind]} (${chosen.position.x + 1}, ${chosen.position.y + 1}) では${unitNames[kind]}を生産できません。`
+          ? `${terrainNames[chosen.kind]} (${Number(chosen.position.x) + 1}, ${Number(chosen.position.y) + 1}) では${unitNames[kind]}を生産できません。`
           : '生産可能な空き施設がありません。';
         render();
         return;
       }
       if (dispatch({ type: 'produce', factory: { ...facility.position }, kind }, true)) {
-        message = `${terrainNames[facility.kind]} (${facility.position.x + 1}, ${facility.position.y + 1}) で${unitNames[kind]}を生産しました。`;
+        message = `${terrainNames[facility.kind]} (${Number(facility.position.x) + 1}, ${Number(facility.position.y) + 1}) で${unitNames[kind]}を生産しました。`;
         // The new unit occupies the facility, so the chosen target is spent.
         const remaining = idleProductionFacilities(game, viewer(), selectedMap.productionRules);
         const next = remaining.find(candidate => candidate.kinds.includes(kind)) ?? remaining[0];
@@ -2269,7 +2269,7 @@ function act(position: Position): void {
   }
   if (reconTargeting) {
     const applied = dispatch({ type: 'recon', center: position }, true);
-    if (applied) { reconTargeting = false; message = `(${position.x + 1}, ${position.y + 1}) の周辺を、この手番中だけ偵察します。`; }
+    if (applied) { reconTargeting = false; message = `(${Number(position.x) + 1}, ${Number(position.y) + 1}) の周辺を、この手番中だけ偵察します。`; }
     render(); return;
   }
   const me = viewer();

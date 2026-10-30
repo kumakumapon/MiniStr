@@ -49,6 +49,38 @@ function input(selector: string, value: string) {
 afterEach(() => dom?.window.close());
 
 describe('distributed application boundaries', () => {
+  it('rejects a saved unit ID containing markup before it reaches the board', () => {
+    const data: Record<string, string> = {};
+    const storage: StorageLike = {
+      getItem: (key) => data[key] ?? null,
+      setItem: (key, value) => {
+        data[key] = value;
+      },
+      removeItem: (key) => {
+        delete data[key];
+      },
+    };
+    const initialState = createScenarioInitialState(maps[0]!);
+    valueOf(
+      saveGameToSlot(storage, 'html-safe', 'HTML boundary', {
+        mapId: maps[0]!.id,
+        difficulty: 'normal',
+        initialState,
+        gameState: initialState,
+        commands: [],
+      }),
+    );
+    const id = initialState.units.find((unit) => unit.owner === 'red')!.id;
+    for (const key of Object.keys(data)) data[key] = data[key]!.replaceAll(JSON.stringify(id), JSON.stringify('r1"><img data-injected="true" src="x">'));
+    const document = launch({ storage: data });
+    expect(document.querySelector('.load-save-slot[data-save-slot="html-safe"]')?.hasAttribute('disabled')).toBe(true);
+    expect(document.querySelector('[data-injected]')).toBeNull();
+    click('#title-training');
+    click('#begin-operation');
+    expect(document.querySelectorAll('.board .tile').length).toBeGreaterThan(0);
+    expect(document.querySelector('[data-injected]')).toBeNull();
+  });
+
   it('shares title zoom with operations, resume and board buttons, rejecting invalid values', () => {
     const document = launch();
     const titleZoom = () => (document.querySelector('#title-board-zoom') as HTMLSelectElement).value;
