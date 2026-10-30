@@ -103,5 +103,5 @@ export function renderFrontlineControls(state: GameState, viewer: PlayerId, sele
 export function fortificationAt(state: GameState, position: Position, visible: ReadonlySet<string>): string {
   if (!usesFrontlineRules(state) || !visible.has(`${position.x},${position.y}`) || terrainAt(state.board, position)?.kind !== 'plain') return '';
   const site = state.fortifications?.find((candidate) => candidate.position.x === position.x && candidate.position.y === position.y);
-  return site ? `<span class="fortification-marker ${site.owner}" aria-hidden="true">陣</span>` : '';
+  return site ? `<span class="fortification-marker ${escapeHtml(site.owner)}" aria-hidden="true">陣</span>` : '';
 }
