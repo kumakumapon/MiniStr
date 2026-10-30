@@ -447,7 +447,7 @@ function renderTileInspector(state: GameState, productionRule: ProductionRule): 
   const inspection = inspectTile(state, focusedPosition, me, visible,
     selectedUnit?.owner === me && isDeployedUnit(selectedUnit) ? selectedUnit.kind : undefined, productionRule);
   const body = inspection
-    ? `<div class="tile-inspector-head"><div><p class="card-kicker">TILE INTEL</p><h3 id="tile-inspector-title">${escapeHtml(inspection.title)}</h3></div><span class="tile-inspector-coordinate">(${inspection.position.x + 1}, ${inspection.position.y + 1})</span></div><p class="tile-inspector-summary visually-hidden" aria-live="polite">${escapeHtml(describeTileInspection(inspection))}</p>${inspectorRows(inspection.rows)}${inspection.unit ? `<div class="tile-inspector-unit"><h4>${escapeHtml(inspection.unit.title)}</h4>${inspectorRows(inspection.unit.rows)}</div>` : ''}${inspection.hidden ? '<p class="tile-inspector-fog">未索敵のマスです。ユニットを近づけて視界を広げてください。</p>' : ''}`
+    ? `<div class="tile-inspector-head"><div><p class="card-kicker">TILE INTEL</p><h3 id="tile-inspector-title">${escapeHtml(inspection.title)}</h3></div><span class="tile-inspector-coordinate">(${Number(inspection.position.x) + 1}, ${Number(inspection.position.y) + 1})</span></div><p class="tile-inspector-summary visually-hidden" aria-live="polite">${escapeHtml(describeTileInspection(inspection))}</p>${inspectorRows(inspection.rows)}${inspection.unit ? `<div class="tile-inspector-unit"><h4>${escapeHtml(inspection.unit.title)}</h4>${inspectorRows(inspection.unit.rows)}</div>` : ''}${inspection.hidden ? '<p class="tile-inspector-fog">未索敵のマスです。ユニットを近づけて視界を広げてください。</p>' : ''}`
     : '<div class="tile-inspector-head"><div><p class="card-kicker">TILE INTEL</p><h3 id="tile-inspector-title">マスを選択してください</h3></div></div>';
   return `<section data-ui-copy class="tile-inspector" aria-labelledby="tile-inspector-title">${body}</section>`;
 }
@@ -1066,6 +1066,7 @@ function render(): void {
   const supplyTiles = showSupplyRange ? supplyRange(renderedGame, me, selected) : new Set<string>();
   const unitsByPosition = new Map(renderedGame.units.filter(isDeployedUnit).map(unit => [key(unit.position), unit]));
   const cargoByTransport = new Map(renderedGame.units.filter(unit => unit.embarkedIn !== undefined).map(unit => [unit.embarkedIn!, unit]));
+  const terrainArtwork = new Map<TerrainKind, string>();
   const board = boardCovered ? '' : renderedGame.board.terrain.flatMap((row, y) => row.map((terrain, x) => {
     const unit = unitsByPosition.get(`${x},${y}`);
     const hidden = !visible.has(`${x},${y}`);
@@ -1075,7 +1076,7 @@ function render(): void {
     const propertyOwner = isProperty ? terrain.owner : undefined;
     const capturePoints = observedCapturePoints(terrain, !hidden);
     const facilityDetail = translateText(terrain.kind === 'supplyDepot' ? '、周囲の地上部隊を補給（修理・収入・生産なし）' : terrain.kind === 'port' ? '、補給・艦艇を生産可能' : terrain.kind === 'airport' ? '、補給・航空ユニットを生産可能' : terrain.kind === 'factory' ? '、補給・地上ユニット生産拠点' : '');
-    const propertyLabel = renderMemo.get(renderedGame, `terrain-label:${getLocale()}:${me}:${terrain.kind}:${propertyOwner}:${capturePoints}`, () => translateGameText(isProperty ? `${terrainName}${propertyOwner ? `（${propertyOwner === me ? '自軍' : '敵軍'}）` : '（中立）'}${capturePoints !== undefined ? `、占領値 ${capturePointsLabel(capturePoints)}` : ''}${facilityDetail}` : terrainName));
+    const propertyLabel = escapeHtml(renderMemo.get(renderedGame, `terrain-label:${getLocale()}:${me}:${terrain.kind}:${propertyOwner}:${capturePoints}`, () => translateGameText(isProperty ? `${terrainName}${propertyOwner ? `（${propertyOwner === me ? '自軍' : '敵軍'}）` : '（中立）'}${capturePoints !== undefined ? `、占領値 ${capturePointsLabel(capturePoints)}` : ''}${facilityDetail}` : terrainName)));
     const cargo = unit && transportCapacity(unit.kind) > 0 ? cargoByTransport.get(unit.id) : undefined;
     // Fuel data stays private: only warn about the player's own units, never
     // expose an enemy's exact reserve through a visible tile.
@@ -1090,7 +1091,8 @@ function render(): void {
     const label = unit && !hidden
       ? `<span class="unit ${unit.owner} unit-${unit.kind}" aria-hidden="true"><span class="unit-art"></span><small>${unit.hp}</small><em>${unitNames[unit.kind]}${cargo ? `・${unitNames[cargo.kind]}搭載` : ''}</em><i class="unit-owner-marker">${unit.owner === me ? '自' : '敵'}</i>${cargo ? '<i class="cargo-marker">積</i>' : ''}${rank ? `<i class="rank-marker">${rankStars(rank)}</i>` : ''}${fuelWarning ? `<i class="fuel-warning">燃${fuelTurns}</i>` : ''}${ammoEmpty ? `<i class="ammo-warning">${uiText.ammo}0</i>` : ''}</span>`
       : contact ? renderReconMarker(contact) : '';
-    const terrainArt = hidden ? '' : renderMemo.get(renderedGame, `terrain-art:${terrain.kind}:${renderedMap.theme}`, () => renderTerrainArt(terrain.kind, renderedMap.theme));
+    if (!hidden && !terrainArtwork.has(terrain.kind)) terrainArtwork.set(terrain.kind, renderTerrainArt(terrain.kind, renderedMap.theme));
+    const terrainArt = hidden ? '' : terrainArtwork.get(terrain.kind)!;
     const facility = isPropertyDisplayed(terrain, me, !hidden)
       ? `<span class="facility facility-${terrain.kind} ${propertyOwner ?? 'neutral'}" aria-hidden="true"><b>${terrain.kind === 'supplyDepot' ? '補' : terrain.kind === 'city' ? '市' : terrain.kind === 'factory' ? '工' : terrain.kind === 'airport' ? '空' : terrain.kind === 'port' ? '港' : '司'}</b><small>${propertyOwner === me ? '自軍' : propertyOwner === foe ? '敵軍' : '中立'}${capturePoints !== undefined ? ` ${capturePointsLabel(capturePoints)}` : ''}</small></span>`
       : '';
