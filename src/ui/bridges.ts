@@ -19,13 +19,13 @@ export function renderBridgeControls(state: GameState, viewer: PlayerId, selecte
   const target = active ? pending.destination : undefined;
   const count = state.bridges?.filter((site) => site.owner === viewer).length ?? 0;
   return `<section id="bridge-controls" class="frontline-controls" aria-label="${english ? 'Bridge construction' : '仮設橋の建設'}">
-    <span>${english ? 'Bridges built' : '建設した橋'} ${count} / ${MAX_BRIDGES}</span>
-    ${active ? `${target ? `<button id="bridge-confirm" class="save-action" ${!enabled || bridgeError(state, unit.id, target) ? 'disabled' : ''}>${english ? 'Confirm bridge' : '架橋を確定'} (${target.x + 1}, ${target.y + 1}) · ${BRIDGE_COST}G</button>` : `<strong>${english ? 'Choose a highlighted water tile.' : '光る水域を選択してください。'}</strong>`}<button id="bridge-cancel" class="save-action">${english ? 'Cancel' : '中止'}</button>` : `<button id="bridge-unit" class="save-action" ${!enabled || error ? 'disabled' : ''}>${english ? 'Build bridge' : '仮設橋を建設'} (${BRIDGE_COST}G)</button>`}
+    <span>${english ? 'Bridges built' : '建設した橋'} ${Number(count)} / ${Number(MAX_BRIDGES)}</span>
+    ${active ? `${target ? `<button id="bridge-confirm" class="save-action" ${!enabled || bridgeError(state, unit.id, target) ? 'disabled' : ''}>${english ? 'Confirm bridge' : '架橋を確定'} (${Number(target.x + 1)}, ${Number(target.y + 1)}) · ${Number(BRIDGE_COST)}G</button>` : `<strong>${english ? 'Choose a highlighted water tile.' : '光る水域を選択してください。'}</strong>`}<button id="bridge-cancel" class="save-action">${english ? 'Cancel' : '中止'}</button>` : `<button id="bridge-unit" class="save-action" ${!enabled || error ? 'disabled' : ''}>${english ? 'Build bridge' : '仮設橋を建設'} (${Number(BRIDGE_COST)}G)</button>`}
     ${(state.bridges ?? [])
       .filter((site) => !destroyBridgeError(state, unit.id, site.position))
       .map(
         (site) =>
-          `<button class="bridge-destroy save-action" data-x="${site.position.x}" data-y="${site.position.y}" ${!enabled ? 'disabled' : ''}>${english ? 'Destroy bridge' : '橋を破壊'} (${site.position.x + 1}, ${site.position.y + 1})</button>`,
+          `<button class="bridge-destroy save-action" data-x="${Number(site.position.x)}" data-y="${Number(site.position.y)}" ${!enabled ? 'disabled' : ''}>${english ? 'Destroy bridge' : '橋を破壊'} (${Number(site.position.x + 1)}, ${Number(site.position.y + 1)})</button>`,
       )
       .join('')}
     <small role="status">${escapeHtml(error ?? (english ? 'One water tile. Both armies and ships may pass; one unit per tile. Location is public. Construction ends the engineer’s turn.' : '1マス幅の水域。両軍・艦船が通行可能、1マス1部隊。完成位置は公開。架橋で工兵の行動終了。'))}</small>

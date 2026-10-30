@@ -114,7 +114,7 @@ export function renderBattleScene(scene: BattleScene): string {
     const before = clampedHp(unit.hpBefore);
     const after = clampedHp(unit.hpAfter);
     const name = unitNames[unit.kind];
-    const damageText = incomingDamage > 0 ? `−${incomingDamage} HP` : labels.noDamage;
+    const damageText = incomingDamage > 0 ? `−${Number(incomingDamage)} HP` : labels.noDamage;
     const result = after === 0 ? `<span class="battle-destroyed">${labels.destroyed}</span>` : '';
     const hitClass = incomingDamage > 0 ? ' battle-hit' : '';
     const fireClass = role === 'attacker' || scene.attacker.hpAfter < scene.attacker.hpBefore ? ' battle-firing' : '';
@@ -127,10 +127,10 @@ export function renderBattleScene(scene: BattleScene): string {
         <span class="battle-impact-ring"></span>
       </div>
       <h3>${escapeHtml(name)}</h3>${unit.weapon ? `<p class="battle-weapon">${escapeHtml(weaponNames[unit.weapon])}</p>` : ''}
-      <div class="battle-hp" role="meter" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${after}" aria-label="${escapeHtml(`${name} ${labels.hp} ${after}`)}">
-        <span class="battle-hp-fill" style="--hp-before:${before}%;--hp-after:${after}%"></span>
+      <div class="battle-hp" role="meter" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${Number(after)}" aria-label="${escapeHtml(`${name} ${labels.hp} ${Number(after)}`)}">
+        <span class="battle-hp-fill" style="--hp-before:${Number(before)}%;--hp-after:${Number(after)}%"></span>
       </div>
-      <div class="battle-hp-label"><span>${labels.hp} ${before} → ${after}</span><strong>${damageText}</strong></div>
+      <div class="battle-hp-label"><span>${labels.hp} ${Number(before)} → ${Number(after)}</span><strong>${damageText}</strong></div>
       ${result}
     </article>`;
   };
@@ -143,7 +143,7 @@ export function renderBattleScene(scene: BattleScene): string {
     .map(([key, value]) => `--battle-${key}:${value}ms`)
     .join(';');
   return `<div class="battle-scene-backdrop" role="dialog" aria-modal="true" aria-labelledby="battle-scene-title">
-    <section class="battle-scene battle-terrain-${scene.terrain}${counterClass}" style="${timingStyle};--battle-duration:${BATTLE_SCENE_DURATION_MS}ms">
+    <section class="battle-scene battle-terrain-${scene.terrain}${counterClass}" style="${timingStyle};--battle-duration:${Number(BATTLE_SCENE_DURATION_MS)}ms">
       <header class="battle-scene-header">
         <div><p class="card-kicker">TACTICAL ENGAGEMENT</p><h2 id="battle-scene-title">${labels.title}</h2></div>
         <span class="battle-scene-terrain">${labels.terrain} · ${escapeHtml(terrainNames[scene.terrain])}</span>
