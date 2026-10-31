@@ -8,6 +8,10 @@ try {
     const page = await browser.newPage({ viewport: { width, height: 844 } });
     await page.addInitScript(() => localStorage.setItem('ministr.locale', 'en'));
     await page.goto(process.env.PROFILE_BASE_URL ?? 'http://127.0.0.1:4173/');
+    const boot = await page.evaluate(() => ({
+      readyMs: performance.now(),
+      transferBytes: performance.getEntriesByType('resource').reduce((sum, entry) => sum + entry.transferSize, 0),
+    }));
     await page.locator('.title-map-card[data-map-id="wide-front"]').click();
     await page.locator('input[name="match-mode"][value="spectate"]').check();
     await page.locator('#title-cpu-speed').count();
@@ -43,16 +47,18 @@ try {
       observer.disconnect();
       clearInterval(timer);
       const frame = () => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
-      const selection = [];
+      const selection = [],
+        synchronousSelection = [];
       for (let i = 0; i < 12; i++) {
         const s = performance.now();
         document.querySelector('.tile[data-x="10"][data-y="14"]').click();
+        if (i >= 2) synchronousSelection.push(performance.now() - s);
         await frame();
         if (i >= 2) selection.push(performance.now() - s);
       }
-      return { elapsed: performance.now() - began, beats, steps, selection, nodes: document.querySelectorAll('*').length };
+      return { elapsed: performance.now() - began, beats, steps, selection, synchronousSelection, nodes: document.querySelectorAll('*').length };
     });
-    rows.push({ width, size: 32, start, ...result });
+    rows.push({ width, size: 32, boot, start, ...result });
     await page.close();
   }
 } finally {

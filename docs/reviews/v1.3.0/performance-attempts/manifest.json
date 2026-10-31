@@ -1,0 +1,173 @@
+{
+  "reason": "Intermediate source, no-op spectator selection, or overlapping load; only performance/ is accepted.",
+  "files": {
+    "v130-final-response-after-1.json": {
+      "sha256": "11bd0ed74c9e1fa8a85c17fcb6f10071171cc618b86f995452d0324c7d4bb103",
+      "includedInAcceptedSummary": false
+    },
+    "v130-final-response-after-2.json": {
+      "sha256": "2642fd9669533fd48773554959193dcef32e08ed31bcf12282aff7de55c6fcba",
+      "includedInAcceptedSummary": false
+    },
+    "v130-final-response-after-3.json": {
+      "sha256": "a4a0d198e05090936a7f2f390ca04172bc854180e87665f2be8b536cf9169381",
+      "includedInAcceptedSummary": false
+    },
+    "v130-final-response-before-1.json": {
+      "sha256": "0f159836cc96945aa6b875fe2d04cff13231f2d737f51faaa7bc27fa856bc00f",
+      "includedInAcceptedSummary": false
+    },
+    "v130-final-response-before-2.json": {
+      "sha256": "14ebb418deb19c749b971a3016b3cecb31afe466ed8f3ecbda0d618c34c237ad",
+      "includedInAcceptedSummary": false
+    },
+    "v130-final-response-before-3.json": {
+      "sha256": "89e1676eee0c352d0ee52cac3101d1616be155b04fed5b0604b3e0a77a28909f",
+      "includedInAcceptedSummary": false
+    },
+    "v130-final-selection-after-1.json": {
+      "sha256": "c2ca6c732f000f8fe5bd70a7a3bda9088e6977e87fb1773eaf5d748aa224de5e",
+      "includedInAcceptedSummary": false
+    },
+    "v130-final-selection-after-2.json": {
+      "sha256": "934e927face0e2dafbe83a19b13595f18e8f951043273426420c231b761d9968",
+      "includedInAcceptedSummary": false
+    },
+    "v130-final-selection-after-3.json": {
+      "sha256": "e3e3b513de71dda77167116a643013e9af845b0467432b5c890b777b867ab90a",
+      "includedInAcceptedSummary": false
+    },
+    "v130-final-selection-before-1.json": {
+      "sha256": "da0a0da1edb3f14290848484cedb5d98578f62359b24056b559c7373784e1ca5",
+      "includedInAcceptedSummary": false
+    },
+    "v130-final-selection-before-2.json": {
+      "sha256": "079e169cfc6b847844b88f24738197ea49ae4e3c1d0eb58b4588a4c5e2c26d56",
+      "includedInAcceptedSummary": false
+    },
+    "v130-final-selection-before-3.json": {
+      "sha256": "3dc35aa4bdab16d5020227f6d31860650f4a33fe3f44a3ac686956766256e277",
+      "includedInAcceptedSummary": false
+    },
+    "v130-response-after-1.json": {
+      "sha256": "f3a609908627cb97a7f510e18b4dd7982dbe38a08c4ef61babb67675cb9d37bc",
+      "includedInAcceptedSummary": false
+    },
+    "v130-response-after-2.json": {
+      "sha256": "0afcc7bc41c59b42b27f56492cc759b3896642971291f92de21b8fc7e0c75d7f",
+      "includedInAcceptedSummary": false
+    },
+    "v130-response-after-3.json": {
+      "sha256": "b6f14629bbf79000c8ea58947be6bebc13842ecdfcd9ba9a82ed24d35caf5b97",
+      "includedInAcceptedSummary": false
+    },
+    "v130-response-before-1.json": {
+      "sha256": "cc904afc6cffdfe4094079d0f050bdf7d471c87451586fcc2b73c03323055e3a",
+      "includedInAcceptedSummary": false
+    },
+    "v130-response-before-2.json": {
+      "sha256": "e0a832849f8247e65f2c40d64a7620357838df94e84befcc4b24da389a9451b9",
+      "includedInAcceptedSummary": false
+    },
+    "v130-response-before-3.json": {
+      "sha256": "fce72af7497e5cd1b847ec573a57d1c99f5421b91cd0d9291e839dbc798da529",
+      "includedInAcceptedSummary": false
+    },
+    "v130-response-final-1.json": {
+      "sha256": "3f2ccb4e957113ef53863986e11477cb3a021df1cd1d7ae3f0d038e84e483745",
+      "includedInAcceptedSummary": false
+    },
+    "v130-response-final-2.json": {
+      "sha256": "90fd35ab48986bb915b74cba208464cd773e7799bef4d685c42532f9095067fb",
+      "includedInAcceptedSummary": false
+    },
+    "v130-response-final-3.json": {
+      "sha256": "c12f21665b91fa853ae5f702ef8e6736670093d7958d9f29aea036e056c6cfc1",
+      "includedInAcceptedSummary": false
+    },
+    "v130-response-opt-1.json": {
+      "sha256": "7a5f2f71e68e17a06e46bb39b6f5a25267b19fb9f769b61ef84abd08bcea2c05",
+      "includedInAcceptedSummary": false
+    },
+    "v130-response-opt-2.json": {
+      "sha256": "548a412e5629b570e0ad338843bb88f6a264025ae786f020b3d977ffb622d387",
+      "includedInAcceptedSummary": false
+    },
+    "v130-response-opt-3.json": {
+      "sha256": "ac2926f8fd6f8a0ddf32ec2e99d02dccc5fec45e4e00e2e7147961be77de3d10",
+      "includedInAcceptedSummary": false
+    },
+    "v130-response-paired-after-1.json": {
+      "sha256": "6115ab3f5c0994901e8ed8b4403e006fd0867f62c80acd9e184747db9530a2cc",
+      "includedInAcceptedSummary": false
+    },
+    "v130-response-paired-after-2.json": {
+      "sha256": "a9cf5fac4fbf54b6a5ee39d53a3c928f8948835236b377d631464bcc8e168b24",
+      "includedInAcceptedSummary": false
+    },
+    "v130-response-paired-after-3.json": {
+      "sha256": "9235d3ecaf386a29bc26102a2b0772db1d2de6fe2cbcd20335a60c287840ae04",
+      "includedInAcceptedSummary": false
+    },
+    "v130-response-paired-before-1.json": {
+      "sha256": "3a1cbafae9d22281e7496c0364c0c0bcbfb51afce2edf91e71139480310f16d2",
+      "includedInAcceptedSummary": false
+    },
+    "v130-response-paired-before-2.json": {
+      "sha256": "45f7dfcb5c3c6d10fc854a301913278fd1783af926f977014d5202d6d591556a",
+      "includedInAcceptedSummary": false
+    },
+    "v130-response-paired-before-3.json": {
+      "sha256": "90f1814de15887b408779300000d4a7ceaa7efe6ee814d0d0e5e502047110d70",
+      "includedInAcceptedSummary": false
+    },
+    "v130-response-quiet-after-1.json": {
+      "sha256": "040d8701a38dd505bd65450881c0d31faa9187cf569023ff831a43bc18f5cdf3",
+      "includedInAcceptedSummary": false
+    },
+    "v130-response-quiet-after-2.json": {
+      "sha256": "ae949391f72d8eec11ffc4f1f33115c66135f336c8646a65950039fcdb280afb",
+      "includedInAcceptedSummary": false
+    },
+    "v130-response-quiet-after-3.json": {
+      "sha256": "df5901bd7583a49d9ae123d47f90e88a8c7c21091f6bc18b3436f85525ee2b63",
+      "includedInAcceptedSummary": false
+    },
+    "v130-response-quiet-before-1.json": {
+      "sha256": "34593105aef195e5013a895642b8fe4d3056e8622fea088f116ce048dba1e2af",
+      "includedInAcceptedSummary": false
+    },
+    "v130-response-quiet-before-2.json": {
+      "sha256": "397df06dcb2bcec67220cae6b7579d93ccb48923a13b4b54962286b21d68474b",
+      "includedInAcceptedSummary": false
+    },
+    "v130-response-quiet-before-3.json": {
+      "sha256": "04783b61da699cef02913c9e53fb090cd75bd3ba888b207c571db6cda2bc8a49",
+      "includedInAcceptedSummary": false
+    },
+    "v130-selection-after-1.json": {
+      "sha256": "a8f77031aec3d595cadbf6973427c71ef4e9e89edeb4eb2f89fa759c343c6d95",
+      "includedInAcceptedSummary": false
+    },
+    "v130-selection-after-2.json": {
+      "sha256": "a00a948039c14308fea7f2937a94c1141dd1ee99b052f8b62644ada77399d536",
+      "includedInAcceptedSummary": false
+    },
+    "v130-selection-after-3.json": {
+      "sha256": "1e1a000a31644f923dca33c9feffa51ff11fd24fb8e11e8720e38a623fa800ad",
+      "includedInAcceptedSummary": false
+    },
+    "v130-selection-before-1.json": {
+      "sha256": "c559818beeb9bf576c9851931b4f9f2be245b9eb9f242405b17d7bdfc299a046",
+      "includedInAcceptedSummary": false
+    },
+    "v130-selection-before-2.json": {
+      "sha256": "ba6da1e237806cf102336bc37b3601d111bf41c9759f8cb9b6948077c0015375",
+      "includedInAcceptedSummary": false
+    },
+    "v130-selection-before-3.json": {
+      "sha256": "103b231569888ea9850515feb47a414054baea188591425e03bca3f8f0b91f1b",
+      "includedInAcceptedSummary": false
+    }
+  }
+}

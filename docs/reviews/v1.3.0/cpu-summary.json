@@ -1,0 +1,181 @@
+{
+  "files": {
+    "cpu-before.jsonl": {
+      "games": 72,
+      "sha256": "c5aa50ff38d6660dd07a6ee5f40284dbaa9531739de2649f46b495f70c08fb6a",
+      "simulationDigest": "dfda63c07f1c172f856a7dec96ba4d66cbe49f2e11d600d0d3aa4ec9ccbe08e0"
+    },
+    "cpu-trial1.jsonl": {
+      "games": 72,
+      "sha256": "c161b1ae9e396b9b01d1f2d8317c9b670edfc7079a591fb92f8926204b35a3b9",
+      "simulationDigest": "907cb307e34244a610497f88dfdba077756968dcc6335bdc2a00dfe154130b9d"
+    },
+    "cpu-final-before.jsonl": {
+      "games": 144,
+      "sha256": "f14e0ed248b60a21ea9c6df85a3498c0e273a460a8ccf75e449ef6322468ff21",
+      "simulationDigest": "dfda63c07f1c172f856a7dec96ba4d66cbe49f2e11d600d0d3aa4ec9ccbe08e0"
+    },
+    "cpu-final-after.jsonl": {
+      "games": 144,
+      "sha256": "9939dae6a0f65872b6cfe909f81b762f2a495987c40bf83afd2536613e91e1cc",
+      "simulationDigest": "907cb307e34244a610497f88dfdba077756968dcc6335bdc2a00dfe154130b9d"
+    }
+  },
+  "comparisons": {
+    "tune": {
+      "before": {
+        "games": 72,
+        "first": {
+          "blue": 30,
+          "red": 42
+        },
+        "mixedPolicy": {
+          "offensive": 34,
+          "defensive": 2
+        },
+        "mixedPolicySameDifficulty": {
+          "offensive": 17,
+          "defensive": 1
+        },
+        "balancedSameDifficulty": {
+          "blue": 5,
+          "red": 13
+        },
+        "balancedDifficulty": {
+          "normal": 10,
+          "easy": 8
+        },
+        "balancedBySize": {
+          "16": {
+            "normal": 5,
+            "easy": 1
+          },
+          "20": {
+            "easy": 4,
+            "normal": 2
+          },
+          "32": {
+            "normal": 3,
+            "easy": 3
+          }
+        }
+      },
+      "after": {
+        "games": 72,
+        "first": {
+          "blue": 26,
+          "red": 46
+        },
+        "mixedPolicy": {
+          "offensive": 28,
+          "defensive": 8
+        },
+        "mixedPolicySameDifficulty": {
+          "offensive": 15,
+          "defensive": 3
+        },
+        "balancedSameDifficulty": {
+          "blue": 5,
+          "red": 13
+        },
+        "balancedDifficulty": {
+          "normal": 10,
+          "easy": 8
+        },
+        "balancedBySize": {
+          "16": {
+            "normal": 5,
+            "easy": 1
+          },
+          "20": {
+            "easy": 4,
+            "normal": 2
+          },
+          "32": {
+            "normal": 3,
+            "easy": 3
+          }
+        }
+      },
+      "allBalancedDigestsEqual": true
+    },
+    "final": {
+      "before": {
+        "games": 144,
+        "first": {
+          "blue": 65,
+          "red": 79
+        },
+        "mixedPolicy": {
+          "offensive": 67,
+          "defensive": 5
+        },
+        "mixedPolicySameDifficulty": {
+          "offensive": 35,
+          "defensive": 1
+        },
+        "balancedSameDifficulty": {
+          "red": 19,
+          "blue": 17
+        },
+        "balancedDifficulty": {
+          "normal": 25,
+          "easy": 11
+        },
+        "balancedBySize": {
+          "16": {
+            "normal": 8,
+            "easy": 4
+          },
+          "20": {
+            "normal": 8,
+            "easy": 4
+          },
+          "32": {
+            "normal": 9,
+            "easy": 3
+          }
+        }
+      },
+      "after": {
+        "games": 144,
+        "first": {
+          "red": 79,
+          "blue": 65
+        },
+        "mixedPolicy": {
+          "defensive": 5,
+          "offensive": 67
+        },
+        "mixedPolicySameDifficulty": {
+          "defensive": 2,
+          "offensive": 34
+        },
+        "balancedSameDifficulty": {
+          "red": 19,
+          "blue": 17
+        },
+        "balancedDifficulty": {
+          "normal": 25,
+          "easy": 11
+        },
+        "balancedBySize": {
+          "16": {
+            "normal": 8,
+            "easy": 4
+          },
+          "20": {
+            "normal": 8,
+            "easy": 4
+          },
+          "32": {
+            "normal": 9,
+            "easy": 3
+          }
+        }
+      },
+      "allBalancedDigestsEqual": true
+    }
+  },
+  "totalGames": 432
+}

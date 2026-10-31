@@ -23,11 +23,13 @@ it('keeps unchanged board and tiles, replaces changed cells, refreshes attribute
   first.onkeydown = () => {};
   first.onfocus = () => {};
   a.setAttribute('data-old', 'yes');
+  a.insertAdjacentHTML('beforeend', '<span class="presentation-effect">old effect</span>');
   const b = draw(view, host, [tile('plain'), tile('fog', 'fog')]);
   expect(b).toBe(a);
   expect(b.children[0]).toBe(first);
   expect(b.children[1]).not.toBe(second);
   expect(b.textContent).not.toContain('enemy');
+  expect(b.querySelector('.presentation-effect')).toBeNull();
   expect(b.hasAttribute('data-old')).toBe(false);
   expect(first.onclick).toBeNull();
   expect(first.onkeydown).toBeNull();
@@ -65,4 +67,22 @@ it('keeps already localized unchanged cells and refreshes board attributes', () 
   expect(host.textContent).toBe('Plain');
   expect(board.dataset.zoom).toBe('50');
   expect(board.classList.contains('recon-targeting')).toBe(true);
+});
+
+it('localizes new markup once and skips unchanged tile content', () => {
+  const view = new BoardView(),
+    host = root(),
+    localized: string[] = [];
+  const paint = (cells: string[]) => {
+    host.innerHTML = '<div class="board"></div>';
+    view.update(host.querySelector('.board'), cells, 'en', (element) => {
+      localized.push(element.textContent!);
+    });
+  };
+  paint([tile('a'), tile('b')]);
+  expect(localized).toEqual(['ab']);
+  paint([tile('a'), tile('b')]);
+  expect(localized).toEqual(['ab']);
+  paint([tile('a'), tile('c')]);
+  expect(localized).toEqual(['ab', 'c']);
 });

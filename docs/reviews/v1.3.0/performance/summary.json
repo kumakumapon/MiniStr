@@ -1,0 +1,99 @@
+{
+  "environment": {
+    "node": "24.19.0",
+    "vite": "6.4.3",
+    "localDependenciesDifferFromFormalLock": true,
+    "viewports": [
+      1280,
+      390
+    ],
+    "source": "working-tree; hashes in performance-source.json",
+    "browser": "151.0.7922.173"
+  },
+  "response": {
+    "1280": {
+      "before": {
+        "bootReadyMs": 478.30000000074506,
+        "startHandlerMs": 137.5,
+        "timerP95Ms": 68.40000000223517,
+        "timerMaxMs": 107.40000000223517
+      },
+      "after": {
+        "bootReadyMs": 457.69999999925494,
+        "startHandlerMs": 114.60000000149012,
+        "timerP95Ms": 58.69999999925494,
+        "timerMaxMs": 91.30000000074506
+      }
+    },
+    "390": {
+      "before": {
+        "bootReadyMs": 366,
+        "startHandlerMs": 139,
+        "timerP95Ms": 72,
+        "timerMaxMs": 106.79999999701977
+      },
+      "after": {
+        "bootReadyMs": 369.5999999977648,
+        "startHandlerMs": 127.30000000074506,
+        "timerP95Ms": 60.5,
+        "timerMaxMs": 84.90000000223517
+      }
+    }
+  },
+  "selection": {
+    "1280/16": {
+      "before": {
+        "handlerMs": 31.699999999254942,
+        "frameMs": 50.0
+      },
+      "after": {
+        "handlerMs": 29.949999999254942,
+        "frameMs": 50.04999999888241
+      }
+    },
+    "1280/32": {
+      "before": {
+        "handlerMs": 54.44999999925494,
+        "frameMs": 80.79999999888241
+      },
+      "after": {
+        "handlerMs": 53.899999998509884,
+        "frameMs": 82.45000000111759
+      }
+    },
+    "390/16": {
+      "before": {
+        "handlerMs": 31.299999998882413,
+        "frameMs": 50.0
+      },
+      "after": {
+        "handlerMs": 32.80000000074506,
+        "frameMs": 50.099999997764826
+      }
+    },
+    "390/32": {
+      "before": {
+        "handlerMs": 55.59999999962747,
+        "frameMs": 81.5
+      },
+      "after": {
+        "handlerMs": 54.100000001490116,
+        "frameMs": 81.84999999962747
+      }
+    }
+  },
+  "files": {
+    "response-before-1.json": "bc99100f151e650cf56eb69867d7625b5648f174fbd2a65e60d699c0701e0014",
+    "response-before-2.json": "58df1f2d1b59ba1e4a909d93dd66197ed41a193da95a3b8fa40867c964ebfb0b",
+    "response-before-3.json": "93e3cdb91ab6c21710f96242bd7c6d889f31c7ba51087cd6fbe1d07764fa3327",
+    "response-after-1.json": "3906b3868685b9dc0302760b850aea5ff65e228e84dce37910f0f6e5fa9da5d4",
+    "response-after-2.json": "911f4b0a37a12786b94164152111d997d77cd6b38bfe0aca847f3e288dc80106",
+    "response-after-3.json": "e9ef1a0fc3aa91c7d273e18b938670857ea0e25aea11d0ea226b2a37181b7822",
+    "selection-before-1.json": "f5df73b2c7f6c5c4edf756f420e89bd93e4073a72f53c5e49ed026c80508318d",
+    "selection-before-2.json": "5dd17672daeffbee8014543af7a5ac0dfa9d16735bb7afbb20d28c17494040ac",
+    "selection-before-3.json": "ec0f9534b6a3e521e96b91b054854b77094932c0ac1630dc609d8d648d324b70",
+    "selection-after-1.json": "10014e81a5ae31ae702d8b4850651e2502fdc08deacdfa450390a78d6a2e0638",
+    "selection-after-2.json": "0df85d8cac8b55930f7da484c0ba6d1ca76a339a404bb39b66c4097fa4820140",
+    "selection-after-3.json": "e10e8fd1ed8950e23037eebcec5b0432ae4c489db38f161b8e968f4e3f492223"
+  }
+}

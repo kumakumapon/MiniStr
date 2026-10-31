@@ -1037,7 +1037,7 @@ function render(): void {
   const foe = otherPlayer(me);
   const canAct = canCommand();
   const concealed = !replayMode && handoffPending;
-  const visible = new Set(shownPositions(renderedGame).map(key));
+  const visible = boardCovered ? new Set<string>() : new Set(shownPositions(renderedGame).map(key));
   // No tile is fogged in the whole-board view, so the legend drops its fog entry.
   const wholeBoardShown = replay ? replay.viewpoint === 'all' : showsWholeBoard(matchMode, spectateWholeBoard, false);
   const history = historyFor(replay?.file.initialState ?? initialState, replay?.file.commands ?? commandHistory);
@@ -1049,7 +1049,7 @@ function render(): void {
   const analysis = !boardCovered && wholeBoardShown ? history.analysis(historyIndex, 'all') : undefined;
   const analysisPanel = renderBattleAnalysis(analysis?.ok ? analysis.value : undefined, analysisMetric, analysisOpen);
   const selectedUnit = renderedGame.units.find(unit => unit.id === selected);
-  const movable = !replayMode && selectedUnit?.owner === me && !selectedUnit.hasMoved && !selectedUnit.hasActed
+  const movable = !boardCovered && !replayMode && selectedUnit?.owner === me && !selectedUnit.hasMoved && !selectedUnit.hasActed
     ? renderMemo.get(renderedGame, `move:${me}:${selectedUnit.id}`, () => new Set(reachablePositionsForPlayer(renderedGame, selectedUnit.id, me).map(key))) : new Set<string>();
   const focusedUnit = renderedGame.units.find(unit => isDeployedUnit(unit) && key(unit.position) === key(focusedPosition));
   const previewedEnemy = selectedUnit?.owner === foe && isDeployedUnit(selectedUnit)
@@ -1059,7 +1059,7 @@ function render(): void {
   const knownEnemyThreats = !boardCovered && selectedUnit?.owner === me ? renderMemo.get(renderedGame, `threats:${me}`, () => visibleEnemyThreats(renderedGame, me)) : new Set<string>();
   // Resolved before the board is drawn so idle facilities can be marked on the
   // tiles that produce, not only counted in the panel.
-  const idleFacilities = renderMemo.get(renderedGame, `facilities:${me}:${productionRule}`, () => idleProductionFacilities(renderedGame, me, productionRule));
+  const idleFacilities = boardCovered ? [] : renderMemo.get(renderedGame, `facilities:${me}:${productionRule}`, () => idleProductionFacilities(renderedGame, me, productionRule));
   const targetFacility = (selectedFacility && idleFacilities.find(facility => key(facility.position) === key(selectedFacility!))) || (productionMenuOpen ? idleFacilities[0] : undefined);
   const viewerAtUnitLimit = usesDecisionRules(renderedGame) && renderedGame.units.filter(unit => unit.owner === me).length >= unitLimit(renderedGame.board, renderedGame.ruleVersion);
   const idleFacilityKeys = new Set(viewerAtUnitLimit ? [] : idleFacilities.map(facility => key(facility.position)));
@@ -1067,7 +1067,7 @@ function render(): void {
   const exitPositions = new Set(ownEvacuation.flatMap(condition => condition.positions.map(key)));
   const missionTargets = new Set(ownEvacuation.flatMap(condition => condition.unitIds));
   const objectivePositions = new Set(renderedMap.victoryConditions.flatMap(condition => condition.type === 'hold' || condition.type === 'control' || isEvacuationCondition(condition) ? condition.positions.map(key) : []));
-  const supplyTiles = showSupplyRange ? supplyRange(renderedGame, me, selected) : new Set<string>();
+  const supplyTiles = !boardCovered && showSupplyRange ? supplyRange(renderedGame, me, selected) : new Set<string>();
   const unitsByPosition = new Map(renderedGame.units.filter(isDeployedUnit).map(unit => [key(unit.position), unit]));
   const cargoByTransport = new Map(renderedGame.units.filter(unit => unit.embarkedIn !== undefined).map(unit => [unit.embarkedIn!, unit]));
   const terrainArtwork = new Map<TerrainKind, string>();

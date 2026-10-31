@@ -1,0 +1,8 @@
+{
+  "src/main.ts": "092bae6f8abbd60de3bba88192320bb078dc293d0026c818d05dbc2ae89d9fd4",
+  "src/ui/boardView.ts": "9c58f2cce8d89944d63732276bb5df5d3280dd748948653380344950de0bbbbc",
+  "src/ui/locale.ts": "ea379594a8b063c82284e6f71e6664338c741e5407d91030ca7be9ab1eef63a4",
+  "src/ai/armyPolicy.ts": "7474cc30e1db19b0065c6f05e663139776d56c45eee9beada1867d4f9bf61930",
+  "scripts/profile-continuous.mjs": "96e9b0c432eabc7ae568ebf4744838bbbcfb51c1f8ddeaaf3919d983fea2a86d",
+  "scripts/profile-selection.mjs": "3fa973f38a55143323ed824b3a8f820a11084232b732ff8dd58b919e0a5c646f"
+}

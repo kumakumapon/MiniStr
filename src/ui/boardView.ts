@@ -16,12 +16,20 @@ export class BoardView {
       for (const attribute of replacement.attributes) if (board.getAttribute(attribute.name) !== attribute.value) board.setAttribute(attribute.name, attribute.value);
       replacement.replaceWith(board);
     }
-    if (board === replacement) board.innerHTML = cells.join('');
+    // Transient feedback belongs to the previous render, not the retained tile model.
+    board.querySelectorAll('.presentation-effect').forEach((effect) => effect.remove());
+    if (board === replacement) {
+      board.innerHTML = cells.join('');
+      localize(board);
+      this.board = board;
+      this.cells = cells;
+      this.identity = identity;
+      return;
+    }
     const tiles = [...board.children] as HTMLElement[];
-    if (board === replacement) localize(board);
     const template = document.createElement('template');
     cells.forEach((markup, index) => {
-      if (board !== replacement && this.cells[index] !== markup) {
+      if (this.cells[index] !== markup) {
         // Markup is produced by the same escaped tile template used for the full screen.
         template.innerHTML = markup;
         const tile = template.content.firstElementChild! as HTMLElement;
