@@ -42,6 +42,11 @@ async function prepareMusic(page: Page, width: number) {
         };
         return response;
       };
+      const resume = AudioContext.prototype.resume;
+      AudioContext.prototype.resume = function (this: AudioContext) {
+        observed.contexts.add(this);
+        return resume.call(this);
+      };
       const base = BaseAudioContext.prototype;
       const gain = base.createGain;
       base.createGain = function (this: AudioContext) {
@@ -203,7 +208,8 @@ for (const width of [1280, 390]) {
     await prepareMusic(page, width);
     await startHotseat(page);
     await expectSingleAudio(page);
-    const contexts = () => page.evaluate(() => [...(window as unknown as { musicProbe: Probe }).musicProbe.contexts].map((ctx) => ctx.state));
+    const contexts = () =>
+      page.evaluate(() => [...(window as unknown as { musicProbe: Probe }).musicProbe.contexts].filter((ctx) => ctx.state !== 'closed').map((ctx) => ctx.state));
     const expectedContexts = await page.evaluate(() => ((window as unknown as { musicProbe: Probe }).musicProbe.elements.some((element) => !element.paused) ? 1 : 2));
     await expect.poll(contexts).toHaveLength(expectedContexts);
     await expect.poll(contexts).toEqual(Array(expectedContexts).fill('running'));
@@ -212,9 +218,9 @@ for (const width of [1280, 390]) {
       await page.evaluate(async (event) => {
         const probe = (window as unknown as { musicProbe: Probe }).musicProbe;
         Object.defineProperty(document, 'hidden', { configurable: true, get: () => true });
-        await Promise.all([...probe.contexts].map((ctx) => ctx.suspend()));
+        await Promise.all([...probe.contexts].filter((ctx) => ctx.state !== 'closed').map((ctx) => ctx.suspend()));
         document.dispatchEvent(new Event('visibilitychange'));
-        if ([...probe.contexts].some((ctx) => ctx.state !== 'suspended')) throw Error('resumed in background');
+        if ([...probe.contexts].some((ctx) => ctx.state !== 'closed' && ctx.state !== 'suspended')) throw Error('resumed in background');
         Object.defineProperty(document, 'hidden', { configurable: true, get: () => false });
         (event === 'visibilitychange' ? document : window).dispatchEvent(new Event(event));
       }, event);
