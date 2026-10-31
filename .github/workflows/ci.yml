@@ -67,6 +67,15 @@ jobs:
         run: sudo bash scripts/use-ubuntu-https-mirror.sh
       - name: Install Playwright browsers
         run: npx playwright install --with-deps chromium firefox webkit
+      - name: Provide a virtual audio output for native browser recovery tests
+        run: |
+          sudo apt-get install --yes --no-install-recommends pulseaudio pulseaudio-utils
+          pulseaudio --start --exit-idle-time=-1
+          pactl load-module module-null-sink sink_name=ministr_ci
+          pactl set-default-sink ministr_ci
+          pactl list short sinks
+      - name: Check audio recovery before the full browser suite
+        run: npx playwright test tests/e2e/army-music.spec.ts --grep 'background return'
       - run: npm run test:e2e
       - name: Preserve audit evidence
         if: always()

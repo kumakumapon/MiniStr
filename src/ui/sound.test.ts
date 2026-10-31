@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { defaultSoundSettings, loadSoundSettings, ProceduralSoundPlayer, saveSoundSettings, SOUND_SETTINGS_KEY } from './sound';
+import { defaultSoundSettings, loadSoundSettings, ProceduralSoundPlayer, SOUND_RECOVERY_WINDOW_MS, saveSoundSettings, SOUND_SETTINGS_KEY } from './sound';
 
 function storage(initial: Record<string, string> = {}) {
   const values = new Map(Object.entries(initial));
@@ -327,5 +327,64 @@ describe('sound recovery', () => {
     audio.listeners.forEach((listener) => listener());
     expect(audio.state).toBe('closed');
     hidden.mockRestore();
+  });
+});
+
+describe('effects arriving while the context resumes', () => {
+  it('plays only the latest fresh cue after the resume settles', async () => {
+    const { player, context } = fakePlayer();
+    await player.unlock();
+    const audio = context()!;
+    audio.state = 'suspended';
+    let ready!: () => void;
+    const resume = vi.spyOn(audio, 'resume').mockImplementation(
+      () =>
+        new Promise<void>((resolve) => {
+          ready = () => {
+            audio.state = 'running';
+            resolve();
+          };
+        }),
+    );
+    player.play('move');
+    player.play('turn');
+    expect(resume).toHaveBeenCalledTimes(1);
+    expect(audio.oscillators).toHaveLength(0);
+    ready();
+    await Promise.resolve();
+    await Promise.resolve();
+    await Promise.resolve();
+    expect(audio.oscillators[0]!.frequency.calls[0]).toEqual(['set', 250, audio.currentTime]);
+    expect(audio.oscillators).toHaveLength(4);
+  });
+
+  it.each(['old', 'muted', 'zero', 'hidden', 'closed', 'denied'] as const)('does not replay an %s cue', async (mode) => {
+    const { player, context } = fakePlayer();
+    await player.unlock();
+    const audio = context()!;
+    audio.state = mode === 'closed' ? 'closed' : 'suspended';
+    const clock = vi.spyOn(Date, 'now').mockReturnValue(1000);
+    const hidden = vi.spyOn(document, 'hidden', 'get').mockReturnValue(mode === 'hidden');
+    let ready: (() => void) | undefined;
+    vi.spyOn(audio, 'resume').mockImplementation(
+      () =>
+        new Promise<void>((resolve) => {
+          ready = () => {
+            if (mode !== 'denied') audio.state = 'running';
+            resolve();
+          };
+        }),
+    );
+    player.play('turn');
+    if (mode === 'muted') player.setSettings({ muted: true, volume: 0.45 });
+    if (mode === 'zero') player.setSettings({ muted: false, volume: 0 });
+    if (mode === 'old') clock.mockReturnValue(1000 + SOUND_RECOVERY_WINDOW_MS + 1);
+    ready?.();
+    await Promise.resolve();
+    await Promise.resolve();
+    await Promise.resolve();
+    expect(audio.oscillators).toHaveLength(0);
+    hidden.mockRestore();
+    clock.mockRestore();
   });
 });
