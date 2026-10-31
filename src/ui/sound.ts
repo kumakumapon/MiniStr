@@ -105,7 +105,8 @@ export class ProceduralSoundPlayer {
     private settings: SoundSettings,
     constructorRef?: AudioContextConstructor,
   ) {
-    this.constructorRef = constructorRef ?? window.AudioContext;
+    const scope = window as Window & { AudioContext?: AudioContextConstructor; webkitAudioContext?: AudioContextConstructor };
+    this.constructorRef = constructorRef ?? scope.AudioContext ?? scope.webkitAudioContext;
   }
 
   setSettings(settings: SoundSettings): void {
@@ -118,7 +119,18 @@ export class ProceduralSoundPlayer {
 
   async unlock(): Promise<void> {
     if (!this.constructorRef) return;
-    this.context ??= new this.constructorRef();
+    if (!this.context) {
+      this.context = new this.constructorRef();
+      this.context.addEventListener?.('statechange', () => {
+        if (!document.hidden && this.context?.state !== 'running' && this.context?.state !== 'closed') void this.recover();
+      });
+    }
+    await this.recover();
+  }
+
+  /** Resume an existing context without playing missed cues or allocating a new one. */
+  async recover(): Promise<void> {
+    if (!this.context) return;
     if (this.context.state !== 'running') {
       try {
         await this.context.resume();

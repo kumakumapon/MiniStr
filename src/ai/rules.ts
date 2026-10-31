@@ -1,3 +1,4 @@
+import { supplyRendezvous } from './supplyRendezvous';
 import { supportedAttack } from './supportAttack';
 import { policyConfig } from './armyPolicy';
 import type { ArmyPolicy } from '../game/armyPolicy';
@@ -136,7 +137,7 @@ function favorableAttack(state: GameState, attacker: DeployedUnit, target: Unit,
     stalemateRelief(state) * 25 + garrisonAllowance(state, attacker, target, result.value.damageToDefender, result.value.damageToAttacker));
   return result.value.outgoing.min >= target.hp
     || result.value.damageToDefender >= result.value.damageToAttacker + config.attackSafetyMargin - leniency
-    || Boolean(config.coordinatedDefense && supportedAttack(state, attacker, target, true));
+    || Boolean((config.coordinatedDefense || config.strikePlanning !== 'none') && supportedAttack(state, attacker, target, Boolean(config.coordinatedDefense)));
 }
 
 /** Upper bound on the extra retaliation any leniency may accept. */
@@ -980,6 +981,17 @@ function chooseOrientedCpuAction(state: GameState, difficulty: CpuDifficulty, pl
     ?? chooseDemolition(state, player, context.visibleEnemies)
     ?? engineeringAction(state, player, context)
     ?? mergeAction(state, player)
+    ?? (difficulty !== 'easy' ? supplyRendezvous(state, player, readyUnits, (truck, position) => {
+      if (coordinationValue(state, player, truck, position, context.targets) <= -100) return Number.NEGATIVE_INFINITY;
+      const moved = { ...truck, position };
+      const projected = { ...state, units: state.units.map(unit => unit.id === truck.id ? moved : unit) };
+      const incoming = context.visibleEnemies.reduce((damage, enemy) => {
+        const shot = forecastCombat(projected, enemy, moved);
+        return damage + (shot.ok ? shot.value.outgoing.max : 0);
+      }, 0);
+      if (incoming >= truck.hp / 2) return Number.NEGATIVE_INFINITY;
+      return evaluateCpuPosition(state, player, truck, position, context.targets, config, context.visibleEnemies);
+    }) : undefined)
     ?? clearNavalServiceLane(state, player, readyUnits)
     ?? chooseAirliftAction(state, player, context.targets, context.landComponents, context.visibleEnemies)
     ?? transportAction(state, player, context.targets, context.landComponents, context.visibleEnemies)

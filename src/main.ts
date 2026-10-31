@@ -1,3 +1,4 @@
+import { installAudioRecovery } from './ui/audioRecovery';
 import { retainControls } from './ui/retainControls';
 import { CpuPlanner } from './ui/cpuPlanner';
 import { previewSaveRecovery, restoreRecoveredSaves } from './game/saveRecovery';
@@ -312,6 +313,7 @@ function battleSceneIsVisible(scene: BattleScene, visible: ReadonlySet<string>):
 
 // The context is intentionally created only from a real user gesture. CPU and
 // replay playback before that gesture remain silent under browser autoplay rules.
+installAudioRecovery([soundPlayer, musicPlayer]);
 const unlockAudio = (): void => { void soundPlayer.unlock(); void musicPlayer.unlock(); };
 app.addEventListener('pointerdown', event => {
   boardPointerPending = event.target instanceof Element && event.target.closest('.tile') !== null;

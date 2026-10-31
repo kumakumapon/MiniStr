@@ -99,6 +99,10 @@ class FakeFilter extends FakeNode {
 class FakeAudioContext {
   static instances: FakeAudioContext[] = [];
   state: AudioContextState = 'suspended';
+  readonly listeners: (() => void)[] = [];
+  addEventListener(_type: string, listener: () => void) {
+    this.listeners.push(listener);
+  }
   currentTime = 2;
   sampleRate = 1000;
   readonly destination = {};
@@ -287,5 +291,41 @@ describe('ProceduralSoundPlayer', () => {
     const player = new ProceduralSoundPlayer({ muted: false, volume: 0.5 });
     await expect(player.unlock()).resolves.toBeUndefined();
     expect(() => player.play('produce')).not.toThrow();
+  });
+});
+
+describe('sound recovery', () => {
+  it('only resumes initialized sound and emits no stale effects; a later action sounds again', async () => {
+    const { player, context } = fakePlayer();
+    await player.recover();
+    expect(context()).toBeUndefined();
+    await player.unlock();
+    context()!.state = 'suspended';
+    await player.recover();
+    expect(context()!.state).toBe('running');
+    expect(context()!.oscillators).toHaveLength(0);
+    player.play('move');
+    expect(context()!.oscillators.length).toBeGreaterThan(0);
+    expect(FakeAudioContext.instances).toHaveLength(1);
+  });
+
+  it('recovers a late state interruption but respects visibility and mute', async () => {
+    const { player, context } = fakePlayer({ muted: true, volume: 0.2 });
+    await player.unlock();
+    const audio = context()!;
+    const hidden = vi.spyOn(document, 'hidden', 'get').mockReturnValue(true);
+    audio.state = 'suspended';
+    audio.listeners.forEach((listener) => listener());
+    expect(audio.state).toBe('suspended');
+    hidden.mockReturnValue(false);
+    audio.listeners.forEach((listener) => listener());
+    await Promise.resolve();
+    expect(audio.state).toBe('running');
+    player.play('turn');
+    expect(audio.oscillators).toHaveLength(0);
+    audio.state = 'closed';
+    audio.listeners.forEach((listener) => listener());
+    expect(audio.state).toBe('closed');
+    hidden.mockRestore();
   });
 });

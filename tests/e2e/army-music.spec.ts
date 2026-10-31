@@ -12,7 +12,15 @@ async function prepareMusic(page: Page, width: number) {
       }
       // Observe the real Web Audio graph: which tracks have a started, not yet stopped source.
       const trackOf = new WeakMap<object, string>();
-      const observed = { started: [] as string[], active: new Map<AudioBufferSourceNode, string>(), peak: 0, loops: [] as boolean[], elements: [] as HTMLAudioElement[] };
+      const observed = {
+        started: [] as string[],
+        active: new Map<AudioBufferSourceNode, string>(),
+        peak: 0,
+        loops: [] as boolean[],
+        elements: [] as HTMLAudioElement[],
+        contexts: new Set<AudioContext>(),
+        effects: 0,
+      };
       Object.assign(window, { musicProbe: observed });
       // Browsers without Web Audio (e.g. Playwright's Windows WebKit) use the <audio> fallback: observe that too.
       const OriginalAudio = window.Audio;
@@ -35,6 +43,22 @@ async function prepareMusic(page: Page, width: number) {
         return response;
       };
       const base = BaseAudioContext.prototype;
+      const gain = base.createGain;
+      base.createGain = function (this: AudioContext) {
+        observed.contexts.add(this);
+        return gain.call(this);
+      };
+      const oscillator = base.createOscillator;
+      base.createOscillator = function (this: BaseAudioContext) {
+        const node = oscillator.call(this);
+        const start = node.start.bind(node);
+        node.start = (...args: Parameters<OscillatorNode['start']>) => {
+          observed.effects++;
+          start(...args);
+        };
+        return node;
+      };
+
       const decode = base.decodeAudioData;
       base.decodeAudioData = function (this: BaseAudioContext, data: ArrayBuffer, ...rest: never[]) {
         const url = trackOf.get(data);
@@ -84,7 +108,7 @@ async function prepareMusic(page: Page, width: number) {
   await page.goto('/');
 }
 
-type Probe = { started: string[]; active: Map<unknown, string>; peak: number; loops: boolean[]; elements: HTMLAudioElement[] };
+type Probe = { contexts: Set<AudioContext>; effects: number; started: string[]; active: Map<unknown, string>; peak: number; loops: boolean[]; elements: HTMLAudioElement[] };
 // Tracks of the sources that have started and not yet stopped. Exactly one must sound at a time.
 const playing = (page: Page) =>
   page.evaluate(() => {
@@ -170,6 +194,38 @@ for (const width of [1280, 390]) {
     await expect.poll(() => playing(page)).toContain('rock-red-theme.ogg');
     // A shared track keeps playing: no new source is started when the army changes.
     expect(await startCount(page)).toBe(startsBefore);
+    await expectSingleAudio(page);
+  });
+}
+
+for (const width of [1280, 390]) {
+  test(`recovers music and effects after background return without another tap at ${width}`, async ({ page }) => {
+    await prepareMusic(page, width);
+    await startHotseat(page);
+    await expectSingleAudio(page);
+    const contexts = () => page.evaluate(() => [...(window as unknown as { musicProbe: Probe }).musicProbe.contexts].map((ctx) => ctx.state));
+    const expectedContexts = await page.evaluate(() => ((window as unknown as { musicProbe: Probe }).musicProbe.elements.some((element) => !element.paused) ? 1 : 2));
+    await expect.poll(contexts).toHaveLength(expectedContexts);
+    await expect.poll(contexts).toEqual(Array(expectedContexts).fill('running'));
+    const sourcesBefore = await startCount(page);
+    for (const event of ['visibilitychange', 'pageshow', 'focus']) {
+      await page.evaluate(async (event) => {
+        const probe = (window as unknown as { musicProbe: Probe }).musicProbe;
+        Object.defineProperty(document, 'hidden', { configurable: true, get: () => true });
+        await Promise.all([...probe.contexts].map((ctx) => ctx.suspend()));
+        document.dispatchEvent(new Event('visibilitychange'));
+        if ([...probe.contexts].some((ctx) => ctx.state !== 'suspended')) throw Error('resumed in background');
+        Object.defineProperty(document, 'hidden', { configurable: true, get: () => false });
+        (event === 'visibilitychange' ? document : window).dispatchEvent(new Event(event));
+      }, event);
+      await expect.poll(contexts).toEqual(Array(expectedContexts).fill('running'));
+      await expectSingleAudio(page);
+      expect(await startCount(page)).toBe(sourcesBefore);
+    }
+    const effectsBefore = await page.evaluate(() => (window as unknown as { musicProbe: Probe }).musicProbe.effects);
+    await page.locator('#end').click();
+    await expect.poll(() => page.evaluate(() => (window as unknown as { musicProbe: Probe }).musicProbe.effects)).toBeGreaterThan(effectsBefore);
+    await expect.poll(() => playing(page)).toContain('rock-blue-theme.ogg');
     await expectSingleAudio(page);
   });
 }
