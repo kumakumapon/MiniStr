@@ -35,6 +35,7 @@ for (const width of [1280, 390])
       await expect(first).toBeFocused();
       await expect(first.locator('.selected-marker')).toHaveCount(1);
       // Observe the app root: choosing another unit should rebuild it once.
+      const stableTile = await page.locator('.tile[data-x="30"][data-y="0"]').elementHandle();
       const writes = await page.evaluate(() => {
         const app = document.querySelector('#app')!;
         const observer = new MutationObserver(() => {});
@@ -45,6 +46,8 @@ for (const width of [1280, 390])
         return count;
       });
       expect(writes).toBe(1);
+      expect(await stableTile!.evaluate((tile) => tile === document.querySelector('.tile[data-x="30"][data-y="0"]'))).toBe(true);
+      await expect(page.locator('.tile[data-x="1"][data-y="1"] .selected-marker')).toHaveCount(1);
       const retained = await page.evaluate(() => {
         const board = document.querySelector<HTMLElement>('.board')!,
           viewport = document.querySelector('#board-viewport'),

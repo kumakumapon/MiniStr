@@ -15,3 +15,10 @@ it.each(['balanced', 'offensive', 'defensive'] as const)('keeps %s decisions leg
   }
   expect(state.turn).toBeGreaterThan(1);
 });
+
+it('allows a bounded favorable defensive attack instead of waiting for a 30-point advantage', () => {
+  const state = createScenarioInitialState(operation({ victoryConditions: [{ type: 'eliminate' }], defeatConditions: [{ type: 'eliminate' }] }));
+  state.units = [force('a', 'tank', 2, 1, { hp: 78 }), force('d', 'tank', 3, 1, { owner: 'blue' })];
+  expect(chooseCpuAction(state, 'normal', 'red', 'defensive')).toEqual({ type: 'attack', unitId: 'a', targetId: 'd' });
+  expect(chooseCpuAction({ ...state, ruleVersion: 11 }, 'normal', 'red', 'defensive')).toEqual(chooseCpuAction({ ...state, ruleVersion: 11 }, 'normal', 'red', 'balanced'));
+});
