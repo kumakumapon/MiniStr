@@ -164,9 +164,11 @@ const controls: Record<string, string> = {
   リプレイ再生コントロール: 'Replay controls',
   リプレイ再生速度: 'Replay speed',
 };
-export function localizeControls(root: HTMLElement): void {
+export function localizeControls(root: HTMLElement, stableRoot?: HTMLElement | null): void {
   if (locale !== 'en') return;
-  const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+  const walker = document.createTreeWalker(root, NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT, {
+    acceptNode: (node) => (node === stableRoot ? NodeFilter.FILTER_REJECT : node.nodeType === Node.TEXT_NODE ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_SKIP),
+  });
   while (walker.nextNode()) {
     const node = walker.currentNode;
     if (node.parentElement?.closest('textarea, script, style, [data-user-content], .title-map-name, .briefing-copy, .save-slot-manager strong')) continue;
@@ -175,13 +177,17 @@ export function localizeControls(root: HTMLElement): void {
     const translated = controls[text] ?? (owned ? translateGameText(text) : translateText(text));
     if (translated !== text) node.textContent = node.textContent!.replace(text, () => translated);
   }
-  root.querySelectorAll<HTMLElement>('[aria-label], [title], [placeholder], [alt], [label]').forEach((element) => {
+  [root, ...root.querySelectorAll<HTMLElement>('[aria-label], [title], [placeholder], [alt], [label]')].forEach((element) => {
+    if (stableRoot && element !== stableRoot && stableRoot.contains(element)) return;
     if (element.closest('[data-user-content]')) return;
     for (const attribute of ['aria-label', 'title', 'placeholder', 'alt', 'label']) {
       if (element.dataset.userAttributes?.split(' ').includes(attribute)) continue;
       const text = element.getAttribute(attribute);
       const owned = element.closest('[data-ui-copy]') && !element.closest('[data-user-copy]');
-      if (text) element.setAttribute(attribute, controls[text] ?? (owned ? translateGameText(text) : translateText(text)));
+      if (text) {
+        const translated = controls[text] ?? (owned ? translateGameText(text) : translateText(text));
+        if (translated !== text) element.setAttribute(attribute, translated);
+      }
     }
   });
 }

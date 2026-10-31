@@ -92,3 +92,17 @@ describe('complete English display resources', () => {
     expect(document.body.textContent).toBe('ターン終了');
   });
 });
+
+it('localizes changed roots and attributes while skipping stable board descendants', () => {
+  setLocale('en');
+  const host = document.createElement('div');
+  host.innerHTML = '<div class="board" aria-label="盤面を拡大"><button aria-label="盤面を縮小">平原</button></div><button title="盤面を縮小">盤面を拡大</button>';
+  const board = host.querySelector<HTMLElement>('.board')!;
+  localizeControls(host, board);
+  expect(board.querySelector('button')!.getAttribute('aria-label')).toBe('盤面を縮小');
+  expect(host.lastElementChild!.getAttribute('title')).toBe('Zoom out');
+  expect(board.getAttribute('aria-label')).toBe('Zoom in');
+  localizeControls(board.querySelector<HTMLElement>('button')!);
+  expect(board.querySelector('button')!.getAttribute('aria-label')).toBe('Zoom out');
+  setLocale('ja');
+});

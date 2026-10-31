@@ -1,0 +1,109 @@
+{
+  "baseline": "a273a8962099a581ccabbe859d13cb0bbf4ea616",
+  "experimentSourceSha256": "f1a43cbb553f2840409f5318c5a2bcd2d24f3d7b6f6acb3062990199167808c3",
+  "profiles": {
+    "classic": {
+      "games": 40,
+      "firstWins": 19,
+      "secondWins": 21,
+      "undecided": 0,
+      "balancedFirstWins": 8,
+      "balancedSecondWins": 12,
+      "defensiveWins": 3,
+      "offensiveWins": 17
+    },
+    "simultaneous": {
+      "games": 40,
+      "firstWins": 20,
+      "secondWins": 20,
+      "undecided": 0,
+      "balancedFirstWins": 9,
+      "balancedSecondWins": 11,
+      "defensiveWins": 1,
+      "offensiveWins": 19
+    },
+    "ambush": {
+      "games": 40,
+      "firstWins": 19,
+      "secondWins": 21,
+      "undecided": 0,
+      "balancedFirstWins": 8,
+      "balancedSecondWins": 12,
+      "defensiveWins": 3,
+      "offensiveWins": 17
+    },
+    "terrain": {
+      "games": 40,
+      "firstWins": 21,
+      "secondWins": 19,
+      "undecided": 0,
+      "balancedFirstWins": 9,
+      "balancedSecondWins": 11,
+      "defensiveWins": 4,
+      "offensiveWins": 16
+    },
+    "combined": {
+      "games": 40,
+      "firstWins": 19,
+      "secondWins": 21,
+      "undecided": 0,
+      "balancedFirstWins": 8,
+      "balancedSecondWins": 12,
+      "defensiveWins": 3,
+      "offensiveWins": 17
+    }
+  },
+  "files": {
+    "combat-classic.jsonl": {
+      "sha256": "d7b39eadf7aee833e20cdfac62620b23d27d29c4205149ad7aa01118c1dadc1a",
+      "games": 24,
+      "simulationDigest": "72bead8a382cd32f7f8632fcd1bc5ec4f4b784f1ff73a7d334f221876a410cac"
+    },
+    "combat-classic-check.jsonl": {
+      "sha256": "78cb59df3f16ecd61781ec0a616a49a6bbacd635fa49a2410af6d939d0779d55",
+      "games": 16,
+      "simulationDigest": "72bead8a382cd32f7f8632fcd1bc5ec4f4b784f1ff73a7d334f221876a410cac"
+    },
+    "combat-simultaneous.jsonl": {
+      "sha256": "fa3c48ff04baecbb6029a6c93d7f023e939645e39cfcd04531e0cd9ea2c57740",
+      "games": 24,
+      "simulationDigest": "50933e4ae254202f772ed29a3150a5d25b2e9699f3ed78078e7028be4e003418"
+    },
+    "combat-simultaneous-check.jsonl": {
+      "sha256": "ba5b699d902ba035c730803bf40dec4613dd21badba5a2c57438f923565caac8",
+      "games": 16,
+      "simulationDigest": "50933e4ae254202f772ed29a3150a5d25b2e9699f3ed78078e7028be4e003418"
+    },
+    "combat-ambush.jsonl": {
+      "sha256": "d25f5d21dfa59b930decad72b46052506c7963317bed8d74bb6a9a7a052c111a",
+      "games": 24,
+      "simulationDigest": "75a71d1e71c20481596eec03c94b527000305bea072c7d50a026f71909172bd7"
+    },
+    "combat-ambush-check.jsonl": {
+      "sha256": "08ce759f800df4e9c954296d7e266dbca8c8f79539f1c01fb201867dcbc4a0da",
+      "games": 16,
+      "simulationDigest": "75a71d1e71c20481596eec03c94b527000305bea072c7d50a026f71909172bd7"
+    },
+    "combat-terrain.jsonl": {
+      "sha256": "359466eb8e7f5680be469645c262acf192bf3680814a3ee9d4a94279264d690b",
+      "games": 24,
+      "simulationDigest": "41fd08ae8700d417470fcbc4676051350dff9fa64320223cca49c5555894f30e"
+    },
+    "combat-terrain-check.jsonl": {
+      "sha256": "2608688f98f733a6bbcf4ea6b2017037de08fadf1f78791b782b1aae6f5462ef",
+      "games": 16,
+      "simulationDigest": "41fd08ae8700d417470fcbc4676051350dff9fa64320223cca49c5555894f30e"
+    },
+    "combat-combined.jsonl": {
+      "sha256": "ec6befee1c475a0fc38ecb5ac7668b91458719fef973ac7de2ce33ffe184b478",
+      "games": 24,
+      "simulationDigest": "d5e97aade83d977ce3e4b2f85f28eda6ca49b59138ac89e98c5547a1aa97cc71"
+    },
+    "combat-combined-check.jsonl": {
+      "sha256": "353651eefabc67cce718389ec76d88e32fb06ba3a7d3775434355c5fc0fe1ac1",
+      "games": 16,
+      "simulationDigest": "d5e97aade83d977ce3e4b2f85f28eda6ca49b59138ac89e98c5547a1aa97cc71"
+    }
+  },
+  "totalGames": 200
+}

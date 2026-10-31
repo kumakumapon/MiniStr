@@ -12,6 +12,10 @@ updates:
       # Match the supported Node 24 runtime rather than future Node APIs.
       - dependency-name: '@types/node'
         update-types: [version-update:semver-major]
+      # jsdom 30 requires Node >=22.22.2; retain the Node 22.13 build contract.
+      # Reconsider this cap when that supported minimum is intentionally raised (#168).
+      - dependency-name: jsdom
+        versions: ['>=30.0.0']
     groups:
       vitest:
         patterns: [vitest, '@vitest/*']

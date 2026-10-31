@@ -1,10 +1,10 @@
 # MiniStr
 
-## v1.2.2
+## v1.3.0
 
-CPUの補給合流・連携攻撃と、別タブ／別アプリから復帰した後のBGM・効果音の再開を改善します。
+守勢CPUの攻撃判断と大盤面の描画・操作応答を改善し、開発依存の監査指摘へ対応します。隣接同時攻撃・視界差の奇襲・地形防御の3案は仕様と比較評価をまとめています。
 
-[リリースノート](docs/releases/v1.2.2.md)・[公開前確認](docs/reviews/2026-10-31-v1.2.2.md)・[互換性方針](docs/compatibility-policy.md)。
+[リリースノート](docs/releases/v1.3.0.md)・[公開前確認](docs/reviews/2026-10-31-v1.3.0.md)・[戦闘ルール評価](docs/reviews/2026-10-31-combat-spec.md)・[互換性方針](docs/compatibility-policy.md)。
 
 ## 概要
 
