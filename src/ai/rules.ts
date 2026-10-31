@@ -137,7 +137,7 @@ function favorableAttack(state: GameState, attacker: DeployedUnit, target: Unit,
     stalemateRelief(state) * 25 + garrisonAllowance(state, attacker, target, result.value.damageToDefender, result.value.damageToAttacker));
   return result.value.outgoing.min >= target.hp
     || result.value.damageToDefender >= result.value.damageToAttacker + config.attackSafetyMargin - leniency
-    || Boolean((config.coordinatedDefense || config.strikePlanning !== 'none') && supportedAttack(state, attacker, target, Boolean(config.coordinatedDefense)));
+    || Boolean(config.coordinatedDefense && supportedAttack(state, attacker, target, true));
 }
 
 /** Upper bound on the extra retaliation any leniency may accept. */
@@ -169,7 +169,11 @@ function interruptsCapture(state: GameState, player: PlayerId, target: Unit): bo
 }
 
 function attackAction(state: GameState, player: PlayerId, config: CpuDifficultyConfig, visibleTargets: readonly Unit[]): CpuAction | undefined {
-  for (const attacker of orderedUnits(state, player)) {
+  // Fire support softens the target before the front takes its counterattack.
+  // Stable ties preserve ID order; a moved indirect gun still fails forecastCombat.
+  const attackers = orderedUnits(state, player);
+  if (config.coordinatedDefense) attackers.sort((a, b) => Number(unitStats[b.kind].indirect) - Number(unitStats[a.kind].indirect));
+  for (const attacker of attackers) {
     if (attacker.hasActed || !hasUsableWeapon(state, attacker)) continue;
     const target = visibleTargets
       .filter(unit => favorableAttack(state, attacker, unit, config))
