@@ -1,0 +1,23 @@
+name: Dependency lock preview
+on:
+  pull_request:
+    branches: [main]
+    paths: ['.github/workflows/dependency-lock-preview.yml', 'package.json']
+permissions:
+  contents: read
+jobs:
+  lock:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
+        with:
+          node-version: 24
+      - run: npm install --global npm@11.9.0
+      - name: Resolve lock without running package scripts
+        run: |
+          npm install --package-lock-only --ignore-scripts --no-audit
+          node --input-type=module -e 'import {readFileSync} from "node:fs"; import {gzipSync} from "node:zlib"; console.log("V130_LOCK_GZIP=" + gzipSync(readFileSync("package-lock.json")).toString("base64"))'
