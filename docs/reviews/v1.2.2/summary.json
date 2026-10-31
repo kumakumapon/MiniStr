@@ -1,0 +1,682 @@
+{
+  "baseCommit": "fa736c016b0295f5271381d613b60a1d402c482b",
+  "cpuSourceCommit": "110c299443c4cac5811db206dc05a8a280ad2c58",
+  "candidateSimulationDigest": "dfda63c07f1c172f856a7dec96ba4d66cbe49f2e11d600d0d3aa4ec9ccbe08e0",
+  "files": [
+    {
+      "file": "final-after.jsonl",
+      "sha256": "8fe35a4abca4ee84e7d27c73d931bc14b72094d8c8b650b62f261ccf9f468077",
+      "simulationDigest": "dfda63c07f1c172f856a7dec96ba4d66cbe49f2e11d600d0d3aa4ec9ccbe08e0",
+      "games": 72,
+      "complete": true,
+      "groups": {
+        "all": {
+          "games": 72,
+          "wins": {
+            "blue": 33,
+            "red": 39
+          },
+          "policyWins": {
+            "offensive": 29,
+            "balanced": 36,
+            "defensive": 7
+          },
+          "difficultyWins": {
+            "normal": 51,
+            "easy": 21
+          },
+          "reasons": {
+            "eliminate": 31,
+            "captureCapital": 9,
+            "decision": 32
+          }
+        },
+        "equalBalanced": {
+          "games": 18,
+          "wins": {
+            "blue": 8,
+            "red": 10
+          },
+          "policyWins": {
+            "balanced": 18
+          },
+          "difficultyWins": {
+            "normal": 18
+          },
+          "reasons": {
+            "eliminate": 6,
+            "captureCapital": 5,
+            "decision": 7
+          }
+        },
+        "equalDifficultyPolicy": {
+          "games": 18,
+          "wins": {
+            "blue": 8,
+            "red": 10
+          },
+          "policyWins": {
+            "offensive": 15,
+            "defensive": 3
+          },
+          "difficultyWins": {
+            "normal": 18
+          },
+          "reasons": {
+            "eliminate": 13,
+            "captureCapital": 1,
+            "decision": 4
+          }
+        },
+        "balancedNormalEasy": {
+          "games": 18,
+          "wins": {
+            "blue": 8,
+            "red": 10
+          },
+          "policyWins": {
+            "balanced": 18
+          },
+          "difficultyWins": {
+            "easy": 7,
+            "normal": 11
+          },
+          "reasons": {
+            "eliminate": 5,
+            "captureCapital": 1,
+            "decision": 12
+          }
+        }
+      }
+    },
+    {
+      "file": "final-before.jsonl",
+      "sha256": "7c3a6809d94e6a88ec682e8b42a4fa400c6492e8b84fad481c5e9fe73f7dd110",
+      "simulationDigest": "8a96f1568e8c4ead457ba5589ebc48c733a40d4d9ca3b2b293c13d3a73b668e4",
+      "games": 72,
+      "complete": true,
+      "groups": {
+        "all": {
+          "games": 72,
+          "wins": {
+            "blue": 35,
+            "red": 37
+          },
+          "policyWins": {
+            "offensive": 33,
+            "balanced": 36,
+            "defensive": 3
+          },
+          "difficultyWins": {
+            "normal": 50,
+            "easy": 22
+          },
+          "reasons": {
+            "eliminate": 31,
+            "captureCapital": 14,
+            "decision": 27
+          }
+        },
+        "equalBalanced": {
+          "games": 18,
+          "wins": {
+            "blue": 9,
+            "red": 9
+          },
+          "policyWins": {
+            "balanced": 18
+          },
+          "difficultyWins": {
+            "normal": 18
+          },
+          "reasons": {
+            "eliminate": 4,
+            "captureCapital": 5,
+            "decision": 9
+          }
+        },
+        "equalDifficultyPolicy": {
+          "games": 18,
+          "wins": {
+            "blue": 8,
+            "red": 10
+          },
+          "policyWins": {
+            "offensive": 17,
+            "defensive": 1
+          },
+          "difficultyWins": {
+            "normal": 18
+          },
+          "reasons": {
+            "eliminate": 8,
+            "captureCapital": 5,
+            "decision": 5
+          }
+        },
+        "balancedNormalEasy": {
+          "games": 18,
+          "wins": {
+            "blue": 9,
+            "red": 9
+          },
+          "policyWins": {
+            "balanced": 18
+          },
+          "difficultyWins": {
+            "easy": 6,
+            "normal": 12
+          },
+          "reasons": {
+            "eliminate": 8,
+            "captureCapital": 1,
+            "decision": 9
+          }
+        }
+      }
+    },
+    {
+      "file": "hard-after.jsonl",
+      "sha256": "34d4a91b9c1fa8e77cbd71ebb2657c848913e9b77f9e35fa69211f44bbbc800d",
+      "simulationDigest": "dfda63c07f1c172f856a7dec96ba4d66cbe49f2e11d600d0d3aa4ec9ccbe08e0",
+      "games": 12,
+      "complete": true,
+      "groups": {
+        "all": {
+          "games": 12,
+          "wins": {
+            "red": 6,
+            "blue": 6
+          },
+          "policyWins": {
+            "balanced": 12
+          },
+          "difficultyWins": {
+            "hard": 10,
+            "normal": 2
+          },
+          "reasons": {
+            "decision": 7,
+            "eliminate": 5
+          }
+        },
+        "equalBalanced": {
+          "games": 0,
+          "wins": {},
+          "policyWins": {},
+          "difficultyWins": {},
+          "reasons": {}
+        },
+        "equalDifficultyPolicy": {
+          "games": 0,
+          "wins": {},
+          "policyWins": {},
+          "difficultyWins": {},
+          "reasons": {}
+        },
+        "balancedNormalEasy": {
+          "games": 0,
+          "wins": {},
+          "policyWins": {},
+          "difficultyWins": {},
+          "reasons": {}
+        }
+      }
+    },
+    {
+      "file": "hard-before.jsonl",
+      "sha256": "fec1c07f821bb8b3f0ff7b085d0b3fae7a23a10aac8a3840ccbeac7b3a314db4",
+      "simulationDigest": "8a96f1568e8c4ead457ba5589ebc48c733a40d4d9ca3b2b293c13d3a73b668e4",
+      "games": 12,
+      "complete": true,
+      "groups": {
+        "all": {
+          "games": 12,
+          "wins": {
+            "red": 6,
+            "blue": 6
+          },
+          "policyWins": {
+            "balanced": 12
+          },
+          "difficultyWins": {
+            "hard": 10,
+            "normal": 2
+          },
+          "reasons": {
+            "decision": 6,
+            "eliminate": 6
+          }
+        },
+        "equalBalanced": {
+          "games": 0,
+          "wins": {},
+          "policyWins": {},
+          "difficultyWins": {},
+          "reasons": {}
+        },
+        "equalDifficultyPolicy": {
+          "games": 0,
+          "wins": {},
+          "policyWins": {},
+          "difficultyWins": {},
+          "reasons": {}
+        },
+        "balancedNormalEasy": {
+          "games": 0,
+          "wins": {},
+          "policyWins": {},
+          "difficultyWins": {},
+          "reasons": {}
+        }
+      }
+    },
+    {
+      "file": "holdout-before.jsonl",
+      "sha256": "9ac726876fdca605a2f4a23101aa6ff381df20923d4fc1dca7416ebafc889169",
+      "simulationDigest": "8a96f1568e8c4ead457ba5589ebc48c733a40d4d9ca3b2b293c13d3a73b668e4",
+      "games": 72,
+      "complete": true,
+      "groups": {
+        "all": {
+          "games": 72,
+          "wins": {
+            "blue": 37,
+            "red": 35
+          },
+          "policyWins": {
+            "offensive": 65,
+            "defensive": 7
+          },
+          "difficultyWins": {
+            "normal": 38,
+            "easy": 34
+          },
+          "reasons": {
+            "eliminate": 36,
+            "captureCapital": 22,
+            "decision": 14
+          }
+        },
+        "equalBalanced": {
+          "games": 0,
+          "wins": {},
+          "policyWins": {},
+          "difficultyWins": {},
+          "reasons": {}
+        },
+        "equalDifficultyPolicy": {
+          "games": 36,
+          "wins": {
+            "blue": 19,
+            "red": 17
+          },
+          "policyWins": {
+            "offensive": 31,
+            "defensive": 5
+          },
+          "difficultyWins": {
+            "normal": 36
+          },
+          "reasons": {
+            "eliminate": 18,
+            "captureCapital": 10,
+            "decision": 8
+          }
+        },
+        "balancedNormalEasy": {
+          "games": 0,
+          "wins": {},
+          "policyWins": {},
+          "difficultyWins": {},
+          "reasons": {}
+        }
+      }
+    },
+    {
+      "file": "holdout-trial2.jsonl",
+      "sha256": "44a4920e80118a9c0ea2368b88644287b7e61968ada065d0f1a604078e3baa95",
+      "simulationDigest": "016091b6f8c95cb7d05545e2c3fb8010ca58f4b53b03a4010321e921e7862a69",
+      "games": 72,
+      "complete": true,
+      "groups": {
+        "all": {
+          "games": 72,
+          "wins": {
+            "blue": 36,
+            "red": 36
+          },
+          "policyWins": {
+            "offensive": 68,
+            "defensive": 4
+          },
+          "difficultyWins": {
+            "normal": 38,
+            "easy": 34
+          },
+          "reasons": {
+            "eliminate": 41,
+            "captureCapital": 20,
+            "decision": 11
+          }
+        },
+        "equalBalanced": {
+          "games": 0,
+          "wins": {},
+          "policyWins": {},
+          "difficultyWins": {},
+          "reasons": {}
+        },
+        "equalDifficultyPolicy": {
+          "games": 36,
+          "wins": {
+            "blue": 18,
+            "red": 18
+          },
+          "policyWins": {
+            "offensive": 34,
+            "defensive": 2
+          },
+          "difficultyWins": {
+            "normal": 36
+          },
+          "reasons": {
+            "eliminate": 22,
+            "captureCapital": 9,
+            "decision": 5
+          }
+        },
+        "balancedNormalEasy": {
+          "games": 0,
+          "wins": {},
+          "policyWins": {},
+          "difficultyWins": {},
+          "reasons": {}
+        }
+      }
+    },
+    {
+      "file": "tune-before.jsonl",
+      "sha256": "82bd37a8d175940b1dddceb92527963452467397f42aa3a8abb53872defb1c21",
+      "simulationDigest": "8a96f1568e8c4ead457ba5589ebc48c733a40d4d9ca3b2b293c13d3a73b668e4",
+      "games": 16,
+      "complete": true,
+      "groups": {
+        "all": {
+          "games": 16,
+          "wins": {
+            "red": 11,
+            "blue": 5
+          },
+          "policyWins": {
+            "balanced": 8,
+            "offensive": 8
+          },
+          "difficultyWins": {
+            "normal": 16
+          },
+          "reasons": {
+            "eliminate": 7,
+            "decision": 7,
+            "captureCapital": 2
+          }
+        },
+        "equalBalanced": {
+          "games": 8,
+          "wins": {
+            "red": 7,
+            "blue": 1
+          },
+          "policyWins": {
+            "balanced": 8
+          },
+          "difficultyWins": {
+            "normal": 8
+          },
+          "reasons": {
+            "eliminate": 3,
+            "decision": 5
+          }
+        },
+        "equalDifficultyPolicy": {
+          "games": 8,
+          "wins": {
+            "blue": 4,
+            "red": 4
+          },
+          "policyWins": {
+            "offensive": 8
+          },
+          "difficultyWins": {
+            "normal": 8
+          },
+          "reasons": {
+            "eliminate": 4,
+            "captureCapital": 2,
+            "decision": 2
+          }
+        },
+        "balancedNormalEasy": {
+          "games": 0,
+          "wins": {},
+          "policyWins": {},
+          "difficultyWins": {},
+          "reasons": {}
+        }
+      }
+    },
+    {
+      "file": "tune-trial1.jsonl",
+      "sha256": "7ee540193814aa71eb1073390f76f6de41cd42f0aff354e94f776fc18888bb7a",
+      "simulationDigest": "1e45522808d929ce97ed5e44e0ca4493517110179c664315c92853a146520817",
+      "games": 16,
+      "complete": true,
+      "groups": {
+        "all": {
+          "games": 16,
+          "wins": {
+            "red": 11,
+            "blue": 5
+          },
+          "policyWins": {
+            "balanced": 8,
+            "offensive": 8
+          },
+          "difficultyWins": {
+            "normal": 16
+          },
+          "reasons": {
+            "eliminate": 7,
+            "decision": 7,
+            "captureCapital": 2
+          }
+        },
+        "equalBalanced": {
+          "games": 8,
+          "wins": {
+            "red": 7,
+            "blue": 1
+          },
+          "policyWins": {
+            "balanced": 8
+          },
+          "difficultyWins": {
+            "normal": 8
+          },
+          "reasons": {
+            "eliminate": 2,
+            "decision": 5,
+            "captureCapital": 1
+          }
+        },
+        "equalDifficultyPolicy": {
+          "games": 8,
+          "wins": {
+            "blue": 4,
+            "red": 4
+          },
+          "policyWins": {
+            "offensive": 8
+          },
+          "difficultyWins": {
+            "normal": 8
+          },
+          "reasons": {
+            "eliminate": 5,
+            "captureCapital": 1,
+            "decision": 2
+          }
+        },
+        "balancedNormalEasy": {
+          "games": 0,
+          "wins": {},
+          "policyWins": {},
+          "difficultyWins": {},
+          "reasons": {}
+        }
+      }
+    },
+    {
+      "file": "tune-trial2.jsonl",
+      "sha256": "9a2d0a6146252b72367b5c9941e56e1ac3c5a5e580a3d3775b38a18658ef3102",
+      "simulationDigest": "73a91570bee4e70eb8bb9ccaccba49ecf3af739a1e6e582e05308d11b27f7bcc",
+      "games": 16,
+      "complete": true,
+      "groups": {
+        "all": {
+          "games": 16,
+          "wins": {
+            "red": 8,
+            "blue": 8
+          },
+          "policyWins": {
+            "balanced": 8,
+            "offensive": 8
+          },
+          "difficultyWins": {
+            "normal": 16
+          },
+          "reasons": {
+            "eliminate": 8,
+            "decision": 7,
+            "captureCapital": 1
+          }
+        },
+        "equalBalanced": {
+          "games": 8,
+          "wins": {
+            "red": 4,
+            "blue": 4
+          },
+          "policyWins": {
+            "balanced": 8
+          },
+          "difficultyWins": {
+            "normal": 8
+          },
+          "reasons": {
+            "eliminate": 3,
+            "decision": 5
+          }
+        },
+        "equalDifficultyPolicy": {
+          "games": 8,
+          "wins": {
+            "blue": 4,
+            "red": 4
+          },
+          "policyWins": {
+            "offensive": 8
+          },
+          "difficultyWins": {
+            "normal": 8
+          },
+          "reasons": {
+            "eliminate": 5,
+            "captureCapital": 1,
+            "decision": 2
+          }
+        },
+        "balancedNormalEasy": {
+          "games": 0,
+          "wins": {},
+          "policyWins": {},
+          "difficultyWins": {},
+          "reasons": {}
+        }
+      }
+    },
+    {
+      "file": "tune-trial3.jsonl",
+      "sha256": "e7ea466c8d42f3a2a086f632bb9a6b351a31dcfdba73e14b9ae1a086c0a416b3",
+      "simulationDigest": "dfda63c07f1c172f856a7dec96ba4d66cbe49f2e11d600d0d3aa4ec9ccbe08e0",
+      "games": 16,
+      "complete": true,
+      "groups": {
+        "all": {
+          "games": 16,
+          "wins": {
+            "red": 11,
+            "blue": 5
+          },
+          "policyWins": {
+            "balanced": 8,
+            "offensive": 8
+          },
+          "difficultyWins": {
+            "normal": 16
+          },
+          "reasons": {
+            "eliminate": 5,
+            "decision": 8,
+            "captureCapital": 3
+          }
+        },
+        "equalBalanced": {
+          "games": 8,
+          "wins": {
+            "red": 7,
+            "blue": 1
+          },
+          "policyWins": {
+            "balanced": 8
+          },
+          "difficultyWins": {
+            "normal": 8
+          },
+          "reasons": {
+            "eliminate": 2,
+            "decision": 5,
+            "captureCapital": 1
+          }
+        },
+        "equalDifficultyPolicy": {
+          "games": 8,
+          "wins": {
+            "blue": 4,
+            "red": 4
+          },
+          "policyWins": {
+            "offensive": 8
+          },
+          "difficultyWins": {
+            "normal": 8
+          },
+          "reasons": {
+            "captureCapital": 2,
+            "eliminate": 3,
+            "decision": 3
+          }
+        },
+        "balancedNormalEasy": {
+          "games": 0,
+          "wins": {},
+          "policyWins": {},
+          "difficultyWins": {},
+          "reasons": {}
+        }
+      }
+    }
+  ],
+  "totalGames": 376
+}

@@ -12,7 +12,17 @@ async function prepareMusic(page: Page, width: number) {
       }
       // Observe the real Web Audio graph: which tracks have a started, not yet stopped source.
       const trackOf = new WeakMap<object, string>();
-      const observed = { started: [] as string[], active: new Map<AudioBufferSourceNode, string>(), peak: 0, loops: [] as boolean[], elements: [] as HTMLAudioElement[] };
+      const observed = {
+        started: [] as string[],
+        active: new Map<AudioBufferSourceNode, string>(),
+        peak: 0,
+        loops: [] as boolean[],
+        elements: [] as HTMLAudioElement[],
+        contexts: new Set<AudioContext>(),
+        resumes: new Map<AudioContext, number>(),
+        failures: [] as string[],
+        effects: 0,
+      };
       Object.assign(window, { musicProbe: observed });
       // Browsers without Web Audio (e.g. Playwright's Windows WebKit) use the <audio> fallback: observe that too.
       const OriginalAudio = window.Audio;
@@ -34,6 +44,32 @@ async function prepareMusic(page: Page, width: number) {
         };
         return response;
       };
+      const NativeContext = window.AudioContext;
+      window.AudioContext = new Proxy(NativeContext, {
+        construct(Context, args) {
+          const context = Reflect.construct(Context, args) as AudioContext;
+          observed.contexts.add(context);
+          const resume = context.resume.bind(context);
+          context.resume = () => {
+            observed.resumes.set(context, (observed.resumes.get(context) ?? 0) + 1);
+            return resume().catch((error: unknown) => {
+              observed.failures.push(String(error));
+              throw error;
+            });
+          };
+          const createOscillator = context.createOscillator.bind(context);
+          context.createOscillator = () => {
+            const node = createOscillator();
+            const start = node.start.bind(node);
+            node.start = (...args: Parameters<OscillatorNode['start']>) => {
+              observed.effects++;
+              start(...args);
+            };
+            return node;
+          };
+          return context;
+        },
+      });
       const base = BaseAudioContext.prototype;
       const decode = base.decodeAudioData;
       base.decodeAudioData = function (this: BaseAudioContext, data: ArrayBuffer, ...rest: never[]) {
@@ -84,7 +120,17 @@ async function prepareMusic(page: Page, width: number) {
   await page.goto('/');
 }
 
-type Probe = { started: string[]; active: Map<unknown, string>; peak: number; loops: boolean[]; elements: HTMLAudioElement[] };
+type Probe = {
+  resumes: Map<AudioContext, number>;
+  failures: string[];
+  contexts: Set<AudioContext>;
+  effects: number;
+  started: string[];
+  active: Map<unknown, string>;
+  peak: number;
+  loops: boolean[];
+  elements: HTMLAudioElement[];
+};
 // Tracks of the sources that have started and not yet stopped. Exactly one must sound at a time.
 const playing = (page: Page) =>
   page.evaluate(() => {
@@ -96,10 +142,11 @@ const peak = (page: Page) => page.evaluate(() => (window as unknown as { musicPr
 const elementCount = (page: Page) => page.evaluate(() => (window as unknown as { musicProbe: Probe }).musicProbe.elements.length);
 const startCount = (page: Page) => page.evaluate(() => (window as unknown as { musicProbe: Probe }).musicProbe.started.length);
 
-async function startHotseat(page: Page) {
+async function startHotseat(page: Page, keyboard = false) {
   await page.locator('.title-map-card[data-map-id="army-music"]').click();
   await page.locator('input[name="match-mode"][value="hotseat"]').check();
-  await page.locator('#begin-operation').click();
+  if (keyboard) await page.locator('#begin-operation').press('Enter');
+  else await page.locator('#begin-operation').click();
 }
 
 async function expectSingleAudio(page: Page) {
@@ -170,6 +217,57 @@ for (const width of [1280, 390]) {
     await expect.poll(() => playing(page)).toContain('rock-red-theme.ogg');
     // A shared track keeps playing: no new source is started when the army changes.
     expect(await startCount(page)).toBe(startsBefore);
+    await expectSingleAudio(page);
+  });
+}
+
+for (const width of [1280, 390]) {
+  test(`recovers music and effects after background return without another tap at ${width}`, async ({ page }) => {
+    await prepareMusic(page, width);
+    await page.bringToFront();
+    await startHotseat(page, true);
+    await expectSingleAudio(page);
+    const contexts = () =>
+      page.evaluate(() => [...(window as unknown as { musicProbe: Probe }).musicProbe.contexts].filter((ctx) => ctx.state !== 'closed').map((ctx) => ctx.state));
+    const expectedContexts = await page.evaluate(() => ((window as unknown as { musicProbe: Probe }).musicProbe.elements.some((element) => !element.paused) ? 1 : 2));
+    await expect.poll(contexts).toHaveLength(expectedContexts);
+    try {
+      await expect.poll(contexts).toEqual(Array(expectedContexts).fill('running'));
+    } catch (error) {
+      console.log(
+        'Initial audio activation',
+        await page.evaluate(() => {
+          const probe = (window as unknown as { musicProbe: Probe }).musicProbe;
+          return {
+            hidden: document.hidden,
+            focused: document.hasFocus(),
+            activated: navigator.userActivation?.hasBeenActive,
+            contexts: [...probe.contexts].map((ctx) => ({ state: ctx.state, time: ctx.currentTime, resumes: probe.resumes.get(ctx) ?? 0 })),
+            failures: probe.failures,
+          };
+        }),
+      );
+      throw error;
+    }
+    const sourcesBefore = await startCount(page);
+    for (const event of ['visibilitychange', 'pageshow', 'focus']) {
+      await page.evaluate(async (event) => {
+        const probe = (window as unknown as { musicProbe: Probe }).musicProbe;
+        Object.defineProperty(document, 'hidden', { configurable: true, get: () => true });
+        await Promise.all([...probe.contexts].filter((ctx) => ctx.state !== 'closed').map((ctx) => ctx.suspend()));
+        document.dispatchEvent(new Event('visibilitychange'));
+        if ([...probe.contexts].some((ctx) => ctx.state !== 'closed' && ctx.state !== 'suspended')) throw Error('resumed in background');
+        Object.defineProperty(document, 'hidden', { configurable: true, get: () => false });
+        (event === 'visibilitychange' ? document : window).dispatchEvent(new Event(event));
+      }, event);
+      await expect.poll(contexts).toEqual(Array(expectedContexts).fill('running'));
+      await expectSingleAudio(page);
+      expect(await startCount(page)).toBe(sourcesBefore);
+    }
+    const effectsBefore = await page.evaluate(() => (window as unknown as { musicProbe: Probe }).musicProbe.effects);
+    await page.locator('#end').click();
+    await expect.poll(() => page.evaluate(() => (window as unknown as { musicProbe: Probe }).musicProbe.effects)).toBeGreaterThan(effectsBefore);
+    await expect.poll(() => playing(page)).toContain('rock-blue-theme.ogg');
     await expectSingleAudio(page);
   });
 }

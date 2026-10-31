@@ -1,3 +1,5 @@
+import { format, resolveConfig } from 'prettier';
+
 const severities = ['info', 'low', 'moderate', 'high', 'critical'] as const;
 type Severity = (typeof severities)[number];
 
@@ -26,4 +28,9 @@ export function parseAuditReport(stdout: string, status: number | null): AuditRe
 
 export function hasBlockingFindings(report: AuditReport): boolean {
   return report.metadata.vulnerabilities.high > 0 || report.metadata.vulnerabilities.critical > 0;
+}
+
+/** Preserve audit arrays losslessly while matching the repository JSON formatter. */
+export async function formatAuditEvidence(value: unknown): Promise<string> {
+  return format(JSON.stringify(value), { ...(await resolveConfig('package.json')), parser: 'json' });
 }

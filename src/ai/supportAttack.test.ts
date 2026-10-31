@@ -32,3 +32,23 @@ it('allows profitable defensive exchanges only from a compatible owned repair fa
     expect(supportedAttack(state, attacker, target, false)).toBe(false);
   }
 });
+
+it('fires ready indirect support before exposing the defensive front to retaliation', async () => {
+  const { chooseCpuAction } = await import('./rules');
+  const { applyGameCommand } = await import('../game');
+  const { state, attacker, support, target } = fixture();
+  const scenario = operation({ victoryConditions: [{ type: 'eliminate' }], defeatConditions: [{ type: 'eliminate' }] });
+  const battle = { ...createScenarioInitialState(scenario), units: [attacker, support, target] };
+  const action = chooseCpuAction(battle, 'normal', 'red', 'defensive');
+  expect(action).toEqual({ type: 'attack', unitId: support.id, targetId: target.id });
+  const result = applyGameCommand(battle, action);
+  expect(result.ok).toBe(true);
+  if (result.ok) {
+    expect(result.value.units.find((unit) => unit.id === attacker.id)!.hp).toBe(attacker.hp);
+    expect(result.value.units.find((unit) => unit.id === target.id)!.hp).toBeLessThan(target.hp);
+  }
+  const unavailable = { ...battle, units: [attacker, { ...support, hasActed: true }, target] };
+  expect(chooseCpuAction(unavailable, 'normal', 'red', 'defensive')).not.toMatchObject({ type: 'attack', unitId: support.id });
+  expect(chooseCpuAction({ ...battle, ruleVersion: 11 }, 'normal', 'red', 'defensive')).toEqual(chooseCpuAction({ ...battle, ruleVersion: 11 }, 'normal', 'red', 'balanced'));
+  expect(state.units).toEqual([attacker, support, target]);
+});

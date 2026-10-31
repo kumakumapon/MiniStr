@@ -1,6 +1,6 @@
 import { spawnSync } from 'node:child_process';
 import { writeFileSync } from 'node:fs';
-import { hasBlockingFindings, parseAuditReport } from './dependencyAudit';
+import { formatAuditEvidence, hasBlockingFindings, parseAuditReport } from './dependencyAudit';
 
 const evidence: { auditScope: string; report: ReturnType<typeof parseAuditReport> }[] = [];
 for (const production of [false, true]) {
@@ -13,6 +13,6 @@ for (const production of [false, true]) {
 }
 
 // Preserve both scopes before failing; an npm/service error is never a zero report.
-if (process.env.DEPENDENCY_AUDIT_PATH) writeFileSync(process.env.DEPENDENCY_AUDIT_PATH, JSON.stringify({ capturedAt: new Date().toISOString(), evidence }, null, 2) + '\n');
+if (process.env.DEPENDENCY_AUDIT_PATH) writeFileSync(process.env.DEPENDENCY_AUDIT_PATH, await formatAuditEvidence({ capturedAt: new Date().toISOString(), evidence }));
 if (evidence.some(({ report }) => hasBlockingFindings(report)))
   throw new Error('Dependency audit found high or critical vulnerabilities. Review the saved evidence before updating dependencies.');

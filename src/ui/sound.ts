@@ -38,6 +38,9 @@ export function saveSoundSettings(storage: StorageLike, settings: SoundSettings)
 
 type AudioContextConstructor = new () => AudioContext;
 
+/** Never replay an effect from a background backlog. */
+export const SOUND_RECOVERY_WINDOW_MS = 250;
+
 interface SoundVoice {
   wave: OscillatorType;
   from: number;
@@ -100,16 +103,20 @@ export class ProceduralSoundPlayer {
   private constructorRef: AudioContextConstructor | undefined;
   private readonly battleSounds = new Map<GainNode, () => void>();
   private noise: AudioBuffer | undefined;
+  private pendingEffect: { event: SoundEvent; requestedAt: number } | undefined;
+  private effectResume: Promise<void> | undefined;
 
   constructor(
     private settings: SoundSettings,
     constructorRef?: AudioContextConstructor,
   ) {
-    this.constructorRef = constructorRef ?? window.AudioContext;
+    const scope = window as Window & { AudioContext?: AudioContextConstructor; webkitAudioContext?: AudioContextConstructor };
+    this.constructorRef = constructorRef ?? scope.AudioContext ?? scope.webkitAudioContext;
   }
 
   setSettings(settings: SoundSettings): void {
     this.settings = settings;
+    if (settings.muted || settings.volume === 0) this.pendingEffect = undefined;
     for (const [gain, stop] of this.battleSounds) {
       if (settings.muted || settings.volume === 0) stop();
       else gain.gain.setValueAtTime(settings.volume, this.context!.currentTime);
@@ -118,7 +125,18 @@ export class ProceduralSoundPlayer {
 
   async unlock(): Promise<void> {
     if (!this.constructorRef) return;
-    this.context ??= new this.constructorRef();
+    if (!this.context) {
+      this.context = new this.constructorRef();
+      this.context.addEventListener?.('statechange', () => {
+        if (!document.hidden && this.context?.state !== 'running' && this.context?.state !== 'closed') void this.recover();
+      });
+    }
+    await this.recover();
+  }
+
+  /** Resume an existing context without playing missed cues or allocating a new one. */
+  async recover(): Promise<void> {
+    if (!this.context) return;
     if (this.context.state !== 'running') {
       try {
         await this.context.resume();
@@ -130,7 +148,23 @@ export class ProceduralSoundPlayer {
 
   play(event: SoundEvent): void {
     const context = this.context;
-    if (!context || context.state !== 'running' || this.settings.muted || this.settings.volume === 0) return;
+    if (!context || context.state === 'closed' || this.settings.muted || this.settings.volume === 0) return;
+    if (context.state !== 'running') {
+      if (document.hidden) return;
+      // UI handlers can run before the gesture's async resume has settled.
+      // Retain only the latest fresh cue and one pending resume, never a queue.
+      this.pendingEffect = { event, requestedAt: Date.now() };
+      if (!this.effectResume) {
+        const resumed = this.recover().then(() => {
+          const cue = this.pendingEffect;
+          this.pendingEffect = undefined;
+          if (cue && Date.now() - cue.requestedAt <= SOUND_RECOVERY_WINDOW_MS && context.state === 'running') this.play(cue.event);
+        }).finally(() => { this.effectResume = undefined; });
+        this.effectResume = resumed;
+      }
+      return;
+    }
+    this.pendingEffect = undefined;
     const now = context.currentTime;
     soundVoices[event].forEach((voice, index) => this.playVoice(context, voice, now, index));
   }

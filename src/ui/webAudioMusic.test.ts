@@ -37,6 +37,14 @@ class FakeContext implements MusicAudioContext {
   currentTime = 0;
   sampleRate = 48000;
   state = 'suspended';
+  readonly listeners: (() => void)[] = [];
+  addEventListener(_type: 'statechange', listener: () => void) {
+    this.listeners.push(listener);
+  }
+  interrupt(state = 'interrupted') {
+    this.state = state;
+    this.listeners.forEach((listener) => listener());
+  }
   destination = {};
   duration = 24;
   readonly gainNode = { gain: { value: -1 }, connect: vi.fn() };
@@ -474,5 +482,73 @@ describe('BackgroundMusicPlayer fallback to the element', () => {
     } finally {
       vi.useRealTimers();
     }
+  });
+});
+
+describe('music recovery after an app switch', () => {
+  it('does not initialize audio before a gesture and can recover a pending backend choice', async () => {
+    const { player, createContext, release } = setup({ hold: ['frontier'] });
+    await player.recover();
+    expect(createContext).not.toHaveBeenCalled();
+    const start = player.unlock();
+    const restore = player.recover();
+    await release('frontier');
+    await Promise.all([start, restore]);
+    expect(createContext).toHaveBeenCalledTimes(1);
+  });
+
+  it('resumes suspended/interrupted contexts without restarting or duplicating the current source', async () => {
+    const { player, ctx } = setup();
+    await player.unlock();
+    await flush();
+    const source = ctx!.playing()[0];
+    ctx!.currentTime = 7;
+    ctx!.state = 'suspended';
+    await player.recover();
+    expect(ctx!.state).toBe('running');
+    ctx!.interrupt();
+    await flush();
+    expect(ctx!.state).toBe('running');
+    expect(ctx!.playing()).toEqual([source]);
+    expect(source?.starts).toHaveLength(1);
+    const hidden = vi.spyOn(document, 'hidden', 'get').mockReturnValue(true);
+    const resumes = ctx!.resume.mock.calls.length;
+    ctx!.interrupt();
+    expect(ctx!.resume).toHaveBeenCalledTimes(resumes);
+    hidden.mockRestore();
+    ctx!.interrupt('closed');
+    expect(ctx!.resume).toHaveBeenCalledTimes(resumes);
+  });
+
+  it('preserves mute, volume and a completed battle cue across repeated recovery', async () => {
+    const { player, ctx } = setup();
+    await player.unlock();
+    await flush();
+    player.setBattle(true);
+    await flush();
+    ctx!.playing()[0]!.end();
+    ctx!.state = 'suspended';
+    await player.recover();
+    expect(ctx!.playing()).toHaveLength(0);
+    player.setBattle(false);
+    player.setSettings({ ...defaultMusicSettings, muted: true });
+    await player.recover();
+    expect(ctx!.playing()).toHaveLength(0);
+    player.setSettings({ ...defaultMusicSettings, volume: 0 });
+    await player.recover();
+    expect(ctx!.playing()).toHaveLength(0);
+  });
+
+  it('retries a paused element fallback and a denied recovery on the next unlock', async () => {
+    const { player, audio } = setup({ ctx: null });
+    await player.unlock();
+    audio.paused = true;
+    audio.currentTime = 9;
+    audio.play.mockRejectedValueOnce(Error('autoplay'));
+    await player.recover();
+    expect(audio.paused).toBe(true);
+    await player.unlock();
+    expect(audio.paused).toBe(false);
+    expect(audio.currentTime).toBe(9);
   });
 });

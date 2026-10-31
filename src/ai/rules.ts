@@ -1,3 +1,4 @@
+import { supplyRendezvous } from './supplyRendezvous';
 import { supportedAttack } from './supportAttack';
 import { policyConfig } from './armyPolicy';
 import type { ArmyPolicy } from '../game/armyPolicy';
@@ -168,7 +169,11 @@ function interruptsCapture(state: GameState, player: PlayerId, target: Unit): bo
 }
 
 function attackAction(state: GameState, player: PlayerId, config: CpuDifficultyConfig, visibleTargets: readonly Unit[]): CpuAction | undefined {
-  for (const attacker of orderedUnits(state, player)) {
+  // Fire support softens the target before the front takes its counterattack.
+  // Stable ties preserve ID order; a moved indirect gun still fails forecastCombat.
+  const attackers = orderedUnits(state, player);
+  if (config.coordinatedDefense) attackers.sort((a, b) => Number(unitStats[b.kind].indirect) - Number(unitStats[a.kind].indirect));
+  for (const attacker of attackers) {
     if (attacker.hasActed || !hasUsableWeapon(state, attacker)) continue;
     const target = visibleTargets
       .filter(unit => favorableAttack(state, attacker, unit, config))
@@ -980,6 +985,17 @@ function chooseOrientedCpuAction(state: GameState, difficulty: CpuDifficulty, pl
     ?? chooseDemolition(state, player, context.visibleEnemies)
     ?? engineeringAction(state, player, context)
     ?? mergeAction(state, player)
+    ?? (difficulty !== 'easy' ? supplyRendezvous(state, player, readyUnits, (truck, position) => {
+      if (coordinationValue(state, player, truck, position, context.targets) <= -100) return Number.NEGATIVE_INFINITY;
+      const moved = { ...truck, position };
+      const projected = { ...state, units: state.units.map(unit => unit.id === truck.id ? moved : unit) };
+      const incoming = context.visibleEnemies.reduce((damage, enemy) => {
+        const shot = forecastCombat(projected, enemy, moved);
+        return damage + (shot.ok ? shot.value.outgoing.max : 0);
+      }, 0);
+      if (incoming >= truck.hp / 2) return Number.NEGATIVE_INFINITY;
+      return evaluateCpuPosition(state, player, truck, position, context.targets, config, context.visibleEnemies);
+    }) : undefined)
     ?? clearNavalServiceLane(state, player, readyUnits)
     ?? chooseAirliftAction(state, player, context.targets, context.landComponents, context.visibleEnemies)
     ?? transportAction(state, player, context.targets, context.landComponents, context.visibleEnemies)

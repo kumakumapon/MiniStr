@@ -252,6 +252,13 @@ export class BackgroundMusicPlayer {
     return this.decision.then(() => this.backend?.unlock());
   }
 
+  /** Lifecycle recovery never creates a backend before the first user gesture. */
+  recover(): Promise<void> {
+    if (!this.decision) return Promise.resolve();
+    if (this.backend) return this.backend.unlock();
+    return this.decision.then(() => this.backend?.unlock());
+  }
+
   setBattle(active: boolean, restart = false): void {
     if (active === this.battle && !(active && restart)) return;
     this.battle = active;

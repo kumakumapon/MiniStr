@@ -127,3 +127,13 @@ test('external actions remain SHA pinned and use the reviewed runtime updates', 
     );
   assert.doesNotMatch(ci, /# v[34](?:\s|$)/m);
 });
+
+test('native audio recovery has an output device and runs before the unchanged full browser gate', () => {
+  assert.match(ci, /sudo apt-get install --yes --no-install-recommends pulseaudio pulseaudio-utils/);
+  assert.match(ci, /pulseaudio --start --exit-idle-time=-1/);
+  assert.match(ci, /pactl load-module module-null-sink sink_name=ministr_ci/);
+  assert.match(ci, /pactl set-default-sink ministr_ci/);
+  const audio = ci.indexOf("run: npx playwright test tests/e2e/army-music.spec.ts --grep 'background return'");
+  assert.ok(audio > ci.indexOf('run: npx playwright install --with-deps chromium firefox webkit'));
+  assert.ok(audio < ci.indexOf('run: npm run test:e2e'));
+});

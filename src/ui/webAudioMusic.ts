@@ -32,6 +32,7 @@ export interface MusicAudioContext {
   createBufferSource(): MusicBufferSource;
   createBuffer(channels: number, length: number, sampleRate: number): MusicBuffer;
   decodeAudioData(data: ArrayBuffer): Promise<MusicBuffer>;
+  addEventListener?(type: 'statechange', listener: () => void): void;
   resume(): Promise<void>;
   close(): Promise<void>;
 }
@@ -110,6 +111,10 @@ export class WebAudioMusicBackend {
     this.gain = deps.ctx.createGain();
     this.gain.gain.value = settings.volume;
     this.gain.connect(deps.ctx.destination);
+    // iOS may report "interrupted" after the visibility event has already fired.
+    deps.ctx.addEventListener?.('statechange', () => {
+      if (this.activated && deps.ctx.state !== 'running' && deps.ctx.state !== 'closed' && !document.hidden) void this.resume();
+    });
   }
 
   /** Reuse the buffer already decoded while choosing this backend. */
@@ -162,6 +167,7 @@ export class WebAudioMusicBackend {
     if (this.deps.ctx.state === 'running') return;
     try {
       await this.deps.ctx.resume();
+      this.sync();
     } catch {
       // Autoplay policy or an interruption: the next user gesture retries.
     }

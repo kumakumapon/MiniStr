@@ -1,14 +1,10 @@
 # MiniStr
 
-## v1.2.1
+## v1.2.2
 
-CPU観戦の操作応答と大盤面の開始処理、取り消し履歴のメモリ保持を改善します。別タブの保存競合保護、未保存対局の書き出し、破損バックアップから正常な対局を救出する導線を追加します。Vite 8の配布UI検証とWebKitの観戦操作も修正しました。対局ルールv12・対局／リプレイschema4・キャンペーンschema5を維持します。
+CPUの補給合流・連携攻撃と、別タブ／別アプリから復帰した後のBGM・効果音の再開を改善します。
 
-[リリースノート](docs/releases/v1.2.1.md)・[公開前確認](docs/reviews/2026-10-30-v1.2.1.md)・[性能評価](docs/reviews/2026-10-30-save-safety.md)・[互換性方針](docs/compatibility-policy.md)。
-
-ブラウザで遊べるターン制戦略ゲームです。Issue #1 の仕様案（Phase 1–6）を起点に、キャンペーンと戦場の拡充、近代ルール、決着力の向上と2人対戦（Phase 7–10）、CPU同士の観戦、タイトル画面まで実装しています。
-
-🎮 **[GitHub Pages でプレイする](https://kumakumapon.github.io/MiniStr/)** | 📚 [実装仕様](#実装仕様) | 🏗️ [実装ガイド](docs/implementation-guide.md) | 🛠️ [セットアップ](#セットアップ)
+[リリースノート](docs/releases/v1.2.2.md)・[公開前確認](docs/reviews/2026-10-31-v1.2.2.md)・[互換性方針](docs/compatibility-policy.md)。
 
 ## 概要
 
