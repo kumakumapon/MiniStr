@@ -19,6 +19,8 @@ async function prepareMusic(page: Page, width: number) {
         loops: [] as boolean[],
         elements: [] as HTMLAudioElement[],
         contexts: new Set<AudioContext>(),
+        resumes: new Map<AudioContext, number>(),
+        failures: [] as string[],
         effects: 0,
       };
       Object.assign(window, { musicProbe: observed });
@@ -42,28 +44,33 @@ async function prepareMusic(page: Page, width: number) {
         };
         return response;
       };
-      const resume = AudioContext.prototype.resume;
-      AudioContext.prototype.resume = function (this: AudioContext) {
-        observed.contexts.add(this);
-        return resume.call(this);
-      };
+      const NativeContext = window.AudioContext;
+      window.AudioContext = new Proxy(NativeContext, {
+        construct(Context, args) {
+          const context = Reflect.construct(Context, args) as AudioContext;
+          observed.contexts.add(context);
+          const resume = context.resume.bind(context);
+          context.resume = () => {
+            observed.resumes.set(context, (observed.resumes.get(context) ?? 0) + 1);
+            return resume().catch((error: unknown) => {
+              observed.failures.push(String(error));
+              throw error;
+            });
+          };
+          const createOscillator = context.createOscillator.bind(context);
+          context.createOscillator = () => {
+            const node = createOscillator();
+            const start = node.start.bind(node);
+            node.start = (...args: Parameters<OscillatorNode['start']>) => {
+              observed.effects++;
+              start(...args);
+            };
+            return node;
+          };
+          return context;
+        },
+      });
       const base = BaseAudioContext.prototype;
-      const gain = base.createGain;
-      base.createGain = function (this: AudioContext) {
-        observed.contexts.add(this);
-        return gain.call(this);
-      };
-      const oscillator = base.createOscillator;
-      base.createOscillator = function (this: BaseAudioContext) {
-        const node = oscillator.call(this);
-        const start = node.start.bind(node);
-        node.start = (...args: Parameters<OscillatorNode['start']>) => {
-          observed.effects++;
-          start(...args);
-        };
-        return node;
-      };
-
       const decode = base.decodeAudioData;
       base.decodeAudioData = function (this: BaseAudioContext, data: ArrayBuffer, ...rest: never[]) {
         const url = trackOf.get(data);
@@ -113,7 +120,17 @@ async function prepareMusic(page: Page, width: number) {
   await page.goto('/');
 }
 
-type Probe = { contexts: Set<AudioContext>; effects: number; started: string[]; active: Map<unknown, string>; peak: number; loops: boolean[]; elements: HTMLAudioElement[] };
+type Probe = {
+  resumes: Map<AudioContext, number>;
+  failures: string[];
+  contexts: Set<AudioContext>;
+  effects: number;
+  started: string[];
+  active: Map<unknown, string>;
+  peak: number;
+  loops: boolean[];
+  elements: HTMLAudioElement[];
+};
 // Tracks of the sources that have started and not yet stopped. Exactly one must sound at a time.
 const playing = (page: Page) =>
   page.evaluate(() => {
@@ -125,10 +142,11 @@ const peak = (page: Page) => page.evaluate(() => (window as unknown as { musicPr
 const elementCount = (page: Page) => page.evaluate(() => (window as unknown as { musicProbe: Probe }).musicProbe.elements.length);
 const startCount = (page: Page) => page.evaluate(() => (window as unknown as { musicProbe: Probe }).musicProbe.started.length);
 
-async function startHotseat(page: Page) {
+async function startHotseat(page: Page, keyboard = false) {
   await page.locator('.title-map-card[data-map-id="army-music"]').click();
   await page.locator('input[name="match-mode"][value="hotseat"]').check();
-  await page.locator('#begin-operation').click();
+  if (keyboard) await page.locator('#begin-operation').press('Enter');
+  else await page.locator('#begin-operation').click();
 }
 
 async function expectSingleAudio(page: Page) {
@@ -206,13 +224,31 @@ for (const width of [1280, 390]) {
 for (const width of [1280, 390]) {
   test(`recovers music and effects after background return without another tap at ${width}`, async ({ page }) => {
     await prepareMusic(page, width);
-    await startHotseat(page);
+    await page.bringToFront();
+    await startHotseat(page, true);
     await expectSingleAudio(page);
     const contexts = () =>
       page.evaluate(() => [...(window as unknown as { musicProbe: Probe }).musicProbe.contexts].filter((ctx) => ctx.state !== 'closed').map((ctx) => ctx.state));
     const expectedContexts = await page.evaluate(() => ((window as unknown as { musicProbe: Probe }).musicProbe.elements.some((element) => !element.paused) ? 1 : 2));
     await expect.poll(contexts).toHaveLength(expectedContexts);
-    await expect.poll(contexts).toEqual(Array(expectedContexts).fill('running'));
+    try {
+      await expect.poll(contexts).toEqual(Array(expectedContexts).fill('running'));
+    } catch (error) {
+      console.log(
+        'Initial audio activation',
+        await page.evaluate(() => {
+          const probe = (window as unknown as { musicProbe: Probe }).musicProbe;
+          return {
+            hidden: document.hidden,
+            focused: document.hasFocus(),
+            activated: navigator.userActivation?.hasBeenActive,
+            contexts: [...probe.contexts].map((ctx) => ({ state: ctx.state, time: ctx.currentTime, resumes: probe.resumes.get(ctx) ?? 0 })),
+            failures: probe.failures,
+          };
+        }),
+      );
+      throw error;
+    }
     const sourcesBefore = await startCount(page);
     for (const event of ['visibilitychange', 'pageshow', 'focus']) {
       await page.evaluate(async (event) => {
