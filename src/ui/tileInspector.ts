@@ -39,6 +39,7 @@ export function inspectTile(
   visible: ReadonlySet<string>,
   selectedUnitKind?: UnitKind,
   productionRule: ProductionRule = defaultProductionRule,
+  fullInformation = false,
 ): TileInspection | undefined {
   const terrain = terrainAt(state.board, position);
   if (!terrain) return undefined;
@@ -58,7 +59,7 @@ export function inspectTile(
   const inspection: TileInspection = { position, title, rows, hidden: !visible.has(`${position.x},${position.y}`) };
   const unit = state.units.find(candidate => isDeployedUnit(candidate)
     && candidate.position.x === position.x && candidate.position.y === position.y);
-  if (!unit || inspection.hidden || unit.owner !== viewer && !detectedContact(state, viewer, unit)) return inspection;
+  if (!unit || inspection.hidden || !fullInformation && unit.owner !== viewer && !detectedContact(state, viewer, unit)) return inspection;
   const stats = unitStats[unit.kind];
   if (state.fortifications?.some(site => site.owner === unit.owner && site.position.x === position.x && site.position.y === position.y) && isGroundUnit(unit.kind)) rows.push({ label: '陣地防御', value: '陣地の所有軍の地上部隊 防御★+1（合計上限★4）' });
   const unitRows: InspectorRow[] = [

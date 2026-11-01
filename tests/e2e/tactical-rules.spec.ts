@@ -91,6 +91,35 @@ for (const width of [1280, 390])
       });
     }
 
+    test(`shows submarine details only in an explicit full spectator view at ${width}/${locale}`, async ({ page }) => {
+      const scenario = operation({
+        tacticalOptions: { ...combinedTactics, weather: false },
+        board: { width: 9, height: 6, cells: Array.from({ length: 54 }, (_, i) => [i % 9, Math.floor(i / 9), 'sea']) },
+        initialUnits: [
+          { kind: 'submarine', owner: 'red', x: 1, y: 2 },
+          { kind: 'fighter', owner: 'red', x: 3, y: 1 },
+          { kind: 'submarine', owner: 'blue', x: 4, y: 2 },
+        ],
+        victoryConditions: [{ type: 'eliminate' }],
+        defeatConditions: [{ type: 'eliminate' }],
+      });
+      const saved = savedOperation(scenario, [{ type: 'endTurn' }, { type: 'dive', unitId: 'b1' }, { type: 'endTurn' }]);
+      await page.setViewportSize({ width, height: 844 });
+      await resume(page, { ...saved, mode: 'spectate' }, locale);
+      const full = page.locator('#spectate-whole-board');
+      if ((await full.getAttribute('aria-pressed')) === 'true') await full.click();
+      await expect(tile(page, 4, 2).locator('.unit.blue')).toHaveCount(0);
+      await full.click();
+      await expect(tile(page, 4, 2).locator('.unit.blue')).toHaveCount(1);
+      await page.locator('#spectate-locate-unit').selectOption('b1');
+      await expect(page.locator('#unit-brief')).toHaveAttribute('data-unit-id', 'b1');
+      await expect(page.locator('.tile-inspector-unit')).toContainText(locale === 'en' ? 'Submarine' : '潜水艦');
+      await full.click();
+      await expect(tile(page, 4, 2).locator('.unit.blue')).toHaveCount(0);
+      await expect(page.locator('#unit-brief')).not.toHaveAttribute('data-unit-id', 'b1');
+      await expect(page.locator('.tile-inspector-unit')).toHaveCount(0);
+    });
+
     test(`presents simultaneous return fire and saves both magazines at ${width}/${locale}`, async ({ page }, info) => {
       const scenario = operation({
         tacticalOptions: { ...combinedTactics, weather: false },

@@ -1,3 +1,8 @@
+import { renderEditorView } from './editorView';
+import { EditorHistory } from '../game/editorTools';
+import { createScenarioEditor, importScenarioEditorJson, exportScenarioEditorJson, createEditorGameState } from '../game/editor';
+import { operationData } from '../game/operations.fixture';
+import { combinedTactics } from '../game/tactics';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { setLocale } from './locale';
 import { renderTacticalControls, renderTacticalPreset } from './tactics';
@@ -18,6 +23,25 @@ afterEach(() => {
   vi.useRealTimers();
 });
 describe('tactical controls and contact privacy', () => {
+  it('offers submarines only in enabled editor scenarios and preserves tactical JSON through editing', () => {
+    const history = new EditorHistory();
+    const editor = createScenarioEditor();
+    expect(renderEditorView(editor, '', 'brush', history)).not.toContain('value="submarine"');
+    const source = operationData({
+      tacticalOptions: { ...combinedTactics },
+      board: { width: 9, height: 6, cells: Array.from({ length: 54 }, (_, i) => [i % 9, Math.floor(i / 9), 'sea']) },
+      initialUnits: [
+        { kind: 'submarine', owner: 'red', x: 1, y: 2 },
+        { kind: 'submarine', owner: 'blue', x: 8, y: 5 },
+      ],
+      victoryConditions: [{ type: 'eliminate' }],
+      defeatConditions: [{ type: 'eliminate' }],
+    });
+    const imported = ok(importScenarioEditorJson(JSON.stringify(source), editor));
+    expect(renderEditorView(imported, '', 'brush', history)).toContain('value="submarine"');
+    expect(JSON.parse(exportScenarioEditorJson(imported)).tacticalOptions).toEqual(combinedTactics);
+    expect(ok(createEditorGameState(imported)).state.ruleVersion).toBe(13);
+  });
   it('renders the opt-in title control and localized rule explanations', () => {
     expect(renderTacticalPreset(false)).not.toContain('checked');
     expect(renderTacticalPreset(true)).toContain('checked');
@@ -46,6 +70,8 @@ describe('tactical controls and contact privacy', () => {
     s.board = createBoard(9, 6, { kind: 'sea' });
     const visible = new Set(visiblePositions(s, 'red').map((p) => `${p.x},${p.y}`));
     expect(inspectTile(s, { x: 3, y: 2 }, 'red', visible)?.unit).toBeUndefined();
+    expect(inspectTile(s, { x: 3, y: 2 }, 'red', visible, undefined, undefined, true)?.unit?.title).toContain('潜水艦');
+    expect(renderUnitBrief(s, 'red', visible, 'b1', { x: 3, y: 2 }, undefined, false, true)).toContain('潜水艦');
     expect(renderUnitBrief(s, 'red', visible, 'b1', { x: 3, y: 2 })).not.toContain('潜水艦');
     expect(observedCommand({ ...s, activePlayer: 'blue' }, s, { type: 'move', unitId: 'b1', destination: { x: 4, y: 2 } }, 'red')).toBe(false);
   });

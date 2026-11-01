@@ -15,11 +15,17 @@ export function renderUnitBrief(
   focused: Position,
   weaponSlot?: WeaponSlot,
   canSelectWeapon = false,
+  fullInformation = false,
 ): string {
   const unit =
     state.units.find((unit) => unit.id === selectedId) ?? state.units.find((unit) => isDeployedUnit(unit) && unit.position.x === focused.x && unit.position.y === focused.y);
   const title = `<p class="unit-brief-kicker">${uiText.unitBriefTitle}</p>`;
-  if (!unit || !isDeployedUnit(unit) || (unit.owner !== viewer && !detectedContact(state, viewer, unit)) || !visible.has(`${Number(unit.position.x)},${Number(unit.position.y)}`)) {
+  if (
+    !unit ||
+    !isDeployedUnit(unit) ||
+    (!fullInformation && unit.owner !== viewer && !detectedContact(state, viewer, unit)) ||
+    !visible.has(`${Number(unit.position.x)},${Number(unit.position.y)}`)
+  ) {
     return `<section id="unit-brief" class="unit-brief unit-brief-empty" aria-label="${uiText.unitBriefTitle}">${title}<p>${uiText.unitBriefPrompt}</p></section>`;
   }
   const stats = unitStats[unit.kind];

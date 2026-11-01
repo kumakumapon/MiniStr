@@ -1,0 +1,2585 @@
+{
+  "sourceDigests": [
+    "d8f7acade4fef5fe585c7009269d96432ed7ef6b269e21c4d1d6a4a96f680a95"
+  ],
+  "files": [
+    {
+      "file": "main.jsonl",
+      "reproduce": "npm run balance:tactics -- --sizes 16 --seas none,coast --seeds v140-finalA,v140-finalB --profiles classic,transport,base,combined --layouts original,revised --cpu baseline,adapted --damage-seeds 1401 --policies balanced:balanced --initiative 3 --plain-cover false --rounds 60 --max-games 128 --seconds 1200 --output main.jsonl",
+      "sha256": "d4aa343f7f21c0a886fd7972744332f3b2b4d9b39afc559741c6f5098f9f2423",
+      "header": {
+        "format": "tactical-balance-v1",
+        "source": "d8f7acade4fef5fe585c7009269d96432ed7ef6b269e21c4d1d6a4a96f680a95",
+        "harness": "99d81ea1401f3e2d41a3c759701f66369f63a0a0a94b9cbaeaf2553368ebe210",
+        "runtime": "v24.19.0",
+        "requested": 128,
+        "rounds": 60,
+        "note": "Red always starts. Return legs rotate the map and exchange policies; observations are correlated. Base is v13 common observed-route/contact physics with all optional features off. Transport isolates moved unloading on legacy movement. Baseline CPU means old heuristics using the current legal forecasts. Weather has an independent fixed stream. Undecided games are neither wins nor draws."
+      },
+      "footer": {
+        "complete": true,
+        "completed": 128,
+        "elapsedMs": 135376.431952
+      }
+    },
+    {
+      "file": "features.jsonl",
+      "reproduce": "npm run balance:tactics -- --sizes 16 --seas none,coast --seeds v140-factorC --profiles base,simultaneous,ambush,terrain,weather,zoc,submarines,weather+zoc,weather+submarines,zoc+submarines,weather+zoc+submarines --layouts original,revised --cpu adapted --damage-seeds 1401 --policies balanced:balanced --initiative 3 --plain-cover false --rounds 60 --max-games 88 --seconds 1200 --output features.jsonl",
+      "sha256": "714799a916bba89323312bd1e3f5014d3a7e606fc226287d789ea7765e6d2698",
+      "header": {
+        "format": "tactical-balance-v1",
+        "source": "d8f7acade4fef5fe585c7009269d96432ed7ef6b269e21c4d1d6a4a96f680a95",
+        "harness": "99d81ea1401f3e2d41a3c759701f66369f63a0a0a94b9cbaeaf2553368ebe210",
+        "runtime": "v24.19.0",
+        "requested": 88,
+        "rounds": 60,
+        "note": "Red always starts. Return legs rotate the map and exchange policies; observations are correlated. Base is v13 common observed-route/contact physics with all optional features off. Transport isolates moved unloading on legacy movement. Baseline CPU means old heuristics using the current legal forecasts. Weather has an independent fixed stream. Undecided games are neither wins nor draws."
+      },
+      "footer": {
+        "complete": true,
+        "completed": 88,
+        "elapsedMs": 180767.176007
+      }
+    },
+    {
+      "file": "initiative.jsonl",
+      "reproduce": "npm run balance:tactics -- --sizes 16 --seas coast --seeds v140-numericD --profiles simultaneous,combined --layouts original,revised --cpu baseline,adapted --damage-seeds 1401 --policies balanced:balanced --initiative 0,3,5 --plain-cover false --rounds 60 --max-games 48 --seconds 1200 --output initiative.jsonl",
+      "sha256": "3afe06d8adf9ec36047661bf8d6ff1aa508bff137c1292d65fbfe57ec1d34c30",
+      "header": {
+        "format": "tactical-balance-v1",
+        "source": "d8f7acade4fef5fe585c7009269d96432ed7ef6b269e21c4d1d6a4a96f680a95",
+        "harness": "99d81ea1401f3e2d41a3c759701f66369f63a0a0a94b9cbaeaf2553368ebe210",
+        "runtime": "v24.19.0",
+        "requested": 48,
+        "rounds": 60,
+        "note": "Red always starts. Return legs rotate the map and exchange policies; observations are correlated. Base is v13 common observed-route/contact physics with all optional features off. Transport isolates moved unloading on legacy movement. Baseline CPU means old heuristics using the current legal forecasts. Weather has an independent fixed stream. Undecided games are neither wins nor draws."
+      },
+      "footer": {
+        "complete": true,
+        "completed": 48,
+        "elapsedMs": 53668.942966
+      }
+    },
+    {
+      "file": "cover.jsonl",
+      "reproduce": "npm run balance:tactics -- --sizes 16 --seas coast --seeds v140-numericD --profiles terrain,combined --layouts original,revised --cpu baseline,adapted --damage-seeds 1401 --policies balanced:balanced --initiative 3 --plain-cover true --rounds 60 --max-games 16 --seconds 1200 --output cover.jsonl",
+      "sha256": "ec9a6c3224f15714fc15a80e3bae80fb44413358acff6130a4610685d24f2a3f",
+      "header": {
+        "format": "tactical-balance-v1",
+        "source": "d8f7acade4fef5fe585c7009269d96432ed7ef6b269e21c4d1d6a4a96f680a95",
+        "harness": "99d81ea1401f3e2d41a3c759701f66369f63a0a0a94b9cbaeaf2553368ebe210",
+        "runtime": "v24.19.0",
+        "requested": 16,
+        "rounds": 60,
+        "note": "Red always starts. Return legs rotate the map and exchange policies; observations are correlated. Base is v13 common observed-route/contact physics with all optional features off. Transport isolates moved unloading on legacy movement. Baseline CPU means old heuristics using the current legal forecasts. Weather has an independent fixed stream. Undecided games are neither wins nor draws."
+      },
+      "footer": {
+        "complete": true,
+        "completed": 16,
+        "elapsedMs": 16894.35297
+      }
+    },
+    {
+      "file": "wide.jsonl",
+      "reproduce": "npm run balance:tactics -- --sizes 32 --seas coast,ocean --seeds v140-wideE --profiles classic,transport,combined --layouts original,revised --cpu adapted --damage-seeds 1401 --policies balanced:balanced --initiative 3 --plain-cover false --rounds 60 --max-games 24 --seconds 1200 --output wide.jsonl",
+      "sha256": "5786893d8ecbd35fc08fe4b48cbf2a0aa2e7e7974a5f5617bfd06ceef289d1a9",
+      "header": {
+        "format": "tactical-balance-v1",
+        "source": "d8f7acade4fef5fe585c7009269d96432ed7ef6b269e21c4d1d6a4a96f680a95",
+        "harness": "99d81ea1401f3e2d41a3c759701f66369f63a0a0a94b9cbaeaf2553368ebe210",
+        "runtime": "v24.19.0",
+        "requested": 24,
+        "rounds": 60,
+        "note": "Red always starts. Return legs rotate the map and exchange policies; observations are correlated. Base is v13 common observed-route/contact physics with all optional features off. Transport isolates moved unloading on legacy movement. Baseline CPU means old heuristics using the current legal forecasts. Weather has an independent fixed stream. Undecided games are neither wins nor draws."
+      },
+      "footer": {
+        "complete": true,
+        "completed": 24,
+        "elapsedMs": 110840.596869
+      }
+    },
+    {
+      "file": "policy.jsonl",
+      "reproduce": "npm run balance:tactics -- --sizes 20 --seas coast --seeds v140-policyF --profiles classic,combined --layouts original,revised --cpu adapted --damage-seeds 1401 --policies defensive:defensive,offensive:offensive,defensive:offensive --initiative 3 --plain-cover false --rounds 60 --max-games 24 --seconds 1200 --output policy.jsonl",
+      "sha256": "d165c08e98d33bb9767aa092b6295428434e6f022a38a6f2712c38cd0559a8db",
+      "header": {
+        "format": "tactical-balance-v1",
+        "source": "d8f7acade4fef5fe585c7009269d96432ed7ef6b269e21c4d1d6a4a96f680a95",
+        "harness": "e91a5573803a0df29f8c07a9cc4d63bb49de84004a2748c422bf8b46164c2bbf",
+        "runtime": "v24.19.0",
+        "requested": 24,
+        "rounds": 60,
+        "note": "Red always starts. Return legs rotate the map and exchange policies; observations are correlated. Base is v13 common observed-route/contact physics with all optional features off. Transport isolates moved unloading on legacy movement. Baseline CPU means old heuristics using the current legal forecasts. Weather has an independent fixed stream. Undecided games are neither wins nor draws."
+      },
+      "footer": {
+        "complete": true,
+        "completed": 24,
+        "elapsedMs": 81704.729767
+      }
+    },
+    {
+      "file": "terrain-base.jsonl",
+      "reproduce": "npm run balance:tactics -- --sizes 16 --seas coast --seeds v140-numericD --profiles base,terrain --layouts original,revised --cpu baseline,adapted --damage-seeds 1401 --policies balanced:balanced --initiative 3 --plain-cover false --rounds 60 --max-games 16 --seconds 1200 --output terrain-base.jsonl",
+      "sha256": "6c4c6ab83e609f56f5d3e620e63a2660565f4b36291ab4856df58d22786b013e",
+      "header": {
+        "format": "tactical-balance-v1",
+        "source": "d8f7acade4fef5fe585c7009269d96432ed7ef6b269e21c4d1d6a4a96f680a95",
+        "harness": "e91a5573803a0df29f8c07a9cc4d63bb49de84004a2748c422bf8b46164c2bbf",
+        "runtime": "v24.19.0",
+        "requested": 16,
+        "rounds": 60,
+        "note": "Red always starts. Return legs rotate the map and exchange policies; observations are correlated. Base is v13 common observed-route/contact physics with all optional features off. Transport isolates moved unloading on legacy movement. Baseline CPU means old heuristics using the current legal forecasts. Weather has an independent fixed stream. Undecided games are neither wins nor draws."
+      },
+      "footer": {
+        "complete": true,
+        "completed": 16,
+        "elapsedMs": 17191.384179
+      }
+    },
+    {
+      "file": "catalog-skirmish.jsonl",
+      "reproduce": "npm run balance:tactics -- --catalog skirmish --profiles classic,combined --layouts original,revised --cpu baseline,adapted --damage-seeds 1411,1417 --policies balanced:balanced --initiative 3 --plain-cover false --rounds 60 --max-games 32 --seconds 1200 --output catalog-skirmish.jsonl",
+      "sha256": "f0ea9277f9f9e31910177770afeb86ad5faa4f01aea190192ffd14da0091e364",
+      "header": {
+        "format": "tactical-balance-v1",
+        "source": "d8f7acade4fef5fe585c7009269d96432ed7ef6b269e21c4d1d6a4a96f680a95",
+        "harness": "e91a5573803a0df29f8c07a9cc4d63bb49de84004a2748c422bf8b46164c2bbf",
+        "runtime": "v24.19.0",
+        "requested": 32,
+        "catalog": "skirmish",
+        "rounds": 60,
+        "note": "Red always starts. Return legs rotate the map and exchange policies; observations are correlated. Base is v13 common observed-route/contact physics with all optional features off. Transport isolates moved unloading on legacy movement. Baseline CPU means old heuristics using the current legal forecasts. Weather has an independent fixed stream. Undecided games are neither wins nor draws."
+      },
+      "footer": {
+        "complete": true,
+        "completed": 32,
+        "elapsedMs": 254849.937163
+      }
+    },
+    {
+      "file": "catalog-islands.jsonl",
+      "reproduce": "npm run balance:tactics -- --catalog islands --profiles classic,combined --layouts original,revised --cpu baseline,adapted --damage-seeds 1411,1417 --policies balanced:balanced --initiative 3 --plain-cover false --rounds 60 --max-games 32 --seconds 1200 --output catalog-islands.jsonl",
+      "sha256": "a2b8b5a74855d13fe0be248a5eac0625889d1c7c31bb521425fc652e18ce5447",
+      "header": {
+        "format": "tactical-balance-v1",
+        "source": "d8f7acade4fef5fe585c7009269d96432ed7ef6b269e21c4d1d6a4a96f680a95",
+        "harness": "e91a5573803a0df29f8c07a9cc4d63bb49de84004a2748c422bf8b46164c2bbf",
+        "runtime": "v24.19.0",
+        "requested": 32,
+        "catalog": "islands",
+        "rounds": 60,
+        "note": "Red always starts. Return legs rotate the map and exchange policies; observations are correlated. Base is v13 common observed-route/contact physics with all optional features off. Transport isolates moved unloading on legacy movement. Baseline CPU means old heuristics using the current legal forecasts. Weather has an independent fixed stream. Undecided games are neither wins nor draws."
+      },
+      "footer": {
+        "complete": true,
+        "completed": 32,
+        "elapsedMs": 30418.912575
+      }
+    },
+    {
+      "file": "catalog-tundra.jsonl",
+      "reproduce": "npm run balance:tactics -- --catalog tundra --profiles classic,combined --layouts original,revised --cpu baseline,adapted --damage-seeds 1411,1417 --policies balanced:balanced --initiative 3 --plain-cover false --rounds 60 --max-games 32 --seconds 1200 --output catalog-tundra.jsonl",
+      "sha256": "fab4b24e2bb1481a20c048e6102e3f14ecedf05e47216401f031da8fa75cb171",
+      "header": {
+        "format": "tactical-balance-v1",
+        "source": "d8f7acade4fef5fe585c7009269d96432ed7ef6b269e21c4d1d6a4a96f680a95",
+        "harness": "e91a5573803a0df29f8c07a9cc4d63bb49de84004a2748c422bf8b46164c2bbf",
+        "runtime": "v24.19.0",
+        "requested": 32,
+        "catalog": "tundra",
+        "rounds": 60,
+        "note": "Red always starts. Return legs rotate the map and exchange policies; observations are correlated. Base is v13 common observed-route/contact physics with all optional features off. Transport isolates moved unloading on legacy movement. Baseline CPU means old heuristics using the current legal forecasts. Weather has an independent fixed stream. Undecided games are neither wins nor draws."
+      },
+      "footer": {
+        "complete": true,
+        "completed": 32,
+        "elapsedMs": 44229.123445000005
+      }
+    }
+  ],
+  "totals": {
+    "games": 440,
+    "outcomes": {
+      "red": 230,
+      "blue": 210
+    },
+    "ambushes": 25,
+    "submarineShots": 225,
+    "unloads": 1864,
+    "blockedUnloads": 0,
+    "commands": 570826,
+    "peakUnits": 73,
+    "maxCpuP95Ms": 25.031832000007853
+  },
+  "groups": [
+    {
+      "batch": "catalog-islands",
+      "profile": "classic",
+      "layout": "original",
+      "cpu": "adapted",
+      "initiative": 3,
+      "policy": "balanced:balanced",
+      "games": 4,
+      "outcomes": {
+        "red": 4
+      },
+      "ambushes": 0,
+      "submarineShots": 0,
+      "unloads": 63,
+      "blockedUnloads": 0,
+      "commands": 5063,
+      "peakUnits": 29,
+      "maxCpuP95Ms": 1.4453880000000936
+    },
+    {
+      "batch": "catalog-islands",
+      "profile": "classic",
+      "layout": "original",
+      "cpu": "baseline",
+      "initiative": 3,
+      "policy": "balanced:balanced",
+      "games": 4,
+      "outcomes": {
+        "red": 4
+      },
+      "ambushes": 0,
+      "submarineShots": 0,
+      "unloads": 63,
+      "blockedUnloads": 0,
+      "commands": 5063,
+      "peakUnits": 29,
+      "maxCpuP95Ms": 1.9697249999999258
+    },
+    {
+      "batch": "catalog-islands",
+      "profile": "classic",
+      "layout": "revised",
+      "cpu": "adapted",
+      "initiative": 3,
+      "policy": "balanced:balanced",
+      "games": 4,
+      "outcomes": {
+        "red": 4
+      },
+      "ambushes": 0,
+      "submarineShots": 0,
+      "unloads": 50,
+      "blockedUnloads": 0,
+      "commands": 4855,
+      "peakUnits": 31,
+      "maxCpuP95Ms": 1.255498999998963
+    },
+    {
+      "batch": "catalog-islands",
+      "profile": "classic",
+      "layout": "revised",
+      "cpu": "baseline",
+      "initiative": 3,
+      "policy": "balanced:balanced",
+      "games": 4,
+      "outcomes": {
+        "red": 4
+      },
+      "ambushes": 0,
+      "submarineShots": 0,
+      "unloads": 50,
+      "blockedUnloads": 0,
+      "commands": 4855,
+      "peakUnits": 31,
+      "maxCpuP95Ms": 1.3159270000014658
+    },
+    {
+      "batch": "catalog-islands",
+      "profile": "combined",
+      "layout": "original",
+      "cpu": "adapted",
+      "initiative": 3,
+      "policy": "balanced:balanced",
+      "games": 4,
+      "outcomes": {
+        "red": 2,
+        "blue": 2
+      },
+      "ambushes": 0,
+      "submarineShots": 66,
+      "unloads": 51,
+      "blockedUnloads": 0,
+      "commands": 4475,
+      "peakUnits": 30,
+      "maxCpuP95Ms": 1.6676129999978002
+    },
+    {
+      "batch": "catalog-islands",
+      "profile": "combined",
+      "layout": "original",
+      "cpu": "baseline",
+      "initiative": 3,
+      "policy": "balanced:balanced",
+      "games": 4,
+      "outcomes": {
+        "red": 4
+      },
+      "ambushes": 0,
+      "submarineShots": 0,
+      "unloads": 68,
+      "blockedUnloads": 0,
+      "commands": 4865,
+      "peakUnits": 31,
+      "maxCpuP95Ms": 1.592956000000413
+    },
+    {
+      "batch": "catalog-islands",
+      "profile": "combined",
+      "layout": "revised",
+      "cpu": "adapted",
+      "initiative": 3,
+      "policy": "balanced:balanced",
+      "games": 4,
+      "outcomes": {
+        "blue": 2,
+        "red": 2
+      },
+      "ambushes": 0,
+      "submarineShots": 98,
+      "unloads": 71,
+      "blockedUnloads": 0,
+      "commands": 5465,
+      "peakUnits": 31,
+      "maxCpuP95Ms": 1.7486930000013672
+    },
+    {
+      "batch": "catalog-islands",
+      "profile": "combined",
+      "layout": "revised",
+      "cpu": "baseline",
+      "initiative": 3,
+      "policy": "balanced:balanced",
+      "games": 4,
+      "outcomes": {
+        "blue": 3,
+        "red": 1
+      },
+      "ambushes": 0,
+      "submarineShots": 0,
+      "unloads": 62,
+      "blockedUnloads": 0,
+      "commands": 5132,
+      "peakUnits": 29,
+      "maxCpuP95Ms": 1.4432850000011967
+    },
+    {
+      "batch": "catalog-skirmish",
+      "profile": "classic",
+      "layout": "original",
+      "cpu": "adapted",
+      "initiative": 3,
+      "policy": "balanced:balanced",
+      "games": 4,
+      "outcomes": {
+        "red": 2,
+        "blue": 2
+      },
+      "ambushes": 0,
+      "submarineShots": 0,
+      "unloads": 7,
+      "blockedUnloads": 0,
+      "commands": 10538,
+      "peakUnits": 57,
+      "maxCpuP95Ms": 3.4473939999988943
+    },
+    {
+      "batch": "catalog-skirmish",
+      "profile": "classic",
+      "layout": "original",
+      "cpu": "baseline",
+      "initiative": 3,
+      "policy": "balanced:balanced",
+      "games": 4,
+      "outcomes": {
+        "red": 2,
+        "blue": 2
+      },
+      "ambushes": 0,
+      "submarineShots": 0,
+      "unloads": 7,
+      "blockedUnloads": 0,
+      "commands": 10538,
+      "peakUnits": 57,
+      "maxCpuP95Ms": 3.638036000000284
+    },
+    {
+      "batch": "catalog-skirmish",
+      "profile": "classic",
+      "layout": "revised",
+      "cpu": "adapted",
+      "initiative": 3,
+      "policy": "balanced:balanced",
+      "games": 4,
+      "outcomes": {
+        "blue": 3,
+        "red": 1
+      },
+      "ambushes": 0,
+      "submarineShots": 0,
+      "unloads": 3,
+      "blockedUnloads": 0,
+      "commands": 11514,
+      "peakUnits": 65,
+      "maxCpuP95Ms": 25.031832000007853
+    },
+    {
+      "batch": "catalog-skirmish",
+      "profile": "classic",
+      "layout": "revised",
+      "cpu": "baseline",
+      "initiative": 3,
+      "policy": "balanced:balanced",
+      "games": 4,
+      "outcomes": {
+        "blue": 3,
+        "red": 1
+      },
+      "ambushes": 0,
+      "submarineShots": 0,
+      "unloads": 3,
+      "blockedUnloads": 0,
+      "commands": 11514,
+      "peakUnits": 65,
+      "maxCpuP95Ms": 21.208780999993905
+    },
+    {
+      "batch": "catalog-skirmish",
+      "profile": "combined",
+      "layout": "original",
+      "cpu": "adapted",
+      "initiative": 3,
+      "policy": "balanced:balanced",
+      "games": 4,
+      "outcomes": {
+        "red": 2,
+        "blue": 2
+      },
+      "ambushes": 0,
+      "submarineShots": 0,
+      "unloads": 9,
+      "blockedUnloads": 0,
+      "commands": 11282,
+      "peakUnits": 62,
+      "maxCpuP95Ms": 7.247497000003932
+    },
+    {
+      "batch": "catalog-skirmish",
+      "profile": "combined",
+      "layout": "original",
+      "cpu": "baseline",
+      "initiative": 3,
+      "policy": "balanced:balanced",
+      "games": 4,
+      "outcomes": {
+        "red": 2,
+        "blue": 2
+      },
+      "ambushes": 0,
+      "submarineShots": 0,
+      "unloads": 8,
+      "blockedUnloads": 0,
+      "commands": 12237,
+      "peakUnits": 67,
+      "maxCpuP95Ms": 6.541299000004074
+    },
+    {
+      "batch": "catalog-skirmish",
+      "profile": "combined",
+      "layout": "revised",
+      "cpu": "adapted",
+      "initiative": 3,
+      "policy": "balanced:balanced",
+      "games": 4,
+      "outcomes": {
+        "blue": 2,
+        "red": 2
+      },
+      "ambushes": 0,
+      "submarineShots": 0,
+      "unloads": 8,
+      "blockedUnloads": 0,
+      "commands": 12249,
+      "peakUnits": 57,
+      "maxCpuP95Ms": 6.234021999989636
+    },
+    {
+      "batch": "catalog-skirmish",
+      "profile": "combined",
+      "layout": "revised",
+      "cpu": "baseline",
+      "initiative": 3,
+      "policy": "balanced:balanced",
+      "games": 4,
+      "outcomes": {
+        "blue": 1,
+        "red": 3
+      },
+      "ambushes": 0,
+      "submarineShots": 0,
+      "unloads": 3,
+      "blockedUnloads": 0,
+      "commands": 12567,
+      "peakUnits": 73,
+      "maxCpuP95Ms": 11.999820999975782
+    },
+    {
+      "batch": "catalog-tundra",
+      "profile": "classic",
+      "layout": "original",
+      "cpu": "adapted",
+      "initiative": 3,
+      "policy": "balanced:balanced",
+      "games": 4,
+      "outcomes": {
+        "red": 4
+      },
+      "ambushes": 0,
+      "submarineShots": 0,
+      "unloads": 0,
+      "blockedUnloads": 0,
+      "commands": 3352,
+      "peakUnits": 58,
+      "maxCpuP95Ms": 2.912116999999853
+    },
+    {
+      "batch": "catalog-tundra",
+      "profile": "classic",
+      "layout": "original",
+      "cpu": "baseline",
+      "initiative": 3,
+      "policy": "balanced:balanced",
+      "games": 4,
+      "outcomes": {
+        "red": 4
+      },
+      "ambushes": 0,
+      "submarineShots": 0,
+      "unloads": 0,
+      "blockedUnloads": 0,
+      "commands": 3352,
+      "peakUnits": 58,
+      "maxCpuP95Ms": 3.466282000000092
+    },
+    {
+      "batch": "catalog-tundra",
+      "profile": "classic",
+      "layout": "revised",
+      "cpu": "adapted",
+      "initiative": 3,
+      "policy": "balanced:balanced",
+      "games": 4,
+      "outcomes": {
+        "red": 4
+      },
+      "ambushes": 0,
+      "submarineShots": 0,
+      "unloads": 0,
+      "blockedUnloads": 0,
+      "commands": 3449,
+      "peakUnits": 56,
+      "maxCpuP95Ms": 3.3296510000000126
+    },
+    {
+      "batch": "catalog-tundra",
+      "profile": "classic",
+      "layout": "revised",
+      "cpu": "baseline",
+      "initiative": 3,
+      "policy": "balanced:balanced",
+      "games": 4,
+      "outcomes": {
+        "red": 4
+      },
+      "ambushes": 0,
+      "submarineShots": 0,
+      "unloads": 0,
+      "blockedUnloads": 0,
+      "commands": 3449,
+      "peakUnits": 56,
+      "maxCpuP95Ms": 3.11462500000016
+    },
+    {
+      "batch": "catalog-tundra",
+      "profile": "combined",
+      "layout": "original",
+      "cpu": "adapted",
+      "initiative": 3,
+      "policy": "balanced:balanced",
+      "games": 4,
+      "outcomes": {
+        "red": 4
+      },
+      "ambushes": 0,
+      "submarineShots": 0,
+      "unloads": 0,
+      "blockedUnloads": 0,
+      "commands": 3609,
+      "peakUnits": 58,
+      "maxCpuP95Ms": 4.510091000000102
+    },
+    {
+      "batch": "catalog-tundra",
+      "profile": "combined",
+      "layout": "original",
+      "cpu": "baseline",
+      "initiative": 3,
+      "policy": "balanced:balanced",
+      "games": 4,
+      "outcomes": {
+        "red": 4
+      },
+      "ambushes": 0,
+      "submarineShots": 0,
+      "unloads": 1,
+      "blockedUnloads": 0,
+      "commands": 3568,
+      "peakUnits": 64,
+      "maxCpuP95Ms": 4.198120000000927
+    },
+    {
+      "batch": "catalog-tundra",
+      "profile": "combined",
+      "layout": "revised",
+      "cpu": "adapted",
+      "initiative": 3,
+      "policy": "balanced:balanced",
+      "games": 4,
+      "outcomes": {
+        "red": 4
+      },
+      "ambushes": 0,
+      "submarineShots": 0,
+      "unloads": 0,
+      "blockedUnloads": 0,
+      "commands": 3339,
+      "peakUnits": 53,
+      "maxCpuP95Ms": 3.9897110000019893
+    },
+    {
+      "batch": "catalog-tundra",
+      "profile": "combined",
+      "layout": "revised",
+      "cpu": "baseline",
+      "initiative": 3,
+      "policy": "balanced:balanced",
+      "games": 4,
+      "outcomes": {
+        "red": 4
+      },
+      "ambushes": 0,
+      "submarineShots": 0,
+      "unloads": 0,
+      "blockedUnloads": 0,
+      "commands": 3399,
+      "peakUnits": 54,
+      "maxCpuP95Ms": 3.952740000000631
+    },
+    {
+      "batch": "cover",
+      "profile": "combined",
+      "layout": "original",
+      "cpu": "adapted",
+      "initiative": 3,
+      "policy": "balanced:balanced",
+      "games": 2,
+      "outcomes": {
+        "red": 2
+      },
+      "ambushes": 0,
+      "submarineShots": 1,
+      "unloads": 12,
+      "blockedUnloads": 0,
+      "commands": 1609,
+      "peakUnits": 26,
+      "maxCpuP95Ms": 2.48576200000025
+    },
+    {
+      "batch": "cover",
+      "profile": "combined",
+      "layout": "original",
+      "cpu": "baseline",
+      "initiative": 3,
+      "policy": "balanced:balanced",
+      "games": 2,
+      "outcomes": {
+        "blue": 2
+      },
+      "ambushes": 0,
+      "submarineShots": 0,
+      "unloads": 6,
+      "blockedUnloads": 0,
+      "commands": 3186,
+      "peakUnits": 29,
+      "maxCpuP95Ms": 2.22433700000056
+    },
+    {
+      "batch": "cover",
+      "profile": "combined",
+      "layout": "revised",
+      "cpu": "adapted",
+      "initiative": 3,
+      "policy": "balanced:balanced",
+      "games": 2,
+      "outcomes": {
+        "red": 2
+      },
+      "ambushes": 0,
+      "submarineShots": 3,
+      "unloads": 4,
+      "blockedUnloads": 0,
+      "commands": 1844,
+      "peakUnits": 26,
+      "maxCpuP95Ms": 1.8911249999982829
+    },
+    {
+      "batch": "cover",
+      "profile": "combined",
+      "layout": "revised",
+      "cpu": "baseline",
+      "initiative": 3,
+      "policy": "balanced:balanced",
+      "games": 2,
+      "outcomes": {
+        "red": 1,
+        "blue": 1
+      },
+      "ambushes": 0,
+      "submarineShots": 0,
+      "unloads": 11,
+      "blockedUnloads": 0,
+      "commands": 2594,
+      "peakUnits": 31,
+      "maxCpuP95Ms": 2.2518460000010236
+    },
+    {
+      "batch": "cover",
+      "profile": "terrain",
+      "layout": "original",
+      "cpu": "adapted",
+      "initiative": 3,
+      "policy": "balanced:balanced",
+      "games": 2,
+      "outcomes": {
+        "red": 1,
+        "blue": 1
+      },
+      "ambushes": 0,
+      "submarineShots": 0,
+      "unloads": 7,
+      "blockedUnloads": 0,
+      "commands": 2186,
+      "peakUnits": 29,
+      "maxCpuP95Ms": 2.1906850000000304
+    },
+    {
+      "batch": "cover",
+      "profile": "terrain",
+      "layout": "original",
+      "cpu": "baseline",
+      "initiative": 3,
+      "policy": "balanced:balanced",
+      "games": 2,
+      "outcomes": {
+        "red": 1,
+        "blue": 1
+      },
+      "ambushes": 0,
+      "submarineShots": 0,
+      "unloads": 10,
+      "blockedUnloads": 0,
+      "commands": 2089,
+      "peakUnits": 27,
+      "maxCpuP95Ms": 2.894070000000056
+    },
+    {
+      "batch": "cover",
+      "profile": "terrain",
+      "layout": "revised",
+      "cpu": "adapted",
+      "initiative": 3,
+      "policy": "balanced:balanced",
+      "games": 2,
+      "outcomes": {
+        "blue": 1,
+        "red": 1
+      },
+      "ambushes": 0,
+      "submarineShots": 0,
+      "unloads": 6,
+      "blockedUnloads": 0,
+      "commands": 1588,
+      "peakUnits": 26,
+      "maxCpuP95Ms": 2.4763679999996384
+    },
+    {
+      "batch": "cover",
+      "profile": "terrain",
+      "layout": "revised",
+      "cpu": "baseline",
+      "initiative": 3,
+      "policy": "balanced:balanced",
+      "games": 2,
+      "outcomes": {
+        "blue": 1,
+        "red": 1
+      },
+      "ambushes": 0,
+      "submarineShots": 0,
+      "unloads": 6,
+      "blockedUnloads": 0,
+      "commands": 1587,
+      "peakUnits": 26,
+      "maxCpuP95Ms": 1.7375900000006368
+    },
+    {
+      "batch": "features",
+      "profile": "ambush",
+      "layout": "original",
+      "cpu": "adapted",
+      "initiative": 3,
+      "policy": "balanced:balanced",
+      "games": 4,
+      "outcomes": {
+        "blue": 2,
+        "red": 2
+      },
+      "ambushes": 0,
+      "submarineShots": 0,
+      "unloads": 23,
+      "blockedUnloads": 0,
+      "commands": 5167,
+      "peakUnits": 30,
+      "maxCpuP95Ms": 3.49857200000406
+    },
+    {
+      "batch": "features",
+      "profile": "ambush",
+      "layout": "revised",
+      "cpu": "adapted",
+      "initiative": 3,
+      "policy": "balanced:balanced",
+      "games": 4,
+      "outcomes": {
+        "blue": 4
+      },
+      "ambushes": 0,
+      "submarineShots": 0,
+      "unloads": 31,
+      "blockedUnloads": 0,
+      "commands": 4211,
+      "peakUnits": 29,
+      "maxCpuP95Ms": 4.9442459999991115
+    },
+    {
+      "batch": "features",
+      "profile": "base",
+      "layout": "original",
+      "cpu": "adapted",
+      "initiative": 3,
+      "policy": "balanced:balanced",
+      "games": 4,
+      "outcomes": {
+        "blue": 3,
+        "red": 1
+      },
+      "ambushes": 0,
+      "submarineShots": 0,
+      "unloads": 18,
+      "blockedUnloads": 0,
+      "commands": 4978,
+      "peakUnits": 30,
+      "maxCpuP95Ms": 14.468600000000151
+    },
+    {
+      "batch": "features",
+      "profile": "base",
+      "layout": "revised",
+      "cpu": "adapted",
+      "initiative": 3,
+      "policy": "balanced:balanced",
+      "games": 4,
+      "outcomes": {
+        "blue": 3,
+        "red": 1
+      },
+      "ambushes": 0,
+      "submarineShots": 0,
+      "unloads": 31,
+      "blockedUnloads": 0,
+      "commands": 4234,
+      "peakUnits": 29,
+      "maxCpuP95Ms": 4.880905999998504
+    },
+    {
+      "batch": "features",
+      "profile": "simultaneous",
+      "layout": "original",
+      "cpu": "adapted",
+      "initiative": 3,
+      "policy": "balanced:balanced",
+      "games": 4,
+      "outcomes": {
+        "blue": 4
+      },
+      "ambushes": 0,
+      "submarineShots": 0,
+      "unloads": 15,
+      "blockedUnloads": 0,
+      "commands": 5015,
+      "peakUnits": 28,
+      "maxCpuP95Ms": 5.267535000002681
+    },
+    {
+      "batch": "features",
+      "profile": "simultaneous",
+      "layout": "revised",
+      "cpu": "adapted",
+      "initiative": 3,
+      "policy": "balanced:balanced",
+      "games": 4,
+      "outcomes": {
+        "red": 1,
+        "blue": 3
+      },
+      "ambushes": 0,
+      "submarineShots": 0,
+      "unloads": 8,
+      "blockedUnloads": 0,
+      "commands": 4383,
+      "peakUnits": 26,
+      "maxCpuP95Ms": 6.086500999997952
+    },
+    {
+      "batch": "features",
+      "profile": "submarines",
+      "layout": "original",
+      "cpu": "adapted",
+      "initiative": 3,
+      "policy": "balanced:balanced",
+      "games": 4,
+      "outcomes": {
+        "blue": 2,
+        "red": 2
+      },
+      "ambushes": 0,
+      "submarineShots": 0,
+      "unloads": 22,
+      "blockedUnloads": 0,
+      "commands": 4365,
+      "peakUnits": 30,
+      "maxCpuP95Ms": 5.232822000005399
+    },
+    {
+      "batch": "features",
+      "profile": "submarines",
+      "layout": "revised",
+      "cpu": "adapted",
+      "initiative": 3,
+      "policy": "balanced:balanced",
+      "games": 4,
+      "outcomes": {
+        "blue": 2,
+        "red": 2
+      },
+      "ambushes": 0,
+      "submarineShots": 4,
+      "unloads": 28,
+      "blockedUnloads": 0,
+      "commands": 5106,
+      "peakUnits": 27,
+      "maxCpuP95Ms": 3.4697180000075605
+    },
+    {
+      "batch": "features",
+      "profile": "terrain",
+      "layout": "original",
+      "cpu": "adapted",
+      "initiative": 3,
+      "policy": "balanced:balanced",
+      "games": 4,
+      "outcomes": {
+        "blue": 3,
+        "red": 1
+      },
+      "ambushes": 0,
+      "submarineShots": 0,
+      "unloads": 16,
+      "blockedUnloads": 0,
+      "commands": 5423,
+      "peakUnits": 29,
+      "maxCpuP95Ms": 7.107089999997697
+    },
+    {
+      "batch": "features",
+      "profile": "terrain",
+      "layout": "revised",
+      "cpu": "adapted",
+      "initiative": 3,
+      "policy": "balanced:balanced",
+      "games": 4,
+      "outcomes": {
+        "blue": 3,
+        "red": 1
+      },
+      "ambushes": 0,
+      "submarineShots": 0,
+      "unloads": 25,
+      "blockedUnloads": 0,
+      "commands": 4489,
+      "peakUnits": 32,
+      "maxCpuP95Ms": 4.384055000002263
+    },
+    {
+      "batch": "features",
+      "profile": "weather",
+      "layout": "original",
+      "cpu": "adapted",
+      "initiative": 3,
+      "policy": "balanced:balanced",
+      "games": 4,
+      "outcomes": {
+        "red": 2,
+        "blue": 2
+      },
+      "ambushes": 0,
+      "submarineShots": 0,
+      "unloads": 6,
+      "blockedUnloads": 0,
+      "commands": 4724,
+      "peakUnits": 26,
+      "maxCpuP95Ms": 5.985240999987582
+    },
+    {
+      "batch": "features",
+      "profile": "weather",
+      "layout": "revised",
+      "cpu": "adapted",
+      "initiative": 3,
+      "policy": "balanced:balanced",
+      "games": 4,
+      "outcomes": {
+        "blue": 3,
+        "red": 1
+      },
+      "ambushes": 0,
+      "submarineShots": 0,
+      "unloads": 2,
+      "blockedUnloads": 0,
+      "commands": 5324,
+      "peakUnits": 27,
+      "maxCpuP95Ms": 6.232963999995263
+    },
+    {
+      "batch": "features",
+      "profile": "weather+submarines",
+      "layout": "original",
+      "cpu": "adapted",
+      "initiative": 3,
+      "policy": "balanced:balanced",
+      "games": 4,
+      "outcomes": {
+        "red": 2,
+        "blue": 2
+      },
+      "ambushes": 0,
+      "submarineShots": 0,
+      "unloads": 4,
+      "blockedUnloads": 0,
+      "commands": 5015,
+      "peakUnits": 28,
+      "maxCpuP95Ms": 4.426115999987815
+    },
+    {
+      "batch": "features",
+      "profile": "weather+submarines",
+      "layout": "revised",
+      "cpu": "adapted",
+      "initiative": 3,
+      "policy": "balanced:balanced",
+      "games": 4,
+      "outcomes": {
+        "blue": 2,
+        "red": 2
+      },
+      "ambushes": 0,
+      "submarineShots": 2,
+      "unloads": 7,
+      "blockedUnloads": 0,
+      "commands": 4876,
+      "peakUnits": 28,
+      "maxCpuP95Ms": 5.1961000000010245
+    },
+    {
+      "batch": "features",
+      "profile": "weather+zoc",
+      "layout": "original",
+      "cpu": "adapted",
+      "initiative": 3,
+      "policy": "balanced:balanced",
+      "games": 4,
+      "outcomes": {
+        "red": 2,
+        "blue": 2
+      },
+      "ambushes": 0,
+      "submarineShots": 0,
+      "unloads": 11,
+      "blockedUnloads": 0,
+      "commands": 4458,
+      "peakUnits": 30,
+      "maxCpuP95Ms": 5.748894999996992
+    },
+    {
+      "batch": "features",
+      "profile": "weather+zoc",
+      "layout": "revised",
+      "cpu": "adapted",
+      "initiative": 3,
+      "policy": "balanced:balanced",
+      "games": 4,
+      "outcomes": {
+        "blue": 3,
+        "red": 1
+      },
+      "ambushes": 0,
+      "submarineShots": 0,
+      "unloads": 10,
+      "blockedUnloads": 0,
+      "commands": 5201,
+      "peakUnits": 28,
+      "maxCpuP95Ms": 7.253615999972681
+    },
+    {
+      "batch": "features",
+      "profile": "weather+zoc+submarines",
+      "layout": "original",
+      "cpu": "adapted",
+      "initiative": 3,
+      "policy": "balanced:balanced",
+      "games": 4,
+      "outcomes": {
+        "red": 2,
+        "blue": 2
+      },
+      "ambushes": 0,
+      "submarineShots": 2,
+      "unloads": 11,
+      "blockedUnloads": 0,
+      "commands": 4313,
+      "peakUnits": 30,
+      "maxCpuP95Ms": 2.36801900001592
+    },
+    {
+      "batch": "features",
+      "profile": "weather+zoc+submarines",
+      "layout": "revised",
+      "cpu": "adapted",
+      "initiative": 3,
+      "policy": "balanced:balanced",
+      "games": 4,
+      "outcomes": {
+        "blue": 1,
+        "red": 3
+      },
+      "ambushes": 0,
+      "submarineShots": 4,
+      "unloads": 17,
+      "blockedUnloads": 0,
+      "commands": 4398,
+      "peakUnits": 32,
+      "maxCpuP95Ms": 2.2417309999873396
+    },
+    {
+      "batch": "features",
+      "profile": "zoc",
+      "layout": "original",
+      "cpu": "adapted",
+      "initiative": 3,
+      "policy": "balanced:balanced",
+      "games": 4,
+      "outcomes": {
+        "blue": 3,
+        "red": 1
+      },
+      "ambushes": 0,
+      "submarineShots": 0,
+      "unloads": 19,
+      "blockedUnloads": 0,
+      "commands": 6328,
+      "peakUnits": 31,
+      "maxCpuP95Ms": 8.331292000002577
+    },
+    {
+      "batch": "features",
+      "profile": "zoc",
+      "layout": "revised",
+      "cpu": "adapted",
+      "initiative": 3,
+      "policy": "balanced:balanced",
+      "games": 4,
+      "outcomes": {
+        "blue": 3,
+        "red": 1
+      },
+      "ambushes": 0,
+      "submarineShots": 0,
+      "unloads": 15,
+      "blockedUnloads": 0,
+      "commands": 3993,
+      "peakUnits": 29,
+      "maxCpuP95Ms": 9.35890500000096
+    },
+    {
+      "batch": "features",
+      "profile": "zoc+submarines",
+      "layout": "original",
+      "cpu": "adapted",
+      "initiative": 3,
+      "policy": "balanced:balanced",
+      "games": 4,
+      "outcomes": {
+        "blue": 3,
+        "red": 1
+      },
+      "ambushes": 0,
+      "submarineShots": 0,
+      "unloads": 19,
+      "blockedUnloads": 0,
+      "commands": 5899,
+      "peakUnits": 30,
+      "maxCpuP95Ms": 4.302739000006113
+    },
+    {
+      "batch": "features",
+      "profile": "zoc+submarines",
+      "layout": "revised",
+      "cpu": "adapted",
+      "initiative": 3,
+      "policy": "balanced:balanced",
+      "games": 4,
+      "outcomes": {
+        "blue": 2,
+        "red": 2
+      },
+      "ambushes": 0,
+      "submarineShots": 1,
+      "unloads": 12,
+      "blockedUnloads": 0,
+      "commands": 3566,
+      "peakUnits": 31,
+      "maxCpuP95Ms": 2.741798999981256
+    },
+    {
+      "batch": "initiative",
+      "profile": "combined",
+      "layout": "original",
+      "cpu": "adapted",
+      "initiative": 0,
+      "policy": "balanced:balanced",
+      "games": 2,
+      "outcomes": {
+        "red": 2
+      },
+      "ambushes": 0,
+      "submarineShots": 5,
+      "unloads": 9,
+      "blockedUnloads": 0,
+      "commands": 3171,
+      "peakUnits": 28,
+      "maxCpuP95Ms": 1.8073889999996027
+    },
+    {
+      "batch": "initiative",
+      "profile": "combined",
+      "layout": "original",
+      "cpu": "adapted",
+      "initiative": 3,
+      "policy": "balanced:balanced",
+      "games": 2,
+      "outcomes": {
+        "red": 1,
+        "blue": 1
+      },
+      "ambushes": 1,
+      "submarineShots": 8,
+      "unloads": 15,
+      "blockedUnloads": 0,
+      "commands": 3054,
+      "peakUnits": 26,
+      "maxCpuP95Ms": 1.727722999999969
+    },
+    {
+      "batch": "initiative",
+      "profile": "combined",
+      "layout": "original",
+      "cpu": "adapted",
+      "initiative": 5,
+      "policy": "balanced:balanced",
+      "games": 2,
+      "outcomes": {
+        "red": 1,
+        "blue": 1
+      },
+      "ambushes": 0,
+      "submarineShots": 4,
+      "unloads": 9,
+      "blockedUnloads": 0,
+      "commands": 2557,
+      "peakUnits": 26,
+      "maxCpuP95Ms": 1.870032999999239
+    },
+    {
+      "batch": "initiative",
+      "profile": "combined",
+      "layout": "original",
+      "cpu": "baseline",
+      "initiative": 0,
+      "policy": "balanced:balanced",
+      "games": 2,
+      "outcomes": {
+        "red": 1,
+        "blue": 1
+      },
+      "ambushes": 0,
+      "submarineShots": 0,
+      "unloads": 12,
+      "blockedUnloads": 0,
+      "commands": 2595,
+      "peakUnits": 27,
+      "maxCpuP95Ms": 1.8847729999997682
+    },
+    {
+      "batch": "initiative",
+      "profile": "combined",
+      "layout": "original",
+      "cpu": "baseline",
+      "initiative": 3,
+      "policy": "balanced:balanced",
+      "games": 2,
+      "outcomes": {
+        "blue": 2
+      },
+      "ambushes": 0,
+      "submarineShots": 0,
+      "unloads": 21,
+      "blockedUnloads": 0,
+      "commands": 3125,
+      "peakUnits": 27,
+      "maxCpuP95Ms": 1.6004589999974996
+    },
+    {
+      "batch": "initiative",
+      "profile": "combined",
+      "layout": "original",
+      "cpu": "baseline",
+      "initiative": 5,
+      "policy": "balanced:balanced",
+      "games": 2,
+      "outcomes": {
+        "blue": 2
+      },
+      "ambushes": 0,
+      "submarineShots": 0,
+      "unloads": 8,
+      "blockedUnloads": 0,
+      "commands": 2992,
+      "peakUnits": 27,
+      "maxCpuP95Ms": 1.4670899999982794
+    },
+    {
+      "batch": "initiative",
+      "profile": "combined",
+      "layout": "revised",
+      "cpu": "adapted",
+      "initiative": 0,
+      "policy": "balanced:balanced",
+      "games": 2,
+      "outcomes": {
+        "red": 2
+      },
+      "ambushes": 0,
+      "submarineShots": 2,
+      "unloads": 4,
+      "blockedUnloads": 0,
+      "commands": 2264,
+      "peakUnits": 26,
+      "maxCpuP95Ms": 1.761752999998862
+    },
+    {
+      "batch": "initiative",
+      "profile": "combined",
+      "layout": "revised",
+      "cpu": "adapted",
+      "initiative": 3,
+      "policy": "balanced:balanced",
+      "games": 2,
+      "outcomes": {
+        "red": 2
+      },
+      "ambushes": 0,
+      "submarineShots": 3,
+      "unloads": 4,
+      "blockedUnloads": 0,
+      "commands": 2093,
+      "peakUnits": 26,
+      "maxCpuP95Ms": 1.8690539999952307
+    },
+    {
+      "batch": "initiative",
+      "profile": "combined",
+      "layout": "revised",
+      "cpu": "adapted",
+      "initiative": 5,
+      "policy": "balanced:balanced",
+      "games": 2,
+      "outcomes": {
+        "red": 1,
+        "blue": 1
+      },
+      "ambushes": 0,
+      "submarineShots": 1,
+      "unloads": 19,
+      "blockedUnloads": 0,
+      "commands": 2025,
+      "peakUnits": 27,
+      "maxCpuP95Ms": 1.8761760000052163
+    },
+    {
+      "batch": "initiative",
+      "profile": "combined",
+      "layout": "revised",
+      "cpu": "baseline",
+      "initiative": 0,
+      "policy": "balanced:balanced",
+      "games": 2,
+      "outcomes": {
+        "red": 2
+      },
+      "ambushes": 0,
+      "submarineShots": 0,
+      "unloads": 17,
+      "blockedUnloads": 0,
+      "commands": 2606,
+      "peakUnits": 31,
+      "maxCpuP95Ms": 1.8802559999985533
+    },
+    {
+      "batch": "initiative",
+      "profile": "combined",
+      "layout": "revised",
+      "cpu": "baseline",
+      "initiative": 3,
+      "policy": "balanced:balanced",
+      "games": 2,
+      "outcomes": {
+        "red": 1,
+        "blue": 1
+      },
+      "ambushes": 0,
+      "submarineShots": 0,
+      "unloads": 18,
+      "blockedUnloads": 0,
+      "commands": 2377,
+      "peakUnits": 30,
+      "maxCpuP95Ms": 1.920830000002752
+    },
+    {
+      "batch": "initiative",
+      "profile": "combined",
+      "layout": "revised",
+      "cpu": "baseline",
+      "initiative": 5,
+      "policy": "balanced:balanced",
+      "games": 2,
+      "outcomes": {
+        "red": 1,
+        "blue": 1
+      },
+      "ambushes": 0,
+      "submarineShots": 0,
+      "unloads": 13,
+      "blockedUnloads": 0,
+      "commands": 2228,
+      "peakUnits": 29,
+      "maxCpuP95Ms": 1.8831869999994524
+    },
+    {
+      "batch": "initiative",
+      "profile": "simultaneous",
+      "layout": "original",
+      "cpu": "adapted",
+      "initiative": 0,
+      "policy": "balanced:balanced",
+      "games": 2,
+      "outcomes": {
+        "blue": 1,
+        "red": 1
+      },
+      "ambushes": 0,
+      "submarineShots": 0,
+      "unloads": 17,
+      "blockedUnloads": 0,
+      "commands": 3031,
+      "peakUnits": 26,
+      "maxCpuP95Ms": 1.5317670000004
+    },
+    {
+      "batch": "initiative",
+      "profile": "simultaneous",
+      "layout": "original",
+      "cpu": "adapted",
+      "initiative": 3,
+      "policy": "balanced:balanced",
+      "games": 2,
+      "outcomes": {
+        "red": 1,
+        "blue": 1
+      },
+      "ambushes": 0,
+      "submarineShots": 0,
+      "unloads": 6,
+      "blockedUnloads": 0,
+      "commands": 2531,
+      "peakUnits": 26,
+      "maxCpuP95Ms": 1.5595590000011725
+    },
+    {
+      "batch": "initiative",
+      "profile": "simultaneous",
+      "layout": "original",
+      "cpu": "adapted",
+      "initiative": 5,
+      "policy": "balanced:balanced",
+      "games": 2,
+      "outcomes": {
+        "red": 1,
+        "blue": 1
+      },
+      "ambushes": 0,
+      "submarineShots": 0,
+      "unloads": 29,
+      "blockedUnloads": 0,
+      "commands": 2093,
+      "peakUnits": 26,
+      "maxCpuP95Ms": 1.5995660000044154
+    },
+    {
+      "batch": "initiative",
+      "profile": "simultaneous",
+      "layout": "original",
+      "cpu": "baseline",
+      "initiative": 0,
+      "policy": "balanced:balanced",
+      "games": 2,
+      "outcomes": {
+        "blue": 2
+      },
+      "ambushes": 0,
+      "submarineShots": 0,
+      "unloads": 6,
+      "blockedUnloads": 0,
+      "commands": 3163,
+      "peakUnits": 31,
+      "maxCpuP95Ms": 2.4996320000000196
+    },
+    {
+      "batch": "initiative",
+      "profile": "simultaneous",
+      "layout": "original",
+      "cpu": "baseline",
+      "initiative": 3,
+      "policy": "balanced:balanced",
+      "games": 2,
+      "outcomes": {
+        "red": 2
+      },
+      "ambushes": 0,
+      "submarineShots": 0,
+      "unloads": 9,
+      "blockedUnloads": 0,
+      "commands": 3193,
+      "peakUnits": 30,
+      "maxCpuP95Ms": 1.557215000000724
+    },
+    {
+      "batch": "initiative",
+      "profile": "simultaneous",
+      "layout": "original",
+      "cpu": "baseline",
+      "initiative": 5,
+      "policy": "balanced:balanced",
+      "games": 2,
+      "outcomes": {
+        "red": 2
+      },
+      "ambushes": 0,
+      "submarineShots": 0,
+      "unloads": 9,
+      "blockedUnloads": 0,
+      "commands": 3119,
+      "peakUnits": 30,
+      "maxCpuP95Ms": 1.5006009999997332
+    },
+    {
+      "batch": "initiative",
+      "profile": "simultaneous",
+      "layout": "revised",
+      "cpu": "adapted",
+      "initiative": 0,
+      "policy": "balanced:balanced",
+      "games": 2,
+      "outcomes": {
+        "blue": 1,
+        "red": 1
+      },
+      "ambushes": 0,
+      "submarineShots": 0,
+      "unloads": 13,
+      "blockedUnloads": 0,
+      "commands": 2142,
+      "peakUnits": 25,
+      "maxCpuP95Ms": 1.5389030000005732
+    },
+    {
+      "batch": "initiative",
+      "profile": "simultaneous",
+      "layout": "revised",
+      "cpu": "adapted",
+      "initiative": 3,
+      "policy": "balanced:balanced",
+      "games": 2,
+      "outcomes": {
+        "red": 2
+      },
+      "ambushes": 0,
+      "submarineShots": 0,
+      "unloads": 7,
+      "blockedUnloads": 0,
+      "commands": 2076,
+      "peakUnits": 25,
+      "maxCpuP95Ms": 1.4337590000031923
+    },
+    {
+      "batch": "initiative",
+      "profile": "simultaneous",
+      "layout": "revised",
+      "cpu": "adapted",
+      "initiative": 5,
+      "policy": "balanced:balanced",
+      "games": 2,
+      "outcomes": {
+        "blue": 2
+      },
+      "ambushes": 0,
+      "submarineShots": 0,
+      "unloads": 22,
+      "blockedUnloads": 0,
+      "commands": 2303,
+      "peakUnits": 29,
+      "maxCpuP95Ms": 1.7829659999988507
+    },
+    {
+      "batch": "initiative",
+      "profile": "simultaneous",
+      "layout": "revised",
+      "cpu": "baseline",
+      "initiative": 0,
+      "policy": "balanced:balanced",
+      "games": 2,
+      "outcomes": {
+        "red": 2
+      },
+      "ambushes": 0,
+      "submarineShots": 0,
+      "unloads": 24,
+      "blockedUnloads": 0,
+      "commands": 3055,
+      "peakUnits": 26,
+      "maxCpuP95Ms": 1.5000060000002122
+    },
+    {
+      "batch": "initiative",
+      "profile": "simultaneous",
+      "layout": "revised",
+      "cpu": "baseline",
+      "initiative": 3,
+      "policy": "balanced:balanced",
+      "games": 2,
+      "outcomes": {
+        "red": 1,
+        "blue": 1
+      },
+      "ambushes": 0,
+      "submarineShots": 0,
+      "unloads": 8,
+      "blockedUnloads": 0,
+      "commands": 2760,
+      "peakUnits": 26,
+      "maxCpuP95Ms": 1.413763000000472
+    },
+    {
+      "batch": "initiative",
+      "profile": "simultaneous",
+      "layout": "revised",
+      "cpu": "baseline",
+      "initiative": 5,
+      "policy": "balanced:balanced",
+      "games": 2,
+      "outcomes": {
+        "red": 1,
+        "blue": 1
+      },
+      "ambushes": 0,
+      "submarineShots": 0,
+      "unloads": 13,
+      "blockedUnloads": 0,
+      "commands": 2197,
+      "peakUnits": 30,
+      "maxCpuP95Ms": 1.6654020000059973
+    },
+    {
+      "batch": "main",
+      "profile": "base",
+      "layout": "original",
+      "cpu": "adapted",
+      "initiative": 3,
+      "policy": "balanced:balanced",
+      "games": 8,
+      "outcomes": {
+        "red": 4,
+        "blue": 4
+      },
+      "ambushes": 0,
+      "submarineShots": 0,
+      "unloads": 16,
+      "blockedUnloads": 0,
+      "commands": 6897,
+      "peakUnits": 30,
+      "maxCpuP95Ms": 2.2090729999908945
+    },
+    {
+      "batch": "main",
+      "profile": "base",
+      "layout": "original",
+      "cpu": "baseline",
+      "initiative": 3,
+      "policy": "balanced:balanced",
+      "games": 8,
+      "outcomes": {
+        "red": 5,
+        "blue": 3
+      },
+      "ambushes": 0,
+      "submarineShots": 0,
+      "unloads": 16,
+      "blockedUnloads": 0,
+      "commands": 7450,
+      "peakUnits": 30,
+      "maxCpuP95Ms": 3.979204999996
+    },
+    {
+      "batch": "main",
+      "profile": "base",
+      "layout": "revised",
+      "cpu": "adapted",
+      "initiative": 3,
+      "policy": "balanced:balanced",
+      "games": 8,
+      "outcomes": {
+        "red": 4,
+        "blue": 4
+      },
+      "ambushes": 0,
+      "submarineShots": 0,
+      "unloads": 35,
+      "blockedUnloads": 0,
+      "commands": 10131,
+      "peakUnits": 29,
+      "maxCpuP95Ms": 2.1286309999995865
+    },
+    {
+      "batch": "main",
+      "profile": "base",
+      "layout": "revised",
+      "cpu": "baseline",
+      "initiative": 3,
+      "policy": "balanced:balanced",
+      "games": 8,
+      "outcomes": {
+        "red": 3,
+        "blue": 5
+      },
+      "ambushes": 0,
+      "submarineShots": 0,
+      "unloads": 25,
+      "blockedUnloads": 0,
+      "commands": 8846,
+      "peakUnits": 29,
+      "maxCpuP95Ms": 2.282396000009612
+    },
+    {
+      "batch": "main",
+      "profile": "classic",
+      "layout": "original",
+      "cpu": "adapted",
+      "initiative": 3,
+      "policy": "balanced:balanced",
+      "games": 8,
+      "outcomes": {
+        "red": 3,
+        "blue": 5
+      },
+      "ambushes": 0,
+      "submarineShots": 0,
+      "unloads": 14,
+      "blockedUnloads": 0,
+      "commands": 7586,
+      "peakUnits": 27,
+      "maxCpuP95Ms": 2.568176000000676
+    },
+    {
+      "batch": "main",
+      "profile": "classic",
+      "layout": "original",
+      "cpu": "baseline",
+      "initiative": 3,
+      "policy": "balanced:balanced",
+      "games": 8,
+      "outcomes": {
+        "red": 3,
+        "blue": 5
+      },
+      "ambushes": 0,
+      "submarineShots": 0,
+      "unloads": 14,
+      "blockedUnloads": 0,
+      "commands": 7586,
+      "peakUnits": 27,
+      "maxCpuP95Ms": 3.4258350000000064
+    },
+    {
+      "batch": "main",
+      "profile": "classic",
+      "layout": "revised",
+      "cpu": "adapted",
+      "initiative": 3,
+      "policy": "balanced:balanced",
+      "games": 8,
+      "outcomes": {
+        "red": 3,
+        "blue": 5
+      },
+      "ambushes": 0,
+      "submarineShots": 0,
+      "unloads": 29,
+      "blockedUnloads": 0,
+      "commands": 7877,
+      "peakUnits": 31,
+      "maxCpuP95Ms": 1.9170479999993404
+    },
+    {
+      "batch": "main",
+      "profile": "classic",
+      "layout": "revised",
+      "cpu": "baseline",
+      "initiative": 3,
+      "policy": "balanced:balanced",
+      "games": 8,
+      "outcomes": {
+        "red": 3,
+        "blue": 5
+      },
+      "ambushes": 0,
+      "submarineShots": 0,
+      "unloads": 29,
+      "blockedUnloads": 0,
+      "commands": 7877,
+      "peakUnits": 31,
+      "maxCpuP95Ms": 2.6546589999998105
+    },
+    {
+      "batch": "main",
+      "profile": "combined",
+      "layout": "original",
+      "cpu": "adapted",
+      "initiative": 3,
+      "policy": "balanced:balanced",
+      "games": 8,
+      "outcomes": {
+        "red": 4,
+        "blue": 4
+      },
+      "ambushes": 1,
+      "submarineShots": 6,
+      "unloads": 27,
+      "blockedUnloads": 0,
+      "commands": 7491,
+      "peakUnits": 28,
+      "maxCpuP95Ms": 2.4500050000060583
+    },
+    {
+      "batch": "main",
+      "profile": "combined",
+      "layout": "original",
+      "cpu": "baseline",
+      "initiative": 3,
+      "policy": "balanced:balanced",
+      "games": 8,
+      "outcomes": {
+        "red": 5,
+        "blue": 3
+      },
+      "ambushes": 0,
+      "submarineShots": 0,
+      "unloads": 13,
+      "blockedUnloads": 0,
+      "commands": 8011,
+      "peakUnits": 27,
+      "maxCpuP95Ms": 2.5906039999972563
+    },
+    {
+      "batch": "main",
+      "profile": "combined",
+      "layout": "revised",
+      "cpu": "adapted",
+      "initiative": 3,
+      "policy": "balanced:balanced",
+      "games": 8,
+      "outcomes": {
+        "blue": 3,
+        "red": 5
+      },
+      "ambushes": 1,
+      "submarineShots": 1,
+      "unloads": 30,
+      "blockedUnloads": 0,
+      "commands": 6666,
+      "peakUnits": 29,
+      "maxCpuP95Ms": 8.711303999996744
+    },
+    {
+      "batch": "main",
+      "profile": "combined",
+      "layout": "revised",
+      "cpu": "baseline",
+      "initiative": 3,
+      "policy": "balanced:balanced",
+      "games": 8,
+      "outcomes": {
+        "blue": 6,
+        "red": 2
+      },
+      "ambushes": 0,
+      "submarineShots": 0,
+      "unloads": 41,
+      "blockedUnloads": 0,
+      "commands": 10276,
+      "peakUnits": 29,
+      "maxCpuP95Ms": 2.9002110000001267
+    },
+    {
+      "batch": "main",
+      "profile": "transport",
+      "layout": "original",
+      "cpu": "adapted",
+      "initiative": 3,
+      "policy": "balanced:balanced",
+      "games": 8,
+      "outcomes": {
+        "red": 2,
+        "blue": 6
+      },
+      "ambushes": 0,
+      "submarineShots": 0,
+      "unloads": 18,
+      "blockedUnloads": 0,
+      "commands": 6664,
+      "peakUnits": 27,
+      "maxCpuP95Ms": 3.3589310000024852
+    },
+    {
+      "batch": "main",
+      "profile": "transport",
+      "layout": "original",
+      "cpu": "baseline",
+      "initiative": 3,
+      "policy": "balanced:balanced",
+      "games": 8,
+      "outcomes": {
+        "red": 3,
+        "blue": 5
+      },
+      "ambushes": 0,
+      "submarineShots": 0,
+      "unloads": 14,
+      "blockedUnloads": 0,
+      "commands": 7586,
+      "peakUnits": 27,
+      "maxCpuP95Ms": 2.618408999998792
+    },
+    {
+      "batch": "main",
+      "profile": "transport",
+      "layout": "revised",
+      "cpu": "adapted",
+      "initiative": 3,
+      "policy": "balanced:balanced",
+      "games": 8,
+      "outcomes": {
+        "red": 3,
+        "blue": 5
+      },
+      "ambushes": 0,
+      "submarineShots": 0,
+      "unloads": 28,
+      "blockedUnloads": 0,
+      "commands": 9357,
+      "peakUnits": 31,
+      "maxCpuP95Ms": 2.7980349999997998
+    },
+    {
+      "batch": "main",
+      "profile": "transport",
+      "layout": "revised",
+      "cpu": "baseline",
+      "initiative": 3,
+      "policy": "balanced:balanced",
+      "games": 8,
+      "outcomes": {
+        "red": 3,
+        "blue": 5
+      },
+      "ambushes": 0,
+      "submarineShots": 0,
+      "unloads": 29,
+      "blockedUnloads": 0,
+      "commands": 7877,
+      "peakUnits": 31,
+      "maxCpuP95Ms": 2.7924259999999776
+    },
+    {
+      "batch": "policy",
+      "profile": "classic",
+      "layout": "original",
+      "cpu": "adapted",
+      "initiative": 3,
+      "policy": "defensive:defensive",
+      "games": 2,
+      "outcomes": {
+        "red": 2
+      },
+      "ambushes": 0,
+      "submarineShots": 0,
+      "unloads": 7,
+      "blockedUnloads": 0,
+      "commands": 2254,
+      "peakUnits": 27,
+      "maxCpuP95Ms": 13.511887000000115
+    },
+    {
+      "batch": "policy",
+      "profile": "classic",
+      "layout": "original",
+      "cpu": "adapted",
+      "initiative": 3,
+      "policy": "defensive:offensive",
+      "games": 2,
+      "outcomes": {
+        "blue": 1,
+        "red": 1
+      },
+      "ambushes": 0,
+      "submarineShots": 0,
+      "unloads": 3,
+      "blockedUnloads": 0,
+      "commands": 1259,
+      "peakUnits": 28,
+      "maxCpuP95Ms": 9.490734999999404
+    },
+    {
+      "batch": "policy",
+      "profile": "classic",
+      "layout": "original",
+      "cpu": "adapted",
+      "initiative": 3,
+      "policy": "offensive:offensive",
+      "games": 2,
+      "outcomes": {
+        "blue": 1,
+        "red": 1
+      },
+      "ambushes": 0,
+      "submarineShots": 0,
+      "unloads": 8,
+      "blockedUnloads": 0,
+      "commands": 3061,
+      "peakUnits": 28,
+      "maxCpuP95Ms": 7.575127000000066
+    },
+    {
+      "batch": "policy",
+      "profile": "classic",
+      "layout": "revised",
+      "cpu": "adapted",
+      "initiative": 3,
+      "policy": "defensive:defensive",
+      "games": 2,
+      "outcomes": {
+        "red": 2
+      },
+      "ambushes": 0,
+      "submarineShots": 0,
+      "unloads": 7,
+      "blockedUnloads": 0,
+      "commands": 2364,
+      "peakUnits": 32,
+      "maxCpuP95Ms": 10.192035000000033
+    },
+    {
+      "batch": "policy",
+      "profile": "classic",
+      "layout": "revised",
+      "cpu": "adapted",
+      "initiative": 3,
+      "policy": "defensive:offensive",
+      "games": 2,
+      "outcomes": {
+        "blue": 1,
+        "red": 1
+      },
+      "ambushes": 0,
+      "submarineShots": 0,
+      "unloads": 3,
+      "blockedUnloads": 0,
+      "commands": 1768,
+      "peakUnits": 27,
+      "maxCpuP95Ms": 9.385096999998495
+    },
+    {
+      "batch": "policy",
+      "profile": "classic",
+      "layout": "revised",
+      "cpu": "adapted",
+      "initiative": 3,
+      "policy": "offensive:offensive",
+      "games": 2,
+      "outcomes": {
+        "red": 1,
+        "blue": 1
+      },
+      "ambushes": 0,
+      "submarineShots": 0,
+      "unloads": 6,
+      "blockedUnloads": 0,
+      "commands": 2320,
+      "peakUnits": 26,
+      "maxCpuP95Ms": 7.807995999999548
+    },
+    {
+      "batch": "policy",
+      "profile": "combined",
+      "layout": "original",
+      "cpu": "adapted",
+      "initiative": 3,
+      "policy": "defensive:defensive",
+      "games": 2,
+      "outcomes": {
+        "blue": 2
+      },
+      "ambushes": 9,
+      "submarineShots": 2,
+      "unloads": 8,
+      "blockedUnloads": 0,
+      "commands": 3231,
+      "peakUnits": 33,
+      "maxCpuP95Ms": 12.381481000003987
+    },
+    {
+      "batch": "policy",
+      "profile": "combined",
+      "layout": "original",
+      "cpu": "adapted",
+      "initiative": 3,
+      "policy": "defensive:offensive",
+      "games": 2,
+      "outcomes": {
+        "blue": 1,
+        "red": 1
+      },
+      "ambushes": 1,
+      "submarineShots": 1,
+      "unloads": 2,
+      "blockedUnloads": 0,
+      "commands": 2078,
+      "peakUnits": 27,
+      "maxCpuP95Ms": 11.117513999997755
+    },
+    {
+      "batch": "policy",
+      "profile": "combined",
+      "layout": "original",
+      "cpu": "adapted",
+      "initiative": 3,
+      "policy": "offensive:offensive",
+      "games": 2,
+      "outcomes": {
+        "red": 2
+      },
+      "ambushes": 0,
+      "submarineShots": 1,
+      "unloads": 7,
+      "blockedUnloads": 0,
+      "commands": 1910,
+      "peakUnits": 28,
+      "maxCpuP95Ms": 11.08869599999889
+    },
+    {
+      "batch": "policy",
+      "profile": "combined",
+      "layout": "revised",
+      "cpu": "adapted",
+      "initiative": 3,
+      "policy": "defensive:defensive",
+      "games": 2,
+      "outcomes": {
+        "blue": 2
+      },
+      "ambushes": 6,
+      "submarineShots": 1,
+      "unloads": 3,
+      "blockedUnloads": 0,
+      "commands": 2796,
+      "peakUnits": 33,
+      "maxCpuP95Ms": 7.853095999991638
+    },
+    {
+      "batch": "policy",
+      "profile": "combined",
+      "layout": "revised",
+      "cpu": "adapted",
+      "initiative": 3,
+      "policy": "defensive:offensive",
+      "games": 2,
+      "outcomes": {
+        "blue": 1,
+        "red": 1
+      },
+      "ambushes": 4,
+      "submarineShots": 2,
+      "unloads": 0,
+      "blockedUnloads": 0,
+      "commands": 1899,
+      "peakUnits": 27,
+      "maxCpuP95Ms": 3.351282000003266
+    },
+    {
+      "batch": "policy",
+      "profile": "combined",
+      "layout": "revised",
+      "cpu": "adapted",
+      "initiative": 3,
+      "policy": "offensive:offensive",
+      "games": 2,
+      "outcomes": {
+        "red": 2
+      },
+      "ambushes": 1,
+      "submarineShots": 3,
+      "unloads": 9,
+      "blockedUnloads": 0,
+      "commands": 1716,
+      "peakUnits": 26,
+      "maxCpuP95Ms": 7.178495000000112
+    },
+    {
+      "batch": "terrain-base",
+      "profile": "base",
+      "layout": "original",
+      "cpu": "adapted",
+      "initiative": 3,
+      "policy": "balanced:balanced",
+      "games": 2,
+      "outcomes": {
+        "red": 2
+      },
+      "ambushes": 0,
+      "submarineShots": 0,
+      "unloads": 8,
+      "blockedUnloads": 0,
+      "commands": 2303,
+      "peakUnits": 27,
+      "maxCpuP95Ms": 1.887337000000116
+    },
+    {
+      "batch": "terrain-base",
+      "profile": "base",
+      "layout": "original",
+      "cpu": "baseline",
+      "initiative": 3,
+      "policy": "balanced:balanced",
+      "games": 2,
+      "outcomes": {
+        "red": 1,
+        "blue": 1
+      },
+      "ambushes": 0,
+      "submarineShots": 0,
+      "unloads": 9,
+      "blockedUnloads": 0,
+      "commands": 2751,
+      "peakUnits": 28,
+      "maxCpuP95Ms": 2.5008319999999458
+    },
+    {
+      "batch": "terrain-base",
+      "profile": "base",
+      "layout": "revised",
+      "cpu": "adapted",
+      "initiative": 3,
+      "policy": "balanced:balanced",
+      "games": 2,
+      "outcomes": {
+        "red": 2
+      },
+      "ambushes": 0,
+      "submarineShots": 0,
+      "unloads": 15,
+      "blockedUnloads": 0,
+      "commands": 2215,
+      "peakUnits": 29,
+      "maxCpuP95Ms": 1.7866500000000087
+    },
+    {
+      "batch": "terrain-base",
+      "profile": "base",
+      "layout": "revised",
+      "cpu": "baseline",
+      "initiative": 3,
+      "policy": "balanced:balanced",
+      "games": 2,
+      "outcomes": {
+        "red": 1,
+        "blue": 1
+      },
+      "ambushes": 0,
+      "submarineShots": 0,
+      "unloads": 17,
+      "blockedUnloads": 0,
+      "commands": 2762,
+      "peakUnits": 28,
+      "maxCpuP95Ms": 1.697016999999505
+    },
+    {
+      "batch": "terrain-base",
+      "profile": "terrain",
+      "layout": "original",
+      "cpu": "adapted",
+      "initiative": 3,
+      "policy": "balanced:balanced",
+      "games": 2,
+      "outcomes": {
+        "red": 2
+      },
+      "ambushes": 0,
+      "submarineShots": 0,
+      "unloads": 15,
+      "blockedUnloads": 0,
+      "commands": 2233,
+      "peakUnits": 27,
+      "maxCpuP95Ms": 1.9701499999991938
+    },
+    {
+      "batch": "terrain-base",
+      "profile": "terrain",
+      "layout": "original",
+      "cpu": "baseline",
+      "initiative": 3,
+      "policy": "balanced:balanced",
+      "games": 2,
+      "outcomes": {
+        "red": 1,
+        "blue": 1
+      },
+      "ambushes": 0,
+      "submarineShots": 0,
+      "unloads": 14,
+      "blockedUnloads": 0,
+      "commands": 2682,
+      "peakUnits": 27,
+      "maxCpuP95Ms": 1.93727299999955
+    },
+    {
+      "batch": "terrain-base",
+      "profile": "terrain",
+      "layout": "revised",
+      "cpu": "adapted",
+      "initiative": 3,
+      "policy": "balanced:balanced",
+      "games": 2,
+      "outcomes": {
+        "blue": 1,
+        "red": 1
+      },
+      "ambushes": 0,
+      "submarineShots": 0,
+      "unloads": 11,
+      "blockedUnloads": 0,
+      "commands": 1622,
+      "peakUnits": 26,
+      "maxCpuP95Ms": 3.3826399999998102
+    },
+    {
+      "batch": "terrain-base",
+      "profile": "terrain",
+      "layout": "revised",
+      "cpu": "baseline",
+      "initiative": 3,
+      "policy": "balanced:balanced",
+      "games": 2,
+      "outcomes": {
+        "blue": 1,
+        "red": 1
+      },
+      "ambushes": 0,
+      "submarineShots": 0,
+      "unloads": 15,
+      "blockedUnloads": 0,
+      "commands": 1992,
+      "peakUnits": 25,
+      "maxCpuP95Ms": 2.8805300000003626
+    },
+    {
+      "batch": "wide",
+      "profile": "classic",
+      "layout": "original",
+      "cpu": "adapted",
+      "initiative": 3,
+      "policy": "balanced:balanced",
+      "games": 4,
+      "outcomes": {
+        "blue": 3,
+        "red": 1
+      },
+      "ambushes": 0,
+      "submarineShots": 0,
+      "unloads": 8,
+      "blockedUnloads": 0,
+      "commands": 9002,
+      "peakUnits": 41,
+      "maxCpuP95Ms": 3.815820000000258
+    },
+    {
+      "batch": "wide",
+      "profile": "classic",
+      "layout": "revised",
+      "cpu": "adapted",
+      "initiative": 3,
+      "policy": "balanced:balanced",
+      "games": 4,
+      "outcomes": {
+        "blue": 3,
+        "red": 1
+      },
+      "ambushes": 0,
+      "submarineShots": 0,
+      "unloads": 10,
+      "blockedUnloads": 0,
+      "commands": 8829,
+      "peakUnits": 38,
+      "maxCpuP95Ms": 3.4745549999970535
+    },
+    {
+      "batch": "wide",
+      "profile": "combined",
+      "layout": "original",
+      "cpu": "adapted",
+      "initiative": 3,
+      "policy": "balanced:balanced",
+      "games": 4,
+      "outcomes": {
+        "blue": 2,
+        "red": 2
+      },
+      "ambushes": 1,
+      "submarineShots": 2,
+      "unloads": 14,
+      "blockedUnloads": 0,
+      "commands": 8895,
+      "peakUnits": 42,
+      "maxCpuP95Ms": 4.191990999999689
+    },
+    {
+      "batch": "wide",
+      "profile": "combined",
+      "layout": "revised",
+      "cpu": "adapted",
+      "initiative": 3,
+      "policy": "balanced:balanced",
+      "games": 4,
+      "outcomes": {
+        "red": 3,
+        "blue": 1
+      },
+      "ambushes": 0,
+      "submarineShots": 2,
+      "unloads": 14,
+      "blockedUnloads": 0,
+      "commands": 8888,
+      "peakUnits": 42,
+      "maxCpuP95Ms": 4.662458999999217
+    },
+    {
+      "batch": "wide",
+      "profile": "transport",
+      "layout": "original",
+      "cpu": "adapted",
+      "initiative": 3,
+      "policy": "balanced:balanced",
+      "games": 4,
+      "outcomes": {
+        "red": 1,
+        "blue": 3
+      },
+      "ambushes": 0,
+      "submarineShots": 0,
+      "unloads": 12,
+      "blockedUnloads": 0,
+      "commands": 8472,
+      "peakUnits": 40,
+      "maxCpuP95Ms": 4.302303999997093
+    },
+    {
+      "batch": "wide",
+      "profile": "transport",
+      "layout": "revised",
+      "cpu": "adapted",
+      "initiative": 3,
+      "policy": "balanced:balanced",
+      "games": 4,
+      "outcomes": {
+        "red": 2,
+        "blue": 2
+      },
+      "ambushes": 0,
+      "submarineShots": 0,
+      "unloads": 10,
+      "blockedUnloads": 0,
+      "commands": 8718,
+      "peakUnits": 40,
+      "maxCpuP95Ms": 5.863761999993585
+    }
+  ],
+  "notes": [
+    "Return legs, parameter variants, before/after rules and CPU variants are correlated, not independent samples.",
+    "Red is the first player. Mixed-policy outcomes require policy attribution, not first-player fairness interpretation.",
+    "CPU timing is diagnostic under concurrent local tests, not a controlled performance benchmark.",
+    "Authored tundra is an asymmetric defensive mission; its outcomes are mission success, not first-player fairness.",
+    "Repair expense measures actual serialized upkeep, including a final end-turn handoff before an adjudication.",
+    "Undecided at the comparison horizon is not a draw."
+  ]
+}

@@ -104,3 +104,21 @@ describe('ZOC and submarine movement boundaries', () => {
     expect(moveUnit(occupied, 'r1', { x: 2, y: 2 }).ok).toBe(false);
   });
 });
+
+it('spends a blocked unload onto an undetected submarine under a bridge without firing ambush', async () => {
+  const { disembarkUnit } = await import('./commands');
+  const s = state([
+    unit('transportHelicopter', 'red', 2, 1),
+    { ...unit('infantry', 'red', 0, 0, 'cargo'), position: undefined, embarkedIn: 'r1' },
+    { ...unit('submarine', 'blue', 3, 1), submerged: true },
+  ]);
+  s.board.terrain[1]![3] = { kind: 'sea' };
+  s.bridges = [{ position: { x: 3, y: 1 }, owner: 'red' }];
+  expect(visibleEnemies(s, 'red')).toEqual([]);
+  const next = ok(disembarkUnit(s, 'r1', { x: 3, y: 1 }));
+  expect(next.units.find((u) => u.id === 'cargo')).toMatchObject({ embarkedIn: 'r1', hasMoved: true, hasActed: true });
+  expect(next.units[0]).toMatchObject({ hasMoved: true, hasActed: true });
+  expect(visibleEnemies(next, 'red').map((u) => u.id)).toContain('b1');
+  expect(next.tactics?.lastCombat).toBeUndefined();
+  expect(disembarkUnit(next, 'r1', { x: 3, y: 1 }).ok).toBe(false);
+});
