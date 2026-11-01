@@ -1,10 +1,11 @@
+import { detectedContact } from '../game/tactics';
 import { isDeployedUnit, type DeployedUnit, type GameCommand, type GameState, type Position } from '../game';
 import { unitNames } from './labels';
 import { sideName } from './matchControl';
 import { escapeHtml, uiText } from './strings';
 
-export function renderSpectatorCamera(state: GameState, visible: ReadonlySet<string>, follow: boolean, locatedUnitId?: string): string {
-  const units = spectatorUnits(state, visible);
+export function renderSpectatorCamera(state: GameState, visible: ReadonlySet<string>, follow: boolean, locatedUnitId?: string, wholeBoard = false): string {
+  const units = spectatorUnits(state, visible, wholeBoard);
   return `<div class="spectate-camera-controls" role="group" aria-label="${uiText.spectateCamera}">
     <button id="spectate-follow" class="save-action spectate-follow" aria-pressed="${follow}"><span aria-hidden="true">${follow ? '✓' : '○'}</span> ${uiText.spectateFollow}</button>
     <label class="spectate-locate">${uiText.spectateLocate}<select id="spectate-locate-unit" ${units.length ? '' : 'disabled'}>
@@ -14,9 +15,14 @@ export function renderSpectatorCamera(state: GameState, visible: ReadonlySet<str
 }
 
 /** Only offer units currently shown to the spectator, including in the fogged viewpoint. */
-export function spectatorUnits(state: GameState, visible: ReadonlySet<string>): DeployedUnit[] {
+export function spectatorUnits(state: GameState, visible: ReadonlySet<string>, wholeBoard = false): DeployedUnit[] {
   return state.units
-    .filter((unit): unit is DeployedUnit => isDeployedUnit(unit) && visible.has(`${Number(unit.position.x)},${Number(unit.position.y)}`))
+    .filter(
+      (unit): unit is DeployedUnit =>
+        isDeployedUnit(unit) &&
+        (wholeBoard || unit.owner === state.activePlayer || detectedContact(state, state.activePlayer, unit)) &&
+        visible.has(`${Number(unit.position.x)},${Number(unit.position.y)}`),
+    )
     .sort((a, b) => a.owner.localeCompare(b.owner) || a.id.localeCompare(b.id, 'en', { numeric: true }));
 }
 

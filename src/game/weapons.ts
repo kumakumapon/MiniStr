@@ -1,3 +1,4 @@
+import { tacticalEnabled } from './tactics';
 import { usesDualWeapons, type GameState, type Unit, type UnitKind } from './types';
 import { remainingAmmo, unitDefinitions, unitKinds, type UnitDefinition, type UnitWeapon, type WeaponSlot } from './units';
 
@@ -11,9 +12,15 @@ const loadouts = new Map(
   }),
 );
 
+const antisubmarineLoadout: readonly UnitWeapon[] = [
+  loadouts.get('destroyer')!.primary[0]!,
+  { kind: 'depthCharge', attack: 70, range: [1, 2], ammo: 6, indirect: false, effectiveness: { soft: 0, armor: 0, air: 0, sea: 1.3 } },
+];
+
 /** Historical matches retain their single weapon and combat arithmetic. */
-export function weaponsForUnit(kind: UnitKind, state: Pick<GameState, 'ruleVersion'>): readonly UnitWeapon[] {
+export function weaponsForUnit(kind: UnitKind, state: Pick<GameState, 'ruleVersion' | 'tactics'>): readonly UnitWeapon[] {
   const loadout = loadouts.get(kind)!;
+  if (kind === 'destroyer' && tacticalEnabled(state, 'submarines')) return antisubmarineLoadout;
   return usesDualWeapons(state) ? loadout.dual : loadout.primary;
 }
 
@@ -24,7 +31,7 @@ export function weaponAmmo(unit: Pick<Unit, 'kind' | 'ammo' | 'secondaryAmmo'>, 
   return Number.isFinite(value) ? Math.max(0, Math.min(maximum, Math.floor(value))) : 0;
 }
 
-export function isValidSecondaryAmmo(kind: UnitKind, ammo: unknown, state: Pick<GameState, 'ruleVersion'>): boolean {
+export function isValidSecondaryAmmo(kind: UnitKind, ammo: unknown, state: Pick<GameState, 'ruleVersion' | 'tactics'>): boolean {
   if (ammo === undefined) return true;
   const weapon = weaponsForUnit(kind, state)[1];
   return weapon !== undefined && typeof ammo === 'number' && Number.isSafeInteger(ammo) && ammo >= 0 && ammo <= weapon.ammo;
@@ -34,11 +41,11 @@ export function consumeWeaponAmmo(unit: Unit, slot: WeaponSlot): Unit {
   return slot === 0 ? { ...unit, ammo: weaponAmmo(unit, slot) - 1 } : { ...unit, secondaryAmmo: weaponAmmo(unit, slot) - 1 };
 }
 
-export function rearmUnit(unit: Unit, state: Pick<GameState, 'ruleVersion'>): Unit {
+export function rearmUnit(unit: Unit, state: Pick<GameState, 'ruleVersion' | 'tactics'>): Unit {
   const secondary = weaponsForUnit(unit.kind, state)[1];
   return { ...unit, ammo: unitDefinitions[unit.kind].stats.ammo, ...(secondary ? { secondaryAmmo: secondary.ammo } : {}) };
 }
 
-export function hasUsableWeapon(state: Pick<GameState, 'ruleVersion'>, unit: Unit, afterMoving = unit.hasMoved): boolean {
+export function hasUsableWeapon(state: Pick<GameState, 'ruleVersion' | 'tactics'>, unit: Unit, afterMoving = unit.hasMoved): boolean {
   return weaponsForUnit(unit.kind, state).some((weapon, slot) => weaponAmmo(unit, slot as WeaponSlot) > 0 && (!afterMoving || !weapon.indirect));
 }

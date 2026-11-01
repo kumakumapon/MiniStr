@@ -1,3 +1,4 @@
+import { detectedContact } from '../game/tactics';
 import { SUPPLY_CAPACITY, supplyStock, usesFiniteSupplyRules } from '../game';
 import { supplyOutlook } from './frontline';
 import { isDeployedUnit, hasUsableWeapon, remainingAmmo, weaponAmmo, weaponsForUnit, unitStats, type WeaponSlot, type GameState, type PlayerId, type Position } from '../game';
@@ -18,7 +19,7 @@ export function renderUnitBrief(
   const unit =
     state.units.find((unit) => unit.id === selectedId) ?? state.units.find((unit) => isDeployedUnit(unit) && unit.position.x === focused.x && unit.position.y === focused.y);
   const title = `<p class="unit-brief-kicker">${uiText.unitBriefTitle}</p>`;
-  if (!unit || !isDeployedUnit(unit) || !visible.has(`${Number(unit.position.x)},${Number(unit.position.y)}`)) {
+  if (!unit || !isDeployedUnit(unit) || (unit.owner !== viewer && !detectedContact(state, viewer, unit)) || !visible.has(`${Number(unit.position.x)},${Number(unit.position.y)}`)) {
     return `<section id="unit-brief" class="unit-brief unit-brief-empty" aria-label="${uiText.unitBriefTitle}">${title}<p>${uiText.unitBriefPrompt}</p></section>`;
   }
   const stats = unitStats[unit.kind];
@@ -38,7 +39,7 @@ export function renderUnitBrief(
   if (usesFiniteSupplyRules(state) && unit.kind === 'apc') rows.push([uiText.supplyStock, own ? `${supplyStock(unit)} / ${Number(SUPPLY_CAPACITY)}` : uiText.unitBriefUnknown]);
   return `<section id="unit-brief" class="unit-brief unit-brief-${escapeHtml(unit.owner)}" aria-label="${uiText.unitBriefTitle}" data-unit-id="${escapeHtml(unit.id)}">
     <div class="unit-brief-heading"><div>${title}<h3>${escapeHtml(sideLabel(unit.owner, viewer))} ${escapeHtml(unitNames[unit.kind])}${own && unit.callsign ? ` <span data-user-content>${escapeHtml(unit.callsign)}</span>` : ''}</h3></div><span class="unit-brief-position">(${Number(unit.position.x + 1)}, ${Number(unit.position.y + 1)})${status ? ` · ${status}` : ''}</span></div>
-    <p class="unit-brief-weapon">${escapeHtml(unitWeaponName(unit.kind, state))} · ${uiText.unitBriefRange} ${range} · ${uiText.unitBriefMovement} ${stats.movement}${empty ? ` <strong class="unit-brief-warning">${uiText.ammoEmpty}</strong>` : ''}</p>
+    ${unit.kind === 'submarine' ? `<p>${unit.submerged ? (english ? 'Submerged contact' : '潜航中（探知済み）') : english ? 'Surfaced' : '浮上中'}</p>` : ''}<p class="unit-brief-weapon">${escapeHtml(unitWeaponName(unit.kind, state))} · ${uiText.unitBriefRange} ${range} · ${uiText.unitBriefMovement} ${stats.movement}${empty ? ` <strong class="unit-brief-warning">${uiText.ammoEmpty}</strong>` : ''}</p>
     ${weapons.length > 1 ? `<ul class="unit-brief-weapons">${weapons.map((weapon, slot) => `<li><strong>${escapeHtml(weaponNames[weapon.kind])}</strong> · ${english ? 'Power' : '威力'} ${Number(weapon.attack)} · ${uiText.unitBriefRange} ${weapon.range.join('–')} · ${uiText.ammo} ${own ? `${weaponAmmo(unit, slot as WeaponSlot)} / ${Number(weapon.ammo)}` : uiText.unitBriefUnknown}</li>`).join('')}</ul>` : ''}
     ${own && selectedId === unit.id && weapons.length > 1 && canSelectWeapon ? `<label class="unit-weapon-select">${english ? 'Attack weapon' : '攻撃武器'} <select id="attack-weapon" ${unit.hasActed ? 'disabled' : ''}><option value="auto"${weaponSlot === undefined ? ' selected' : ''}>${english ? 'Auto (strongest available)' : '自動（使用可能な武器の最大ダメージ）'}</option>${weapons.map((weapon, slot) => `<option value="${Number(slot)}"${weaponSlot === slot ? ' selected' : ''} ${weaponAmmo(unit, slot as WeaponSlot) === 0 || (weapon.indirect && unit.hasMoved) ? 'disabled' : ''}>${escapeHtml(weaponNames[weapon.kind])} · ${english ? 'Power' : '威力'} ${Number(weapon.attack)} · ${uiText.ammo} ${weaponAmmo(unit, slot as WeaponSlot)} / ${Number(weapon.ammo)}</option>`).join('')}</select></label>` : ''}
     ${own && supplyOutlook(state, unit) ? `<p class="supply-outlook">${escapeHtml(supplyOutlook(state, unit))}</p>` : ''}

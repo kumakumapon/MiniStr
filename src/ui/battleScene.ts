@@ -24,6 +24,9 @@ export interface BattleParticipant {
 }
 
 export interface BattleScene {
+  simultaneous?: true;
+  ambush?: true;
+  counterFired?: true;
   attacker: BattleParticipant;
   defender: BattleParticipant;
   terrain: TerrainKind;
@@ -31,21 +34,32 @@ export interface BattleScene {
 
 /** Creates a visual summary from resolved combat, leaving all game rules untouched. */
 export function battleSceneForCommand(before: GameState, command: GameCommand, after: GameState): BattleScene | undefined {
-  if (command.type !== 'attack') return undefined;
-  const attackerBefore = before.units.find((unit) => unit.id === command.unitId);
-  const defenderBefore = before.units.find((unit) => unit.id === command.targetId);
-  if (!attackerBefore || !isDeployedUnit(attackerBefore) || !defenderBefore || !isDeployedUnit(defenderBefore)) return undefined;
+  const event = after.tactics?.lastCombat;
+  if (command.type !== 'attack') {
+    if (!event?.ambush || command.type !== 'move') return undefined;
+    command = { type: 'attack', unitId: event.attackerId, targetId: event.defenderId, weaponSlot: event.attackWeapon };
+  }
+  const originalAttacker = before.units.find((unit) => unit.id === command.unitId);
+  const originalDefender = before.units.find((unit) => unit.id === command.targetId);
+  if (!originalAttacker || !isDeployedUnit(originalAttacker) || !originalDefender || !isDeployedUnit(originalDefender)) return undefined;
+  const attackerBefore = event ? { ...originalAttacker, position: event.attackerPosition } : originalAttacker;
+  const defenderBefore = event ? { ...originalDefender, position: event.defenderPosition } : originalDefender;
 
   const attackerAfter = after.units.find((unit) => unit.id === command.unitId);
   const defenderAfter = after.units.find((unit) => unit.id === command.targetId);
   const terrain = before.board.terrain[defenderBefore.position.y]?.[defenderBefore.position.x];
   if (!terrain) return undefined;
 
-  const forecast = forecastCombat(before, attackerBefore, defenderBefore, command.weaponSlot);
+  const forecast = forecastCombat(before, attackerBefore, defenderBefore, command.weaponSlot, event?.ambush);
   const attackingWeapon = forecast.ok ? weaponsForUnit(attackerBefore.kind, before)[forecast.value.attackWeapon]?.kind : undefined;
   const counterWeapon =
-    defenderAfter && forecast.ok && forecast.value.counterWeapon !== undefined ? weaponsForUnit(defenderBefore.kind, before)[forecast.value.counterWeapon]?.kind : undefined;
+    (defenderAfter || event?.simultaneous) && !event?.ambush && forecast.ok && forecast.value.counterWeapon !== undefined
+      ? weaponsForUnit(defenderBefore.kind, before)[forecast.value.counterWeapon]?.kind
+      : undefined;
   return {
+    ...(event?.simultaneous ? { simultaneous: true as const } : {}),
+    ...(event?.ambush ? { ambush: true as const } : {}),
+    ...(event?.counterWeapon !== undefined ? { counterFired: true as const } : {}),
     attacker: {
       kind: attackerBefore.kind,
       weapon: attackingWeapon,
@@ -135,17 +149,19 @@ export function renderBattleScene(scene: BattleScene): string {
     </article>`;
   };
 
-  const hasCounter = scene.attacker.hpAfter < scene.attacker.hpBefore;
+  const hasCounter = scene.counterFired || scene.attacker.hpAfter < scene.attacker.hpBefore;
   const counterClass = hasCounter ? ' has-counter' : '';
   const lostUnit = scene.defender.hpAfter === 0 ? scene.defender : scene.attacker.hpAfter === 0 ? scene.attacker : undefined;
   const summary = lostUnit ? (english ? `${unitNames[lostUnit.kind]} destroyed` : `${unitNames[lostUnit.kind]}を撃破`) : labels.complete;
-  const timingStyle = Object.entries(BATTLE_SCENE_TIMING)
+  const timingStyle = Object.entries(
+    scene.simultaneous ? { ...BATTLE_SCENE_TIMING, counterFire: BATTLE_SCENE_TIMING.fire, counterImpact: BATTLE_SCENE_TIMING.impact } : BATTLE_SCENE_TIMING,
+  )
     .map(([key, value]) => `--battle-${key}:${value}ms`)
     .join(';');
   return `<div class="battle-scene-backdrop" role="dialog" aria-modal="true" aria-labelledby="battle-scene-title">
     <section class="battle-scene battle-terrain-${escapeHtml(scene.terrain)}${counterClass}" style="${timingStyle};--battle-duration:${Number(BATTLE_SCENE_DURATION_MS)}ms">
       <header class="battle-scene-header">
-        <div><p class="card-kicker">TACTICAL ENGAGEMENT</p><h2 id="battle-scene-title">${labels.title}</h2></div>
+        <div><p class="card-kicker">TACTICAL ENGAGEMENT</p><h2 id="battle-scene-title">${scene.ambush ? (english ? 'Ambush' : '待伏せ射撃') : scene.simultaneous ? (english ? 'Simultaneous fire' : '同時射撃') : labels.title}</h2></div>
         <span class="battle-scene-terrain">${labels.terrain} · ${escapeHtml(terrainNames[scene.terrain])}</span>
       </header>
       <div class="battle-phase-rail" aria-hidden="true">

@@ -1,3 +1,4 @@
+import { combinedTactics, initialTactics } from './tactics';
 import { describe, expect, it } from 'vitest';
 import {
   applyModernUpkeep,
@@ -99,7 +100,8 @@ describe('unit weapons and ammunition bounds', () => {
     const terrain = profile === 'air' ? 'airport' : profile === 'sea' ? 'port' : 'city';
     const state: GameState = {
       ...createGameState(createBoard(2, 1, { kind: terrain, owner: 'red' })),
-      ruleVersion: kind === 'transportHelicopter' ? 11 : kind === 'engineer' ? 8 : 4,
+      ...(kind === 'submarine' ? { tactics: initialTactics({ ...combinedTactics }, 1) } : {}),
+      ruleVersion: kind === 'submarine' ? 13 : kind === 'transportHelicopter' ? 11 : kind === 'engineer' ? 8 : 4,
       units: [{ ...tank(0), kind }],
     };
     const before = structuredClone(state);

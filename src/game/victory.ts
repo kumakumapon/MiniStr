@@ -1,3 +1,4 @@
+import { tacticalEnabled } from './tactics';
 import { scenarioForState, type ScenarioDefinition, type VictoryCondition } from './maps';
 import { playerOwnedProperties } from './state';
 import { BALANCED_RULE_VERSION, isDeployedUnit, otherPlayer, usesDecisionRules, usesReconRules, type GameState, type PlayerId, type Position } from './types';
@@ -188,7 +189,15 @@ export function withEvaluatedWinner(
   tieBreaker: PlayerId = state.activePlayer,
   roundComplete = false,
 ): GameState {
+  if (state.draw) return state;
   const scenario = scenarioForState(state);
+  if (tacticalEnabled(state, 'simultaneous')) {
+    const immediate = (player: PlayerId) => scenario
+      ? (player === 'red' ? scenario.victoryConditions : scenario.defeatConditions).some(c => c.type !== 'score' && c.type !== 'control' && isVictoryConditionMet(state, c, player))
+      : !state.units.some(u => u.owner !== player);
+    if (immediate('red') && immediate('blue') || evacuationImpossible(state, 'red') && evacuationImpossible(state, 'blue')) return { ...state, winner: undefined, draw: true };
+    if (!scenario && (immediate('red') || immediate('blue'))) return { ...state, winner: immediate('red') ? 'red' : 'blue' };
+  }
   const winner = scenario
     ? evaluateScenario(state, scenario, tieBreaker, roundComplete)
     : legacyConditions.some(condition => isVictoryConditionMet(state, condition, state.activePlayer))

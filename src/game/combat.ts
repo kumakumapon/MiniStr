@@ -1,3 +1,5 @@
+import { tacticalEnabled, groundUnit } from './tactics';
+import { detectedContact } from './tactics';
 import { unitDefenseStars } from './engineering';
 import { rankDamageFactor } from './experience';
 import { defenseStars, manhattanDistance, terrainAt } from './terrain';
@@ -20,6 +22,7 @@ export function terrainDefenseReduction(terrain: Terrain, hp: number): number {
 }
 
 export interface CombatForecast {
+  simultaneous?: true;
   attackWeapon: WeaponSlot;
   counterWeapon?: WeaponSlot;
   /** Expected damage before the ±10% combat variance is applied. */
@@ -63,6 +66,7 @@ export function combatDamageFactor(state: GameState, attacker: Unit, defender: U
 /** Select the strongest legal weapon; ties preserve primary ammunition order. */
 export function selectCombatWeapon(state: GameState, attacker: Unit, defender: Unit, requested?: WeaponSlot, counter = false): GameResult<{ slot: WeaponSlot; weapon: UnitWeapon }> {
   if (!isDeployedUnit(attacker) || !isDeployedUnit(defender)) return { ok: false, error: 'Embarked units cannot fight' };
+  if (defender.submerged && (!detectedContact(state, attacker.owner, defender) || !tacticalEnabled(state, 'submarines'))) return { ok: false, error: 'Target is not detected' };
   const weapons = weaponsForUnit(attacker.kind, state);
   if (!weapons.length) return { ok: false, error: 'Unit has no attack capability' };
   if (requested !== undefined && (requested !== 0 && requested !== 1 || !weapons[requested])) return { ok: false, error: 'Weapon is not available' };
@@ -73,12 +77,12 @@ export function selectCombatWeapon(state: GameState, attacker: Unit, defender: U
   const ready = loaded.filter(({ weapon }) => counter ? !weapon.indirect : !usesDualWeapons(state) || !attacker.hasMoved || !weapon.indirect);
   if (!ready.length) return { ok: false, error: 'Indirect units cannot attack after moving' };
   const distance = manhattanDistance(attacker.position, defender.position);
-  const inRange = ready.filter(({ weapon }) => distance >= weapon.range[0] && distance <= weapon.range[1]);
+  const inRange = ready.filter(({ weapon }) => distance >= weapon.range[0] && distance <= weapon.range[1] && weapon.effectiveness[unitCategory[defender.kind]] > 0 && (!defender.submerged || weapon.kind === 'depthCharge' || weapon.kind === 'torpedo'));
   const chosen = inRange.sort((a, b) => b.weapon.attack * b.weapon.effectiveness[unitCategory[defender.kind]] - a.weapon.attack * a.weapon.effectiveness[unitCategory[defender.kind]])[0];
   return chosen ? { ok: true, value: chosen } : { ok: false, error: 'Target is out of range' };
 }
 
-export function forecastCombat(state: GameState, attacker: Unit, defender: Unit, requested?: WeaponSlot): GameResult<CombatForecast> {
+export function forecastCombat(state: GameState, attacker: Unit, defender: Unit, requested?: WeaponSlot, reaction = false): GameResult<CombatForecast> {
   if (!isDeployedUnit(attacker) || !isDeployedUnit(defender)) return { ok: false, error: 'Embarked units cannot fight' };
   if (attacker.owner === defender.owner) return { ok: false, error: 'Cannot attack a friendly unit' };
   const selected = selectCombatWeapon(state, attacker, defender, requested);
@@ -90,13 +94,14 @@ export function forecastCombat(state: GameState, attacker: Unit, defender: Unit,
   const baseRaw = weapon.attack * attacker.hp / 100 * weapon.effectiveness[unitCategory[defender.kind]];
   const rankFactor = combatDamageFactor(state, attacker, defender);
   const raw = rankFactor === 1 ? baseRaw : baseRaw * rankFactor;
-  const reduction = unitDefenseStars(state, defender) * DEFENSE_PERCENT_PER_STAR * defender.hp / 100;
-  const damageToDefender = Math.max(0, Math.round(raw * (1 - reduction / 100)));
-  const defenderRemaining = Math.max(0, defender.hp - damageToDefender);
-  const counter = !weapon.indirect ? selectCombatWeapon(state, defender, attacker, undefined, true) : undefined;
+  const simultaneous = !reaction && tacticalEnabled(state, 'simultaneous') && !weapon.indirect && manhattanDistance(attacker.position, defender.position) === 1;
+  const reduction = effectiveTerrainReduction(state, defender);
+  const damageToDefender = Math.max(0, Math.round(raw * (simultaneous ? 1 + (state.tactics?.options.initiative ?? 3) / 100 : 1) * (1 - reduction / 100)));
+  const defenderRemaining = simultaneous ? defender.hp : Math.max(0, defender.hp - damageToDefender);
+  const counter = !reaction && !weapon.indirect ? selectCombatWeapon(state, defender, attacker, undefined, true) : undefined;
   const canCounter = defenderRemaining > 0 && counter?.ok === true;
   const counterRankFactor = combatDamageFactor(state, defender, attacker);
-  const counterReduction = unitDefenseStars(state, attacker) * DEFENSE_PERCENT_PER_STAR * attacker.hp / 100;
+  const counterReduction = effectiveTerrainReduction(state, attacker);
   const counterAt = (remaining: number): number => {
     if (remaining <= 0 || !counter?.ok) return 0;
     const counterWeapon = counter.value.weapon;
@@ -105,9 +110,18 @@ export function forecastCombat(state: GameState, attacker: Unit, defender: Unit,
   };
   const damageToAttacker = counterAt(defenderRemaining);
   const outgoing = damageRange(damageToDefender);
-  const incoming = {
+  const incoming = simultaneous ? damageRange(counterAt(defender.hp)) : {
     min: damageRange(counterAt(Math.max(0, defender.hp - outgoing.max))).min,
     max: damageRange(counterAt(Math.max(0, defender.hp - outgoing.min))).max,
   };
-  return { ok: true, value: { attackWeapon, ...(counter?.ok ? { counterWeapon: counter.value.slot } : {}), damageToDefender, damageToAttacker, canCounter, outgoing, incoming, possibleCounter: incoming.max > 0 } };
+  return { ok: true, value: { ...(simultaneous ? { simultaneous: true as const } : {}), attackWeapon, ...(counter?.ok ? { counterWeapon: counter.value.slot } : {}), damageToDefender, damageToAttacker, canCounter, outgoing, incoming, possibleCounter: incoming.max > 0 } };
+}
+
+/** Additional ground cover is capped and scales with the same starting HP. */
+export function effectiveTerrainReduction(state: GameState, unit: Unit): number {
+  const base = unitDefenseStars(state, unit) * DEFENSE_PERCENT_PER_STAR;
+  if (!tacticalEnabled(state, 'terrain') || !groundUnit(unit) || !unit.position) return base * unit.hp / 100;
+  const kind = terrainAt(state.board, unit.position)?.kind;
+  const extra = kind === 'mountain' || kind === 'plain' && state.tactics?.options.plainCover ? 5 : 0;
+  return Math.min(45, base + extra) * unit.hp / 100;
 }

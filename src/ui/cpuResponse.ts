@@ -37,6 +37,10 @@ export function decodeCpuResponse(value: unknown, state: GameState): GameCommand
       return { type: 'destroyBridge', unitId: id(value.unitId), destination: position(value.destination) };
     case 'fortify':
       return { type: 'fortify', unitId: id(value.unitId) };
+    case 'ambush':
+      return { type: 'ambush', unitId: id(value.unitId), ...(value.weaponSlot === undefined ? {} : { weaponSlot: value.weaponSlot === 0 ? (0 as const) : (1 as const) }) };
+    case 'dive':
+      return { type: 'dive', unitId: id(value.unitId) };
     case 'wait':
       return { type: 'wait', unitId: id(value.unitId) };
     case 'evacuate':

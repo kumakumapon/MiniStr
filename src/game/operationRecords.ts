@@ -1,3 +1,5 @@
+import { tacticalScenario } from './tacticalMaps';
+import { combinedTactics, tacticalFeatures } from './tactics';
 import { parseBoundedJson } from './jsonBoundary';
 import { availableScenarios, loadScenarioDefinitions, scenarioDefinitionToData, scenarioForState, type ScenarioData, type ScenarioDefinition } from './maps';
 import { specialOperationData } from './specialOperations';
@@ -168,7 +170,8 @@ export function replayOperationOutcome(initial: GameState, final: GameState, com
 /** Derive a victory from its legal command prefix, including fuel losses and excluding merges/evacuation. */
 export function operationVictory(initial: GameState, final: GameState, commands: readonly GameCommand[], difficulty: OperationRecord['difficulty']): GameResult<OperationRecord> {
   const scenario = scenarioForState(initial),
-    current = availableScenarios().find((scenario) => scenario.id === initial.scenarioId);
+    base = availableScenarios().find((scenario) => scenario.id === initial.scenarioId),
+    current = base && initial.tactics && tacticalFeatures.every((k) => initial.tactics!.options[k] === combinedTactics[k]) ? tacticalScenario(base) : base;
   if (
     !scenario ||
     !current ||

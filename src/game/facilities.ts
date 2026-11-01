@@ -1,3 +1,4 @@
+import { tacticalEnabled } from './tactics';
 import { isDeployedUnit, CURRENT_RULE_VERSION, BALANCED_RULE_VERSION, type Board, type GameState, type PlayerId, type Position, type TerrainKind, type UnitKind } from './types';
 import { unitDefinitions, unitKinds, type ProductionTerrain, type UnitDefinition } from './units';
 
@@ -71,7 +72,7 @@ export function idleProductionFacilities(state: GameState, player: PlayerId, rul
     for (let x = 0; x < state.board.width; x += 1) {
       const tile = state.board.terrain[y]![x]!;
       if (tile.owner !== player) continue;
-      const kinds = production[tile.kind];
+      const kinds = production[tile.kind]?.filter(kind => kind !== 'submarine' || tacticalEnabled(state, 'submarines'));
       if (!kinds || kinds.length === 0) continue;
       const occupied = state.units.some(unit => isDeployedUnit(unit) && unit.position.x === x && unit.position.y === y);
       if (occupied) continue;
@@ -103,7 +104,7 @@ export function countProductionFacilities(state: GameState, player: PlayerId, ru
     for (let x = 0; x < state.board.width; x += 1) {
       const tile = state.board.terrain[y]![x]!;
       if (tile.owner !== player) continue;
-      const kinds = production[tile.kind];
+      const kinds = production[tile.kind]?.filter(kind => kind !== 'submarine' || tacticalEnabled(state, 'submarines'));
       if (kinds && kinds.length > 0) count += 1;
     }
   }

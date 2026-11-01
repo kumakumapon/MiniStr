@@ -21,6 +21,7 @@ export interface MatchContext {
   mode: MatchMode;
   activePlayer: PlayerId;
   winner?: PlayerId;
+  draw?: true;
   replay: boolean;
   cpuInProgress: boolean;
   /** Hotseat only: the next player has not yet taken the device. */
@@ -38,7 +39,7 @@ export function viewerFor(mode: MatchMode, activePlayer: PlayerId): PlayerId {
 /** Board commands (moves, attacks, production, end turn) for the side on the device. */
 export function commandAllowed(context: MatchContext): boolean {
   return context.mode !== 'spectate'
-    && !context.replay && context.winner === undefined && !context.handoffPending && !context.cpuInProgress
+    && !context.replay && context.winner === undefined && !context.draw && !context.handoffPending && !context.cpuInProgress
     && context.activePlayer === viewerFor(context.mode, context.activePlayer);
 }
 
@@ -52,9 +53,9 @@ export function menuAllowed(context: MatchContext): boolean {
 }
 
 /** The CPU plays blue in CPU matches and both sides when spectating, while the match is still running. */
-export function cpuShouldRun(context: Pick<MatchContext, 'mode' | 'activePlayer' | 'winner' | 'replay'>): boolean {
+export function cpuShouldRun(context: Pick<MatchContext, 'mode' | 'activePlayer' | 'winner' | 'draw' | 'replay'>): boolean {
   const cpuSide = context.mode === 'spectate' || (context.mode === 'cpu' && context.activePlayer === 'blue');
-  return cpuSide && context.winner === undefined && !context.replay;
+  return cpuSide && context.winner === undefined && !context.draw && !context.replay;
 }
 
 /** Only a human-versus-CPU match can fast-forward the opponent's current turn. */
@@ -66,8 +67,8 @@ export function cpuSkipAllowed(context: MatchContext): boolean {
  * Whether a spectated match should keep chaining CPU turns without the viewer
  * pressing resume. Resuming moves `pauseAtTurn` another limit ahead.
  */
-export function spectateContinues(state: Pick<GameState, 'turn' | 'winner'>, pauseAtTurn: number = SPECTATE_TURN_LIMIT): boolean {
-  return state.winner === undefined && state.turn < pauseAtTurn;
+export function spectateContinues(state: Pick<GameState, 'turn' | 'winner' | 'draw'>, pauseAtTurn: number = SPECTATE_TURN_LIMIT): boolean {
+  return state.winner === undefined && !state.draw && state.turn < pauseAtTurn;
 }
 
 /**
@@ -114,8 +115,8 @@ export function autosaveAllowed(mode: MatchMode): boolean {
 }
 
 /** After an end turn in a hotseat match, hand the device over unless the match just ended. */
-export function handoffAfterEndTurn(mode: MatchMode, next: Pick<GameState, 'winner'>): boolean {
-  return mode === 'hotseat' && next.winner === undefined;
+export function handoffAfterEndTurn(mode: MatchMode, next: Pick<GameState, 'winner' | 'draw'>): boolean {
+  return mode === 'hotseat' && next.winner === undefined && !next.draw;
 }
 
 /**

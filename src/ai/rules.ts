@@ -1,6 +1,9 @@
 import { supplyRendezvous } from './supplyRendezvous';
 import { supportedAttack } from './supportAttack';
 import { policyConfig } from './armyPolicy';
+import { chooseTacticalAction } from './tactics';
+import { tacticalEnabled } from '../game/tactics';
+import { TACTICAL_RULE_VERSION } from '../game/types';
 import type { ArmyPolicy } from '../game/armyPolicy';
 import { chooseDemolition } from './demolition';
 import { chooseAirliftAction } from './airlift';
@@ -34,6 +37,7 @@ const unitIdOrder = new Intl.Collator('en', { numeric: true });
 export type CpuDifficulty = 'easy' | 'normal' | 'hard';
 
 export interface CpuDifficultyConfig {
+  tacticalPlanning?: boolean;
   /** Extra damage, over expected counter-damage, required before taking a non-lethal attack. */
   attackSafetyMargin: number;
   /** Defensive policy coordinates ready support and profitable repair-cover exchanges. */
@@ -97,6 +101,8 @@ export type CpuAction =
   | { type: 'evacuate'; unitId: string }
   | { type: 'embark'; unitId: string; transportId: string }
   | { type: 'disembark'; transportId: string; destination: Position }
+  | { type: 'ambush'; unitId: string; weaponSlot?: WeaponSlot }
+  | { type: 'dive'; unitId: string }
   | { type: 'endTurn' };
 
 /** Derived information shared by every decision stage within one CPU order. */
@@ -135,9 +141,19 @@ function favorableAttack(state: GameState, attacker: DeployedUnit, target: Unit,
   // MAX_ATTACK_LENIENCY in total, so leniencies cannot stack into suicide attacks.
   const leniency = Math.min(MAX_ATTACK_LENIENCY,
     stalemateRelief(state) * 25 + garrisonAllowance(state, attacker, target, result.value.damageToDefender, result.value.damageToAttacker));
+  if (config.tacticalPlanning && tacticalEnabled(state, 'simultaneous')) {
+    const given = unitStats[target.kind].cost * Math.min(target.hp, result.value.damageToDefender) / 100;
+    const taken = unitStats[attacker.kind].cost * Math.min(attacker.hp, result.value.damageToAttacker) / 100;
+    if (isEvacuationTarget(state, attacker.id, attacker.owner) && result.value.incoming.max >= attacker.hp) return false;
+    const objective = interruptsCapture(state, attacker.owner, target)
+      ? (isDeployedUnit(target) && terrainAt(state.board, target.position)?.kind === 'capital' ? Math.max(given, taken) + 1000 : 1000)
+      : isPriorityTarget(state, attacker.owner, target) ? unitStats[target.kind].cost : 0;
+    const finishing = result.value.outgoing.min >= target.hp && result.value.incoming.max < attacker.hp ? unitStats[target.kind].cost * 0.1 : 0;
+    return given + objective + finishing >= taken * (config.coordinatedDefense ? 1.05 : 1) && (given > 0 || taken === 0);
+  }
   return result.value.outgoing.min >= target.hp
     || result.value.damageToDefender >= result.value.damageToAttacker + config.attackSafetyMargin - leniency
-    || Boolean(config.coordinatedDefense && supportedAttack(state, attacker, target, true));
+    || Boolean(config.coordinatedDefense && supportedAttack(state, attacker, target, true, config.tacticalPlanning !== false));
 }
 
 /** Upper bound on the extra retaliation any leniency may accept. */
@@ -599,13 +615,13 @@ function supplyVehicleValue(state: GameState, player: PlayerId, unit: DeployedUn
 }
 
 /** Choose one transport step before ordinary movement so island objectives are never stranded. */
-function transportAction(state: GameState, player: PlayerId, targets: readonly Position[], components: ReadonlyMap<string, number>, visibleEnemies: readonly Unit[]): CpuAction | undefined {
+function transportAction(state: GameState, player: PlayerId, targets: readonly Position[], components: ReadonlyMap<string, number>, visibleEnemies: readonly Unit[], adaptTactics = true): CpuAction | undefined {
   targets = targets.filter(target => components.has(`${target.x},${target.y}`));
   if (!targets.length) return undefined;
   const units = orderedUnits(state, player);
 
   // Land transports unload near an objective, then become mobile suppliers.
-  for (const transport of units.filter(unit => unit.kind === 'apc' && !unit.hasMoved && !unit.hasActed)) {
+  for (const transport of units.filter(unit => unit.kind === 'apc' && (!unit.hasMoved || adaptTactics && (state.ruleVersion ?? 0) >= TACTICAL_RULE_VERSION) && !unit.hasActed)) {
     const cargo = state.units.find(unit => unit.embarkedIn === transport.id);
     const target = nearestTarget(transport.position, targets);
     if (!target) continue;
@@ -616,17 +632,18 @@ function transportAction(state: GameState, player: PlayerId, targets: readonly P
           .sort((a, b) => manhattanDistance(a, target) - manhattanDistance(b, target) || a.y - b.y || a.x - b.x)[0];
         if (destination) return { type: 'disembark', transportId: transport.id, destination };
       }
+      if (transport.hasMoved) continue;
       const destination = reachablePositionsForPlayer(state, transport.id, player).filter(p => transportSafeAt(state, transport, p, visibleEnemies) && manhattanDistance(p, target) < distance)
         .sort((a, b) => manhattanDistance(a, target) - manhattanDistance(b, target) || a.y - b.y || a.x - b.x)[0];
       if (destination) return { type: 'move', unitId: transport.id, destination };
-    } else if ((!usesFiniteSupplyRules(state) || supplyStock(transport) > SUPPLY_CAPACITY / 3) && manhattanDistance(transport.position, target) > 6 && !isEvacuationTarget(state, transport.id, player)) {
+    } else if (!transport.hasMoved && (!usesFiniteSupplyRules(state) || supplyStock(transport) > SUPPLY_CAPACITY / 3) && manhattanDistance(transport.position, target) > 6 && !isEvacuationTarget(state, transport.id, player)) {
       const passenger = units.find(unit => isEmbarkableUnit(unit.kind) && !unit.hasActed && isAdjacent(unit.position, transport.position));
       if (passenger) return { type: 'embark', unitId: passenger.id, transportId: transport.id };
     }
   }
 
-  // An unloaded ship gets priority: landing the cargo is the only way it can capture remote properties.
-  for (const transport of units.filter(unit => unit.kind === 'landingShip' && !unit.hasMoved && !unit.hasActed)) {
+  // Landing remains possible after movement under v13.
+  for (const transport of units.filter(unit => unit.kind === 'landingShip' && (!unit.hasMoved || adaptTactics && (state.ruleVersion ?? 0) >= TACTICAL_RULE_VERSION) && !unit.hasActed)) {
     const cargo = state.units.find(unit => unit.embarkedIn === transport.id);
     if (!cargo) continue;
     const destination = adjacentPositions(transport.position)
@@ -825,9 +842,9 @@ export function createCpuPlanningContext(state: GameState, player: PlayerId, con
 }
 
 /** Select the next legal high-level CPU order. The caller applies it with the game command layer. */
-export function chooseCpuAction(state: GameState, difficulty: CpuDifficulty = 'normal', player: PlayerId = state.activePlayer, policy: ArmyPolicy = 'balanced'): CpuAction {
-  if (state.winner || player !== state.activePlayer) return { type: 'endTurn' };
-  const action = chooseOrientedCpuAction(player === 'blue' ? bluePlanningState(state) : state, difficulty, player, (state.ruleVersion ?? 0) >= 12 ? policy : 'balanced');
+export function chooseCpuAction(state: GameState, difficulty: CpuDifficulty = 'normal', player: PlayerId = state.activePlayer, policy: ArmyPolicy = 'balanced', adaptTactics = true): CpuAction {
+  if (state.winner || state.draw || player !== state.activePlayer) return { type: 'endTurn' };
+  const action = chooseOrientedCpuAction(player === 'blue' ? bluePlanningState(state) : state, difficulty, player, (state.ruleVersion ?? 0) >= 12 ? policy : 'balanced', adaptTactics);
   if (player !== 'blue') return action;
   if (action.type === 'move' || action.type === 'disembark' || action.type === 'bridge' || action.type === 'destroyBridge') return { ...action, destination: rotatePosition(action.destination, state.board) };
   if (action.type === 'produce') return { ...action, factory: rotatePosition(action.factory, state.board) };
@@ -941,13 +958,13 @@ function engineeringAction(state: GameState, player: PlayerId, context: CpuPlann
   return engineer ? { type: 'fortify', unitId: engineer.id } : undefined;
 }
 
-function chooseOrientedCpuAction(state: GameState, difficulty: CpuDifficulty, player: PlayerId, policy: ArmyPolicy = 'balanced'): CpuAction {
-  if (state.winner || player !== state.activePlayer) return { type: 'endTurn' };
+function chooseOrientedCpuAction(state: GameState, difficulty: CpuDifficulty, player: PlayerId, policy: ArmyPolicy = 'balanced', adaptTactics = true): CpuAction {
+  if (state.winner || state.draw || player !== state.activePlayer) return { type: 'endTurn' };
   state = observeLogistics(state, player);
   // Never abandon a win secured by ending this turn (notably a completed hold
   // objective) in order to seek an optional attack or move.
   if (endTurn(state).winner === player) return { type: 'endTurn' };
-  const config = policyConfig(cpuDifficultyConfig[difficulty], policy);
+  const config = { ...policyConfig(cpuDifficultyConfig[difficulty], policy), tacticalPlanning: adaptTactics };
   const readyUnits = orderedUnits(state, player);
   const replacementFor = (unit: DeployedUnit) => readyUnits.some(ally => ally.id !== unit.id && unitStats[ally.kind].capturePower > 0
     && !ally.hasMoved && !ally.hasActed && ally.hp >= Math.max(60, unit.hp + 30)
@@ -982,6 +999,7 @@ function chooseOrientedCpuAction(state: GameState, difficulty: CpuDifficulty, pl
   }
   return attackAction(state, player, config, context.visibleEnemies)
     ?? strikeAction(state, player, config, context.visibleEnemies)
+    ?? (adaptTactics ? chooseTacticalAction(state, player, policy === 'defensive') : undefined)
     ?? chooseDemolition(state, player, context.visibleEnemies)
     ?? engineeringAction(state, player, context)
     ?? mergeAction(state, player)
@@ -997,8 +1015,8 @@ function chooseOrientedCpuAction(state: GameState, difficulty: CpuDifficulty, pl
       return evaluateCpuPosition(state, player, truck, position, context.targets, config, context.visibleEnemies);
     }) : undefined)
     ?? clearNavalServiceLane(state, player, readyUnits)
-    ?? chooseAirliftAction(state, player, context.targets, context.landComponents, context.visibleEnemies)
-    ?? transportAction(state, player, context.targets, context.landComponents, context.visibleEnemies)
+    ?? chooseAirliftAction(state, player, context.targets, context.landComponents, context.visibleEnemies, adaptTactics)
+    ?? transportAction(state, player, context.targets, context.landComponents, context.visibleEnemies, adaptTactics)
     ?? productionAction(state, player, config, context)
     ?? moveAction(state, player, config, context)
     ?? { type: 'endTurn' };
