@@ -1,3 +1,4 @@
+import { initialTactics, validTacticalOptions, type TacticalOptions } from './tactics';
 import { wideOperationData } from './wideOperations';
 import { validCallsign } from './veteranIdentity';
 import { defaultProductionRule, isPropertyTerrainKind, productionRuleSet, type ProductionRule } from './facilities';
@@ -12,13 +13,13 @@ import { frontlineOperationData } from './frontlineOperations';
 import { controlOperationData } from './controlOperations';
 import { createBoard, createGameState, incomePropertyCount } from './state';
 import { unitKindSet, unitStats } from './units';
-import { CURRENT_RULE_VERSION, terrainKindSet, type Board, type GameResult, type GameState, type PlayerId, type Position, type TerrainKind, type UnitKind } from './types';
+import { TACTICAL_RULE_VERSION, STRATEGY_RULE_VERSION, terrainKindSet, type Board, type GameResult, type GameState, type PlayerId, type Position, type TerrainKind, type UnitKind } from './types';
 
 export interface InitialUnit { callsign?: string; kind: UnitKind; owner: PlayerId; x: number; y: number; experience?: number }
 export const scenarioThemes = ['temperate', 'desert', 'snow', 'urban', 'coastal'] as const;
 export type ScenarioTheme = (typeof scenarioThemes)[number];
 export const scenarioThemeSet: ReadonlySet<string> = new Set(scenarioThemes);
-export interface MapDefinition { id: string; name: string; board: Board; startingGold: number; firstPlayerBonus?: number; secondPlayerBonus?: number; initialUnits: readonly InitialUnit[]; theme: ScenarioTheme }
+export interface MapDefinition { tacticalOptions?: TacticalOptions; id: string; name: string; board: Board; startingGold: number; firstPlayerBonus?: number; secondPlayerBonus?: number; initialUnits: readonly InitialUnit[]; theme: ScenarioTheme }
 export type VictoryCondition =
   | { type: 'eliminate' }
   | { type: 'captureCapital' }
@@ -44,6 +45,7 @@ export interface ScenarioDefinition extends MapDefinition {
 
 /** JSON-compatible source shape used for built-in and future imported scenarios. */
 export interface ScenarioData {
+  tacticalOptions?: TacticalOptions;
   id: string;
   name: string;
   briefing: string;
@@ -143,6 +145,7 @@ function parseScenario(value: unknown, ids: Set<string>, options: ScenarioLoadOp
   if (typeof value.id !== 'string' || !scenarioIdPattern.test(value.id)) return { ok: false, error: 'シナリオIDは英数字、ハイフン、アンダースコアを1〜64文字で指定してください。' };
   if (ids.has(value.id)) return { ok: false, error: 'シナリオIDが重複しています。' };
   if (typeof value.name !== 'string' || value.name.trim() === '' || typeof value.briefing !== 'string') return { ok: false, error: `シナリオ「${value.id}」の表示文が不正です。` };
+  if (value.tacticalOptions !== undefined && !validTacticalOptions(value.tacticalOptions)) return { ok: false, error: 'Invalid tactical options' };
   const startingGold = value.startingGold;
   if (!isNonNegativeInteger(startingGold)) return { ok: false, error: `シナリオ「${value.id}」の開始資金が不正です。` };
   const firstPlayerBonus = value.firstPlayerBonus;
@@ -198,6 +201,7 @@ function parseScenario(value: unknown, ids: Set<string>, options: ScenarioLoadOp
       if (unitCallsigns.has(nameKey)) return { ok: false, error: '部隊名が重複しています。' };
       unitCallsigns.add(nameKey);
     }
+    if (unit.kind === 'submarine' && !(value.tacticalOptions as TacticalOptions | undefined)?.submarines) return { ok: false, error: 'Submarines require tactical rules' };
     const key = `${x},${y}`;
     if (unitPositions.has(key)) return { ok: false, error: `シナリオ「${value.id}」に重複した初期ユニットがあります。` };
     unitPositions.add(key);
@@ -247,7 +251,7 @@ function parseScenario(value: unknown, ids: Set<string>, options: ScenarioLoadOp
     // only after the next round begins, matching the legacy > turnLimit rule.
     : [...defeatConditions.value, { type: 'survive' as const, untilTurn: turnLimit + 1 }];
   ids.add(value.id);
-  return { ok: true, value: { id: value.id, name: value.name, briefing: value.briefing, startingGold, firstPlayerBonus: firstPlayerBonus as number | undefined, secondPlayerBonus: secondPlayerBonus as number | undefined, board, initialUnits, victoryConditions: victoryConditions.value, defeatConditions: normalizedDefeatConditions, turnLimit,
+  return { ok: true, value: { id: value.id, name: value.name, briefing: value.briefing, startingGold, ...(value.tacticalOptions === undefined ? {} : { tacticalOptions: value.tacticalOptions as TacticalOptions }), firstPlayerBonus: firstPlayerBonus as number | undefined, secondPlayerBonus: secondPlayerBonus as number | undefined, board, initialUnits, victoryConditions: victoryConditions.value, defeatConditions: normalizedDefeatConditions, turnLimit,
     ...(decisionRound === undefined ? {} : { decisionRound: decisionRound as number }), ...(battleSeed === undefined ? {} : { battleSeed: battleSeed as number }), theme: theme as ScenarioTheme, productionRules: productionRules as ProductionRule } };
 }
 
@@ -441,7 +445,7 @@ export function createScenarioInitialState(scenario: ScenarioDefinition): GameSt
   // is a separate, one-off opening grant.
   const redIncome = incomePropertyCount(base, 'red') * 1000;
   return {
-    ...base, scenarioId: scenario.id, scenarioSnapshot: scenarioDefinitionToData(scenario), ruleVersion: CURRENT_RULE_VERSION,
+    ...base, ...(scenario.tacticalOptions ? { tactics: initialTactics(scenario.tacticalOptions, scenario.battleSeed ?? 1) } : {}), scenarioId: scenario.id, scenarioSnapshot: scenarioDefinitionToData(scenario), ruleVersion: scenario.tacticalOptions ? TACTICAL_RULE_VERSION : STRATEGY_RULE_VERSION,
     players: { red: { gold: scenario.startingGold + redIncome + (scenario.firstPlayerBonus ?? 0), income: redIncome }, blue: { gold: scenario.startingGold + (scenario.secondPlayerBonus ?? 0), income: 0 } },
     units: scenario.initialUnits.map(unit => {
       nextId[unit.owner] += 1;
@@ -477,7 +481,7 @@ export function scenarioDefinitionToData(scenario: ScenarioDefinition): Scenario
     const tile = scenario.board.terrain[y]![x]!;
     if (tile.kind !== 'plain' || tile.owner !== undefined) cells.push(tile.owner === undefined ? [x, y, tile.kind] : [x, y, tile.kind, tile.owner]);
   }
-  return { id: scenario.id, name: scenario.name, briefing: scenario.briefing, startingGold: scenario.startingGold, firstPlayerBonus: scenario.firstPlayerBonus, secondPlayerBonus: scenario.secondPlayerBonus,
+  return { id: scenario.id, name: scenario.name, briefing: scenario.briefing, ...(scenario.tacticalOptions ? { tacticalOptions: { ...scenario.tacticalOptions } } : {}), startingGold: scenario.startingGold, firstPlayerBonus: scenario.firstPlayerBonus, secondPlayerBonus: scenario.secondPlayerBonus,
     board: { width: scenario.board.width, height: scenario.board.height, cells }, initialUnits: scenario.initialUnits.map(unit => ({ ...unit })),
     victoryConditions: scenario.victoryConditions.map(condition => structuredClone(condition)), defeatConditions: exportableDefeatConditions(scenario), turnLimit: scenario.turnLimit,
     ...(scenario.decisionRound === undefined ? {} : { decisionRound: scenario.decisionRound }), ...(scenario.battleSeed === undefined ? {} : { battleSeed: scenario.battleSeed }), theme: scenario.theme, productionRules: scenario.productionRules };

@@ -1,3 +1,4 @@
+import { detectedContact, tacticalEnabled } from '../game/tactics';
 import { SUPPLY_CAPACITY, supplyStock, usesFiniteSupplyRules } from '../game';
 import { getLocale, translateGameText, translateText } from './locale';
 import { canServiceUnitAt, defaultProductionRule, defenseStars, experienceRank, isDeployedUnit, isGroundUnit, MAX_EXPERIENCE, remainingAmmo, weaponAmmo, weaponsForUnit, usesModernRules, isPropertyTerrainKind, hasBridge, unitMovementCost, productionKindsForRule, terrainAt, type ProductionRule, unitStats, type GameState, type PlayerId, type Position, type UnitKind } from '../game';
@@ -38,6 +39,7 @@ export function inspectTile(
   visible: ReadonlySet<string>,
   selectedUnitKind?: UnitKind,
   productionRule: ProductionRule = defaultProductionRule,
+  fullInformation = false,
 ): TileInspection | undefined {
   const terrain = terrainAt(state.board, position);
   if (!terrain) return undefined;
@@ -48,7 +50,7 @@ export function inspectTile(
   if (terrain.kind === 'supplyDepot') rows.push({ label: '補給', value: '施設上と隣接1マスの自軍地上部隊。修理・収入・生産なし' });
   const capturePoints = observedCapturePoints(terrain, visible.has(`${position.x},${position.y}`));
   if (capturePoints !== undefined) rows.push({ label: '占領値', value: capturePointsLabel(capturePoints) });
-  const producible = productionKindsForRule(productionRule, state.ruleVersion)[terrain.kind];
+  const producible = productionKindsForRule(productionRule, state.ruleVersion)[terrain.kind]?.filter(kind => kind !== 'submarine' || tacticalEnabled(state, 'submarines'));
   if (producible?.length) rows.push({ label: '生産', value: producible.map(kind => unitNames[kind]).join('・') });
   if (selectedUnitKind) {
     const cost = unitMovementCost(state, position, selectedUnitKind);
@@ -57,12 +59,12 @@ export function inspectTile(
   const inspection: TileInspection = { position, title, rows, hidden: !visible.has(`${position.x},${position.y}`) };
   const unit = state.units.find(candidate => isDeployedUnit(candidate)
     && candidate.position.x === position.x && candidate.position.y === position.y);
-  if (!unit || inspection.hidden) return inspection;
+  if (!unit || inspection.hidden || !fullInformation && unit.owner !== viewer && !detectedContact(state, viewer, unit)) return inspection;
   const stats = unitStats[unit.kind];
   if (state.fortifications?.some(site => site.owner === unit.owner && site.position.x === position.x && site.position.y === position.y) && isGroundUnit(unit.kind)) rows.push({ label: '陣地防御', value: '陣地の所有軍の地上部隊 防御★+1（合計上限★4）' });
   const unitRows: InspectorRow[] = [
     { label: '耐久', value: `${unit.hp} / 100` },
-    { label: uiText.weapon, value: unitWeaponName(unit.kind) },
+    { label: uiText.weapon, value: weaponsForUnit(unit.kind, state)[0] ? weaponNames[weaponsForUnit(unit.kind, state)[0]!.kind] : unitWeaponName(unit.kind) },
     { label: uiText.ammoCapacity, value: `${stats.ammo}` },
     { label: '攻撃', value: `${stats.attack}` },
     { label: '射程', value: range(unit.kind) },

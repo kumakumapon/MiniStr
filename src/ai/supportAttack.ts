@@ -1,10 +1,11 @@
+import { tacticalEnabled } from '../game/tactics';
 import { forecastCombat } from '../game/combat';
 import { isServiceTile } from '../game/logistics';
 import { hasUsableWeapon } from '../game/weapons';
 import { isDeployedUnit, type DeployedUnit, type GameState, type Unit } from '../game/types';
 
 /** Confirmed, immediately available follow-up shots; no unseen opponents or hypothetical moves. */
-export function supportedAttack(state: GameState, attacker: DeployedUnit, target: Unit, defensive: boolean): boolean {
+export function supportedAttack(state: GameState, attacker: DeployedUnit, target: Unit, defensive: boolean, adapted = true): boolean {
   if ((state.ruleVersion ?? 0) < 12) return false;
   const first = forecastCombat(state, attacker, target);
   if (!first.ok || first.value.outgoing.min <= 0 || first.value.incoming.max >= attacker.hp) return false;
@@ -14,6 +15,16 @@ export function supportedAttack(state: GameState, attacker: DeployedUnit, target
     return true;
   // Do not sacrifice a unit merely to set up a possible finishing shot.
   if (first.value.damageToDefender < first.value.damageToAttacker) return false;
+  if (adapted && tacticalEnabled(state, 'simultaneous')) {
+    let remaining = Math.max(0, target.hp - first.value.outgoing.min);
+    for (const ally of state.units) {
+      if (remaining <= 0) return true;
+      if (ally.id === attacker.id || ally.owner !== attacker.owner || !isDeployedUnit(ally) || ally.hasActed || !hasUsableWeapon(state, ally)) continue;
+      const shot = forecastCombat(state, ally, { ...target, hp: remaining });
+      if (shot.ok && shot.value.incoming.max < ally.hp) remaining -= Math.min(remaining, shot.value.outgoing.min);
+    }
+    return remaining <= 0;
+  }
   let damage = first.value.outgoing.min;
   for (const ally of state.units) {
     if (ally.id === attacker.id || ally.owner !== attacker.owner || !isDeployedUnit(ally) || ally.hasActed || !hasUsableWeapon(state, ally)) continue;

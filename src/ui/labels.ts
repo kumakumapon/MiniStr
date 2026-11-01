@@ -14,26 +14,26 @@ export const terrainNames = localized<Record<TerrainKind, string>>({
 export const unitNames = localized(japaneseUnitNames, englishUnitNames);
 
 export const unitTokens = localized<Record<UnitKind, string>>({
-  engineer: '工', infantry: '歩', tank: '戦', artillery: '砲', fighter: '空', bomber: '爆',
+  submarine: '潜', engineer: '工', infantry: '歩', tank: '戦', artillery: '砲', fighter: '空', bomber: '爆',
   destroyer: '艦', landingShip: '輸', recon: '偵', rocket: '自', antiAir: '防', apc: '装',
   mech: '対', heavyTank: '重', helicopter: 'ヘ', transportHelicopter: '搬', battleship: '巨',
 }, {
-  engineer: 'E', infantry: 'I', tank: 'T', artillery: 'A', fighter: 'F', bomber: 'B',
+  submarine: 'S', engineer: 'E', infantry: 'I', tank: 'T', artillery: 'A', fighter: 'F', bomber: 'B',
   destroyer: 'D', landingShip: 'L', recon: 'R', rocket: 'RK', antiAir: 'AA', apc: 'AP',
   mech: 'M', heavyTank: 'HT', helicopter: 'H', transportHelicopter: 'TH', battleship: 'BS',
 });
 
 export const weaponNames = localized<Record<WeaponKind, string>>({
-  rifle: '小銃', machineGun: '機関銃', tankCannon: '戦車砲', howitzer: '榴弾砲', rocketLauncher: '多連装ロケット',
+  torpedo: '魚雷', depthCharge: '爆雷', rifle: '小銃', machineGun: '機関銃', tankCannon: '戦車砲', howitzer: '榴弾砲', rocketLauncher: '多連装ロケット',
   antiAirCannon: '対空機関砲', airMissile: '航空ミサイル', bomb: '爆弾', navalGun: '艦砲',
   antiTankLauncher: '対戦車ロケット', heavyTankCannon: '重戦車砲', helicopterRocket: '航空ロケット', heavyNavalGun: '大口径艦砲',
 }, {
-  rifle: 'Rifle', machineGun: 'Machine gun', tankCannon: 'Tank cannon', howitzer: 'Howitzer', rocketLauncher: 'Rocket launcher',
+  torpedo: 'Torpedo', depthCharge: 'Depth charge', rifle: 'Rifle', machineGun: 'Machine gun', tankCannon: 'Tank cannon', howitzer: 'Howitzer', rocketLauncher: 'Rocket launcher',
   antiAirCannon: 'Anti-air cannon', airMissile: 'Aircraft missile', bomb: 'Bomb', navalGun: 'Naval gun',
   antiTankLauncher: 'Anti-tank rocket', heavyTankCannon: 'Heavy tank cannon', helicopterRocket: 'Helicopter rocket', heavyNavalGun: 'Heavy naval gun',
 });
 
-export function unitWeaponName(kind: UnitKind, state?: Pick<GameState, 'ruleVersion'>): string {
+export function unitWeaponName(kind: UnitKind, state?: Pick<GameState, 'ruleVersion' | 'tactics'>): string {
   if (state) {
     const names = weaponsForUnit(kind, state).map(weapon => weaponNames[weapon.kind]);
     if (names.length) return names.join(' / ');

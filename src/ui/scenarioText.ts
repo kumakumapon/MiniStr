@@ -28,6 +28,8 @@ function generatedMetadata(scenario: ScenarioDefinition) {
 
 /** Translate known app-provided metadata without modifying its saved definition. */
 export function scenarioDisplayName(scenario: ScenarioDefinition): string {
+  const suffix = ' / Tactical v1';
+  if (scenario.tacticalOptions && scenario.name.endsWith(suffix)) return scenarioDisplayName({ ...scenario, name: scenario.name.slice(0, -suffix.length) }) + suffix;
   const canonical = builtIns.filter((entry) => entry.id === scenario.id);
   const operation = campaignOperations[scenario.id];
   return canonical.some((entry) => entry.name === scenario.name) || operation?.title === scenario.name || generatedMetadata(scenario)?.name === scenario.name

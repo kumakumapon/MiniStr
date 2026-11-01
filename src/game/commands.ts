@@ -1,3 +1,5 @@
+import { groundUnit, tacticalEnabled, tacticalTurnStart, revealContact, zocTiles } from './tactics';
+import { isGameOver, TACTICAL_RULE_VERSION } from './types';
 import { removeEnteredFortifications } from './engineering';
 import { unitMovementCost, positionKey, samePosition, terrainAt } from './terrain';
 import { incomePropertyCount, unitAt } from './state';
@@ -33,7 +35,7 @@ export function evacuateUnit(state: GameState, unitId: string): GameResult {
 
 /** Ends a deployed active unit's remaining turn without moving, attacking, or capturing. */
 export function waitUnit(state: GameState, unitId: string): GameResult {
-  if (state.winner) return fail('Game has finished');
+  if (isGameOver(state)) return fail('Game has finished');
   const unit = state.units.find(candidate => candidate.id === unitId);
   if (!unit) return fail('Unit not found');
   if (!isDeployedUnit(unit)) return fail('Embarked units cannot wait');
@@ -48,7 +50,7 @@ export function waitUnit(state: GameState, unitId: string): GameResult {
 }
 
 export function moveUnit(state: GameState, unitId: string, destination: Position): GameResult {
-  if (state.winner) return fail('Game has finished');
+  if (isGameOver(state)) return fail('Game has finished');
   const unit = state.units.find(candidate => candidate.id === unitId);
   if (!unit) return fail('Unit not found');
   if (!isDeployedUnit(unit)) return fail('Embarked units cannot move');
@@ -56,6 +58,7 @@ export function moveUnit(state: GameState, unitId: string, destination: Position
   if (unit.hasMoved) return fail('Unit has already moved');
   if (unit.hasActed) return fail('Unit has already acted');
   if ((unit.fuel ?? unitStats[unit.kind].fuel) <= 0) return fail('Unit is out of fuel');
+  if (state.tactics) return moveTacticalUnit(state, unit, destination);
   const costs = movementCosts(state, unitId);
   let finalDestination = destination;
   let spent = costs.get(positionKey(destination));
@@ -85,6 +88,7 @@ export function movementCosts(state: GameState, unitId: string): Map<string, num
   if (!unit || !isDeployedUnit(unit)) return new Map();
   const budget = Math.min(unitStats[unit.kind].movement, unit.fuel ?? unitStats[unit.kind].fuel);
   const occupied = new Set(state.units.filter((candidate): candidate is Unit & { position: Position } => candidate.id !== unitId && isDeployedUnit(candidate)).map(candidate => positionKey(candidate.position)));
+  const zones = tacticalEnabled(state, 'zoc') && groundUnit(unit) ? zocTiles(state, unit, visibleEnemies(state, unit.owner)) : new Set<string>();
   const costs = new Map<string, number>([[positionKey(unit.position), 0]]);
   // Small frontier, so a linear-scan priority queue keeps the code simple without hurting performance.
   const frontier = new Map<string, { position: Position; cost: number }>([[positionKey(unit.position), { position: { ...unit.position }, cost: 0 }]]);
@@ -94,6 +98,7 @@ export function movementCosts(state: GameState, unitId: string): Map<string, num
     for (const [candidateKey, entry] of frontier) if (!best || entry.cost < best.cost) { best = entry; bestKey = candidateKey; }
     frontier.delete(bestKey);
     const current = best!;
+    if (current.cost > 0 && zones.has(positionKey(current.position))) continue;
     for (const next of [{ x: current.position.x + 1, y: current.position.y }, { x: current.position.x - 1, y: current.position.y }, { x: current.position.x, y: current.position.y + 1 }, { x: current.position.x, y: current.position.y - 1 }]) {
       const key = positionKey(next);
       if (occupied.has(key)) continue;
@@ -118,6 +123,7 @@ function pathFromMovementCosts(
   costs: ReadonlyMap<string, number>,
 ): Position[] | undefined {
   const route = [{ ...destination }];
+  const zones = tacticalEnabled(state, 'zoc') && groundUnit(unit) ? zocTiles(state, unit, visibleEnemies(state, unit.owner)) : new Set<string>();
   while (!samePosition(route[route.length - 1]!, unit.position)) {
     const current = route[route.length - 1]!;
     const currentCost = costs.get(positionKey(current));
@@ -126,7 +132,7 @@ function pathFromMovementCosts(
     const previous = [
       { x: current.x - 1, y: current.y }, { x: current.x + 1, y: current.y },
       { x: current.x, y: current.y - 1 }, { x: current.x, y: current.y + 1 },
-    ].filter(candidate => costs.get(positionKey(candidate)) === currentCost - step)
+    ].filter(candidate => costs.get(positionKey(candidate)) === currentCost - step && (samePosition(candidate, unit.position) || !zones.has(positionKey(candidate))))
       .sort((a, b) => a.y - b.y || a.x - b.x)[0];
     if (!previous) return undefined;
     route.push(previous);
@@ -178,10 +184,10 @@ export function reachablePositions(state: GameState, unitId: string): Position[]
 
 /** Player-facing preview that omits enemies outside the viewer's reconnaissance range. */
 export function reachablePositionsForPlayer(state: GameState, unitId: string, viewer: PlayerId): Position[] {
-  const visible = new Set(visiblePositions(state, viewer).map(positionKey));
+  const visible = new Set(visibleEnemies(state, viewer).map(unit => unit.id));
   const preview = {
     ...state,
-    units: state.units.filter(unit => unit.owner === viewer || !isDeployedUnit(unit) || visible.has(positionKey(unit.position))),
+    units: state.units.filter(unit => unit.owner === viewer || !isDeployedUnit(unit) || visible.has(unit.id)),
   };
   return reachablePositions(preview, unitId);
 }
@@ -211,7 +217,8 @@ export function collectIncome(state: GameState): GameState {
 }
 
 export function produceUnit(state: GameState, facility: Position, kind: UnitKind): GameResult {
-  if (state.winner) return fail('Game has finished');
+  if (isGameOver(state)) return fail('Game has finished');
+  if (kind === 'submarine' && !tacticalEnabled(state, 'submarines')) return fail('Submarines require tactical rules');
   const terrain = terrainAt(state.board, facility);
   // Generic test/replay states without a scenario ID predate the airport
   // field, so retain their historical factory-air behavior. Built-in and
@@ -232,7 +239,7 @@ export function produceUnit(state: GameState, facility: Position, kind: UnitKind
 }
 
 export function captureProperty(state: GameState, unitId: string): GameResult {
-  if (state.winner) return fail('Game has finished');
+  if (isGameOver(state)) return fail('Game has finished');
   const unit = state.units.find(candidate => candidate.id === unitId);
   if (!unit || !isDeployedUnit(unit) || unit.owner !== state.activePlayer) return fail('An active player unit is required');
   if (unit.hasActed) return fail('Unit has already acted');
@@ -247,38 +254,41 @@ export function captureProperty(state: GameState, unitId: string): GameResult {
 }
 
 export function attackUnit(state: GameState, attackerId: string, defenderId: string, weaponSlot?: WeaponSlot): GameResult {
-  if (state.winner) return fail('Game has finished');
+  if (isGameOver(state)) return fail('Game has finished');
   const attacker = state.units.find(unit => unit.id === attackerId);
   const defender = state.units.find(unit => unit.id === defenderId);
   if (!attacker || !defender || !isDeployedUnit(attacker) || !isDeployedUnit(defender) || attacker.owner !== state.activePlayer || attacker.hasActed) return fail('Unit cannot attack');
   if (unitStats[attacker.kind].attack <= 0) return fail('Unit has no attack capability');
   if (!usesDualWeapons(state) && unitStats[attacker.kind].indirect && attacker.hasMoved) return fail('Indirect units cannot attack after moving');
   if (defender.owner !== attacker.owner && !visibleEnemies(state, attacker.owner).some(unit => unit.id === defender.id)) return fail('Target is not visible');
-  const forecast = forecastCombat(state, attacker, defender, weaponSlot);
+  return resolveAttack(state, attacker, defender, weaponSlot);
+}
+
+function resolveAttack(state: GameState, attacker: Unit, defender: Unit, weaponSlot?: WeaponSlot, reaction = false): GameResult {
+  const forecast = forecastCombat(state, attacker, defender, weaponSlot, reaction);
   if (!forecast.ok) return forecast;
   const attackRoll = nextRandom(state.rngSeed);
   const damageToDefender = applyDamageVariance(forecast.value.damageToDefender, attackRoll.value);
   // Counterattack damage must use the defender's actual post-roll HP.  A unit
   // that the expected forecast destroys can still survive a low damage roll.
-  const counterForecast = forecast.value.counterWeapon !== undefined && defender.hp > damageToDefender
+  const counterForecast = !reaction && !forecast.value.simultaneous && forecast.value.counterWeapon !== undefined && defender.hp > damageToDefender
     ? forecastCombat(state, { ...defender, hp: defender.hp - damageToDefender, hasMoved: false }, attacker, forecast.value.counterWeapon)
     : undefined;
-  const canCounter = counterForecast?.ok ?? false;
+  const simultaneousCounter = !reaction && forecast.value.simultaneous === true && forecast.value.counterWeapon !== undefined;
+  const canCounter = simultaneousCounter || (counterForecast?.ok ?? false);
   const counterRoll = canCounter ? nextRandom(attackRoll.seed) : undefined;
-  const damageToAttacker = counterRoll && counterForecast?.ok
-    ? applyDamageVariance(counterForecast.value.damageToDefender, counterRoll.value)
-    : 0;
+  const damageToAttacker = counterRoll ? applyDamageVariance(simultaneousCounter ? forecast.value.damageToAttacker : counterForecast?.ok ? counterForecast.value.damageToDefender : 0, counterRoll.value) : 0;
   const rngSeed = counterRoll?.seed ?? attackRoll.seed;
   const modern = usesModernRules(state);
   const attackerDestroyed = attacker.hp - damageToAttacker <= 0;
   const defenderDestroyed = defender.hp - damageToDefender <= 0;
   const damagedUnits = state.units.map(unit => {
     if (unit.id === attacker.id) return {
-      ...consumeWeaponAmmo(unit, forecast.value.attackWeapon), hp: Math.max(0, unit.hp - damageToAttacker), hasActed: true,
+      ...consumeWeaponAmmo(unit, forecast.value.attackWeapon), ambush: undefined, hp: Math.max(0, unit.hp - damageToAttacker), hasActed: true,
       ...(modern ? { experience: experienceAfterCombat(unit, damageToDefender, defenderDestroyed) } : {}),
     };
     if (unit.id === defender.id) return {
-      ...(counterForecast?.ok ? consumeWeaponAmmo(unit, counterForecast.value.attackWeapon) : { ...unit, ammo: unit.ammo }), hp: Math.max(0, unit.hp - damageToDefender),
+      ...(canCounter ? consumeWeaponAmmo(unit, forecast.value.counterWeapon!) : { ...unit, ammo: unit.ammo }), ...(canCounter ? { ambush: undefined } : {}), hp: Math.max(0, unit.hp - damageToDefender),
       ...(modern ? { experience: experienceAfterCombat(unit, damageToAttacker, attackerDestroyed) } : {}),
     };
     return unit;
@@ -288,7 +298,11 @@ export function attackUnit(state: GameState, attackerId: string, defenderId: str
   const board = state.units
     .filter((unit): unit is Unit & { position: Position } => destroyedUnitIds.has(unit.id) && isDeployedUnit(unit))
     .reduce((currentBoard, unit) => restoreCaptureProgressAt(currentBoard, unit.position), state.board);
-  const next = updateScenarioScores(state, { ...state, board, units: nextUnits, rngSeed });
+  let next = updateScenarioScores(state, { ...state, board, units: nextUnits, rngSeed });
+  if (state.tactics) {
+    next = revealContact(revealContact(next, attacker.owner, defender.id), defender.owner, attacker.id);
+    next = { ...next, tactics: { ...next.tactics!, lastCombat: { attackerId: attacker.id, defenderId: defender.id, ambush: reaction, simultaneous: !reaction && forecast.value.simultaneous === true, attackerPosition: { ...attacker.position! }, defenderPosition: { ...defender.position! }, attackWeapon: forecast.value.attackWeapon, ...(canCounter ? { counterWeapon: forecast.value.counterWeapon! } : {}) } } };
+  }
   return succeed(withEvaluatedWinner(next, [{ type: 'eliminate' }]));
 }
 
@@ -299,7 +313,7 @@ function adjacent(first: Position, second: Position): boolean {
 /** Combines two adjacent allied units while preserving the stronger unit's identity. */
 export function mergeUnits(state: GameState, unitId: string, targetId: string): GameResult {
   if (isEvacuationTarget(state, unitId, state.activePlayer)) return fail('Mission targets cannot merge into another unit');
-  if (state.winner) return fail('Game has finished');
+  if (isGameOver(state)) return fail('Game has finished');
   const unit = state.units.find(candidate => candidate.id === unitId);
   const target = state.units.find(candidate => candidate.id === targetId);
   if (!unit || !target) return fail('Unit not found');
@@ -342,7 +356,7 @@ function canDeployEmbarkableUnit(state: GameState, destination: Position, kind: 
 
 /** Boards an adjacent allied transport. Both units are spent to prevent a same-turn crossing. */
 export function embarkUnit(state: GameState, unitId: string, transportId: string): GameResult {
-  if (state.winner) return fail('Game has finished');
+  if (isGameOver(state)) return fail('Game has finished');
   const unit = state.units.find(candidate => candidate.id === unitId);
   const transport = state.units.find(candidate => candidate.id === transportId);
   if (!unit || !transport || !isDeployedUnit(unit) || !isDeployedUnit(transport)) return fail('A deployed embarkable unit and transport are required');
@@ -359,21 +373,27 @@ export function embarkUnit(state: GameState, unitId: string, transportId: string
 
 /** Deploys carried cargo onto an adjacent, vacant land tile. */
 export function disembarkUnit(state: GameState, transportId: string, destination: Position): GameResult {
-  if (state.winner) return fail('Game has finished');
+  if (isGameOver(state)) return fail('Game has finished');
   const transport = state.units.find(candidate => candidate.id === transportId);
   if (!transport || !isDeployedUnit(transport) || transportCapacity(transport.kind) === 0) return fail('A deployed transport unit is required');
   if (transport.owner !== state.activePlayer) return fail('Unit belongs to the other player');
-  if (transport.hasMoved || transport.hasActed) return fail('Transport has already acted');
+  if (transport.hasActed || transport.hasMoved && (state.ruleVersion ?? 0) < TACTICAL_RULE_VERSION) return fail('Transport has already acted');
   const cargo = state.units.find(candidate => candidate.embarkedIn === transport.id);
   if (!cargo || !isEmbarkableUnit(cargo.kind) || cargo.owner !== transport.owner) return fail('Transport has no valid cargo');
-  if (!adjacent(transport.position, destination) || unitAt(state, destination) || !canDeployEmbarkableUnit(state, destination, cargo.kind)) return fail('Destination must be an adjacent vacant land tile');
+  if (!adjacent(transport.position, destination) || !canDeployEmbarkableUnit(state, destination, cargo.kind)) return fail('Destination must be an adjacent vacant land tile');
+  const occupant = unitAt(state, destination);
+  if (occupant) {
+    if (!state.tactics || occupant.owner === transport.owner || visibleEnemies(state, transport.owner).some(u => u.id === occupant.id)) return fail('Destination must be an adjacent vacant land tile');
+    const revealed = revealContact(state, transport.owner, occupant.id);
+    return succeed({ ...revealed, units: revealed.units.map(u => u.id === transport.id || u.id === cargo.id ? { ...u, hasMoved: true, hasActed: true } : u) });
+  }
   return succeed(removeEnteredFortifications({ ...state, units: state.units.map(candidate => candidate.id === cargo.id
     ? { ...candidate, position: { ...destination }, embarkedIn: undefined, hasMoved: true, hasActed: true }
     : candidate.id === transport.id ? { ...candidate, hasMoved: true, hasActed: true } : candidate) }, cargo, [destination]));
 }
 
 export function endTurn(state: GameState): GameState {
-  if (state.winner) return state;
+  if (isGameOver(state)) return state;
   const actor = state.activePlayer;
   const scenario = scenarioForState(state);
   const scored = scenario ? updateControlScores(state, scenario) : state;
@@ -390,7 +410,7 @@ export function endTurn(state: GameState): GameState {
     // Both armies enter their first turn with full fuel. Older matches retain
     // blue's historical opening fuel charge so their command history replays.
     const consumeFuel = (state.ruleVersion ?? 0) < BALANCED_RULE_VERSION || state.turn !== 1 || activePlayer !== 'blue';
-    const upkept = applyModernUpkeep(ready, activePlayer, consumeFuel);
+    const upkept = applyModernUpkeep(tacticalTurnStart(ready, actor), activePlayer, consumeFuel);
     const settled = withEvaluatedWinner({ ...upkept, units: withoutExhaustedUnits(upkept.units, activePlayer) }, [], actor, actor === 'blue');
     // Decision victory at the end of the decision round (blue closes each round).
     // It is judged on the board as blue left it, before red's income and repairs,
@@ -431,4 +451,38 @@ function withoutExhaustedUnits(units: Unit[], player: PlayerId): Unit[] {
     .map(unit => unit.id));
   return units.filter(unit => !exhaustedTransportIds.has(unit.id)
     && (!unit.embarkedIn || !exhaustedTransportIds.has(unit.embarkedIn)));
+}
+
+/** Fix the observed route first; resolve real occupancy without omniscient rerouting. */
+function moveTacticalUnit(state: GameState, unit: Unit & { position: Position }, destination: Position): GameResult {
+  const enemies = visibleEnemies(state, unit.owner);
+  const known = new Set(enemies.map(u => u.id));
+  const observed = { ...state, units: state.units.filter(u => u.owner === unit.owner || known.has(u.id)) };
+  const costs = movementCosts(observed, unit.id);
+  if (!costs.has(positionKey(destination))) return fail('Destination is out of range');
+  const route = pathFromMovementCosts(observed, unit, destination, costs);
+  if (!route) return fail('Destination is out of range');
+  let stop = unit.position, spent = 0;
+  let contact: Unit | undefined;
+  const travelled: Position[] = [unit.position];
+  for (const step of route.slice(1)) {
+    const occupant = unitAt(state, step);
+    if (occupant && occupant.id !== unit.id) { contact = occupant; break; }
+    spent += unitMovementCost(state, step, unit.kind);
+    stop = step; travelled.push(step);
+  }
+  const board = samePosition(stop, unit.position) ? state.board : restoreCaptureProgressAt(releaseCaptureProgress(state.board, unit), stop);
+  let next = removeEnteredFortifications({ ...state, board, units: state.units.map(u => u.id === unit.id ? { ...u, position: { ...stop }, hasMoved: true, fuel: (u.fuel ?? unitStats[u.kind].fuel) - spent,
+    ...(u.kind === 'submarine' && terrainAt(state.board, stop)?.kind === 'port' ? { submerged: false, diveTurns: 0 } : {}) } : u) }, unit, travelled);
+  if (!contact || contact.owner === unit.owner) return succeed(next);
+  const unseen = !known.has(contact.id);
+  const reserved = contact.ambush;
+  next = revealContact(next, unit.owner, contact.id);
+  const mover = next.units.find(u => u.id === unit.id)!;
+  if (unseen && tacticalEnabled(state, 'ambush') && reserved !== undefined
+    && visibleEnemies(next, contact.owner).some(u => u.id === mover.id)) {
+    const shot = forecastCombat(next, contact, mover, reserved);
+    if (shot.ok) return resolveAttack(next, contact, mover, reserved, true);
+  }
+  return succeed(next);
 }

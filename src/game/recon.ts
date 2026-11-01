@@ -1,3 +1,4 @@
+import { isGameOver } from './types';
 import { usesReconRules, type GameResult, type GameState, type PlayerId, type Position } from './types';
 
 export const RECON_USES = 2;
@@ -5,7 +6,7 @@ export const RECON_RADIUS = 3;
 export const remainingRecon = (state: GameState, player: PlayerId): number => (usesReconRules(state) ? (state.recon?.remaining[player] ?? RECON_USES) : 0);
 
 export function scanArea(state: GameState, center: Position): GameResult {
-  if (!usesReconRules(state) || state.winner || remainingRecon(state, state.activePlayer) <= 0) return { ok: false, error: '広域偵察を実行できません。' };
+  if (!usesReconRules(state) || isGameOver(state) || remainingRecon(state, state.activePlayer) <= 0) return { ok: false, error: '広域偵察を実行できません。' };
   if (!Number.isSafeInteger(center.x) || !Number.isSafeInteger(center.y) || center.x < 0 || center.y < 0 || center.x >= state.board.width || center.y >= state.board.height)
     return { ok: false, error: '偵察地点が盤面外です。' };
   if (state.recon?.centers.some((p) => p.x === center.x && p.y === center.y)) return { ok: false, error: 'この地点は現在偵察中です。' };

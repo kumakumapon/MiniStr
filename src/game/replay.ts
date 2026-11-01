@@ -20,7 +20,7 @@ export type ReplayDifficulty = 'easy' | 'normal' | 'hard';
 export interface ReplaySummary {
   mapId: string;
   difficulty: ReplayDifficulty;
-  winner: PlayerId;
+  winner: PlayerId | 'draw';
   turns: number;
   kills: Record<PlayerId, number>;
   captures: Record<PlayerId, number>;
@@ -99,7 +99,7 @@ function isReplaySummary(value: unknown): value is ReplaySummary {
     && hasOnlyKeys(value, ['mapId', 'difficulty', 'winner', 'turns', 'kills', 'captures'])
     && typeof value.mapId === 'string'
     && typeof value.difficulty === 'string' && difficulties.has(value.difficulty as ReplayDifficulty)
-    && (value.winner === 'red' || value.winner === 'blue')
+    && (value.winner === 'red' || value.winner === 'blue' || value.winner === 'draw')
     && Number.isSafeInteger(value.turns) && (value.turns as number) >= 1
     && isCountPair(value.kills) && isCountPair(value.captures);
 }
@@ -179,7 +179,7 @@ export function summarizeReplay(
 
   for (let index = 0; index < commands.length; index += 1) {
     const command = commands[index]!;
-    if (state.winner) return { ok: false, error: `Command ${index + 1}: Game has finished` };
+    if (state.winner || state.draw) return { ok: false, error: `Command ${index + 1}: Game has finished` };
     const previous = state;
     const result = applyGameCommand(previous, command);
     if (!result.ok) return { ok: false, error: `Command ${index + 1}: ${result.error}` };
@@ -202,10 +202,10 @@ export function summarizeReplay(
     }
   }
 
-  if (!state.winner) return { ok: false, error: 'リプレイに対局結果がありません。' };
+  if (!state.winner && !state.draw) return { ok: false, error: 'リプレイに対局結果がありません。' };
   return {
     ok: true,
-    value: { mapId, difficulty, winner: state.winner, turns: state.turn, kills, captures },
+    value: { mapId, difficulty, winner: state.draw ? 'draw' : state.winner!, turns: state.turn, kills, captures },
   };
 }
 

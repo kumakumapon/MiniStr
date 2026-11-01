@@ -2,6 +2,7 @@ import type { UnitKind } from '../game/types';
 
 /** Shared source names also let stored UI activity be rendered in either locale. */
 export const japaneseUnitNames: Record<UnitKind, string> = {
+  submarine: '潜水艦',
   engineer: '工兵',
   infantry: '歩兵',
   tank: '戦車',
@@ -21,6 +22,7 @@ export const japaneseUnitNames: Record<UnitKind, string> = {
   battleship: '戦艦',
 };
 export const englishUnitNames: Record<UnitKind, string> = {
+  submarine: 'Submarine',
   engineer: 'Engineer',
   infantry: 'Infantry',
   tank: 'Tank',

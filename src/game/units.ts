@@ -1,7 +1,7 @@
 export interface UnitStats { cost: number; movement: number; attack: number; defense: number; capturePower: number; range: readonly [number, number]; fuel: number; /** Fuel consumed at the start of each turn while away from an owned property. */ fuelPerTurn: number; /** Maximum rounds; each attack or counterattack consumes one. Zero means unarmed. */ ammo: number; vision: number; /** Cannot attack on the turn it moves. */ indirect: boolean }
 
 export type WeaponKind = 'rifle' | 'machineGun' | 'tankCannon' | 'howitzer' | 'rocketLauncher' | 'antiAirCannon'
-  | 'airMissile' | 'bomb' | 'navalGun' | 'antiTankLauncher' | 'heavyTankCannon' | 'helicopterRocket' | 'heavyNavalGun';
+  | 'airMissile' | 'bomb' | 'navalGun' | 'antiTankLauncher' | 'heavyTankCannon' | 'helicopterRocket' | 'heavyNavalGun' | 'torpedo' | 'depthCharge';
 
 export type UnitCategory = 'soft' | 'armor' | 'air' | 'sea';
 export type MovementProfile = 'foot' | 'vehicle' | 'air' | 'sea';
@@ -55,6 +55,11 @@ export interface UnitDefinition {
  * are derived from it so they cannot silently fall out of sync.
  */
 export const unitDefinitions = {
+  submarine: {
+    weapon: 'torpedo', category: 'sea', movementProfile: 'sea', productionTerrain: 'port', modernOnly: true, minimumRuleVersion: 13,
+    stats: { cost: 13000, movement: 5, attack: 75, defense: 20, capturePower: 0, range: [1, 2], fuel: 70, fuelPerTurn: 3, ammo: 6, vision: 3, indirect: false },
+    effectiveness: { soft: 0, armor: 0, air: 0, sea: 1.2 },
+  },
   infantry: {
     weapon: 'rifle',
     category: 'soft', movementProfile: 'foot', productionTerrain: 'factory', mergeable: true, embarkable: true,

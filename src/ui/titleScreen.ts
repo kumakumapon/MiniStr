@@ -1,3 +1,4 @@
+import { renderTacticalPreset } from './tactics';
 import { maps, operationScenarios, type PlayerId, type ScenarioTheme } from '../game';
 import type { ScenarioDefinition } from '../game/maps';
 import type { GeneratedShare } from '../game/shareLink';
@@ -116,6 +117,7 @@ type DailyCatalog = Parameters<typeof renderDailyCard>[0]['catalog'];
  * they run only while the title is actually shown.
  */
 export interface TitleOverlayContext {
+  tacticalPreset?: boolean;
   state: TitleState;
   titleOpen: boolean;
   replayMode: boolean;
@@ -182,7 +184,8 @@ export function buildTitleOverlay(context: TitleOverlayContext): string {
         })()
       : undefined,
     generator: titleVisible
-      ? renderMapGenerator(state.generatorForm, state.generatorNotice, state.generatorOpen, { status: state.generatorLinkStatus, text: state.generatorLinkText }) +
+      ? renderTacticalPreset(context.tacticalPreset === true) +
+        renderMapGenerator(state.generatorForm, state.generatorNotice, state.generatorOpen, { status: state.generatorLinkStatus, text: state.generatorLinkText }) +
         renderOperationRecords(context.operationCatalog, context.operationNotice, state.operationRecordsOpen)
       : undefined,
     savePicker: titleVisible ? context.savePicker() : '',

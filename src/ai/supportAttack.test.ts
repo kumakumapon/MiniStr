@@ -1,4 +1,5 @@
 import { expect, it } from 'vitest';
+import { tacticalUnit as unit, tacticalState as tactical } from '../game/tactics.fixture';
 import { supportedAttack } from './supportAttack';
 import { operation, force } from '../game/operations.fixture';
 import { createScenarioInitialState } from '../game/maps';
@@ -51,4 +52,29 @@ it('fires ready indirect support before exposing the defensive front to retaliat
   expect(chooseCpuAction(unavailable, 'normal', 'red', 'defensive')).not.toMatchObject({ type: 'attack', unitId: support.id });
   expect(chooseCpuAction({ ...battle, ruleVersion: 11 }, 'normal', 'red', 'defensive')).toEqual(chooseCpuAction({ ...battle, ruleVersion: 11 }, 'normal', 'red', 'balanced'));
   expect(state.units).toEqual([attacker, support, target]);
+});
+
+it('projects sequential follow-up HP under simultaneous fire and rejects unavailable or unsafe support', () => {
+  const attacker = force('r1', 'tank', 1, 2);
+  const target = { ...unit('tank', 'blue', 2, 2), hp: 99 };
+  const support = unit('artillery', 'red', 2, 4, 'r2');
+  const state = tactical([attacker, support, target]);
+  expect(supportedAttack(state, attacker, target, false)).toBe(true);
+  expect(supportedAttack(state, attacker, target, false, false)).toBe(true);
+  expect(supportedAttack({ ...state, units: [attacker, target] }, attacker, target, false)).toBe(false);
+  for (const patch of [
+    { hasActed: true },
+    { hasMoved: true },
+    { owner: 'blue' as const },
+    { position: undefined, embarkedIn: 'transport' },
+    { ammo: 0, secondaryAmmo: 0 },
+    { position: { x: 8, y: 5 } },
+    { kind: 'infantry' as const, position: { x: 3, y: 2 }, hp: 1 },
+  ]) {
+    expect(supportedAttack({ ...state, units: [attacker, { ...support, ...patch }, target] }, attacker, target, false)).toBe(false);
+  }
+  const weak = { ...target, hp: 1 };
+  expect(supportedAttack({ ...state, units: [attacker, weak] }, attacker, weak, false)).toBe(true);
+  const distant = { ...target, position: { x: 8, y: 5 } };
+  expect(supportedAttack({ ...state, units: [attacker, distant] }, attacker, distant, false)).toBe(false);
 });

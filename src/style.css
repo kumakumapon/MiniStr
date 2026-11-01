@@ -1110,3 +1110,13 @@ body.production-menu-open { overflow: hidden; }
   .share-link-card { padding: 18px 14px; }
   .share-link-facts div { grid-template-columns: 1fr; gap: 0; }
 }
+
+/* v1.4 tactical controls and an asset-independent submarine silhouette. */
+.tactics-settings, .tactics-status { padding: .65rem; margin: .5rem 0; border: 1px solid #8eaaab; border-radius: .5rem; background: #172a2d; color: #f4f0dd; }
+.tactics-status { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; }
+.tactics-status details { flex-basis: 100%; }
+.tactics-status button { min-height: 44px; }
+.unit-submarine .unit-art { background: currentColor; width: 86%; height: 30%; border-radius: 60%; position: relative; }
+.unit-submarine .unit-art::after { content: ''; position: absolute; width: 20%; height: 70%; left: 48%; bottom: 70%; border: 2px solid currentColor; border-bottom: 0; }
+
+.tile[data-zoc="true"] { outline: 2px dashed #f3a15d; outline-offset: -3px; }

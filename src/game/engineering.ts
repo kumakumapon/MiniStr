@@ -1,3 +1,4 @@
+import { isGameOver } from './types';
 import { isGroundUnit } from './logistics';
 import { defenseStars, samePosition, terrainAt } from './terrain';
 import { isDeployedUnit, usesFrontlineRules, type GameResult, type GameState, type Position, type Unit } from './types';
@@ -8,7 +9,7 @@ export const MAX_FORTIFICATIONS = 4;
 /** A failed order changes neither funds nor action state. */
 export function fortificationError(state: GameState, unitId: string): string | undefined {
   if (!usesFrontlineRules(state)) return 'この対局のルールでは設営できません。';
-  if (state.winner) return '対局は終了しています。';
+  if (isGameOver(state)) return '対局は終了しています。';
   const unit = state.units.find((candidate) => candidate.id === unitId);
   if (!unit || !isDeployedUnit(unit) || unit.kind !== 'engineer' || unit.owner !== state.activePlayer) return '自軍の工兵を選択してください。';
   if (unit.hasMoved || unit.hasActed) return '設営には未移動・未行動の工兵が必要です。';

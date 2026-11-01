@@ -1,3 +1,5 @@
+import { prepareAmbush, toggleDive } from './tacticalActions';
+import { validTacticalState } from './tactics';
 import { validCallsign } from './veteranIdentity';
 import { validArmyPolicies, type ArmyPolicies } from './armyPolicy';
 import { attackUnit, evacuateUnit, captureProperty, disembarkUnit, embarkUnit, endTurn, mergeUnits, moveUnit, produceUnit, waitUnit } from './commands';
@@ -45,6 +47,8 @@ export type GameCommand =
   | { type: 'produce'; factory: Position; kind: UnitKind }
   | { type: 'embark'; unitId: string; transportId: string }
   | { type: 'disembark'; transportId: string; destination: Position }
+  | { type: 'ambush'; unitId: string; weaponSlot?: WeaponSlot }
+  | { type: 'dive'; unitId: string }
   | { type: 'endTurn' };
 
 export interface SavedGame {
@@ -140,6 +144,8 @@ export interface StorageLike {
 }
 
 export function applyGameCommand(state: GameState, command: GameCommand): GameResult {
+  if (state.draw) return { ok: false, error: 'Game has finished' };
+  if (state.tactics?.lastCombat) state = { ...state, tactics: { ...state.tactics, lastCombat: undefined } };
   switch (command.type) {
     case 'recon': return scanArea(state, command.center);
     case 'move': return moveUnit(state, command.unitId, command.destination);
@@ -154,6 +160,8 @@ export function applyGameCommand(state: GameState, command: GameCommand): GameRe
     case 'produce': return produceUnit(state, command.factory, command.kind);
     case 'embark': return embarkUnit(state, command.unitId, command.transportId);
     case 'disembark': return disembarkUnit(state, command.transportId, command.destination);
+    case 'ambush': return prepareAmbush(state, command.unitId, command.weaponSlot);
+    case 'dive': return toggleDive(state, command.unitId);
     case 'endTurn': return { ok: true, value: endTurn(state) };
   }
 }
@@ -255,6 +263,8 @@ export function isGameCommand(value: unknown): value is GameCommand {
   if (value.type === 'wait' || value.type === 'evacuate') return typeof value.unitId === 'string';
   if (value.type === 'attack') return typeof value.unitId === 'string' && typeof value.targetId === 'string'
     && (value.weaponSlot === undefined || value.weaponSlot === 0 || value.weaponSlot === 1);
+  if (value.type === 'ambush') return typeof value.unitId === 'string' && (value.weaponSlot === undefined || value.weaponSlot === 0 || value.weaponSlot === 1);
+  if (value.type === 'dive') return typeof value.unitId === 'string';
   if (value.type === 'merge') return typeof value.unitId === 'string' && typeof value.targetId === 'string';
   if (value.type === 'capture') return typeof value.unitId === 'string';
   if (value.type === 'embark') return typeof value.unitId === 'string' && typeof value.transportId === 'string';
@@ -344,7 +354,7 @@ export function isGameState(value: unknown): value is GameState {
   const validPlayerState = (state: unknown) =>
     isRecord(state) && isFiniteNumber(state.gold) && state.gold >= 0
     && isFiniteNumber(state.income) && state.income >= 0;
-  return validPlayerState(value.players.red) && validPlayerState(value.players.blue)
+  return validTacticalState(value as unknown as GameState) && validPlayerState(value.players.red) && validPlayerState(value.players.blue)
     && typeof value.activePlayer === 'string' && players.has(value.activePlayer)
     && Number.isInteger(value.turn) && (value.turn as number) >= 1
     && Number.isSafeInteger(value.rngSeed) && (value.rngSeed as number) >= 0 && (value.rngSeed as number) <= 0xffff_ffff

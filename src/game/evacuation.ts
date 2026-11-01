@@ -1,3 +1,4 @@
+import { isGameOver } from './types';
 import { isEvacuationCondition, scenarioForState, type EvacuationCondition } from './maps';
 import { isDeployedUnit, usesOperationsRules, type GameState, type PlayerId } from './types';
 
@@ -22,7 +23,7 @@ export function evacuationImpossible(state: GameState, player: PlayerId): boolea
 export function canEvacuateUnit(state: GameState, unitId: string): boolean {
   const unit = state.units.find((candidate) => candidate.id === unitId);
   return (
-    !state.winner &&
+    !isGameOver(state) &&
     !!unit &&
     isDeployedUnit(unit) &&
     unit.owner === state.activePlayer &&

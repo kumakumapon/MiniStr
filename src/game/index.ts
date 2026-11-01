@@ -1,4 +1,6 @@
 export * from './types';
+export * from './tactics';
+export * from './tacticalMaps';
 export * from './state';
 export * from './terrain';
 export * from './units';
