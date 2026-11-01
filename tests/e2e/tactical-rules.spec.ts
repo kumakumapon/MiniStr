@@ -52,7 +52,7 @@ for (const width of [1280, 390])
       await page.locator('.tactics-status summary').click();
       if (locale === 'en') expect(await page.locator('.tactics-status').innerText()).not.toMatch(/[\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Han}]/u);
       if (locale === 'en') await expect(page.locator('.battlefield-heading h2')).toContainText('Green Border');
-      await page.screenshot({ path: info.outputPath(`tactics-${width}-${locale}.png`) });
+      await page.screenshot({ path: info.outputPath(`systems-tactics-${width}-${locale}.png`) });
       expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width + 1);
     });
 
@@ -143,7 +143,7 @@ for (const width of [1280, 390])
       await tile(page, 1, 2).click();
       await tile(page, 2, 2).click();
       await expect(page.locator('#battle-scene-title')).toHaveText(locale === 'en' ? 'Simultaneous fire' : '同時射撃');
-      await page.screenshot({ path: info.outputPath(`simultaneous-${width}-${locale}.png`) });
+      await page.screenshot({ path: info.outputPath(`systems-simultaneous-${width}-${locale}.png`) });
       await page.locator('#battle-scene-skip').press('Enter');
       await page.locator('#save').click();
       const saved = await page.evaluate(() => JSON.parse(localStorage.getItem('ministr.save.manual')!));
@@ -227,6 +227,6 @@ for (const width of [1280, 390])
       await page.reload();
       await page.locator('#title-continue').click();
       await expect(tile(page, 4, 2).locator('.unit.blue')).toHaveCount(1);
-      await page.screenshot({ path: info.outputPath(`sonar-${width}-${locale}.png`) });
+      await page.screenshot({ path: info.outputPath(`systems-sonar-${width}-${locale}.png`) });
     });
   }
