@@ -2,6 +2,13 @@ import { expect, test, type Page } from '@playwright/test';
 import { operation, valueOf } from '../../src/game/operations.fixture';
 import { createScenarioInitialState, applyGameCommand, saveGame, type GameCommand, type ScenarioDefinition, type SavedGame } from '../../src/game';
 import { combinedTactics } from '../../src/game/tactics';
+import { BATTLE_SCENE_DURATION_MS } from '../../src/ui/battleScene';
+
+async function pauseBattleClock(page: Page): Promise<void> {
+  const now = new Date('2026-11-01T00:00:00Z');
+  await page.clock.install({ time: now });
+  await page.clock.pauseAt(new Date(now.getTime() + 1000));
+}
 
 function savedOperation(scenario: ScenarioDefinition, commands: GameCommand[]): SavedGame {
   const initial = createScenarioInitialState(scenario);
@@ -120,39 +127,50 @@ for (const width of [1280, 390])
       await expect(page.locator('.tile-inspector-unit')).toHaveCount(0);
     });
 
-    test(`presents simultaneous return fire and saves both magazines at ${width}/${locale}`, async ({ page }, info) => {
-      const scenario = operation({
-        tacticalOptions: { ...combinedTactics, weather: false },
-        board: {
-          width: 9,
-          height: 6,
-          cells: [
-            [1, 2, 'road'],
-            [2, 2, 'road'],
+    for (const dismissal of ['skip', 'elapsed'] as const)
+      test(`presents simultaneous return fire and saves both magazines after ${dismissal} at ${width}/${locale}`, async ({ page }, info) => {
+        const scenario = operation({
+          tacticalOptions: { ...combinedTactics, weather: false },
+          board: {
+            width: 9,
+            height: 6,
+            cells: [
+              [1, 2, 'road'],
+              [2, 2, 'road'],
+            ],
+          },
+          initialUnits: [
+            { kind: 'tank', owner: 'red', x: 1, y: 2 },
+            { kind: 'tank', owner: 'blue', x: 2, y: 2 },
           ],
-        },
-        initialUnits: [
-          { kind: 'tank', owner: 'red', x: 1, y: 2 },
-          { kind: 'tank', owner: 'blue', x: 2, y: 2 },
-        ],
-        victoryConditions: [{ type: 'eliminate' }],
-        defeatConditions: [{ type: 'eliminate' }],
+          victoryConditions: [{ type: 'eliminate' }],
+          defeatConditions: [{ type: 'eliminate' }],
+        });
+        await page.setViewportSize({ width, height: 844 });
+        // Keep the scene alive during a slow screenshot; its lifetime has its own check below.
+        await pauseBattleClock(page);
+        await resume(page, savedOperation(scenario, []), locale);
+        await tile(page, 1, 2).click();
+        await tile(page, 2, 2).click();
+        await expect(page.locator('#battle-scene-title')).toHaveText(locale === 'en' ? 'Simultaneous fire' : '同時射撃');
+        if (dismissal === 'skip') {
+          await page.screenshot({ path: info.outputPath(`systems-simultaneous-${width}-${locale}.png`) });
+          await expect(page.locator('#battle-scene-skip')).toBeVisible();
+          await page.locator('#battle-scene-skip').press('Enter');
+        } else {
+          await page.clock.runFor(BATTLE_SCENE_DURATION_MS - 1);
+          await expect(page.locator('#battle-scene-title')).toHaveCount(1);
+          await page.clock.runFor(1);
+        }
+        await expect(page.locator('#battle-scene-title')).toHaveCount(0);
+        await page.locator('#save').click();
+        const saved = await page.evaluate(() => JSON.parse(localStorage.getItem('ministr.save.manual')!));
+        expect(saved.gameState.units).toHaveLength(2);
+        for (const u of saved.gameState.units) {
+          expect(u.ammo).toBe(5);
+          expect(u.hp).toBeLessThan(100);
+        }
       });
-      await page.setViewportSize({ width, height: 844 });
-      await resume(page, savedOperation(scenario, []), locale);
-      await tile(page, 1, 2).click();
-      await tile(page, 2, 2).click();
-      await expect(page.locator('#battle-scene-title')).toHaveText(locale === 'en' ? 'Simultaneous fire' : '同時射撃');
-      await page.screenshot({ path: info.outputPath(`systems-simultaneous-${width}-${locale}.png`) });
-      await page.locator('#battle-scene-skip').press('Enter');
-      await page.locator('#save').click();
-      const saved = await page.evaluate(() => JSON.parse(localStorage.getItem('ministr.save.manual')!));
-      expect(saved.gameState.units).toHaveLength(2);
-      for (const u of saved.gameState.units) {
-        expect(u.ammo).toBe(5);
-        expect(u.hp).toBeLessThan(100);
-      }
-    });
 
     test(`presents a prepared hidden encounter without an automatic counter at ${width}/${locale}`, async ({ page }) => {
       const scenario = operation({
@@ -167,11 +185,13 @@ for (const width of [1280, 390])
       });
       const commands: GameCommand[] = [{ type: 'endTurn' }, { type: 'ambush', unitId: 'b1' }, { type: 'endTurn' }];
       await page.setViewportSize({ width, height: 844 });
+      await pauseBattleClock(page);
       await resume(page, savedOperation(scenario, commands), locale);
       await tile(page, 0, 2).click();
       await tile(page, 5, 2).click();
       await expect(page.locator('#battle-scene-title')).toHaveText(locale === 'en' ? 'Ambush' : '待伏せ射撃');
       await page.locator('#battle-scene-skip').press('Enter');
+      await expect(page.locator('#battle-scene-title')).toHaveCount(0);
       await page.locator('#save').click();
       const saved = await page.evaluate(() => JSON.parse(localStorage.getItem('ministr.save.manual')!));
       expect(saved.gameState.units.find((u: { id: string }) => u.id === 'r1')).toMatchObject({ ammo: 6, position: { x: 4, y: 2 } });
