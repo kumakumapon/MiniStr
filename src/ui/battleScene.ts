@@ -131,7 +131,7 @@ export function renderBattleScene(scene: BattleScene): string {
     const damageText = incomingDamage > 0 ? `−${Number(incomingDamage)} HP` : labels.noDamage;
     const result = after === 0 ? `<span class="battle-destroyed">${labels.destroyed}</span>` : '';
     const hitClass = incomingDamage > 0 ? ' battle-hit' : '';
-    const fireClass = role === 'attacker' || scene.attacker.hpAfter < scene.attacker.hpBefore ? ' battle-firing' : '';
+    const fireClass = role === 'attacker' || scene.counterFired || scene.attacker.hpAfter < scene.attacker.hpBefore ? ' battle-firing' : '';
     return `<article class="battle-combatant battle-${role} battle-team-${escapeHtml(unit.owner)}${hitClass}${fireClass}${after === 0 ? ' battle-destroyed-unit' : ''}">
       <span class="battle-team-badge battle-team-badge-${escapeHtml(unit.owner)}">${unit.owner === 'red' ? '■' : '●'} ${unit.owner === 'red' ? labels.red : labels.blue}</span>
       <span class="battle-side-label">${sideLabel}</span>
@@ -152,7 +152,16 @@ export function renderBattleScene(scene: BattleScene): string {
   const hasCounter = scene.counterFired || scene.attacker.hpAfter < scene.attacker.hpBefore;
   const counterClass = hasCounter ? ' has-counter' : '';
   const lostUnit = scene.defender.hpAfter === 0 ? scene.defender : scene.attacker.hpAfter === 0 ? scene.attacker : undefined;
-  const summary = lostUnit ? (english ? `${unitNames[lostUnit.kind]} destroyed` : `${unitNames[lostUnit.kind]}を撃破`) : labels.complete;
+  const summary =
+    scene.attacker.hpAfter === 0 && scene.defender.hpAfter === 0
+      ? english
+        ? 'Both units destroyed'
+        : '両部隊が相討ち'
+      : lostUnit
+        ? english
+          ? `${unitNames[lostUnit.kind]} destroyed`
+          : `${unitNames[lostUnit.kind]}を撃破`
+        : labels.complete;
   const timingStyle = Object.entries(
     scene.simultaneous ? { ...BATTLE_SCENE_TIMING, counterFire: BATTLE_SCENE_TIMING.fire, counterImpact: BATTLE_SCENE_TIMING.impact } : BATTLE_SCENE_TIMING,
   )

@@ -1,3 +1,4 @@
+import { isGameOver } from './types';
 import { visiblePositions } from './fog';
 import { movementCost, samePosition, terrainAt } from './terrain';
 import { isDeployedUnit, STRATEGY_RULE_VERSION, usesBridgeRules, type Board, type GameResult, type GameState, type Position } from './types';
@@ -8,7 +9,7 @@ export const MAX_BRIDGES = 2;
 /** Public failure text never distinguishes a hidden occupant from an unavailable site. */
 export function destroyBridgeError(state: GameState, unitId: string, destination: Position): string | undefined {
   const unavailable = 'この地点の橋は破壊できません。';
-  if ((state.ruleVersion ?? 0) < STRATEGY_RULE_VERSION || state.winner) return unavailable;
+  if ((state.ruleVersion ?? 0) < STRATEGY_RULE_VERSION || isGameOver(state)) return unavailable;
   const unit = state.units.find((candidate) => candidate.id === unitId);
   if (!unit || !isDeployedUnit(unit) || unit.kind !== 'engineer' || unit.owner !== state.activePlayer || unit.hasMoved || unit.hasActed) return unavailable;
   if (!Number.isSafeInteger(destination.x) || !Number.isSafeInteger(destination.y) || Math.abs(unit.position.x - destination.x) + Math.abs(unit.position.y - destination.y) !== 1)
@@ -51,7 +52,7 @@ export function bridgeBanks(board: Board, position: Position): Position[] {
 
 export function bridgeError(state: GameState, unitId: string, destination?: Position): string | undefined {
   if (!usesBridgeRules(state)) return 'この対局のルールでは架橋できません。';
-  if (state.winner) return '対局は終了しています。';
+  if (isGameOver(state)) return '対局は終了しています。';
   const unit = state.units.find((candidate) => candidate.id === unitId);
   if (!unit || !isDeployedUnit(unit) || unit.kind !== 'engineer' || unit.owner !== state.activePlayer) return '自軍の工兵を選択してください。';
   if (unit.hasMoved || unit.hasActed) return '架橋には未移動・未行動の工兵が必要です。';

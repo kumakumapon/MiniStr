@@ -1,3 +1,4 @@
+import { detectedContact } from './tactics';
 import { visibleEnemies, visiblePositions } from './fog';
 import { applyGameCommand, type GameCommand } from './session';
 import { isPropertyTerrainKind } from './facilities';
@@ -74,7 +75,22 @@ export class BattleHistory {
       const memory = this.contacts[player];
       for (const [id, contact] of memory) {
         const observed = current.get(id);
-        if (visible.has(`${contact.position.x},${contact.position.y}`) && (!observed || observed.position.x !== contact.position.x || observed.position.y !== contact.position.y))
+        if (
+          visible.has(`${contact.position.x},${contact.position.y}`) &&
+          (contact.kind !== 'submarine' ||
+            this.state.units.some((u) => u.owner === player && isDeployedUnit(u) && u.position.x === contact.position.x && u.position.y === contact.position.y) ||
+            detectedContact(this.state, player, {
+              id: contact.id,
+              kind: 'submarine',
+              owner: player === 'red' ? 'blue' : 'red',
+              position: contact.position,
+              hp: 100,
+              hasMoved: false,
+              hasActed: false,
+              submerged: true,
+            })) &&
+          (!observed || observed.position.x !== contact.position.x || observed.position.y !== contact.position.y)
+        )
           memory.delete(id);
       }
       for (const unit of enemies) {

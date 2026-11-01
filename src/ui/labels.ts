@@ -33,7 +33,7 @@ export const weaponNames = localized<Record<WeaponKind, string>>({
   antiTankLauncher: 'Anti-tank rocket', heavyTankCannon: 'Heavy tank cannon', helicopterRocket: 'Helicopter rocket', heavyNavalGun: 'Heavy naval gun',
 });
 
-export function unitWeaponName(kind: UnitKind, state?: Pick<GameState, 'ruleVersion'>): string {
+export function unitWeaponName(kind: UnitKind, state?: Pick<GameState, 'ruleVersion' | 'tactics'>): string {
   if (state) {
     const names = weaponsForUnit(kind, state).map(weapon => weaponNames[weapon.kind]);
     if (names.length) return names.join(' / ');

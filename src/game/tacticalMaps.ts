@@ -5,11 +5,11 @@ const variants = new WeakMap<ScenarioDefinition, ScenarioDefinition>();
 
 /** A snapshot variant: original catalog definitions and historical seeds stay intact. */
 export function tacticalScenario(source: ScenarioDefinition, reviseLayout = true, options?: TacticalOptions): ScenarioDefinition {
-  if (source.tacticalOptions && reviseLayout) return source;
+  if (source.tacticalOptions && reviseLayout && !options) return source;
   if (reviseLayout && !options && variants.has(source)) return variants.get(source)!;
   const data = scenarioDefinitionToData(source);
   data.tacticalOptions = { ...(options ?? combinedTactics) };
-  if (reviseLayout) {
+  if (reviseLayout && !source.tacticalOptions) {
     const { width: w, height: h } = source.board;
     const reserved = new Set(source.initialUnits.map((u) => `${u.x},${u.y}`));
     for (const c of [...source.victoryConditions, ...source.defeatConditions]) if ('positions' in c) for (const p of c.positions) reserved.add(`${p.x},${p.y}`);

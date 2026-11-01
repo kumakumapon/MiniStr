@@ -46,5 +46,6 @@ export function observedCommand(before: GameState, after: GameState, command: im
   if (before.activePlayer === player || command.type === 'endTurn' || command.type === 'bridge' || command.type === 'destroyBridge' || command.type === 'recon') return true;
   const ids = 'unitId' in command ? [command.unitId] : 'transportId' in command ? [command.transportId] : [];
   if (command.type === 'produce') return after.units.some(u => u.owner !== player && isDeployedUnit(u) && u.position.x === command.factory.x && u.position.y === command.factory.y && visibleEnemies(after, player).some(e => e.id === u.id));
-  return [before, after].some(s => visibleEnemies(s, player).some(u => ids.includes(u.id)));
+  const observed = (s: GameState) => visibleEnemies(s, player).some(u => ids.includes(u.id));
+  return command.type === 'move' ? observed(before) && observed(after) : observed(before) || observed(after);
 }

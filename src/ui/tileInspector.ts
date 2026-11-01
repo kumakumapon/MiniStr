@@ -63,7 +63,7 @@ export function inspectTile(
   if (state.fortifications?.some(site => site.owner === unit.owner && site.position.x === position.x && site.position.y === position.y) && isGroundUnit(unit.kind)) rows.push({ label: '陣地防御', value: '陣地の所有軍の地上部隊 防御★+1（合計上限★4）' });
   const unitRows: InspectorRow[] = [
     { label: '耐久', value: `${unit.hp} / 100` },
-    { label: uiText.weapon, value: unitWeaponName(unit.kind, state) },
+    { label: uiText.weapon, value: weaponsForUnit(unit.kind, state)[0] ? weaponNames[weaponsForUnit(unit.kind, state)[0]!.kind] : unitWeaponName(unit.kind) },
     { label: uiText.ammoCapacity, value: `${stats.ammo}` },
     { label: '攻撃', value: `${stats.attack}` },
     { label: '射程', value: range(unit.kind) },

@@ -1084,7 +1084,8 @@ function render(): void {
   const board = boardCovered ? [] : renderedGame.board.terrain.flatMap((row, y) => row.map((terrain, x) => {
     const unit = unitsByPosition.get(`${x},${y}`);
     const hidden = !visible.has(`${x},${y}`);
-    const contact = hidden ? contactsByPosition.get(`${x},${y}`) : undefined;
+    const remembered = contactsByPosition.get(`${x},${y}`);
+    const contact = hidden || remembered?.kind === 'submarine' && !unit ? remembered : undefined;
     const terrainName = terrainNames[terrain.kind] ?? terrain.kind;
     const isProperty = isPropertyTerrainKind(terrain.kind);
     const propertyOwner = isProperty ? terrain.owner : undefined;
@@ -2311,7 +2312,7 @@ function act(position: Position): void {
   }
   const me = viewer();
   const foe = otherPlayer(me);
-  const target = game.units.find(unit => isDeployedUnit(unit) && key(unit.position) === key(position));
+  const target = game.units.find(unit => isDeployedUnit(unit) && key(unit.position) === key(position) && (unit.owner === me || visibleEnemies(game, me).some(enemy => enemy.id === unit.id)));
   const visible = new Set(visiblePositions(game, me).map(key));
   const facility = idleProductionFacilities(game, me, selectedMap.productionRules).find(candidate => key(candidate.position) === key(position));
   // Any other tap drops a pending production target, so a stale one is never

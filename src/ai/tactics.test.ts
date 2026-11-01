@@ -1,11 +1,24 @@
 import { describe, expect, it } from 'vitest';
 import { createBoard } from '../game/state';
+import { moveUnit } from '../game/commands';
+import { tacticalOk as ok } from '../game/tactics.fixture';
 import { applyGameCommand } from '../game/session';
 import { tacticalUnit as unit, tacticalState as state } from '../game/tactics.fixture';
 import { chooseTacticalAction } from './tactics';
 import { chooseCpuAction } from './rules';
 
 describe('public tactical CPU planning', () => {
+  it('can prepare a public forward garrison before an unseen enemy arrives', () => {
+    const s = state([unit('infantry', 'red', 4, 2), unit('tank', 'blue', 0, 2)]);
+    s.tactics!.options.weather = false;
+    s.board.terrain[2]![4] = { kind: 'city', owner: 'red' };
+    const action = chooseTacticalAction(s, 'red', true)!;
+    expect(action).toEqual({ type: 'ambush', unitId: 'r1', weaponSlot: 0 });
+    const prepared = { ...ok(applyGameCommand(s, action)), activePlayer: 'blue' as const };
+    const after = ok(moveUnit(prepared, 'b1', { x: 4, y: 2 }));
+    expect(after.tactics?.lastCombat?.ambush).toBe(true);
+    expect(after.units.find((u) => u.id === 'r1')?.ammo).toBe(8);
+  });
   it('reserves a loaded direct weapon at a threatened owned garrison', () => {
     const s = state([unit('infantry', 'red', 1, 2), unit('infantry', 'blue', 3, 2)]);
     s.board.terrain[2]![1] = { kind: 'city', owner: 'red' };

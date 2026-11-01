@@ -157,6 +157,7 @@ export function updateScenarioScores(previous: GameState, next: GameState): Game
  * normalized to blue's survive condition while loading a scenario.
  */
 export function evaluateScenario(state: GameState, scenario: ScenarioDefinition, tieBreaker: PlayerId = state.activePlayer, roundComplete = true): PlayerId | undefined {
+  if (state.draw) return undefined;
   if (state.winner) return state.winner;
   const redFailed = evacuationImpossible(state, 'red'), blueFailed = evacuationImpossible(state, 'blue');
   if (redFailed || blueFailed) return redFailed && blueFailed ? tieBreaker : redFailed ? 'blue' : 'red';
@@ -189,7 +190,7 @@ export function withEvaluatedWinner(
   tieBreaker: PlayerId = state.activePlayer,
   roundComplete = false,
 ): GameState {
-  if (state.draw) return state;
+  if (state.draw || state.winner) return state;
   const scenario = scenarioForState(state);
   if (tacticalEnabled(state, 'simultaneous')) {
     const immediate = (player: PlayerId) => scenario
