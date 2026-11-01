@@ -175,7 +175,7 @@ export function renderBattleScene(scene: BattleScene): string {
       </header>
       <div class="battle-phase-rail" aria-hidden="true">
         <span class="battle-phase-aim">01 · ${labels.aim}</span><span class="battle-phase-strike">02 · ${labels.strike}</span>
-        ${hasCounter ? `<span class="battle-phase-counter">03 · ${labels.counter}</span>` : ''}<span class="battle-phase-result">${hasCounter ? '04' : '03'} · ${labels.result}</span>
+        ${hasCounter && !scene.simultaneous ? `<span class="battle-phase-counter">03 · ${labels.counter}</span>` : ''}<span class="battle-phase-result">${hasCounter && !scene.simultaneous ? '04' : '03'} · ${labels.result}</span>
       </div>
       <div class="battle-scene-arena">
         ${combatant(scene.attacker, 'attacker', scene.attacker.hpBefore - scene.attacker.hpAfter)}

@@ -77,3 +77,30 @@ describe('tactical contact and independent comparison parameters', () => {
     expect(canEvacuateUnit(s, 'r1')).toBe(false);
   });
 });
+
+describe('ZOC and submarine movement boundaries', () => {
+  it('ends at a visible ground ZOC, can leave its start zone, and does not stop aircraft', async () => {
+    const { reachablePositionsForPlayer, moveUnit } = await import('./commands');
+    const s = state([unit('tank', 'red', 0, 1), unit('infantry', 'blue', 2, 0)]);
+    s.board = createBoard(7, 3, { kind: 'mountain' });
+    for (let x = 0; x < 7; x++) s.board.terrain[1]![x] = { kind: 'road' };
+    s.tactics!.options.weather = false;
+    expect(reachablePositionsForPlayer(s, 'r1', 'red')).toContainEqual({ x: 2, y: 1 });
+    expect(reachablePositionsForPlayer(s, 'r1', 'red')).not.toContainEqual({ x: 3, y: 1 });
+    expect(moveUnit(s, 'r1', { x: 3, y: 1 }).ok).toBe(false);
+    s.units[0]!.position = { x: 2, y: 1 };
+    expect(reachablePositionsForPlayer(s, 'r1', 'red')).toContainEqual({ x: 4, y: 1 });
+    s.units[0] = unit('fighter', 'red', 0, 1);
+    expect(reachablePositionsForPlayer(s, 'r1', 'red')).toContainEqual({ x: 4, y: 1 });
+  });
+  it('surfaces a submerged submarine on entering a port and keeps one-unit occupancy', async () => {
+    const { moveUnit } = await import('./commands');
+    const s = state([{ ...unit('submarine', 'red', 1, 2), submerged: true, diveTurns: 2 }, unit('submarine', 'blue', 8, 5)]);
+    s.board = createBoard(9, 6, { kind: 'sea' });
+    s.board.terrain[2]![2] = { kind: 'port', owner: 'red' };
+    const entered = ok(moveUnit(s, 'r1', { x: 2, y: 2 }));
+    expect(entered.units[0]).toMatchObject({ submerged: false, diveTurns: 0 });
+    const occupied = { ...s, units: [s.units[0]!, { ...unit('destroyer', 'red', 2, 2, 'r2') }, s.units[1]!] };
+    expect(moveUnit(occupied, 'r1', { x: 2, y: 2 }).ok).toBe(false);
+  });
+});

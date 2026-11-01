@@ -59,6 +59,11 @@ describe('public tactical CPU planning', () => {
     s.units[1] = unit('destroyer', 'blue', 2, 2);
     expect(chooseTacticalAction(s, 'red', false)).toBeUndefined();
   });
+  it('keeps a worthwhile torpedo shot instead of spending its turn diving', () => {
+    const s = state([unit('submarine', 'red', 1, 2), unit('landingShip', 'blue', 2, 2)]);
+    s.board = createBoard(9, 6, { kind: 'sea' });
+    expect(chooseTacticalAction(s, 'red', false)).toBeUndefined();
+  });
   it('budgets escorts for loaded transports before a submarine', () => {
     const s = state([unit('landingShip', 'red', 2, 2), { ...unit('infantry', 'red', 0, 0, 'cargo'), position: undefined, embarkedIn: 'r1' }, unit('infantry', 'blue', 8, 5)]);
     s.board = createBoard(9, 6, { kind: 'sea' });

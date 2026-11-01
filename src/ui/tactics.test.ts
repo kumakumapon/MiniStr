@@ -66,6 +66,8 @@ describe('tactical controls and contact privacy', () => {
     expect(scene.simultaneous).toBe(true);
     expect(scene.defender.weapon).toBe('rifle');
     expect(renderBattleScene(scene)).toContain('同時射撃');
+    expect(renderBattleScene(scene)).toContain('両部隊が相討ち');
+    expect(renderBattleScene(scene)).not.toContain('class="battle-phase-counter"');
     const play = vi.fn();
     const stop = playBattleSceneAudio(scene, play);
     vi.advanceTimersByTime(750);

@@ -51,6 +51,7 @@ for (const width of [1280, 390])
       await expect(page.locator('.tactics-status')).toBeVisible();
       await page.locator('.tactics-status summary').click();
       if (locale === 'en') expect(await page.locator('.tactics-status').innerText()).not.toMatch(/[\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Han}]/u);
+      if (locale === 'en') await expect(page.locator('.battlefield-heading h2')).toContainText('Green Border');
       await page.screenshot({ path: info.outputPath(`tactics-${width}-${locale}.png`) });
       expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width + 1);
     });
@@ -90,7 +91,91 @@ for (const width of [1280, 390])
       });
     }
 
-    test(`detects a submerged enemy with sonar and restores a dive action at ${width}/${locale}`, async ({ page }, info) => {
+    test(`presents simultaneous return fire and saves both magazines at ${width}/${locale}`, async ({ page }, info) => {
+      const scenario = operation({
+        tacticalOptions: { ...combinedTactics, weather: false },
+        board: {
+          width: 9,
+          height: 6,
+          cells: [
+            [1, 2, 'road'],
+            [2, 2, 'road'],
+          ],
+        },
+        initialUnits: [
+          { kind: 'tank', owner: 'red', x: 1, y: 2 },
+          { kind: 'tank', owner: 'blue', x: 2, y: 2 },
+        ],
+        victoryConditions: [{ type: 'eliminate' }],
+        defeatConditions: [{ type: 'eliminate' }],
+      });
+      await page.setViewportSize({ width, height: 844 });
+      await resume(page, savedOperation(scenario, []), locale);
+      await tile(page, 1, 2).click();
+      await tile(page, 2, 2).click();
+      await expect(page.locator('#battle-scene-title')).toHaveText(locale === 'en' ? 'Simultaneous fire' : '同時射撃');
+      await page.screenshot({ path: info.outputPath(`simultaneous-${width}-${locale}.png`) });
+      await page.locator('#battle-scene-skip').press('Enter');
+      await page.locator('#save').click();
+      const saved = await page.evaluate(() => JSON.parse(localStorage.getItem('ministr.save.manual')!));
+      expect(saved.gameState.units).toHaveLength(2);
+      for (const u of saved.gameState.units) {
+        expect(u.ammo).toBe(5);
+        expect(u.hp).toBeLessThan(100);
+      }
+    });
+
+    test(`presents a prepared hidden encounter without an automatic counter at ${width}/${locale}`, async ({ page }) => {
+      const scenario = operation({
+        tacticalOptions: { ...combinedTactics, weather: false },
+        board: { width: 9, height: 6, cells: Array.from({ length: 9 }, (_, x) => [x, 2, 'road']) },
+        initialUnits: [
+          { kind: 'tank', owner: 'red', x: 0, y: 2 },
+          { kind: 'infantry', owner: 'blue', x: 5, y: 2 },
+        ],
+        victoryConditions: [{ type: 'eliminate' }],
+        defeatConditions: [{ type: 'eliminate' }],
+      });
+      const commands: GameCommand[] = [{ type: 'endTurn' }, { type: 'ambush', unitId: 'b1' }, { type: 'endTurn' }];
+      await page.setViewportSize({ width, height: 844 });
+      await resume(page, savedOperation(scenario, commands), locale);
+      await tile(page, 0, 2).click();
+      await tile(page, 5, 2).click();
+      await expect(page.locator('#battle-scene-title')).toHaveText(locale === 'en' ? 'Ambush' : '待伏せ射撃');
+      await page.locator('#battle-scene-skip').press('Enter');
+      await page.locator('#save').click();
+      const saved = await page.evaluate(() => JSON.parse(localStorage.getItem('ministr.save.manual')!));
+      expect(saved.gameState.units.find((u: { id: string }) => u.id === 'r1')).toMatchObject({ ammo: 6, position: { x: 4, y: 2 } });
+      expect(saved.gameState.units.find((u: { id: string }) => u.id === 'b1')).toMatchObject({ ammo: 8, hp: 100 });
+    });
+
+    test(`spends and restores its own dive action at ${width}/${locale}`, async ({ page }) => {
+      const scenario = operation({
+        tacticalOptions: { ...combinedTactics },
+        board: { width: 9, height: 6, cells: Array.from({ length: 54 }, (_, i) => [i % 9, Math.floor(i / 9), 'sea']) },
+        initialUnits: [
+          { kind: 'submarine', owner: 'red', x: 1, y: 2 },
+          { kind: 'submarine', owner: 'blue', x: 8, y: 5 },
+        ],
+        victoryConditions: [{ type: 'eliminate' }],
+        defeatConditions: [{ type: 'eliminate' }],
+      });
+      await page.setViewportSize({ width, height: 844 });
+      await resume(page, savedOperation(scenario, []), locale);
+      await tile(page, 1, 2).click();
+      await page.locator('#tactical-dive').click();
+      await expect(page.locator('#tactical-dive')).toBeDisabled();
+      await page.locator('#save').click();
+      const saved = await page.evaluate(() => JSON.parse(localStorage.getItem('ministr.save.manual')!));
+      expect(saved.gameState.units[0]).toMatchObject({ submerged: true, diveTurns: 0, hasMoved: true, hasActed: true });
+      await page.reload();
+      await page.locator('#title-continue').click();
+      await tile(page, 1, 2).click();
+      await expect(page.locator('#tactical-dive')).toBeDisabled();
+      await expect(page.locator('#tactical-dive')).toContainText(locale === 'en' ? 'Surface' : '浮上');
+    });
+
+    test(`detects a submerged enemy with sonar after movement and reload at ${width}/${locale}`, async ({ page }, info) => {
       const scenario = operation({
         tacticalOptions: { ...combinedTactics, weather: false },
         board: { width: 9, height: 6, cells: Array.from({ length: 54 }, (_, i) => [i % 9, Math.floor(i / 9), 'sea']) },

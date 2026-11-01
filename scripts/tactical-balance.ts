@@ -1,3 +1,4 @@
+import { catalogTacticalScenario } from './tacticalScenarios';
 import { TacticalMetrics } from './tacticalMetrics';
 import { openingDistance } from './generatedBalance';
 import { victoryReason } from '../src/game/victory';
@@ -23,6 +24,7 @@ import { returnLeg, type PairedConfig } from './pairedBalance';
 const args = process.argv.slice(2);
 const flags = new Map<string, string>();
 const allowed = new Set([
+  '--catalog',
   '--profiles',
   '--layouts',
   '--cpu',
@@ -48,11 +50,13 @@ const positive = (key: string, fallback: number, maximum: number) => {
   if (!Number.isSafeInteger(value) || value < 1 || value > maximum) throw Error(`Invalid ${key}`);
   return value;
 };
+const catalog = flags.get('--catalog');
+if (catalog) catalogTacticalScenario(catalog, false);
 const profiles = list('--profiles', 'classic,transport,combined');
 const layouts = list('--layouts', 'original,revised');
 const cpus = list('--cpu', 'adapted');
 const sizes = list('--sizes', '16').map(Number);
-const seas = list('--seas', 'none,coast');
+const seas = list('--seas', catalog ? 'none' : 'none,coast');
 const seeds = list('--seeds', 'v140-explore');
 const damageSeeds = list('--damage-seeds', '1401').map(Number);
 const policies = list('--policies', 'balanced:balanced');
@@ -96,9 +100,11 @@ emit({
   harness: createHash('sha256')
     .update(readFileSync(new URL(import.meta.url)))
     .update(readFileSync(new URL('./tacticalMetrics.ts', import.meta.url)))
+    .update(readFileSync(new URL('./tacticalScenarios.ts', import.meta.url)))
     .digest('hex'),
   runtime: process.version,
   requested,
+  catalog,
   rounds,
   note: 'Red always starts. Return legs rotate the map and exchange policies; observations are correlated. Base is v13 common observed-route/contact physics with all optional features off. Transport isolates moved unloading on legacy movement. Baseline CPU means old heuristics using the current legal forecasts. Weather has an independent fixed stream. Undecided games are neither wins nor draws.',
 });
@@ -129,7 +135,7 @@ try {
                       bluePolicy,
                     };
                     for (const [leg, c] of [config, returnLeg(config)].entries()) {
-                      let scenario = comparisonScenario(c);
+                      let scenario = catalog ? catalogTacticalScenario(catalog, c.orientation === 'rotated') : comparisonScenario(c);
                       if (layout === 'revised') scenario = tacticalScenario(scenario);
                       const data = scenarioDefinitionToData(scenario);
                       delete data.tacticalOptions;
@@ -175,8 +181,10 @@ try {
                         plainCover: plainCover === 'true',
                         layout,
                         cpu,
-                        size,
-                        sea,
+                        size: state.board.width,
+                        height: state.board.height,
+                        mapId: loaded.value[0]!.id,
+                        sea: catalog ? 'catalog' : sea,
                         seed,
                         damageSeed,
                         weatherSeed: state.tactics?.weatherSeed,
