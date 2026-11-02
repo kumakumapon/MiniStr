@@ -1,0 +1,30 @@
+--- a/src/ai/rules.ts
++++ b/src/ai/rules.ts
+@@ -149,7 +149,11 @@
+       ? (isDeployedUnit(target) && terrainAt(state.board, target.position)?.kind === 'capital' ? Math.max(given, taken) + 1000 : 1000)
+       : isPriorityTarget(state, attacker.owner, target) ? unitStats[target.kind].cost : 0;
+     const finishing = result.value.outgoing.min >= target.hp && result.value.incoming.max < attacker.hp ? unitStats[target.kind].cost * 0.1 : 0;
+-    return given + objective + finishing >= taken * (config.coordinatedDefense ? 1.05 : 1) && (given > 0 || taken === 0);
++    // Ready support can finish an otherwise near-even exchange. Bound the cost
++    // and keep the existing survival checks for every shot in the sequence.
++    const supported = config.coordinatedDefense && given >= taken
++      && supportedAttack(state, attacker, target, true, true);
++    return (given + objective + finishing >= taken * (config.coordinatedDefense ? 1.05 : 1) || supported) && (given > 0 || taken === 0);
+   }
+   return result.value.outgoing.min >= target.hp
+     || result.value.damageToDefender >= result.value.damageToAttacker + config.attackSafetyMargin - leniency
+--- a/src/ai/tactics.ts
++++ b/src/ai/tactics.ts
+@@ -31,7 +31,11 @@
+     const front =
+       Math.abs(unit.position.x - (state.board.width - 1) / 2) <= state.board.width / 3 && Math.abs(unit.position.y - (state.board.height - 1) / 2) <= state.board.height / 4;
+     const threat = enemies.some((e) => isDeployedUnit(e) && manhattanDistance(e.position, unit.position) <= (weatherAt(state) === 'rain' ? 3 : 4));
+-    const watchApproach = defensive && reserved === 0 && front && ((tile?.kind === 'city' && tile.owner === player) || tile?.kind === 'forest' || tile?.kind === 'mountain');
++    const watchApproach =
++      defensive &&
++      reserved === 0 &&
++      front &&
++      ((tile?.kind === 'city' && tile.owner === player) || (unitStats[unit.kind].capturePower === 0 && (tile?.kind === 'forest' || tile?.kind === 'mountain')));
+     if (
+       tacticalEnabled(state, 'ambush') &&
+       groundUnit(unit) &&

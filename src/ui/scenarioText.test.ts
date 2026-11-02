@@ -13,9 +13,11 @@ describe('scenario display localization', () => {
   it('translates tactical variants while preserving custom names and their snapshots', () => {
     setLocale('en');
     const variant = tacticalScenario(maps[0]!);
-    expect(scenarioDisplayName(variant)).toBe('Green Border / Tactical v1');
-    expect(scenarioDisplayName(tacticalScenario({ ...maps[0]!, name: '利用者の作戦' }))).toBe('利用者の作戦 / Tactical v1');
-    expect(variant.name).toBe('緑の国境 / Tactical v1');
+    expect(scenarioDisplayName(variant)).toBe('Green Border / Tactical v2');
+    expect(scenarioDisplayName(tacticalScenario({ ...maps[0]!, name: '利用者の作戦' }))).toBe('利用者の作戦 / Tactical v2');
+    expect(variant.name).toBe('緑の国境 / Tactical v2');
+    expect(scenarioDisplayName({ ...variant, name: '緑の国境 / Tactical v1' })).toBe('Green Border / Tactical v1');
+    expect(scenarioDisplayName({ ...variant, name: '利用者の作戦 / Tactical v1' })).toBe('利用者の作戦 / Tactical v1');
   });
   it('translates every built-in name and briefing without changing scenario snapshots', () => {
     setLocale('en');

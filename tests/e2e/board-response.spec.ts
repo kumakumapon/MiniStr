@@ -33,6 +33,7 @@ for (const width of [1280, 390])
       const first = page.locator('.tile[data-x="1"][data-y="0"]');
       await first.click();
       await expect(first).toBeFocused();
+      await expect(page.locator('.tile[tabindex="0"]')).toHaveCount(1);
       await expect(first.locator('.selected-marker')).toHaveCount(1);
       // Observe the app root: choosing another unit should rebuild it once.
       const stableTile = await page.locator('.tile[data-x="30"][data-y="0"]').elementHandle();
@@ -71,8 +72,10 @@ for (const width of [1280, 390])
       await second.press('ArrowDown');
       const target = page.locator('.tile[data-x="1"][data-y="2"]');
       await expect(target).toBeFocused();
+      await expect(page.locator('.tile[tabindex="0"]')).toHaveCount(1);
       await target.press('Enter');
       await expect(target).toBeFocused();
+      await expect(page.locator('.tile[tabindex="0"]')).toHaveCount(1);
       await expect(target.locator('.unit.red')).toHaveCount(1);
       await expect(second.locator('.unit.red')).toHaveCount(0);
       await expect(page.locator('.board')).toHaveAttribute('data-zoom', '50');

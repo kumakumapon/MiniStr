@@ -1,9 +1,9 @@
 import { expect, it } from 'vitest';
-import { maps, createScenarioInitialState } from '../src/game/maps';
+import { maps, operationScenarios, createScenarioInitialState } from '../src/game/maps';
 import { isGameState } from '../src/game/session';
 import { catalogTacticalScenario } from './tacticalScenarios';
 it('rotates every catalog layout, initial force and positional objective without mutating the source', () => {
-  for (const map of maps) {
+  for (const map of [...maps, ...operationScenarios]) {
     const before = JSON.stringify(map);
     expect(catalogTacticalScenario(map.id, false)).toBe(map);
     const next = catalogTacticalScenario(map.id, true);

@@ -1,0 +1,94 @@
+diff --git a/src/main.ts b/src/main.ts
+index d86226d..2de65c2 100644
+--- a/src/main.ts
++++ b/src/main.ts
+@@ -1,3 +1,4 @@
++import { BoardInput } from './ui/boardInput';
+ import { observedCommand, tacticalScenario, tacticalEnabled, detectedContact, TACTICAL_RULE_VERSION, zocTiles, unitMovementCost } from './game';
+ import { renderTacticalControls } from './ui/tactics';
+ import { BoardView } from './ui/boardView';
+@@ -182,6 +183,7 @@ function historyFor(initial: GameState, commands: readonly GameCommand[]): Battl
+ }
+ const renderMemo = new StateMemo<GameState>();
+ const boardView = new BoardView();
++const boardInput = new BoardInput();
+ let undoStack = new UndoHistory(() => initialState, () => commandHistory);
+ interface ReplayRuntime { file: ReplayFile; state: GameState; index: number; playing: boolean; speed: CommandSpeed; timeline: ReplayTimeline; viewpoint: PlayerId | 'all' }
+ let replay: ReplayRuntime | undefined;
+@@ -471,9 +473,11 @@ function renderTileInspector(state: GameState, productionRule: ProductionRule):
+  * through `focusBoardPosition`, which renders normally.
+  */
+ function refreshFocusedTileViews(): void {
+-  for (const tile of app.querySelectorAll<HTMLButtonElement>('.tile[data-x]')) {
+-    tile.tabIndex = Number(tile.dataset.x) === focusedPosition.x && Number(tile.dataset.y) === focusedPosition.y ? 0 : -1;
+-  }
++  // Only the old and new roving targets change; avoid 1,024 attribute writes
++  // during pointer focus before its click is dispatched.
++  app.querySelectorAll<HTMLButtonElement>('.tile[tabindex="0"]').forEach(tile => { tile.tabIndex = -1; });
++  const focusedTile = app.querySelector<HTMLButtonElement>(`.tile[data-x="${focusedPosition.x}"][data-y="${focusedPosition.y}"]`);
++  if (focusedTile) focusedTile.tabIndex = 0;
+   const inspector = app.querySelector('.tile-inspector');
+   const renderedMap = replay ? scenarioForState(replay.state) ?? selectedMap : selectedMap;
+   if (inspector) inspector.outerHTML = renderTileInspector(replay?.state ?? game, renderedMap.productionRules);
+@@ -1047,7 +1051,7 @@ function render(): void {
+   const foe = otherPlayer(me);
+   const canAct = canCommand();
+   const concealed = !replayMode && handoffPending;
+-  const visible = boardCovered ? new Set<string>() : new Set(shownPositions(renderedGame).map(key));
++  const visible = boardCovered ? new Set<string>() : renderMemo.get(renderedGame, `visibleKeys:${me}:${fullBoardView()}`, () => new Set(shownPositions(renderedGame).map(key)));
+   // No tile is fogged in the whole-board view, so the legend drops its fog entry.
+   const wholeBoardShown = fullBoardView();
+   const history = historyFor(replay?.file.initialState ?? initialState, replay?.file.commands ?? commandHistory);
+@@ -1078,8 +1082,9 @@ function render(): void {
+   const missionTargets = new Set(ownEvacuation.flatMap(condition => condition.unitIds));
+   const objectivePositions = new Set(renderedMap.victoryConditions.flatMap(condition => condition.type === 'hold' || condition.type === 'control' || isEvacuationCondition(condition) ? condition.positions.map(key) : []));
+   const supplyTiles = !boardCovered && showSupplyRange ? supplyRange(renderedGame, me, selected) : new Set<string>();
+-  const detectedIds = new Set(visibleEnemies(renderedGame, me).map(u => u.id));
+-  const zones = selectedUnit?.owner === me ? zocTiles(renderedGame, selectedUnit, visibleEnemies(renderedGame, me)) : new Set<string>();
++  const detectedEnemies = renderMemo.get(renderedGame, `detected:${me}`, () => visibleEnemies(renderedGame, me));
++  const detectedIds = new Set(detectedEnemies.map(u => u.id));
++  const zones = selectedUnit?.owner === me ? renderMemo.get(renderedGame, `zoc:${me}:${selectedUnit.id}`, () => zocTiles(renderedGame, selectedUnit, detectedEnemies)) : new Set<string>();
+   const unitsByPosition = new Map(renderedGame.units.filter(isDeployedUnit).filter(u => wholeBoardShown || u.owner === me || detectedIds.has(u.id)).map(unit => [key(unit.position), unit]));
+   const cargoByTransport = new Map(renderedGame.units.filter(unit => unit.embarkedIn !== undefined).map(unit => [unit.embarkedIn!, unit]));
+   const terrainArtwork = new Map<TerrainKind, string>();
+@@ -1954,24 +1959,23 @@ function render(): void {
+       render();
+     });
+   }
++  boardInput.update(app.querySelector<HTMLElement>('.board'), replayMode ? undefined : {
++    click(position) {
++      focusedPosition = position;
++      focusSelector = `.tile[data-x="${position.x}"][data-y="${position.y}"]`;
++      act(position);
++      if (!bridgePending?.destination && !productionMenuOpen) {
++        app.querySelector<HTMLElement>(`.tile[data-x="${focusedPosition.x}"][data-y="${focusedPosition.y}"]`)?.focus({ preventScroll: true });
++      }
++    },
++    key: handleBoardKey,
++    focus(position) {
++      if (focusedPosition.x === position.x && focusedPosition.y === position.y) return;
++      focusedPosition = position;
++      refreshFocusedTileViews();
++    },
++  });
+   if (!replayMode) {
+-    app.querySelectorAll<HTMLButtonElement>('.tile').forEach(tile => {
+-      const position = { x: Number(tile.dataset.x), y: Number(tile.dataset.y) };
+-      tile.onclick = () => {
+-        focusedPosition = position;
+-        focusSelector = `.tile[data-x="${position.x}"][data-y="${position.y}"]`;
+-        act(position); // act already renders; a second render would replace the board twice.
+-        if (!bridgePending?.destination && !productionMenuOpen) {
+-          app.querySelector<HTMLElement>(`.tile[data-x="${focusedPosition.x}"][data-y="${focusedPosition.y}"]`)?.focus({ preventScroll: true });
+-        }
+-      };
+-      tile.onkeydown = event => handleBoardKey(event, position);
+-      tile.onfocus = () => {
+-        if (focusedPosition.x === position.x && focusedPosition.y === position.y) return;
+-        focusedPosition = position;
+-        refreshFocusedTileViews();
+-      };
+-    });
+     app.querySelectorAll<HTMLButtonElement>('.unit-queue-item').forEach(button => button.addEventListener('click', guardCommand(() => {
+       const unit = game.units.find(candidate => candidate.id === button.dataset.unitId);
+       if (!unit || !isDeployedUnit(unit) || unit.owner !== viewer() || unit.hasActed) return;

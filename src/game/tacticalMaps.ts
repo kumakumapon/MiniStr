@@ -26,12 +26,18 @@ export function tacticalScenario(source: ScenarioDefinition, reviseLayout = true
       set(w - 1 - x, h - 1 - lane, 'road');
     }
     const x = Math.max(1, Math.floor(w / 3));
+    // Connect each approach to the central supply line without altering water,
+    // authored properties, objectives or initial deployments.
+    for (let y = lane + 1; y < Math.floor(h / 2); y++) {
+      set(x, y, 'road');
+      set(w - 1 - x, h - 1 - y, 'road');
+    }
     set(x, lane + 1, 'forest');
     set(w - 1 - x, h - 2 - lane, 'forest');
     set(x, Math.floor(h / 2) - 1, 'supplyDepot');
     set(w - 1 - x, h - Math.floor(h / 2), 'supplyDepot');
     data.board.cells = [...cells.values()];
-    data.name += ' / Tactical v1';
+    data.name += ' / Tactical v2';
   }
   const loaded = loadScenarioDefinitions([data]);
   if (!loaded.ok) throw Error(loaded.error);

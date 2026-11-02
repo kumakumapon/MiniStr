@@ -2,6 +2,17 @@ import { expect, it } from 'vitest';
 import { chooseCpuAction } from './rules';
 import { operation, valueOf, force } from '../game/operations.fixture';
 import { createScenarioInitialState, applyGameCommand } from '../game';
+import { policyConfig } from './armyPolicy';
+import { cpuDifficultyConfig } from './rules';
+
+it('reduces defensive movement aversion while preserving cover, retreat and difficulty constraints', () => {
+  const base = cpuDifficultyConfig.normal;
+  const before = { ...base };
+  const config = policyConfig(base, 'defensive');
+  expect(config).toEqual({ ...base, coordinatedDefense: true, attackSafetyMargin: 20, threatAvoidanceWeight: 0.45, terrainDefenseWeight: 0.8, lowHpRetreatWeight: 0.5 });
+  expect(base).toEqual(before);
+  expect(policyConfig(base, 'balanced')).toBe(base);
+});
 
 it.each(['balanced', 'offensive', 'defensive'] as const)('keeps %s decisions legal and does not inspect hidden enemies', (policy) => {
   const scenario = operation({ victoryConditions: [{ type: 'eliminate' }], defeatConditions: [{ type: 'eliminate' }] });

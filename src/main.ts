@@ -1,3 +1,5 @@
+import { TileMarkupCache } from './ui/tileMarkupCache';
+import { BoardInput } from './ui/boardInput';
 import { observedCommand, tacticalScenario, tacticalEnabled, detectedContact, TACTICAL_RULE_VERSION, zocTiles, unitMovementCost } from './game';
 import { renderTacticalControls } from './ui/tactics';
 import { BoardView } from './ui/boardView';
@@ -182,6 +184,8 @@ function historyFor(initial: GameState, commands: readonly GameCommand[]): Battl
 }
 const renderMemo = new StateMemo<GameState>();
 const boardView = new BoardView();
+const tileMarkupCache = new TileMarkupCache<GameState>();
+const boardInput = new BoardInput();
 let undoStack = new UndoHistory(() => initialState, () => commandHistory);
 interface ReplayRuntime { file: ReplayFile; state: GameState; index: number; playing: boolean; speed: CommandSpeed; timeline: ReplayTimeline; viewpoint: PlayerId | 'all' }
 let replay: ReplayRuntime | undefined;
@@ -470,10 +474,13 @@ function renderTileInspector(state: GameState, productionRule: ProductionRule): 
  * which tile has focus are patched in place. Keyboard navigation still goes
  * through `focusBoardPosition`, which renders normally.
  */
+function syncFocusedTile(): void {
+  const focusedTile = app.querySelector<HTMLButtonElement>(`.tile[data-x="${focusedPosition.x}"][data-y="${focusedPosition.y}"]`);
+  app.querySelectorAll<HTMLButtonElement>('.tile[tabindex="0"]').forEach(tile => { if (tile !== focusedTile) tile.tabIndex = -1; });
+  if (focusedTile && focusedTile.tabIndex !== 0) focusedTile.tabIndex = 0;
+}
 function refreshFocusedTileViews(): void {
-  for (const tile of app.querySelectorAll<HTMLButtonElement>('.tile[data-x]')) {
-    tile.tabIndex = Number(tile.dataset.x) === focusedPosition.x && Number(tile.dataset.y) === focusedPosition.y ? 0 : -1;
-  }
+  syncFocusedTile();
   const inspector = app.querySelector('.tile-inspector');
   const renderedMap = replay ? scenarioForState(replay.state) ?? selectedMap : selectedMap;
   if (inspector) inspector.outerHTML = renderTileInspector(replay?.state ?? game, renderedMap.productionRules);
@@ -1047,7 +1054,7 @@ function render(): void {
   const foe = otherPlayer(me);
   const canAct = canCommand();
   const concealed = !replayMode && handoffPending;
-  const visible = boardCovered ? new Set<string>() : new Set(shownPositions(renderedGame).map(key));
+  const visible = boardCovered ? new Set<string>() : renderMemo.get(renderedGame, `visibleKeys:${me}:${fullBoardView()}`, () => new Set(shownPositions(renderedGame).map(key)));
   // No tile is fogged in the whole-board view, so the legend drops its fog entry.
   const wholeBoardShown = fullBoardView();
   const history = historyFor(replay?.file.initialState ?? initialState, replay?.file.commands ?? commandHistory);
@@ -1078,67 +1085,78 @@ function render(): void {
   const missionTargets = new Set(ownEvacuation.flatMap(condition => condition.unitIds));
   const objectivePositions = new Set(renderedMap.victoryConditions.flatMap(condition => condition.type === 'hold' || condition.type === 'control' || isEvacuationCondition(condition) ? condition.positions.map(key) : []));
   const supplyTiles = !boardCovered && showSupplyRange ? supplyRange(renderedGame, me, selected) : new Set<string>();
-  const detectedIds = new Set(visibleEnemies(renderedGame, me).map(u => u.id));
-  const zones = selectedUnit?.owner === me ? zocTiles(renderedGame, selectedUnit, visibleEnemies(renderedGame, me)) : new Set<string>();
+  const detectedEnemies = renderMemo.get(renderedGame, `detected:${me}`, () => visibleEnemies(renderedGame, me));
+  const detectedIds = new Set(detectedEnemies.map(u => u.id));
+  const zones = selectedUnit?.owner === me ? renderMemo.get(renderedGame, `zoc:${me}:${selectedUnit.id}`, () => zocTiles(renderedGame, selectedUnit, detectedEnemies)) : new Set<string>();
   const unitsByPosition = new Map(renderedGame.units.filter(isDeployedUnit).filter(u => wholeBoardShown || u.owner === me || detectedIds.has(u.id)).map(unit => [key(unit.position), unit]));
   const cargoByTransport = new Map(renderedGame.units.filter(unit => unit.embarkedIn !== undefined).map(unit => [unit.embarkedIn!, unit]));
   const terrainArtwork = new Map<TerrainKind, string>();
   const terrainLabels = new Map<string, string>();
+  if (boardCovered) tileMarkupCache.clear();
+  const tileIdentity = `${getLocale()}:${me}:${wholeBoardShown}:${matchMode}:${replayMode}:${canAct}:${showReconMarkers}:${historyIndex}:${renderedMap.id}:${renderedMap.theme}`;
   const board = boardCovered ? [] : renderedGame.board.terrain.flatMap((row, y) => row.map((terrain, x) => {
-    const unit = unitsByPosition.get(`${x},${y}`);
-    const hidden = !visible.has(`${x},${y}`);
-    const remembered = contactsByPosition.get(`${x},${y}`);
-    const contact = hidden || remembered?.kind === 'submarine' && !unit ? remembered : undefined;
-    const terrainName = terrainNames[terrain.kind] ?? terrain.kind;
-    const isProperty = isPropertyTerrainKind(terrain.kind);
-    const propertyOwner = isProperty ? terrain.owner : undefined;
-    const capturePoints = observedCapturePoints(terrain, !hidden);
-    const facilityDetail = translateText(terrain.kind === 'supplyDepot' ? '、周囲の地上部隊を補給（修理・収入・生産なし）' : terrain.kind === 'port' ? '、補給・艦艇を生産可能' : terrain.kind === 'airport' ? '、補給・航空ユニットを生産可能' : terrain.kind === 'factory' ? '、補給・地上ユニット生産拠点' : '');
-    const terrainLabelKey = `${terrain.kind}:${propertyOwner}:${capturePoints}`;
-    if (!terrainLabels.has(terrainLabelKey)) terrainLabels.set(terrainLabelKey, escapeHtml(translateGameText(isProperty ? `${terrainName}${propertyOwner ? `（${propertyOwner === me ? '自軍' : '敵軍'}）` : '（中立）'}${capturePoints !== undefined ? `、占領値 ${escapeHtml(capturePointsLabel(capturePoints))}` : ''}${facilityDetail}` : terrainName)));
-    const propertyLabel = terrainLabels.get(terrainLabelKey)!;
-    const cargo = unit && transportCapacity(unit.kind) > 0 ? cargoByTransport.get(unit.id) : undefined;
-    // Fuel data stays private: only warn about the player's own units, never
-    // expose an enemy's exact reserve through a visible tile.
-    const fuelTurns = unit && isDeployedUnit(unit) && unit.owner === me ? fuelTurnsRemaining(unit) : undefined;
-    const fuelWarning = fuelTurns !== undefined && fuelTurns <= 2
-      ? `、燃料警告: ${unit!.fuel ?? unitStats[unit!.kind].fuel}、補給まで残り ${Number(fuelTurns)} 行動機会`
-      : '';
-    const ammoEmpty = unit && !hidden && unit.owner === me && unitStats[unit.kind].ammo > 0 && !hasUsableWeapon(renderedGame, unit, false);
-    const ammoWarning = ammoEmpty ? `、${uiText.ammoEmpty}` : '';
-    const rank = unit ? experienceRank(unit.experience) : 0;
-    const unitLabel = escapeHtml(translateGameText(unit && !hidden ? `${sideName(matchMode, unit.owner)}の${unitNames[unit.kind]}${rank ? `（${rankNames[rank]}）` : ''}、耐久 ${Number(unit.hp)}${cargo ? `、搭載 ${unitNames[cargo.kind]}` : ''}${fuelWarning}${ammoWarning}` : ''));
-    const label = unit && !hidden
-      ? `<span class="unit ${escapeHtml(unit.owner)} unit-${escapeHtml(unit.kind)}" aria-hidden="true"><span class="unit-art"></span><small>${Number(unit.hp)}</small><em>${escapeHtml(unitNames[unit.kind])}${cargo ? `・${escapeHtml(unitNames[cargo.kind])}搭載` : ''}</em><i class="unit-owner-marker">${unit.owner === me ? '自' : '敵'}</i>${cargo ? '<i class="cargo-marker">積</i>' : ''}${rank ? `<i class="rank-marker">${rankStars(rank)}</i>` : ''}${fuelWarning ? `<i class="fuel-warning">燃${fuelTurns}</i>` : ''}${ammoEmpty ? `<i class="ammo-warning">${uiText.ammo}0</i>` : ''}</span>`
-      : contact ? renderReconMarker(contact) : '';
-    if (!hidden && !terrainArtwork.has(terrain.kind)) terrainArtwork.set(terrain.kind, renderTerrainArt(terrain.kind, renderedMap.theme));
-    const terrainArt = hidden ? '' : terrainArtwork.get(terrain.kind)!;
-    const facility = isPropertyDisplayed(terrain, me, !hidden)
-      ? `<span class="facility facility-${escapeHtml(terrain.kind)} ${escapeHtml(propertyOwner ?? 'neutral')}" aria-hidden="true"><b>${terrain.kind === 'supplyDepot' ? '補' : terrain.kind === 'city' ? '市' : terrain.kind === 'factory' ? '工' : terrain.kind === 'airport' ? '空' : terrain.kind === 'port' ? '港' : '司'}</b><small>${propertyOwner === me ? '自軍' : propertyOwner === foe ? '敵軍' : '中立'}${capturePoints !== undefined ? ` ${escapeHtml(capturePointsLabel(capturePoints))}` : ''}</small></span>`
-      : '';
-    // `selected` is undefined until a unit is picked, so the unit must exist too:
-    // comparing two undefined values would mark every empty tile as selected.
+    const positionKey = `${x},${y}`;
+    const unit = unitsByPosition.get(positionKey);
+    const hidden = !visible.has(positionKey);
     const isSelected = selected !== undefined && unit?.id === selected;
-    const isReachable = movable.has(`${x},${y}`);
-    const enemyMovement = previewedEnemyThreat.movement.has(`${x},${y}`);
-    const enemyAttack = previewedEnemyThreat.attack.has(`${x},${y}`);
-    const movementDanger = isReachable && knownEnemyThreats.has(`${x},${y}`);
-    const productionReady = !hidden && idleFacilityKeys.has(`${x},${y}`);
-    const isFacilityTarget = productionReady && !!targetFacility && key(targetFacility.position) === `${x},${y}`;
-    const statuses = [
-      exitPositions.has(`${x},${y}`) ? '脱出地点' : objectivePositions.has(`${x},${y}`) ? '作戦目標地点' : '',
-      unit && !hidden && missionTargets.has(unit.id) ? `作戦対象 ${unit.id}` : '',
-      isSelected ? '選択中' : '',
-      isReachable ? '移動可能' : '',
-      enemyMovement ? '選択中の敵ユニットの移動範囲' : '',
-      enemyAttack ? '選択中の敵ユニットの攻撃危険域' : '',
-      movementDanger ? '敵の攻撃危険域' : '',
-      isFacilityTarget ? '生産先に選択中' : productionReady ? '生産可能' : '',
-      contact ? reconContactLabel(contact) : '',
-      hidden ? '未索敵' : '',
-    ].filter(Boolean).map(translateText);
-    const stateMarker = `${exitPositions.has(`${x},${y}`) ? '<span class="objective-marker evacuation-exit" aria-hidden="true">脱</span>' : objectivePositions.has(`${x},${y}`) ? '<span class="objective-marker" aria-hidden="true">目</span>' : ''}${unit && !hidden && missionTargets.has(unit.id) ? '<span class="mission-unit-marker" aria-hidden="true">任</span>' : ''}${isSelected ? '<span class="tile-state-marker selected-marker" aria-hidden="true">選</span>' : ''}${isReachable ? '<span class="tile-state-marker reachable-marker" aria-hidden="true">移</span>' : ''}${productionReady ? '<span class="tile-state-marker facility-ready-marker" aria-hidden="true">産</span>' : ''}${enemyMovement ? '<span class="tile-state-marker enemy-move-marker" aria-hidden="true">敵移</span>' : ''}${(enemyAttack || movementDanger) ? '<span class="tile-state-marker danger-marker" aria-hidden="true">危</span>' : ''}`;
-    return `<button data-ui-copy ${!canAct ? 'disabled' : ''} class="tile ${!replayMode && matchMode === 'spectate' && spectateLastAction && key(spectateLastAction) === `${x},${y}` ? 'spectate-current' : ''} ${escapeHtml(terrain.kind)} ${bridgeTargets.has(`${x},${y}`) ? 'bridge-target' : ''} ${supplyTiles.has(`${x},${y}`) ? 'supply-coverage' : ''} ${isSelected ? 'selected' : ''} ${isReachable ? 'reachable' : ''} ${enemyMovement ? 'enemy-move-zone' : ''} ${enemyAttack ? 'enemy-attack-zone' : ''} ${movementDanger ? 'movement-danger' : ''} ${isFacilityTarget ? 'facility-target' : ''} ${hidden ? 'fog' : ''}" data-x="${x}" data-y="${y}" data-zoc="${zones.has(`${x},${y}`)}" data-terrain="${escapeHtml(terrain.kind)}" tabindex="${focusedPosition.x === x && focusedPosition.y === y ? '0' : '-1'}" title="${propertyLabel}${unitLabel ? ` — ${unitLabel}` : ''}${statuses.length ? ` — ${escapeHtml(statuses.join('、'))}` : ''}" aria-label="${propertyLabel}${hasBridge(renderedGame, { x, y }) ? '、仮設橋（位置は公開）' : ''}${bridgeTargets.has(`${x},${y}`) ? '、架橋可能' : ''}${unitLabel ? `、${unitLabel}` : ''}${supplyTiles.has(`${x},${y}`) ? '、自軍補給範囲' : ''}${!hidden && renderedGame.fortifications?.some(site => key(site.position) === `${x},${y}`) ? '、防御陣地' : ''}${statuses.length ? `、${escapeHtml(statuses.join('、'))}` : ''}">${terrainArt}${bridgeMarker(renderedGame, { x, y })}${stateMarker}${fortificationAt(renderedGame, { x, y }, visible)}${facility}${label}</button>`;
+    const isReachable = movable.has(positionKey);
+    const enemyMovement = previewedEnemyThreat.movement.has(positionKey);
+    const enemyAttack = previewedEnemyThreat.attack.has(positionKey);
+    const movementDanger = isReachable && knownEnemyThreats.has(positionKey);
+    const productionReady = !hidden && idleFacilityKeys.has(positionKey);
+    const isFacilityTarget = productionReady && !!targetFacility && key(targetFacility.position) === positionKey;
+    const flags = [hidden, isSelected, isReachable, enemyMovement, enemyAttack, movementDanger,
+      productionReady, isFacilityTarget, bridgeTargets.has(positionKey), supplyTiles.has(positionKey),
+      zones.has(positionKey), focusedPosition.x === x && focusedPosition.y === y,
+      !replayMode && matchMode === 'spectate' && !!spectateLastAction && key(spectateLastAction) === positionKey]
+      .reduce((mask, flag, bit) => mask | (flag ? 1 << bit : 0), 0);
+    return tileMarkupCache.get(renderedGame, tileIdentity, y * renderedGame.board.width + x, flags, () => {
+      const remembered = contactsByPosition.get(positionKey);
+      const contact = hidden || remembered?.kind === 'submarine' && !unit ? remembered : undefined;
+      const terrainName = terrainNames[terrain.kind] ?? terrain.kind;
+      const isProperty = isPropertyTerrainKind(terrain.kind);
+      const propertyOwner = isProperty ? terrain.owner : undefined;
+      const capturePoints = observedCapturePoints(terrain, !hidden);
+      const facilityDetail = translateText(terrain.kind === 'supplyDepot' ? '、周囲の地上部隊を補給（修理・収入・生産なし）' : terrain.kind === 'port' ? '、補給・艦艇を生産可能' : terrain.kind === 'airport' ? '、補給・航空ユニットを生産可能' : terrain.kind === 'factory' ? '、補給・地上ユニット生産拠点' : '');
+      const terrainLabelKey = `${terrain.kind}:${propertyOwner}:${capturePoints}`;
+      if (!terrainLabels.has(terrainLabelKey)) terrainLabels.set(terrainLabelKey, escapeHtml(translateGameText(isProperty ? `${terrainName}${propertyOwner ? `（${propertyOwner === me ? '自軍' : '敵軍'}）` : '（中立）'}${capturePoints !== undefined ? `、占領値 ${escapeHtml(capturePointsLabel(capturePoints))}` : ''}${facilityDetail}` : terrainName)));
+      const propertyLabel = terrainLabels.get(terrainLabelKey)!;
+      const cargo = unit && transportCapacity(unit.kind) > 0 ? cargoByTransport.get(unit.id) : undefined;
+      // Fuel data stays private: only warn about the player's own units, never
+      // expose an enemy's exact reserve through a visible tile.
+      const fuelTurns = unit && isDeployedUnit(unit) && unit.owner === me ? fuelTurnsRemaining(unit) : undefined;
+      const fuelWarning = fuelTurns !== undefined && fuelTurns <= 2
+        ? `、燃料警告: ${unit!.fuel ?? unitStats[unit!.kind].fuel}、補給まで残り ${Number(fuelTurns)} 行動機会`
+        : '';
+      const ammoEmpty = unit && !hidden && unit.owner === me && unitStats[unit.kind].ammo > 0 && !hasUsableWeapon(renderedGame, unit, false);
+      const ammoWarning = ammoEmpty ? `、${uiText.ammoEmpty}` : '';
+      const rank = unit ? experienceRank(unit.experience) : 0;
+      const unitLabel = escapeHtml(translateGameText(unit && !hidden ? `${sideName(matchMode, unit.owner)}の${unitNames[unit.kind]}${rank ? `（${rankNames[rank]}）` : ''}、耐久 ${Number(unit.hp)}${cargo ? `、搭載 ${unitNames[cargo.kind]}` : ''}${fuelWarning}${ammoWarning}` : ''));
+      const label = unit && !hidden
+        ? `<span class="unit ${escapeHtml(unit.owner)} unit-${escapeHtml(unit.kind)}" aria-hidden="true"><span class="unit-art"></span><small>${Number(unit.hp)}</small><em>${escapeHtml(unitNames[unit.kind])}${cargo ? `・${escapeHtml(unitNames[cargo.kind])}搭載` : ''}</em><i class="unit-owner-marker">${unit.owner === me ? '自' : '敵'}</i>${cargo ? '<i class="cargo-marker">積</i>' : ''}${rank ? `<i class="rank-marker">${rankStars(rank)}</i>` : ''}${fuelWarning ? `<i class="fuel-warning">燃${fuelTurns}</i>` : ''}${ammoEmpty ? `<i class="ammo-warning">${uiText.ammo}0</i>` : ''}</span>`
+        : contact ? renderReconMarker(contact) : '';
+      if (!hidden && !terrainArtwork.has(terrain.kind)) terrainArtwork.set(terrain.kind, renderTerrainArt(terrain.kind, renderedMap.theme));
+      const terrainArt = hidden ? '' : terrainArtwork.get(terrain.kind)!;
+      const facility = isPropertyDisplayed(terrain, me, !hidden)
+        ? `<span class="facility facility-${escapeHtml(terrain.kind)} ${escapeHtml(propertyOwner ?? 'neutral')}" aria-hidden="true"><b>${terrain.kind === 'supplyDepot' ? '補' : terrain.kind === 'city' ? '市' : terrain.kind === 'factory' ? '工' : terrain.kind === 'airport' ? '空' : terrain.kind === 'port' ? '港' : '司'}</b><small>${propertyOwner === me ? '自軍' : propertyOwner === foe ? '敵軍' : '中立'}${capturePoints !== undefined ? ` ${escapeHtml(capturePointsLabel(capturePoints))}` : ''}</small></span>`
+        : '';
+      // `selected` is undefined until a unit is picked, so the unit must exist too:
+      // comparing two undefined values would mark every empty tile as selected.
+      const statuses = [
+        exitPositions.has(positionKey) ? '脱出地点' : objectivePositions.has(positionKey) ? '作戦目標地点' : '',
+        unit && !hidden && missionTargets.has(unit.id) ? `作戦対象 ${unit.id}` : '',
+        isSelected ? '選択中' : '',
+        isReachable ? '移動可能' : '',
+        enemyMovement ? '選択中の敵ユニットの移動範囲' : '',
+        enemyAttack ? '選択中の敵ユニットの攻撃危険域' : '',
+        movementDanger ? '敵の攻撃危険域' : '',
+        isFacilityTarget ? '生産先に選択中' : productionReady ? '生産可能' : '',
+        contact ? reconContactLabel(contact) : '',
+        hidden ? '未索敵' : '',
+      ].filter(Boolean).map(translateText);
+      const stateMarker = `${exitPositions.has(positionKey) ? '<span class="objective-marker evacuation-exit" aria-hidden="true">脱</span>' : objectivePositions.has(positionKey) ? '<span class="objective-marker" aria-hidden="true">目</span>' : ''}${unit && !hidden && missionTargets.has(unit.id) ? '<span class="mission-unit-marker" aria-hidden="true">任</span>' : ''}${isSelected ? '<span class="tile-state-marker selected-marker" aria-hidden="true">選</span>' : ''}${isReachable ? '<span class="tile-state-marker reachable-marker" aria-hidden="true">移</span>' : ''}${productionReady ? '<span class="tile-state-marker facility-ready-marker" aria-hidden="true">産</span>' : ''}${enemyMovement ? '<span class="tile-state-marker enemy-move-marker" aria-hidden="true">敵移</span>' : ''}${(enemyAttack || movementDanger) ? '<span class="tile-state-marker danger-marker" aria-hidden="true">危</span>' : ''}`;
+      return `<button data-ui-copy ${!canAct ? 'disabled' : ''} class="tile ${!replayMode && matchMode === 'spectate' && spectateLastAction && key(spectateLastAction) === positionKey ? 'spectate-current' : ''} ${escapeHtml(terrain.kind)} ${bridgeTargets.has(positionKey) ? 'bridge-target' : ''} ${supplyTiles.has(positionKey) ? 'supply-coverage' : ''} ${isSelected ? 'selected' : ''} ${isReachable ? 'reachable' : ''} ${enemyMovement ? 'enemy-move-zone' : ''} ${enemyAttack ? 'enemy-attack-zone' : ''} ${movementDanger ? 'movement-danger' : ''} ${isFacilityTarget ? 'facility-target' : ''} ${hidden ? 'fog' : ''}" data-x="${x}" data-y="${y}" data-zoc="${zones.has(positionKey)}" data-terrain="${escapeHtml(terrain.kind)}" tabindex="${focusedPosition.x === x && focusedPosition.y === y ? '0' : '-1'}" title="${propertyLabel}${unitLabel ? ` — ${unitLabel}` : ''}${statuses.length ? ` — ${escapeHtml(statuses.join('、'))}` : ''}" aria-label="${propertyLabel}${hasBridge(renderedGame, { x, y }) ? '、仮設橋（位置は公開）' : ''}${bridgeTargets.has(positionKey) ? '、架橋可能' : ''}${unitLabel ? `、${unitLabel}` : ''}${supplyTiles.has(positionKey) ? '、自軍補給範囲' : ''}${!hidden && renderedGame.fortifications?.some(site => key(site.position) === positionKey) ? '、防御陣地' : ''}${statuses.length ? `、${escapeHtml(statuses.join('、'))}` : ''}">${terrainArt}${bridgeMarker(renderedGame, { x, y })}${stateMarker}${fortificationAt(renderedGame, { x, y }, visible)}${facility}${label}</button>`;
+    }, history);
   }));
   const ownUnitCount = renderedGame.units.filter(unit => unit.owner === me).length;
   const ownUnitLimit = usesDecisionRules(renderedGame) ? unitLimit(renderedGame.board, renderedGame.ruleVersion) : undefined;
@@ -1361,6 +1379,7 @@ function render(): void {
   // Keep each complete overlay at its own HTML boundary instead of mixing
   // independent markup into the main screen's large template.
   boardView.update(app.querySelector<HTMLElement>('.board'), board, `${getLocale()}:${renderedGame.board.width}:${renderedGame.board.height}:${replayMode}`, localizeControls);
+  syncFocusedTile();
   app.insertAdjacentHTML('beforeend', gameOverOverlay);
   app.insertAdjacentHTML('beforeend', briefing);
   app.insertAdjacentHTML('beforeend', titleOverlay);
@@ -1954,24 +1973,23 @@ function render(): void {
       render();
     });
   }
+  boardInput.update(app.querySelector<HTMLElement>('.board'), replayMode ? undefined : {
+    click(position) {
+      focusedPosition = position;
+      focusSelector = `.tile[data-x="${position.x}"][data-y="${position.y}"]`;
+      act(position);
+      if (!bridgePending?.destination && !productionMenuOpen) {
+        app.querySelector<HTMLElement>(`.tile[data-x="${focusedPosition.x}"][data-y="${focusedPosition.y}"]`)?.focus({ preventScroll: true });
+      }
+    },
+    key: handleBoardKey,
+    focus(position) {
+      if (focusedPosition.x === position.x && focusedPosition.y === position.y) return;
+      focusedPosition = position;
+      refreshFocusedTileViews();
+    },
+  });
   if (!replayMode) {
-    app.querySelectorAll<HTMLButtonElement>('.tile').forEach(tile => {
-      const position = { x: Number(tile.dataset.x), y: Number(tile.dataset.y) };
-      tile.onclick = () => {
-        focusedPosition = position;
-        focusSelector = `.tile[data-x="${position.x}"][data-y="${position.y}"]`;
-        act(position); // act already renders; a second render would replace the board twice.
-        if (!bridgePending?.destination && !productionMenuOpen) {
-          app.querySelector<HTMLElement>(`.tile[data-x="${focusedPosition.x}"][data-y="${focusedPosition.y}"]`)?.focus({ preventScroll: true });
-        }
-      };
-      tile.onkeydown = event => handleBoardKey(event, position);
-      tile.onfocus = () => {
-        if (focusedPosition.x === position.x && focusedPosition.y === position.y) return;
-        focusedPosition = position;
-        refreshFocusedTileViews();
-      };
-    });
     app.querySelectorAll<HTMLButtonElement>('.unit-queue-item').forEach(button => button.addEventListener('click', guardCommand(() => {
       const unit = game.units.find(candidate => candidate.id === button.dataset.unitId);
       if (!unit || !isDeployedUnit(unit) || unit.owner !== viewer() || unit.hasActed) return;

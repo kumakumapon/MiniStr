@@ -1,8 +1,8 @@
-import { maps, type ScenarioDefinition } from '../src/game/maps';
+import { maps, operationScenarios, type ScenarioDefinition } from '../src/game/maps';
 
 /** Rotate public authored geometry without exchanging the armies or turn order. */
 export function catalogTacticalScenario(id: string, rotated: boolean): ScenarioDefinition {
-  const source = maps.find((map) => map.id === id);
+  const source = [...maps, ...operationScenarios].find((map) => map.id === id);
   if (!source) throw Error(`Unknown catalog map: ${id}`);
   if (!rotated) return source;
   const next = structuredClone(source),
