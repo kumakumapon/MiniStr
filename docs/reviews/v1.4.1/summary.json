@@ -1,0 +1,377 @@
+{
+  "baselineCommit": "d3f35c62b36249cd5f360c10a4d061aa17c1b3d7",
+  "games": 232,
+  "files": [
+    {
+      "path": "after-holdout.jsonl",
+      "sha256": "42522d0ac78597c66c965aa35d78314d9245c257e013d6d99c95a80f78756459",
+      "games": 16,
+      "source": "ddadeea0c2ed0a5583cb9f8a32074348c74ca454349fe564b2025cac71214392"
+    },
+    {
+      "path": "after-train.jsonl",
+      "sha256": "875ccb2d1e1db669615f7701461d3692cf2af7d241c37c0238e73d1cefcc271b",
+      "games": 16,
+      "source": "ddadeea0c2ed0a5583cb9f8a32074348c74ca454349fe564b2025cac71214392"
+    },
+    {
+      "path": "b-holdout.jsonl",
+      "sha256": "48a714fe3345c04ce9fac9b2cdb268dfd903121db9cab35f29bafa1a5adc39ab",
+      "games": 16,
+      "source": "eb03a6cc6edc319bbfa1adc040eace3ea402c70781919f529abfafd6e8cdf48b"
+    },
+    {
+      "path": "b-train.jsonl",
+      "sha256": "fc131cd634502eadae791efecf48bb191135bbfc783b6486e374fc062e801509",
+      "games": 16,
+      "source": "eb03a6cc6edc319bbfa1adc040eace3ea402c70781919f529abfafd6e8cdf48b"
+    },
+    {
+      "path": "before-classic.jsonl",
+      "sha256": "66d48152fb32ab986f80c1b935576b850402b788fa67855215bcdefd875d72b2",
+      "games": 16,
+      "source": "d8f7acade4fef5fe585c7009269d96432ed7ef6b269e21c4d1d6a4a96f680a95"
+    },
+    {
+      "path": "before-confirm.jsonl",
+      "sha256": "520d0909217039d112d562706a961c75750c29467c1ada20ad02774ff86b4790",
+      "games": 32,
+      "source": "d8f7acade4fef5fe585c7009269d96432ed7ef6b269e21c4d1d6a4a96f680a95"
+    },
+    {
+      "path": "before-holdout.jsonl",
+      "sha256": "b965199273e8c3e57a8140111c1b518a5ce2cf3bdc3a5f3742761c789daee909",
+      "games": 16,
+      "source": "d8f7acade4fef5fe585c7009269d96432ed7ef6b269e21c4d1d6a4a96f680a95"
+    },
+    {
+      "path": "before-train.jsonl",
+      "sha256": "d22a4cc7c8afcf42ae4aa2c9b642bd07805ecf587143da5a381c74bbcf58b980",
+      "games": 16,
+      "source": "d8f7acade4fef5fe585c7009269d96432ed7ef6b269e21c4d1d6a4a96f680a95"
+    },
+    {
+      "path": "c-holdout.jsonl",
+      "sha256": "91266e65f883103c4e372ca5690f750db1ce44e93a68157134bd4fe700cdb481",
+      "games": 8,
+      "source": "6ac0abb99a15a24e686c94a23c40cd0ceb6c558cd8c7337456406d21e1225e0f"
+    },
+    {
+      "path": "c-train.jsonl",
+      "sha256": "a80d2602c7dfcaa2024aee35bd31ab8914ddbaa4cce1ea9743d76ddecd2d0471",
+      "games": 16,
+      "source": "6ac0abb99a15a24e686c94a23c40cd0ceb6c558cd8c7337456406d21e1225e0f"
+    },
+    {
+      "path": "final-classic.jsonl",
+      "sha256": "2bf69bc5a8e9dbb8e260d9c3982f62f4de2c162089d9ef956941b2fced27e004",
+      "games": 16,
+      "source": "6ac0abb99a15a24e686c94a23c40cd0ceb6c558cd8c7337456406d21e1225e0f"
+    },
+    {
+      "path": "final-confirm.jsonl",
+      "sha256": "1f204c68e222c9f2cfd524547e3d3810b3f47ff7bb499fe9badc141338968547",
+      "games": 32,
+      "source": "6ac0abb99a15a24e686c94a23c40cd0ceb6c558cd8c7337456406d21e1225e0f"
+    },
+    {
+      "path": "ui-initial-before-1.json",
+      "sha256": "6e8fbda051eaffc4972879eb664a89b1b6d9e5995a3fe4057ec50d7ca0262646"
+    },
+    {
+      "path": "ui-initial-before-2.json",
+      "sha256": "7ba3ceae2196e45a9e04c554d7eaa613414cce329b099e9f7a4a7eadb2f636ea"
+    },
+    {
+      "path": "ui-initial-before-3.json",
+      "sha256": "f0ead671ab8a7c41372570251dbd76961343b61569c3a7b3455957762407d7a2"
+    },
+    {
+      "path": "ui-initial-after-1.json",
+      "sha256": "389a347efb7619e79b33628be007dc4e8ad837b07e4fa47cc48cc3da43f7794e"
+    },
+    {
+      "path": "ui-initial-after-2.json",
+      "sha256": "c05a46bf77efae1f43765e44046032607357b98c245d679828c3de95b366a47c"
+    },
+    {
+      "path": "ui-initial-after-3.json",
+      "sha256": "dbe295f914fa19a8a1acde0a801c053317dc23fe59dbe16c810bfe6bddd75c43"
+    },
+    {
+      "path": "ui-final-before-1.json",
+      "sha256": "e46d459f6d164cea815f3e3b34868bea101e818a2311715ebe24412b77a0c297"
+    },
+    {
+      "path": "ui-final-before-2.json",
+      "sha256": "4295f48719c8577a1d0221596b9f18a1662ac10465ae0b799e58aa9d9e299dc1"
+    },
+    {
+      "path": "ui-final-before-3.json",
+      "sha256": "d0938476731bb47fd3a8e2ca6ddf7b24efea772c1834d3510d7a1373856d8e80"
+    },
+    {
+      "path": "ui-final-after-1.json",
+      "sha256": "a2e4e6bfb8bb7910cf991c01af9d5a814d70f83c1abf107c273bfd34347bebbf"
+    },
+    {
+      "path": "ui-final-after-2.json",
+      "sha256": "262e78be3fa7c23bdc9fd571d843dbdbd9ce8617a95ec9e69c100ef2f525df15"
+    },
+    {
+      "path": "ui-final-after-3.json",
+      "sha256": "5420b28d68fb4d2ead283dbb72c9a071fcec8bb6eb15df13b266bcfcf6a5fe1f"
+    },
+    {
+      "path": "candidate-a.patch",
+      "sha256": "9cd5b8b15dfe1c5ccbefb665619a4df4abdebcbf5f71b0e3f348a32c20923e81"
+    },
+    {
+      "path": "ui-initial.patch",
+      "sha256": "e0d97d918e9885e585dcae3a75ff8b150aa80fffa811772e23e2942d025cfa30"
+    },
+    {
+      "path": "ui-postlocale-before.json",
+      "sha256": "0f20806e8d7defd38ac38fc425fddf92b42e382b4f2c2bdd7ec05be205aa3055"
+    },
+    {
+      "path": "ui-postlocale-after.json",
+      "sha256": "48474b70fa498b59f6f7b0e01226871356bb0600494d221d101edf1c6f29ae46"
+    },
+    {
+      "path": "before-catalog.jsonl",
+      "sha256": "9580ac6d77e87d71341f38b1b8d39f173406a5e175db38d274dc29322f17b1a5",
+      "games": 8,
+      "source": "d8f7acade4fef5fe585c7009269d96432ed7ef6b269e21c4d1d6a4a96f680a95"
+    },
+    {
+      "path": "final-catalog.jsonl",
+      "sha256": "04184cdeda98b0b6687b8832c4d9bbdd1b245f213b12bda91e198b0492132c02",
+      "games": 8,
+      "source": "6ac0abb99a15a24e686c94a23c40cd0ceb6c558cd8c7337456406d21e1225e0f"
+    }
+  ],
+  "pairedChecks": {
+    "before-confirm-to-final-confirm": {
+      "matchedGames": 32,
+      "balancedOriginalIdenticalCommandDigests": 8
+    },
+    "before-classic-to-final-classic": {
+      "matchedGames": 16,
+      "balancedOriginalIdenticalCommandDigests": 8
+    }
+  },
+  "performance": {
+    "initial": {
+      "before": {
+        "1280": {
+          "warmHandlerP95Each": [
+            74.4000000001397,
+            75.60000000009313,
+            78.5
+          ],
+          "warmHandlerP95Median": 75.60000000009313,
+          "warmPaintP95Each": [
+            98.19999999995343,
+            100.39999999990687,
+            100.5
+          ],
+          "startHandlerMedian": 62.89999999990687,
+          "coldTitleMedian": 529.7677290000001,
+          "resumePaintMedian": 167.60000000009313,
+          "firstHandlerMedian": 83.19999999995343
+        },
+        "390": {
+          "warmHandlerP95Each": [
+            97.39999999990687,
+            105.5,
+            107.89999999990687
+          ],
+          "warmHandlerP95Median": 105.5,
+          "warmPaintP95Each": [
+            117.60000000009313,
+            134.20000000018626,
+            128.60000000009313
+          ],
+          "startHandlerMedian": 72.0999999998603,
+          "coldTitleMedian": 453.7385030000005,
+          "resumePaintMedian": 198.5,
+          "firstHandlerMedian": 74.10000000009313
+        }
+      },
+      "after": {
+        "1280": {
+          "warmHandlerP95Each": [
+            70.9000000001397,
+            72.29999999981374,
+            67.70000000018626
+          ],
+          "warmHandlerP95Median": 70.9000000001397,
+          "warmPaintP95Each": [
+            99.19999999995343,
+            100.70000000018626,
+            93.8000000002794
+          ],
+          "startHandlerMedian": 62.89999999990687,
+          "coldTitleMedian": 555.9310679999999,
+          "resumePaintMedian": 168.39999999990687,
+          "firstHandlerMedian": 80.5
+        },
+        "390": {
+          "warmHandlerP95Each": [
+            108,
+            112,
+            107.70000000018626
+          ],
+          "warmHandlerP95Median": 108,
+          "warmPaintP95Each": [
+            129.80000000004657,
+            136.1999999997206,
+            135
+          ],
+          "startHandlerMedian": 78.30000000004657,
+          "coldTitleMedian": 497.51213199999984,
+          "resumePaintMedian": 189.5,
+          "firstHandlerMedian": 74.8000000002794
+        }
+      }
+    },
+    "final": {
+      "before": {
+        "1280": {
+          "warmHandlerP95Each": [
+            91.10000000009313,
+            78,
+            66.90000000037253
+          ],
+          "warmHandlerP95Median": 78,
+          "warmPaintP95Each": [
+            117,
+            102.1999999997206,
+            86.59999999962747
+          ],
+          "startHandlerMedian": 61.299999999813735,
+          "coldTitleMedian": 549.1389550000001,
+          "resumePaintMedian": 175.1999999997206,
+          "firstHandlerMedian": 84.89999999990687
+        },
+        "390": {
+          "warmHandlerP95Each": [
+            123.5,
+            88.59999999962747,
+            96.5
+          ],
+          "warmHandlerP95Median": 96.5,
+          "warmPaintP95Each": [
+            147.89999999990687,
+            111.10000000009313,
+            118.60000000009313
+          ],
+          "startHandlerMedian": 73.5,
+          "coldTitleMedian": 448.59504899999956,
+          "resumePaintMedian": 197.29999999981374,
+          "firstHandlerMedian": 73.10000000009313
+        }
+      },
+      "after": {
+        "1280": {
+          "warmHandlerP95Each": [
+            64.60000000009313,
+            55.89999999990687,
+            55
+          ],
+          "warmHandlerP95Median": 55.89999999990687,
+          "warmPaintP95Each": [
+            94.20000000018626,
+            80,
+            83.10000000009313
+          ],
+          "startHandlerMedian": 59.700000000186265,
+          "coldTitleMedian": 524.286929,
+          "resumePaintMedian": 169.5,
+          "firstHandlerMedian": 76.89999999990687
+        },
+        "390": {
+          "warmHandlerP95Each": [
+            93.40000000037253,
+            95.20000000018626,
+            104.89999999990687
+          ],
+          "warmHandlerP95Median": 95.20000000018626,
+          "warmPaintP95Each": [
+            117.8000000002794,
+            116.70000000018626,
+            133.20000000018626
+          ],
+          "startHandlerMedian": 75.6999999997206,
+          "coldTitleMedian": 456.6520329999985,
+          "resumePaintMedian": 200,
+          "firstHandlerMedian": 67.29999999981374
+        }
+      }
+    }
+  },
+  "notes": [
+    "Return legs, repeated conditions and variants are correlated, not independent samples.",
+    "Initial UI measurements are exploratory; version metadata changed during that stage. Claims use the final frozen build and three alternating pairs only.",
+    "Local installed dependencies differ from lockfile; formal CI results are recorded in PR completion comments.",
+    "CPU times were measured under concurrent comparison load and are diagnostics, not speed claims."
+  ],
+  "performanceHarnessSha256": "37c24c36bafdc5361051f47dc876d5c7f9babc477bca176d93f4869411bed9c7",
+  "postLocalizationConfirmation": {
+    "before": {
+      "1280": {
+        "warmHandlerP95": 72.70000000018626,
+        "firstHandlerMedian": 73.6999999997206
+      },
+      "390": {
+        "warmHandlerP95": 103.89999999990687,
+        "firstHandlerMedian": 77.39999999990687
+      }
+    },
+    "after": {
+      "1280": {
+        "warmHandlerP95": 62.59999999962747,
+        "firstHandlerMedian": 68.90000000037253
+      },
+      "390": {
+        "warmHandlerP95": 87.10000000009313,
+        "firstHandlerMedian": 61.10000000009313
+      }
+    }
+  },
+  "catalogComparison": {
+    "before": {
+      "('original', 'balanced:balanced')": {
+        "blue": 1,
+        "red": 1
+      },
+      "('original', 'defensive:offensive')": {
+        "offensive": 2
+      },
+      "('revised', 'balanced:balanced')": {
+        "red": 2
+      },
+      "('revised', 'defensive:offensive')": {
+        "defensive": 1,
+        "offensive": 1
+      }
+    },
+    "final": {
+      "('original', 'balanced:balanced')": {
+        "blue": 1,
+        "red": 1
+      },
+      "('original', 'defensive:offensive')": {
+        "offensive": 2
+      },
+      "('revised', 'balanced:balanced')": {
+        "red": 2
+      },
+      "('revised', 'defensive:offensive')": {
+        "defensive": 1,
+        "offensive": 1
+      }
+    }
+  }
+}
