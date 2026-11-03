@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { mkdtempSync, readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { spawnSync } from 'node:child_process';
 import test from 'node:test';
 import { URL } from 'node:url';
 import { isCurrentMain, isPublicationContext, runPreflight } from './pages-preflight.mjs';
@@ -102,12 +103,36 @@ test('all existing gates remain and deployment requires every verification job',
 });
 
 test('concurrency is scoped to workflow and ref, and production deployment serializes', () => {
-  const groups = [...ci.matchAll(/group: \$\{\{ github\.workflow \}\}-\$\{\{ github\.ref \}\}-(hygiene|quality|runtime|terrain)\n {6}cancel-in-progress: true/g)].map(
-    (match) => match[1],
-  );
-  assert.deepEqual(groups.sort(), ['hygiene', 'quality', 'runtime', 'terrain']);
+  const groups = [
+    ...ci.matchAll(
+      /group: \$\{\{ github\.workflow \}\}-\$\{\{ github\.ref \}\}-(hygiene|quality|runtime|terrain)(?:-\$\{\{ matrix\.browser-shard \}\})?\n {6}cancel-in-progress: true/g,
+    ),
+  ].map((match) => match[1]);
+  assert.deepEqual(groups.sort(), ['hygiene', 'quality', 'quality', 'runtime', 'terrain']);
   assert.doesNotMatch(ci, /^concurrency:/m);
   assert.match(ci, /group: pages-production\n {6}cancel-in-progress: false/);
+});
+
+test('both complete quality shards are required by the stable test-and-build gate', () => {
+  const gate = ci.split('  test-and-build:\n')[1]?.split('  quality-shard:\n')[0];
+  const quality = ci.split('  quality-shard:\n')[1]?.split('  runtime-compatibility:\n')[0];
+  assert.ok(gate && quality);
+  assert.match(gate, /if: always\(\)\n {4}needs: \[quality-shard\]/);
+  assert.match(gate, /QUALITY_RESULT: \$\{\{ needs\.quality-shard\.result \}\}/);
+  assert.match(gate, /run: test "\$QUALITY_RESULT" = success/);
+  for (const result of ['success', 'failure', 'cancelled', 'skipped', '']) {
+    const run = spawnSync('/bin/sh', ['-c', 'test "$QUALITY_RESULT" = success'], { env: { QUALITY_RESULT: result }, stdio: 'ignore' });
+    assert.ifError(run.error);
+    assert.equal(run.status, result === 'success' ? 0 : 1);
+  }
+  assert.match(quality, /timeout-minutes: 30/);
+  assert.match(quality, /fail-fast: false\n {6}matrix:\n {8}browser-shard: \[1, 2\]/);
+  assert.match(quality, /group: \$\{\{ github\.workflow \}\}-\$\{\{ github\.ref \}\}-quality-\$\{\{ matrix\.browser-shard \}\}/);
+  assert.match(quality, /run: npm run test:e2e -- --shard=\$\{\{ matrix\.browser-shard \}\}\/2/);
+  for (const name of ['dependency-audit', 'browser-failure-traces', 'standalone-system-screenshots']) assert.ok(quality.includes(`name: ${name}-\${{ matrix.browser-shard }}`));
+  assert.ok(quality.includes(`if: ${publicationCondition} && matrix.browser-shard == 1`));
+  assert.equal((quality.match(/uses: actions\/upload-pages-artifact@/g) ?? []).length, 1);
+  assert.doesNotMatch(gate + quality, /permissions:|secrets:|continue-on-error:|--retries|--workers|--grep-invert|--project=/);
 });
 
 test('terrain stability is an additional parallel gate with the same read-only policy', () => {

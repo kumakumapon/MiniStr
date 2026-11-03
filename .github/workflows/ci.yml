@@ -35,10 +35,28 @@ jobs:
           scripts/check-private-links.sh "${BASE_SHA}..${HEAD_SHA}"
 
   test-and-build:
+    if: always()
+    needs: [quality-shard]
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 5
     concurrency:
       group: ${{ github.workflow }}-${{ github.ref }}-quality
+      cancel-in-progress: true
+    steps:
+      - name: Require every quality shard to succeed
+        env:
+          QUALITY_RESULT: ${{ needs.quality-shard.result }}
+        run: test "$QUALITY_RESULT" = success
+
+  quality-shard:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        browser-shard: [1, 2]
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.ref }}-quality-${{ matrix.browser-shard }}
       cancel-in-progress: true
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -76,12 +94,12 @@ jobs:
           pactl list short sinks
       - name: Check audio recovery before the full browser suite
         run: npx playwright test tests/e2e/army-music.spec.ts --grep 'background return'
-      - run: npm run test:e2e
+      - run: npm run test:e2e -- --shard=${{ matrix.browser-shard }}/2
       - name: Preserve audit evidence
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
-          name: dependency-audit
+          name: dependency-audit-${{ matrix.browser-shard }}
           path: dependency-audit.json
           if-no-files-found: ignore
           retention-days: 14
@@ -89,19 +107,19 @@ jobs:
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
-          name: browser-failure-traces
+          name: browser-failure-traces-${{ matrix.browser-shard }}
           path: test-results/
           retention-days: 14
       - name: Preserve standalone system screenshots
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
-          name: standalone-system-screenshots
+          name: standalone-system-screenshots-${{ matrix.browser-shard }}
           path: test-results/**/systems-*.png
           if-no-files-found: ignore
           retention-days: 14
       - name: Upload the verified Pages build
-        if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+        if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && matrix.browser-shard == 1
         uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
         with:
           path: dist
