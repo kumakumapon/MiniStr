@@ -187,6 +187,7 @@ test('only one real tab can write, stale snapshots stay protected after taking o
   const second = await context.newPage();
   await second.goto('/');
   await expect(second.locator('.storage-write-notice')).toContainText('別のMiniStr');
+  await expect(second.locator('.storage-write-notice')).toBeInViewport({ ratio: 1 });
   await Promise.all([page.locator('.title-overlay [data-locale]').selectOption('en'), second.locator('.title-overlay [data-locale]').selectOption('en')]);
   expect(await page.evaluate(() => localStorage.getItem('ministr.locale'))).toBe('en');
   await second.locator('.title-overlay [data-locale]').selectOption('ja');
@@ -221,6 +222,7 @@ test('releases ownership on pagehide and permits an unchanged second tab to retr
 });
 
 test('missing locking support refuses persistent saves and still exports the current match', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
   await page.addInitScript(() => {
     Object.defineProperty(navigator, 'locks', { value: undefined });
     localStorage.setItem('ministr.locale', 'en');
@@ -228,6 +230,7 @@ test('missing locking support refuses persistent saves and still exports the cur
   });
   await page.goto('/');
   await expect(page.locator('.storage-write-notice')).toContainText('cannot be saved');
+  await expect(page.locator('.storage-write-notice')).toBeInViewport({ ratio: 1 });
   await page.locator('.title-map-card').first().click();
   await page.locator('input[name="match-mode"][value="hotseat"]').check();
   await page.locator('#begin-operation').click();

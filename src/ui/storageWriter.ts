@@ -98,5 +98,5 @@ export function renderStorageWriterNotice(state: StorageWriterState): string {
         : en
           ? 'Safe saving is unavailable in this tab. Your changes cannot be saved. Export your current match before reloading or using a supported browser.'
           : 'このタブでは安全に保存できません。変更は保存されません。再読み込みや対応ブラウザーへの移動前に、現在の対局を書き出してください。';
-  return `<section class="storage-write-notice" role="status"><p>${message}</p>${state === 'pending' ? '' : `<button type="button" data-storage-write-export>${en ? 'Export current match' : '現在の対局を書き出す'}</button>${state === 'unsupported' ? '' : `<button type="button" data-storage-write-retry>${en ? 'Retry saving' : '保存を再試行'}</button>`}<button type="button" data-storage-write-reload>${en ? 'Reload' : '再読み込み'}</button>`}</section>`;
+  return `<section class="storage-write-notice" role="status" tabindex="-1"><p>${message}</p>${state === 'pending' ? '' : `<button type="button" data-storage-write-export>${en ? 'Export current match' : '現在の対局を書き出す'}</button>${state === 'unsupported' ? '' : `<button type="button" data-storage-write-retry>${en ? 'Retry saving' : '保存を再試行'}</button>`}<button type="button" data-storage-write-reload>${en ? 'Reload' : '再読み込み'}</button>`}</section>`;
 }
