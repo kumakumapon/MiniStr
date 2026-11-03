@@ -170,6 +170,7 @@ it('renders truthful saving status and recovery controls in both languages', () 
       expect(document.querySelector('[role="status"]')).not.toBeNull();
       expect(!!document.querySelector('[data-storage-write-export]')).toBe(state !== 'pending');
       expect(!!document.querySelector('[data-storage-write-retry]')).toBe(state !== 'pending' && state !== 'unsupported');
+      if (state === 'busy') expect(document.body.textContent).toContain(locale === 'en' ? 'Save or export' : '保存・書き出し');
       if (locale === 'en') expect(document.body.textContent).not.toMatch(/[\u3040-\u30ff\u3400-\u9fff]/u);
     }
   }

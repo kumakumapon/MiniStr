@@ -93,8 +93,8 @@ export function renderStorageWriterNotice(state: StorageWriterState): string {
         : '保存の準備中です。保存できるようになるまでお待ちください。'
       : state === 'busy'
         ? en
-          ? 'Another MiniStr tab is using saved data. This tab cannot save. Close the other tab, then retry. You can export your current match.'
-          : '別のMiniStrタブが保存データを使用中です。このタブでは保存できません。別タブを閉じて再試行してください。現在の対局は書き出せます。'
+          ? 'Another MiniStr tab is using saved data. This tab cannot save. Save or export the match in the other tab before closing it, then retry. You can export your current match.'
+          : '別のMiniStrタブが保存データを使用中です。このタブでは保存できません。別タブの進行を保存・書き出ししてから、そのタブを閉じて再試行してください。現在の対局は書き出せます。'
         : en
           ? 'Safe saving is unavailable in this tab. Your changes cannot be saved. Export your current match before reloading or using a supported browser.'
           : 'このタブでは安全に保存できません。変更は保存されません。再読み込みや対応ブラウザーへの移動前に、現在の対局を書き出してください。';
