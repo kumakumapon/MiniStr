@@ -1,8 +1,8 @@
 import { expect, test } from '@playwright/test';
 import type { ScenarioData } from '../../src/game/maps';
 
-test('390px touch selects once and keeps a scrolled board stable after localized redraw', async ({ browser }, testInfo) => {
-  const context = await browser.newContext({ viewport: { width: 390, height: 844 }, hasTouch: true });
+test('390px touch selects once and keeps a scrolled board stable after localized redraw', async ({ browser, baseURL }, testInfo) => {
+  const context = await browser.newContext({ baseURL, viewport: { width: 390, height: 844 }, hasTouch: true });
   try {
     const page = await context.newPage();
     const scenario: ScenarioData = {
