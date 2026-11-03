@@ -1,0 +1,1292 @@
+{
+  "format": "session-memory-v143",
+  "variant": "baseline",
+  "url": "http://127.0.0.1:4185",
+  "browser": "151.0.7922.173",
+  "viewport": {
+    "width": 390,
+    "height": 844
+  },
+  "seconds": 600,
+  "fixtureCommands": 1360,
+  "harnessSha256": "73c62924cc8592159c1773b00c01e1fd578a5768ba107262db9c2805bc74db2e",
+  "rows": [
+    {
+      "phase": "title",
+      "gc": true,
+      "elapsedMs": 578.6309249999999,
+      "heap": {
+        "usedSize": 5268676,
+        "totalSize": 5849088,
+        "embedderHeapUsedSize": 14746888,
+        "backingStorageSize": 478237
+      },
+      "dom": {
+        "documents": 1,
+        "nodes": 6828,
+        "jsEventListeners": 166
+      },
+      "workers": [],
+      "progress": {
+        "decisionRemaining": "60 Until decision",
+        "side": "TURNPlayer",
+        "scene": false,
+        "finished": false,
+        "tiles": 0
+      }
+    },
+    {
+      "phase": "watch-0",
+      "gc": true,
+      "elapsedMs": 1758.48603,
+      "heap": {
+        "usedSize": 6053112,
+        "totalSize": 6905856,
+        "embedderHeapUsedSize": 6833352,
+        "backingStorageSize": 479627
+      },
+      "dom": {
+        "documents": 2,
+        "nodes": 2876,
+        "jsEventListeners": 133
+      },
+      "workers": [
+        {
+          "targetId": "0453C4FBE38490B443BD55B1BE01AFE6",
+          "usedSize": 1004384,
+          "totalSize": 1310720,
+          "embedderHeapUsedSize": 18776,
+          "backingStorageSize": 109093
+        }
+      ],
+      "progress": {
+        "decisionRemaining": "No limit",
+        "side": "CPU THINKINGRed CPU acting",
+        "scene": false,
+        "finished": false,
+        "tiles": 1024
+      }
+    },
+    {
+      "phase": "watch-30",
+      "gc": false,
+      "elapsedMs": 31772.936728,
+      "heap": {
+        "usedSize": 11432356,
+        "totalSize": 37216256,
+        "embedderHeapUsedSize": 38362664,
+        "backingStorageSize": 496257
+      },
+      "dom": {
+        "documents": 2,
+        "nodes": 16784,
+        "jsEventListeners": 518
+      },
+      "workers": [
+        {
+          "targetId": "B860E22E2CA1167829E755C68AB35DF3",
+          "usedSize": 6373884,
+          "totalSize": 12320768,
+          "embedderHeapUsedSize": 773712,
+          "backingStorageSize": 109093
+        }
+      ],
+      "progress": {
+        "decisionRemaining": "No limit",
+        "side": "CPU THINKINGBlue CPU acting",
+        "scene": false,
+        "finished": false,
+        "tiles": 1024
+      }
+    },
+    {
+      "phase": "watch-60",
+      "gc": false,
+      "elapsedMs": 61785.698568,
+      "heap": {
+        "usedSize": 12221892,
+        "totalSize": 36954112,
+        "embedderHeapUsedSize": 22879920,
+        "backingStorageSize": 666287
+      },
+      "dom": {
+        "documents": 2,
+        "nodes": 9787,
+        "jsEventListeners": 284
+      },
+      "workers": [
+        {
+          "targetId": "E6600B57CF6AD6FC8CFC054947055B63",
+          "usedSize": 1668432,
+          "totalSize": 5242880,
+          "embedderHeapUsedSize": 773712,
+          "backingStorageSize": 109093
+        }
+      ],
+      "progress": {
+        "decisionRemaining": "No limit",
+        "side": "CPU THINKINGRed CPU acting",
+        "scene": true,
+        "finished": false,
+        "tiles": 1024
+      }
+    },
+    {
+      "phase": "watch-90",
+      "gc": false,
+      "elapsedMs": 91807.22197900001,
+      "heap": {
+        "usedSize": 20785236,
+        "totalSize": 52682752,
+        "embedderHeapUsedSize": 42632864,
+        "backingStorageSize": 666261
+      },
+      "dom": {
+        "documents": 2,
+        "nodes": 27805,
+        "jsEventListeners": 898
+      },
+      "workers": [
+        {
+          "targetId": "0FFA4C2F89007F823AB81F69D0E74C0E",
+          "usedSize": 3128260,
+          "totalSize": 6815744,
+          "embedderHeapUsedSize": 773712,
+          "backingStorageSize": 109093
+        }
+      ],
+      "progress": {
+        "decisionRemaining": "No limit",
+        "side": "CPU THINKINGRed CPU acting",
+        "scene": true,
+        "finished": false,
+        "tiles": 1024
+      }
+    },
+    {
+      "phase": "watch-120",
+      "gc": false,
+      "elapsedMs": 121816.42635000001,
+      "heap": {
+        "usedSize": 19538540,
+        "totalSize": 59236352,
+        "embedderHeapUsedSize": 27725648,
+        "backingStorageSize": 666694
+      },
+      "dom": {
+        "documents": 2,
+        "nodes": 11695,
+        "jsEventListeners": 359
+      },
+      "workers": [
+        {
+          "targetId": "58F8F6AED0744A5E75C175436FC452CE",
+          "usedSize": 5609204,
+          "totalSize": 13893632,
+          "embedderHeapUsedSize": 773712,
+          "backingStorageSize": 109093
+        }
+      ],
+      "progress": {
+        "decisionRemaining": "No limit",
+        "side": "CPU THINKINGBlue CPU acting",
+        "scene": false,
+        "finished": false,
+        "tiles": 1024
+      }
+    },
+    {
+      "phase": "watch-120-gc",
+      "gc": true,
+      "elapsedMs": 122404.103507,
+      "heap": {
+        "usedSize": 7158848,
+        "totalSize": 7593984,
+        "embedderHeapUsedSize": 6640104,
+        "backingStorageSize": 656224
+      },
+      "dom": {
+        "documents": 2,
+        "nodes": 3251,
+        "jsEventListeners": 129
+      },
+      "workers": [
+        {
+          "targetId": "58F8F6AED0744A5E75C175436FC452CE",
+          "usedSize": 1430180,
+          "totalSize": 2097152,
+          "embedderHeapUsedSize": 18776,
+          "backingStorageSize": 109093
+        }
+      ],
+      "progress": {
+        "decisionRemaining": "No limit",
+        "side": "CPU THINKINGBlue CPU acting",
+        "scene": false,
+        "finished": false,
+        "tiles": 1024
+      }
+    },
+    {
+      "phase": "watch-150",
+      "gc": false,
+      "elapsedMs": 152422.349872,
+      "heap": {
+        "usedSize": 17102528,
+        "totalSize": 38526976,
+        "embedderHeapUsedSize": 56593424,
+        "backingStorageSize": 677454
+      },
+      "dom": {
+        "documents": 2,
+        "nodes": 35021,
+        "jsEventListeners": 1063
+      },
+      "workers": [
+        {
+          "targetId": "E4A960BADD47A38CF1073BE24D915630",
+          "usedSize": 1348568,
+          "totalSize": 4718592,
+          "embedderHeapUsedSize": 773712,
+          "backingStorageSize": 109093
+        }
+      ],
+      "progress": {
+        "decisionRemaining": "No limit",
+        "side": "CPU THINKINGBlue CPU acting",
+        "scene": true,
+        "finished": false,
+        "tiles": 1024
+      }
+    },
+    {
+      "phase": "watch-180",
+      "gc": false,
+      "elapsedMs": 182491.580643,
+      "heap": {
+        "usedSize": 12646516,
+        "totalSize": 40361984,
+        "embedderHeapUsedSize": 47994808,
+        "backingStorageSize": 673071
+      },
+      "dom": {
+        "documents": 2,
+        "nodes": 32263,
+        "jsEventListeners": 1003
+      },
+      "workers": [
+        {
+          "targetId": "E5D01292AD4AD1DBC2A5A7D308227AE6",
+          "usedSize": 1360456,
+          "totalSize": 4718592,
+          "embedderHeapUsedSize": 773712,
+          "backingStorageSize": 109093
+        }
+      ],
+      "progress": {
+        "decisionRemaining": "No limit",
+        "side": "CPU THINKINGBlue CPU acting",
+        "scene": true,
+        "finished": false,
+        "tiles": 1024
+      }
+    },
+    {
+      "phase": "watch-210",
+      "gc": false,
+      "elapsedMs": 212497.76127400002,
+      "heap": {
+        "usedSize": 11450748,
+        "totalSize": 57663488,
+        "embedderHeapUsedSize": 19485424,
+        "backingStorageSize": 668643
+      },
+      "dom": {
+        "documents": 2,
+        "nodes": 20211,
+        "jsEventListeners": 677
+      },
+      "workers": [],
+      "progress": {
+        "decisionRemaining": "No limit",
+        "side": "CPU THINKINGBlue CPU acting",
+        "scene": true,
+        "finished": false,
+        "tiles": 1024
+      }
+    },
+    {
+      "phase": "watch-240",
+      "gc": false,
+      "elapsedMs": 242512.261302,
+      "heap": {
+        "usedSize": 16119336,
+        "totalSize": 65265664,
+        "embedderHeapUsedSize": 23965848,
+        "backingStorageSize": 666433
+      },
+      "dom": {
+        "documents": 2,
+        "nodes": 10117,
+        "jsEventListeners": 285
+      },
+      "workers": [
+        {
+          "targetId": "05266E90BE18068F1C75818D2C1AB29D",
+          "usedSize": 1804796,
+          "totalSize": 7864320,
+          "embedderHeapUsedSize": 773712,
+          "backingStorageSize": 109093
+        }
+      ],
+      "progress": {
+        "decisionRemaining": "No limit",
+        "side": "CPU THINKINGBlue CPU acting",
+        "scene": true,
+        "finished": false,
+        "tiles": 1024
+      }
+    },
+    {
+      "phase": "watch-240-gc",
+      "gc": true,
+      "elapsedMs": 243107.04411400002,
+      "heap": {
+        "usedSize": 7137476,
+        "totalSize": 7856128,
+        "embedderHeapUsedSize": 7945096,
+        "backingStorageSize": 656141
+      },
+      "dom": {
+        "documents": 2,
+        "nodes": 3425,
+        "jsEventListeners": 131
+      },
+      "workers": [
+        {
+          "targetId": "05266E90BE18068F1C75818D2C1AB29D",
+          "usedSize": 1054100,
+          "totalSize": 1572864,
+          "embedderHeapUsedSize": 18776,
+          "backingStorageSize": 109093
+        }
+      ],
+      "progress": {
+        "decisionRemaining": "No limit",
+        "side": "CPU THINKINGBlue CPU acting",
+        "scene": true,
+        "finished": false,
+        "tiles": 1024
+      }
+    },
+    {
+      "phase": "watch-270",
+      "gc": false,
+      "elapsedMs": 273189.23980399995,
+      "heap": {
+        "usedSize": 15775712,
+        "totalSize": 31449088,
+        "embedderHeapUsedSize": 21505648,
+        "backingStorageSize": 666527
+      },
+      "dom": {
+        "documents": 2,
+        "nodes": 9070,
+        "jsEventListeners": 288
+      },
+      "workers": [
+        {
+          "targetId": "5E4C8F07B9625B025263425476FE5EB5",
+          "usedSize": 3694616,
+          "totalSize": 7340032,
+          "embedderHeapUsedSize": 773712,
+          "backingStorageSize": 109093
+        }
+      ],
+      "progress": {
+        "decisionRemaining": "No limit",
+        "side": "CPU THINKINGRed CPU acting",
+        "scene": false,
+        "finished": false,
+        "tiles": 1024
+      }
+    },
+    {
+      "phase": "watch-300",
+      "gc": false,
+      "elapsedMs": 303198.79662499996,
+      "heap": {
+        "usedSize": 7315876,
+        "totalSize": 38002688,
+        "embedderHeapUsedSize": 11234056,
+        "backingStorageSize": 656258
+      },
+      "dom": {
+        "documents": 2,
+        "nodes": 13526,
+        "jsEventListeners": 521
+      },
+      "workers": [
+        {
+          "targetId": "894F9B7299D2815EAA4AC0D4914F7EC4",
+          "usedSize": 1853952,
+          "totalSize": 4456448,
+          "embedderHeapUsedSize": 773712,
+          "backingStorageSize": 109093
+        }
+      ],
+      "progress": {
+        "decisionRemaining": "No limit",
+        "side": "CPU THINKINGRed CPU acting",
+        "scene": true,
+        "finished": false,
+        "tiles": 1024
+      }
+    },
+    {
+      "phase": "watch-330",
+      "gc": false,
+      "elapsedMs": 333206.34953199996,
+      "heap": {
+        "usedSize": 11849624,
+        "totalSize": 39575552,
+        "embedderHeapUsedSize": 20337176,
+        "backingStorageSize": 665886
+      },
+      "dom": {
+        "documents": 2,
+        "nodes": 19066,
+        "jsEventListeners": 668
+      },
+      "workers": [
+        {
+          "targetId": "80EF1FBD6A3A9630ACEEBFDE2CC86E40",
+          "usedSize": 1968588,
+          "totalSize": 4456448,
+          "embedderHeapUsedSize": 773712,
+          "backingStorageSize": 109093
+        }
+      ],
+      "progress": {
+        "decisionRemaining": "No limit",
+        "side": "CPU THINKINGBlue CPU acting",
+        "scene": true,
+        "finished": false,
+        "tiles": 1024
+      }
+    },
+    {
+      "phase": "watch-360",
+      "gc": false,
+      "elapsedMs": 363293.109359,
+      "heap": {
+        "usedSize": 8458796,
+        "totalSize": 52944896,
+        "embedderHeapUsedSize": 17336920,
+        "backingStorageSize": 665232
+      },
+      "dom": {
+        "documents": 2,
+        "nodes": 6233,
+        "jsEventListeners": 205
+      },
+      "workers": [
+        {
+          "targetId": "70307FB5C9927922AA325E226711543B",
+          "usedSize": 2124200,
+          "totalSize": 3932160,
+          "embedderHeapUsedSize": 773712,
+          "backingStorageSize": 109093
+        }
+      ],
+      "progress": {
+        "decisionRemaining": "No limit",
+        "side": "CPU THINKINGRed CPU acting",
+        "scene": false,
+        "finished": false,
+        "tiles": 1024
+      }
+    },
+    {
+      "phase": "watch-360-gc",
+      "gc": true,
+      "elapsedMs": 363873.280249,
+      "heap": {
+        "usedSize": 7289700,
+        "totalSize": 8118272,
+        "embedderHeapUsedSize": 7204496,
+        "backingStorageSize": 656141
+      },
+      "dom": {
+        "documents": 2,
+        "nodes": 3424,
+        "jsEventListeners": 131
+      },
+      "workers": [
+        {
+          "targetId": "70307FB5C9927922AA325E226711543B",
+          "usedSize": 984244,
+          "totalSize": 1310720,
+          "embedderHeapUsedSize": 18776,
+          "backingStorageSize": 109093
+        }
+      ],
+      "progress": {
+        "decisionRemaining": "No limit",
+        "side": "CPU THINKINGRed CPU acting",
+        "scene": true,
+        "finished": false,
+        "tiles": 1024
+      }
+    },
+    {
+      "phase": "watch-390",
+      "gc": false,
+      "elapsedMs": 393953.298172,
+      "heap": {
+        "usedSize": 21779560,
+        "totalSize": 30400512,
+        "embedderHeapUsedSize": 43869088,
+        "backingStorageSize": 668090
+      },
+      "dom": {
+        "documents": 2,
+        "nodes": 18090,
+        "jsEventListeners": 543
+      },
+      "workers": [
+        {
+          "targetId": "0DA50AF889BA7F3805013E52A5F4A96B",
+          "usedSize": 3270840,
+          "totalSize": 5767168,
+          "embedderHeapUsedSize": 773712,
+          "backingStorageSize": 109093
+        }
+      ],
+      "progress": {
+        "decisionRemaining": "No limit",
+        "side": "CPU THINKINGBlue CPU acting",
+        "scene": false,
+        "finished": false,
+        "tiles": 1024
+      }
+    },
+    {
+      "phase": "watch-420",
+      "gc": false,
+      "elapsedMs": 423961.70535199996,
+      "heap": {
+        "usedSize": 8671908,
+        "totalSize": 42196992,
+        "embedderHeapUsedSize": 39690952,
+        "backingStorageSize": 673894
+      },
+      "dom": {
+        "documents": 2,
+        "nodes": 17975,
+        "jsEventListeners": 450
+      },
+      "workers": [
+        {
+          "targetId": "826CA672226013A563F6B0D54E3CA24B",
+          "usedSize": 1366876,
+          "totalSize": 4718592,
+          "embedderHeapUsedSize": 773712,
+          "backingStorageSize": 109093
+        }
+      ],
+      "progress": {
+        "decisionRemaining": "No limit",
+        "side": "CPU THINKINGBlue CPU acting",
+        "scene": true,
+        "finished": false,
+        "tiles": 1024
+      }
+    },
+    {
+      "phase": "watch-450",
+      "gc": false,
+      "elapsedMs": 453986.37659099995,
+      "heap": {
+        "usedSize": 12877820,
+        "totalSize": 25419776,
+        "embedderHeapUsedSize": 26193288,
+        "backingStorageSize": 666356
+      },
+      "dom": {
+        "documents": 2,
+        "nodes": 10057,
+        "jsEventListeners": 300
+      },
+      "workers": [
+        {
+          "targetId": "55D9C9FEBF3CD416A3E5F5B5D8739601",
+          "usedSize": 1589392,
+          "totalSize": 3932160,
+          "embedderHeapUsedSize": 773712,
+          "backingStorageSize": 109093
+        }
+      ],
+      "progress": {
+        "decisionRemaining": "No limit",
+        "side": "CPU THINKINGRed CPU acting",
+        "scene": true,
+        "finished": false,
+        "tiles": 1024
+      }
+    },
+    {
+      "phase": "watch-480",
+      "gc": false,
+      "elapsedMs": 484011.15024499997,
+      "heap": {
+        "usedSize": 15617652,
+        "totalSize": 38002688,
+        "embedderHeapUsedSize": 22051264,
+        "backingStorageSize": 665473
+      },
+      "dom": {
+        "documents": 2,
+        "nodes": 8798,
+        "jsEventListeners": 292
+      },
+      "workers": [
+        {
+          "targetId": "82764ABA9E859337C7CC937A6200E760",
+          "usedSize": 4451716,
+          "totalSize": 9175040,
+          "embedderHeapUsedSize": 773712,
+          "backingStorageSize": 109093
+        }
+      ],
+      "progress": {
+        "decisionRemaining": "No limit",
+        "side": "CPU THINKINGBlue CPU acting",
+        "scene": false,
+        "finished": false,
+        "tiles": 1024
+      }
+    },
+    {
+      "phase": "watch-480-gc",
+      "gc": true,
+      "elapsedMs": 484584.970306,
+      "heap": {
+        "usedSize": 7429120,
+        "totalSize": 8380416,
+        "embedderHeapUsedSize": 7458480,
+        "backingStorageSize": 656141
+      },
+      "dom": {
+        "documents": 2,
+        "nodes": 3222,
+        "jsEventListeners": 131
+      },
+      "workers": [
+        {
+          "targetId": "82764ABA9E859337C7CC937A6200E760",
+          "usedSize": 1367332,
+          "totalSize": 2359296,
+          "embedderHeapUsedSize": 370120,
+          "backingStorageSize": 109093
+        }
+      ],
+      "progress": {
+        "decisionRemaining": "No limit",
+        "side": "CPU THINKINGBlue CPU acting",
+        "scene": false,
+        "finished": false,
+        "tiles": 1024
+      }
+    },
+    {
+      "phase": "watch-510",
+      "gc": false,
+      "elapsedMs": 514599.66552,
+      "heap": {
+        "usedSize": 13078536,
+        "totalSize": 40624128,
+        "embedderHeapUsedSize": 28662384,
+        "backingStorageSize": 666182
+      },
+      "dom": {
+        "documents": 2,
+        "nodes": 20418,
+        "jsEventListeners": 675
+      },
+      "workers": [
+        {
+          "targetId": "415D714CE029033C2B65D86157337AD4",
+          "usedSize": 1598276,
+          "totalSize": 6029312,
+          "embedderHeapUsedSize": 773712,
+          "backingStorageSize": 109093
+        }
+      ],
+      "progress": {
+        "decisionRemaining": "No limit",
+        "side": "CPU THINKINGBlue CPU acting",
+        "scene": true,
+        "finished": false,
+        "tiles": 1024
+      }
+    },
+    {
+      "phase": "watch-540",
+      "gc": false,
+      "elapsedMs": 544623.473725,
+      "heap": {
+        "usedSize": 7478944,
+        "totalSize": 40624128,
+        "embedderHeapUsedSize": 9981296,
+        "backingStorageSize": 656194
+      },
+      "dom": {
+        "documents": 2,
+        "nodes": 3382,
+        "jsEventListeners": 136
+      },
+      "workers": [
+        {
+          "targetId": "BD341030049C8157D82C80D7CDB1F571",
+          "usedSize": 2089972,
+          "totalSize": 4194304,
+          "embedderHeapUsedSize": 773712,
+          "backingStorageSize": 109093
+        }
+      ],
+      "progress": {
+        "decisionRemaining": "No limit",
+        "side": "CPU THINKINGRed CPU acting",
+        "scene": true,
+        "finished": false,
+        "tiles": 1024
+      }
+    },
+    {
+      "phase": "watch-570",
+      "gc": false,
+      "elapsedMs": 574638.2147070001,
+      "heap": {
+        "usedSize": 18308448,
+        "totalSize": 42983424,
+        "embedderHeapUsedSize": 41726952,
+        "backingStorageSize": 666783
+      },
+      "dom": {
+        "documents": 2,
+        "nodes": 17233,
+        "jsEventListeners": 521
+      },
+      "workers": [
+        {
+          "targetId": "8DB9DED80EECCAB0C4535D619833F959",
+          "usedSize": 2690800,
+          "totalSize": 5242880,
+          "embedderHeapUsedSize": 773712,
+          "backingStorageSize": 109093
+        }
+      ],
+      "progress": {
+        "decisionRemaining": "No limit",
+        "side": "CPU THINKINGBlue CPU acting",
+        "scene": false,
+        "finished": false,
+        "tiles": 1024
+      }
+    },
+    {
+      "phase": "watch-600",
+      "gc": false,
+      "elapsedMs": 601135.878745,
+      "heap": {
+        "usedSize": 7521480,
+        "totalSize": 59498496,
+        "embedderHeapUsedSize": 8411448,
+        "backingStorageSize": 656194
+      },
+      "dom": {
+        "documents": 2,
+        "nodes": 3363,
+        "jsEventListeners": 133
+      },
+      "workers": [
+        {
+          "targetId": "3EB9C311B284C2C2108C003D3A8883EF",
+          "usedSize": 1743232,
+          "totalSize": 3407872,
+          "embedderHeapUsedSize": 773712,
+          "backingStorageSize": 109093
+        }
+      ],
+      "progress": {
+        "decisionRemaining": "No limit",
+        "side": "CPU THINKINGRed CPU acting",
+        "scene": true,
+        "finished": false,
+        "tiles": 1024
+      }
+    },
+    {
+      "phase": "watch-600-gc",
+      "gc": true,
+      "elapsedMs": 601720.8117310001,
+      "heap": {
+        "usedSize": 7514792,
+        "totalSize": 8118272,
+        "embedderHeapUsedSize": 7594984,
+        "backingStorageSize": 656141
+      },
+      "dom": {
+        "documents": 2,
+        "nodes": 3361,
+        "jsEventListeners": 132
+      },
+      "workers": [
+        {
+          "targetId": "3EB9C311B284C2C2108C003D3A8883EF",
+          "usedSize": 976428,
+          "totalSize": 1310720,
+          "embedderHeapUsedSize": 18776,
+          "backingStorageSize": 109093
+        }
+      ],
+      "progress": {
+        "decisionRemaining": "No limit",
+        "side": "CPU THINKINGRed CPU acting",
+        "scene": true,
+        "finished": false,
+        "tiles": 1024
+      }
+    },
+    {
+      "phase": "watch-end",
+      "gc": true,
+      "elapsedMs": 602298.368316,
+      "heap": {
+        "usedSize": 7515208,
+        "totalSize": 8118272,
+        "embedderHeapUsedSize": 7830328,
+        "backingStorageSize": 656141
+      },
+      "dom": {
+        "documents": 2,
+        "nodes": 3361,
+        "jsEventListeners": 132
+      },
+      "workers": [
+        {
+          "targetId": "3EB9C311B284C2C2108C003D3A8883EF",
+          "usedSize": 976428,
+          "totalSize": 1310720,
+          "embedderHeapUsedSize": 18776,
+          "backingStorageSize": 109093
+        }
+      ],
+      "progress": {
+        "decisionRemaining": "No limit",
+        "side": "CPU THINKINGRed CPU acting",
+        "scene": true,
+        "finished": false,
+        "tiles": 1024
+      }
+    },
+    {
+      "phase": "paused",
+      "gc": true,
+      "elapsedMs": 603191.7633880001,
+      "heap": {
+        "usedSize": 7472444,
+        "totalSize": 8118272,
+        "embedderHeapUsedSize": 6607224,
+        "backingStorageSize": 656141
+      },
+      "dom": {
+        "documents": 2,
+        "nodes": 3234,
+        "jsEventListeners": 126
+      },
+      "workers": [],
+      "progress": {
+        "decisionRemaining": "No limit",
+        "side": "SPECTATERed",
+        "scene": false,
+        "finished": false,
+        "tiles": 1024
+      }
+    },
+    {
+      "phase": "covered",
+      "gc": true,
+      "elapsedMs": 604157.292126,
+      "heap": {
+        "usedSize": 7654140,
+        "totalSize": 8351744,
+        "embedderHeapUsedSize": 14855848,
+        "backingStorageSize": 747014
+      },
+      "dom": {
+        "documents": 2,
+        "nodes": 6941,
+        "jsEventListeners": 176
+      },
+      "workers": [],
+      "progress": {
+        "decisionRemaining": "No limit",
+        "side": "SPECTATERed",
+        "scene": false,
+        "finished": false,
+        "tiles": 0
+      }
+    },
+    {
+      "phase": "resume-0",
+      "gc": true,
+      "elapsedMs": 605051.566188,
+      "heap": {
+        "usedSize": 7670552,
+        "totalSize": 8351744,
+        "embedderHeapUsedSize": 14804384,
+        "backingStorageSize": 747014
+      },
+      "dom": {
+        "documents": 2,
+        "nodes": 6941,
+        "jsEventListeners": 176
+      },
+      "workers": [],
+      "progress": {
+        "decisionRemaining": "No limit",
+        "side": "SPECTATERed",
+        "scene": false,
+        "finished": false,
+        "tiles": 0
+      }
+    },
+    {
+      "phase": "resume-1",
+      "gc": true,
+      "elapsedMs": 606005.536744,
+      "heap": {
+        "usedSize": 7683448,
+        "totalSize": 8351744,
+        "embedderHeapUsedSize": 14813112,
+        "backingStorageSize": 747014
+      },
+      "dom": {
+        "documents": 2,
+        "nodes": 6941,
+        "jsEventListeners": 176
+      },
+      "workers": [],
+      "progress": {
+        "decisionRemaining": "No limit",
+        "side": "SPECTATERed",
+        "scene": false,
+        "finished": false,
+        "tiles": 0
+      }
+    },
+    {
+      "phase": "resume-2",
+      "gc": true,
+      "elapsedMs": 607055.739545,
+      "heap": {
+        "usedSize": 7684028,
+        "totalSize": 8351744,
+        "embedderHeapUsedSize": 14788392,
+        "backingStorageSize": 747014
+      },
+      "dom": {
+        "documents": 2,
+        "nodes": 6941,
+        "jsEventListeners": 176
+      },
+      "workers": [],
+      "progress": {
+        "decisionRemaining": "No limit",
+        "side": "SPECTATERed",
+        "scene": false,
+        "finished": false,
+        "tiles": 0
+      }
+    },
+    {
+      "phase": "resume-3",
+      "gc": true,
+      "elapsedMs": 608029.9564090001,
+      "heap": {
+        "usedSize": 7720320,
+        "totalSize": 8351744,
+        "embedderHeapUsedSize": 14846280,
+        "backingStorageSize": 747014
+      },
+      "dom": {
+        "documents": 2,
+        "nodes": 6941,
+        "jsEventListeners": 176
+      },
+      "workers": [],
+      "progress": {
+        "decisionRemaining": "No limit",
+        "side": "SPECTATERed",
+        "scene": false,
+        "finished": false,
+        "tiles": 0
+      }
+    },
+    {
+      "phase": "resume-4",
+      "gc": true,
+      "elapsedMs": 609046.8770110001,
+      "heap": {
+        "usedSize": 7721440,
+        "totalSize": 8351744,
+        "embedderHeapUsedSize": 14830904,
+        "backingStorageSize": 747014
+      },
+      "dom": {
+        "documents": 2,
+        "nodes": 6941,
+        "jsEventListeners": 176
+      },
+      "workers": [],
+      "progress": {
+        "decisionRemaining": "No limit",
+        "side": "SPECTATERed",
+        "scene": false,
+        "finished": false,
+        "tiles": 0
+      }
+    },
+    {
+      "phase": "resume-5",
+      "gc": true,
+      "elapsedMs": 609967.329715,
+      "heap": {
+        "usedSize": 7721440,
+        "totalSize": 8351744,
+        "embedderHeapUsedSize": 14813456,
+        "backingStorageSize": 747014
+      },
+      "dom": {
+        "documents": 2,
+        "nodes": 6941,
+        "jsEventListeners": 176
+      },
+      "workers": [],
+      "progress": {
+        "decisionRemaining": "No limit",
+        "side": "SPECTATERed",
+        "scene": false,
+        "finished": false,
+        "tiles": 0
+      }
+    },
+    {
+      "phase": "replay-0",
+      "gc": true,
+      "elapsedMs": 611374.861911,
+      "heap": {
+        "usedSize": 8814956,
+        "totalSize": 9662464,
+        "embedderHeapUsedSize": 11360200,
+        "backingStorageSize": 747268
+      },
+      "dom": {
+        "documents": 2,
+        "nodes": 8108,
+        "jsEventListeners": 156
+      },
+      "workers": [],
+      "progress": {
+        "decisionRemaining": "0 Rounds remaining",
+        "side": "REPLAYRed",
+        "scene": false,
+        "finished": false,
+        "tiles": 1024
+      }
+    },
+    {
+      "phase": "replay-closed-0",
+      "gc": true,
+      "elapsedMs": 612114.505601,
+      "heap": {
+        "usedSize": 8128736,
+        "totalSize": 8843264,
+        "embedderHeapUsedSize": 20578656,
+        "backingStorageSize": 747292
+      },
+      "dom": {
+        "documents": 2,
+        "nodes": 12450,
+        "jsEventListeners": 234
+      },
+      "workers": [],
+      "progress": {
+        "decisionRemaining": "No limit",
+        "side": "SPECTATERed",
+        "scene": false,
+        "finished": false,
+        "tiles": 0
+      }
+    },
+    {
+      "phase": "replay-1",
+      "gc": true,
+      "elapsedMs": 613528.3957270001,
+      "heap": {
+        "usedSize": 9388488,
+        "totalSize": 10678272,
+        "embedderHeapUsedSize": 17415064,
+        "backingStorageSize": 747292
+      },
+      "dom": {
+        "documents": 2,
+        "nodes": 13616,
+        "jsEventListeners": 214
+      },
+      "workers": [],
+      "progress": {
+        "decisionRemaining": "0 Rounds remaining",
+        "side": "REPLAYRed",
+        "scene": false,
+        "finished": false,
+        "tiles": 1024
+      }
+    },
+    {
+      "phase": "replay-closed-1",
+      "gc": true,
+      "elapsedMs": 614259.7273380001,
+      "heap": {
+        "usedSize": 8719308,
+        "totalSize": 9596928,
+        "embedderHeapUsedSize": 26560888,
+        "backingStorageSize": 747292
+      },
+      "dom": {
+        "documents": 2,
+        "nodes": 17958,
+        "jsEventListeners": 292
+      },
+      "workers": [],
+      "progress": {
+        "decisionRemaining": "No limit",
+        "side": "SPECTATERed",
+        "scene": false,
+        "finished": false,
+        "tiles": 0
+      }
+    },
+    {
+      "phase": "replay-2",
+      "gc": true,
+      "elapsedMs": 615686.071183,
+      "heap": {
+        "usedSize": 9961476,
+        "totalSize": 11169792,
+        "embedderHeapUsedSize": 23377392,
+        "backingStorageSize": 747292
+      },
+      "dom": {
+        "documents": 2,
+        "nodes": 19124,
+        "jsEventListeners": 272
+      },
+      "workers": [],
+      "progress": {
+        "decisionRemaining": "0 Rounds remaining",
+        "side": "REPLAYRed",
+        "scene": false,
+        "finished": false,
+        "tiles": 1024
+      }
+    },
+    {
+      "phase": "replay-closed-2",
+      "gc": true,
+      "elapsedMs": 616484.1481590001,
+      "heap": {
+        "usedSize": 9292576,
+        "totalSize": 10088448,
+        "embedderHeapUsedSize": 32555984,
+        "backingStorageSize": 747292
+      },
+      "dom": {
+        "documents": 2,
+        "nodes": 23466,
+        "jsEventListeners": 350
+      },
+      "workers": [],
+      "progress": {
+        "decisionRemaining": "No limit",
+        "side": "SPECTATERed",
+        "scene": false,
+        "finished": false,
+        "tiles": 0
+      }
+    },
+    {
+      "phase": "replay-3",
+      "gc": true,
+      "elapsedMs": 618110.7696110001,
+      "heap": {
+        "usedSize": 10485040,
+        "totalSize": 12185600,
+        "embedderHeapUsedSize": 29177896,
+        "backingStorageSize": 747292
+      },
+      "dom": {
+        "documents": 2,
+        "nodes": 24632,
+        "jsEventListeners": 330
+      },
+      "workers": [],
+      "progress": {
+        "decisionRemaining": "0 Rounds remaining",
+        "side": "REPLAYRed",
+        "scene": false,
+        "finished": false,
+        "tiles": 1024
+      }
+    },
+    {
+      "phase": "replay-closed-3",
+      "gc": true,
+      "elapsedMs": 618929.3873490001,
+      "heap": {
+        "usedSize": 9829384,
+        "totalSize": 10579968,
+        "embedderHeapUsedSize": 38519944,
+        "backingStorageSize": 747292
+      },
+      "dom": {
+        "documents": 2,
+        "nodes": 28974,
+        "jsEventListeners": 408
+      },
+      "workers": [],
+      "progress": {
+        "decisionRemaining": "No limit",
+        "side": "SPECTATERed",
+        "scene": false,
+        "finished": false,
+        "tiles": 0
+      }
+    }
+  ],
+  "errors": [],
+  "note": "Diagnostic Chromium, real clock, isolated context, no forced game rules. Main/worker GC is intrusive and sampled separately. Commands and replay checkpoints are legitimate retained data; heap alone does not establish a leak.",
+  "build": "LanguageJapaneseEnglishv1.4.2 · 9d056acaee82 Download diagnostics",
+  "fixtureSha256": "347d0fa696f4d1cca59d93a4c2d51c4a331edc842646549f35450bf15009c51e",
+  "actualWatchMs": 600600.3884030001,
+  "savedProgress": [
+    {
+      "key": "ministr.save.slot.mw0mj89e-j9jcp2",
+      "bytes": 90680,
+      "commands": 711
+    }
+  ],
+  "completed": true
+}

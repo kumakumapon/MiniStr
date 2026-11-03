@@ -1,0 +1,38 @@
+
+INPUT 78049 detachedness 2
+(1, 'synthetic', '(GC roots)', 'element', '1')
+(11, 'synthetic', '(Global handles)', 'element', '10')
+(3709, 'object', 'HTMLInputElement', 'internal', '82 / DevTools console')
+(78049, 'native', '<input id="title-replay-file" class="visually-hidden" type="file" accept=".json,applicatio', 'internal', 'cppgc_object')
+
+INPUT 119909 detachedness 2
+(1, 'synthetic', '(GC roots)', 'element', '1')
+(11, 'synthetic', '(Global handles)', 'element', '10')
+(3708, 'object', 'HTMLInputElement', 'internal', '81 / DevTools console')
+(119909, 'native', '<input id="title-replay-file" class="visually-hidden" type="file" accept=".json,applicatio', 'internal', 'cppgc_object')
+
+INPUT 70890 detachedness 2
+(1, 'synthetic', '(GC roots)', 'element', '1')
+(11, 'synthetic', '(Global handles)', 'element', '10')
+(3710, 'object', 'HTMLInputElement', 'internal', '83 / DevTools console')
+(70890, 'native', '<input id="title-replay-file" class="visually-hidden" type="file" accept=".json,applicatio', 'internal', 'cppgc_object')
+
+INPUT 120525 detachedness 1
+(1, 'synthetic', '(GC roots)', 'element', '1')
+(129624, 'synthetic', 'C++ Persistent roots', 'element', '29')
+(129635, 'native', 'blink::WebLocalFrameImpl', 'internal', 'blink::WebLocalFrameImpl::WebLocalFrameImpl(base::PassKey<WebLocalFrameImpl>, mojom::blink::TreeScopeType, WebLocalFrameClient *, blink::InterfaceRegistry *, const LocalFrameToken &)@../../third_party/blink/renderer/core/frame/web_local_frame_impl.cc:2296')
+(850984, 'native', 'blink::HistoryItem', 'element', '7')
+(354960, 'native', 'blink::DocumentState', 'element', '1')
+(120525, 'native', '<input id="title-replay-file" class="visually-hidden" type="file" accept=".json,applicatio', 'element', '19')
+
+INPUT 45946 detachedness 2
+(1, 'synthetic', '(GC roots)', 'element', '1')
+(11, 'synthetic', '(Global handles)', 'element', '10')
+(3712, 'object', 'HTMLInputElement', 'internal', '85 / DevTools console')
+(45946, 'native', '<input id="title-replay-file" class="visually-hidden" type="file" accept=".json,applicatio', 'internal', 'cppgc_object')
+
+INPUT 47900 detachedness 2
+(1, 'synthetic', '(GC roots)', 'element', '1')
+(11, 'synthetic', '(Global handles)', 'element', '10')
+(3711, 'object', 'HTMLInputElement', 'internal', '84 / DevTools console')
+(47900, 'native', '<input id="title-replay-file" class="visually-hidden" type="file" accept=".json,applicatio', 'internal', 'cppgc_object')

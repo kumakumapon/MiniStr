@@ -1,0 +1,402 @@
+[
+  {
+    "width": 1280,
+    "times": [
+      66.3999999910593,
+      53.29999999701977,
+      53.70000000298023,
+      51.900000005960464,
+      61,
+      44.8999999910593,
+      47.29999999701977,
+      49.400000005960464,
+      41.900000005960464,
+      44.599999994039536,
+      46.3999999910593,
+      38.5,
+      46.19999998807907,
+      44.1000000089407,
+      44.79999999701977,
+      46.5,
+      41,
+      46,
+      53.5,
+      47.900000005960464,
+      44.099999994039536,
+      47.79999999701977,
+      47.099999994039536,
+      43.70000000298023,
+      42.900000005960464,
+      49.5,
+      43.29999999701977,
+      45.900000005960464,
+      48.29999999701977,
+      49.3999999910593
+    ],
+    "delta": {
+      "LayoutCount": 90,
+      "RecalcStyleCount": 210,
+      "LayoutDuration": 0.562156,
+      "RecalcStyleDuration": 0.372813,
+      "DevToolsCommandDuration": 0.0017080000000000012,
+      "ScriptDuration": 0.48797,
+      "V8CompileDuration": 0,
+      "TaskDuration": 1.897059,
+      "TaskOtherDuration": 0.472412,
+      "JSHeapUsedSize": 917228,
+      "JSHeapTotalSize": 946176
+    },
+    "hot": [
+      {
+        "name": "",
+        "line": 46,
+        "url": "http://127.0.0.1:4185/assets/index-CiNrehuf.js",
+        "hits": 634
+      },
+      {
+        "name": "(program)",
+        "line": -1,
+        "url": "",
+        "hits": 387
+      },
+      {
+        "name": "x",
+        "line": 120,
+        "url": "http://127.0.0.1:4185/assets/index-CiNrehuf.js",
+        "hits": 127
+      },
+      {
+        "name": "(idle)",
+        "line": -1,
+        "url": "",
+        "hits": 119
+      },
+      {
+        "name": "focus",
+        "line": -1,
+        "url": "",
+        "hits": 94
+      },
+      {
+        "name": "focus",
+        "line": -1,
+        "url": "",
+        "hits": 83
+      },
+      {
+        "name": "ip",
+        "line": 10,
+        "url": "http://127.0.0.1:4185/assets/index-CiNrehuf.js",
+        "hits": 36
+      },
+      {
+        "name": "",
+        "line": 46,
+        "url": "http://127.0.0.1:4185/assets/index-CiNrehuf.js",
+        "hits": 25
+      },
+      {
+        "name": "(garbage collector)",
+        "line": -1,
+        "url": "",
+        "hits": 22
+      },
+      {
+        "name": "Fp",
+        "line": 120,
+        "url": "http://127.0.0.1:4185/assets/index-CiNrehuf.js",
+        "hits": 17
+      },
+      {
+        "name": "nextNode",
+        "line": -1,
+        "url": "",
+        "hits": 15
+      },
+      {
+        "name": "closest",
+        "line": -1,
+        "url": "",
+        "hits": 12
+      },
+      {
+        "name": "querySelector",
+        "line": -1,
+        "url": "",
+        "hits": 11
+      },
+      {
+        "name": "update",
+        "line": 10,
+        "url": "http://127.0.0.1:4185/assets/index-CiNrehuf.js",
+        "hits": 10
+      },
+      {
+        "name": "querySelectorAll",
+        "line": -1,
+        "url": "",
+        "hits": 10
+      },
+      {
+        "name": "Ht",
+        "line": 8,
+        "url": "http://127.0.0.1:4185/assets/index-CiNrehuf.js",
+        "hits": 9
+      },
+      {
+        "name": "",
+        "line": 120,
+        "url": "http://127.0.0.1:4185/assets/index-CiNrehuf.js",
+        "hits": 8
+      },
+      {
+        "name": "",
+        "line": 10,
+        "url": "http://127.0.0.1:4185/assets/index-CiNrehuf.js",
+        "hits": 8
+      },
+      {
+        "name": "focus",
+        "line": -1,
+        "url": "",
+        "hits": 7
+      },
+      {
+        "name": "Ht",
+        "line": 8,
+        "url": "http://127.0.0.1:4185/assets/index-CiNrehuf.js",
+        "hits": 7
+      },
+      {
+        "name": "x",
+        "line": 120,
+        "url": "http://127.0.0.1:4185/assets/index-CiNrehuf.js",
+        "hits": 6
+      },
+      {
+        "name": "",
+        "line": 120,
+        "url": "http://127.0.0.1:4185/assets/index-CiNrehuf.js",
+        "hits": 6
+      },
+      {
+        "name": "querySelectorAll",
+        "line": -1,
+        "url": "",
+        "hits": 6
+      },
+      {
+        "name": "Ht",
+        "line": 8,
+        "url": "http://127.0.0.1:4185/assets/index-CiNrehuf.js",
+        "hits": 5
+      },
+      {
+        "name": "Ht",
+        "line": 8,
+        "url": "http://127.0.0.1:4185/assets/index-CiNrehuf.js",
+        "hits": 5
+      }
+    ]
+  },
+  {
+    "width": 390,
+    "times": [
+      64.5,
+      50.400000005960464,
+      48.5,
+      51.599999994039536,
+      50.6000000089407,
+      44.400000005960464,
+      53.099999994039536,
+      47.20000000298023,
+      50.5,
+      47.599999994039536,
+      43.5,
+      42.70000000298023,
+      48.29999999701977,
+      47.29999999701977,
+      53.1000000089407,
+      44.400000005960464,
+      55.900000005960464,
+      44.099999994039536,
+      40.099999994039536,
+      41.1000000089407,
+      49.30000001192093,
+      46.8999999910593,
+      46.1000000089407,
+      44,
+      52.099999994039536,
+      49.70000000298023,
+      50,
+      54.69999998807907,
+      53,
+      52
+    ],
+    "delta": {
+      "LayoutCount": 90,
+      "RecalcStyleCount": 240,
+      "LayoutDuration": 0.595237,
+      "RecalcStyleDuration": 0.373924,
+      "DevToolsCommandDuration": 0.002265000000000003,
+      "ScriptDuration": 0.492922,
+      "V8CompileDuration": 0,
+      "TaskDuration": 1.93834,
+      "TaskOtherDuration": 0.47399199999999997,
+      "JSHeapUsedSize": 966140,
+      "JSHeapTotalSize": 421888
+    },
+    "hot": [
+      {
+        "name": "",
+        "line": 46,
+        "url": "http://127.0.0.1:4185/assets/index-CiNrehuf.js",
+        "hits": 664
+      },
+      {
+        "name": "(program)",
+        "line": -1,
+        "url": "",
+        "hits": 400
+      },
+      {
+        "name": "x",
+        "line": 120,
+        "url": "http://127.0.0.1:4185/assets/index-CiNrehuf.js",
+        "hits": 138
+      },
+      {
+        "name": "(idle)",
+        "line": -1,
+        "url": "",
+        "hits": 110
+      },
+      {
+        "name": "focus",
+        "line": -1,
+        "url": "",
+        "hits": 106
+      },
+      {
+        "name": "focus",
+        "line": -1,
+        "url": "",
+        "hits": 78
+      },
+      {
+        "name": "ip",
+        "line": 10,
+        "url": "http://127.0.0.1:4185/assets/index-CiNrehuf.js",
+        "hits": 43
+      },
+      {
+        "name": "(garbage collector)",
+        "line": -1,
+        "url": "",
+        "hits": 31
+      },
+      {
+        "name": "",
+        "line": 46,
+        "url": "http://127.0.0.1:4185/assets/index-CiNrehuf.js",
+        "hits": 27
+      },
+      {
+        "name": "Fp",
+        "line": 120,
+        "url": "http://127.0.0.1:4185/assets/index-CiNrehuf.js",
+        "hits": 19
+      },
+      {
+        "name": "closest",
+        "line": -1,
+        "url": "",
+        "hits": 19
+      },
+      {
+        "name": "",
+        "line": 120,
+        "url": "http://127.0.0.1:4185/assets/index-CiNrehuf.js",
+        "hits": 17
+      },
+      {
+        "name": "Ht",
+        "line": 8,
+        "url": "http://127.0.0.1:4185/assets/index-CiNrehuf.js",
+        "hits": 14
+      },
+      {
+        "name": "",
+        "line": 10,
+        "url": "http://127.0.0.1:4185/assets/index-CiNrehuf.js",
+        "hits": 12
+      },
+      {
+        "name": "nextNode",
+        "line": -1,
+        "url": "",
+        "hits": 10
+      },
+      {
+        "name": "querySelectorAll",
+        "line": -1,
+        "url": "",
+        "hits": 10
+      },
+      {
+        "name": "Ht",
+        "line": 8,
+        "url": "http://127.0.0.1:4185/assets/index-CiNrehuf.js",
+        "hits": 8
+      },
+      {
+        "name": "focus",
+        "line": -1,
+        "url": "",
+        "hits": 7
+      },
+      {
+        "name": "update",
+        "line": 10,
+        "url": "http://127.0.0.1:4185/assets/index-CiNrehuf.js",
+        "hits": 7
+      },
+      {
+        "name": "querySelector",
+        "line": -1,
+        "url": "",
+        "hits": 7
+      },
+      {
+        "name": "replaceWith",
+        "line": -1,
+        "url": "",
+        "hits": 6
+      },
+      {
+        "name": "querySelectorAll",
+        "line": -1,
+        "url": "",
+        "hits": 6
+      },
+      {
+        "name": "x",
+        "line": 120,
+        "url": "http://127.0.0.1:4185/assets/index-CiNrehuf.js",
+        "hits": 5
+      },
+      {
+        "name": "",
+        "line": 120,
+        "url": "http://127.0.0.1:4185/assets/index-CiNrehuf.js",
+        "hits": 5
+      },
+      {
+        "name": "Ht",
+        "line": 8,
+        "url": "http://127.0.0.1:4185/assets/index-CiNrehuf.js",
+        "hits": 4
+      }
+    ]
+  }
+]

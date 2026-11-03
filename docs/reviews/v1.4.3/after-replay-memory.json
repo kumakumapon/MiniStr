@@ -1,0 +1,291 @@
+{
+  "format": "replay-memory-v143",
+  "browser": "151.0.7922.173",
+  "url": "http://127.0.0.1:4186",
+  "viewport": {
+    "width": 390,
+    "height": 844
+  },
+  "commands": 1360,
+  "fixtureSha256": "347d0fa696f4d1cca59d93a4c2d51c4a331edc842646549f35450bf15009c51e",
+  "harnessSha256": "6c5f68bc2cc330be9b51fbec1971b1e9bd8cebc6c046ef9893161d8610d09e8d",
+  "rows": [
+    {
+      "phase": "title",
+      "beforeGc": {
+        "usedSize": 5775816,
+        "totalSize": 11526144,
+        "embedderHeapUsedSize": 22998344,
+        "backingStorageSize": 478685
+      },
+      "heap": {
+        "usedSize": 4778212,
+        "totalSize": 5529600,
+        "embedderHeapUsedSize": 14786184,
+        "backingStorageSize": 478443
+      },
+      "dom": {
+        "documents": 1,
+        "nodes": 6830,
+        "jsEventListeners": 153
+      },
+      "workers": 0
+    },
+    {
+      "phase": "replay-0",
+      "beforeGc": {
+        "usedSize": 6506032,
+        "totalSize": 25886720,
+        "embedderHeapUsedSize": 10484936,
+        "backingStorageSize": 567479
+      },
+      "heap": {
+        "usedSize": 6347768,
+        "totalSize": 6750208,
+        "embedderHeapUsedSize": 9687712,
+        "backingStorageSize": 479089
+      },
+      "dom": {
+        "documents": 2,
+        "nodes": 4146,
+        "jsEventListeners": 81
+      },
+      "workers": 0
+    },
+    {
+      "phase": "closed-0",
+      "beforeGc": {
+        "usedSize": 6247756,
+        "totalSize": 8552448,
+        "embedderHeapUsedSize": 21633552,
+        "backingStorageSize": 479141
+      },
+      "heap": {
+        "usedSize": 5860888,
+        "totalSize": 6193152,
+        "embedderHeapUsedSize": 15100600,
+        "backingStorageSize": 479125
+      },
+      "dom": {
+        "documents": 2,
+        "nodes": 6826,
+        "jsEventListeners": 153
+      },
+      "workers": 0
+    },
+    {
+      "phase": "replay-1",
+      "beforeGc": {
+        "usedSize": 6667564,
+        "totalSize": 26673152,
+        "embedderHeapUsedSize": 10215512,
+        "backingStorageSize": 567518
+      },
+      "heap": {
+        "usedSize": 6536436,
+        "totalSize": 7274496,
+        "embedderHeapUsedSize": 9530648,
+        "backingStorageSize": 479128
+      },
+      "dom": {
+        "documents": 2,
+        "nodes": 4146,
+        "jsEventListeners": 81
+      },
+      "workers": 0
+    },
+    {
+      "phase": "closed-1",
+      "beforeGc": {
+        "usedSize": 6307768,
+        "totalSize": 8814592,
+        "embedderHeapUsedSize": 21529440,
+        "backingStorageSize": 479141
+      },
+      "heap": {
+        "usedSize": 5954772,
+        "totalSize": 6717440,
+        "embedderHeapUsedSize": 15007320,
+        "backingStorageSize": 479125
+      },
+      "dom": {
+        "documents": 2,
+        "nodes": 6826,
+        "jsEventListeners": 153
+      },
+      "workers": 0
+    },
+    {
+      "phase": "replay-2",
+      "beforeGc": {
+        "usedSize": 6800292,
+        "totalSize": 27459584,
+        "embedderHeapUsedSize": 10293752,
+        "backingStorageSize": 567518
+      },
+      "heap": {
+        "usedSize": 6669276,
+        "totalSize": 7274496,
+        "embedderHeapUsedSize": 9535576,
+        "backingStorageSize": 479128
+      },
+      "dom": {
+        "documents": 2,
+        "nodes": 4146,
+        "jsEventListeners": 81
+      },
+      "workers": 0
+    },
+    {
+      "phase": "closed-2",
+      "beforeGc": {
+        "usedSize": 6433096,
+        "totalSize": 8814592,
+        "embedderHeapUsedSize": 21464336,
+        "backingStorageSize": 479141
+      },
+      "heap": {
+        "usedSize": 6019140,
+        "totalSize": 6717440,
+        "embedderHeapUsedSize": 15013840,
+        "backingStorageSize": 479125
+      },
+      "dom": {
+        "documents": 2,
+        "nodes": 6826,
+        "jsEventListeners": 153
+      },
+      "workers": 0
+    },
+    {
+      "phase": "replay-3",
+      "beforeGc": {
+        "usedSize": 14455256,
+        "totalSize": 30343168,
+        "embedderHeapUsedSize": 42275600,
+        "backingStorageSize": 575308
+      },
+      "heap": {
+        "usedSize": 6682408,
+        "totalSize": 7798784,
+        "embedderHeapUsedSize": 9544600,
+        "backingStorageSize": 479128
+      },
+      "dom": {
+        "documents": 2,
+        "nodes": 4146,
+        "jsEventListeners": 81
+      },
+      "workers": 0
+    },
+    {
+      "phase": "closed-3",
+      "beforeGc": {
+        "usedSize": 6456748,
+        "totalSize": 9601024,
+        "embedderHeapUsedSize": 21875184,
+        "backingStorageSize": 479141
+      },
+      "heap": {
+        "usedSize": 6041840,
+        "totalSize": 6717440,
+        "embedderHeapUsedSize": 15020088,
+        "backingStorageSize": 479125
+      },
+      "dom": {
+        "documents": 2,
+        "nodes": 6826,
+        "jsEventListeners": 153
+      },
+      "workers": 0
+    },
+    {
+      "phase": "replay-4",
+      "beforeGc": {
+        "usedSize": 14546256,
+        "totalSize": 31621120,
+        "embedderHeapUsedSize": 47810392,
+        "backingStorageSize": 575308
+      },
+      "heap": {
+        "usedSize": 6690312,
+        "totalSize": 7536640,
+        "embedderHeapUsedSize": 8526728,
+        "backingStorageSize": 479128
+      },
+      "dom": {
+        "documents": 2,
+        "nodes": 4146,
+        "jsEventListeners": 81
+      },
+      "workers": 0
+    },
+    {
+      "phase": "closed-4",
+      "beforeGc": {
+        "usedSize": 6465356,
+        "totalSize": 9338880,
+        "embedderHeapUsedSize": 20970760,
+        "backingStorageSize": 479141
+      },
+      "heap": {
+        "usedSize": 6071856,
+        "totalSize": 6717440,
+        "embedderHeapUsedSize": 14005920,
+        "backingStorageSize": 479125
+      },
+      "dom": {
+        "documents": 2,
+        "nodes": 6826,
+        "jsEventListeners": 153
+      },
+      "workers": 0
+    },
+    {
+      "phase": "replay-5",
+      "beforeGc": {
+        "usedSize": 16515176,
+        "totalSize": 30310400,
+        "embedderHeapUsedSize": 46979296,
+        "backingStorageSize": 575308
+      },
+      "heap": {
+        "usedSize": 6728244,
+        "totalSize": 7798784,
+        "embedderHeapUsedSize": 8634576,
+        "backingStorageSize": 479128
+      },
+      "dom": {
+        "documents": 2,
+        "nodes": 4146,
+        "jsEventListeners": 81
+      },
+      "workers": 0
+    },
+    {
+      "phase": "closed-5",
+      "beforeGc": {
+        "usedSize": 6495188,
+        "totalSize": 9601024,
+        "embedderHeapUsedSize": 21048568,
+        "backingStorageSize": 479141
+      },
+      "heap": {
+        "usedSize": 6083104,
+        "totalSize": 6717440,
+        "embedderHeapUsedSize": 14044216,
+        "backingStorageSize": 479125
+      },
+      "dom": {
+        "documents": 2,
+        "nodes": 6826,
+        "jsEventListeners": 153
+      },
+      "workers": 0
+    }
+  ],
+  "errors": [],
+  "note": "Browser File/DataTransfer change event avoids DevTools console retaining each inspected native file input. This is a synthetic import, not an OS file chooser timing. All commands are validated by the shipped importer.",
+  "build": "LanguageJapaneseEnglishv1.4.3 · 8f008bfa89fa Download diagnostics",
+  "completed": true
+}

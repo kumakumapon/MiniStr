@@ -330,12 +330,17 @@ app.addEventListener('pointerdown', event => {
   boardPointerPending = event.target instanceof Element && event.target.closest('.tile') !== null;
   unlockAudio();
 }, { capture: true });
-// Compatibility mouse events and the tile click finish before this timer.
-document.addEventListener('pointerup', () => { window.setTimeout(() => { boardPointerPending = false; }, 0); });
+// Touch compatibility focus/click may arrive after the pointerup task. Keep the
+// brief stable through that focus: expanding it here can move the intended tile
+// before Chrome dispatches the tap's click. Abandoned gestures reset outside the
+// board, on cancellation, or on the next pointer/keyboard action.
+document.addEventListener('pointerup', event => {
+  if (!(event.target instanceof Element) || !event.target.closest('.tile')) boardPointerPending = false;
+});
 document.addEventListener('pointercancel', () => { boardPointerPending = false; });
 // Touch pointerdown does not grant audio activation on iOS. The trusted click
 // after touchend also covers taps and assistive activation before UI handlers.
-app.addEventListener('click', event => { if (event.isTrusted) unlockAudio(); }, { capture: true });
+app.addEventListener('click', event => { boardPointerPending = false; if (event.isTrusted) unlockAudio(); }, { capture: true });
 app.addEventListener('keydown', () => { boardPointerPending = false; unlockAudio(); }, { capture: true });
 
 const producibleUnits = allProducibleUnitKinds;

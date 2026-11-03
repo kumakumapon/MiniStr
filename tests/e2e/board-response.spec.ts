@@ -48,7 +48,7 @@ test('390px touch selects once and keeps a scrolled board stable after localized
     expect(offsets.after).toEqual(offsets.before);
     await expect(page.locator('.selected-marker')).toHaveCount(1);
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(391);
-    await page.screenshot({ path: testInfo.outputPath('390-touch-response.png') });
+    await page.screenshot({ path: testInfo.outputPath('systems-390-touch-response.png') });
   } finally {
     await context.close();
   }

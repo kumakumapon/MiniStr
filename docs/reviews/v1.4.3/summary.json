@@ -1,0 +1,1334 @@
+{
+  "format": "browser-profile-summary-v143",
+  "percentile": "Nearest rank ceil(n*p)-1; final response table takes the median of three paired group percentiles. Repeated selections are correlated.",
+  "response": [
+    {
+      "width": 1280,
+      "size": 16,
+      "pairs": [
+        {
+          "pair": 1,
+          "before": {
+            "warmHandlerP50": 44.5,
+            "warmHandlerP95": 63.900000005960464,
+            "warmPaintP50": 66.29999999701977,
+            "warmPaintP95": 85,
+            "firstHandlerP50": 70.54999999701977,
+            "firstHandlerP95": 71.09999999403954,
+            "firstPaintP50": 81.80000000447035,
+            "firstPaintP95": 82.80000001192093,
+            "coldTitleP50": 795.8113570000002,
+            "startHandlerP50": 42.149999998509884,
+            "resumePaintP50": 159.20000000298023,
+            "layoutCount": 162,
+            "layoutSeconds": 1.164387,
+            "longTasks": 35,
+            "warmSamples": 48
+          },
+          "after": {
+            "warmHandlerP50": 29.900000005960464,
+            "warmHandlerP95": 35.19999998807907,
+            "warmPaintP50": 49.599999994039536,
+            "warmPaintP95": 53.5,
+            "firstHandlerP50": 51.30000000447035,
+            "firstHandlerP95": 56.400000005960464,
+            "firstPaintP50": 68.05000000447035,
+            "firstPaintP95": 69.30000001192093,
+            "coldTitleP50": 592.0354475000001,
+            "startHandlerP50": 17.100000001490116,
+            "resumePaintP50": 129.69999999552965,
+            "layoutCount": 106,
+            "layoutSeconds": 0.632362,
+            "longTasks": 4,
+            "warmSamples": 48
+          }
+        },
+        {
+          "pair": 2,
+          "before": {
+            "warmHandlerP50": 36.099999994039536,
+            "warmHandlerP95": 43.20000000298023,
+            "warmPaintP50": 50,
+            "warmPaintP95": 67.20000000298023,
+            "firstHandlerP50": 54.649999998509884,
+            "firstHandlerP95": 55.29999999701977,
+            "firstPaintP50": 65.74999999254942,
+            "firstPaintP95": 66.59999999403954,
+            "coldTitleP50": 731.3050049999997,
+            "startHandlerP50": 32.95000000298023,
+            "resumePaintP50": 134.55000000447035,
+            "layoutCount": 162,
+            "layoutSeconds": 0.918087,
+            "longTasks": 8,
+            "warmSamples": 48
+          },
+          "after": {
+            "warmHandlerP50": 30.200000002980232,
+            "warmHandlerP95": 37.79999999701977,
+            "warmPaintP50": 49.900000005960464,
+            "warmPaintP95": 54.79999999701977,
+            "firstHandlerP50": 50.649999998509884,
+            "firstHandlerP95": 54,
+            "firstPaintP50": 68.14999999850988,
+            "firstPaintP95": 69.29999999701977,
+            "coldTitleP50": 537.315989,
+            "startHandlerP50": 18.399999998509884,
+            "resumePaintP50": 125.60000000149012,
+            "layoutCount": 106,
+            "layoutSeconds": 0.629483,
+            "longTasks": 4,
+            "warmSamples": 48
+          }
+        },
+        {
+          "pair": 3,
+          "before": {
+            "warmHandlerP50": 38.900000005960464,
+            "warmHandlerP95": 57.70000000298023,
+            "warmPaintP50": 52.79999999701977,
+            "warmPaintP95": 79.70000000298023,
+            "firstHandlerP50": 60.05000001192093,
+            "firstHandlerP95": 64.80000001192093,
+            "firstPaintP50": 79.6000000089407,
+            "firstPaintP95": 82.40000000596046,
+            "coldTitleP50": 679.238936,
+            "startHandlerP50": 36.5,
+            "resumePaintP50": 148.75,
+            "layoutCount": 162,
+            "layoutSeconds": 1.110884,
+            "longTasks": 21,
+            "warmSamples": 48
+          },
+          "after": {
+            "warmHandlerP50": 28.099999994039536,
+            "warmHandlerP95": 36.79999999701977,
+            "warmPaintP50": 49,
+            "warmPaintP95": 53,
+            "firstHandlerP50": 49.649999998509884,
+            "firstHandlerP95": 50.900000005960464,
+            "firstPaintP50": 68.19999999552965,
+            "firstPaintP95": 68.5,
+            "coldTitleP50": 552.7811265,
+            "startHandlerP50": 15.900000005960464,
+            "resumePaintP50": 124.70000000298023,
+            "layoutCount": 106,
+            "layoutSeconds": 0.58833,
+            "longTasks": 4,
+            "warmSamples": 48
+          }
+        }
+      ],
+      "medianOfPairs": {
+        "before": {
+          "warmHandlerP50": 38.900000005960464,
+          "warmHandlerP95": 57.70000000298023,
+          "warmPaintP50": 52.79999999701977,
+          "warmPaintP95": 79.70000000298023,
+          "firstHandlerP50": 60.05000001192093,
+          "firstHandlerP95": 64.80000001192093,
+          "firstPaintP50": 79.6000000089407,
+          "firstPaintP95": 82.40000000596046,
+          "coldTitleP50": 731.3050049999997,
+          "startHandlerP50": 36.5,
+          "resumePaintP50": 148.75,
+          "layoutCount": 162,
+          "layoutSeconds": 1.110884,
+          "longTasks": 21,
+          "warmSamples": 48
+        },
+        "after": {
+          "warmHandlerP50": 29.900000005960464,
+          "warmHandlerP95": 36.79999999701977,
+          "warmPaintP50": 49.599999994039536,
+          "warmPaintP95": 53.5,
+          "firstHandlerP50": 50.649999998509884,
+          "firstHandlerP95": 54,
+          "firstPaintP50": 68.14999999850988,
+          "firstPaintP95": 69.29999999701977,
+          "coldTitleP50": 552.7811265,
+          "startHandlerP50": 17.100000001490116,
+          "resumePaintP50": 125.60000000149012,
+          "layoutCount": 106,
+          "layoutSeconds": 0.629483,
+          "longTasks": 4,
+          "warmSamples": 48
+        }
+      }
+    },
+    {
+      "width": 1280,
+      "size": 32,
+      "pairs": [
+        {
+          "pair": 1,
+          "before": {
+            "warmHandlerP50": 61.5,
+            "warmHandlerP95": 86.1000000089407,
+            "warmPaintP50": 83.29999999701977,
+            "warmPaintP95": 115.8999999910593,
+            "firstHandlerP50": 104.29999999701977,
+            "firstHandlerP95": 108.5,
+            "firstPaintP50": 132.5,
+            "firstPaintP95": 133.40000000596046,
+            "coldTitleP50": 795.7277534999994,
+            "startHandlerP50": 101.00000000745058,
+            "resumePaintP50": 192.44999999552965,
+            "layoutCount": 162,
+            "layoutSeconds": 1.412951,
+            "longTasks": 55,
+            "warmSamples": 48
+          },
+          "after": {
+            "warmHandlerP50": 38.5,
+            "warmHandlerP95": 49.5,
+            "warmPaintP50": 52,
+            "warmPaintP95": 72.40000000596046,
+            "firstHandlerP50": 57.25000000745058,
+            "firstHandlerP95": 60.6000000089407,
+            "firstPaintP50": 74.64999999850988,
+            "firstPaintP95": 83.5,
+            "coldTitleP50": 595.3892390000005,
+            "startHandlerP50": 31.200000002980232,
+            "resumePaintP50": 142.79999999701977,
+            "layoutCount": 106,
+            "layoutSeconds": 0.711122,
+            "longTasks": 21,
+            "warmSamples": 48
+          }
+        },
+        {
+          "pair": 2,
+          "before": {
+            "warmHandlerP50": 47,
+            "warmHandlerP95": 65.79999999701977,
+            "warmPaintP50": 66.59999999403954,
+            "warmPaintP95": 88.79999999701977,
+            "firstHandlerP50": 78.99999999254942,
+            "firstHandlerP95": 79.69999998807907,
+            "firstPaintP50": 99.75,
+            "firstPaintP95": 100,
+            "coldTitleP50": 661.5380315000002,
+            "startHandlerP50": 56.80000000447035,
+            "resumePaintP50": 169.04999999701977,
+            "layoutCount": 162,
+            "layoutSeconds": 1.072981,
+            "longTasks": 53,
+            "warmSamples": 48
+          },
+          "after": {
+            "warmHandlerP50": 42.20000000298023,
+            "warmHandlerP95": 57.29999999701977,
+            "warmPaintP50": 66.09999999403954,
+            "warmPaintP95": 83.8999999910593,
+            "firstHandlerP50": 71.54999998956919,
+            "firstHandlerP95": 73.19999998807907,
+            "firstPaintP50": 96.94999998807907,
+            "firstPaintP95": 99.69999998807907,
+            "coldTitleP50": 615.6767730000001,
+            "startHandlerP50": 35.25,
+            "resumePaintP50": 142.30000000447035,
+            "layoutCount": 106,
+            "layoutSeconds": 0.784062,
+            "longTasks": 34,
+            "warmSamples": 48
+          }
+        },
+        {
+          "pair": 3,
+          "before": {
+            "warmHandlerP50": 44.29999999701977,
+            "warmHandlerP95": 58.900000005960464,
+            "warmPaintP50": 66.29999999701977,
+            "warmPaintP95": 87,
+            "firstHandlerP50": 63.54999999701977,
+            "firstHandlerP95": 66,
+            "firstPaintP50": 89.95000000298023,
+            "firstPaintP95": 93.40000000596046,
+            "coldTitleP50": 627.0496080000003,
+            "startHandlerP50": 59.05000001192093,
+            "resumePaintP50": 180.35000000149012,
+            "layoutCount": 162,
+            "layoutSeconds": 1.0259740000000002,
+            "longTasks": 51,
+            "warmSamples": 48
+          },
+          "after": {
+            "warmHandlerP50": 38.400000005960464,
+            "warmHandlerP95": 49.69999998807907,
+            "warmPaintP50": 54,
+            "warmPaintP95": 71.70000000298023,
+            "firstHandlerP50": 63.649999998509884,
+            "firstHandlerP95": 65.20000000298023,
+            "firstPaintP50": 79.80000000447035,
+            "firstPaintP95": 83,
+            "coldTitleP50": 582.0311840000004,
+            "startHandlerP50": 29.350000001490116,
+            "resumePaintP50": 131.70000000298023,
+            "layoutCount": 106,
+            "layoutSeconds": 0.717149,
+            "longTasks": 23,
+            "warmSamples": 48
+          }
+        }
+      ],
+      "medianOfPairs": {
+        "before": {
+          "warmHandlerP50": 47,
+          "warmHandlerP95": 65.79999999701977,
+          "warmPaintP50": 66.59999999403954,
+          "warmPaintP95": 88.79999999701977,
+          "firstHandlerP50": 78.99999999254942,
+          "firstHandlerP95": 79.69999998807907,
+          "firstPaintP50": 99.75,
+          "firstPaintP95": 100,
+          "coldTitleP50": 661.5380315000002,
+          "startHandlerP50": 59.05000001192093,
+          "resumePaintP50": 180.35000000149012,
+          "layoutCount": 162,
+          "layoutSeconds": 1.072981,
+          "longTasks": 53,
+          "warmSamples": 48
+        },
+        "after": {
+          "warmHandlerP50": 38.5,
+          "warmHandlerP95": 49.69999998807907,
+          "warmPaintP50": 54,
+          "warmPaintP95": 72.40000000596046,
+          "firstHandlerP50": 63.649999998509884,
+          "firstHandlerP95": 65.20000000298023,
+          "firstPaintP50": 79.80000000447035,
+          "firstPaintP95": 83.5,
+          "coldTitleP50": 595.3892390000005,
+          "startHandlerP50": 31.200000002980232,
+          "resumePaintP50": 142.30000000447035,
+          "layoutCount": 106,
+          "layoutSeconds": 0.717149,
+          "longTasks": 23,
+          "warmSamples": 48
+        }
+      }
+    },
+    {
+      "width": 390,
+      "size": 16,
+      "pairs": [
+        {
+          "pair": 1,
+          "before": {
+            "warmHandlerP50": 75.69999998807907,
+            "warmHandlerP95": 95.5,
+            "warmPaintP50": 99.79999999701977,
+            "warmPaintP95": 116.79999999701977,
+            "firstHandlerP50": 77.45000001043081,
+            "firstHandlerP95": 87.80000001192093,
+            "firstPaintP50": 94.45000000298023,
+            "firstPaintP95": 103.6000000089407,
+            "coldTitleP50": 658.1694364999985,
+            "startHandlerP50": 46.399999998509884,
+            "resumePaintP50": 186,
+            "layoutCount": 164,
+            "layoutSeconds": 1.841285,
+            "longTasks": 53,
+            "warmSamples": 48
+          },
+          "after": {
+            "warmHandlerP50": 57.20000000298023,
+            "warmHandlerP95": 72.3999999910593,
+            "warmPaintP50": 83.20000000298023,
+            "warmPaintP95": 100.09999999403954,
+            "firstHandlerP50": 59.350000001490116,
+            "firstHandlerP95": 60.900000005960464,
+            "firstPaintP50": 77.55000000447035,
+            "firstPaintP95": 82.90000000596046,
+            "coldTitleP50": 506.851936,
+            "startHandlerP50": 39.400000005960464,
+            "resumePaintP50": 144.5,
+            "layoutCount": 108,
+            "layoutSeconds": 1.038511,
+            "longTasks": 51,
+            "warmSamples": 48
+          }
+        },
+        {
+          "pair": 2,
+          "before": {
+            "warmHandlerP50": 62.70000000298023,
+            "warmHandlerP95": 77.70000000298023,
+            "warmPaintP50": 83.70000000298023,
+            "warmPaintP95": 101.69999998807907,
+            "firstHandlerP50": 59.94999999552965,
+            "firstHandlerP95": 60.70000000298023,
+            "firstPaintP50": 75.14999999850988,
+            "firstPaintP95": 82.20000000298023,
+            "coldTitleP50": 641.5321209999993,
+            "startHandlerP50": 49.55000000447035,
+            "resumePaintP50": 172.44999999552965,
+            "layoutCount": 164,
+            "layoutSeconds": 1.581648,
+            "longTasks": 53,
+            "warmSamples": 48
+          },
+          "after": {
+            "warmHandlerP50": 54.80000001192093,
+            "warmHandlerP95": 73.8999999910593,
+            "warmPaintP50": 81.5,
+            "warmPaintP95": 101.70000000298023,
+            "firstHandlerP50": 65.19999999552965,
+            "firstHandlerP95": 76.29999999701977,
+            "firstPaintP50": 83.25,
+            "firstPaintP95": 100,
+            "coldTitleP50": 515.0131205000007,
+            "startHandlerP50": 39,
+            "resumePaintP50": 138.14999999850988,
+            "layoutCount": 108,
+            "layoutSeconds": 1.043853,
+            "longTasks": 46,
+            "warmSamples": 48
+          }
+        },
+        {
+          "pair": 3,
+          "before": {
+            "warmHandlerP50": 61.69999998807907,
+            "warmHandlerP95": 76.20000000298023,
+            "warmPaintP50": 83.09999999403954,
+            "warmPaintP95": 105.09999999403954,
+            "firstHandlerP50": 60.5,
+            "firstHandlerP95": 62.79999999701977,
+            "firstPaintP50": 75.64999999850988,
+            "firstPaintP95": 83.70000000298023,
+            "coldTitleP50": 617.0681129999994,
+            "startHandlerP50": 45.650000005960464,
+            "resumePaintP50": 157.74999999254942,
+            "layoutCount": 164,
+            "layoutSeconds": 1.4761600000000001,
+            "longTasks": 53,
+            "warmSamples": 48
+          },
+          "after": {
+            "warmHandlerP50": 55.70000000298023,
+            "warmHandlerP95": 70.59999999403954,
+            "warmPaintP50": 80.70000000298023,
+            "warmPaintP95": 102.09999999403954,
+            "firstHandlerP50": 59.20000000298023,
+            "firstHandlerP95": 59.5,
+            "firstPaintP50": 75.45000000298023,
+            "firstPaintP95": 83.5,
+            "coldTitleP50": 486.8720385000006,
+            "startHandlerP50": 28.399999998509884,
+            "resumePaintP50": 136.95000000298023,
+            "layoutCount": 108,
+            "layoutSeconds": 0.9916229999999999,
+            "longTasks": 49,
+            "warmSamples": 48
+          }
+        }
+      ],
+      "medianOfPairs": {
+        "before": {
+          "warmHandlerP50": 62.70000000298023,
+          "warmHandlerP95": 77.70000000298023,
+          "warmPaintP50": 83.70000000298023,
+          "warmPaintP95": 105.09999999403954,
+          "firstHandlerP50": 60.5,
+          "firstHandlerP95": 62.79999999701977,
+          "firstPaintP50": 75.64999999850988,
+          "firstPaintP95": 83.70000000298023,
+          "coldTitleP50": 641.5321209999993,
+          "startHandlerP50": 46.399999998509884,
+          "resumePaintP50": 172.44999999552965,
+          "layoutCount": 164,
+          "layoutSeconds": 1.581648,
+          "longTasks": 53,
+          "warmSamples": 48
+        },
+        "after": {
+          "warmHandlerP50": 55.70000000298023,
+          "warmHandlerP95": 72.3999999910593,
+          "warmPaintP50": 81.5,
+          "warmPaintP95": 101.70000000298023,
+          "firstHandlerP50": 59.350000001490116,
+          "firstHandlerP95": 60.900000005960464,
+          "firstPaintP50": 77.55000000447035,
+          "firstPaintP95": 83.5,
+          "coldTitleP50": 506.851936,
+          "startHandlerP50": 39,
+          "resumePaintP50": 138.14999999850988,
+          "layoutCount": 108,
+          "layoutSeconds": 1.038511,
+          "longTasks": 49,
+          "warmSamples": 48
+        }
+      }
+    },
+    {
+      "width": 390,
+      "size": 32,
+      "pairs": [
+        {
+          "pair": 1,
+          "before": {
+            "warmHandlerP50": 80.30000001192093,
+            "warmHandlerP95": 96.5,
+            "warmPaintP50": 99.90000000596046,
+            "warmPaintP95": 118.09999999403954,
+            "firstHandlerP50": 76.60000000149012,
+            "firstHandlerP95": 85.6000000089407,
+            "firstPaintP50": 101.70000000298023,
+            "firstPaintP95": 103.80000001192093,
+            "coldTitleP50": 602.1887249999982,
+            "startHandlerP50": 70.14999999850988,
+            "resumePaintP50": 232.85000000149012,
+            "layoutCount": 164,
+            "layoutSeconds": 1.454418,
+            "longTasks": 54,
+            "warmSamples": 48
+          },
+          "after": {
+            "warmHandlerP50": 63.6000000089407,
+            "warmHandlerP95": 82.30000001192093,
+            "warmPaintP50": 85.79999999701977,
+            "warmPaintP95": 104.1000000089407,
+            "firstHandlerP50": 67.14999999850988,
+            "firstHandlerP95": 67.40000000596046,
+            "firstPaintP50": 83.44999999552965,
+            "firstPaintP95": 83.5,
+            "coldTitleP50": 507.17590250000103,
+            "startHandlerP50": 52.79999999701977,
+            "resumePaintP50": 168.94999999552965,
+            "layoutCount": 108,
+            "layoutSeconds": 0.990032,
+            "longTasks": 54,
+            "warmSamples": 48
+          }
+        },
+        {
+          "pair": 2,
+          "before": {
+            "warmHandlerP50": 79.8999999910593,
+            "warmHandlerP95": 99.8999999910593,
+            "warmPaintP50": 100.20000000298023,
+            "warmPaintP95": 122.19999998807907,
+            "firstHandlerP50": 75.04999999701977,
+            "firstHandlerP95": 79.79999999701977,
+            "firstPaintP50": 93,
+            "firstPaintP95": 99.09999999403954,
+            "coldTitleP50": 613.4346300000016,
+            "startHandlerP50": 90.99999999254942,
+            "resumePaintP50": 191.39999999850988,
+            "layoutCount": 164,
+            "layoutSeconds": 1.553042,
+            "longTasks": 54,
+            "warmSamples": 48
+          },
+          "after": {
+            "warmHandlerP50": 66.29999999701977,
+            "warmHandlerP95": 81.29999999701977,
+            "warmPaintP50": 86.59999999403954,
+            "warmPaintP95": 104,
+            "firstHandlerP50": 66.75,
+            "firstHandlerP95": 67.5,
+            "firstPaintP50": 83.34999999403954,
+            "firstPaintP95": 83.3999999910593,
+            "coldTitleP50": 556.3485469999978,
+            "startHandlerP50": 49.899999998509884,
+            "resumePaintP50": 226.54999999701977,
+            "layoutCount": 108,
+            "layoutSeconds": 1.052222,
+            "longTasks": 53,
+            "warmSamples": 48
+          }
+        },
+        {
+          "pair": 3,
+          "before": {
+            "warmHandlerP50": 70.19999998807907,
+            "warmHandlerP95": 93.79999999701977,
+            "warmPaintP50": 98.40000000596046,
+            "warmPaintP95": 119.79999999701977,
+            "firstHandlerP50": 69.85000000149012,
+            "firstHandlerP95": 74.5,
+            "firstPaintP50": 92.5,
+            "firstPaintP95": 100,
+            "coldTitleP50": 597.1404149999998,
+            "startHandlerP50": 71.45000000298023,
+            "resumePaintP50": 182.80000000447035,
+            "layoutCount": 164,
+            "layoutSeconds": 1.456732,
+            "longTasks": 54,
+            "warmSamples": 48
+          },
+          "after": {
+            "warmHandlerP50": 70.20000000298023,
+            "warmHandlerP95": 79.69999998807907,
+            "warmPaintP50": 84.1000000089407,
+            "warmPaintP95": 103.59999999403954,
+            "firstHandlerP50": 64.05000000447035,
+            "firstHandlerP95": 68.90000000596046,
+            "firstPaintP50": 83.44999999552965,
+            "firstPaintP95": 83.59999999403954,
+            "coldTitleP50": 483.85449300000073,
+            "startHandlerP50": 47.80000000447035,
+            "resumePaintP50": 177.20000000298023,
+            "layoutCount": 108,
+            "layoutSeconds": 0.93853,
+            "longTasks": 53,
+            "warmSamples": 48
+          }
+        }
+      ],
+      "medianOfPairs": {
+        "before": {
+          "warmHandlerP50": 79.8999999910593,
+          "warmHandlerP95": 96.5,
+          "warmPaintP50": 99.90000000596046,
+          "warmPaintP95": 119.79999999701977,
+          "firstHandlerP50": 75.04999999701977,
+          "firstHandlerP95": 79.79999999701977,
+          "firstPaintP50": 93,
+          "firstPaintP95": 100,
+          "coldTitleP50": 602.1887249999982,
+          "startHandlerP50": 71.45000000298023,
+          "resumePaintP50": 191.39999999850988,
+          "layoutCount": 164,
+          "layoutSeconds": 1.456732,
+          "longTasks": 54,
+          "warmSamples": 48
+        },
+        "after": {
+          "warmHandlerP50": 66.29999999701977,
+          "warmHandlerP95": 81.29999999701977,
+          "warmPaintP50": 85.79999999701977,
+          "warmPaintP95": 104,
+          "firstHandlerP50": 66.75,
+          "firstHandlerP95": 67.5,
+          "firstPaintP50": 83.44999999552965,
+          "firstPaintP95": 83.5,
+          "coldTitleP50": 507.17590250000103,
+          "startHandlerP50": 49.899999998509884,
+          "resumePaintP50": 177.20000000298023,
+          "layoutCount": 108,
+          "layoutSeconds": 0.990032,
+          "longTasks": 53,
+          "warmSamples": 48
+        }
+      }
+    }
+  ],
+  "memory": {
+    "before": {
+      "actualWatchMs": 600600.3884030001,
+      "savedProgress": [
+        {
+          "key": "ministr.save.slot.mw0mj89e-j9jcp2",
+          "bytes": 90680,
+          "commands": 711
+        }
+      ],
+      "gcRows": [
+        {
+          "phase": "title",
+          "heap": 5268676,
+          "dom": {
+            "documents": 1,
+            "nodes": 6828,
+            "jsEventListeners": 166
+          },
+          "workerHeaps": []
+        },
+        {
+          "phase": "watch-0",
+          "heap": 6053112,
+          "dom": {
+            "documents": 2,
+            "nodes": 2876,
+            "jsEventListeners": 133
+          },
+          "workerHeaps": [
+            1004384
+          ]
+        },
+        {
+          "phase": "watch-120-gc",
+          "heap": 7158848,
+          "dom": {
+            "documents": 2,
+            "nodes": 3251,
+            "jsEventListeners": 129
+          },
+          "workerHeaps": [
+            1430180
+          ]
+        },
+        {
+          "phase": "watch-240-gc",
+          "heap": 7137476,
+          "dom": {
+            "documents": 2,
+            "nodes": 3425,
+            "jsEventListeners": 131
+          },
+          "workerHeaps": [
+            1054100
+          ]
+        },
+        {
+          "phase": "watch-360-gc",
+          "heap": 7289700,
+          "dom": {
+            "documents": 2,
+            "nodes": 3424,
+            "jsEventListeners": 131
+          },
+          "workerHeaps": [
+            984244
+          ]
+        },
+        {
+          "phase": "watch-480-gc",
+          "heap": 7429120,
+          "dom": {
+            "documents": 2,
+            "nodes": 3222,
+            "jsEventListeners": 131
+          },
+          "workerHeaps": [
+            1367332
+          ]
+        },
+        {
+          "phase": "watch-600-gc",
+          "heap": 7514792,
+          "dom": {
+            "documents": 2,
+            "nodes": 3361,
+            "jsEventListeners": 132
+          },
+          "workerHeaps": [
+            976428
+          ]
+        },
+        {
+          "phase": "watch-end",
+          "heap": 7515208,
+          "dom": {
+            "documents": 2,
+            "nodes": 3361,
+            "jsEventListeners": 132
+          },
+          "workerHeaps": [
+            976428
+          ]
+        },
+        {
+          "phase": "paused",
+          "heap": 7472444,
+          "dom": {
+            "documents": 2,
+            "nodes": 3234,
+            "jsEventListeners": 126
+          },
+          "workerHeaps": []
+        },
+        {
+          "phase": "covered",
+          "heap": 7654140,
+          "dom": {
+            "documents": 2,
+            "nodes": 6941,
+            "jsEventListeners": 176
+          },
+          "workerHeaps": []
+        },
+        {
+          "phase": "resume-0",
+          "heap": 7670552,
+          "dom": {
+            "documents": 2,
+            "nodes": 6941,
+            "jsEventListeners": 176
+          },
+          "workerHeaps": []
+        },
+        {
+          "phase": "resume-1",
+          "heap": 7683448,
+          "dom": {
+            "documents": 2,
+            "nodes": 6941,
+            "jsEventListeners": 176
+          },
+          "workerHeaps": []
+        },
+        {
+          "phase": "resume-2",
+          "heap": 7684028,
+          "dom": {
+            "documents": 2,
+            "nodes": 6941,
+            "jsEventListeners": 176
+          },
+          "workerHeaps": []
+        },
+        {
+          "phase": "resume-3",
+          "heap": 7720320,
+          "dom": {
+            "documents": 2,
+            "nodes": 6941,
+            "jsEventListeners": 176
+          },
+          "workerHeaps": []
+        },
+        {
+          "phase": "resume-4",
+          "heap": 7721440,
+          "dom": {
+            "documents": 2,
+            "nodes": 6941,
+            "jsEventListeners": 176
+          },
+          "workerHeaps": []
+        },
+        {
+          "phase": "resume-5",
+          "heap": 7721440,
+          "dom": {
+            "documents": 2,
+            "nodes": 6941,
+            "jsEventListeners": 176
+          },
+          "workerHeaps": []
+        },
+        {
+          "phase": "replay-0",
+          "heap": 8814956,
+          "dom": {
+            "documents": 2,
+            "nodes": 8108,
+            "jsEventListeners": 156
+          },
+          "workerHeaps": []
+        },
+        {
+          "phase": "replay-closed-0",
+          "heap": 8128736,
+          "dom": {
+            "documents": 2,
+            "nodes": 12450,
+            "jsEventListeners": 234
+          },
+          "workerHeaps": []
+        },
+        {
+          "phase": "replay-1",
+          "heap": 9388488,
+          "dom": {
+            "documents": 2,
+            "nodes": 13616,
+            "jsEventListeners": 214
+          },
+          "workerHeaps": []
+        },
+        {
+          "phase": "replay-closed-1",
+          "heap": 8719308,
+          "dom": {
+            "documents": 2,
+            "nodes": 17958,
+            "jsEventListeners": 292
+          },
+          "workerHeaps": []
+        },
+        {
+          "phase": "replay-2",
+          "heap": 9961476,
+          "dom": {
+            "documents": 2,
+            "nodes": 19124,
+            "jsEventListeners": 272
+          },
+          "workerHeaps": []
+        },
+        {
+          "phase": "replay-closed-2",
+          "heap": 9292576,
+          "dom": {
+            "documents": 2,
+            "nodes": 23466,
+            "jsEventListeners": 350
+          },
+          "workerHeaps": []
+        },
+        {
+          "phase": "replay-3",
+          "heap": 10485040,
+          "dom": {
+            "documents": 2,
+            "nodes": 24632,
+            "jsEventListeners": 330
+          },
+          "workerHeaps": []
+        },
+        {
+          "phase": "replay-closed-3",
+          "heap": 9829384,
+          "dom": {
+            "documents": 2,
+            "nodes": 28974,
+            "jsEventListeners": 408
+          },
+          "workerHeaps": []
+        }
+      ]
+    },
+    "after": {
+      "actualWatchMs": 600597.5763160001,
+      "savedProgress": [
+        {
+          "key": "ministr.save.slot.mw0ndedq-fkw3aq",
+          "bytes": 90739,
+          "commands": 712
+        }
+      ],
+      "gcRows": [
+        {
+          "phase": "title",
+          "heap": 5248908,
+          "dom": {
+            "documents": 1,
+            "nodes": 6828,
+            "jsEventListeners": 166
+          },
+          "workerHeaps": []
+        },
+        {
+          "phase": "watch-0",
+          "heap": 6039520,
+          "dom": {
+            "documents": 2,
+            "nodes": 2876,
+            "jsEventListeners": 131
+          },
+          "workerHeaps": [
+            1003876
+          ]
+        },
+        {
+          "phase": "watch-120-gc",
+          "heap": 7144308,
+          "dom": {
+            "documents": 2,
+            "nodes": 3217,
+            "jsEventListeners": 126
+          },
+          "workerHeaps": [
+            1432532
+          ]
+        },
+        {
+          "phase": "watch-240-gc",
+          "heap": 7132932,
+          "dom": {
+            "documents": 2,
+            "nodes": 3425,
+            "jsEventListeners": 129
+          },
+          "workerHeaps": [
+            1053448
+          ]
+        },
+        {
+          "phase": "watch-360-gc",
+          "heap": 7269864,
+          "dom": {
+            "documents": 2,
+            "nodes": 3424,
+            "jsEventListeners": 130
+          },
+          "workerHeaps": [
+            983788
+          ]
+        },
+        {
+          "phase": "watch-480-gc",
+          "heap": 7419540,
+          "dom": {
+            "documents": 2,
+            "nodes": 3233,
+            "jsEventListeners": 133
+          },
+          "workerHeaps": [
+            1428984
+          ]
+        },
+        {
+          "phase": "watch-600-gc",
+          "heap": 7494180,
+          "dom": {
+            "documents": 2,
+            "nodes": 3361,
+            "jsEventListeners": 130
+          },
+          "workerHeaps": [
+            975640
+          ]
+        },
+        {
+          "phase": "watch-end",
+          "heap": 7466840,
+          "dom": {
+            "documents": 2,
+            "nodes": 3216,
+            "jsEventListeners": 131
+          },
+          "workerHeaps": [
+            1035756
+          ]
+        },
+        {
+          "phase": "paused",
+          "heap": 7432044,
+          "dom": {
+            "documents": 2,
+            "nodes": 3212,
+            "jsEventListeners": 126
+          },
+          "workerHeaps": []
+        },
+        {
+          "phase": "covered",
+          "heap": 7635312,
+          "dom": {
+            "documents": 2,
+            "nodes": 6931,
+            "jsEventListeners": 176
+          },
+          "workerHeaps": []
+        },
+        {
+          "phase": "resume-0",
+          "heap": 7643548,
+          "dom": {
+            "documents": 2,
+            "nodes": 6931,
+            "jsEventListeners": 176
+          },
+          "workerHeaps": []
+        },
+        {
+          "phase": "resume-1",
+          "heap": 7656484,
+          "dom": {
+            "documents": 2,
+            "nodes": 6931,
+            "jsEventListeners": 176
+          },
+          "workerHeaps": []
+        },
+        {
+          "phase": "resume-2",
+          "heap": 7657048,
+          "dom": {
+            "documents": 2,
+            "nodes": 6931,
+            "jsEventListeners": 176
+          },
+          "workerHeaps": []
+        },
+        {
+          "phase": "resume-3",
+          "heap": 7693836,
+          "dom": {
+            "documents": 2,
+            "nodes": 6931,
+            "jsEventListeners": 176
+          },
+          "workerHeaps": []
+        },
+        {
+          "phase": "resume-4",
+          "heap": 7694904,
+          "dom": {
+            "documents": 2,
+            "nodes": 6931,
+            "jsEventListeners": 176
+          },
+          "workerHeaps": []
+        },
+        {
+          "phase": "resume-5",
+          "heap": 7694904,
+          "dom": {
+            "documents": 2,
+            "nodes": 6931,
+            "jsEventListeners": 176
+          },
+          "workerHeaps": []
+        },
+        {
+          "phase": "replay-0",
+          "heap": 8566992,
+          "dom": {
+            "documents": 2,
+            "nodes": 8108,
+            "jsEventListeners": 156
+          },
+          "workerHeaps": []
+        },
+        {
+          "phase": "replay-closed-0",
+          "heap": 8108524,
+          "dom": {
+            "documents": 2,
+            "nodes": 12440,
+            "jsEventListeners": 234
+          },
+          "workerHeaps": []
+        },
+        {
+          "phase": "replay-1",
+          "heap": 9160192,
+          "dom": {
+            "documents": 2,
+            "nodes": 13616,
+            "jsEventListeners": 214
+          },
+          "workerHeaps": []
+        },
+        {
+          "phase": "replay-closed-1",
+          "heap": 8701448,
+          "dom": {
+            "documents": 2,
+            "nodes": 17948,
+            "jsEventListeners": 292
+          },
+          "workerHeaps": []
+        },
+        {
+          "phase": "replay-2",
+          "heap": 9716420,
+          "dom": {
+            "documents": 2,
+            "nodes": 19124,
+            "jsEventListeners": 272
+          },
+          "workerHeaps": []
+        },
+        {
+          "phase": "replay-closed-2",
+          "heap": 9266068,
+          "dom": {
+            "documents": 2,
+            "nodes": 23456,
+            "jsEventListeners": 350
+          },
+          "workerHeaps": []
+        },
+        {
+          "phase": "replay-3",
+          "heap": 10273868,
+          "dom": {
+            "documents": 2,
+            "nodes": 24632,
+            "jsEventListeners": 330
+          },
+          "workerHeaps": []
+        },
+        {
+          "phase": "replay-closed-3",
+          "heap": 9804740,
+          "dom": {
+            "documents": 2,
+            "nodes": 28964,
+            "jsEventListeners": 408
+          },
+          "workerHeaps": []
+        }
+      ]
+    }
+  },
+  "replay": {
+    "before": {
+      "harnessSha256": "6c5f68bc2cc330be9b51fbec1971b1e9bd8cebc6c046ef9893161d8610d09e8d",
+      "commands": 1360,
+      "warmLoadedHeapMedian": 6917728,
+      "warmClosedHeapMedian": 6058164,
+      "closedDom": [
+        {
+          "documents": 2,
+          "nodes": 6826,
+          "jsEventListeners": 153
+        },
+        {
+          "documents": 2,
+          "nodes": 6826,
+          "jsEventListeners": 153
+        },
+        {
+          "documents": 2,
+          "nodes": 6826,
+          "jsEventListeners": 153
+        },
+        {
+          "documents": 2,
+          "nodes": 6826,
+          "jsEventListeners": 153
+        },
+        {
+          "documents": 2,
+          "nodes": 6826,
+          "jsEventListeners": 153
+        },
+        {
+          "documents": 2,
+          "nodes": 6826,
+          "jsEventListeners": 153
+        }
+      ],
+      "workers": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    "after": {
+      "harnessSha256": "6c5f68bc2cc330be9b51fbec1971b1e9bd8cebc6c046ef9893161d8610d09e8d",
+      "commands": 1360,
+      "warmLoadedHeapMedian": 6690312,
+      "warmClosedHeapMedian": 6071856,
+      "closedDom": [
+        {
+          "documents": 2,
+          "nodes": 6826,
+          "jsEventListeners": 153
+        },
+        {
+          "documents": 2,
+          "nodes": 6826,
+          "jsEventListeners": 153
+        },
+        {
+          "documents": 2,
+          "nodes": 6826,
+          "jsEventListeners": 153
+        },
+        {
+          "documents": 2,
+          "nodes": 6826,
+          "jsEventListeners": 153
+        },
+        {
+          "documents": 2,
+          "nodes": 6826,
+          "jsEventListeners": 153
+        },
+        {
+          "documents": 2,
+          "nodes": 6826,
+          "jsEventListeners": 153
+        }
+      ],
+      "workers": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    }
+  },
+  "files": {
+    "after-memory.json": {
+      "sha256": "1110d59404a7400a90ef4388fc06c688be891cb174ad68185c208e12b1051d80",
+      "bytes": 32020
+    },
+    "after-replay-memory.json": {
+      "sha256": "643ac4c8ef1501950c83f63e134a9b5295f6a64d607b3d86ab4d8ce881a4c629",
+      "bytes": 7109
+    },
+    "after-response-1.json": {
+      "sha256": "19bb3bf56732c96232404453e6174f4b73a1466ac09e8f9bb14e517be8fb2cdf",
+      "bytes": 43708
+    },
+    "after-response-2.json": {
+      "sha256": "3ace184da77981be1def302dbdd73142bf1651f28acf0f9c082c49ae96c8be0b",
+      "bytes": 44027
+    },
+    "after-response-3.json": {
+      "sha256": "16f75d67c3736263cbb349ac31f847ae934ecc5c8e41a71d66998dff60ac4303",
+      "bytes": 43184
+    },
+    "before-memory.json": {
+      "sha256": "36e982677870eace9b2ea7f8bd74d8408b5f31aead42ee16a16d26f7549d6554",
+      "bytes": 31808
+    },
+    "before-replay-memory.json": {
+      "sha256": "d2be7635ebe6ae9e56e8af41111913415d9ca4f405f049fc95c7a32b240726bc",
+      "bytes": 7108
+    },
+    "before-response-1.json": {
+      "sha256": "85a07c7ab30831b029e3bbf4f221098264649a2a5a6c67c7ccb0ca09da79893e",
+      "bytes": 49283
+    },
+    "before-response-2.json": {
+      "sha256": "76a87397bb4138f835447fe640759012ec38108f016a0996bbb2b4a02377e267",
+      "bytes": 46839
+    },
+    "before-response-3.json": {
+      "sha256": "f17bc00627388544044e6ca8bd98c30bb8a6c6b98af7d33e7d89e2a3dd11f737",
+      "bytes": 47808
+    },
+    "devtools-console-clear-attempt.json": {
+      "sha256": "94e7c6e7e908351be37dba3fb64ffe327c866a1477c38232e7bc0a101210e0ef",
+      "bytes": 1769
+    },
+    "devtools-retention.json": {
+      "sha256": "ef6bdfc5b95553034050bac910bdfcb9015865537244ae07afe4c1e2a5d49b2f",
+      "bytes": 1768
+    },
+    "exploratory-cpu-profile.json": {
+      "sha256": "a7c851711061854960820eb67e6c8e9cabb6a7cdb1287a9e9479abceea4be700",
+      "bytes": 8503
+    },
+    "exploratory-memory-interrupted.json": {
+      "sha256": "ba7526c8f52f4a79eb8b6aab529e5a5bc9eaa6594bb079cac32c41c256e97c62",
+      "bytes": 5378
+    },
+    "exploratory-memory-smoke.json": {
+      "sha256": "a664dfe5a4e13e2ac3cef96c412bf65d987e52cf92d394b27baa139e4a44def5",
+      "bytes": 10817
+    },
+    "exploratory-response.json": {
+      "sha256": "de2bdadf036a9430f56ff3e1613dc02efe569d5cef1905a0b2fb5951f2c9e47a",
+      "bytes": 27035
+    },
+    "product-digests.json": {
+      "sha256": "b20b46f6732e202be9b3194a3ed4df280748e46d4b066db7482a97337f1bc1f9",
+      "bytes": 29379
+    },
+    "replay-fixture.json": {
+      "sha256": "347d0fa696f4d1cca59d93a4c2d51c4a331edc842646549f35450bf15009c51e",
+      "bytes": 88348
+    }
+  }
+}

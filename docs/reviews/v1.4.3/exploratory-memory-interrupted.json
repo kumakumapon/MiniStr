@@ -1,0 +1,220 @@
+{
+  "format": "session-memory-v143",
+  "variant": "baseline",
+  "url": "http://127.0.0.1:4185",
+  "browser": "151.0.7922.173",
+  "viewport": {
+    "width": 390,
+    "height": 844
+  },
+  "seconds": 600,
+  "fixtureCommands": 1360,
+  "harnessSha256": "584394d315b4ae199645749075a2b2595597fbcb95abd0aa5f794e8027744728",
+  "rows": [
+    {
+      "phase": "title",
+      "gc": true,
+      "elapsedMs": 90.76793300000008,
+      "heap": {
+        "usedSize": 5227952,
+        "totalSize": 5849088,
+        "embedderHeapUsedSize": 14984936,
+        "backingStorageSize": 478183
+      },
+      "dom": {
+        "documents": 1,
+        "nodes": 6827,
+        "jsEventListeners": 166
+      },
+      "workers": [],
+      "progress": {
+        "turn": "",
+        "scene": false,
+        "tiles": 0
+      }
+    },
+    {
+      "phase": "watch-0",
+      "gc": true,
+      "elapsedMs": 854.9716600000002,
+      "heap": {
+        "usedSize": 6167360,
+        "totalSize": 6643712,
+        "embedderHeapUsedSize": 6229040,
+        "backingStorageSize": 479441
+      },
+      "dom": {
+        "documents": 1,
+        "nodes": 2683,
+        "jsEventListeners": 128
+      },
+      "workers": [
+        {
+          "targetId": "11A2ABA54BF7FDF74462CD9BC828143A",
+          "usedSize": 973444,
+          "totalSize": 1310720,
+          "embedderHeapUsedSize": 18776,
+          "backingStorageSize": 109093
+        }
+      ],
+      "progress": {
+        "turn": "",
+        "scene": false,
+        "tiles": 1024
+      }
+    },
+    {
+      "phase": "watch-30",
+      "gc": false,
+      "elapsedMs": 30870.768343,
+      "heap": {
+        "usedSize": 6800512,
+        "totalSize": 37216256,
+        "embedderHeapUsedSize": 7021432,
+        "backingStorageSize": 479845
+      },
+      "dom": {
+        "documents": 2,
+        "nodes": 2986,
+        "jsEventListeners": 133
+      },
+      "workers": [
+        {
+          "targetId": "DD69A0E78C38101CC82EF4E9B13AD7B3",
+          "usedSize": 4941484,
+          "totalSize": 10747904,
+          "embedderHeapUsedSize": 773712,
+          "backingStorageSize": 109093
+        }
+      ],
+      "progress": {
+        "turn": "",
+        "scene": false,
+        "tiles": 1024
+      }
+    },
+    {
+      "phase": "watch-60",
+      "gc": false,
+      "elapsedMs": 60880.279272,
+      "heap": {
+        "usedSize": 6950680,
+        "totalSize": 37478400,
+        "embedderHeapUsedSize": 8477232,
+        "backingStorageSize": 656333
+      },
+      "dom": {
+        "documents": 2,
+        "nodes": 3236,
+        "jsEventListeners": 132
+      },
+      "workers": [
+        {
+          "targetId": "FB00834F7DEF590C605FEEC79DD6B25E",
+          "usedSize": 1635176,
+          "totalSize": 5242880,
+          "embedderHeapUsedSize": 773712,
+          "backingStorageSize": 109093
+        }
+      ],
+      "progress": {
+        "turn": "",
+        "scene": true,
+        "tiles": 1024
+      }
+    },
+    {
+      "phase": "watch-90",
+      "gc": false,
+      "elapsedMs": 90888.740704,
+      "heap": {
+        "usedSize": 16356908,
+        "totalSize": 61071360,
+        "embedderHeapUsedSize": 33384120,
+        "backingStorageSize": 665958
+      },
+      "dom": {
+        "documents": 2,
+        "nodes": 12535,
+        "jsEventListeners": 373
+      },
+      "workers": [
+        {
+          "targetId": "F88E31EED26BDCDA2FE51C6F46F8B0FF",
+          "usedSize": 2975480,
+          "totalSize": 6815744,
+          "embedderHeapUsedSize": 773712,
+          "backingStorageSize": 109093
+        }
+      ],
+      "progress": {
+        "turn": "",
+        "scene": true,
+        "tiles": 1024
+      }
+    },
+    {
+      "phase": "watch-120",
+      "gc": false,
+      "elapsedMs": 120908.495119,
+      "heap": {
+        "usedSize": 19593928,
+        "totalSize": 59498496,
+        "embedderHeapUsedSize": 27430080,
+        "backingStorageSize": 666485
+      },
+      "dom": {
+        "documents": 2,
+        "nodes": 11711,
+        "jsEventListeners": 359
+      },
+      "workers": [
+        {
+          "targetId": "33434FCC7E8D00FE40BCDBE88CFE62D2",
+          "usedSize": 3827264,
+          "totalSize": 13107200,
+          "embedderHeapUsedSize": 773712,
+          "backingStorageSize": 109093
+        }
+      ],
+      "progress": {
+        "turn": "",
+        "scene": false,
+        "tiles": 1024
+      }
+    },
+    {
+      "phase": "watch-150",
+      "gc": false,
+      "elapsedMs": 150917.42782100002,
+      "heap": {
+        "usedSize": 7372296,
+        "totalSize": 64741376,
+        "embedderHeapUsedSize": 11980568,
+        "backingStorageSize": 656333
+      },
+      "dom": {
+        "documents": 2,
+        "nodes": 13413,
+        "jsEventListeners": 529
+      },
+      "workers": [
+        {
+          "targetId": "11F156AD056DEEFB2A97001FE2DB23BF",
+          "usedSize": 1345500,
+          "totalSize": 4980736,
+          "embedderHeapUsedSize": 773712,
+          "backingStorageSize": 109093
+        }
+      ],
+      "progress": {
+        "turn": "",
+        "scene": true,
+        "tiles": 1024
+      }
+    }
+  ],
+  "errors": [],
+  "note": "Diagnostic Chromium, real clock, isolated context, no forced game rules. Main/worker GC is intrusive and sampled separately. Commands and replay checkpoints are legitimate retained data; heap alone does not establish a leak.",
+  "failure": "Error: page.waitForTimeout: Target page, context or browser has been closed"
+}
