@@ -113,11 +113,29 @@ async function namedSnapshot(page: Page) {
   }, before);
 }
 
+async function installPausedClock(page: Page) {
+  await page.clock.install({ time: new Date('2026-01-01T00:00:00Z') });
+  await page.clock.pauseAt(new Date('2026-01-01T00:00:01Z'));
+}
+
+async function waitForSpectatorScene(page: Page) {
+  await expect
+    .poll(
+      async () => {
+        if (await page.locator('#spectate-scene-pause').isVisible()) return true;
+        await page.clock.runFor(100);
+        return page.locator('#spectate-scene-pause').isVisible();
+      },
+      { intervals: [0] },
+    )
+    .toBe(true);
+}
+
 for (const width of [1280, 390])
   for (const locale of ['ja', 'en']) {
     test(`pauses inside combat, preserves results and opens the spectator menu at ${width}/${locale}`, async ({ page }, info) => {
       await page.setViewportSize({ width, height: 844 });
-      await page.clock.install();
+      await installPausedClock(page);
       await page.addInitScript(
         ({ scenario, locale }) => {
           localStorage.setItem('ministr.locale', locale);
@@ -146,6 +164,7 @@ for (const width of [1280, 390])
       await page.locator('.title-map-card[data-map-id="pause-combat"]').click();
       await page.locator('input[name="match-mode"][value="spectate"]').check();
       await page.locator('#begin-operation').click();
+      await waitForSpectatorScene(page);
       await expect(page.locator('.battle-scene-backdrop #spectate-scene-pause')).toBeVisible();
       await expect(page.locator('#skip-cpu')).toBeDisabled();
       await expect(page.locator('#spectate-scene-menu')).toBeVisible();
@@ -154,6 +173,7 @@ for (const width of [1280, 390])
       await page.screenshot({ path: info.outputPath('systems-spectate-scene-controls.png') });
       if (width === 1280) await page.locator('#spectate-scene-pause').press('Enter');
       else await page.locator('#spectate-scene-pause').click();
+      await page.clock.runFor(50);
       await expect(page.locator('.battle-scene-backdrop, .tactical-scene-backdrop')).toHaveCount(0);
       await expect(page.locator('#spectate-toggle')).toHaveAttribute('aria-pressed', 'true');
       await expect(page.locator('#spectate-toggle')).toBeFocused();
@@ -166,6 +186,7 @@ for (const width of [1280, 390])
       await page.screenshot({ path: info.outputPath('systems-spectate-scene-paused.png') });
       await page.locator('#spectate-toggle').click();
       await page.clock.runFor(1_000);
+      await waitForSpectatorScene(page);
       await expect(page.locator('#spectate-scene-menu')).toBeVisible();
       await expect(page.locator('.spectator-scene')).toHaveCSS('animation-name', 'none');
       await page.locator('#spectate-scene-menu').click();
@@ -245,6 +266,7 @@ test('missing locking support refuses persistent saves and still exports the cur
 });
 
 test('ignores a cancelled fallback result after rapid pause and resume', async ({ page }) => {
+  let fallbackUrl = '';
   let releaseImport!: () => void;
   let sawImport!: () => void;
   const gate = new Promise<void>((resolve) => {
@@ -254,11 +276,12 @@ test('ignores a cancelled fallback result after rapid pause and resume', async (
     sawImport = resolve;
   });
   await page.route('**/cpuFallback-*.js', async (route) => {
+    fallbackUrl = route.request().url();
     sawImport();
     await gate;
     await route.continue();
   });
-  await page.clock.install();
+  await installPausedClock(page);
   await page.addInitScript(
     (scenario) => {
       window.Worker = class {
@@ -287,15 +310,20 @@ test('ignores a cancelled fallback result after rapid pause and resume', async (
   await page.locator('.title-map-card[data-map-id="fallback-pause"]').click();
   await page.locator('input[name="match-mode"][value="spectate"]').check();
   await page.locator('#begin-operation').click();
+  await page.clock.runFor(100);
   await started;
   await page.locator('#spectate-toggle').click();
   await page.locator('#spectate-toggle').click();
   releaseImport();
+  // Settle the delayed import without advancing the scene's lifetime.
+  await page.evaluate((url) => import(url).then(() => {}), fallbackUrl);
+  await waitForSpectatorScene(page);
   await expect(page.locator('.battle-scene-backdrop #spectate-scene-pause')).toBeVisible();
   await page.clock.runFor(4_000);
+  await waitForSpectatorScene(page);
   if (await page.locator('.spectator-scene').isVisible()) await expect(page.locator('.spectator-scene')).toHaveCSS('animation-name', 'none');
-  if (await page.locator('#spectate-scene-pause').isVisible()) await page.locator('#spectate-scene-pause').click();
-  else await page.locator('#spectate-toggle').click();
+  await page.locator('#spectate-scene-pause').click();
+  await page.clock.runFor(50);
   const saved = await namedSnapshot(page);
   expect(saved.commands.length).toBeGreaterThan(1);
   const board = await page.locator('.board').innerHTML();

@@ -132,7 +132,16 @@ test('both complete quality shards are required by the stable test-and-build gat
   for (const name of ['dependency-audit', 'browser-failure-traces', 'standalone-system-screenshots']) assert.ok(quality.includes(`name: ${name}-\${{ matrix.browser-shard }}`));
   assert.ok(quality.includes(`if: ${publicationCondition} && matrix.browser-shard == 1`));
   assert.equal((quality.match(/uses: actions\/upload-pages-artifact@/g) ?? []).length, 1);
-  assert.doesNotMatch(gate + quality, /permissions:|secrets:|continue-on-error:|--retries|--workers|--grep-invert|--project=/);
+  assert.doesNotMatch(gate + quality, /permissions:|secrets:|continue-on-error:|--retries|--workers|--grep-invert/);
+});
+
+test('WebKit pause regressions run before, and remain in, the complete browser shards', () => {
+  const pause = ci.indexOf("run: npx playwright test tests/e2e/save-safety.spec.ts --project=webkit --grep 'pauses inside combat.*1280/en|ignores a cancelled fallback'");
+  const full = ci.indexOf('run: npm run test:e2e -- --shard=');
+  assert.ok(pause > ci.indexOf('run: npx playwright install --with-deps chromium firefox webkit'));
+  assert.ok(pause < full);
+  const complete = ci.slice(full).split('\n')[0];
+  assert.equal(complete, 'run: npm run test:e2e -- --shard=${{ matrix.browser-shard }}/2');
 });
 
 test('terrain stability is an additional parallel gate with the same read-only policy', () => {
