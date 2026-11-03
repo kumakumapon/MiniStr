@@ -1120,3 +1120,19 @@ body.production-menu-open { overflow: hidden; }
 .unit-submarine .unit-art::after { content: ''; position: absolute; width: 20%; height: 70%; left: 48%; bottom: 70%; border: 2px solid currentColor; border-bottom: 0; }
 
 .tile[data-zoc="true"] { outline: 2px dashed #f3a15d; outline-offset: -3px; }
+
+.spectate-scene-controls {
+  position: sticky; top: -1px; z-index: 5; display: flex; flex-wrap: wrap; gap: 8px;
+  margin: -4px -4px 12px; padding: 8px 4px; background: #14231ff5;
+  border-bottom: 1px solid #a18b59;
+}
+.spectate-scene-controls button, .storage-write-notice button {
+  min-height: 44px; padding: 8px 12px; border: 1px solid #b49a5c;
+  border-radius: 4px; color: #f5e6bd; background: #20323b; font: inherit; cursor: pointer;
+}
+.spectate-scene-controls button:focus-visible, .storage-write-notice button:focus-visible {
+  outline: 3px solid #f4cf75; outline-offset: 2px;
+}
+.storage-write-notice { padding: 12px; margin-bottom: 12px; border: 1px solid #b49a5c; background: #20323b; color: #f5e6bd; }
+.storage-write-notice p { margin: 0 0 8px; }
+.storage-write-notice button { margin: 4px; }

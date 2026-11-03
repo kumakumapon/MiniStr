@@ -1,3 +1,4 @@
+import { renderSpectatorSceneControls } from './spectatorSceneControls';
 import type { GameCommand, GameState, PlayerId, Position, TerrainKind, UnitKind } from '../game';
 import { adjacentToSupplyUnit, isDeployedUnit, isServiceTile, isSupplyUnit, weaponAmmo, weaponsForUnit, unitStats } from '../game';
 import { unitNames, terrainNames } from './labels';
@@ -234,11 +235,11 @@ function renderLogisticsScene(scene: LogisticsActionScene, english: boolean): st
 }
 
 /** Skippable command tableau for captures and turn-start supply/service. */
-export function renderActionScene(scene: ActionScene): string {
+export function renderActionScene(scene: ActionScene, spectating = false): string {
   const english = getLocale() === 'en';
   const content = scene.kind === 'capture' ? renderCaptureScene(scene, english) : renderLogisticsScene(scene, english);
   return `<div class="tactical-scene-backdrop" role="dialog" aria-modal="true" aria-labelledby="tactical-scene-title">
-    <section class="action-scene action-scene-${escapeHtml(scene.kind)}">${content}
+    <section class="action-scene action-scene-${escapeHtml(scene.kind)}">${spectating ? renderSpectatorSceneControls() : ''}${content}
       <button id="tactical-scene-skip" class="action-scene-skip" type="button">${english ? 'Skip scene' : '演出をスキップ'}</button>
     </section>
   </div>`;

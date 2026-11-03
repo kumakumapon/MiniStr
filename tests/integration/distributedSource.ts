@@ -9,6 +9,10 @@ export function distributedSource(): string {
   if (!asset) throw Error('Build before running UI integration tests');
   const moduleUrl = new URL(asset, 'http://localhost/assets/').href;
   return (
+    // JSDOM has no cross-document LockManager. Supply the successful browser API
+    // for existing UI flows; explicit own-property fixtures can test denial.
+    // Actual shared locking, contention and page lifecycle run in three browsers.
+    `if (!Object.prototype.hasOwnProperty.call(navigator, 'locks')) Object.defineProperty(navigator, 'locks', { value: { request(name, options, callback) { return Promise.resolve(callback({ name, mode: 'exclusive' })); } } });\n` +
     readFileSync(resolve('dist/assets', asset), 'utf8')
       .replaceAll('import.meta', `({ url: ${JSON.stringify(moduleUrl)} })`)
       // Code splitting may export shared game helpers from the entry chunk.

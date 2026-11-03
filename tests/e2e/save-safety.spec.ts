@@ -1,4 +1,5 @@
-import { expect, test } from '@playwright/test';
+import { expect, test, type Page } from '@playwright/test';
+import { operationData } from '../../src/game/operations.fixture';
 
 for (const width of [1280, 390])
   for (const locale of ['ja', 'en']) {
@@ -100,4 +101,199 @@ test('worker decisions match the synchronous CPU for archived state snapshots', 
       );
       expect(actual).toEqual(expected);
     }
+});
+
+async function namedSnapshot(page: Page) {
+  const before = await page.evaluate(() => Object.keys(localStorage));
+  await page.locator('#save').click();
+  return page.evaluate((before) => {
+    const keys = Object.keys(localStorage).filter((key) => key.startsWith('ministr.save.slot.') && !before.includes(key));
+    if (keys.length !== 1) throw Error('Expected exactly one newly persisted slot');
+    return JSON.parse(localStorage.getItem(keys[0]!)!);
+  }, before);
+}
+
+for (const width of [1280, 390])
+  for (const locale of ['ja', 'en']) {
+    test(`pauses inside combat, preserves results and opens the spectator menu at ${width}/${locale}`, async ({ page }, info) => {
+      await page.setViewportSize({ width, height: 844 });
+      await page.clock.install();
+      await page.addInitScript(
+        ({ scenario, locale }) => {
+          localStorage.setItem('ministr.locale', locale);
+          localStorage.setItem('ministr.scenarios.custom', JSON.stringify({ schemaVersion: 1, scenarios: [scenario], history: [] }));
+        },
+        {
+          locale,
+          scenario: operationData({
+            id: 'pause-combat',
+            name: 'Pause combat',
+            initialUnits: [
+              { kind: 'heavyTank', owner: 'red', x: 1, y: 1 },
+              { kind: 'infantry', owner: 'red', x: 0, y: 3 },
+              { kind: 'heavyTank', owner: 'blue', x: 2, y: 1 },
+              { kind: 'infantry', owner: 'blue', x: 7, y: 3 },
+            ],
+            victoryConditions: [{ type: 'eliminate' }],
+            defeatConditions: [{ type: 'eliminate' }],
+          }),
+        },
+      );
+      page.on('dialog', (dialog) => dialog.accept('Paused match'));
+      await page.goto('/');
+      await expect(page.locator('.storage-write-notice')).toHaveCount(0);
+      await page.locator('#title-cpu-speed').selectOption('4');
+      await page.locator('.title-map-card[data-map-id="pause-combat"]').click();
+      await page.locator('input[name="match-mode"][value="spectate"]').check();
+      await page.locator('#begin-operation').click();
+      await expect(page.locator('.battle-scene-backdrop #spectate-scene-pause')).toBeVisible();
+      await expect(page.locator('#skip-cpu')).toBeDisabled();
+      await expect(page.locator('#spectate-scene-menu')).toBeVisible();
+      await expect(page.locator('.battle-scene')).toHaveCSS('opacity', '1');
+      await page.screenshot({ path: info.outputPath('systems-spectate-scene-controls.png') });
+      if (width === 1280) await page.locator('#spectate-scene-pause').press('Enter');
+      else await page.locator('#spectate-scene-pause').click();
+      await expect(page.locator('.battle-scene-backdrop, .tactical-scene-backdrop')).toHaveCount(0);
+      await expect(page.locator('#spectate-toggle')).toHaveAttribute('aria-pressed', 'true');
+      await expect(page.locator('#spectate-toggle')).toBeFocused();
+      const paused = await namedSnapshot(page);
+      expect(paused.commands.some((command: { type: string }) => command.type === 'attack')).toBe(true);
+      await page.clock.fastForward(10_000);
+      const stopped = await namedSnapshot(page);
+      expect(stopped.commands).toEqual(paused.commands);
+      expect(stopped.gameState).toEqual(paused.gameState);
+      await page.screenshot({ path: info.outputPath('systems-spectate-scene-paused.png') });
+      await page.locator('#spectate-toggle').click();
+      await page.clock.runFor(1_000);
+      await expect(page.locator('#spectate-scene-menu')).toBeVisible();
+      await page.locator('#spectate-scene-menu').click();
+      await expect(page.locator('.title-overlay')).toBeVisible();
+      await page.clock.fastForward(10_000);
+      await page.locator('#title-resume').click();
+      await expect(page.locator('#spectate-toggle')).toHaveAttribute('aria-pressed', 'true');
+      const afterMenu = await namedSnapshot(page);
+      expect(afterMenu.commands.length).toBeGreaterThan(paused.commands.length);
+      await page.clock.fastForward(10_000);
+      const stillStopped = await namedSnapshot(page);
+      expect(stillStopped.commands).toEqual(afterMenu.commands);
+      expect(stillStopped.gameState).toEqual(afterMenu.gameState);
+      expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width + 1);
+    });
+  }
+
+test('only one real tab can write, stale snapshots stay protected after taking over', async ({ page, context }) => {
+  await page.goto('/');
+  await expect(page.locator('.storage-write-notice')).toHaveCount(0);
+  const second = await context.newPage();
+  await second.goto('/');
+  await expect(second.locator('.storage-write-notice')).toContainText('別のMiniStr');
+  await Promise.all([page.locator('.title-overlay [data-locale]').selectOption('en'), second.locator('.title-overlay [data-locale]').selectOption('en')]);
+  expect(await page.evaluate(() => localStorage.getItem('ministr.locale'))).toBe('en');
+  await second.locator('.title-overlay [data-locale]').selectOption('ja');
+  expect(await page.evaluate(() => localStorage.getItem('ministr.locale'))).toBe('en');
+  await page.close();
+  await second.locator('[data-storage-write-retry]').click();
+  await expect(second.locator('#storage-session-export')).toBeVisible();
+  // A newly acquired lock does not make an old snapshot safe to overwrite with.
+  await second.locator('.title-overlay [data-locale]').selectOption('ja');
+  expect(await second.evaluate(() => localStorage.getItem('ministr.locale'))).toBe('en');
+  await second.reload();
+  await expect(second.locator('.storage-write-notice')).toHaveCount(0);
+  await second.locator('.title-overlay [data-locale]').selectOption('ja');
+  expect(await second.evaluate(() => localStorage.getItem('ministr.locale'))).toBe('ja');
+});
+
+test('releases ownership on pagehide and permits an unchanged second tab to retry', async ({ page, context }) => {
+  await page.goto('/');
+  await expect(page.locator('.storage-write-notice')).toHaveCount(0);
+  const second = await context.newPage();
+  await second.goto('/');
+  await expect(second.locator('[data-storage-write-retry]')).toBeVisible();
+  await page.evaluate(() => window.dispatchEvent(new PageTransitionEvent('pagehide', { persisted: true })));
+  await second.locator('[data-storage-write-retry]').click();
+  await expect(second.locator('.storage-write-notice')).toHaveCount(0);
+  await second.locator('.title-overlay [data-locale]').selectOption('en');
+  expect(await second.evaluate(() => localStorage.getItem('ministr.locale'))).toBe('en');
+  await page.evaluate(() => window.dispatchEvent(new PageTransitionEvent('pageshow', { persisted: true })));
+  await expect(page.locator('.storage-write-notice')).toBeVisible();
+  await page.locator('.title-overlay [data-locale]').selectOption('ja');
+  expect(await page.evaluate(() => localStorage.getItem('ministr.locale'))).toBe('en');
+});
+
+test('missing locking support refuses persistent saves and still exports the current match', async ({ page }) => {
+  await page.addInitScript(() => {
+    Object.defineProperty(navigator, 'locks', { value: undefined });
+    localStorage.setItem('ministr.locale', 'en');
+    localStorage.setItem('ministr.save.manual', 'retained');
+  });
+  await page.goto('/');
+  await expect(page.locator('.storage-write-notice')).toContainText('cannot be saved');
+  await page.locator('.title-map-card').first().click();
+  await page.locator('input[name="match-mode"][value="hotseat"]').check();
+  await page.locator('#begin-operation').click();
+  page.on('dialog', (dialog) => dialog.accept());
+  await page.locator('#save').click();
+  expect(await page.evaluate(() => localStorage.getItem('ministr.save.manual'))).toBe('retained');
+  const download = page.waitForEvent('download');
+  await page.locator('[data-storage-write-export]').click();
+  expect((await download).suggestedFilename()).toBe('ministr-current-match.json');
+});
+
+test('ignores a cancelled fallback result after rapid pause and resume', async ({ page }) => {
+  let releaseImport!: () => void;
+  let sawImport!: () => void;
+  const gate = new Promise<void>((resolve) => {
+    releaseImport = resolve;
+  });
+  const started = new Promise<void>((resolve) => {
+    sawImport = resolve;
+  });
+  await page.route('**/cpuFallback-*.js', async (route) => {
+    sawImport();
+    await gate;
+    await route.continue();
+  });
+  await page.clock.install();
+  await page.addInitScript(
+    (scenario) => {
+      window.Worker = class {
+        constructor() {
+          throw Error('No worker');
+        }
+      } as unknown as typeof Worker;
+      localStorage.setItem('ministr.scenarios.custom', JSON.stringify({ schemaVersion: 1, scenarios: [scenario], history: [] }));
+    },
+    operationData({
+      id: 'fallback-pause',
+      name: 'Fallback pause',
+      initialUnits: [
+        { kind: 'heavyTank', owner: 'red', x: 1, y: 1 },
+        { kind: 'infantry', owner: 'red', x: 0, y: 3 },
+        { kind: 'heavyTank', owner: 'blue', x: 2, y: 1 },
+        { kind: 'infantry', owner: 'blue', x: 7, y: 3 },
+      ],
+      victoryConditions: [{ type: 'eliminate' }],
+      defeatConditions: [{ type: 'eliminate' }],
+    }),
+  );
+  page.on('dialog', (dialog) => dialog.accept('Fallback pause'));
+  await page.goto('/');
+  await page.locator('#title-cpu-speed').selectOption('4');
+  await page.locator('.title-map-card[data-map-id="fallback-pause"]').click();
+  await page.locator('input[name="match-mode"][value="spectate"]').check();
+  await page.locator('#begin-operation').click();
+  await started;
+  await page.locator('#spectate-toggle').click();
+  await page.locator('#spectate-toggle').click();
+  releaseImport();
+  await expect(page.locator('.battle-scene-backdrop #spectate-scene-pause')).toBeVisible();
+  await page.clock.runFor(4_000);
+  if (await page.locator('#spectate-scene-pause').isVisible()) await page.locator('#spectate-scene-pause').click();
+  else await page.locator('#spectate-toggle').click();
+  const saved = await namedSnapshot(page);
+  expect(saved.commands.length).toBeGreaterThan(1);
+  const board = await page.locator('.board').innerHTML();
+  await page.clock.fastForward(10_000);
+  expect(await page.locator('.board').innerHTML()).toBe(board);
+  expect((await namedSnapshot(page)).commands).toEqual(saved.commands);
 });

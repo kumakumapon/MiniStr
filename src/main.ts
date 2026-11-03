@@ -58,12 +58,14 @@ import { renderReplayNavigation } from './ui/replayControls';
 import { exportBackup, previewBackup, restoreBackup, MAX_BACKUP_BYTES } from './game/backup';
 import { downloadJson } from './ui/download';
 import { createBrowserStorage } from './ui/storage';
+import { createStorageWriter, renderStorageWriterNotice } from './ui/storageWriter';
 import { observedEnemy } from './game/fog';
 import { scenarioForState, type ScenarioDefinition } from './game/maps';
 import { campaignDeployment, campaignOperations, createCampaignScenario } from './game/campaignOperations';
 import { recordCampaignVeterans } from './game/campaign';
 import { withinInteractiveMatchBudget } from './game/session';
-const localStorage = createBrowserStorage(() => window.localStorage);
+const storageWriter = createStorageWriter(() => navigator.locks);
+const localStorage = createBrowserStorage(() => window.localStorage, () => storageWriter.writable);
 document.documentElement.lang = setLocale(localStorage.getItem('ministr.locale'));
 import { isEmbarkableUnit, isMergeableUnit, otherPlayer, transportCapacity } from './game';
 import { allProducibleUnitKinds, applyGameCommand, AUTO_SAVE_KEY, availableScenarios, campaignStages, countProductionFacilities, createCampaignProgress, createReplay, createScenarioEditor, createScenarioInitialState, damageRange, decisionRound, decisionStanding, deleteSaves, experienceRank, enemyThreatPreview, exportScenarioEditorJson, forecastCombat, getConditionProgress, gradeCampaignBattle, hasSavedGame, hasStoredSaveData, idleProductionFacilities, importScenarioEditorJson, isCampaignScenarioUnlocked, isDeployedUnit, isUnitKindAvailable, isPropertyTerrainKind, loadCampaignProgress, loadCustomScenarios, loadGame, MANUAL_SAVE_KEY, maps, MAX_REPLAY_BYTES, parseReplay, productionKindsForRule, productionRules, reachablePositionsForPlayer, recordCampaignVictory, saveCampaignProgress, saveCustomScenario, saveGame, scenarioById, scenarioLoadError, serializeReplay, summarizeRepairs, unitLimit, usesDecisionRules, victoryReason, type CampaignGradeResult, type DeployedUnit, type GameCommand, type GameState, type PlayerId, type Position, type ProductionRule, type ReplayFile, type ScenarioEditorState, type TerrainKind, type UnitKind, type VictoryCondition, unitStats, visibleEnemies, visibleEnemyThreats, visiblePositions } from './game';
@@ -206,6 +208,7 @@ let resumeCpuStep: (() => void) | undefined;
 const CPU_STEP_DELAY_MS = 350;
 /** Spectating: the viewer stopped the CPU loop; menus work until they resume. */
 let spectatePaused = false;
+let cpuRunGeneration = 0;
 /**
  * Spectating pauses itself when this turn number begins (the turn count rises
  * after blue's end turn); resuming moves it another limit ahead.
@@ -1387,8 +1390,20 @@ function render(): void {
   app.insertAdjacentHTML('beforeend', campaignOverlay);
   app.insertAdjacentHTML('beforeend', editorOverlay);
   app.insertAdjacentHTML('beforeend', concealed ? renderHandoffOverlay(sideName('hotseat', renderedGame.activePlayer)) : '');
-  app.insertAdjacentHTML('beforeend', activeTacticalScene ? ('attacker' in activeTacticalScene ? renderBattleScene(activeTacticalScene) : renderActionScene(activeTacticalScene)) : '');
+  app.insertAdjacentHTML('beforeend', activeTacticalScene ? ('attacker' in activeTacticalScene ? renderBattleScene(activeTacticalScene, matchMode === 'spectate' && !replay) : renderActionScene(activeTacticalScene, matchMode === 'spectate' && !replay)) : '');
   app.insertAdjacentHTML('beforeend', productionOverlay);
+  if (localStorage.persistent) {
+    const notice = renderStorageWriterNotice(storageWriter.state);
+    if (notice) {
+      const dialog = [...app.querySelectorAll('[role="dialog"]')].at(-1);
+      (dialog?.querySelector(':scope > section, :scope > div') ?? dialog ?? app).insertAdjacentHTML('afterbegin', notice);
+    }
+  }
+  app.querySelector('[data-storage-write-retry]')?.addEventListener('click', () => storageWriter.acquire(storageWriterChanged));
+  app.querySelector('[data-storage-write-export]')?.addEventListener('click', exportCurrentMatch);
+  app.querySelector('[data-storage-write-reload]')?.addEventListener('click', () => {
+    if (window.confirm(translateText('進行中の未保存の操作を破棄して再読み込みしますか？'))) window.location.reload();
+  });
   restoreSpectatorControls();
   document.body.classList.toggle('production-menu-open', Boolean(productionOverlay));
   restoreScroll();
@@ -1415,6 +1430,12 @@ function render(): void {
     // The CPU waits out the scene's full length; closing it early must not leave the CPU idle.
     if (dismissTacticalScene() && cpuInProgress) resumeCpuStep?.();
   });
+  app.querySelector('#spectate-scene-pause')?.addEventListener('click', () => pauseSpectate());
+  app.querySelector('#spectate-scene-menu')?.addEventListener('click', () => {
+    pauseSpectate(false);
+    titleState.openFromMatch();
+    render();
+  });
   if (gameOverOverlay || briefing || titleOverlay || campaignOverlay || editorOverlay || concealed || activeTacticalScene || productionOverlay || shareDialog) {
     app.querySelector('main')?.setAttribute('inert', '');
     // A briefing control the player just changed keeps focus, so a following
@@ -1438,7 +1459,7 @@ function render(): void {
         const fallback = app.querySelector<HTMLElement>('#production-facility:not(:disabled), #production-menu-close');
         (target && !('disabled' in target && target.disabled) ? target : fallback)?.focus({ preventScroll: true });
       });
-    } else window.setTimeout(() => focusRestoreGuard.isCurrent(focusTicket, renderGeneration) && document.querySelector<HTMLElement>(activeTacticalScene ? ('attacker' in activeTacticalScene ? '#battle-scene-skip' : '#tactical-scene-skip') : gameOverOverlay ? '#result-title' : editorOverlay ? '#editor-close' : campaignOverlay ? '#campaign-close' : titleOverlay ? titleFocus ?? (titleState.resumable ? '#title-resume' : '.title-map-card[aria-current="true"]') : concealed ? '#handoff-start' : shareDialog ? (previousProductionFocus?.startsWith('#share-link-') ? previousProductionFocus : '#share-link-cancel') : briefingFocus ?? '#begin-operation')?.focus(), 0);
+    } else window.setTimeout(() => focusRestoreGuard.isCurrent(focusTicket, renderGeneration) && document.querySelector<HTMLElement>(activeTacticalScene ? (matchMode === 'spectate' && !replay ? '#spectate-scene-pause' : 'attacker' in activeTacticalScene ? '#battle-scene-skip' : '#tactical-scene-skip') : gameOverOverlay ? '#result-title' : editorOverlay ? '#editor-close' : campaignOverlay ? '#campaign-close' : titleOverlay ? titleFocus ?? (titleState.resumable ? '#title-resume' : '.title-map-card[aria-current="true"]') : concealed ? '#handoff-start' : shareDialog ? (previousProductionFocus?.startsWith('#share-link-') ? previousProductionFocus : '#share-link-cancel') : briefingFocus ?? '#begin-operation')?.focus(), 0);
   }
   else if (focusSelector) {
     const previousSelector = focusSelector;
@@ -1548,11 +1569,7 @@ function render(): void {
     resetGame('training'); render();
   });
   app.querySelector('#diagnostics-export')?.addEventListener('click', () => downloadJson('ministr-diagnostics.json', diagnosticReport({ persistent: localStorage.persistent, bytes: getStorageUsage(localStorage).bytes, locale: document.documentElement.lang, viewport: { width: window.innerWidth, height: window.innerHeight } })));
-  app.querySelector('#storage-session-export')?.addEventListener('click', () => {
-    const target = { getItem: () => null, removeItem: () => {}, setItem: (_key: string, value: string) => downloadJson('ministr-current-match.json', value) };
-    const result = saveGame(target, 'export', savedMatch());
-    if (!result.ok) { message = result.error; titleState.setNotice(message); render(); }
-  });
+  app.querySelector('#storage-session-export')?.addEventListener('click', exportCurrentMatch);
   app.querySelector('#storage-reload')?.addEventListener('click', () => { if (window.confirm(translateText('進行中の未保存の操作を破棄して再読み込みしますか？'))) window.location.reload(); });
   app.querySelectorAll<HTMLButtonElement>('.export-save-slot').forEach(button => button.addEventListener('click', () => {
     const id = button.dataset.saveSlot ?? '';
@@ -2417,15 +2434,19 @@ function finishCpuTurn(side: PlayerId, reachedLimit = false): void {
 }
 
 /** Stops the spectated CPU loop mid-turn; the unfinished turn resumes from the same board. */
-function pauseSpectate(): void {
-  if (matchMode !== 'spectate' || spectatePaused || replay) return;
+function pauseSpectate(redraw = true): void {
+  if (matchMode !== 'spectate' || replay) return;
+  cpuRunGeneration += 1;
   commandScheduler.cancel();
   cpuInProgress = false;
   cpuSkipRequested = false;
   skipCpuImmediately = undefined;
   spectatePaused = true;
+  resumeCpuStep = undefined;
+  dismissTacticalScene(false);
+  focusSelector = '#spectate-toggle';
   message = uiText.spectatePaused;
-  render();
+  if (redraw) render();
 }
 function resumeSpectate(): void {
   if (matchMode !== 'spectate' || !spectatePaused) return;
@@ -2441,13 +2462,14 @@ function runCpu(initialDelayMs = 0): void {
   if (cpuInProgress || screens.current !== 'battle' || localStorage.conflicted || !cpuShouldRun(matchContext())) return;
   const side = game.activePlayer;
   const runRevision = screens.revision;
+  const runGeneration = ++cpuRunGeneration;
   cpuInProgress = true;
   if (matchMode === 'cpu') cpuActivity = [];
   const maximumSteps = Math.max(30, game.units.filter(unit => isDeployedUnit(unit) && unit.owner === side).length * 3 + 5);
   let steps = 0;
   const advance = async (): Promise<boolean> => {
     try { return await advanceStep(); } catch (error) {
-      if (!document?.body || !app.isConnected || screens.revision !== runRevision || !cpuInProgress) return false;
+      if (!document?.body || !app.isConnected || screens.revision !== runRevision || !cpuInProgress || runGeneration !== cpuRunGeneration) return false;
       // An unexpected failure must not leave the CPU permanently "in progress".
       console.error(error);
       finishCpuTurn(side);
@@ -2457,13 +2479,14 @@ function runCpu(initialDelayMs = 0): void {
     }
   };
   const advanceStep = async (): Promise<boolean> => {
+    if (runGeneration !== cpuRunGeneration) return false;
     if (localStorage.checkForChanges()) { pauseForStorageConflict(); return false; }
     if (replay || screens.current !== 'battle' || game.activePlayer !== side || game.winner) { finishCpuTurn(side); return false; }
     if (steps >= maximumSteps) { finishCpuTurn(side, true); return false; }
     steps += 1;
     const expectedGame = game; const revision = screens.revision;
     const action = await cpuPlanner.plan({ state: game, difficulty: cpuDifficultyFor(matchMode, side, { red: redDifficulty, blue: difficulty }), side, policy: dailyLocked() ? 'balanced' : cpuPolicies[side] });
-    if (!action || game !== expectedGame || screens.revision !== revision || !cpuInProgress || replay || spectatePaused && matchMode === 'spectate') return false;
+    if (!action || runGeneration !== cpuRunGeneration || game !== expectedGame || screens.revision !== revision || !cpuInProgress || replay || spectatePaused && matchMode === 'spectate') return false;
     if (localStorage.checkForChanges()) { pauseForStorageConflict(); return false; }
     if (action.type === 'endTurn') { dispatch(action); finishCpuTurn(side); return false; }
     const before = game;
@@ -2511,7 +2534,8 @@ window.addEventListener('storage', event => {
   if (event.storageArea !== window.localStorage || (event.key !== null && !event.key.startsWith('ministr.'))) return;
   if (localStorage.checkForChanges()) pauseForStorageConflict();
 });
-window.addEventListener('pagehide', () => { commandScheduler.cancel(); fileReadGate.invalidate(); cpuInProgress = false; });
+window.addEventListener('pagehide', () => { commandScheduler.cancel(); fileReadGate.invalidate(); cpuInProgress = false; storageWriter.release(); });
+window.addEventListener('pageshow', () => { if (localStorage.persistent && storageWriter.state === 'released') storageWriter.acquire(storageWriterChanged); });
 window.addEventListener('focus', () => { if (localStorage.checkForChanges()) pauseForStorageConflict(); });
 document.addEventListener('visibilitychange', () => {
   if (!document.hidden && localStorage.checkForChanges()) pauseForStorageConflict();
@@ -2549,3 +2573,16 @@ installShareLink(titleState, {
   onHashChange: listener => window.addEventListener('hashchange', listener),
 }, () => render());
 render();
+
+
+function exportCurrentMatch(): void {
+  const target = { getItem: () => null, removeItem: () => {}, setItem: (_key: string, value: string) => downloadJson('ministr-current-match.json', value) };
+  const result = saveGame(target, 'export', savedMatch());
+  if (!result.ok) { message = result.error; titleState.setNotice(message); render(); }
+}
+function storageWriterChanged(): void {
+  if (storageWriter.state === 'released') return;
+  if (storageWriter.writable && localStorage.checkForChanges()) { pauseForStorageConflict(); return; }
+  render();
+}
+if (localStorage.persistent) storageWriter.acquire(storageWriterChanged);

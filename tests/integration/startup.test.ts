@@ -9,7 +9,7 @@ import type { GameCommand } from '../../src/game/session';
 
 const source = distributedSource();
 let dom: JSDOM;
-function launch(options: { storage?: Record<string, string>; denied?: boolean } = {}) {
+function launch(options: { storage?: Record<string, string>; denied?: boolean; lock?: 'unsupported' | 'busy' } = {}) {
   dom = new JSDOM('<!doctype html><html lang="ja"><body><div id="app"></div></body></html>', {
     url: 'http://localhost/',
     runScripts: 'outside-only',
@@ -25,6 +25,10 @@ function launch(options: { storage?: Record<string, string>; denied?: boolean } 
       get() {
         throw new Error('SecurityError');
       },
+    });
+  if (options.lock)
+    Object.defineProperty(dom.window.navigator, 'locks', {
+      value: options.lock === 'unsupported' ? undefined : { request: (_name: string, _options: object, callback: (lock: null) => unknown) => Promise.resolve(callback(null)) },
     });
   dom.window.eval(source);
   return dom.window.document;
@@ -474,3 +478,18 @@ describe('distributed application boundaries', () => {
     expect(dom.window.localStorage.getItem('ministr.save.manual')).toBe('changed externally');
   });
 });
+
+for (const lock of ['unsupported', 'busy'] as const) {
+  it(`keeps saved data intact and offers export when storage protection is ${lock}`, () => {
+    const document = launch({ lock, storage: { 'ministr.locale': 'en', 'ministr.save.manual': 'retained' } });
+    expect(document.querySelector('.storage-write-notice')?.textContent).toContain('cannot');
+    expect(document.querySelector('[data-storage-write-export]')).not.toBeNull();
+    click('.title-map-card');
+    click('input[name="match-mode"][value="hotseat"]');
+    click('#begin-operation');
+    click('#save');
+    expect(dom.window.localStorage.getItem('ministr.save.manual')).toBe('retained');
+    expect(document.querySelector('.status-message')?.textContent).not.toContain('Manually saved');
+    expect(document.querySelector('.storage-write-notice')).not.toBeNull();
+  });
+}
