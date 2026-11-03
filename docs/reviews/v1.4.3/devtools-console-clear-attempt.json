@@ -1,0 +1,86 @@
+[
+  {
+    "label": "title",
+    "documents": 1,
+    "nodes": 6825,
+    "jsEventListeners": 140,
+    "heap": {
+      "usedSize": 3971444,
+      "totalSize": 4423680,
+      "embedderHeapUsedSize": 14471360,
+      "backingStorageSize": 478033
+    }
+  },
+  {
+    "label": "closed-0",
+    "documents": 1,
+    "nodes": 12319,
+    "jsEventListeners": 211,
+    "heap": {
+      "usedSize": 6017696,
+      "totalSize": 6520832,
+      "embedderHeapUsedSize": 20990040,
+      "backingStorageSize": 478834
+    }
+  },
+  {
+    "label": "closed-1",
+    "documents": 1,
+    "nodes": 17812,
+    "jsEventListeners": 265,
+    "heap": {
+      "usedSize": 6718096,
+      "totalSize": 7274496,
+      "embedderHeapUsedSize": 26932936,
+      "backingStorageSize": 478834
+    }
+  },
+  {
+    "label": "closed-2",
+    "documents": 1,
+    "nodes": 23305,
+    "jsEventListeners": 319,
+    "heap": {
+      "usedSize": 7597032,
+      "totalSize": 8454144,
+      "embedderHeapUsedSize": 32877360,
+      "backingStorageSize": 478834
+    }
+  },
+  {
+    "label": "closed-3",
+    "documents": 1,
+    "nodes": 28798,
+    "jsEventListeners": 373,
+    "heap": {
+      "usedSize": 8348348,
+      "totalSize": 9469952,
+      "embedderHeapUsedSize": 38832744,
+      "backingStorageSize": 478834
+    }
+  },
+  {
+    "label": "closed-4",
+    "documents": 1,
+    "nodes": 34291,
+    "jsEventListeners": 427,
+    "heap": {
+      "usedSize": 8993412,
+      "totalSize": 10223616,
+      "embedderHeapUsedSize": 44753896,
+      "backingStorageSize": 478834
+    }
+  },
+  {
+    "label": "settled",
+    "documents": 1,
+    "nodes": 34291,
+    "jsEventListeners": 427,
+    "heap": {
+      "usedSize": 8993412,
+      "totalSize": 9437184,
+      "embedderHeapUsedSize": 43699664,
+      "backingStorageSize": 478834
+    }
+  }
+]

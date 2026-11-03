@@ -22,6 +22,23 @@ function change(selector: string, value: string, event = 'change') {
 }
 afterEach(() => dom?.window.close());
 
+it('keeps the unit brief stable until the delayed touch compatibility click', async () => {
+  const document = launch('en');
+  document.querySelector('#title-training').click();
+  document.querySelector('#begin-operation').click();
+  const tile = document.querySelector('.tile .unit.red').closest('.tile');
+  const brief = document.querySelector('#unit-brief').innerHTML;
+  tile.dispatchEvent(new dom.window.MouseEvent('pointerdown', { bubbles: true }));
+  tile.dispatchEvent(new dom.window.MouseEvent('pointerup', { bubbles: true }));
+  // Chrome can dispatch compatibility focus/click in a later task after touchend.
+  await new Promise((resolve) => dom.window.setTimeout(resolve, 0));
+  tile.focus();
+  expect(document.querySelector('#unit-brief').innerHTML).toBe(brief);
+  tile.click();
+  expect(document.querySelectorAll('.selected-marker')).toHaveLength(1);
+  expect(document.querySelector('#unit-brief').innerHTML).not.toBe(brief);
+});
+
 it.each(['ja', 'en'])('migrates preferences and synchronizes title and match controls in %s', (locale) => {
   const document = launch(locale);
   expect(document.querySelector('#title-music-track').value).toBe('mist');
