@@ -109,3 +109,12 @@ New matches use v9; recorded v8 and earlier matches keep their mechanics and CPU
 キャンペーンは独立schema5です。schema1〜4の解放済み作戦・評価・経験を保持して移行します。新しい分岐の解放は勝利を記録すると反映されます。名簿には任意のcallsign、進行には任意の`predecessors`（合流先の継承元）があり、作戦ID・許可された辺・継承元のクリア済み状態を検証します。名前の変更は対局中のスナップショットを変更しません。次回出撃の編成に反映します。
 
 旧アプリはルールv12とキャンペーンschema5を読み込めません。詳細は[互換性方針](compatibility-policy.md)、[戦略拡張](strategy-expansion.md)、[公開前確認](reviews/2026-10-27-v1.1.0-progress.md)を参照してください。
+
+
+## v1.4.2 browser writer ownership
+
+The browser adapter requires the origin-wide Web Lock `ministr.storage.writer.v1` before each persistent mutation. It holds one exclusive lease for the lifetime of the active document, including synchronous multi-key save/restore/rollback. Other cooperating tabs cannot write even before asynchronous storage events arrive. No lock metadata is added to localStorage or backups; existing schemas and keys remain unchanged.
+
+Acquisition uses `ifAvailable`, so a second tab is not left waiting indefinitely. It keeps a private read snapshot, reports that saving is unavailable, and offers current-match export and retry. Retry never merges a stale snapshot: external changes still require export and reload. The adapter's snapshot is a tab-local view, not an atomic multi-key read of another tab's ongoing transaction. A backup exports that snapshot, including corrupt raw entries. Reload after closing the other tab to read the latest data.
+
+Missing/denied lock support fails closed for persistent writes. A denied storage provider retains the pre-existing, visibly announced memory-only mode. `pagehide` releases ownership and invalidates pending grants; `pageshow` reacquires before allowing writes. Quota and rollback failures retain their existing error paths. This excludes competing v1.4.2 writers; legacy tabs and direct storage calls do not participate, so external-change checks remain necessary. Crash durability and a migration to IndexedDB are separate work.

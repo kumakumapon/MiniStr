@@ -3,6 +3,7 @@ import { forecastCombat, isDeployedUnit, weaponsForUnit } from '../game';
 import { unitNames, terrainNames, weaponNames } from './labels';
 import { getLocale } from './locale';
 import { escapeHtml } from './strings';
+import { renderSpectatorSceneControls } from './spectatorSceneControls';
 
 export const BATTLE_SCENE_DURATION_MS = 3_600;
 /** One clock for CSS, sound effects and the skippable scene lifetime. */
@@ -85,7 +86,7 @@ function clampedHp(hp: number): number {
 }
 
 /** A modal, skippable combat tableau using the same unit sprites as the map. */
-export function renderBattleScene(scene: BattleScene): string {
+export function renderBattleScene(scene: BattleScene, spectating = false): string {
   const english = getLocale() === 'en';
   const labels = english
     ? {
@@ -168,7 +169,8 @@ export function renderBattleScene(scene: BattleScene): string {
     .map(([key, value]) => `--battle-${key}:${value}ms`)
     .join(';');
   return `<div class="battle-scene-backdrop" role="dialog" aria-modal="true" aria-labelledby="battle-scene-title">
-    <section class="battle-scene battle-terrain-${escapeHtml(scene.terrain)}${counterClass}" style="${timingStyle};--battle-duration:${Number(BATTLE_SCENE_DURATION_MS)}ms">
+    <section class="battle-scene${spectating ? ' spectator-scene' : ''} battle-terrain-${escapeHtml(scene.terrain)}${counterClass}" style="${timingStyle};--battle-duration:${Number(BATTLE_SCENE_DURATION_MS)}ms">
+      ${spectating ? renderSpectatorSceneControls() : ''}
       <header class="battle-scene-header">
         <div><p class="card-kicker">TACTICAL ENGAGEMENT</p><h2 id="battle-scene-title">${scene.ambush ? (english ? 'Ambush' : '待伏せ射撃') : scene.simultaneous ? (english ? 'Simultaneous fire' : '同時射撃') : labels.title}</h2></div>
         <span class="battle-scene-terrain">${labels.terrain} · ${escapeHtml(terrainNames[scene.terrain])}</span>

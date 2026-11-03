@@ -1,7 +1,10 @@
 import type { StorageLike } from '../game/session';
 
-/** A coherent tab-local snapshot. Never absorb another tab's partially written data. */
-export function createBrowserStorage(provider: () => Storage): StorageLike & {
+/** A tab-local snapshot. Browser callers hold the shared writer lock before writes. */
+export function createBrowserStorage(
+  provider: () => Storage,
+  canWrite: () => boolean = () => true,
+): StorageLike & {
   readonly persistent: boolean;
   readonly conflicted: boolean;
   markExternalChange(): void;
@@ -23,6 +26,7 @@ export function createBrowserStorage(provider: () => Storage): StorageLike & {
     backend = undefined;
   }
   const assertWritable = (key: string): void => {
+    if (backend && !canWrite()) throw Error('Saving is not available in this tab');
     // Storage events are asynchronous: also compare immediately before a write.
     if (backend) {
       const keys = new Set([...memory.keys(), key]);

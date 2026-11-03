@@ -1,7 +1,7 @@
 import { expect, test, type Page } from '@playwright/test';
 import { operationData } from '../../src/game/operations.fixture';
 
-async function prepareMusic(page: Page, width: number) {
+async function prepareMusic(page: Page, width: number, spectating = false) {
   await page.setViewportSize({ width, height: 844 });
   await page.addInitScript(
     (scenario) => {
@@ -107,7 +107,7 @@ async function prepareMusic(page: Page, width: number) {
       id: 'army-music',
       name: 'Army music',
       initialUnits: [
-        { kind: 'tank', owner: 'red', x: 1, y: 1 },
+        { kind: spectating ? 'heavyTank' : 'tank', owner: 'red', x: 1, y: 1 },
         { kind: 'infantry', owner: 'red', x: 0, y: 2 },
         { kind: 'heavyTank', owner: 'blue', x: 2, y: 1 },
         { kind: 'infantry', owner: 'blue', x: 5, y: 3 },
@@ -271,3 +271,21 @@ for (const width of [1280, 390]) {
     await expectSingleAudio(page);
   });
 }
+
+test('spectator pause ends battle music and cancels pending effects', async ({ page }) => {
+  await prepareMusic(page, 390, true);
+  await page.locator('.title-map-card[data-map-id="army-music"]').click();
+  await page.locator('input[name="match-mode"][value="spectate"]').check();
+  await page.locator('#begin-operation').click();
+  await expect(page.locator('.battle-scene')).toBeVisible();
+  await expect.poll(() => playing(page)).toContain('battle-theme.ogg');
+  await page.locator('#spectate-scene-pause').press('Enter');
+  await expect(page.locator('.battle-scene')).toHaveCount(0);
+  await expect(page.locator('#spectate-toggle')).toHaveAttribute('aria-pressed', 'true');
+  await expect.poll(() => playing(page)).toContain('rock-red-theme.ogg');
+  await expectSingleAudio(page);
+  const effects = await page.evaluate(() => (window as unknown as { musicProbe: Probe }).musicProbe.effects);
+  await page.waitForTimeout(1_100);
+  expect(await page.evaluate(() => (window as unknown as { musicProbe: Probe }).musicProbe.effects)).toBe(effects);
+  await expectSingleAudio(page);
+});
