@@ -40,4 +40,22 @@ describe('render scroll restoration', () => {
     expect(restore).not.toThrow();
     expect(viewport.scrollTo).not.toHaveBeenCalled();
   });
+
+  it('does not write zero offsets or read page geometry after the DOM changes', () => {
+    document.body.innerHTML = '<div id="board-viewport"></div><div id="production-menu-body"></div>';
+    const viewport = { scrollX: 0, scrollY: 0, scrollTo: vi.fn() };
+    const restore = captureRenderScroll(document, viewport as unknown as Window);
+    document.body.innerHTML = '<div id="board-viewport"></div><div id="production-menu-body"></div>';
+    const left = vi.spyOn(document.querySelector('#board-viewport')!, 'scrollLeft', 'set');
+    const top = vi.spyOn(document.querySelector('#production-menu-body')!, 'scrollTop', 'set');
+    Object.defineProperty(viewport, 'scrollY', {
+      get: () => {
+        throw Error('forced page layout');
+      },
+    });
+    expect(restore).not.toThrow();
+    expect(left).not.toHaveBeenCalled();
+    expect(top).not.toHaveBeenCalled();
+    expect(viewport.scrollTo).not.toHaveBeenCalled();
+  });
 });

@@ -53,7 +53,7 @@ import { FocusRestoreGuard } from './ui/focusRestore';
 import { EditorHistory, inspectEditorScenario, paintEditor, resizeEditor, type PaintMode } from './game/editorTools';
 import { renderEditorView } from './ui/editorView';
 import { deleteCustomScenario, scenarioDefinitionToData } from './game/maps';
-import { ReplayTimeline } from './game/replayTimeline';
+import { createReplayRuntime, type ReplayRuntime } from './ui/replayRuntime';
 import { renderReplayNavigation } from './ui/replayControls';
 import { exportBackup, previewBackup, restoreBackup, MAX_BACKUP_BYTES } from './game/backup';
 import { downloadJson } from './ui/download';
@@ -189,7 +189,6 @@ const boardView = new BoardView();
 const tileMarkupCache = new TileMarkupCache<GameState>();
 const boardInput = new BoardInput();
 let undoStack = new UndoHistory(() => initialState, () => commandHistory);
-interface ReplayRuntime { file: ReplayFile; state: GameState; index: number; playing: boolean; speed: CommandSpeed; timeline: ReplayTimeline; viewpoint: PlayerId | 'all' }
 let replay: ReplayRuntime | undefined;
 const cpuPlanner = new CpuPlanner(() => new Worker(new URL('./ui/cpuWorker.ts', import.meta.url), { type: 'module' }));
 const commandScheduler = new CommandScheduler(() => cpuPlanner.cancel());
@@ -794,7 +793,7 @@ function beginReplay(file: ReplayFile): void {
   // Watching another match is not a daily match: hand the player's settings back, and take the daily ones again on leaving.
   if (dailyUserSettings && !isDailyScenarioId(file.mapId)) { dailyParked = { user: dailyUserSettings, daily: currentSettings() }; applySettings(dailyUserSettings); dailyUserSettings = undefined; }
   resetSpectatorCamera();
-  replay = { file: structuredClone(file), state: { ...structuredClone(file.initialState), scenarioId: file.mapId }, index: 0, playing: false, speed: 1, timeline: new ReplayTimeline(file), viewpoint: 'red' };
+  replay = createReplayRuntime(file);
   selected = undefined; selectedFacility = undefined; screens.briefingOpen = false; syncBoardZoom(replay.state.board.width); message = 'リプレイを読み込みました。再生ボタンで開始できます。'; render();
 }
 function advanceReplay(): boolean {
@@ -1406,6 +1405,9 @@ function render(): void {
   });
   restoreSpectatorControls();
   document.body.classList.toggle('production-menu-open', Boolean(productionOverlay));
+  if (gameOverOverlay || briefing || titleOverlay || campaignOverlay || editorOverlay || concealed || activeTacticalScene || productionOverlay || shareDialog) app.querySelector('main')?.setAttribute('inert', '');
+  // Finish text/attribute writes before restoring scroll or measuring effects.
+  localizeControls(app, app.querySelector<HTMLElement>('.board'));
   restoreScroll();
   if (!boardCovered && coveredBoardScroll) {
     const viewport = app.querySelector<HTMLElement>('#board-viewport');
@@ -1437,7 +1439,6 @@ function render(): void {
     render();
   });
   if (gameOverOverlay || briefing || titleOverlay || campaignOverlay || editorOverlay || concealed || activeTacticalScene || productionOverlay || shareDialog) {
-    app.querySelector('main')?.setAttribute('inert', '');
     // A briefing control the player just changed keeps focus, so a following
     // Enter or Space does not land on the start button.
     const briefingFocus = briefing && !gameOverOverlay && !editorOverlay && !campaignOverlay && !concealed && focusSelector?.startsWith('#briefing-') ? focusSelector : undefined;
@@ -2253,7 +2254,6 @@ function render(): void {
     render();
   });
   document.querySelector<HTMLButtonElement>('#handoff-start')?.addEventListener('click', beginHandoffTurn);
-  localizeControls(app, app.querySelector<HTMLElement>('.board'));
 }
 
 function focusBoardPosition(position: Position): void {

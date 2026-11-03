@@ -1,6 +1,59 @@
 import { expect, test } from '@playwright/test';
 import type { ScenarioData } from '../../src/game/maps';
 
+test('390px touch selects once and keeps a scrolled board stable after localized redraw', async ({ browser }, testInfo) => {
+  const context = await browser.newContext({ viewport: { width: 390, height: 844 }, hasTouch: true });
+  try {
+    const page = await context.newPage();
+    const scenario: ScenarioData = {
+      id: 'touch-response',
+      name: 'Touch response',
+      briefing: '',
+      startingGold: 0,
+      board: { width: 32, height: 32, cells: [] },
+      initialUnits: [
+        { kind: 'infantry', owner: 'red', x: 6, y: 6 },
+        { kind: 'infantry', owner: 'red', x: 7, y: 6 },
+        { kind: 'infantry', owner: 'blue', x: 31, y: 31 },
+      ],
+      victoryConditions: [{ type: 'eliminate' }],
+      defeatConditions: [{ type: 'eliminate' }],
+    };
+    await page.addInitScript((scenario) => {
+      localStorage.setItem('ministr.locale', 'en');
+      localStorage.setItem('ministr.scenarios.custom', JSON.stringify({ schemaVersion: 1, scenarios: [scenario], history: [] }));
+    }, scenario);
+    await page.goto('/');
+    await page.locator('.title-map-card[data-map-id="touch-response"]').click();
+    await page.locator('input[name="match-mode"][value="hotseat"]').check();
+    await page.locator('#begin-operation').click();
+    for (const x of [6, 7]) {
+      await page.locator(`.tile[data-x="${x}"][data-y="6"]`).tap();
+      await expect(page.locator(`.tile[data-x="${x}"][data-y="6"] .selected-marker`)).toHaveCount(1);
+    }
+    const offsets = await page.evaluate(async () => {
+      const viewport = document.querySelector<HTMLElement>('#board-viewport')!;
+      viewport.scrollLeft = 90;
+      viewport.scrollTop = 80;
+      viewport.scrollIntoView({ block: 'center' });
+      const before = { x: window.scrollX, y: window.scrollY, left: viewport.scrollLeft, top: viewport.scrollTop };
+      document.querySelector<HTMLButtonElement>('.tile[data-x="6"][data-y="6"]')!.click();
+      await new Promise<void>((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve())));
+      const next = document.querySelector<HTMLElement>('#board-viewport')!;
+      return { before, after: { x: window.scrollX, y: window.scrollY, left: next.scrollLeft, top: next.scrollTop } };
+    });
+    expect(offsets.before.y).toBeGreaterThan(0);
+    expect(offsets.before.left).toBe(90);
+    expect(offsets.before.top).toBe(80);
+    expect(offsets.after).toEqual(offsets.before);
+    await expect(page.locator('.selected-marker')).toHaveCount(1);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(391);
+    await page.screenshot({ path: testInfo.outputPath('390-touch-response.png') });
+  } finally {
+    await context.close();
+  }
+});
+
 for (const width of [1280, 390])
   for (const locale of ['ja', 'en']) {
     test(`large board keeps input, focus and geometry at ${width} in ${locale}`, async ({ page }, testInfo) => {

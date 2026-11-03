@@ -10,6 +10,8 @@ it('terminates pending computation and ignores late results', async () => {
   const late = worker.onmessage!;
   planner.cancel();
   expect(await pending).toBeUndefined();
+  expect(worker.onmessage).toBeNull();
+  expect(worker.onerror).toBeNull();
   expect(worker.terminate).toHaveBeenCalledOnce();
   late.call(worker as unknown as Worker, { data: { type: 'endTurn' } } as MessageEvent);
 });
@@ -27,12 +29,16 @@ it('reuses the worker and releases it on errors', async () => {
   const pending = planner.plan(input());
   worker.onmessage!.call(worker as unknown as Worker, { data: { type: 'wait', unitId: 'r1' } } as MessageEvent);
   expect(await pending).toEqual({ type: 'wait', unitId: 'r1' });
+  expect(worker.onmessage).toBeNull();
+  expect(worker.onerror).toBeNull();
   const failed = planner.plan(input());
   const assertion = expect(failed).rejects.toThrow('CPU worker failed');
   worker.onerror!.call(worker as unknown as Worker, {} as ErrorEvent);
   await assertion;
   expect(factory).toHaveBeenCalledOnce();
   expect(worker.terminate).toHaveBeenCalledOnce();
+  expect(worker.onmessage).toBeNull();
+  expect(worker.onerror).toBeNull();
 });
 
 it('rejects malformed worker messages and releases the failed worker', async () => {
@@ -43,4 +49,31 @@ it('rejects malformed worker messages and releases the failed worker', async () 
   worker.onmessage!.call(worker as unknown as Worker, { data: { type: 'move', unitId: 'r1', destination: { x: '<img src=x>', y: 1 } } } as MessageEvent);
   await rejected;
   expect(worker.terminate).toHaveBeenCalledOnce();
+  expect(worker.onmessage).toBeNull();
+  expect(worker.onerror).toBeNull();
+});
+
+it('releases handlers when posting fails and creates a fresh worker next time', async () => {
+  const broken = {
+    terminate: vi.fn(),
+    postMessage: () => {
+      throw Error('clone failed');
+    },
+    onmessage: null as Worker['onmessage'],
+    onerror: null as Worker['onerror'],
+  };
+  const ready = { terminate: vi.fn(), postMessage: vi.fn(), onmessage: null as Worker['onmessage'], onerror: null as Worker['onerror'] };
+  const factory = vi.fn().mockReturnValueOnce(broken).mockReturnValue(ready);
+  const planner = new CpuPlanner(factory);
+  await expect(planner.plan(input())).rejects.toThrow('CPU request failed');
+  expect(broken.onmessage).toBeNull();
+  expect(broken.onerror).toBeNull();
+  expect(broken.terminate).toHaveBeenCalledOnce();
+  const pending = planner.plan(input());
+  ready.onmessage!.call(ready as unknown as Worker, { data: { type: 'wait', unitId: 'r1' } } as MessageEvent);
+  expect(await pending).toEqual({ type: 'wait', unitId: 'r1' });
+  expect(factory).toHaveBeenCalledTimes(2);
+  expect(ready.onmessage).toBeNull();
+  expect(ready.onerror).toBeNull();
+  planner.cancel();
 });

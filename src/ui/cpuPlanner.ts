@@ -16,6 +16,7 @@ export class CpuPlanner {
   private pending?: { resolve: (command: GameCommand | undefined) => void; reject: (error: Error) => void };
   constructor(private createWorker: () => Worker) {}
   cancel(): void {
+    if (this.worker) this.worker.onmessage = this.worker.onerror = null;
     this.worker?.terminate();
     this.worker = undefined;
     this.pending?.resolve(undefined);
@@ -35,6 +36,7 @@ export class CpuPlanner {
       this.pending = { resolve, reject };
       worker.onmessage = (event) => {
         if (this.worker !== worker) return;
+        worker.onmessage = worker.onerror = null;
         this.pending = undefined;
         try {
           resolve(decodeCpuResponse(event.data, input.state));
@@ -46,6 +48,7 @@ export class CpuPlanner {
       };
       worker.onerror = () => {
         if (this.worker !== worker) return;
+        worker.onmessage = worker.onerror = null;
         this.pending = undefined;
         worker.terminate();
         this.worker = undefined;
@@ -54,6 +57,7 @@ export class CpuPlanner {
       try {
         worker.postMessage(input);
       } catch {
+        worker.onmessage = worker.onerror = null;
         this.pending = undefined;
         worker.terminate();
         this.worker = undefined;
