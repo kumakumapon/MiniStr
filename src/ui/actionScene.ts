@@ -239,7 +239,7 @@ export function renderActionScene(scene: ActionScene, spectating = false): strin
   const english = getLocale() === 'en';
   const content = scene.kind === 'capture' ? renderCaptureScene(scene, english) : renderLogisticsScene(scene, english);
   return `<div class="tactical-scene-backdrop" role="dialog" aria-modal="true" aria-labelledby="tactical-scene-title">
-    <section class="action-scene action-scene-${escapeHtml(scene.kind)}">${spectating ? renderSpectatorSceneControls() : ''}${content}
+    <section class="action-scene${spectating ? ' spectator-scene' : ''} action-scene-${escapeHtml(scene.kind)}">${spectating ? renderSpectatorSceneControls() : ''}${content}
       <button id="tactical-scene-skip" class="action-scene-skip" type="button">${english ? 'Skip scene' : '演出をスキップ'}</button>
     </section>
   </div>`;

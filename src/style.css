@@ -1121,6 +1121,8 @@ body.production-menu-open { overflow: hidden; }
 
 .tile[data-zoc="true"] { outline: 2px dashed #f3a15d; outline-offset: -3px; }
 
+/* Keep live pause targets still from the first frame; animate the units inside. */
+.battle-scene.spectator-scene, .action-scene.spectator-scene { animation: none; }
 .spectate-scene-controls {
   position: sticky; top: -1px; z-index: 5; display: flex; flex-wrap: wrap; gap: 8px;
   margin: -4px -4px 12px; padding: 8px 4px; background: #14231ff5;

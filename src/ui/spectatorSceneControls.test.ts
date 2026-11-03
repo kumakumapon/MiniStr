@@ -12,10 +12,12 @@ it('keeps pause and menu inside the active combat dialog only in live spectating
     terrain: 'plain',
   };
   expect(renderBattleScene(scene)).not.toContain('spectate-scene-pause');
+  expect(renderBattleScene(scene)).not.toContain('spectator-scene');
   document.body.innerHTML = renderBattleScene(scene, true);
   expect(document.querySelector('[role="dialog"] #spectate-scene-pause')).not.toBeNull();
   expect(document.querySelector('[role="dialog"] #spectate-scene-menu')).not.toBeNull();
   expect(document.querySelector('#battle-scene-skip')).not.toBeNull();
+  expect(document.querySelector('.battle-scene.spectator-scene')).not.toBeNull();
 });
 it('translates both actions without mixing Japanese into English', () => {
   setLocale('ja');
@@ -36,9 +38,11 @@ it('keeps the same controls available inside capture and logistics dialogs', () 
   ];
   for (const scene of scenes) {
     expect(renderActionScene(scene)).not.toContain('spectate-scene-pause');
+    expect(renderActionScene(scene)).not.toContain('spectator-scene');
     document.body.innerHTML = renderActionScene(scene, true);
     expect(document.querySelector('[role="dialog"] #spectate-scene-pause')).not.toBeNull();
     expect(document.querySelector('[role="dialog"] #spectate-scene-menu')).not.toBeNull();
     expect(document.querySelector('#tactical-scene-skip')).not.toBeNull();
+    expect(document.querySelector('.action-scene.spectator-scene')).not.toBeNull();
   }
 });

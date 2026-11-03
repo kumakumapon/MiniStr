@@ -150,6 +150,7 @@ for (const width of [1280, 390])
       await expect(page.locator('#skip-cpu')).toBeDisabled();
       await expect(page.locator('#spectate-scene-menu')).toBeVisible();
       await expect(page.locator('.battle-scene')).toHaveCSS('opacity', '1');
+      await expect(page.locator('.battle-scene')).toHaveCSS('animation-name', 'none');
       await page.screenshot({ path: info.outputPath('systems-spectate-scene-controls.png') });
       if (width === 1280) await page.locator('#spectate-scene-pause').press('Enter');
       else await page.locator('#spectate-scene-pause').click();
@@ -166,6 +167,7 @@ for (const width of [1280, 390])
       await page.locator('#spectate-toggle').click();
       await page.clock.runFor(1_000);
       await expect(page.locator('#spectate-scene-menu')).toBeVisible();
+      await expect(page.locator('.spectator-scene')).toHaveCSS('animation-name', 'none');
       await page.locator('#spectate-scene-menu').click();
       await expect(page.locator('.title-overlay')).toBeVisible();
       await page.clock.fastForward(10_000);
@@ -291,6 +293,7 @@ test('ignores a cancelled fallback result after rapid pause and resume', async (
   releaseImport();
   await expect(page.locator('.battle-scene-backdrop #spectate-scene-pause')).toBeVisible();
   await page.clock.runFor(4_000);
+  if (await page.locator('.spectator-scene').isVisible()) await expect(page.locator('.spectator-scene')).toHaveCSS('animation-name', 'none');
   if (await page.locator('#spectate-scene-pause').isVisible()) await page.locator('#spectate-scene-pause').click();
   else await page.locator('#spectate-toggle').click();
   const saved = await namedSnapshot(page);

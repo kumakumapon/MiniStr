@@ -169,7 +169,7 @@ export function renderBattleScene(scene: BattleScene, spectating = false): strin
     .map(([key, value]) => `--battle-${key}:${value}ms`)
     .join(';');
   return `<div class="battle-scene-backdrop" role="dialog" aria-modal="true" aria-labelledby="battle-scene-title">
-    <section class="battle-scene battle-terrain-${escapeHtml(scene.terrain)}${counterClass}" style="${timingStyle};--battle-duration:${Number(BATTLE_SCENE_DURATION_MS)}ms">
+    <section class="battle-scene${spectating ? ' spectator-scene' : ''} battle-terrain-${escapeHtml(scene.terrain)}${counterClass}" style="${timingStyle};--battle-duration:${Number(BATTLE_SCENE_DURATION_MS)}ms">
       ${spectating ? renderSpectatorSceneControls() : ''}
       <header class="battle-scene-header">
         <div><p class="card-kicker">TACTICAL ENGAGEMENT</p><h2 id="battle-scene-title">${scene.ambush ? (english ? 'Ambush' : '待伏せ射撃') : scene.simultaneous ? (english ? 'Simultaneous fire' : '同時射撃') : labels.title}</h2></div>
