@@ -64,6 +64,25 @@ describe('CPU supply rendezvous', () => {
     expect(plan(setup([truck, { ...gun, ammo: undefined, fuel: undefined }]))).toBeUndefined();
   });
 
+  it('does not freeze a dry recipient beside an unsafe committed truck', () => {
+    const state = setup([force('truck', 'apc', 1, 1, { hasActed: true }), force('gun', 'artillery', 2, 1, { ammo: 0 })]);
+    expect(plan(state, () => Number.NEGATIVE_INFINITY)).toBeUndefined();
+    expect(plan(state, () => 0)).toEqual({ type: 'wait', unitId: 'gun' });
+  });
+
+  it('does not promise stock already consumed by earlier recipients and chooses a useful berth', () => {
+    const truck = force('truck', 'apc', 1, 1, { supplyStock: 110, hasActed: true });
+    const earlier = force('a', 'tank', 0, 1, { ammo: 0, fuel: 0 });
+    const later = force('z', 'artillery', 2, 1, { ammo: 0, fuel: 0 });
+    const state = setup([later, truck, { ...earlier, hasActed: true }]);
+    expect(plan(state, () => 0)).toBeUndefined();
+    expect(plan({ ...state, units: [{ ...earlier, hasActed: true }, truck, later] }, () => 0)).toBeUndefined();
+    const mobile = setup([later, { ...truck, hasActed: false }, { ...earlier, hasActed: true }]);
+    const action = plan(mobile, (_truck, position) => (position.x >= 2 ? 100 : 0))!;
+    expect(action).toMatchObject({ type: 'move', unitId: 'truck' });
+    expect(applyGameCommand(mobile, action).ok).toBe(true);
+  });
+
   it.each(['red', 'blue'] as const)('makes a legal deterministic integrated delivery for %s without using hidden logistics', (player) => {
     const state = {
       ...setup([

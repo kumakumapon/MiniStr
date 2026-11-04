@@ -1,0 +1,72 @@
+
+ RUN  v3.2.7 /workspace/MiniStr-v1.4.4
+
+ ❯ |node| src/ai/defensiveRepair.test.ts (2 tests | 1 failed) 23ms
+   ✓ defensive repairs > values affordable HP repairs only on a compatible owned facility 5ms
+   × defensive repairs > returns a damaged supplied defender to repair and actually restores HP next turn 17ms
+     → expected { type: 'endTurn' } to deeply equal { type: 'move', unitId: 'hurt', …(1) }
+ ❯ |node| src/ai/supplyRendezvous.test.ts (7 tests | 1 failed) 54ms
+   ✓ CPU supply rendezvous > commits the truck then the dry battery and delivers next turn without chasing 17ms
+   ✓ CPU supply rendezvous > holds an adjacent provider, supports stationary acted units and ignores healthy, fixed-service and incompatible recipients 4ms
+   ✓ CPU supply rendezvous > keeps refilling and loaded trucks on their own missions and rejects unreachable or unsafe berths 3ms
+   ✓ CPU supply rendezvous > does not freeze a dry recipient beside an unsafe committed truck 1ms
+   × CPU supply rendezvous > does not promise stock already consumed by earlier recipients and chooses a useful berth 11ms
+     → expected { type: 'wait', unitId: 'truck' } to match object { type: 'move', unitId: 'truck' }
+   ✓ CPU supply rendezvous > makes a legal deterministic integrated delivery for red without using hidden logistics 14ms
+   ✓ CPU supply rendezvous > makes a legal deterministic integrated delivery for blue without using hidden logistics 4ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |node| src/ai/defensiveRepair.test.ts > defensive repairs > returns a damaged supplied defender to repair and actually restores HP next turn
+AssertionError: expected { type: 'endTurn' } to deeply equal { type: 'move', unitId: 'hurt', …(1) }
+
+- Expected
++ Received
+
+  {
+-   "destination": {
+-     "x": 0,
+-     "y": 1,
+-   },
+-   "type": "move",
+-   "unitId": "hurt",
++   "type": "endTurn",
+  }
+
+ ❯ src/ai/defensiveRepair.test.ts:39:20
+     37|     const before = structuredClone(state);
+     38|     const action = chooseCpuAction(state, 'normal', 'red', 'defensive'…
+     39|     expect(action).toEqual({ type: 'move', unitId: 'hurt', destination…
+       |                    ^
+     40|     expect(chooseCpuAction(structuredClone(state), 'normal', 'red', 'd…
+     41|     expect(state).toEqual(before);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  |node| src/ai/supplyRendezvous.test.ts > CPU supply rendezvous > does not promise stock already consumed by earlier recipients and chooses a useful berth
+AssertionError: expected { type: 'wait', unitId: 'truck' } to match object { type: 'move', unitId: 'truck' }
+
+- Expected
++ Received
+
+  {
+-   "type": "move",
++   "type": "wait",
+    "unitId": "truck",
+  }
+
+ ❯ src/ai/supplyRendezvous.test.ts:82:20
+     80|     const mobile = setup([later, { ...truck, hasActed: false }, { ...e…
+     81|     const action = plan(mobile, () => 0)!;
+     82|     expect(action).toMatchObject({ type: 'move', unitId: 'truck' });
+       |                    ^
+     83|     expect(applyGameCommand(mobile, action).ok).toBe(true);
+     84|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  2 failed (2)
+      Tests  2 failed | 7 passed (9)
+   Start at  23:21:19
+   Duration  944ms (transform 547ms, setup 0ms, collect 1.29s, tests 77ms, environment 0ms, prepare 174ms)

@@ -1,0 +1,99 @@
+
+> ministr@1.4.4 test:ui
+> vitest run --config vitest.ui.config.ts
+
+
+ RUN  v3.2.7 /workspace/MiniStr-v1.4.4
+
+ ✓ tests/integration/dailyChallenge.test.ts (10 tests) 43783ms
+   ✓ daily challenge in the distributed app > starts from the title card with a full custom catalog, fixing the conditions  3569ms
+   ✓ daily challenge in the distributed app > marks a changed deployment as not recorded  2499ms
+   ✓ daily challenge in the distributed app > records a resumed red victory, offers the ID, and retries the identical definition  4636ms
+   ✓ daily challenge in the distributed app > gives the players own settings back when leaving the daily match  3728ms
+   ✓ daily challenge in the distributed app > starts the campaign as a CPU match after a daily match, not in the format set aside  4976ms
+   ✓ daily challenge in the distributed app > starts practice on easy after a daily match instead of the difficulty set aside  4288ms
+   ✓ daily challenge in the distributed app > keeps today and the list of records in English, and deletes or resets only daily records  3872ms
+   ✓ daily challenge in the distributed app > shows a corrupt record store as unreadable, refuses to overwrite it, and recovers through reset  6347ms
+   ✓ reports a discarded old victory truthfully in ja  4990ms
+   ✓ reports a discarded old victory truthfully in en  4875ms
+ ✓ tests/integration/english.test.ts (4 tests) 52485ms
+   ✓ English distributed UI > keeps every built-in briefing and deployment panel in English  33777ms
+   ✓ English distributed UI > covers practice, unit information, production, saves, campaign and the editor  6949ms
+   ✓ English distributed UI > keeps custom names, authored briefings and saved JSON unchanged across language changes  6911ms
+   ✓ English distributed UI > localizes generated standard and frontline map metadata after saving and reopening  4846ms
+ ✓ tests/integration/startup.test.ts (19 tests) 68703ms
+   ✓ distributed application boundaries > rejects a saved unit ID containing markup before it reaches the board  3603ms
+   ✓ distributed application boundaries > shares title zoom with operations, resume and board buttons, rejecting invalid values  10005ms
+   ✓ distributed application boundaries > shares CPU speed between title and game and rejects unsupported form values  5515ms
+   ✓ distributed application boundaries > reconstructs recon and analysis at the selected replay position without future samples  2357ms
+   ✓ distributed application boundaries > generates a custom map and persists, applies and deletes its deployment preset across startup  4597ms
+   ✓ distributed application boundaries > reconstructs stale observations after undo and save/resume without exposing full analysis  3654ms
+   ✓ distributed application boundaries > shows analysis only for the explicit whole-board spectator view  2293ms
+   ✓ distributed application boundaries > rejects invalid seeds and recovers corrupt presets without deleting match saves  2264ms
+   ✓ distributed application boundaries > deploys a custom force and preserves evacuation progress through undo, save and resume  6349ms
+   ✓ distributed application boundaries > validates both hotseat loadouts and ignores blue edits after returning to CPU mode  2350ms
+   ✓ distributed application boundaries > starts with unavailable storage and can play a practice operation  1404ms
+   ✓ distributed application boundaries > offers named-only saves on startup and resumes the selected one  2312ms
+   ✓ distributed application boundaries > keeps the board when loading fails and exposes invalid entries for deletion  4297ms
+   ✓ distributed application boundaries > opens editor, blocks empty operation, paints and undoes without losing the draft  3217ms
+   ✓ distributed application boundaries > preserves an active match when replacement is cancelled, and closes the editor with Escape  2565ms
+   ✓ distributed application boundaries > switches primary screens and persists English without changing scenario identifiers  2811ms
+   ✓ distributed application boundaries > stops writes on changes from another tab  2795ms
+   ✓ keeps saved data intact and offers export when storage protection is unsupported  2712ms
+   ✓ keeps saved data intact and offers export when storage protection is busy  3600ms
+ ✓ tests/integration/operationsExpansion.test.ts (4 tests) 23767ms
+   ✓ distributed recon, control and operation records > targets, cancels, undoes and restores scans without retaining vision into the next turn  8743ms
+   ✓ distributed recon, control and operation records > records completed human operations idempotently and presents conditions and challenge results  5315ms
+   ✓ distributed recon, control and operation records > recovers corrupt records without deleting matches and supports per-condition deletion  7030ms
+   ✓ distributed recon, control and operation records > offers both control operations and exports a mirrored public scoring condition in the editor  2678ms
+ ✓ tests/integration/shareLink.test.ts (11 tests) 32572ms
+   ✓ share link in the distributed application > opens a confirmation as the only dialog, focused on cancel, without writing storage  634ms
+   ✓ share link in the distributed application > cancel and Escape write nothing, clear the hash and bring the title back  2827ms
+   ✓ share link in the distributed application > confirming adds one custom operation, keeps everything else, and opens the briefing  626ms
+   ✓ share link in the distributed application > does not duplicate when the same link is confirmed twice  1710ms
+   ✓ share link in the distributed application > refuses invalid, unsupported and daily-style links with a notice and changes nothing  12474ms
+   ✓ share link in the distributed application > ignores unrelated hashes and leaves them in the address bar  1829ms
+   ✓ share link in the distributed application > holds a link that arrives behind other screens and shows it only when the title returns  6294ms
+   ✓ share link in the distributed application > replaces a waiting link with a newer valid one and keeps it through an invalid one  3867ms
+   ✓ share link in the distributed application > shows the playable frontline preset and starts it  444ms
+   ✓ share link in the distributed application > keeps the dialog and the link when the library is full, then allows a retry  398ms
+   ✓ share link in the distributed application > copies the link of the generator form  1464ms
+stderr | tests/integration/presentation.test.ts > keeps the unit brief stable until the delayed touch compatibility click
+Not implemented: HTMLMediaElement's pause() method
+
+ ✓ tests/integration/crossing.test.ts (1 test) 3380ms
+   ✓ runs bridge construction through the shipped bundle and preserves costs, history and undo  3379ms
+ ✓ tests/integration/frontline.test.ts (1 test) 3643ms
+   ✓ runs engineering through the shipped bundle and preserves costs, history and undo  3642ms
+ ✓ tests/integration/customMaps.test.ts (5 tests) 17647ms
+   ✓ confirms deletion in ja and keeps the running match and saved state  5446ms
+   ✓ confirms deletion in en and keeps the running match and saved state  4709ms
+   ✓ keeps the map and reports an error when catalog persistence fails  1840ms
+   ✓ records the chosen finite supply rule and restores it from a save  3051ms
+   ✓ records the chosen unlimited supply rule and restores it from a save  2600ms
+ ✓ tests/integration/presentation.test.ts (5 tests) 10723ms
+   ✓ keeps the unit brief stable until the delayed touch compatibility click  3685ms
+   ✓ migrates preferences and synchronizes title and match controls in ja  1840ms
+   ✓ migrates preferences and synchronizes title and match controls in en  2032ms
+   ✓ reports storage failure while keeping the current settings and stored preferences  1469ms
+   ✓ keeps the current game and its recorded rule when changing title BGM  1697ms
+⎯⎯⎯⎯⎯⎯ Unhandled Errors ⎯⎯⎯⎯⎯⎯
+
+Vitest caught 1 unhandled error during the test run.
+This might cause false positive tests. Resolve unhandled errors to make sure your tests are not affected.
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: [vitest-worker]: Timeout calling "onTaskUpdate"
+ ❯ Object.onTimeoutError ../MiniStr/node_modules/vitest/dist/chunks/rpc.-pEldfrD.js:53:10
+ ❯ Timeout._onTimeout ../MiniStr/node_modules/vitest/dist/chunks/index.B521nVV-.js:59:62
+ ❯ listOnTimeout node:internal/timers:635:17
+ ❯ processTimers node:internal/timers:571:7
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+
+
+ Test Files  9 passed (9)
+      Tests  60 passed (60)
+     Errors  1 error
+   Start at  23:30:05
+   Duration  92.22s (transform 1.81s, setup 0ms, collect 13.49s, tests 256.70s, environment 2ms, prepare 946ms)

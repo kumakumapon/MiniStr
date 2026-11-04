@@ -4,6 +4,7 @@ import { tacticalState as state, tacticalUnit as unit, tacticalOk as ok } from '
 import { applyGameCommand, type GameCommand } from '../src/game/session';
 import { createBoard } from '../src/game/state';
 import type { GameState } from '../src/game/types';
+import { unitStats } from '../src/game/units';
 
 function measured(initial: GameState, commands: GameCommand[]) {
   const metrics = new TacticalMetrics(initial);
@@ -16,6 +17,23 @@ function measured(initial: GameState, commands: GameCommand[]) {
   return metrics.summary();
 }
 describe('tactical comparison measurements', () => {
+  it('counts actual turn-start repair, net fuel, primary rearm and remaining dry units', () => {
+    const s = state([
+      { ...unit('tank', 'red', 1, 2), hp: 30, ammo: 0, fuel: 0 },
+      { ...unit('artillery', 'red', 4, 0, 'r2'), ammo: 0, fuel: 0 },
+      { ...unit('apc', 'red', 4, 1, 'r3'), supplyStock: 0 },
+      unit('infantry', 'blue', 8, 5),
+    ]);
+    s.tactics!.options.weather = false;
+    s.board.terrain[2]![1] = { kind: 'city', owner: 'red' };
+    s.players.red = { gold: 5000, income: 0 };
+    const m = measured(s, [{ type: 'endTurn' }, { type: 'endTurn' }]);
+    expect(m.logistics.restoredHP.red).toBe(20);
+    expect(m.logistics.rearmedPrimary.red).toBe(unitStats.tank.ammo);
+    expect(m.logistics.netFuelGain.red).toBe(unitStats.tank.fuel);
+    expect(m.logistics.dryGroundStarts.red).toBe(1);
+    expect(m.logistics.dryTruckStarts.red).toBe(1);
+  });
   it('counts simultaneous damage, both ammunition uses and destroyed values once', () => {
     const s = state([
       { ...unit('infantry', 'red', 1, 2), hp: 1 },

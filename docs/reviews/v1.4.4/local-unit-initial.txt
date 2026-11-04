@@ -1,0 +1,361 @@
+
+> ministr@1.4.3 test
+> vitest run --maxWorkers=2 --minWorkers=1
+
+
+ RUN  v3.2.7 /workspace/MiniStr-v1.4.4
+
+ ✓ |node| src/ai/cpuSimulation-hard.test.ts (11 tests) 42440ms
+   ✓ CPU-versus-CPU scenario regression at hard > runs skirmish without issuing illegal commands  4642ms
+   ✓ CPU-versus-CPU scenario regression at hard > runs islands without issuing illegal commands  1273ms
+   ✓ CPU-versus-CPU scenario regression at hard > runs landing without issuing illegal commands  366ms
+   ✓ CPU-versus-CPU scenario regression at hard > runs canyon without issuing illegal commands  9827ms
+   ✓ CPU-versus-CPU scenario regression at hard > runs siege without issuing illegal commands  5310ms
+   ✓ CPU-versus-CPU scenario regression at hard > runs river without issuing illegal commands  2747ms
+   ✓ CPU-versus-CPU scenario regression at hard > runs industrial without issuing illegal commands  372ms
+   ✓ CPU-versus-CPU scenario regression at hard > runs tundra without issuing illegal commands  1225ms
+   ✓ CPU-versus-CPU scenario regression at hard > runs outpost without issuing illegal commands  1127ms
+   ✓ CPU-versus-CPU scenario regression at hard > runs marsh without issuing illegal commands  1101ms
+   ✓ CPU-versus-CPU scenario regression at hard > runs admiralty without issuing illegal commands  14447ms
+ ✓ |node| src/ai/cpuSimulation-normal.test.ts (11 tests) 50788ms
+   ✓ CPU-versus-CPU scenario regression at normal > runs skirmish without issuing illegal commands  5598ms
+   ✓ CPU-versus-CPU scenario regression at normal > runs islands without issuing illegal commands  843ms
+   ✓ CPU-versus-CPU scenario regression at normal > runs landing without issuing illegal commands  508ms
+   ✓ CPU-versus-CPU scenario regression at normal > runs canyon without issuing illegal commands  11722ms
+   ✓ CPU-versus-CPU scenario regression at normal > runs siege without issuing illegal commands  8855ms
+   ✓ CPU-versus-CPU scenario regression at normal > runs river without issuing illegal commands  3267ms
+   ✓ CPU-versus-CPU scenario regression at normal > runs industrial without issuing illegal commands  782ms
+   ✓ CPU-versus-CPU scenario regression at normal > runs tundra without issuing illegal commands  1163ms
+   ✓ CPU-versus-CPU scenario regression at normal > runs outpost without issuing illegal commands  2790ms
+   ✓ CPU-versus-CPU scenario regression at normal > runs marsh without issuing illegal commands  2664ms
+   ✓ CPU-versus-CPU scenario regression at normal > runs admiralty without issuing illegal commands  12595ms
+ ✓ |node| src/game/campaignBranches.test.ts (4 tests) 85127ms
+   ✓ clears branching route skirmish/islands/siege/river/tundra/outpost/industrial/marsh with earned survivors and support  10045ms
+   ✓ clears branching route skirmish/canyon/siege/river/tundra/landing/industrial/marsh with earned survivors and support  20269ms
+   ✓ clears branching route skirmish/islands/siege/river/tundra/landing/industrial/marsh with earned survivors and support  32337ms
+   ✓ clears branching route skirmish/canyon/siege/river/tundra/outpost/industrial/marsh with earned survivors and support  22473ms
+ ✓ |node| src/ai/cpuSimulation.test.ts (12 tests) 82973ms
+   ✓ CPU-versus-CPU scenario regression at easy > runs skirmish without issuing illegal commands  3601ms
+   ✓ CPU-versus-CPU scenario regression at easy > runs islands without issuing illegal commands  861ms
+   ✓ CPU-versus-CPU scenario regression at easy > runs landing without issuing illegal commands  524ms
+   ✓ CPU-versus-CPU scenario regression at easy > runs canyon without issuing illegal commands  17422ms
+   ✓ CPU-versus-CPU scenario regression at easy > runs siege without issuing illegal commands  18407ms
+   ✓ CPU-versus-CPU scenario regression at easy > runs river without issuing illegal commands  11950ms
+   ✓ CPU-versus-CPU scenario regression at easy > runs industrial without issuing illegal commands  4077ms
+   ✓ CPU-versus-CPU scenario regression at easy > runs tundra without issuing illegal commands  3913ms
+   ✓ CPU-versus-CPU scenario regression at easy > runs outpost without issuing illegal commands  4559ms
+   ✓ CPU-versus-CPU scenario regression at easy > runs marsh without issuing illegal commands  2848ms
+   ✓ CPU-versus-CPU scenario regression at easy > runs admiralty without issuing illegal commands  7223ms
+   ✓ CPU-versus-CPU classic-rule regression > runs classic-rule matches on land, naval, and transport maps without issuing illegal commands  7585ms
+ ✓ |node| src/ai/standalone-playthrough.test.ts (19 tests) 16079ms
+   ✓ new standalone operations and generated fronts > completes convoy-escort against easy CPU  468ms
+   ✓ new standalone operations and generated fronts > completes control-crossroads against easy CPU  740ms
+   ✓ new standalone operations and generated fronts > completes control-coast against easy CPU  852ms
+   ✓ new standalone operations and generated fronts > plays a generated 16/none front with legal commands  2135ms
+   ✓ new standalone operations and generated fronts > plays a generated 16/coast front with legal commands  1057ms
+   ✓ new standalone operations and generated fronts > plays a generated 16/ocean front with legal commands  772ms
+   ✓ new standalone operations and generated fronts > plays a generated 20/none front with legal commands  1027ms
+   ✓ new standalone operations and generated fronts > plays a generated 20/coast front with legal commands  775ms
+   ✓ new standalone operations and generated fronts > plays a generated 20/ocean front with legal commands  799ms
+   ✓ new standalone operations and generated fronts > plays a generated 24/none front with legal commands  816ms
+   ✓ new standalone operations and generated fronts > plays a generated 24/coast front with legal commands  762ms
+   ✓ new standalone operations and generated fronts > plays a generated 24/ocean front with legal commands  1150ms
+   ✓ new standalone operations and generated fronts > plays a generated 32/none front with legal commands  1243ms
+   ✓ new standalone operations and generated fronts > plays a generated 32/coast front with legal commands  1335ms
+   ✓ new standalone operations and generated fronts > plays a generated 32/ocean front with legal commands  1408ms
+ ✓ |node| src/ai/tacticalMaps.test.ts (23 tests) 9737ms
+   ✓ combined tactics on all authored maps > issues legal orders on skirmish  695ms
+   ✓ combined tactics on all authored maps > issues legal orders on canyon  438ms
+   ✓ combined tactics on all authored maps > issues legal orders on siege  311ms
+   ✓ combined tactics on all authored maps > issues legal orders on river  1010ms
+   ✓ combined tactics on all authored maps > issues legal orders on industrial  602ms
+   ✓ combined tactics on all authored maps > issues legal orders on tundra  577ms
+   ✓ combined tactics on all authored maps > issues legal orders on supply-ridge  305ms
+   ✓ combined tactics on all authored maps > issues legal orders on bridgehead  1500ms
+   ✓ combined tactics on all authored maps > issues legal orders on river-withdrawal  958ms
+   ✓ combined tactics on all authored maps > issues legal orders on wide-front  1091ms
+ ✓ |node| src/game/campaignPlaythrough.test.ts (4 tests) 33832ms
+   ✓ campaign reference playthrough > also clears the easy campaign with its own earned grades and survivors  13332ms
+   ✓ campaign reference playthrough > wins all ten normal operations in order with real grades and veteran carryover  949ms
+stdout | src/game/dailyChallenge.test.ts > date to conditions > generates and validates every date of 2026
+daily sweep 2026: 365 dates in 700 ms
+
+stdout | src/game/dailyChallenge.test.ts > date to conditions > generates and validates every date of 2027
+daily sweep 2027: 365 dates in 589 ms
+
+stdout | src/game/dailyChallenge.test.ts > date to conditions > generates and validates every date of 2028
+daily sweep 2028: 366 dates in 622 ms
+
+stdout | src/game/dailyChallenge.test.ts > date to conditions > generates and validates every date of 2029
+daily sweep 2029: 365 dates in 808 ms
+
+stdout | src/game/dailyChallenge.test.ts > date to conditions > generates and validates every date of 2030
+daily sweep 2030: 365 dates in 804 ms
+
+stdout | src/game/dailyChallenge.test.ts > date to conditions > generates and validates every date of 2031
+daily sweep 2031: 365 dates in 675 ms
+
+stdout | src/game/dailyChallenge.test.ts > date to conditions > generates and validates every date of 2032
+daily sweep 2032: 366 dates in 513 ms
+
+stdout | src/game/dailyChallenge.test.ts > date to conditions > generates and validates every date of 2033
+daily sweep 2033: 365 dates in 459 ms
+
+stdout | src/game/dailyChallenge.test.ts > date to conditions > generates and validates every date of 2034
+daily sweep 2034: 365 dates in 613 ms
+
+stdout | src/game/dailyChallenge.test.ts > date to conditions > generates and validates every date of 2035
+daily sweep 2035: 365 dates in 480 ms
+
+stdout | src/game/dailyChallenge.test.ts > date to conditions > generates and validates every date of 2036
+daily sweep 2036: 366 dates in 477 ms
+
+ ✓ |node| src/game/mapExpansion.test.ts (26 tests) 6641ms
+   ✓ old small-map persistence > restores a pre-snapshot save and replay of skirmish  820ms
+   ✓ old small-map persistence > restores a pre-snapshot save and replay of islands  470ms
+   ✓ old small-map persistence > restores a pre-snapshot save and replay of canyon  1075ms
+   ✓ old small-map persistence > restores a pre-snapshot save and replay of siege  1525ms
+   ✓ old small-map persistence > restores a pre-snapshot save and replay of river  762ms
+   ✓ old small-map persistence > restores a pre-snapshot save and replay of tundra  340ms
+   ✓ old small-map persistence > restores a pre-snapshot save and replay of marsh  506ms
+   ✓ old small-map persistence > restores a pre-snapshot save and replay of admiralty  697ms
+ ✓ |node| src/game/dailyChallenge.test.ts (32 tests) 9376ms
+   ✓ #230 precondition: an unsaved definition works without a custom slot > starts, saves, resumes, replays and restarts with a full custom catalog  1251ms
+   ✓ date to conditions > generates and validates every date of 2026  702ms
+   ✓ date to conditions > generates and validates every date of 2027  589ms
+   ✓ date to conditions > generates and validates every date of 2028  623ms
+   ✓ date to conditions > generates and validates every date of 2029  808ms
+   ✓ date to conditions > generates and validates every date of 2030  805ms
+   ✓ date to conditions > generates and validates every date of 2031  676ms
+   ✓ date to conditions > generates and validates every date of 2032  514ms
+   ✓ date to conditions > generates and validates every date of 2033  459ms
+   ✓ date to conditions > generates and validates every date of 2034  614ms
+   ✓ date to conditions > generates and validates every date of 2035  480ms
+   ✓ date to conditions > generates and validates every date of 2036  478ms
+   ✓ recording rules > replays and records a resumed v10 daily victory under its original rules  920ms
+ ✓ |node| src/ai/crossing-playthrough.test.ts (2 tests) 1748ms
+   ✓ clears bridgehead with its authored goal against easy CPU  1394ms
+   ✓ clears river-withdrawal with its authored goal against easy CPU  352ms
+ ✓ |node| src/ai/frontline-playthrough.test.ts (6 tests) 3041ms
+   ✓ frontline operation playthroughs > wins supply-contest by its authored objective against easy  580ms
+   ✓ frontline operation playthroughs > wins supply-ridge by its authored objective against easy  300ms
+   ✓ frontline operation playthroughs > completes legal easy mirror matches without exceeding the objective deadline  550ms
+   ✓ frontline operation playthroughs > completes legal normal mirror matches without exceeding the objective deadline  713ms
+   ✓ frontline operation playthroughs > completes legal hard mirror matches without exceeding the objective deadline  886ms
+ ✓ |node| src/ai/balance.test.ts (29 tests) 1800ms
+   ✓ simulateMatch > is deterministic for the same seed  356ms
+   ✓ simulateMatch > records modern repair costs and none under classic rules  1293ms
+ ✓ |node| src/ai/crossing.test.ts (27 tests) 1796ms
+   ✓ CPU crossing planning > constructs and crosses legally in bridgehead  1379ms
+   ✓ CPU crossing planning > constructs and crosses legally in river-withdrawal  367ms
+ ✓ |node| src/game/mapGenerator.test.ts (39 tests) 1005ms
+ ✓ |node| src/ai/recon.test.ts (4 tests) 1113ms
+   ✓ reconnaissance CPU observation boundary > preserves the v6 withdrawal while v7 clears friendly traffic and keeps survivors moving toward exits  1097ms
+ ✓ |node| src/game/wideOperations.test.ts (2 tests) 358ms
+   ✓ bounds wide replay checkpoints and preserves seeks after eviction and caller mutation  346ms
+ ✓ |node| src/game/maps.test.ts (14 tests) 429ms
+ ✓ |node| src/ai/perspective.test.ts (6 tests) 341ms
+ ✓ |node| src/ai/operations-playthrough.test.ts (3 tests) 321ms
+ ✓ |node| src/game/session.test.ts (23 tests) 184ms
+ ✓ |node| src/game/shareLink.test.ts (72 tests) 237ms
+ ✓ |node| src/game/saveRecovery.test.ts (5 tests) 153ms
+ ✓ |node| scripts/pairedBalance.test.ts (4 tests) 136ms
+ ✓ |node| scripts/generatedBalance.test.ts (4 tests) 168ms
+ ✓ |node| src/ai/armyPolicy.test.ts (5 tests) 118ms
+ ✓ |node| src/ai/supportAttack.test.ts (4 tests) 78ms
+ ✓ |node| src/ai/rules.test.ts (28 tests) 78ms
+ ✓ |node| src/ai/airlift.test.ts (5 tests) 64ms
+ ✓ |node| src/game/operationRecords.test.ts (5 tests) 57ms
+ ✓ |node| src/game/evacuation.test.ts (30 tests) 66ms
+ ✓ |node| src/game/review155.test.ts (8 tests) 69ms
+ ✓ |node| src/game/maps-issues.test.ts (3 tests) 59ms
+ ✓ |node| src/game/game.test.ts (70 tests) 54ms
+ ✓ |node| src/game/battleHistory.test.ts (6 tests) 42ms
+ ✓ |node| src/ai/coordination.test.ts (15 tests) 45ms
+ ✓ |node| scripts/dependencyAudit.test.ts (20 tests) 85ms
+ ✓ |node| src/game/deployment.test.ts (7 tests) 104ms
+ ✓ |node| src/game/replay.test.ts (16 tests) 77ms
+ ✓ |node| src/game/frontline.test.ts (41 tests) 71ms
+ ✓ |node| src/game/destroyBridge.test.ts (12 tests) 50ms
+ ❯ |node| scripts/ubuntuMirrors.test.ts (6 tests | 3 failed) 41ms
+   × Ubuntu HTTPS mirrors > updates the mirror lists used by current GitHub runners 21ms
+     → spawnSync bash EPERM
+   × Ubuntu HTTPS mirrors > supports legacy and direct deb822 sources without changing other repositories 11ms
+     → spawnSync bash EPERM
+   × Ubuntu HTTPS mirrors > allows missing source formats and repeated execution 6ms
+     → spawnSync bash EPERM
+   ✓ Ubuntu HTTPS mirrors > runs the shared configuration before browser installation in the reusable CI 1ms
+   ✓ Ubuntu HTTPS mirrors > uses the same browser setup for manual Pages verification 1ms
+   ✓ Ubuntu HTTPS mirrors > configures the shared mirror before the terrain stability browser install 0ms
+ ✓ |node| src/game/tactics.test.ts (14 tests) 36ms
+ ✓ |node| src/game/strategyExpansion.test.ts (6 tests) 38ms
+ ✓ |node| src/ai/supplyRendezvous.test.ts (7 tests) 25ms
+ ✓ |node| src/game/bridges.test.ts (31 tests) 40ms
+ ✓ |node| src/ai/rules-strike.test.ts (12 tests) 42ms
+ ✓ |node| src/game/tacticalValidation.test.ts (17 tests) 58ms
+ ✓ |node| src/ai/finiteSupplies.test.ts (3 tests) 28ms
+ ✓ |node| src/game/backup.test.ts (21 tests) 47ms
+ ✓ |node| src/game/finiteSupplySession.test.ts (2 tests) 33ms
+ ✓ |node| src/game/decision.test.ts (13 tests) 56ms
+ ✓ |node| src/ai/rules-offense.test.ts (19 tests) 42ms
+ ✓ |node| scripts/tacticalScenarios.test.ts (1 test) 24ms
+ ✓ |node| src/game/logistics.test.ts (16 tests) 68ms
+ ✓ |node| src/game/replayTimeline.test.ts (4 tests) 44ms
+ ✓ |node| src/game/ammunition.test.ts (54 tests) 24ms
+ ✓ |node| src/ai/rules-campaign.test.ts (7 tests) 48ms
+ ✓ |node| src/game/editorTools.test.ts (7 tests) 24ms
+ ✓ |node| src/ai/review155.test.ts (4 tests) 24ms
+ ✓ |node| src/game/tacticalContact.test.ts (8 tests) 36ms
+ ✓ |node| src/game/recon.test.ts (3 tests) 21ms
+ ✓ |node| src/ai/tactics.test.ts (9 tests) 16ms
+ ✓ |node| src/game/deploymentPresets.test.ts (11 tests) 44ms
+ ✓ |node| src/game/modernUnits.test.ts (13 tests) 22ms
+ ✓ |node| scripts/tacticalMetrics.test.ts (5 tests) 68ms
+ ✓ |node| src/ai/defensiveRepair.test.ts (2 tests) 27ms
+ ✓ |node| src/game/airlift.test.ts (7 tests) 40ms
+ ✓ |node| src/game/control.test.ts (3 tests) 55ms
+ ✓ |node| src/game/stateProperties.test.ts (2 tests) 49ms
+ ✓ |node| src/game/victory.test.ts (12 tests) 13ms
+ ✓ |node| src/ai/frontline.test.ts (3 tests) 18ms
+ ✓ |node| src/game/scenario-export.test.ts (5 tests) 39ms
+ ✓ |node| src/game/supplyStock.test.ts (8 tests) 16ms
+ ✓ |node| src/game/experience.test.ts (9 tests) 35ms
+ ✓ |node| src/game/campaign.test.ts (15 tests) 34ms
+ ✓ |node| scripts/combatExperiment.test.ts (7 tests) 65ms
+ ✓ |node| src/game/facilities.test.ts (8 tests) 10ms
+ ✓ |node| src/game/merge.test.ts (6 tests) 12ms
+ ✓ |node| src/game/combat.test.ts (11 tests) 19ms
+ ✓ |node| src/game/campaignHold.test.ts (6 tests) 23ms
+ ✓ |node| src/game/mapBoundary.test.ts (1 test) 16ms
+ ✓ |node| src/game/tacticalMaps-v2.test.ts (2 tests) 13ms
+ ✓ |node| scripts/terrainPixels.test.ts (13 tests) 49ms
+ ✓ |node| src/ai/rules-issues.test.ts (1 test) 15ms
+ ✓ |node| src/game/antiAir.test.ts (3 tests) 11ms
+ ✓ |node| src/game/combat-rng.test.ts (5 tests) 25ms
+ ✓ |node| scripts/performanceMetrics.test.ts (3 tests) 36ms
+ ✓ |node| src/game/threat.test.ts (3 tests) 29ms
+ ✓ |node| src/game/editor.test.ts (3 tests) 6ms
+ ✓ |node| src/game/editor-issues.test.ts (3 tests) 7ms
+ ✓ |ui| src/ui/titleEvents.test.ts (32 tests) 1733ms
+ ✓ |ui| src/ui/titleEvents.share.test.ts (31 tests) 2291ms
+ ✓ |ui| src/ui/titleScreen.test.ts (17 tests) 797ms
+   ✓ buildTitleOverlay > prefers the title notice, then the missing storage warning, then an invalid save  310ms
+ ✓ |ui| src/ui/review155.test.ts (8 tests) 580ms
+   ✓ locale, learning and user-selected diagnostics > renders editor tools and user names as text, across objective types  438ms
+ ✓ |ui| src/ui/storageWriter.test.ts (9 tests) 274ms
+ ✓ |ui| src/ui/deployment.test.ts (6 tests) 256ms
+ ✓ |ui| src/ui/standaloneSystems.test.ts (10 tests) 273ms
+ ✓ |ui| src/ui/modalFocus.test.ts (1 test) 413ms
+   ✓ modal keyboard focus > wraps Tab and Shift+Tab and redirects outside focus  411ms
+ ✓ |ui| src/ui/dailyChallenge.test.ts (7 tests) 392ms
+ ✓ |ui| src/ui/undoHistory.test.ts (2 tests) 213ms
+ ✓ |ui| src/ui/overlays.test.ts (20 tests) 153ms
+ ✓ |ui| src/ui/locale.test.ts (7 tests) 168ms
+ ✓ |ui| src/ui/shareLinkDialog.test.ts (7 tests) 370ms
+ ✓ |ui| src/ui/unitBrief.test.ts (7 tests) 249ms
+ ✓ |ui| src/ui/boardZoomView.test.ts (2 tests) 162ms
+ ✓ |ui| src/ui/spectatorCamera.test.ts (13 tests) 187ms
+ ✓ |ui| src/ui/bridges.test.ts (4 tests) 70ms
+ ✓ |ui| src/ui/productionMenu.test.ts (3 tests) 142ms
+ ✓ |ui| src/ui/musicControls.test.ts (3 tests) 99ms
+ ✓ |ui| src/ui/spectatorSceneControls.test.ts (3 tests) 102ms
+ ✓ |ui| src/ui/scenarioText.test.ts (5 tests) 85ms
+ ✓ |ui| src/ui/boardView.test.ts (5 tests) 105ms
+ ✓ |ui| src/ui/saveSlots.test.ts (3 tests) 111ms
+ ✓ |ui| src/ui/strategyExpansion.test.ts (2 tests) 70ms
+ ✓ |ui| src/ui/frontline.test.ts (6 tests) 85ms
+ ✓ |ui| src/ui/boardInput.test.ts (4 tests) 38ms
+ ✓ |ui| src/ui/webAudioMusic.test.ts (28 tests) 32ms
+ ✓ |ui| src/ui/cpuSpeed.test.ts (2 tests) 66ms
+ ✓ |ui| src/ui/presentationEffects.test.ts (8 tests) 87ms
+ ✓ |ui| src/ui/numericMarkup.test.ts (2 tests) 48ms
+ ✓ |ui| src/ui/tactics.test.ts (8 tests) 162ms
+ ✓ |ui| src/ui/renderScroll.test.ts (4 tests) 93ms
+ ✓ |ui| src/ui/retainControls.test.ts (1 test) 45ms
+ ✓ |ui| src/ui/cpuResponse.test.ts (3 tests) 27ms
+ ✓ |ui| src/ui/cpuPlanner.test.ts (5 tests) 89ms
+ ✓ |ui| src/ui/operationsExpansion.test.ts (3 tests) 46ms
+ ✓ |ui| src/ui/terrainAppearance.test.ts (10 tests) 75ms
+ ✓ |ui| src/ui/sound.test.ts (33 tests) 89ms
+ ✓ |ui| src/ui/music.test.ts (19 tests) 24ms
+ ✓ |ui| src/ui/mapPreview.test.ts (8 tests) 39ms
+ ✓ |ui| src/ui/replayRuntime.test.ts (1 test) 13ms
+ ✓ |ui| src/ui/fogDisplay.test.ts (6 tests) 25ms
+ ✓ |ui| src/ui/commandScheduler.test.ts (4 tests) 17ms
+ ✓ |ui| src/ui/storageSafety.test.ts (3 tests) 17ms
+ ✓ |ui| src/ui/battleAudio.test.ts (3 tests) 10ms
+ ✓ |ui| src/ui/boardZoom.test.ts (7 tests) 5ms
+ ✓ |ui| src/ui/finiteSupplies.test.ts (3 tests) 9ms
+ ✓ |ui| src/ui/tileInspector.test.ts (8 tests) 9ms
+ ✓ |ui| src/ui/matchControl.test.ts (17 tests) 8ms
+ ✓ |ui| src/ui/audioRecovery.test.ts (1 test) 10ms
+ ✓ |ui| src/ui/tileMarkupCache.test.ts (2 tests) 4ms
+ ✓ |ui| src/ui/boardNavigation.test.ts (3 tests) 4ms
+ ✓ |ui| src/ui/tileInspector-issues.test.ts (1 test) 5ms
+ ✓ |ui| src/ui/focusRestore.test.ts (2 tests) 3ms
+ ✓ |ui| src/ui/asyncRequest.test.ts (1 test) 25ms
+ ✓ |ui| src/ui/labels.test.ts (1 test) 7ms
+ ✓ |ui| src/ui/learning.test.ts (1 test) 7ms
+ ✓ |ui| src/ui/screenController.test.ts (1 test) 3ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |node| scripts/ubuntuMirrors.test.ts > Ubuntu HTTPS mirrors > updates the mirror lists used by current GitHub runners
+Error: spawnSync bash EPERM
+ ❯ configure scripts/ubuntuMirrors.test.ts:23:3
+     21|
+     22| function configure(directory: string): void {
+     23|   execFileSync('bash', [script, directory]);
+       |   ^
+     24| }
+     25|
+ ❯ scripts/ubuntuMirrors.test.ts:38:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  |node| scripts/ubuntuMirrors.test.ts > Ubuntu HTTPS mirrors > supports legacy and direct deb822 sources without changing other repositories
+Error: spawnSync bash EPERM
+ ❯ configure scripts/ubuntuMirrors.test.ts:23:3
+     21|
+     22| function configure(directory: string): void {
+     23|   execFileSync('bash', [script, directory]);
+       |   ^
+     24| }
+     25|
+ ❯ scripts/ubuntuMirrors.test.ts:51:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  |node| scripts/ubuntuMirrors.test.ts > Ubuntu HTTPS mirrors > allows missing source formats and repeated execution
+Error: spawnSync bash EPERM
+ ❯ configure scripts/ubuntuMirrors.test.ts:23:3
+     21|
+     22| function configure(directory: string): void {
+     23|   execFileSync('bash', [script, directory]);
+       |   ^
+     24| }
+     25|
+ ❯ scripts/ubuntuMirrors.test.ts:62:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+⎯⎯⎯⎯⎯⎯ Unhandled Errors ⎯⎯⎯⎯⎯⎯
+
+Vitest caught 1 unhandled error during the test run.
+This might cause false positive tests. Resolve unhandled errors to make sure your tests are not affected.
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: [vitest-worker]: Timeout calling "onTaskUpdate"
+ ❯ Object.onTimeoutError ../MiniStr/node_modules/vitest/dist/chunks/rpc.-pEldfrD.js:53:10
+ ❯ Timeout._onTimeout ../MiniStr/node_modules/vitest/dist/chunks/index.B521nVV-.js:59:62
+ ❯ listOnTimeout node:internal/timers:635:17
+ ❯ processTimers node:internal/timers:571:7
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+
+
+ Test Files  1 failed | 147 passed (148)
+      Tests  3 failed | 1504 passed (1507)
+     Errors  1 error
+   Start at  23:26:55
+   Duration  268.62s (transform 5.85s, setup 0ms, collect 31.78s, tests 363.07s, environment 82.64s, prepare 16.98s)

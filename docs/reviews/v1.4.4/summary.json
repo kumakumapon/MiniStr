@@ -1,0 +1,3418 @@
+{
+  "version": "v1.4.4",
+  "baselineMain": "4a437cd3448b05754c5fc01b31acf7e9fbc211b7",
+  "baselineLocalEquivalent": "329c78ab2355594c5659fcabff1cb3f15164aa09",
+  "productCommit": "d7c64c1bc390f92ade21e3b3111bebb3d9319983",
+  "totalSavedGames": 352,
+  "invalidMapTrialGames": 36,
+  "note": "Paired, repeated, exploratory and before/after observations are correlated. Map A/B only changed the name because cells were serialized before the edits; excluded from adoption. Catalog seed is a label; damageSeed changes combat variance. CPU times ran concurrently and are diagnostic only. No overall fairness or win-rate guarantee.",
+  "files": [
+    {
+      "file": "before-classic.jsonl",
+      "sha256": "aae3b6dc5ce60ffdfb7ef6e2d078c7dac55366def513c348735a982ea14f42e6",
+      "header": {
+        "format": "tactical-balance-v1",
+        "source": "6ac0abb99a15a24e686c94a23c40cd0ceb6c558cd8c7337456406d21e1225e0f",
+        "harness": "147d0ffaae9155782bdae1f7a043440b8029d63235080a92b3f6d58281da0101",
+        "runtime": "v24.19.0",
+        "requested": 4,
+        "rounds": 90,
+        "note": "Red always starts. Return legs rotate the map and exchange policies; observations are correlated. Base is v13 common observed-route/contact physics with all optional features off. Transport isolates moved unloading on legacy movement. Baseline CPU means old heuristics using the current legal forecasts. Weather has an independent fixed stream. Undecided games are neither wins nor draws."
+      },
+      "complete": {
+        "complete": true,
+        "completed": 4,
+        "elapsedMs": 39369.496182999996
+      },
+      "totals": {
+        "games": 4,
+        "firstWins": 3,
+        "secondWins": 1,
+        "draws": 0,
+        "undecided": 0,
+        "defensiveWins": 0,
+        "restoredHP": 784,
+        "rearmedPrimary": 354,
+        "netFuelGain": 6088,
+        "dryGroundStarts": 28,
+        "dryTruckStarts": 0
+      },
+      "groups": {
+        "classic/revised/20/coast/balanced:balanced/2000/normal:normal": {
+          "games": 2,
+          "firstWins": 2,
+          "secondWins": 0,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 0,
+          "restoredHP": 473,
+          "rearmedPrimary": 188,
+          "netFuelGain": 2272,
+          "dryGroundStarts": 9,
+          "dryTruckStarts": 0
+        },
+        "classic/revised/32/coast/balanced:balanced/2000/normal:normal": {
+          "games": 2,
+          "firstWins": 1,
+          "secondWins": 1,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 0,
+          "restoredHP": 311,
+          "rearmedPrimary": 166,
+          "netFuelGain": 3816,
+          "dryGroundStarts": 19,
+          "dryTruckStarts": 0
+        }
+      }
+    },
+    {
+      "file": "before-final-generated.jsonl",
+      "sha256": "919f54b2dcce80f2e9e879a617e14654b9b0430895804917b7fe020ef74092bd",
+      "header": {
+        "format": "tactical-balance-v1",
+        "source": "6ac0abb99a15a24e686c94a23c40cd0ceb6c558cd8c7337456406d21e1225e0f",
+        "harness": "147d0ffaae9155782bdae1f7a043440b8029d63235080a92b3f6d58281da0101",
+        "runtime": "v24.19.0",
+        "requested": 16,
+        "rounds": 90,
+        "note": "Red always starts. Return legs rotate the map and exchange policies; observations are correlated. Base is v13 common observed-route/contact physics with all optional features off. Transport isolates moved unloading on legacy movement. Baseline CPU means old heuristics using the current legal forecasts. Weather has an independent fixed stream. Undecided games are neither wins nor draws."
+      },
+      "complete": {
+        "complete": true,
+        "completed": 16,
+        "elapsedMs": 109820.66862
+      },
+      "totals": {
+        "games": 16,
+        "firstWins": 7,
+        "secondWins": 9,
+        "draws": 0,
+        "undecided": 0,
+        "defensiveWins": 9,
+        "restoredHP": 5028,
+        "rearmedPrimary": 1330,
+        "netFuelGain": 21827,
+        "dryGroundStarts": 81,
+        "dryTruckStarts": 1
+      },
+      "groups": {
+        "combined/revised/20/none/defensive:offensive/2000/normal:normal": {
+          "games": 2,
+          "firstWins": 0,
+          "secondWins": 2,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 1,
+          "restoredHP": 1011,
+          "rearmedPrimary": 188,
+          "netFuelGain": 2319,
+          "dryGroundStarts": 14,
+          "dryTruckStarts": 0
+        },
+        "combined/revised/20/ocean/defensive:offensive/2000/normal:normal": {
+          "games": 2,
+          "firstWins": 0,
+          "secondWins": 2,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 1,
+          "restoredHP": 1339,
+          "rearmedPrimary": 191,
+          "netFuelGain": 1320,
+          "dryGroundStarts": 5,
+          "dryTruckStarts": 0
+        },
+        "combined/revised/32/none/defensive:offensive/2000/normal:normal": {
+          "games": 2,
+          "firstWins": 0,
+          "secondWins": 2,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 1,
+          "restoredHP": 75,
+          "rearmedPrimary": 158,
+          "netFuelGain": 3931,
+          "dryGroundStarts": 19,
+          "dryTruckStarts": 0
+        },
+        "combined/revised/32/ocean/defensive:offensive/2000/normal:normal": {
+          "games": 2,
+          "firstWins": 1,
+          "secondWins": 1,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 0,
+          "restoredHP": 511,
+          "rearmedPrimary": 144,
+          "netFuelGain": 3390,
+          "dryGroundStarts": 10,
+          "dryTruckStarts": 1
+        },
+        "combined/revised/20/none/defensive:offensive/2000/hard:normal": {
+          "games": 1,
+          "firstWins": 1,
+          "secondWins": 0,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 1,
+          "restoredHP": 299,
+          "rearmedPrimary": 141,
+          "netFuelGain": 1408,
+          "dryGroundStarts": 4,
+          "dryTruckStarts": 0
+        },
+        "combined/revised/20/none/defensive:offensive/2000/normal:hard": {
+          "games": 1,
+          "firstWins": 0,
+          "secondWins": 1,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 1,
+          "restoredHP": 410,
+          "rearmedPrimary": 91,
+          "netFuelGain": 1136,
+          "dryGroundStarts": 12,
+          "dryTruckStarts": 0
+        },
+        "combined/revised/20/ocean/defensive:offensive/2000/hard:normal": {
+          "games": 1,
+          "firstWins": 1,
+          "secondWins": 0,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 1,
+          "restoredHP": 521,
+          "rearmedPrimary": 94,
+          "netFuelGain": 1368,
+          "dryGroundStarts": 2,
+          "dryTruckStarts": 0
+        },
+        "combined/revised/20/ocean/defensive:offensive/2000/normal:hard": {
+          "games": 1,
+          "firstWins": 0,
+          "secondWins": 1,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 1,
+          "restoredHP": 401,
+          "rearmedPrimary": 55,
+          "netFuelGain": 597,
+          "dryGroundStarts": 0,
+          "dryTruckStarts": 0
+        },
+        "combined/revised/32/none/defensive:offensive/2000/hard:normal": {
+          "games": 1,
+          "firstWins": 1,
+          "secondWins": 0,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 1,
+          "restoredHP": 47,
+          "rearmedPrimary": 86,
+          "netFuelGain": 1580,
+          "dryGroundStarts": 4,
+          "dryTruckStarts": 0
+        },
+        "combined/revised/32/none/defensive:offensive/2000/normal:hard": {
+          "games": 1,
+          "firstWins": 1,
+          "secondWins": 0,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 0,
+          "restoredHP": 40,
+          "rearmedPrimary": 75,
+          "netFuelGain": 2267,
+          "dryGroundStarts": 3,
+          "dryTruckStarts": 0
+        },
+        "combined/revised/32/ocean/defensive:offensive/2000/hard:normal": {
+          "games": 1,
+          "firstWins": 1,
+          "secondWins": 0,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 1,
+          "restoredHP": 160,
+          "rearmedPrimary": 65,
+          "netFuelGain": 1495,
+          "dryGroundStarts": 5,
+          "dryTruckStarts": 0
+        },
+        "combined/revised/32/ocean/defensive:offensive/2000/normal:hard": {
+          "games": 1,
+          "firstWins": 1,
+          "secondWins": 0,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 0,
+          "restoredHP": 214,
+          "rearmedPrimary": 42,
+          "netFuelGain": 1016,
+          "dryGroundStarts": 3,
+          "dryTruckStarts": 0
+        }
+      }
+    },
+    {
+      "file": "before-final-wide.jsonl",
+      "sha256": "8937ead307630ff628884209ca15434a27860907dbbc578e1345c39e773dae29",
+      "header": {
+        "format": "tactical-balance-v1",
+        "source": "6ac0abb99a15a24e686c94a23c40cd0ceb6c558cd8c7337456406d21e1225e0f",
+        "harness": "147d0ffaae9155782bdae1f7a043440b8029d63235080a92b3f6d58281da0101",
+        "runtime": "v24.19.0",
+        "requested": 16,
+        "catalog": "wide-front",
+        "rounds": 90,
+        "note": "Red always starts. Return legs rotate the map and exchange policies; observations are correlated. Base is v13 common observed-route/contact physics with all optional features off. Transport isolates moved unloading on legacy movement. Baseline CPU means old heuristics using the current legal forecasts. Weather has an independent fixed stream. Undecided games are neither wins nor draws."
+      },
+      "complete": {
+        "complete": true,
+        "completed": 16,
+        "elapsedMs": 81412.12378200001
+      },
+      "totals": {
+        "games": 16,
+        "firstWins": 7,
+        "secondWins": 9,
+        "draws": 0,
+        "undecided": 0,
+        "defensiveWins": 4,
+        "restoredHP": 137,
+        "rearmedPrimary": 701,
+        "netFuelGain": 9340,
+        "dryGroundStarts": 26,
+        "dryTruckStarts": 2
+      },
+      "groups": {
+        "combined/revised/32/catalog/balanced:balanced/0/normal:normal": {
+          "games": 4,
+          "firstWins": 2,
+          "secondWins": 2,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 0,
+          "restoredHP": 65,
+          "rearmedPrimary": 206,
+          "netFuelGain": 2707,
+          "dryGroundStarts": 2,
+          "dryTruckStarts": 0
+        },
+        "combined/revised/32/catalog/defensive:offensive/0/normal:normal": {
+          "games": 4,
+          "firstWins": 0,
+          "secondWins": 4,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 2,
+          "restoredHP": 32,
+          "rearmedPrimary": 161,
+          "netFuelGain": 1911,
+          "dryGroundStarts": 9,
+          "dryTruckStarts": 2
+        },
+        "combined/revised/32/catalog/balanced:balanced/2000/normal:normal": {
+          "games": 4,
+          "firstWins": 3,
+          "secondWins": 1,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 0,
+          "restoredHP": 20,
+          "rearmedPrimary": 156,
+          "netFuelGain": 2462,
+          "dryGroundStarts": 3,
+          "dryTruckStarts": 0
+        },
+        "combined/revised/32/catalog/defensive:offensive/2000/normal:normal": {
+          "games": 4,
+          "firstWins": 2,
+          "secondWins": 2,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 2,
+          "restoredHP": 20,
+          "rearmedPrimary": 178,
+          "netFuelGain": 2260,
+          "dryGroundStarts": 12,
+          "dryTruckStarts": 0
+        }
+      }
+    },
+    {
+      "file": "before-generated-confirm.jsonl",
+      "sha256": "752b58ed62d68df0b6a775cef0fffcc73cc9b4b0d1490362dcb78f3d7d299215",
+      "header": {
+        "format": "tactical-balance-v1",
+        "source": "6ac0abb99a15a24e686c94a23c40cd0ceb6c558cd8c7337456406d21e1225e0f",
+        "harness": "147d0ffaae9155782bdae1f7a043440b8029d63235080a92b3f6d58281da0101",
+        "runtime": "v24.19.0",
+        "requested": 24,
+        "rounds": 90,
+        "note": "Red always starts. Return legs rotate the map and exchange policies; observations are correlated. Base is v13 common observed-route/contact physics with all optional features off. Transport isolates moved unloading on legacy movement. Baseline CPU means old heuristics using the current legal forecasts. Weather has an independent fixed stream. Undecided games are neither wins nor draws."
+      },
+      "complete": {
+        "complete": true,
+        "completed": 24,
+        "elapsedMs": 85069.66323
+      },
+      "totals": {
+        "games": 24,
+        "firstWins": 12,
+        "secondWins": 12,
+        "draws": 0,
+        "undecided": 0,
+        "defensiveWins": 6,
+        "restoredHP": 6852,
+        "rearmedPrimary": 2035,
+        "netFuelGain": 33047,
+        "dryGroundStarts": 81,
+        "dryTruckStarts": 0
+      },
+      "groups": {
+        "combined/revised/20/none/defensive:offensive/2000/normal:normal": {
+          "games": 2,
+          "firstWins": 2,
+          "secondWins": 0,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 1,
+          "restoredHP": 819,
+          "rearmedPrimary": 215,
+          "netFuelGain": 2423,
+          "dryGroundStarts": 5,
+          "dryTruckStarts": 0
+        },
+        "combined/revised/20/ocean/defensive:offensive/2000/normal:normal": {
+          "games": 2,
+          "firstWins": 1,
+          "secondWins": 1,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 0,
+          "restoredHP": 315,
+          "rearmedPrimary": 70,
+          "netFuelGain": 800,
+          "dryGroundStarts": 1,
+          "dryTruckStarts": 0
+        },
+        "combined/revised/32/none/defensive:offensive/2000/normal:normal": {
+          "games": 2,
+          "firstWins": 1,
+          "secondWins": 1,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 0,
+          "restoredHP": 483,
+          "rearmedPrimary": 112,
+          "netFuelGain": 3360,
+          "dryGroundStarts": 5,
+          "dryTruckStarts": 0
+        },
+        "combined/revised/32/ocean/defensive:offensive/2000/normal:normal": {
+          "games": 2,
+          "firstWins": 1,
+          "secondWins": 1,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 0,
+          "restoredHP": 177,
+          "rearmedPrimary": 126,
+          "netFuelGain": 3227,
+          "dryGroundStarts": 14,
+          "dryTruckStarts": 0
+        },
+        "combined/revised/20/none/defensive:offensive/2000/normal:easy": {
+          "games": 1,
+          "firstWins": 0,
+          "secondWins": 1,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 0,
+          "restoredHP": 273,
+          "rearmedPrimary": 123,
+          "netFuelGain": 1230,
+          "dryGroundStarts": 12,
+          "dryTruckStarts": 0
+        },
+        "combined/revised/20/none/defensive:offensive/2000/easy:normal": {
+          "games": 1,
+          "firstWins": 1,
+          "secondWins": 0,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 0,
+          "restoredHP": 311,
+          "rearmedPrimary": 70,
+          "netFuelGain": 757,
+          "dryGroundStarts": 3,
+          "dryTruckStarts": 0
+        },
+        "combined/revised/20/ocean/defensive:offensive/2000/normal:easy": {
+          "games": 1,
+          "firstWins": 0,
+          "secondWins": 1,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 0,
+          "restoredHP": 743,
+          "rearmedPrimary": 142,
+          "netFuelGain": 849,
+          "dryGroundStarts": 3,
+          "dryTruckStarts": 0
+        },
+        "combined/revised/20/ocean/defensive:offensive/2000/easy:normal": {
+          "games": 1,
+          "firstWins": 1,
+          "secondWins": 0,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 0,
+          "restoredHP": 544,
+          "rearmedPrimary": 94,
+          "netFuelGain": 681,
+          "dryGroundStarts": 3,
+          "dryTruckStarts": 0
+        },
+        "combined/revised/32/none/defensive:offensive/2000/normal:easy": {
+          "games": 1,
+          "firstWins": 0,
+          "secondWins": 1,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 0,
+          "restoredHP": 368,
+          "rearmedPrimary": 87,
+          "netFuelGain": 2214,
+          "dryGroundStarts": 6,
+          "dryTruckStarts": 0
+        },
+        "combined/revised/32/none/defensive:offensive/2000/easy:normal": {
+          "games": 1,
+          "firstWins": 1,
+          "secondWins": 0,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 0,
+          "restoredHP": 396,
+          "rearmedPrimary": 90,
+          "netFuelGain": 1766,
+          "dryGroundStarts": 8,
+          "dryTruckStarts": 0
+        },
+        "combined/revised/32/ocean/defensive:offensive/2000/normal:easy": {
+          "games": 1,
+          "firstWins": 0,
+          "secondWins": 1,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 0,
+          "restoredHP": 60,
+          "rearmedPrimary": 102,
+          "netFuelGain": 2176,
+          "dryGroundStarts": 5,
+          "dryTruckStarts": 0
+        },
+        "combined/revised/32/ocean/defensive:offensive/2000/easy:normal": {
+          "games": 1,
+          "firstWins": 1,
+          "secondWins": 0,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 0,
+          "restoredHP": 40,
+          "rearmedPrimary": 89,
+          "netFuelGain": 1858,
+          "dryGroundStarts": 3,
+          "dryTruckStarts": 0
+        },
+        "combined/revised/20/none/defensive:offensive/2000/hard:normal": {
+          "games": 1,
+          "firstWins": 1,
+          "secondWins": 0,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 1,
+          "restoredHP": 202,
+          "rearmedPrimary": 64,
+          "netFuelGain": 993,
+          "dryGroundStarts": 1,
+          "dryTruckStarts": 0
+        },
+        "combined/revised/20/none/defensive:offensive/2000/normal:hard": {
+          "games": 1,
+          "firstWins": 0,
+          "secondWins": 1,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 1,
+          "restoredHP": 578,
+          "rearmedPrimary": 133,
+          "netFuelGain": 1355,
+          "dryGroundStarts": 5,
+          "dryTruckStarts": 0
+        },
+        "combined/revised/20/ocean/defensive:offensive/2000/hard:normal": {
+          "games": 1,
+          "firstWins": 0,
+          "secondWins": 1,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 0,
+          "restoredHP": 242,
+          "rearmedPrimary": 46,
+          "netFuelGain": 489,
+          "dryGroundStarts": 1,
+          "dryTruckStarts": 0
+        },
+        "combined/revised/20/ocean/defensive:offensive/2000/normal:hard": {
+          "games": 1,
+          "firstWins": 0,
+          "secondWins": 1,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 1,
+          "restoredHP": 700,
+          "rearmedPrimary": 121,
+          "netFuelGain": 1041,
+          "dryGroundStarts": 0,
+          "dryTruckStarts": 0
+        },
+        "combined/revised/32/none/defensive:offensive/2000/hard:normal": {
+          "games": 1,
+          "firstWins": 1,
+          "secondWins": 0,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 1,
+          "restoredHP": 139,
+          "rearmedPrimary": 88,
+          "netFuelGain": 1976,
+          "dryGroundStarts": 2,
+          "dryTruckStarts": 0
+        },
+        "combined/revised/32/none/defensive:offensive/2000/normal:hard": {
+          "games": 1,
+          "firstWins": 0,
+          "secondWins": 1,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 1,
+          "restoredHP": 336,
+          "rearmedPrimary": 122,
+          "netFuelGain": 2259,
+          "dryGroundStarts": 1,
+          "dryTruckStarts": 0
+        },
+        "combined/revised/32/ocean/defensive:offensive/2000/hard:normal": {
+          "games": 1,
+          "firstWins": 0,
+          "secondWins": 1,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 0,
+          "restoredHP": 86,
+          "rearmedPrimary": 75,
+          "netFuelGain": 1958,
+          "dryGroundStarts": 3,
+          "dryTruckStarts": 0
+        },
+        "combined/revised/32/ocean/defensive:offensive/2000/normal:hard": {
+          "games": 1,
+          "firstWins": 1,
+          "secondWins": 0,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 0,
+          "restoredHP": 40,
+          "rearmedPrimary": 66,
+          "netFuelGain": 1635,
+          "dryGroundStarts": 0,
+          "dryTruckStarts": 0
+        }
+      }
+    },
+    {
+      "file": "before-generated-holdout.jsonl",
+      "sha256": "dcbe3b54d34d8b480747f0f4a29ba31f1ac711c2e99533dc349eed9dedd697cb",
+      "header": {
+        "format": "tactical-balance-v1",
+        "source": "6ac0abb99a15a24e686c94a23c40cd0ceb6c558cd8c7337456406d21e1225e0f",
+        "harness": "147d0ffaae9155782bdae1f7a043440b8029d63235080a92b3f6d58281da0101",
+        "runtime": "v24.19.0",
+        "requested": 16,
+        "rounds": 60,
+        "note": "Red always starts. Return legs rotate the map and exchange policies; observations are correlated. Base is v13 common observed-route/contact physics with all optional features off. Transport isolates moved unloading on legacy movement. Baseline CPU means old heuristics using the current legal forecasts. Weather has an independent fixed stream. Undecided games are neither wins nor draws."
+      },
+      "complete": {
+        "complete": true,
+        "completed": 16,
+        "elapsedMs": 64126.905140999996
+      },
+      "totals": {
+        "games": 16,
+        "firstWins": 5,
+        "secondWins": 11,
+        "draws": 0,
+        "undecided": 0,
+        "defensiveWins": 3,
+        "restoredHP": 3395,
+        "rearmedPrimary": 1250,
+        "netFuelGain": 24448,
+        "dryGroundStarts": 73,
+        "dryTruckStarts": 2
+      },
+      "groups": {
+        "combined/revised/20/none/balanced:balanced/2000/normal:normal": {
+          "games": 2,
+          "firstWins": 1,
+          "secondWins": 1,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 0,
+          "restoredHP": 341,
+          "rearmedPrimary": 208,
+          "netFuelGain": 2896,
+          "dryGroundStarts": 5,
+          "dryTruckStarts": 0
+        },
+        "combined/revised/20/none/defensive:offensive/2000/normal:normal": {
+          "games": 2,
+          "firstWins": 1,
+          "secondWins": 1,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 0,
+          "restoredHP": 404,
+          "rearmedPrimary": 109,
+          "netFuelGain": 1489,
+          "dryGroundStarts": 8,
+          "dryTruckStarts": 0
+        },
+        "combined/revised/20/coast/balanced:balanced/2000/normal:normal": {
+          "games": 2,
+          "firstWins": 1,
+          "secondWins": 1,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 0,
+          "restoredHP": 581,
+          "rearmedPrimary": 95,
+          "netFuelGain": 1565,
+          "dryGroundStarts": 2,
+          "dryTruckStarts": 0
+        },
+        "combined/revised/20/coast/defensive:offensive/2000/normal:normal": {
+          "games": 2,
+          "firstWins": 1,
+          "secondWins": 1,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 0,
+          "restoredHP": 831,
+          "rearmedPrimary": 224,
+          "netFuelGain": 2382,
+          "dryGroundStarts": 15,
+          "dryTruckStarts": 0
+        },
+        "combined/revised/32/none/balanced:balanced/2000/normal:normal": {
+          "games": 2,
+          "firstWins": 0,
+          "secondWins": 2,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 0,
+          "restoredHP": 278,
+          "rearmedPrimary": 149,
+          "netFuelGain": 4443,
+          "dryGroundStarts": 11,
+          "dryTruckStarts": 0
+        },
+        "combined/revised/32/none/defensive:offensive/2000/normal:normal": {
+          "games": 2,
+          "firstWins": 0,
+          "secondWins": 2,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 1,
+          "restoredHP": 120,
+          "rearmedPrimary": 141,
+          "netFuelGain": 3774,
+          "dryGroundStarts": 18,
+          "dryTruckStarts": 1
+        },
+        "combined/revised/32/coast/balanced:balanced/2000/normal:normal": {
+          "games": 2,
+          "firstWins": 0,
+          "secondWins": 2,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 0,
+          "restoredHP": 296,
+          "rearmedPrimary": 150,
+          "netFuelGain": 3958,
+          "dryGroundStarts": 8,
+          "dryTruckStarts": 0
+        },
+        "combined/revised/32/coast/defensive:offensive/2000/normal:normal": {
+          "games": 2,
+          "firstWins": 1,
+          "secondWins": 1,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 2,
+          "restoredHP": 544,
+          "rearmedPrimary": 174,
+          "netFuelGain": 3941,
+          "dryGroundStarts": 6,
+          "dryTruckStarts": 1
+        }
+      }
+    },
+    {
+      "file": "before-generated-train.jsonl",
+      "sha256": "f11a22d44138158b98513f6002961923953021179d1287f7bc826276cf071797",
+      "header": {
+        "format": "tactical-balance-v1",
+        "source": "6ac0abb99a15a24e686c94a23c40cd0ceb6c558cd8c7337456406d21e1225e0f",
+        "harness": "42005f3b280eaf8f6c386b7ec4b7593357049d79a46caffa3a3b9a15ed3dc4c6",
+        "runtime": "v24.19.0",
+        "requested": 16,
+        "rounds": 60,
+        "note": "Red always starts. Return legs rotate the map and exchange policies; observations are correlated. Base is v13 common observed-route/contact physics with all optional features off. Transport isolates moved unloading on legacy movement. Baseline CPU means old heuristics using the current legal forecasts. Weather has an independent fixed stream. Undecided games are neither wins nor draws."
+      },
+      "complete": {
+        "complete": true,
+        "completed": 16,
+        "elapsedMs": 54910.643197
+      },
+      "totals": {
+        "games": 16,
+        "firstWins": 10,
+        "secondWins": 6,
+        "draws": 0,
+        "undecided": 0,
+        "defensiveWins": 3
+      },
+      "groups": {
+        "combined/revised/20/none/balanced:balanced/2000/normal:normal": {
+          "games": 2,
+          "firstWins": 2,
+          "secondWins": 0,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 0
+        },
+        "combined/revised/20/none/defensive:offensive/2000/normal:normal": {
+          "games": 2,
+          "firstWins": 1,
+          "secondWins": 1,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 0
+        },
+        "combined/revised/20/coast/balanced:balanced/2000/normal:normal": {
+          "games": 2,
+          "firstWins": 2,
+          "secondWins": 0,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 0
+        },
+        "combined/revised/20/coast/defensive:offensive/2000/normal:normal": {
+          "games": 2,
+          "firstWins": 1,
+          "secondWins": 1,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 0
+        },
+        "combined/revised/32/none/balanced:balanced/2000/normal:normal": {
+          "games": 2,
+          "firstWins": 1,
+          "secondWins": 1,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 0
+        },
+        "combined/revised/32/none/defensive:offensive/2000/normal:normal": {
+          "games": 2,
+          "firstWins": 1,
+          "secondWins": 1,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 2
+        },
+        "combined/revised/32/coast/balanced:balanced/2000/normal:normal": {
+          "games": 2,
+          "firstWins": 2,
+          "secondWins": 0,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 0
+        },
+        "combined/revised/32/coast/defensive:offensive/2000/normal:normal": {
+          "games": 2,
+          "firstWins": 0,
+          "secondWins": 2,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 1
+        }
+      }
+    },
+    {
+      "file": "before-wide-explore.jsonl",
+      "sha256": "8e92625f3bf9d1518fcf544aba977386c46eb9b8a8d066a3b92ac4d0b1770d31",
+      "header": {
+        "format": "tactical-balance-v1",
+        "source": "6ac0abb99a15a24e686c94a23c40cd0ceb6c558cd8c7337456406d21e1225e0f",
+        "harness": "a13ff0592d34d6b0536723a0e2adc672510be6845d1cc57fde1187e3142a0162",
+        "runtime": "v24.19.0",
+        "requested": 16,
+        "catalog": "wide-front",
+        "rounds": 60,
+        "note": "Red always starts. Return legs rotate the map and exchange policies; observations are correlated. Base is v13 common observed-route/contact physics with all optional features off. Transport isolates moved unloading on legacy movement. Baseline CPU means old heuristics using the current legal forecasts. Weather has an independent fixed stream. Undecided games are neither wins nor draws."
+      },
+      "complete": {
+        "complete": true,
+        "completed": 16,
+        "elapsedMs": 35242.450612
+      },
+      "totals": {
+        "games": 16,
+        "firstWins": 7,
+        "secondWins": 9,
+        "draws": 0,
+        "undecided": 0,
+        "defensiveWins": 1
+      },
+      "groups": {
+        "combined/original/32/catalog/balanced:balanced/2000/normal:normal": {
+          "games": 4,
+          "firstWins": 2,
+          "secondWins": 2,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 0
+        },
+        "combined/original/32/catalog/defensive:offensive/2000/normal:normal": {
+          "games": 4,
+          "firstWins": 2,
+          "secondWins": 2,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 0
+        },
+        "combined/revised/32/catalog/balanced:balanced/2000/normal:normal": {
+          "games": 4,
+          "firstWins": 2,
+          "secondWins": 2,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 0
+        },
+        "combined/revised/32/catalog/defensive:offensive/2000/normal:normal": {
+          "games": 4,
+          "firstWins": 1,
+          "secondWins": 3,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 1
+        }
+      }
+    },
+    {
+      "file": "before-wide-holdout.jsonl",
+      "sha256": "7c8c1010b5dfd8ce7408dc7acbd2cd0bc5d3f59ff9c562d8bab1bdde3c286ada",
+      "header": {
+        "format": "tactical-balance-v1",
+        "source": "6ac0abb99a15a24e686c94a23c40cd0ceb6c558cd8c7337456406d21e1225e0f",
+        "harness": "147d0ffaae9155782bdae1f7a043440b8029d63235080a92b3f6d58281da0101",
+        "runtime": "v24.19.0",
+        "requested": 12,
+        "catalog": "wide-front",
+        "rounds": 90,
+        "note": "Red always starts. Return legs rotate the map and exchange policies; observations are correlated. Base is v13 common observed-route/contact physics with all optional features off. Transport isolates moved unloading on legacy movement. Baseline CPU means old heuristics using the current legal forecasts. Weather has an independent fixed stream. Undecided games are neither wins nor draws."
+      },
+      "complete": {
+        "complete": true,
+        "completed": 12,
+        "elapsedMs": 34873.190740000005
+      },
+      "totals": {
+        "games": 12,
+        "firstWins": 5,
+        "secondWins": 7,
+        "draws": 0,
+        "undecided": 0,
+        "defensiveWins": 3,
+        "restoredHP": 42,
+        "rearmedPrimary": 581,
+        "netFuelGain": 7418,
+        "dryGroundStarts": 22,
+        "dryTruckStarts": 0
+      },
+      "groups": {
+        "combined/revised/32/catalog/balanced:balanced/2000/normal:normal": {
+          "games": 6,
+          "firstWins": 3,
+          "secondWins": 3,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 0,
+          "restoredHP": 42,
+          "rearmedPrimary": 346,
+          "netFuelGain": 4396,
+          "dryGroundStarts": 13,
+          "dryTruckStarts": 0
+        },
+        "combined/revised/32/catalog/defensive:offensive/2000/normal:normal": {
+          "games": 6,
+          "firstWins": 2,
+          "secondWins": 4,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 3,
+          "restoredHP": 0,
+          "rearmedPrimary": 235,
+          "netFuelGain": 3022,
+          "dryGroundStarts": 9,
+          "dryTruckStarts": 0
+        }
+      }
+    },
+    {
+      "file": "cpu-a-generated-confirm.jsonl",
+      "sha256": "709661e0818e7ae7c9d9f9e4c9f1ba947bc14b2ab09bb61cb68f7246abd869dc",
+      "header": {
+        "format": "tactical-balance-v1",
+        "source": "fb0645c3884a925bcb2892c8b320b44b5b14085a4efa10382df23a19bb8a38ae",
+        "harness": "147d0ffaae9155782bdae1f7a043440b8029d63235080a92b3f6d58281da0101",
+        "runtime": "v24.19.0",
+        "requested": 24,
+        "rounds": 90,
+        "note": "Red always starts. Return legs rotate the map and exchange policies; observations are correlated. Base is v13 common observed-route/contact physics with all optional features off. Transport isolates moved unloading on legacy movement. Baseline CPU means old heuristics using the current legal forecasts. Weather has an independent fixed stream. Undecided games are neither wins nor draws."
+      },
+      "complete": {
+        "complete": true,
+        "completed": 24,
+        "elapsedMs": 82997.006173
+      },
+      "totals": {
+        "games": 24,
+        "firstWins": 11,
+        "secondWins": 13,
+        "draws": 0,
+        "undecided": 0,
+        "defensiveWins": 5,
+        "restoredHP": 6969,
+        "rearmedPrimary": 2030,
+        "netFuelGain": 33654,
+        "dryGroundStarts": 72,
+        "dryTruckStarts": 0
+      },
+      "groups": {
+        "combined/revised/20/none/defensive:offensive/2000/normal:normal": {
+          "games": 2,
+          "firstWins": 1,
+          "secondWins": 1,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 0,
+          "restoredHP": 879,
+          "rearmedPrimary": 228,
+          "netFuelGain": 2493,
+          "dryGroundStarts": 7,
+          "dryTruckStarts": 0
+        },
+        "combined/revised/20/ocean/defensive:offensive/2000/normal:normal": {
+          "games": 2,
+          "firstWins": 1,
+          "secondWins": 1,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 0,
+          "restoredHP": 344,
+          "rearmedPrimary": 98,
+          "netFuelGain": 1034,
+          "dryGroundStarts": 2,
+          "dryTruckStarts": 0
+        },
+        "combined/revised/32/none/defensive:offensive/2000/normal:normal": {
+          "games": 2,
+          "firstWins": 1,
+          "secondWins": 1,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 0,
+          "restoredHP": 443,
+          "rearmedPrimary": 115,
+          "netFuelGain": 3199,
+          "dryGroundStarts": 5,
+          "dryTruckStarts": 0
+        },
+        "combined/revised/32/ocean/defensive:offensive/2000/normal:normal": {
+          "games": 2,
+          "firstWins": 1,
+          "secondWins": 1,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 0,
+          "restoredHP": 177,
+          "rearmedPrimary": 126,
+          "netFuelGain": 3227,
+          "dryGroundStarts": 14,
+          "dryTruckStarts": 0
+        },
+        "combined/revised/20/none/defensive:offensive/2000/normal:easy": {
+          "games": 1,
+          "firstWins": 0,
+          "secondWins": 1,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 0,
+          "restoredHP": 287,
+          "rearmedPrimary": 97,
+          "netFuelGain": 1078,
+          "dryGroundStarts": 3,
+          "dryTruckStarts": 0
+        },
+        "combined/revised/20/none/defensive:offensive/2000/easy:normal": {
+          "games": 1,
+          "firstWins": 1,
+          "secondWins": 0,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 0,
+          "restoredHP": 311,
+          "rearmedPrimary": 70,
+          "netFuelGain": 757,
+          "dryGroundStarts": 3,
+          "dryTruckStarts": 0
+        },
+        "combined/revised/20/ocean/defensive:offensive/2000/normal:easy": {
+          "games": 1,
+          "firstWins": 0,
+          "secondWins": 1,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 0,
+          "restoredHP": 529,
+          "rearmedPrimary": 105,
+          "netFuelGain": 911,
+          "dryGroundStarts": 4,
+          "dryTruckStarts": 0
+        },
+        "combined/revised/20/ocean/defensive:offensive/2000/easy:normal": {
+          "games": 1,
+          "firstWins": 1,
+          "secondWins": 0,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 0,
+          "restoredHP": 544,
+          "rearmedPrimary": 94,
+          "netFuelGain": 681,
+          "dryGroundStarts": 3,
+          "dryTruckStarts": 0
+        },
+        "combined/revised/32/none/defensive:offensive/2000/normal:easy": {
+          "games": 1,
+          "firstWins": 0,
+          "secondWins": 1,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 0,
+          "restoredHP": 410,
+          "rearmedPrimary": 101,
+          "netFuelGain": 2261,
+          "dryGroundStarts": 0,
+          "dryTruckStarts": 0
+        },
+        "combined/revised/32/none/defensive:offensive/2000/easy:normal": {
+          "games": 1,
+          "firstWins": 1,
+          "secondWins": 0,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 0,
+          "restoredHP": 425,
+          "rearmedPrimary": 83,
+          "netFuelGain": 1917,
+          "dryGroundStarts": 8,
+          "dryTruckStarts": 0
+        },
+        "combined/revised/32/ocean/defensive:offensive/2000/normal:easy": {
+          "games": 1,
+          "firstWins": 0,
+          "secondWins": 1,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 0,
+          "restoredHP": 80,
+          "rearmedPrimary": 102,
+          "netFuelGain": 2176,
+          "dryGroundStarts": 5,
+          "dryTruckStarts": 0
+        },
+        "combined/revised/32/ocean/defensive:offensive/2000/easy:normal": {
+          "games": 1,
+          "firstWins": 1,
+          "secondWins": 0,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 0,
+          "restoredHP": 40,
+          "rearmedPrimary": 89,
+          "netFuelGain": 1858,
+          "dryGroundStarts": 3,
+          "dryTruckStarts": 0
+        },
+        "combined/revised/20/none/defensive:offensive/2000/hard:normal": {
+          "games": 1,
+          "firstWins": 1,
+          "secondWins": 0,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 1,
+          "restoredHP": 248,
+          "rearmedPrimary": 78,
+          "netFuelGain": 1122,
+          "dryGroundStarts": 0,
+          "dryTruckStarts": 0
+        },
+        "combined/revised/20/none/defensive:offensive/2000/normal:hard": {
+          "games": 1,
+          "firstWins": 0,
+          "secondWins": 1,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 1,
+          "restoredHP": 608,
+          "rearmedPrimary": 129,
+          "netFuelGain": 1342,
+          "dryGroundStarts": 5,
+          "dryTruckStarts": 0
+        },
+        "combined/revised/20/ocean/defensive:offensive/2000/hard:normal": {
+          "games": 1,
+          "firstWins": 0,
+          "secondWins": 1,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 0,
+          "restoredHP": 208,
+          "rearmedPrimary": 44,
+          "netFuelGain": 428,
+          "dryGroundStarts": 2,
+          "dryTruckStarts": 0
+        },
+        "combined/revised/20/ocean/defensive:offensive/2000/normal:hard": {
+          "games": 1,
+          "firstWins": 0,
+          "secondWins": 1,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 1,
+          "restoredHP": 794,
+          "rearmedPrimary": 121,
+          "netFuelGain": 1012,
+          "dryGroundStarts": 1,
+          "dryTruckStarts": 0
+        },
+        "combined/revised/32/none/defensive:offensive/2000/hard:normal": {
+          "games": 1,
+          "firstWins": 1,
+          "secondWins": 0,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 1,
+          "restoredHP": 180,
+          "rearmedPrimary": 87,
+          "netFuelGain": 2306,
+          "dryGroundStarts": 3,
+          "dryTruckStarts": 0
+        },
+        "combined/revised/32/none/defensive:offensive/2000/normal:hard": {
+          "games": 1,
+          "firstWins": 0,
+          "secondWins": 1,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 1,
+          "restoredHP": 336,
+          "rearmedPrimary": 122,
+          "netFuelGain": 2259,
+          "dryGroundStarts": 1,
+          "dryTruckStarts": 0
+        },
+        "combined/revised/32/ocean/defensive:offensive/2000/hard:normal": {
+          "games": 1,
+          "firstWins": 0,
+          "secondWins": 1,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 0,
+          "restoredHP": 86,
+          "rearmedPrimary": 75,
+          "netFuelGain": 1958,
+          "dryGroundStarts": 3,
+          "dryTruckStarts": 0
+        },
+        "combined/revised/32/ocean/defensive:offensive/2000/normal:hard": {
+          "games": 1,
+          "firstWins": 1,
+          "secondWins": 0,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 0,
+          "restoredHP": 40,
+          "rearmedPrimary": 66,
+          "netFuelGain": 1635,
+          "dryGroundStarts": 0,
+          "dryTruckStarts": 0
+        }
+      }
+    },
+    {
+      "file": "cpu-a-generated-holdout.jsonl",
+      "sha256": "308f185cb95ce4dc58c41262e26310d908b54c7ba0a9b05971e02c11c15fd35d",
+      "header": {
+        "format": "tactical-balance-v1",
+        "source": "fb0645c3884a925bcb2892c8b320b44b5b14085a4efa10382df23a19bb8a38ae",
+        "harness": "147d0ffaae9155782bdae1f7a043440b8029d63235080a92b3f6d58281da0101",
+        "runtime": "v24.19.0",
+        "requested": 16,
+        "rounds": 60,
+        "note": "Red always starts. Return legs rotate the map and exchange policies; observations are correlated. Base is v13 common observed-route/contact physics with all optional features off. Transport isolates moved unloading on legacy movement. Baseline CPU means old heuristics using the current legal forecasts. Weather has an independent fixed stream. Undecided games are neither wins nor draws."
+      },
+      "complete": {
+        "complete": true,
+        "completed": 16,
+        "elapsedMs": 63254.143125999995
+      },
+      "totals": {
+        "games": 16,
+        "firstWins": 4,
+        "secondWins": 12,
+        "draws": 0,
+        "undecided": 0,
+        "defensiveWins": 4,
+        "restoredHP": 4486,
+        "rearmedPrimary": 1278,
+        "netFuelGain": 24428,
+        "dryGroundStarts": 88,
+        "dryTruckStarts": 4
+      },
+      "groups": {
+        "combined/revised/20/none/balanced:balanced/2000/normal:normal": {
+          "games": 2,
+          "firstWins": 1,
+          "secondWins": 1,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 0,
+          "restoredHP": 341,
+          "rearmedPrimary": 208,
+          "netFuelGain": 2896,
+          "dryGroundStarts": 5,
+          "dryTruckStarts": 0
+        },
+        "combined/revised/20/none/defensive:offensive/2000/normal:normal": {
+          "games": 2,
+          "firstWins": 1,
+          "secondWins": 1,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 0,
+          "restoredHP": 994,
+          "rearmedPrimary": 133,
+          "netFuelGain": 1829,
+          "dryGroundStarts": 24,
+          "dryTruckStarts": 0
+        },
+        "combined/revised/20/coast/balanced:balanced/2000/normal:normal": {
+          "games": 2,
+          "firstWins": 1,
+          "secondWins": 1,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 0,
+          "restoredHP": 581,
+          "rearmedPrimary": 95,
+          "netFuelGain": 1565,
+          "dryGroundStarts": 2,
+          "dryTruckStarts": 0
+        },
+        "combined/revised/20/coast/defensive:offensive/2000/normal:normal": {
+          "games": 2,
+          "firstWins": 0,
+          "secondWins": 2,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 1,
+          "restoredHP": 1316,
+          "rearmedPrimary": 229,
+          "netFuelGain": 2216,
+          "dryGroundStarts": 13,
+          "dryTruckStarts": 0
+        },
+        "combined/revised/32/none/balanced:balanced/2000/normal:normal": {
+          "games": 2,
+          "firstWins": 0,
+          "secondWins": 2,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 0,
+          "restoredHP": 278,
+          "rearmedPrimary": 149,
+          "netFuelGain": 4443,
+          "dryGroundStarts": 11,
+          "dryTruckStarts": 0
+        },
+        "combined/revised/32/none/defensive:offensive/2000/normal:normal": {
+          "games": 2,
+          "firstWins": 0,
+          "secondWins": 2,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 1,
+          "restoredHP": 76,
+          "rearmedPrimary": 138,
+          "netFuelGain": 3564,
+          "dryGroundStarts": 19,
+          "dryTruckStarts": 1
+        },
+        "combined/revised/32/coast/balanced:balanced/2000/normal:normal": {
+          "games": 2,
+          "firstWins": 0,
+          "secondWins": 2,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 0,
+          "restoredHP": 296,
+          "rearmedPrimary": 150,
+          "netFuelGain": 3958,
+          "dryGroundStarts": 8,
+          "dryTruckStarts": 0
+        },
+        "combined/revised/32/coast/defensive:offensive/2000/normal:normal": {
+          "games": 2,
+          "firstWins": 1,
+          "secondWins": 1,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 2,
+          "restoredHP": 604,
+          "rearmedPrimary": 176,
+          "netFuelGain": 3957,
+          "dryGroundStarts": 6,
+          "dryTruckStarts": 3
+        }
+      }
+    },
+    {
+      "file": "cpu-a-generated-train.jsonl",
+      "sha256": "a5187bacded71640e4e361db2690232ca15dc2a06fb098691fd6c5a646db6674",
+      "header": {
+        "format": "tactical-balance-v1",
+        "source": "fb0645c3884a925bcb2892c8b320b44b5b14085a4efa10382df23a19bb8a38ae",
+        "harness": "42005f3b280eaf8f6c386b7ec4b7593357049d79a46caffa3a3b9a15ed3dc4c6",
+        "runtime": "v24.19.0",
+        "requested": 16,
+        "rounds": 60,
+        "note": "Red always starts. Return legs rotate the map and exchange policies; observations are correlated. Base is v13 common observed-route/contact physics with all optional features off. Transport isolates moved unloading on legacy movement. Baseline CPU means old heuristics using the current legal forecasts. Weather has an independent fixed stream. Undecided games are neither wins nor draws."
+      },
+      "complete": {
+        "complete": true,
+        "completed": 16,
+        "elapsedMs": 56547.775842999996
+      },
+      "totals": {
+        "games": 16,
+        "firstWins": 9,
+        "secondWins": 7,
+        "draws": 0,
+        "undecided": 0,
+        "defensiveWins": 4
+      },
+      "groups": {
+        "combined/revised/20/none/balanced:balanced/2000/normal:normal": {
+          "games": 2,
+          "firstWins": 2,
+          "secondWins": 0,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 0
+        },
+        "combined/revised/20/none/defensive:offensive/2000/normal:normal": {
+          "games": 2,
+          "firstWins": 1,
+          "secondWins": 1,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 0
+        },
+        "combined/revised/20/coast/balanced:balanced/2000/normal:normal": {
+          "games": 2,
+          "firstWins": 2,
+          "secondWins": 0,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 0
+        },
+        "combined/revised/20/coast/defensive:offensive/2000/normal:normal": {
+          "games": 2,
+          "firstWins": 0,
+          "secondWins": 2,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 1
+        },
+        "combined/revised/32/none/balanced:balanced/2000/normal:normal": {
+          "games": 2,
+          "firstWins": 1,
+          "secondWins": 1,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 0
+        },
+        "combined/revised/32/none/defensive:offensive/2000/normal:normal": {
+          "games": 2,
+          "firstWins": 1,
+          "secondWins": 1,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 2
+        },
+        "combined/revised/32/coast/balanced:balanced/2000/normal:normal": {
+          "games": 2,
+          "firstWins": 2,
+          "secondWins": 0,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 0
+        },
+        "combined/revised/32/coast/defensive:offensive/2000/normal:normal": {
+          "games": 2,
+          "firstWins": 0,
+          "secondWins": 2,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 1
+        }
+      }
+    },
+    {
+      "file": "cpu-a-wide-holdout.jsonl",
+      "sha256": "e6d2a93c773d89a4be99c4036a5f9c779b2c9d4a694f7aed21e89837df503ff9",
+      "header": {
+        "format": "tactical-balance-v1",
+        "source": "fb0645c3884a925bcb2892c8b320b44b5b14085a4efa10382df23a19bb8a38ae",
+        "harness": "147d0ffaae9155782bdae1f7a043440b8029d63235080a92b3f6d58281da0101",
+        "runtime": "v24.19.0",
+        "requested": 12,
+        "catalog": "wide-front",
+        "rounds": 90,
+        "note": "Red always starts. Return legs rotate the map and exchange policies; observations are correlated. Base is v13 common observed-route/contact physics with all optional features off. Transport isolates moved unloading on legacy movement. Baseline CPU means old heuristics using the current legal forecasts. Weather has an independent fixed stream. Undecided games are neither wins nor draws."
+      },
+      "complete": {
+        "complete": true,
+        "completed": 12,
+        "elapsedMs": 38224.478753999996
+      },
+      "totals": {
+        "games": 12,
+        "firstWins": 4,
+        "secondWins": 8,
+        "draws": 0,
+        "undecided": 0,
+        "defensiveWins": 2,
+        "restoredHP": 122,
+        "rearmedPrimary": 570,
+        "netFuelGain": 7349,
+        "dryGroundStarts": 27,
+        "dryTruckStarts": 0
+      },
+      "groups": {
+        "combined/revised/32/catalog/balanced:balanced/2000/normal:normal": {
+          "games": 6,
+          "firstWins": 3,
+          "secondWins": 3,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 0,
+          "restoredHP": 42,
+          "rearmedPrimary": 346,
+          "netFuelGain": 4396,
+          "dryGroundStarts": 13,
+          "dryTruckStarts": 0
+        },
+        "combined/revised/32/catalog/defensive:offensive/2000/normal:normal": {
+          "games": 6,
+          "firstWins": 1,
+          "secondWins": 5,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 2,
+          "restoredHP": 80,
+          "rearmedPrimary": 224,
+          "netFuelGain": 2953,
+          "dryGroundStarts": 14,
+          "dryTruckStarts": 0
+        }
+      }
+    },
+    {
+      "file": "cpu-b-generated-confirm.jsonl",
+      "sha256": "1ef67c7fb573b2c42523c072a6b6b243100595da81ee600dbf21662531b44d24",
+      "header": {
+        "format": "tactical-balance-v1",
+        "source": "833aa80203c650a3ddab6f7484022142e779a2325e9dd1e46b313e0d9a1c002f",
+        "harness": "147d0ffaae9155782bdae1f7a043440b8029d63235080a92b3f6d58281da0101",
+        "runtime": "v24.19.0",
+        "requested": 24,
+        "rounds": 90,
+        "note": "Red always starts. Return legs rotate the map and exchange policies; observations are correlated. Base is v13 common observed-route/contact physics with all optional features off. Transport isolates moved unloading on legacy movement. Baseline CPU means old heuristics using the current legal forecasts. Weather has an independent fixed stream. Undecided games are neither wins nor draws."
+      },
+      "complete": {
+        "complete": true,
+        "completed": 24,
+        "elapsedMs": 81065.084673
+      },
+      "totals": {
+        "games": 24,
+        "firstWins": 11,
+        "secondWins": 13,
+        "draws": 0,
+        "undecided": 0,
+        "defensiveWins": 5,
+        "restoredHP": 6969,
+        "rearmedPrimary": 2030,
+        "netFuelGain": 33654,
+        "dryGroundStarts": 72,
+        "dryTruckStarts": 0
+      },
+      "groups": {
+        "combined/revised/20/none/defensive:offensive/2000/normal:normal": {
+          "games": 2,
+          "firstWins": 1,
+          "secondWins": 1,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 0,
+          "restoredHP": 879,
+          "rearmedPrimary": 228,
+          "netFuelGain": 2493,
+          "dryGroundStarts": 7,
+          "dryTruckStarts": 0
+        },
+        "combined/revised/20/ocean/defensive:offensive/2000/normal:normal": {
+          "games": 2,
+          "firstWins": 1,
+          "secondWins": 1,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 0,
+          "restoredHP": 344,
+          "rearmedPrimary": 98,
+          "netFuelGain": 1034,
+          "dryGroundStarts": 2,
+          "dryTruckStarts": 0
+        },
+        "combined/revised/32/none/defensive:offensive/2000/normal:normal": {
+          "games": 2,
+          "firstWins": 1,
+          "secondWins": 1,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 0,
+          "restoredHP": 443,
+          "rearmedPrimary": 115,
+          "netFuelGain": 3199,
+          "dryGroundStarts": 5,
+          "dryTruckStarts": 0
+        },
+        "combined/revised/32/ocean/defensive:offensive/2000/normal:normal": {
+          "games": 2,
+          "firstWins": 1,
+          "secondWins": 1,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 0,
+          "restoredHP": 177,
+          "rearmedPrimary": 126,
+          "netFuelGain": 3227,
+          "dryGroundStarts": 14,
+          "dryTruckStarts": 0
+        },
+        "combined/revised/20/none/defensive:offensive/2000/normal:easy": {
+          "games": 1,
+          "firstWins": 0,
+          "secondWins": 1,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 0,
+          "restoredHP": 287,
+          "rearmedPrimary": 97,
+          "netFuelGain": 1078,
+          "dryGroundStarts": 3,
+          "dryTruckStarts": 0
+        },
+        "combined/revised/20/none/defensive:offensive/2000/easy:normal": {
+          "games": 1,
+          "firstWins": 1,
+          "secondWins": 0,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 0,
+          "restoredHP": 311,
+          "rearmedPrimary": 70,
+          "netFuelGain": 757,
+          "dryGroundStarts": 3,
+          "dryTruckStarts": 0
+        },
+        "combined/revised/20/ocean/defensive:offensive/2000/normal:easy": {
+          "games": 1,
+          "firstWins": 0,
+          "secondWins": 1,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 0,
+          "restoredHP": 529,
+          "rearmedPrimary": 105,
+          "netFuelGain": 911,
+          "dryGroundStarts": 4,
+          "dryTruckStarts": 0
+        },
+        "combined/revised/20/ocean/defensive:offensive/2000/easy:normal": {
+          "games": 1,
+          "firstWins": 1,
+          "secondWins": 0,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 0,
+          "restoredHP": 544,
+          "rearmedPrimary": 94,
+          "netFuelGain": 681,
+          "dryGroundStarts": 3,
+          "dryTruckStarts": 0
+        },
+        "combined/revised/32/none/defensive:offensive/2000/normal:easy": {
+          "games": 1,
+          "firstWins": 0,
+          "secondWins": 1,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 0,
+          "restoredHP": 410,
+          "rearmedPrimary": 101,
+          "netFuelGain": 2261,
+          "dryGroundStarts": 0,
+          "dryTruckStarts": 0
+        },
+        "combined/revised/32/none/defensive:offensive/2000/easy:normal": {
+          "games": 1,
+          "firstWins": 1,
+          "secondWins": 0,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 0,
+          "restoredHP": 425,
+          "rearmedPrimary": 83,
+          "netFuelGain": 1917,
+          "dryGroundStarts": 8,
+          "dryTruckStarts": 0
+        },
+        "combined/revised/32/ocean/defensive:offensive/2000/normal:easy": {
+          "games": 1,
+          "firstWins": 0,
+          "secondWins": 1,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 0,
+          "restoredHP": 80,
+          "rearmedPrimary": 102,
+          "netFuelGain": 2176,
+          "dryGroundStarts": 5,
+          "dryTruckStarts": 0
+        },
+        "combined/revised/32/ocean/defensive:offensive/2000/easy:normal": {
+          "games": 1,
+          "firstWins": 1,
+          "secondWins": 0,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 0,
+          "restoredHP": 40,
+          "rearmedPrimary": 89,
+          "netFuelGain": 1858,
+          "dryGroundStarts": 3,
+          "dryTruckStarts": 0
+        },
+        "combined/revised/20/none/defensive:offensive/2000/hard:normal": {
+          "games": 1,
+          "firstWins": 1,
+          "secondWins": 0,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 1,
+          "restoredHP": 248,
+          "rearmedPrimary": 78,
+          "netFuelGain": 1122,
+          "dryGroundStarts": 0,
+          "dryTruckStarts": 0
+        },
+        "combined/revised/20/none/defensive:offensive/2000/normal:hard": {
+          "games": 1,
+          "firstWins": 0,
+          "secondWins": 1,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 1,
+          "restoredHP": 608,
+          "rearmedPrimary": 129,
+          "netFuelGain": 1342,
+          "dryGroundStarts": 5,
+          "dryTruckStarts": 0
+        },
+        "combined/revised/20/ocean/defensive:offensive/2000/hard:normal": {
+          "games": 1,
+          "firstWins": 0,
+          "secondWins": 1,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 0,
+          "restoredHP": 208,
+          "rearmedPrimary": 44,
+          "netFuelGain": 428,
+          "dryGroundStarts": 2,
+          "dryTruckStarts": 0
+        },
+        "combined/revised/20/ocean/defensive:offensive/2000/normal:hard": {
+          "games": 1,
+          "firstWins": 0,
+          "secondWins": 1,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 1,
+          "restoredHP": 794,
+          "rearmedPrimary": 121,
+          "netFuelGain": 1012,
+          "dryGroundStarts": 1,
+          "dryTruckStarts": 0
+        },
+        "combined/revised/32/none/defensive:offensive/2000/hard:normal": {
+          "games": 1,
+          "firstWins": 1,
+          "secondWins": 0,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 1,
+          "restoredHP": 180,
+          "rearmedPrimary": 87,
+          "netFuelGain": 2306,
+          "dryGroundStarts": 3,
+          "dryTruckStarts": 0
+        },
+        "combined/revised/32/none/defensive:offensive/2000/normal:hard": {
+          "games": 1,
+          "firstWins": 0,
+          "secondWins": 1,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 1,
+          "restoredHP": 336,
+          "rearmedPrimary": 122,
+          "netFuelGain": 2259,
+          "dryGroundStarts": 1,
+          "dryTruckStarts": 0
+        },
+        "combined/revised/32/ocean/defensive:offensive/2000/hard:normal": {
+          "games": 1,
+          "firstWins": 0,
+          "secondWins": 1,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 0,
+          "restoredHP": 86,
+          "rearmedPrimary": 75,
+          "netFuelGain": 1958,
+          "dryGroundStarts": 3,
+          "dryTruckStarts": 0
+        },
+        "combined/revised/32/ocean/defensive:offensive/2000/normal:hard": {
+          "games": 1,
+          "firstWins": 1,
+          "secondWins": 0,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 0,
+          "restoredHP": 40,
+          "rearmedPrimary": 66,
+          "netFuelGain": 1635,
+          "dryGroundStarts": 0,
+          "dryTruckStarts": 0
+        }
+      }
+    },
+    {
+      "file": "cpu-b-generated-holdout.jsonl",
+      "sha256": "9af931c2209e862972b4176a495c058f62f652b1f3801cb3bdcc2c83203e0d5e",
+      "header": {
+        "format": "tactical-balance-v1",
+        "source": "833aa80203c650a3ddab6f7484022142e779a2325e9dd1e46b313e0d9a1c002f",
+        "harness": "147d0ffaae9155782bdae1f7a043440b8029d63235080a92b3f6d58281da0101",
+        "runtime": "v24.19.0",
+        "requested": 16,
+        "rounds": 60,
+        "note": "Red always starts. Return legs rotate the map and exchange policies; observations are correlated. Base is v13 common observed-route/contact physics with all optional features off. Transport isolates moved unloading on legacy movement. Baseline CPU means old heuristics using the current legal forecasts. Weather has an independent fixed stream. Undecided games are neither wins nor draws."
+      },
+      "complete": {
+        "complete": true,
+        "completed": 16,
+        "elapsedMs": 60804.344507
+      },
+      "totals": {
+        "games": 16,
+        "firstWins": 4,
+        "secondWins": 12,
+        "draws": 0,
+        "undecided": 0,
+        "defensiveWins": 4,
+        "restoredHP": 4486,
+        "rearmedPrimary": 1278,
+        "netFuelGain": 24428,
+        "dryGroundStarts": 88,
+        "dryTruckStarts": 4
+      },
+      "groups": {
+        "combined/revised/20/none/balanced:balanced/2000/normal:normal": {
+          "games": 2,
+          "firstWins": 1,
+          "secondWins": 1,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 0,
+          "restoredHP": 341,
+          "rearmedPrimary": 208,
+          "netFuelGain": 2896,
+          "dryGroundStarts": 5,
+          "dryTruckStarts": 0
+        },
+        "combined/revised/20/none/defensive:offensive/2000/normal:normal": {
+          "games": 2,
+          "firstWins": 1,
+          "secondWins": 1,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 0,
+          "restoredHP": 994,
+          "rearmedPrimary": 133,
+          "netFuelGain": 1829,
+          "dryGroundStarts": 24,
+          "dryTruckStarts": 0
+        },
+        "combined/revised/20/coast/balanced:balanced/2000/normal:normal": {
+          "games": 2,
+          "firstWins": 1,
+          "secondWins": 1,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 0,
+          "restoredHP": 581,
+          "rearmedPrimary": 95,
+          "netFuelGain": 1565,
+          "dryGroundStarts": 2,
+          "dryTruckStarts": 0
+        },
+        "combined/revised/20/coast/defensive:offensive/2000/normal:normal": {
+          "games": 2,
+          "firstWins": 0,
+          "secondWins": 2,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 1,
+          "restoredHP": 1316,
+          "rearmedPrimary": 229,
+          "netFuelGain": 2216,
+          "dryGroundStarts": 13,
+          "dryTruckStarts": 0
+        },
+        "combined/revised/32/none/balanced:balanced/2000/normal:normal": {
+          "games": 2,
+          "firstWins": 0,
+          "secondWins": 2,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 0,
+          "restoredHP": 278,
+          "rearmedPrimary": 149,
+          "netFuelGain": 4443,
+          "dryGroundStarts": 11,
+          "dryTruckStarts": 0
+        },
+        "combined/revised/32/none/defensive:offensive/2000/normal:normal": {
+          "games": 2,
+          "firstWins": 0,
+          "secondWins": 2,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 1,
+          "restoredHP": 76,
+          "rearmedPrimary": 138,
+          "netFuelGain": 3564,
+          "dryGroundStarts": 19,
+          "dryTruckStarts": 1
+        },
+        "combined/revised/32/coast/balanced:balanced/2000/normal:normal": {
+          "games": 2,
+          "firstWins": 0,
+          "secondWins": 2,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 0,
+          "restoredHP": 296,
+          "rearmedPrimary": 150,
+          "netFuelGain": 3958,
+          "dryGroundStarts": 8,
+          "dryTruckStarts": 0
+        },
+        "combined/revised/32/coast/defensive:offensive/2000/normal:normal": {
+          "games": 2,
+          "firstWins": 1,
+          "secondWins": 1,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 2,
+          "restoredHP": 604,
+          "rearmedPrimary": 176,
+          "netFuelGain": 3957,
+          "dryGroundStarts": 6,
+          "dryTruckStarts": 3
+        }
+      }
+    },
+    {
+      "file": "cpu-b-wide-holdout.jsonl",
+      "sha256": "48a32fa8070a5ff5a47b942d957ace0f9d0e59bdfc25b8f87b36070eccddae85",
+      "header": {
+        "format": "tactical-balance-v1",
+        "source": "833aa80203c650a3ddab6f7484022142e779a2325e9dd1e46b313e0d9a1c002f",
+        "harness": "147d0ffaae9155782bdae1f7a043440b8029d63235080a92b3f6d58281da0101",
+        "runtime": "v24.19.0",
+        "requested": 12,
+        "catalog": "wide-front",
+        "rounds": 90,
+        "note": "Red always starts. Return legs rotate the map and exchange policies; observations are correlated. Base is v13 common observed-route/contact physics with all optional features off. Transport isolates moved unloading on legacy movement. Baseline CPU means old heuristics using the current legal forecasts. Weather has an independent fixed stream. Undecided games are neither wins nor draws."
+      },
+      "complete": {
+        "complete": true,
+        "completed": 12,
+        "elapsedMs": 34298.980073
+      },
+      "totals": {
+        "games": 12,
+        "firstWins": 4,
+        "secondWins": 8,
+        "draws": 0,
+        "undecided": 0,
+        "defensiveWins": 2,
+        "restoredHP": 122,
+        "rearmedPrimary": 570,
+        "netFuelGain": 7349,
+        "dryGroundStarts": 27,
+        "dryTruckStarts": 0
+      },
+      "groups": {
+        "combined/revised/32/catalog/balanced:balanced/2000/normal:normal": {
+          "games": 6,
+          "firstWins": 3,
+          "secondWins": 3,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 0,
+          "restoredHP": 42,
+          "rearmedPrimary": 346,
+          "netFuelGain": 4396,
+          "dryGroundStarts": 13,
+          "dryTruckStarts": 0
+        },
+        "combined/revised/32/catalog/defensive:offensive/2000/normal:normal": {
+          "games": 6,
+          "firstWins": 1,
+          "secondWins": 5,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 2,
+          "restoredHP": 80,
+          "rearmedPrimary": 224,
+          "netFuelGain": 2953,
+          "dryGroundStarts": 14,
+          "dryTruckStarts": 0
+        }
+      }
+    },
+    {
+      "file": "final-classic.jsonl",
+      "sha256": "9d219c3133abc14bc5d17ddb8dfe4ae93a2b94d3ee77c8fd9857ffb7d8e3ad2c",
+      "header": {
+        "format": "tactical-balance-v1",
+        "source": "833aa80203c650a3ddab6f7484022142e779a2325e9dd1e46b313e0d9a1c002f",
+        "harness": "147d0ffaae9155782bdae1f7a043440b8029d63235080a92b3f6d58281da0101",
+        "runtime": "v24.19.0",
+        "requested": 4,
+        "rounds": 90,
+        "note": "Red always starts. Return legs rotate the map and exchange policies; observations are correlated. Base is v13 common observed-route/contact physics with all optional features off. Transport isolates moved unloading on legacy movement. Baseline CPU means old heuristics using the current legal forecasts. Weather has an independent fixed stream. Undecided games are neither wins nor draws."
+      },
+      "complete": {
+        "complete": true,
+        "completed": 4,
+        "elapsedMs": 34945.803391
+      },
+      "totals": {
+        "games": 4,
+        "firstWins": 3,
+        "secondWins": 1,
+        "draws": 0,
+        "undecided": 0,
+        "defensiveWins": 0,
+        "restoredHP": 784,
+        "rearmedPrimary": 354,
+        "netFuelGain": 6088,
+        "dryGroundStarts": 28,
+        "dryTruckStarts": 0
+      },
+      "groups": {
+        "classic/revised/20/coast/balanced:balanced/2000/normal:normal": {
+          "games": 2,
+          "firstWins": 2,
+          "secondWins": 0,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 0,
+          "restoredHP": 473,
+          "rearmedPrimary": 188,
+          "netFuelGain": 2272,
+          "dryGroundStarts": 9,
+          "dryTruckStarts": 0
+        },
+        "classic/revised/32/coast/balanced:balanced/2000/normal:normal": {
+          "games": 2,
+          "firstWins": 1,
+          "secondWins": 1,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 0,
+          "restoredHP": 311,
+          "rearmedPrimary": 166,
+          "netFuelGain": 3816,
+          "dryGroundStarts": 19,
+          "dryTruckStarts": 0
+        }
+      }
+    },
+    {
+      "file": "final-generated.jsonl",
+      "sha256": "5b9c114fb09168948b02af0a39e8139242f0a523ab58af9cc5f15d2568f7a201",
+      "header": {
+        "format": "tactical-balance-v1",
+        "source": "833aa80203c650a3ddab6f7484022142e779a2325e9dd1e46b313e0d9a1c002f",
+        "harness": "147d0ffaae9155782bdae1f7a043440b8029d63235080a92b3f6d58281da0101",
+        "runtime": "v24.19.0",
+        "requested": 16,
+        "rounds": 90,
+        "note": "Red always starts. Return legs rotate the map and exchange policies; observations are correlated. Base is v13 common observed-route/contact physics with all optional features off. Transport isolates moved unloading on legacy movement. Baseline CPU means old heuristics using the current legal forecasts. Weather has an independent fixed stream. Undecided games are neither wins nor draws."
+      },
+      "complete": {
+        "complete": true,
+        "completed": 16,
+        "elapsedMs": 101188.127167
+      },
+      "totals": {
+        "games": 16,
+        "firstWins": 8,
+        "secondWins": 8,
+        "draws": 0,
+        "undecided": 0,
+        "defensiveWins": 8,
+        "restoredHP": 5625,
+        "rearmedPrimary": 1354,
+        "netFuelGain": 21471,
+        "dryGroundStarts": 78,
+        "dryTruckStarts": 0
+      },
+      "groups": {
+        "combined/revised/20/none/defensive:offensive/2000/normal:normal": {
+          "games": 2,
+          "firstWins": 0,
+          "secondWins": 2,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 1,
+          "restoredHP": 1089,
+          "rearmedPrimary": 189,
+          "netFuelGain": 2167,
+          "dryGroundStarts": 11,
+          "dryTruckStarts": 0
+        },
+        "combined/revised/20/ocean/defensive:offensive/2000/normal:normal": {
+          "games": 2,
+          "firstWins": 1,
+          "secondWins": 1,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 0,
+          "restoredHP": 1093,
+          "rearmedPrimary": 168,
+          "netFuelGain": 1251,
+          "dryGroundStarts": 2,
+          "dryTruckStarts": 0
+        },
+        "combined/revised/32/none/defensive:offensive/2000/normal:normal": {
+          "games": 2,
+          "firstWins": 0,
+          "secondWins": 2,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 1,
+          "restoredHP": 75,
+          "rearmedPrimary": 158,
+          "netFuelGain": 3931,
+          "dryGroundStarts": 19,
+          "dryTruckStarts": 0
+        },
+        "combined/revised/32/ocean/defensive:offensive/2000/normal:normal": {
+          "games": 2,
+          "firstWins": 1,
+          "secondWins": 1,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 0,
+          "restoredHP": 490,
+          "rearmedPrimary": 134,
+          "netFuelGain": 3231,
+          "dryGroundStarts": 10,
+          "dryTruckStarts": 0
+        },
+        "combined/revised/20/none/defensive:offensive/2000/hard:normal": {
+          "games": 1,
+          "firstWins": 1,
+          "secondWins": 0,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 1,
+          "restoredHP": 510,
+          "rearmedPrimary": 144,
+          "netFuelGain": 1412,
+          "dryGroundStarts": 5,
+          "dryTruckStarts": 0
+        },
+        "combined/revised/20/none/defensive:offensive/2000/normal:hard": {
+          "games": 1,
+          "firstWins": 0,
+          "secondWins": 1,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 1,
+          "restoredHP": 426,
+          "rearmedPrimary": 87,
+          "netFuelGain": 933,
+          "dryGroundStarts": 6,
+          "dryTruckStarts": 0
+        },
+        "combined/revised/20/ocean/defensive:offensive/2000/hard:normal": {
+          "games": 1,
+          "firstWins": 1,
+          "secondWins": 0,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 1,
+          "restoredHP": 922,
+          "rearmedPrimary": 137,
+          "netFuelGain": 1610,
+          "dryGroundStarts": 5,
+          "dryTruckStarts": 0
+        },
+        "combined/revised/20/ocean/defensive:offensive/2000/normal:hard": {
+          "games": 1,
+          "firstWins": 0,
+          "secondWins": 1,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 1,
+          "restoredHP": 579,
+          "rearmedPrimary": 66,
+          "netFuelGain": 647,
+          "dryGroundStarts": 4,
+          "dryTruckStarts": 0
+        },
+        "combined/revised/32/none/defensive:offensive/2000/hard:normal": {
+          "games": 1,
+          "firstWins": 1,
+          "secondWins": 0,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 1,
+          "restoredHP": 47,
+          "rearmedPrimary": 86,
+          "netFuelGain": 1580,
+          "dryGroundStarts": 4,
+          "dryTruckStarts": 0
+        },
+        "combined/revised/32/none/defensive:offensive/2000/normal:hard": {
+          "games": 1,
+          "firstWins": 1,
+          "secondWins": 0,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 0,
+          "restoredHP": 60,
+          "rearmedPrimary": 80,
+          "netFuelGain": 2118,
+          "dryGroundStarts": 5,
+          "dryTruckStarts": 0
+        },
+        "combined/revised/32/ocean/defensive:offensive/2000/hard:normal": {
+          "games": 1,
+          "firstWins": 1,
+          "secondWins": 0,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 1,
+          "restoredHP": 180,
+          "rearmedPrimary": 65,
+          "netFuelGain": 1499,
+          "dryGroundStarts": 3,
+          "dryTruckStarts": 0
+        },
+        "combined/revised/32/ocean/defensive:offensive/2000/normal:hard": {
+          "games": 1,
+          "firstWins": 1,
+          "secondWins": 0,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 0,
+          "restoredHP": 154,
+          "rearmedPrimary": 40,
+          "netFuelGain": 1092,
+          "dryGroundStarts": 4,
+          "dryTruckStarts": 0
+        }
+      }
+    },
+    {
+      "file": "final-wide.jsonl",
+      "sha256": "c267cc39fb1bef871e0ed0f5e6717df76bd54500438770f62e182ddd7670c63e",
+      "header": {
+        "format": "tactical-balance-v1",
+        "source": "833aa80203c650a3ddab6f7484022142e779a2325e9dd1e46b313e0d9a1c002f",
+        "harness": "147d0ffaae9155782bdae1f7a043440b8029d63235080a92b3f6d58281da0101",
+        "runtime": "v24.19.0",
+        "requested": 16,
+        "catalog": "wide-front",
+        "rounds": 90,
+        "note": "Red always starts. Return legs rotate the map and exchange policies; observations are correlated. Base is v13 common observed-route/contact physics with all optional features off. Transport isolates moved unloading on legacy movement. Baseline CPU means old heuristics using the current legal forecasts. Weather has an independent fixed stream. Undecided games are neither wins nor draws."
+      },
+      "complete": {
+        "complete": true,
+        "completed": 16,
+        "elapsedMs": 82852.059531
+      },
+      "totals": {
+        "games": 16,
+        "firstWins": 8,
+        "secondWins": 8,
+        "draws": 0,
+        "undecided": 0,
+        "defensiveWins": 5,
+        "restoredHP": 225,
+        "rearmedPrimary": 712,
+        "netFuelGain": 9246,
+        "dryGroundStarts": 26,
+        "dryTruckStarts": 0
+      },
+      "groups": {
+        "combined/revised/32/catalog/balanced:balanced/0/normal:normal": {
+          "games": 4,
+          "firstWins": 2,
+          "secondWins": 2,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 0,
+          "restoredHP": 73,
+          "rearmedPrimary": 210,
+          "netFuelGain": 2736,
+          "dryGroundStarts": 2,
+          "dryTruckStarts": 0
+        },
+        "combined/revised/32/catalog/defensive:offensive/0/normal:normal": {
+          "games": 4,
+          "firstWins": 0,
+          "secondWins": 4,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 2,
+          "restoredHP": 72,
+          "rearmedPrimary": 159,
+          "netFuelGain": 1758,
+          "dryGroundStarts": 10,
+          "dryTruckStarts": 0
+        },
+        "combined/revised/32/catalog/balanced:balanced/2000/normal:normal": {
+          "games": 4,
+          "firstWins": 3,
+          "secondWins": 1,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 0,
+          "restoredHP": 20,
+          "rearmedPrimary": 156,
+          "netFuelGain": 2462,
+          "dryGroundStarts": 3,
+          "dryTruckStarts": 0
+        },
+        "combined/revised/32/catalog/defensive:offensive/2000/normal:normal": {
+          "games": 4,
+          "firstWins": 3,
+          "secondWins": 1,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 3,
+          "restoredHP": 60,
+          "rearmedPrimary": 187,
+          "netFuelGain": 2290,
+          "dryGroundStarts": 11,
+          "dryTruckStarts": 0
+        }
+      }
+    },
+    {
+      "file": "map-a-wide-train.jsonl",
+      "sha256": "989d86386dff48279053634c93955cb6e41d5d5488e2c18397fdef2bdfebed9a",
+      "header": {
+        "format": "tactical-balance-v1",
+        "source": "5e4e1aed88f177f7f73d52347d2384b617266d69e618ac59ddb9123d3c491a2b",
+        "harness": "42005f3b280eaf8f6c386b7ec4b7593357049d79a46caffa3a3b9a15ed3dc4c6",
+        "runtime": "v24.19.0",
+        "requested": 16,
+        "catalog": "wide-front",
+        "rounds": 60,
+        "note": "Red always starts. Return legs rotate the map and exchange policies; observations are correlated. Base is v13 common observed-route/contact physics with all optional features off. Transport isolates moved unloading on legacy movement. Baseline CPU means old heuristics using the current legal forecasts. Weather has an independent fixed stream. Undecided games are neither wins nor draws."
+      },
+      "complete": {
+        "complete": true,
+        "completed": 16,
+        "elapsedMs": 38423.66069999999
+      },
+      "totals": {
+        "games": 16,
+        "firstWins": 7,
+        "secondWins": 9,
+        "draws": 0,
+        "undecided": 0,
+        "defensiveWins": 1
+      },
+      "groups": {
+        "combined/original/32/catalog/balanced:balanced/2000/normal:normal": {
+          "games": 4,
+          "firstWins": 2,
+          "secondWins": 2,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 0
+        },
+        "combined/original/32/catalog/defensive:offensive/2000/normal:normal": {
+          "games": 4,
+          "firstWins": 2,
+          "secondWins": 2,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 0
+        },
+        "combined/revised/32/catalog/balanced:balanced/2000/normal:normal": {
+          "games": 4,
+          "firstWins": 2,
+          "secondWins": 2,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 0
+        },
+        "combined/revised/32/catalog/defensive:offensive/2000/normal:normal": {
+          "games": 4,
+          "firstWins": 1,
+          "secondWins": 3,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 1
+        }
+      }
+    },
+    {
+      "file": "map-b-wide-holdout.jsonl",
+      "sha256": "9799a19fbe8be4085ca322d1e4d92fbc08e629ec996670d5209da5bf437f71e4",
+      "header": {
+        "format": "tactical-balance-v1",
+        "source": "a7b9c787422d5bbed4c0d505e1446a8c961fe394282911129cdbc53664be33a5",
+        "harness": "147d0ffaae9155782bdae1f7a043440b8029d63235080a92b3f6d58281da0101",
+        "runtime": "v24.19.0",
+        "requested": 12,
+        "catalog": "wide-front",
+        "rounds": 90,
+        "note": "Red always starts. Return legs rotate the map and exchange policies; observations are correlated. Base is v13 common observed-route/contact physics with all optional features off. Transport isolates moved unloading on legacy movement. Baseline CPU means old heuristics using the current legal forecasts. Weather has an independent fixed stream. Undecided games are neither wins nor draws."
+      },
+      "complete": {
+        "complete": true,
+        "completed": 12,
+        "elapsedMs": 35848.032746
+      },
+      "totals": {
+        "games": 12,
+        "firstWins": 5,
+        "secondWins": 7,
+        "draws": 0,
+        "undecided": 0,
+        "defensiveWins": 3,
+        "restoredHP": 42,
+        "rearmedPrimary": 581,
+        "netFuelGain": 7418,
+        "dryGroundStarts": 22,
+        "dryTruckStarts": 0
+      },
+      "groups": {
+        "combined/revised/32/catalog/balanced:balanced/2000/normal:normal": {
+          "games": 6,
+          "firstWins": 3,
+          "secondWins": 3,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 0,
+          "restoredHP": 42,
+          "rearmedPrimary": 346,
+          "netFuelGain": 4396,
+          "dryGroundStarts": 13,
+          "dryTruckStarts": 0
+        },
+        "combined/revised/32/catalog/defensive:offensive/2000/normal:normal": {
+          "games": 6,
+          "firstWins": 2,
+          "secondWins": 4,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 3,
+          "restoredHP": 0,
+          "rearmedPrimary": 235,
+          "netFuelGain": 3022,
+          "dryGroundStarts": 9,
+          "dryTruckStarts": 0
+        }
+      }
+    },
+    {
+      "file": "map-b-wide-train.jsonl",
+      "sha256": "d17e0be3754756e99e0dbd50ecb24ac80796d2b7cbc1252e7751c2b02834e1da",
+      "header": {
+        "format": "tactical-balance-v1",
+        "source": "a7b9c787422d5bbed4c0d505e1446a8c961fe394282911129cdbc53664be33a5",
+        "harness": "147d0ffaae9155782bdae1f7a043440b8029d63235080a92b3f6d58281da0101",
+        "runtime": "v24.19.0",
+        "requested": 8,
+        "catalog": "wide-front",
+        "rounds": 60,
+        "note": "Red always starts. Return legs rotate the map and exchange policies; observations are correlated. Base is v13 common observed-route/contact physics with all optional features off. Transport isolates moved unloading on legacy movement. Baseline CPU means old heuristics using the current legal forecasts. Weather has an independent fixed stream. Undecided games are neither wins nor draws."
+      },
+      "complete": {
+        "complete": true,
+        "completed": 8,
+        "elapsedMs": 20344.224019999998
+      },
+      "totals": {
+        "games": 8,
+        "firstWins": 3,
+        "secondWins": 5,
+        "draws": 0,
+        "undecided": 0,
+        "defensiveWins": 1,
+        "restoredHP": 242,
+        "rearmedPrimary": 352,
+        "netFuelGain": 4736,
+        "dryGroundStarts": 21,
+        "dryTruckStarts": 0
+      },
+      "groups": {
+        "combined/revised/32/catalog/balanced:balanced/2000/normal:normal": {
+          "games": 4,
+          "firstWins": 2,
+          "secondWins": 2,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 0,
+          "restoredHP": 120,
+          "rearmedPrimary": 160,
+          "netFuelGain": 2489,
+          "dryGroundStarts": 12,
+          "dryTruckStarts": 0
+        },
+        "combined/revised/32/catalog/defensive:offensive/2000/normal:normal": {
+          "games": 4,
+          "firstWins": 1,
+          "secondWins": 3,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 1,
+          "restoredHP": 122,
+          "rearmedPrimary": 192,
+          "netFuelGain": 2247,
+          "dryGroundStarts": 9,
+          "dryTruckStarts": 0
+        }
+      }
+    },
+    {
+      "file": "map-c-wide-holdout.jsonl",
+      "sha256": "0f8a515911b3ef46383e1d60945b9207d9b127f36e98ba2d6e183d7dbf8d6a4a",
+      "header": {
+        "format": "tactical-balance-v1",
+        "source": "2e464c5542d02eb3e29eed7997760f443956a961d9105173a410ea082018b52b",
+        "harness": "147d0ffaae9155782bdae1f7a043440b8029d63235080a92b3f6d58281da0101",
+        "runtime": "v24.19.0",
+        "requested": 12,
+        "catalog": "wide-front",
+        "rounds": 90,
+        "note": "Red always starts. Return legs rotate the map and exchange policies; observations are correlated. Base is v13 common observed-route/contact physics with all optional features off. Transport isolates moved unloading on legacy movement. Baseline CPU means old heuristics using the current legal forecasts. Weather has an independent fixed stream. Undecided games are neither wins nor draws."
+      },
+      "complete": {
+        "complete": true,
+        "completed": 12,
+        "elapsedMs": 43155.731338
+      },
+      "totals": {
+        "games": 12,
+        "firstWins": 8,
+        "secondWins": 4,
+        "draws": 0,
+        "undecided": 0,
+        "defensiveWins": 3,
+        "restoredHP": 182,
+        "rearmedPrimary": 815,
+        "netFuelGain": 9608,
+        "dryGroundStarts": 42,
+        "dryTruckStarts": 0
+      },
+      "groups": {
+        "combined/revised/32/catalog/balanced:balanced/2000/normal:normal": {
+          "games": 6,
+          "firstWins": 2,
+          "secondWins": 4,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 0,
+          "restoredHP": 142,
+          "rearmedPrimary": 540,
+          "netFuelGain": 6375,
+          "dryGroundStarts": 26,
+          "dryTruckStarts": 0
+        },
+        "combined/revised/32/catalog/defensive:offensive/2000/normal:normal": {
+          "games": 6,
+          "firstWins": 6,
+          "secondWins": 0,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 3,
+          "restoredHP": 40,
+          "rearmedPrimary": 275,
+          "netFuelGain": 3233,
+          "dryGroundStarts": 16,
+          "dryTruckStarts": 0
+        }
+      }
+    },
+    {
+      "file": "map-c-wide-train.jsonl",
+      "sha256": "2b95740cd0897ccf22edc03ada6a10b8ce803568808a58d5797b7b43d64048f5",
+      "header": {
+        "format": "tactical-balance-v1",
+        "source": "2e464c5542d02eb3e29eed7997760f443956a961d9105173a410ea082018b52b",
+        "harness": "147d0ffaae9155782bdae1f7a043440b8029d63235080a92b3f6d58281da0101",
+        "runtime": "v24.19.0",
+        "requested": 8,
+        "catalog": "wide-front",
+        "rounds": 90,
+        "note": "Red always starts. Return legs rotate the map and exchange policies; observations are correlated. Base is v13 common observed-route/contact physics with all optional features off. Transport isolates moved unloading on legacy movement. Baseline CPU means old heuristics using the current legal forecasts. Weather has an independent fixed stream. Undecided games are neither wins nor draws."
+      },
+      "complete": {
+        "complete": true,
+        "completed": 8,
+        "elapsedMs": 25558.055856000003
+      },
+      "totals": {
+        "games": 8,
+        "firstWins": 6,
+        "secondWins": 2,
+        "draws": 0,
+        "undecided": 0,
+        "defensiveWins": 2,
+        "restoredHP": 230,
+        "rearmedPrimary": 623,
+        "netFuelGain": 7130,
+        "dryGroundStarts": 44,
+        "dryTruckStarts": 0
+      },
+      "groups": {
+        "combined/revised/32/catalog/balanced:balanced/2000/normal:normal": {
+          "games": 4,
+          "firstWins": 2,
+          "secondWins": 2,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 0,
+          "restoredHP": 172,
+          "rearmedPrimary": 432,
+          "netFuelGain": 5029,
+          "dryGroundStarts": 27,
+          "dryTruckStarts": 0
+        },
+        "combined/revised/32/catalog/defensive:offensive/2000/normal:normal": {
+          "games": 4,
+          "firstWins": 4,
+          "secondWins": 0,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 2,
+          "restoredHP": 58,
+          "rearmedPrimary": 191,
+          "netFuelGain": 2101,
+          "dryGroundStarts": 17,
+          "dryTruckStarts": 0
+        }
+      }
+    },
+    {
+      "file": "map-d-wide-holdout.jsonl",
+      "sha256": "7e2692ff11927aae8ab50ed66f9d0511a93eb6999a8ef8f95e7b9ba47c89c321",
+      "header": {
+        "format": "tactical-balance-v1",
+        "source": "75bc7a9180be12a495ece4d26296da8b10726180a78aabc671bc3d9327d1b66d",
+        "harness": "147d0ffaae9155782bdae1f7a043440b8029d63235080a92b3f6d58281da0101",
+        "runtime": "v24.19.0",
+        "requested": 12,
+        "catalog": "wide-front",
+        "rounds": 90,
+        "note": "Red always starts. Return legs rotate the map and exchange policies; observations are correlated. Base is v13 common observed-route/contact physics with all optional features off. Transport isolates moved unloading on legacy movement. Baseline CPU means old heuristics using the current legal forecasts. Weather has an independent fixed stream. Undecided games are neither wins nor draws."
+      },
+      "complete": {
+        "complete": true,
+        "completed": 12,
+        "elapsedMs": 24589.111848
+      },
+      "totals": {
+        "games": 12,
+        "firstWins": 7,
+        "secondWins": 5,
+        "draws": 0,
+        "undecided": 0,
+        "defensiveWins": 1,
+        "restoredHP": 186,
+        "rearmedPrimary": 434,
+        "netFuelGain": 5177,
+        "dryGroundStarts": 34,
+        "dryTruckStarts": 0
+      },
+      "groups": {
+        "combined/revised/32/catalog/balanced:balanced/2000/normal:normal": {
+          "games": 6,
+          "firstWins": 3,
+          "secondWins": 3,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 0,
+          "restoredHP": 80,
+          "rearmedPrimary": 201,
+          "netFuelGain": 2670,
+          "dryGroundStarts": 14,
+          "dryTruckStarts": 0
+        },
+        "combined/revised/32/catalog/defensive:offensive/2000/normal:normal": {
+          "games": 6,
+          "firstWins": 4,
+          "secondWins": 2,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 1,
+          "restoredHP": 106,
+          "rearmedPrimary": 233,
+          "netFuelGain": 2507,
+          "dryGroundStarts": 20,
+          "dryTruckStarts": 0
+        }
+      }
+    },
+    {
+      "file": "map-d-wide-train.jsonl",
+      "sha256": "f27e693edfc83ec23a192480cc7acc1bd0885d9cce75eb603f0b04a6c5775927",
+      "header": {
+        "format": "tactical-balance-v1",
+        "source": "75bc7a9180be12a495ece4d26296da8b10726180a78aabc671bc3d9327d1b66d",
+        "harness": "147d0ffaae9155782bdae1f7a043440b8029d63235080a92b3f6d58281da0101",
+        "runtime": "v24.19.0",
+        "requested": 8,
+        "catalog": "wide-front",
+        "rounds": 90,
+        "note": "Red always starts. Return legs rotate the map and exchange policies; observations are correlated. Base is v13 common observed-route/contact physics with all optional features off. Transport isolates moved unloading on legacy movement. Baseline CPU means old heuristics using the current legal forecasts. Weather has an independent fixed stream. Undecided games are neither wins nor draws."
+      },
+      "complete": {
+        "complete": true,
+        "completed": 8,
+        "elapsedMs": 25287.453004
+      },
+      "totals": {
+        "games": 8,
+        "firstWins": 4,
+        "secondWins": 4,
+        "draws": 0,
+        "undecided": 0,
+        "defensiveWins": 1,
+        "restoredHP": 162,
+        "rearmedPrimary": 374,
+        "netFuelGain": 4445,
+        "dryGroundStarts": 33,
+        "dryTruckStarts": 0
+      },
+      "groups": {
+        "combined/revised/32/catalog/balanced:balanced/2000/normal:normal": {
+          "games": 4,
+          "firstWins": 3,
+          "secondWins": 1,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 0,
+          "restoredHP": 60,
+          "rearmedPrimary": 179,
+          "netFuelGain": 2288,
+          "dryGroundStarts": 10,
+          "dryTruckStarts": 0
+        },
+        "combined/revised/32/catalog/defensive:offensive/2000/normal:normal": {
+          "games": 4,
+          "firstWins": 1,
+          "secondWins": 3,
+          "draws": 0,
+          "undecided": 0,
+          "defensiveWins": 1,
+          "restoredHP": 102,
+          "rearmedPrimary": 195,
+          "netFuelGain": 2157,
+          "dryGroundStarts": 23,
+          "dryTruckStarts": 0
+        }
+      }
+    }
+  ],
+  "comparisons": [
+    {
+      "before": "before-generated-train",
+      "after": "cpu-a-generated-train",
+      "beforeTotals": {
+        "games": 16,
+        "firstWins": 10,
+        "secondWins": 6,
+        "draws": 0,
+        "undecided": 0,
+        "defensiveWins": 3
+      },
+      "afterTotals": {
+        "games": 16,
+        "firstWins": 9,
+        "secondWins": 7,
+        "draws": 0,
+        "undecided": 0,
+        "defensiveWins": 4
+      },
+      "changedCommands": 6,
+      "changedWinners": [
+        {
+          "index": 7,
+          "from": "red",
+          "to": "blue",
+          "size": 20,
+          "sea": "coast",
+          "policy": "defensive:offensive",
+          "matchup": "normal:normal",
+          "leg": 1,
+          "damageSeed": 1443,
+          "bonus": 2000
+        }
+      ]
+    },
+    {
+      "before": "before-generated-holdout",
+      "after": "cpu-a-generated-holdout",
+      "beforeTotals": {
+        "games": 16,
+        "firstWins": 5,
+        "secondWins": 11,
+        "draws": 0,
+        "undecided": 0,
+        "defensiveWins": 3,
+        "restoredHP": 3395,
+        "rearmedPrimary": 1250,
+        "netFuelGain": 24448,
+        "dryGroundStarts": 73,
+        "dryTruckStarts": 2
+      },
+      "afterTotals": {
+        "games": 16,
+        "firstWins": 4,
+        "secondWins": 12,
+        "draws": 0,
+        "undecided": 0,
+        "defensiveWins": 4,
+        "restoredHP": 4486,
+        "rearmedPrimary": 1278,
+        "netFuelGain": 24428,
+        "dryGroundStarts": 88,
+        "dryTruckStarts": 4
+      },
+      "changedCommands": 7,
+      "changedWinners": [
+        {
+          "index": 7,
+          "from": "red",
+          "to": "blue",
+          "size": 20,
+          "sea": "coast",
+          "policy": "defensive:offensive",
+          "matchup": "normal:normal",
+          "leg": 1,
+          "damageSeed": 1444,
+          "bonus": 2000
+        }
+      ]
+    },
+    {
+      "before": "before-generated-holdout",
+      "after": "cpu-b-generated-holdout",
+      "beforeTotals": {
+        "games": 16,
+        "firstWins": 5,
+        "secondWins": 11,
+        "draws": 0,
+        "undecided": 0,
+        "defensiveWins": 3,
+        "restoredHP": 3395,
+        "rearmedPrimary": 1250,
+        "netFuelGain": 24448,
+        "dryGroundStarts": 73,
+        "dryTruckStarts": 2
+      },
+      "afterTotals": {
+        "games": 16,
+        "firstWins": 4,
+        "secondWins": 12,
+        "draws": 0,
+        "undecided": 0,
+        "defensiveWins": 4,
+        "restoredHP": 4486,
+        "rearmedPrimary": 1278,
+        "netFuelGain": 24428,
+        "dryGroundStarts": 88,
+        "dryTruckStarts": 4
+      },
+      "changedCommands": 7,
+      "changedWinners": [
+        {
+          "index": 7,
+          "from": "red",
+          "to": "blue",
+          "size": 20,
+          "sea": "coast",
+          "policy": "defensive:offensive",
+          "matchup": "normal:normal",
+          "leg": 1,
+          "damageSeed": 1444,
+          "bonus": 2000
+        }
+      ]
+    },
+    {
+      "before": "before-generated-confirm",
+      "after": "cpu-a-generated-confirm",
+      "beforeTotals": {
+        "games": 24,
+        "firstWins": 12,
+        "secondWins": 12,
+        "draws": 0,
+        "undecided": 0,
+        "defensiveWins": 6,
+        "restoredHP": 6852,
+        "rearmedPrimary": 2035,
+        "netFuelGain": 33047,
+        "dryGroundStarts": 81,
+        "dryTruckStarts": 0
+      },
+      "afterTotals": {
+        "games": 24,
+        "firstWins": 11,
+        "secondWins": 13,
+        "draws": 0,
+        "undecided": 0,
+        "defensiveWins": 5,
+        "restoredHP": 6969,
+        "rearmedPrimary": 2030,
+        "netFuelGain": 33654,
+        "dryGroundStarts": 72,
+        "dryTruckStarts": 0
+      },
+      "changedCommands": 14,
+      "changedWinners": [
+        {
+          "index": 0,
+          "from": "red",
+          "to": "blue",
+          "size": 20,
+          "sea": "none",
+          "policy": "defensive:offensive",
+          "matchup": "normal:normal",
+          "leg": 0,
+          "damageSeed": 1448,
+          "bonus": 2000
+        }
+      ]
+    },
+    {
+      "before": "before-generated-confirm",
+      "after": "cpu-b-generated-confirm",
+      "beforeTotals": {
+        "games": 24,
+        "firstWins": 12,
+        "secondWins": 12,
+        "draws": 0,
+        "undecided": 0,
+        "defensiveWins": 6,
+        "restoredHP": 6852,
+        "rearmedPrimary": 2035,
+        "netFuelGain": 33047,
+        "dryGroundStarts": 81,
+        "dryTruckStarts": 0
+      },
+      "afterTotals": {
+        "games": 24,
+        "firstWins": 11,
+        "secondWins": 13,
+        "draws": 0,
+        "undecided": 0,
+        "defensiveWins": 5,
+        "restoredHP": 6969,
+        "rearmedPrimary": 2030,
+        "netFuelGain": 33654,
+        "dryGroundStarts": 72,
+        "dryTruckStarts": 0
+      },
+      "changedCommands": 14,
+      "changedWinners": [
+        {
+          "index": 0,
+          "from": "red",
+          "to": "blue",
+          "size": 20,
+          "sea": "none",
+          "policy": "defensive:offensive",
+          "matchup": "normal:normal",
+          "leg": 0,
+          "damageSeed": 1448,
+          "bonus": 2000
+        }
+      ]
+    },
+    {
+      "before": "before-wide-holdout",
+      "after": "cpu-a-wide-holdout",
+      "beforeTotals": {
+        "games": 12,
+        "firstWins": 5,
+        "secondWins": 7,
+        "draws": 0,
+        "undecided": 0,
+        "defensiveWins": 3,
+        "restoredHP": 42,
+        "rearmedPrimary": 581,
+        "netFuelGain": 7418,
+        "dryGroundStarts": 22,
+        "dryTruckStarts": 0
+      },
+      "afterTotals": {
+        "games": 12,
+        "firstWins": 4,
+        "secondWins": 8,
+        "draws": 0,
+        "undecided": 0,
+        "defensiveWins": 2,
+        "restoredHP": 122,
+        "rearmedPrimary": 570,
+        "netFuelGain": 7349,
+        "dryGroundStarts": 27,
+        "dryTruckStarts": 0
+      },
+      "changedCommands": 1,
+      "changedWinners": [
+        {
+          "index": 6,
+          "from": "red",
+          "to": "blue",
+          "size": 32,
+          "sea": "catalog",
+          "policy": "defensive:offensive",
+          "matchup": "normal:normal",
+          "leg": 0,
+          "damageSeed": 1446,
+          "bonus": 2000
+        }
+      ]
+    },
+    {
+      "before": "before-wide-holdout",
+      "after": "cpu-b-wide-holdout",
+      "beforeTotals": {
+        "games": 12,
+        "firstWins": 5,
+        "secondWins": 7,
+        "draws": 0,
+        "undecided": 0,
+        "defensiveWins": 3,
+        "restoredHP": 42,
+        "rearmedPrimary": 581,
+        "netFuelGain": 7418,
+        "dryGroundStarts": 22,
+        "dryTruckStarts": 0
+      },
+      "afterTotals": {
+        "games": 12,
+        "firstWins": 4,
+        "secondWins": 8,
+        "draws": 0,
+        "undecided": 0,
+        "defensiveWins": 2,
+        "restoredHP": 122,
+        "rearmedPrimary": 570,
+        "netFuelGain": 7349,
+        "dryGroundStarts": 27,
+        "dryTruckStarts": 0
+      },
+      "changedCommands": 1,
+      "changedWinners": [
+        {
+          "index": 6,
+          "from": "red",
+          "to": "blue",
+          "size": 32,
+          "sea": "catalog",
+          "policy": "defensive:offensive",
+          "matchup": "normal:normal",
+          "leg": 0,
+          "damageSeed": 1446,
+          "bonus": 2000
+        }
+      ]
+    },
+    {
+      "before": "before-wide-holdout",
+      "after": "map-c-wide-holdout",
+      "beforeTotals": {
+        "games": 12,
+        "firstWins": 5,
+        "secondWins": 7,
+        "draws": 0,
+        "undecided": 0,
+        "defensiveWins": 3,
+        "restoredHP": 42,
+        "rearmedPrimary": 581,
+        "netFuelGain": 7418,
+        "dryGroundStarts": 22,
+        "dryTruckStarts": 0
+      },
+      "afterTotals": {
+        "games": 12,
+        "firstWins": 8,
+        "secondWins": 4,
+        "draws": 0,
+        "undecided": 0,
+        "defensiveWins": 3,
+        "restoredHP": 182,
+        "rearmedPrimary": 815,
+        "netFuelGain": 9608,
+        "dryGroundStarts": 42,
+        "dryTruckStarts": 0
+      },
+      "changedCommands": 12,
+      "changedWinners": [
+        {
+          "index": 2,
+          "from": "blue",
+          "to": "red",
+          "size": 32,
+          "sea": "catalog",
+          "policy": "defensive:offensive",
+          "matchup": "normal:normal",
+          "leg": 0,
+          "damageSeed": 1445,
+          "bonus": 2000
+        },
+        {
+          "index": 3,
+          "from": "blue",
+          "to": "red",
+          "size": 32,
+          "sea": "catalog",
+          "policy": "defensive:offensive",
+          "matchup": "normal:normal",
+          "leg": 1,
+          "damageSeed": 1445,
+          "bonus": 2000
+        },
+        {
+          "index": 4,
+          "from": "blue",
+          "to": "red",
+          "size": 32,
+          "sea": "catalog",
+          "policy": "balanced:balanced",
+          "matchup": "normal:normal",
+          "leg": 0,
+          "damageSeed": 1446,
+          "bonus": 2000
+        },
+        {
+          "index": 5,
+          "from": "red",
+          "to": "blue",
+          "size": 32,
+          "sea": "catalog",
+          "policy": "balanced:balanced",
+          "matchup": "normal:normal",
+          "leg": 1,
+          "damageSeed": 1446,
+          "bonus": 2000
+        },
+        {
+          "index": 9,
+          "from": "red",
+          "to": "blue",
+          "size": 32,
+          "sea": "catalog",
+          "policy": "balanced:balanced",
+          "matchup": "normal:normal",
+          "leg": 1,
+          "damageSeed": 1447,
+          "bonus": 2000
+        },
+        {
+          "index": 10,
+          "from": "blue",
+          "to": "red",
+          "size": 32,
+          "sea": "catalog",
+          "policy": "defensive:offensive",
+          "matchup": "normal:normal",
+          "leg": 0,
+          "damageSeed": 1447,
+          "bonus": 2000
+        },
+        {
+          "index": 11,
+          "from": "blue",
+          "to": "red",
+          "size": 32,
+          "sea": "catalog",
+          "policy": "defensive:offensive",
+          "matchup": "normal:normal",
+          "leg": 1,
+          "damageSeed": 1447,
+          "bonus": 2000
+        }
+      ]
+    },
+    {
+      "before": "before-wide-holdout",
+      "after": "map-d-wide-holdout",
+      "beforeTotals": {
+        "games": 12,
+        "firstWins": 5,
+        "secondWins": 7,
+        "draws": 0,
+        "undecided": 0,
+        "defensiveWins": 3,
+        "restoredHP": 42,
+        "rearmedPrimary": 581,
+        "netFuelGain": 7418,
+        "dryGroundStarts": 22,
+        "dryTruckStarts": 0
+      },
+      "afterTotals": {
+        "games": 12,
+        "firstWins": 7,
+        "secondWins": 5,
+        "draws": 0,
+        "undecided": 0,
+        "defensiveWins": 1,
+        "restoredHP": 186,
+        "rearmedPrimary": 434,
+        "netFuelGain": 5177,
+        "dryGroundStarts": 34,
+        "dryTruckStarts": 0
+      },
+      "changedCommands": 12,
+      "changedWinners": [
+        {
+          "index": 3,
+          "from": "blue",
+          "to": "red",
+          "size": 32,
+          "sea": "catalog",
+          "policy": "defensive:offensive",
+          "matchup": "normal:normal",
+          "leg": 1,
+          "damageSeed": 1445,
+          "bonus": 2000
+        },
+        {
+          "index": 11,
+          "from": "blue",
+          "to": "red",
+          "size": 32,
+          "sea": "catalog",
+          "policy": "defensive:offensive",
+          "matchup": "normal:normal",
+          "leg": 1,
+          "damageSeed": 1447,
+          "bonus": 2000
+        }
+      ]
+    },
+    {
+      "before": "before-final-generated",
+      "after": "final-generated",
+      "beforeTotals": {
+        "games": 16,
+        "firstWins": 7,
+        "secondWins": 9,
+        "draws": 0,
+        "undecided": 0,
+        "defensiveWins": 9,
+        "restoredHP": 5028,
+        "rearmedPrimary": 1330,
+        "netFuelGain": 21827,
+        "dryGroundStarts": 81,
+        "dryTruckStarts": 1
+      },
+      "afterTotals": {
+        "games": 16,
+        "firstWins": 8,
+        "secondWins": 8,
+        "draws": 0,
+        "undecided": 0,
+        "defensiveWins": 8,
+        "restoredHP": 5625,
+        "rearmedPrimary": 1354,
+        "netFuelGain": 21471,
+        "dryGroundStarts": 78,
+        "dryTruckStarts": 0
+      },
+      "changedCommands": 11,
+      "changedWinners": [
+        {
+          "index": 3,
+          "from": "blue",
+          "to": "red",
+          "size": 20,
+          "sea": "ocean",
+          "policy": "defensive:offensive",
+          "matchup": "normal:normal",
+          "leg": 1,
+          "damageSeed": 1450,
+          "bonus": 2000
+        }
+      ]
+    },
+    {
+      "before": "before-final-wide",
+      "after": "final-wide",
+      "beforeTotals": {
+        "games": 16,
+        "firstWins": 7,
+        "secondWins": 9,
+        "draws": 0,
+        "undecided": 0,
+        "defensiveWins": 4,
+        "restoredHP": 137,
+        "rearmedPrimary": 701,
+        "netFuelGain": 9340,
+        "dryGroundStarts": 26,
+        "dryTruckStarts": 2
+      },
+      "afterTotals": {
+        "games": 16,
+        "firstWins": 8,
+        "secondWins": 8,
+        "draws": 0,
+        "undecided": 0,
+        "defensiveWins": 5,
+        "restoredHP": 225,
+        "rearmedPrimary": 712,
+        "netFuelGain": 9246,
+        "dryGroundStarts": 26,
+        "dryTruckStarts": 0
+      },
+      "changedCommands": 5,
+      "changedWinners": [
+        {
+          "index": 14,
+          "from": "blue",
+          "to": "red",
+          "size": 32,
+          "sea": "catalog",
+          "policy": "defensive:offensive",
+          "matchup": "normal:normal",
+          "leg": 0,
+          "damageSeed": 1452,
+          "bonus": 2000
+        }
+      ]
+    },
+    {
+      "before": "before-classic",
+      "after": "final-classic",
+      "beforeTotals": {
+        "games": 4,
+        "firstWins": 3,
+        "secondWins": 1,
+        "draws": 0,
+        "undecided": 0,
+        "defensiveWins": 0,
+        "restoredHP": 784,
+        "rearmedPrimary": 354,
+        "netFuelGain": 6088,
+        "dryGroundStarts": 28,
+        "dryTruckStarts": 0
+      },
+      "afterTotals": {
+        "games": 4,
+        "firstWins": 3,
+        "secondWins": 1,
+        "draws": 0,
+        "undecided": 0,
+        "defensiveWins": 0,
+        "restoredHP": 784,
+        "rearmedPrimary": 354,
+        "netFuelGain": 6088,
+        "dryGroundStarts": 28,
+        "dryTruckStarts": 0
+      },
+      "changedCommands": 0,
+      "changedWinners": []
+    }
+  ]
+}

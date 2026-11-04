@@ -39,6 +39,8 @@ const allowed = new Set([
   '--output',
   '--initiative',
   '--plain-cover',
+  '--matchups',
+  '--bonuses',
 ]);
 for (let i = 0; i < args.length; i += 2) {
   if (!allowed.has(args[i]!) || !args[i + 1] || flags.has(args[i]!)) throw Error('Invalid tactical comparison arguments');
@@ -50,6 +52,10 @@ const positive = (key: string, fallback: number, maximum: number) => {
   if (!Number.isSafeInteger(value) || value < 1 || value > maximum) throw Error(`Invalid ${key}`);
   return value;
 };
+const matchups = list('--matchups', 'normal:normal').map((pair) => pair.split(':'));
+const bonuses = list('--bonuses', '2000').map(Number);
+if (matchups.some((pair) => pair.length !== 2 || pair.some((d) => !['easy', 'normal', 'hard'].includes(d))) || bonuses.some((b) => !Number.isSafeInteger(b) || b < 0 || b > 20000))
+  throw Error('Unsupported matchup or bonus');
 const catalog = flags.get('--catalog');
 if (catalog) catalogTacticalScenario(catalog, false);
 const profiles = list('--profiles', 'classic,transport,combined');
@@ -85,7 +91,7 @@ if (
   policies.some((x) => !/^(balanced|offensive|defensive):(balanced|offensive|defensive)$/.test(x))
 )
   throw Error('Unsupported tactical matrix');
-const requested = [profiles, layouts, cpus, sizes, seas, seeds, damageSeeds, policies, initiatives].reduce((n, values) => n * values.length, 2);
+const requested = [profiles, layouts, cpus, sizes, seas, seeds, damageSeeds, policies, initiatives, matchups, bonuses].reduce((n, values) => n * values.length, 2);
 if (requested > maxGames) throw Error(`Requested ${requested} games exceeds ${maxGames}`);
 const output = flags.get('--output');
 if (output) writeFileSync(output, '');
@@ -111,106 +117,117 @@ emit({
 const start = performance.now();
 let completed = 0;
 try {
-  for (const initiative of initiatives)
-    for (const profile of profiles)
-      for (const layout of layouts)
-        for (const cpu of cpus)
-          for (const size of sizes)
-            for (const sea of seas)
-              for (const seed of seeds)
-                for (const damageSeed of damageSeeds)
-                  for (const policy of policies) {
-                    const [redPolicy, bluePolicy] = policy.split(':') as [PairedConfig['redPolicy'], PairedConfig['bluePolicy']];
-                    const config: PairedConfig = {
-                      size: size as GeneratedCase['size'],
-                      sea: sea as GeneratedCase['sea'],
-                      seed,
-                      damageSeed,
-                      variant: 'frontline',
-                      orientation: 'normal',
-                      bonus: 2000,
-                      red: 'normal',
-                      blue: 'normal',
-                      redPolicy,
-                      bluePolicy,
-                    };
-                    for (const [leg, c] of [config, returnLeg(config)].entries()) {
-                      let scenario = catalog ? catalogTacticalScenario(catalog, c.orientation === 'rotated') : comparisonScenario(c);
-                      if (layout === 'revised') scenario = tacticalScenario(scenario);
-                      const data = scenarioDefinitionToData(scenario);
-                      delete data.tacticalOptions;
-                      const options = optionsFor(profile);
-                      if (options) {
-                        if (options.simultaneous) options.initiative = initiative as 0 | 3 | 5;
-                        if (options.terrain && plainCover === 'true') options.plainCover = true;
-                        data.tacticalOptions = options;
+  for (const [redDifficulty, blueDifficulty] of matchups)
+    for (const bonus of bonuses)
+      for (const initiative of initiatives)
+        for (const profile of profiles)
+          for (const layout of layouts)
+            for (const cpu of cpus)
+              for (const size of sizes)
+                for (const sea of seas)
+                  for (const seed of seeds)
+                    for (const damageSeed of damageSeeds)
+                      for (const policy of policies) {
+                        const [redPolicy, bluePolicy] = policy.split(':') as [PairedConfig['redPolicy'], PairedConfig['bluePolicy']];
+                        const config: PairedConfig = {
+                          size: size as GeneratedCase['size'],
+                          sea: sea as GeneratedCase['sea'],
+                          seed,
+                          damageSeed,
+                          variant: 'frontline',
+                          orientation: 'normal',
+                          bonus,
+                          red: redDifficulty as PairedConfig['red'],
+                          blue: blueDifficulty as PairedConfig['blue'],
+                          redPolicy,
+                          bluePolicy,
+                        };
+                        for (const [leg, c] of [config, returnLeg(config)].entries()) {
+                          let scenario = catalog ? catalogTacticalScenario(catalog, c.orientation === 'rotated') : comparisonScenario(c);
+                          if (layout === 'revised') scenario = tacticalScenario(scenario);
+                          const data = scenarioDefinitionToData(scenario);
+                          delete data.tacticalOptions;
+                          if (flags.has('--bonuses')) data.secondPlayerBonus = c.bonus;
+                          const options = optionsFor(profile);
+                          if (options) {
+                            if (options.simultaneous) options.initiative = initiative as 0 | 3 | 5;
+                            if (options.terrain && plainCover === 'true') options.plainCover = true;
+                            data.tacticalOptions = options;
+                          }
+                          const loaded = loadScenarioDefinitions([data]);
+                          if (!loaded.ok) throw Error(loaded.error);
+                          let state: GameState = { ...createScenarioInitialState(loaded.value[0]!), rngSeed: damageSeed, ruleVersion: profile === 'classic' ? 12 : 13 };
+                          const metrics = new TacticalMetrics(state);
+                          const opening = { red: openingDistance(loaded.value[0]!, 'red'), blue: openingDistance(loaded.value[0]!, 'blue') };
+                          const digest = createHash('sha256');
+                          const times: number[] = [];
+                          let commands = 0,
+                            turnCommands = 0,
+                            ambushes = 0,
+                            submarineShots = 0,
+                            unloads = 0;
+                          while (!isGameOver(state) && state.turn <= rounds) {
+                            if (performance.now() - start > seconds * 1000) throw Error('Comparison time budget exhausted');
+                            const tick = performance.now();
+                            const action = chooseCpuAction(
+                              state,
+                              state.activePlayer === 'red' ? c.red : c.blue,
+                              state.activePlayer,
+                              state.activePlayer === 'red' ? c.redPolicy : c.bluePolicy,
+                              cpu === 'adapted',
+                            );
+                            times.push(performance.now() - tick);
+                            const next = applyGameCommand(state, action);
+                            if (!next.ok) throw Error(`Illegal order: ${JSON.stringify(action)}: ${next.error}`);
+                            if (action.type === 'move' && next.value.tactics?.lastCombat?.ambush) ambushes++;
+                            if (action.type === 'attack' && state.units.some((u) => u.id === action.unitId && u.kind === 'submarine')) submarineShots++;
+                            if (action.type === 'disembark' && next.value.units.filter((u) => u.embarkedIn).length < state.units.filter((u) => u.embarkedIn).length) unloads++;
+                            if (action.type === 'endTurn') turnCommands = 0;
+                            else if (++turnCommands > 120) throw Error('CPU turn command budget exhausted');
+                            if (++commands > 25000) throw Error('Game command budget exhausted');
+                            metrics.observe(state, next.value, action);
+                            digest.update(JSON.stringify(action) + '\n');
+                            state = next.value;
+                          }
+                          times.sort((a, b) => a - b);
+                          const row = {
+                            matchup: `${c.red}:${c.blue}`,
+                            secondPlayerBonus: loaded.value[0]!.secondPlayerBonus,
+                            profile,
+                            initiative,
+                            plainCover: plainCover === 'true',
+                            layout,
+                            cpu,
+                            size: state.board.width,
+                            height: state.board.height,
+                            mapId: loaded.value[0]!.id,
+                            sea: catalog ? 'catalog' : sea,
+                            seed,
+                            damageSeed,
+                            weatherSeed: state.tactics?.weatherSeed,
+                            policy,
+                            redPolicy: c.redPolicy,
+                            bluePolicy: c.bluePolicy,
+                            leg,
+                            orientation: c.orientation,
+                            winner: state.draw ? 'draw' : (state.winner ?? 'undecided'),
+                            reason: state.draw ? 'draw' : state.winner ? victoryReason(state, loaded.value[0]!) : 'round-limit',
+                            tacticalOptions: state.tactics?.options,
+                            openingDistance: opening,
+                            metrics: metrics.summary(),
+                            turns: state.turn,
+                            commands,
+                            ambushes,
+                            submarineShots,
+                            unloads,
+                            commandDigest: digest.digest('hex'),
+                            cpuP95Ms: times[Math.max(0, Math.ceil(times.length * 0.95) - 1)] ?? 0,
+                          };
+                          completed++;
+                          emit({ result: row });
+                          process.stderr.write(`${completed}/${requested} ${profile}/${layout}/${cpu} ${size}/${sea}/${seed} leg${leg} ${row.winner} T${row.turns}\n`);
+                        }
                       }
-                      const loaded = loadScenarioDefinitions([data]);
-                      if (!loaded.ok) throw Error(loaded.error);
-                      let state: GameState = { ...createScenarioInitialState(loaded.value[0]!), rngSeed: damageSeed, ruleVersion: profile === 'classic' ? 12 : 13 };
-                      const metrics = new TacticalMetrics(state);
-                      const opening = { red: openingDistance(loaded.value[0]!, 'red'), blue: openingDistance(loaded.value[0]!, 'blue') };
-                      const digest = createHash('sha256');
-                      const times: number[] = [];
-                      let commands = 0,
-                        turnCommands = 0,
-                        ambushes = 0,
-                        submarineShots = 0,
-                        unloads = 0;
-                      while (!isGameOver(state) && state.turn <= rounds) {
-                        if (performance.now() - start > seconds * 1000) throw Error('Comparison time budget exhausted');
-                        const tick = performance.now();
-                        const action = chooseCpuAction(state, 'normal', state.activePlayer, state.activePlayer === 'red' ? c.redPolicy : c.bluePolicy, cpu === 'adapted');
-                        times.push(performance.now() - tick);
-                        const next = applyGameCommand(state, action);
-                        if (!next.ok) throw Error(`Illegal order: ${JSON.stringify(action)}: ${next.error}`);
-                        if (action.type === 'move' && next.value.tactics?.lastCombat?.ambush) ambushes++;
-                        if (action.type === 'attack' && state.units.some((u) => u.id === action.unitId && u.kind === 'submarine')) submarineShots++;
-                        if (action.type === 'disembark' && next.value.units.filter((u) => u.embarkedIn).length < state.units.filter((u) => u.embarkedIn).length) unloads++;
-                        if (action.type === 'endTurn') turnCommands = 0;
-                        else if (++turnCommands > 120) throw Error('CPU turn command budget exhausted');
-                        if (++commands > 25000) throw Error('Game command budget exhausted');
-                        metrics.observe(state, next.value, action);
-                        digest.update(JSON.stringify(action) + '\n');
-                        state = next.value;
-                      }
-                      times.sort((a, b) => a - b);
-                      const row = {
-                        profile,
-                        initiative,
-                        plainCover: plainCover === 'true',
-                        layout,
-                        cpu,
-                        size: state.board.width,
-                        height: state.board.height,
-                        mapId: loaded.value[0]!.id,
-                        sea: catalog ? 'catalog' : sea,
-                        seed,
-                        damageSeed,
-                        weatherSeed: state.tactics?.weatherSeed,
-                        policy,
-                        redPolicy: c.redPolicy,
-                        bluePolicy: c.bluePolicy,
-                        leg,
-                        orientation: c.orientation,
-                        winner: state.draw ? 'draw' : (state.winner ?? 'undecided'),
-                        reason: state.draw ? 'draw' : state.winner ? victoryReason(state, loaded.value[0]!) : 'round-limit',
-                        tacticalOptions: state.tactics?.options,
-                        openingDistance: opening,
-                        metrics: metrics.summary(),
-                        turns: state.turn,
-                        commands,
-                        ambushes,
-                        submarineShots,
-                        unloads,
-                        commandDigest: digest.digest('hex'),
-                        cpuP95Ms: times[Math.max(0, Math.ceil(times.length * 0.95) - 1)] ?? 0,
-                      };
-                      completed++;
-                      emit({ result: row });
-                      process.stderr.write(`${completed}/${requested} ${profile}/${layout}/${cpu} ${size}/${sea}/${seed} leg${leg} ${row.winner} T${row.turns}\n`);
-                    }
-                  }
   emit({ complete: true, completed, elapsedMs: performance.now() - start });
 } catch (error) {
   emit({ complete: false, completed, error: error instanceof Error ? error.message : String(error) });

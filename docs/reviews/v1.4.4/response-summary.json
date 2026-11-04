@@ -1,0 +1,196 @@
+{
+  "format": "response-v144-paired",
+  "harness": "91e07ae69c072a0b3307fea7672263d7dcb65cdac048d9c0eb9cc3bce8bae668",
+  "protocol": "Same unchanged browser-response-v143.mjs; before then after, three pairs. Two fresh contexts per width/size/run, first separated from 24 warm selections, nearest-rank p95 of48 per pair and median across3. CPU comparisons, unit/UI and browser regressions completed before measurements.",
+  "files": [
+    {
+      "file": "response-before-1.json",
+      "sha256": "d6ce8312f35c31aebdec2274da6dc37d3254340f297158fe14efc72355e3b310",
+      "builds": [
+        "LanguageJapaneseEnglishv1.4.3 · 8f008bfa89fa Download diagnostics"
+      ]
+    },
+    {
+      "file": "response-before-2.json",
+      "sha256": "81c7811c3e2aff4ff9012531e1b11c56486329f9eda3b624aaa195206fa98aed",
+      "builds": [
+        "LanguageJapaneseEnglishv1.4.3 · 8f008bfa89fa Download diagnostics"
+      ]
+    },
+    {
+      "file": "response-before-3.json",
+      "sha256": "4c90c76ac9a786cf71ccb0fbff05eb1decd723af1734e174a63eb0cd9a8e2767",
+      "builds": [
+        "LanguageJapaneseEnglishv1.4.3 · 8f008bfa89fa Download diagnostics"
+      ]
+    },
+    {
+      "file": "response-after-1.json",
+      "sha256": "1dfd591e14e535bdf994d0fd7797dc234073b8e766e8878573ddea3f2ba6187f",
+      "builds": [
+        "LanguageJapaneseEnglishv1.4.4 · source-archi Download diagnostics"
+      ]
+    },
+    {
+      "file": "response-after-2.json",
+      "sha256": "467af2dcb219097ac3535801995c8a774c6df8f9c61161b4c0e512c3f490af9c",
+      "builds": [
+        "LanguageJapaneseEnglishv1.4.4 · source-archi Download diagnostics"
+      ]
+    },
+    {
+      "file": "response-after-3.json",
+      "sha256": "79fc19a93f817fc1474bb0fa372dc007bc0b64d149b7f03f93e4e8276601cdbc",
+      "builds": [
+        "LanguageJapaneseEnglishv1.4.4 · source-archi Download diagnostics"
+      ]
+    }
+  ],
+  "rows": [
+    {
+      "width": 1280,
+      "size": 16,
+      "before": {
+        "warmHandlerP95ByPair": [
+          51.79999999701977,
+          31.30000001192093,
+          37.70000000298023
+        ],
+        "warmHandlerP95Median": 37.70000000298023,
+        "warmTwoFrameP95ByPair": [
+          76.20000000298023,
+          50.3999999910593,
+          57.3999999910593
+        ],
+        "warmTwoFrameP95Median": 57.3999999910593,
+        "firstHandlerMedian": 49.850000001490116,
+        "coldTitleMedian": 585.547749
+      },
+      "after": {
+        "warmHandlerP95ByPair": [
+          34.8999999910593,
+          36.099999994039536,
+          33.80000001192093
+        ],
+        "warmHandlerP95Median": 34.8999999910593,
+        "warmTwoFrameP95ByPair": [
+          53.5,
+          52.3999999910593,
+          52.29999999701977
+        ],
+        "warmTwoFrameP95Median": 52.3999999910593,
+        "firstHandlerMedian": 52.69999999552965,
+        "coldTitleMedian": 547.5662705
+      }
+    },
+    {
+      "width": 1280,
+      "size": 32,
+      "before": {
+        "warmHandlerP95ByPair": [
+          54.79999999701977,
+          51.70000000298023,
+          47.1000000089407
+        ],
+        "warmHandlerP95Median": 51.70000000298023,
+        "warmTwoFrameP95ByPair": [
+          83.59999999403954,
+          69,
+          72.29999999701977
+        ],
+        "warmTwoFrameP95Median": 72.29999999701977,
+        "firstHandlerMedian": 65.89999999850988,
+        "coldTitleMedian": 556.1649074999996
+      },
+      "after": {
+        "warmHandlerP95ByPair": [
+          47.70000000298023,
+          47.20000000298023,
+          45.3999999910593
+        ],
+        "warmHandlerP95Median": 47.20000000298023,
+        "warmTwoFrameP95ByPair": [
+          70.5,
+          70.70000000298023,
+          68.79999999701977
+        ],
+        "warmTwoFrameP95Median": 70.5,
+        "firstHandlerMedian": 62.899999998509884,
+        "coldTitleMedian": 557.1549104999999
+      }
+    },
+    {
+      "width": 390,
+      "size": 16,
+      "before": {
+        "warmHandlerP95ByPair": [
+          65.70000000298023,
+          70.20000000298023,
+          65.6000000089407
+        ],
+        "warmHandlerP95Median": 65.70000000298023,
+        "warmTwoFrameP95ByPair": [
+          88.09999999403954,
+          100,
+          90.70000000298023
+        ],
+        "warmTwoFrameP95Median": 90.70000000298023,
+        "firstHandlerMedian": 55.70000000298023,
+        "coldTitleMedian": 496.1649335000011
+      },
+      "after": {
+        "warmHandlerP95ByPair": [
+          66.1000000089407,
+          67.70000000298023,
+          68.29999999701977
+        ],
+        "warmHandlerP95Median": 67.70000000298023,
+        "warmTwoFrameP95ByPair": [
+          95.40000000596046,
+          91.19999998807907,
+          98.19999998807907
+        ],
+        "warmTwoFrameP95Median": 95.40000000596046,
+        "firstHandlerMedian": 52.25,
+        "coldTitleMedian": 468.3879310000011
+      }
+    },
+    {
+      "width": 390,
+      "size": 32,
+      "before": {
+        "warmHandlerP95ByPair": [
+          78.69999998807907,
+          78.20000000298023,
+          76.59999999403954
+        ],
+        "warmHandlerP95Median": 78.20000000298023,
+        "warmTwoFrameP95ByPair": [
+          101,
+          103,
+          100
+        ],
+        "warmTwoFrameP95Median": 101,
+        "firstHandlerMedian": 60.20000000298023,
+        "coldTitleMedian": 484.6199044999994
+      },
+      "after": {
+        "warmHandlerP95ByPair": [
+          74.70000000298023,
+          79.09999999403954,
+          81
+        ],
+        "warmHandlerP95Median": 79.09999999403954,
+        "warmTwoFrameP95ByPair": [
+          100.1000000089407,
+          100,
+          100.1000000089407
+        ],
+        "warmTwoFrameP95Median": 100.1000000089407,
+        "firstHandlerMedian": 58.79999999701977,
+        "coldTitleMedian": 477.21223050000117
+      }
+    }
+  ],
+  "note": "UI source is unchanged. Hardware variance remains; no universal response improvement or physical-device guarantee."
+}

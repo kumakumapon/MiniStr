@@ -5,6 +5,9 @@ import { weatherAt } from '../src/game/tactics';
 import { isDeployedUnit, type GameState, type PlayerId, type Position } from '../src/game/types';
 import { unitStats } from '../src/game/units';
 import { weaponAmmo } from '../src/game/weapons';
+import { isGroundUnit } from '../src/game/logistics';
+import { remainingAmmo } from '../src/game/units';
+import { supplyStock } from '../src/game/supplyStock';
 import type { GameCommand } from '../src/game/session';
 
 const halfTurn = (s: GameState) => (s.turn - 1) * 2 + (s.activePlayer === 'red' ? 1 : 2);
@@ -22,6 +25,11 @@ export class TacticalMetrics {
   readonly destroyedValue = zero();
   readonly repairExpense = zero();
   readonly ammunitionSpent = zero();
+  readonly restoredHP = zero();
+  readonly rearmedPrimary = zero();
+  readonly netFuelGain = zero();
+  readonly dryGroundStarts = zero();
+  readonly dryTruckStarts = zero();
   readonly prepared = zero();
   readonly fired = zero();
   readonly expired = zero();
@@ -59,6 +67,19 @@ export class TacticalMetrics {
     const event = after.tactics?.lastCombat;
     for (const unit of before.units) {
       const next = nextUnits.get(unit.id);
+      if (command.type === 'endTurn' && next && unit.owner === after.activePlayer) {
+        this.restoredHP[unit.owner] += Math.max(0, next.hp - unit.hp);
+        this.rearmedPrimary[unit.owner] += Math.max(0, remainingAmmo(next) - remainingAmmo(unit));
+        this.netFuelGain[unit.owner] += Math.max(0, (next.fuel ?? unitStats[next.kind].fuel) - (unit.fuel ?? unitStats[unit.kind].fuel));
+        if (
+          isDeployedUnit(next) &&
+          isGroundUnit(next.kind) &&
+          next.kind !== 'apc' &&
+          ((unitStats[next.kind].ammo > 0 && remainingAmmo(next) === 0) || (next.fuel ?? unitStats[next.kind].fuel) === 0)
+        )
+          this.dryGroundStarts[unit.owner]++;
+        if (next.kind === 'apc' && supplyStock(next) === 0) this.dryTruckStarts[unit.owner]++;
+      }
       if (command.type !== 'merge' && command.type !== 'evacuate') {
         this.damageValue[unit.owner] += (Math.max(0, unit.hp - (next?.hp ?? 0)) * unitStats[unit.kind].cost) / 100;
         if (!next) this.destroyedValue[unit.owner] += unitStats[unit.kind].cost;
@@ -124,6 +145,13 @@ export class TacticalMetrics {
       destroyedValue: this.destroyedValue,
       repairExpense: this.repairExpense,
       ammunitionSpent: this.ammunitionSpent,
+      logistics: {
+        restoredHP: this.restoredHP,
+        rearmedPrimary: this.rearmedPrimary,
+        netFuelGain: this.netFuelGain,
+        dryGroundStarts: this.dryGroundStarts,
+        dryTruckStarts: this.dryTruckStarts,
+      },
       ambush: { prepared: this.prepared, fired: this.fired, expired: this.expired, cancelled: this.cancelled },
       diveActions: this.diveActions,
       sonarEpisodes: this.sonarEpisodes,
