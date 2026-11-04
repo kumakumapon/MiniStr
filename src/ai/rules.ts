@@ -20,7 +20,7 @@ import { visibleEnemies as getVisibleEnemies } from '../game/fog';
 import { scenarioForState, type EvacuationCondition } from '../game/maps';
 import { manhattanDistance, unitMovementCost, terrainAt } from '../game/terrain';
 import { isDeployedUnit, usesDecisionRules, usesOperationsRules, usesModernRules, usesReconRules, type Board, type DeployedUnit, type GameState, type PlayerId, type Position, type Unit, type UnitKind } from '../game/types';
-import { fixedSupplyAvailable, resupplyAvailable, isGroundUnit, isServiceTile, REPAIR_HP_PER_TURN } from '../game/logistics';
+import { affordableRepair, fixedSupplyAvailable, resupplyAvailable, isGroundUnit, isServiceTile, REPAIR_HP_PER_TURN } from '../game/logistics';
 import { isEmbarkableUnit, isMergeableUnit, isSupplyUnit, remainingAmmo, unitCategory, unitStats } from '../game/units';
 import { coordinatedOrder, coordinationValue, cpuRole, isPriorityTarget, transportSafeAt } from './coordination';
 import { canEvacuateUnit, evacuationObjectives, isEvacuationTarget } from '../game/evacuation';
@@ -518,6 +518,11 @@ export function evaluateCpuPosition(
   // Under modern rules only compatible facilities (or, for ground units, a supply vehicle) resupply.
   const resupplied = cpuSupplyAvailable(state, player, unit, destination);
   const supply = needsSupply(unit, state) && resupplied ? 80 : 0;
+  // A supplied but damaged defender still needs a compatible repair facility.
+  // Trucks and depots restore ammunition/fuel, never HP. Use public own funds
+  // and next-turn income; no speculative capture income or hidden enemy data.
+  const repair = config.coordinatedDefense && unit.hp <= 50 && isServiceTile(state, destination, unit.kind, player)
+    ? affordableRepair(unit.kind, 100 - unit.hp, state.players[player].gold + state.players[player].income) * 2 : 0;
   const serviceTargets = needsSupply(unit, state) ? supplyTargets(state, player, unit) : [];
   const serviceDistance = serviceTargets.length ? Math.min(...serviceTargets.map(position => manhattanDistance(destination, position))) : undefined;
   // A secondary gun can cover a retreat, but does not replace a depleted primary.
@@ -567,7 +572,7 @@ export function evaluateCpuPosition(
   // Healthy combat units leave uncaptured facilities open for the infantry.
   const captureLane = unit.hp > 50 && unitStats[unit.kind].capturePower === 0 && isPropertyTerrainKind(terrain.kind) && terrain.owner !== player ? 30 : 0;
   const control = controlled ? terrain.owner === player ? 20 : unitStats[unit.kind].capturePower > 0 ? 110 : -80 : 0;
-  return coordinationValue(state, player, unit, destination, targets) + defense + supply + response + retreatCover + logistics + hold + contest + score + control + firePosition
+  return coordinationValue(state, player, unit, destination, targets) + defense + supply + repair + response + retreatCover + logistics + hold + contest + score + control + firePosition
     - (criticalSupply && serviceDistance !== undefined ? serviceDistance : distance) * config.objectiveDistanceWeight
     - pressure * config.threatAvoidanceWeight * (1 - stalemateRelief(state))
     - retreatPressure

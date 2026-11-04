@@ -1,0 +1,14 @@
+{
+  "localProductCommit": "d7c64c1bc390f92ade21e3b3111bebb3d9319983",
+  "sourceDigest": "833aa80203c650a3ddab6f7484022142e779a2325e9dd1e46b313e0d9a1c002f",
+  "baselineMain": "4a437cd3448b05754c5fc01b31acf7e9fbc211b7",
+  "baselineTree": "8d914ae2a54c6315821a065234d538d1718891ef",
+  "localNode": "v24.19.0",
+  "installed": {
+    "vitest": "3.2.7",
+    "vite": "6.4.3",
+    "typescript": "5.9.3",
+    "@playwright/test": "1.62.1"
+  },
+  "scope": "CPU decisions and measurement tools; game rules, map layouts, UI, save/replay schema, dependencies, CI permissions and gates unchanged."
+}

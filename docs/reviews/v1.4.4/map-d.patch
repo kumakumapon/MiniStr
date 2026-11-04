@@ -1,0 +1,22 @@
+diff --git a/src/game/tacticalMaps.ts b/src/game/tacticalMaps.ts
+index a87ce73..22f958a 100644
+--- a/src/game/tacticalMaps.ts
++++ b/src/game/tacticalMaps.ts
+@@ -34,10 +34,14 @@ export function tacticalScenario(source: ScenarioDefinition, reviseLayout = true
+     }
+     set(x, lane + 1, 'forest');
+     set(w - 1 - x, h - 2 - lane, 'forest');
+-    set(x, Math.floor(h / 2) - 1, 'supplyDepot');
+-    set(w - 1 - x, h - Math.floor(h / 2), 'supplyDepot');
++    // The authored wide front already has the two scored supply depots.
++    // Extra neutral depots distract capturers from its explicit objectives.
++    if (source.id !== 'wide-front') {
++      set(x, Math.floor(h / 2) - 1, 'supplyDepot');
++      set(w - 1 - x, h - Math.floor(h / 2), 'supplyDepot');
++    }
+     data.board.cells = [...cells.values()];
+-    data.name += ' / Tactical v2';
++    data.name += source.id === 'wide-front' ? ' / Tactical v3' : ' / Tactical v2';
+   }
+   const loaded = loadScenarioDefinitions([data]);
+   if (!loaded.ok) throw Error(loaded.error);

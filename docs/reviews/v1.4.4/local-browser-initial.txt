@@ -1,0 +1,1548 @@
+
+Running 114 tests using 1 worker
+
+(node:127814) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓    1 [chromium] › tests/e2e/board-response.spec.ts:4:1 › 390px touch selects once and keeps a scrolled board stable after localized redraw (4.1s)
+  ✓    2 [chromium] › tests/e2e/board-response.spec.ts:59:5 › large board keeps input, focus and geometry at 1280 in ja (5.1s)
+  ✓    3 [chromium] › tests/e2e/board-response.spec.ts:59:5 › large board keeps input, focus and geometry at 1280 in en (4.3s)
+  ✓    4 [chromium] › tests/e2e/board-response.spec.ts:59:5 › large board keeps input, focus and geometry at 390 in ja (4.2s)
+  ✓    5 [chromium] › tests/e2e/board-response.spec.ts:59:5 › large board keeps input, focus and geometry at 390 in en (3.3s)
+  ✓    6 [chromium] › tests/e2e/finite-supplies.spec.ts:5:5 › starts and resumes finite APC supplies at 1280 (3.9s)
+  ✓    7 [chromium] › tests/e2e/finite-supplies.spec.ts:5:5 › starts and resumes unlimited APC supplies at 1280 (5.5s)
+  ✓    8 [chromium] › tests/e2e/finite-supplies.spec.ts:5:5 › starts and resumes finite APC supplies at 390 (7.5s)
+  ✓    9 [chromium] › tests/e2e/finite-supplies.spec.ts:5:5 › starts and resumes unlimited APC supplies at 390 (7.7s)
+  ✓   10 [chromium] › tests/e2e/tactical-rules.spec.ts:42:5 › starts a localized combined-tactics map and saves its snapshot at 1280/ja (10.4s)
+  ✓   11 [chromium] › tests/e2e/tactical-rules.spec.ts:67:7 › unloads a moved apc and resumes both spent actions at 1280/ja (8.1s)
+  ✓   12 [chromium] › tests/e2e/tactical-rules.spec.ts:67:7 › unloads a moved landingShip and resumes both spent actions at 1280/ja (6.7s)
+  ✓   13 [chromium] › tests/e2e/tactical-rules.spec.ts:67:7 › unloads a moved transportHelicopter and resumes both spent actions at 1280/ja (6.5s)
+  ✓   14 [chromium] › tests/e2e/tactical-rules.spec.ts:101:5 › shows submarine details only in an explicit full spectator view at 1280/ja (4.5s)
+  ✓   15 [chromium] › tests/e2e/tactical-rules.spec.ts:131:7 › presents simultaneous return fire and saves both magazines after skip at 1280/ja (6.7s)
+  ✓   16 [chromium] › tests/e2e/tactical-rules.spec.ts:131:7 › presents simultaneous return fire and saves both magazines after elapsed at 1280/ja (5.2s)
+  ✓   17 [chromium] › tests/e2e/tactical-rules.spec.ts:175:5 › presents a prepared hidden encounter without an automatic counter at 1280/ja (5.0s)
+  ✓   18 [chromium] › tests/e2e/tactical-rules.spec.ts:201:5 › spends and restores its own dive action at 1280/ja (8.5s)
+  ✓   19 [chromium] › tests/e2e/tactical-rules.spec.ts:227:5 › detects a submerged enemy with sonar after movement and reload at 1280/ja (5.8s)
+  ✓   20 [chromium] › tests/e2e/tactical-rules.spec.ts:42:5 › starts a localized combined-tactics map and saves its snapshot at 1280/en (6.0s)
+  ✓   21 [chromium] › tests/e2e/tactical-rules.spec.ts:67:7 › unloads a moved apc and resumes both spent actions at 1280/en (2.6s)
+  ✓   22 [chromium] › tests/e2e/tactical-rules.spec.ts:67:7 › unloads a moved landingShip and resumes both spent actions at 1280/en (2.7s)
+  ✓   23 [chromium] › tests/e2e/tactical-rules.spec.ts:67:7 › unloads a moved transportHelicopter and resumes both spent actions at 1280/en (2.6s)
+  ✓   24 [chromium] › tests/e2e/tactical-rules.spec.ts:101:5 › shows submarine details only in an explicit full spectator view at 1280/en (1.7s)
+  ✓   25 [chromium] › tests/e2e/tactical-rules.spec.ts:131:7 › presents simultaneous return fire and saves both magazines after skip at 1280/en (1.8s)
+  ✓   26 [chromium] › tests/e2e/tactical-rules.spec.ts:131:7 › presents simultaneous return fire and saves both magazines after elapsed at 1280/en (1.6s)
+  ✓   27 [chromium] › tests/e2e/tactical-rules.spec.ts:175:5 › presents a prepared hidden encounter without an automatic counter at 1280/en (1.6s)
+  ✓   28 [chromium] › tests/e2e/tactical-rules.spec.ts:201:5 › spends and restores its own dive action at 1280/en (2.6s)
+  ✓   29 [chromium] › tests/e2e/tactical-rules.spec.ts:227:5 › detects a submerged enemy with sonar after movement and reload at 1280/en (2.8s)
+  ✓   30 [chromium] › tests/e2e/tactical-rules.spec.ts:42:5 › starts a localized combined-tactics map and saves its snapshot at 390/ja (2.9s)
+  ✓   31 [chromium] › tests/e2e/tactical-rules.spec.ts:67:7 › unloads a moved apc and resumes both spent actions at 390/ja (2.5s)
+  ✓   32 [chromium] › tests/e2e/tactical-rules.spec.ts:67:7 › unloads a moved landingShip and resumes both spent actions at 390/ja (2.5s)
+  ✓   33 [chromium] › tests/e2e/tactical-rules.spec.ts:67:7 › unloads a moved transportHelicopter and resumes both spent actions at 390/ja (2.5s)
+  ✓   34 [chromium] › tests/e2e/tactical-rules.spec.ts:101:5 › shows submarine details only in an explicit full spectator view at 390/ja (1.4s)
+  ✓   35 [chromium] › tests/e2e/tactical-rules.spec.ts:131:7 › presents simultaneous return fire and saves both magazines after skip at 390/ja (2.4s)
+  ✓   36 [chromium] › tests/e2e/tactical-rules.spec.ts:131:7 › presents simultaneous return fire and saves both magazines after elapsed at 390/ja (2.1s)
+  ✓   37 [chromium] › tests/e2e/tactical-rules.spec.ts:175:5 › presents a prepared hidden encounter without an automatic counter at 390/ja (2.1s)
+  ✓   38 [chromium] › tests/e2e/tactical-rules.spec.ts:201:5 › spends and restores its own dive action at 390/ja (3.3s)
+  ✓   39 [chromium] › tests/e2e/tactical-rules.spec.ts:227:5 › detects a submerged enemy with sonar after movement and reload at 390/ja (3.3s)
+  ✓   40 [chromium] › tests/e2e/tactical-rules.spec.ts:42:5 › starts a localized combined-tactics map and saves its snapshot at 390/en (3.3s)
+  ✓   41 [chromium] › tests/e2e/tactical-rules.spec.ts:67:7 › unloads a moved apc and resumes both spent actions at 390/en (2.8s)
+  ✓   42 [chromium] › tests/e2e/tactical-rules.spec.ts:67:7 › unloads a moved landingShip and resumes both spent actions at 390/en (2.9s)
+  ✓   43 [chromium] › tests/e2e/tactical-rules.spec.ts:67:7 › unloads a moved transportHelicopter and resumes both spent actions at 390/en (2.8s)
+  ✓   44 [chromium] › tests/e2e/tactical-rules.spec.ts:101:5 › shows submarine details only in an explicit full spectator view at 390/en (1.9s)
+  ✓   45 [chromium] › tests/e2e/tactical-rules.spec.ts:131:7 › presents simultaneous return fire and saves both magazines after skip at 390/en (2.3s)
+  ✓   46 [chromium] › tests/e2e/tactical-rules.spec.ts:131:7 › presents simultaneous return fire and saves both magazines after elapsed at 390/en (1.9s)
+  ✓   47 [chromium] › tests/e2e/tactical-rules.spec.ts:175:5 › presents a prepared hidden encounter without an automatic counter at 390/en (2.0s)
+  ✓   48 [chromium] › tests/e2e/tactical-rules.spec.ts:201:5 › spends and restores its own dive action at 390/en (2.7s)
+  ✓   49 [chromium] › tests/e2e/tactical-rules.spec.ts:227:5 › detects a submerged enemy with sonar after movement and reload at 390/en (3.1s)
+  ✓   50 [chromium] › tests/e2e/wide-front.spec.ts:16:5 › plays and observes a wide front in ja at 1280 (5.6s)
+  ✓   51 [chromium] › tests/e2e/wide-front.spec.ts:60:5 › generates, persists and plays a 32×32 map in ja at 1280 (3.8s)
+  ✓   52 [chromium] › tests/e2e/wide-front.spec.ts:16:5 › plays and observes a wide front in en at 1280 (5.3s)
+  ✓   53 [chromium] › tests/e2e/wide-front.spec.ts:60:5 › generates, persists and plays a 32×32 map in en at 1280 (3.8s)
+  ✓   54 [chromium] › tests/e2e/wide-front.spec.ts:16:5 › plays and observes a wide front in ja at 390 (4.9s)
+  ✓   55 [chromium] › tests/e2e/wide-front.spec.ts:60:5 › generates, persists and plays a 32×32 map in ja at 390 (3.7s)
+  ✓   56 [chromium] › tests/e2e/wide-front.spec.ts:16:5 › plays and observes a wide front in en at 390 (5.0s)
+  ✓   57 [chromium] › tests/e2e/wide-front.spec.ts:60:5 › generates, persists and plays a 32×32 map in en at 390 (3.2s)
+(node:132819) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   58 [firefox] › tests/e2e/board-response.spec.ts:4:1 › 390px touch selects once and keeps a scrolled board stable after localized redraw (2ms)
+(node:132831) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   59 [firefox] › tests/e2e/board-response.spec.ts:59:5 › large board keeps input, focus and geometry at 1280 in ja (2ms)
+(node:132843) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   60 [firefox] › tests/e2e/board-response.spec.ts:59:5 › large board keeps input, focus and geometry at 1280 in en (2ms)
+(node:132855) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   61 [firefox] › tests/e2e/board-response.spec.ts:59:5 › large board keeps input, focus and geometry at 390 in ja (1ms)
+(node:132867) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   62 [firefox] › tests/e2e/board-response.spec.ts:59:5 › large board keeps input, focus and geometry at 390 in en (3ms)
+(node:132896) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   63 [firefox] › tests/e2e/finite-supplies.spec.ts:5:5 › starts and resumes finite APC supplies at 1280 (2ms)
+(node:132908) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   64 [firefox] › tests/e2e/finite-supplies.spec.ts:5:5 › starts and resumes unlimited APC supplies at 1280 (2ms)
+(node:132920) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   65 [firefox] › tests/e2e/finite-supplies.spec.ts:5:5 › starts and resumes finite APC supplies at 390 (2ms)
+(node:132932) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   66 [firefox] › tests/e2e/finite-supplies.spec.ts:5:5 › starts and resumes unlimited APC supplies at 390 (2ms)
+(node:132944) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   67 [firefox] › tests/e2e/tactical-rules.spec.ts:42:5 › starts a localized combined-tactics map and saves its snapshot at 1280/ja (1ms)
+(node:132956) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   68 [firefox] › tests/e2e/tactical-rules.spec.ts:67:7 › unloads a moved apc and resumes both spent actions at 1280/ja (2ms)
+(node:132968) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   69 [firefox] › tests/e2e/tactical-rules.spec.ts:67:7 › unloads a moved landingShip and resumes both spent actions at 1280/ja (2ms)
+(node:132980) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   70 [firefox] › tests/e2e/tactical-rules.spec.ts:67:7 › unloads a moved transportHelicopter and resumes both spent actions at 1280/ja (2ms)
+(node:132992) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   71 [firefox] › tests/e2e/tactical-rules.spec.ts:101:5 › shows submarine details only in an explicit full spectator view at 1280/ja (1ms)
+(node:133004) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   72 [firefox] › tests/e2e/tactical-rules.spec.ts:131:7 › presents simultaneous return fire and saves both magazines after skip at 1280/ja (2ms)
+(node:133069) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   73 [firefox] › tests/e2e/tactical-rules.spec.ts:131:7 › presents simultaneous return fire and saves both magazines after elapsed at 1280/ja (34ms)
+(node:133165) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   74 [firefox] › tests/e2e/tactical-rules.spec.ts:175:5 › presents a prepared hidden encounter without an automatic counter at 1280/ja (2ms)
+(node:133177) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   75 [firefox] › tests/e2e/tactical-rules.spec.ts:201:5 › spends and restores its own dive action at 1280/ja (9ms)
+(node:133189) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   76 [firefox] › tests/e2e/tactical-rules.spec.ts:227:5 › detects a submerged enemy with sonar after movement and reload at 1280/ja (5ms)
+(node:133201) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   77 [firefox] › tests/e2e/tactical-rules.spec.ts:42:5 › starts a localized combined-tactics map and saves its snapshot at 1280/en (7ms)
+(node:133222) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   78 [firefox] › tests/e2e/tactical-rules.spec.ts:67:7 › unloads a moved apc and resumes both spent actions at 1280/en (2ms)
+(node:133244) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   79 [firefox] › tests/e2e/tactical-rules.spec.ts:67:7 › unloads a moved landingShip and resumes both spent actions at 1280/en (3ms)
+(node:133256) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   80 [firefox] › tests/e2e/tactical-rules.spec.ts:67:7 › unloads a moved transportHelicopter and resumes both spent actions at 1280/en (5ms)
+(node:133268) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   81 [firefox] › tests/e2e/tactical-rules.spec.ts:101:5 › shows submarine details only in an explicit full spectator view at 1280/en (5ms)
+(node:133280) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   82 [firefox] › tests/e2e/tactical-rules.spec.ts:131:7 › presents simultaneous return fire and saves both magazines after skip at 1280/en (6ms)
+(node:133312) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   83 [firefox] › tests/e2e/tactical-rules.spec.ts:131:7 › presents simultaneous return fire and saves both magazines after elapsed at 1280/en (3ms)
+(node:133324) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   84 [firefox] › tests/e2e/tactical-rules.spec.ts:175:5 › presents a prepared hidden encounter without an automatic counter at 1280/en (6ms)
+(node:133345) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   85 [firefox] › tests/e2e/tactical-rules.spec.ts:201:5 › spends and restores its own dive action at 1280/en (3ms)
+(node:133359) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   86 [firefox] › tests/e2e/tactical-rules.spec.ts:227:5 › detects a submerged enemy with sonar after movement and reload at 1280/en (12ms)
+(node:133371) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   87 [firefox] › tests/e2e/tactical-rules.spec.ts:42:5 › starts a localized combined-tactics map and saves its snapshot at 390/ja (3ms)
+(node:133383) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   88 [firefox] › tests/e2e/tactical-rules.spec.ts:67:7 › unloads a moved apc and resumes both spent actions at 390/ja (3ms)
+(node:133395) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   89 [firefox] › tests/e2e/tactical-rules.spec.ts:67:7 › unloads a moved landingShip and resumes both spent actions at 390/ja (4ms)
+(node:133421) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   90 [firefox] › tests/e2e/tactical-rules.spec.ts:67:7 › unloads a moved transportHelicopter and resumes both spent actions at 390/ja (2ms)
+(node:133433) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   91 [firefox] › tests/e2e/tactical-rules.spec.ts:101:5 › shows submarine details only in an explicit full spectator view at 390/ja (2ms)
+(node:133445) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   92 [firefox] › tests/e2e/tactical-rules.spec.ts:131:7 › presents simultaneous return fire and saves both magazines after skip at 390/ja (16ms)
+(node:133477) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   93 [firefox] › tests/e2e/tactical-rules.spec.ts:131:7 › presents simultaneous return fire and saves both magazines after elapsed at 390/ja (2ms)
+(node:133489) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   94 [firefox] › tests/e2e/tactical-rules.spec.ts:175:5 › presents a prepared hidden encounter without an automatic counter at 390/ja (2ms)
+(node:133512) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   95 [firefox] › tests/e2e/tactical-rules.spec.ts:201:5 › spends and restores its own dive action at 390/ja (3ms)
+(node:133524) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   96 [firefox] › tests/e2e/tactical-rules.spec.ts:227:5 › detects a submerged enemy with sonar after movement and reload at 390/ja (3ms)
+(node:133536) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   97 [firefox] › tests/e2e/tactical-rules.spec.ts:42:5 › starts a localized combined-tactics map and saves its snapshot at 390/en (7ms)
+(node:133548) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   98 [firefox] › tests/e2e/tactical-rules.spec.ts:67:7 › unloads a moved apc and resumes both spent actions at 390/en (3ms)
+(node:133560) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   99 [firefox] › tests/e2e/tactical-rules.spec.ts:67:7 › unloads a moved landingShip and resumes both spent actions at 390/en (6ms)
+(node:133572) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  100 [firefox] › tests/e2e/tactical-rules.spec.ts:67:7 › unloads a moved transportHelicopter and resumes both spent actions at 390/en (12ms)
+(node:133584) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  101 [firefox] › tests/e2e/tactical-rules.spec.ts:101:5 › shows submarine details only in an explicit full spectator view at 390/en (28ms)
+(node:133596) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  102 [firefox] › tests/e2e/tactical-rules.spec.ts:131:7 › presents simultaneous return fire and saves both magazines after skip at 390/en (9ms)
+(node:133608) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  103 [firefox] › tests/e2e/tactical-rules.spec.ts:131:7 › presents simultaneous return fire and saves both magazines after elapsed at 390/en (8ms)
+(node:133640) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  104 [firefox] › tests/e2e/tactical-rules.spec.ts:175:5 › presents a prepared hidden encounter without an automatic counter at 390/en (5ms)
+(node:133672) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  105 [firefox] › tests/e2e/tactical-rules.spec.ts:201:5 › spends and restores its own dive action at 390/en (7ms)
+(node:133684) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  106 [firefox] › tests/e2e/tactical-rules.spec.ts:227:5 › detects a submerged enemy with sonar after movement and reload at 390/en (2ms)
+(node:133696) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  107 [firefox] › tests/e2e/wide-front.spec.ts:16:5 › plays and observes a wide front in ja at 1280 (2ms)
+(node:133708) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  108 [firefox] › tests/e2e/wide-front.spec.ts:60:5 › generates, persists and plays a 32×32 map in ja at 1280 (11ms)
+(node:133720) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  109 [firefox] › tests/e2e/wide-front.spec.ts:16:5 › plays and observes a wide front in en at 1280 (2ms)
+(node:133739) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  110 [firefox] › tests/e2e/wide-front.spec.ts:60:5 › generates, persists and plays a 32×32 map in en at 1280 (4ms)
+(node:133784) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  111 [firefox] › tests/e2e/wide-front.spec.ts:16:5 › plays and observes a wide front in ja at 390 (3ms)
+(node:133816) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  112 [firefox] › tests/e2e/wide-front.spec.ts:60:5 › generates, persists and plays a 32×32 map in ja at 390 (2ms)
+(node:133838) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  113 [firefox] › tests/e2e/wide-front.spec.ts:16:5 › plays and observes a wide front in en at 390 (11ms)
+(node:133864) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  114 [firefox] › tests/e2e/wide-front.spec.ts:60:5 › generates, persists and plays a 32×32 map in en at 390 (2ms)
+
+
+  1) [firefox] › tests/e2e/board-response.spec.ts:4:1 › 390px touch selects once and keeps a scrolled board stable after localized redraw
+
+    Error: browserType.launch: Executable doesn't exist at /home/agent/.cache/ms-playwright/firefox-1538/firefox/firefox
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: ../../tmp/v144-browser-results/board-response-390px-touch-024ed-able-after-localized-redraw-firefox/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../tmp/v144-browser-results/board-response-390px-touch-024ed-able-after-localized-redraw-firefox/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../tmp/v144-browser-results/board-response-390px-touch-024ed-able-after-localized-redraw-firefox/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) [firefox] › tests/e2e/board-response.spec.ts:59:5 › large board keeps input, focus and geometry at 1280 in ja
+
+    Error: browserType.launch: Executable doesn't exist at /home/agent/.cache/ms-playwright/firefox-1538/firefox/firefox
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: ../../tmp/v144-browser-results/board-response-large-board-cd216--and-geometry-at-1280-in-ja-firefox/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../tmp/v144-browser-results/board-response-large-board-cd216--and-geometry-at-1280-in-ja-firefox/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../tmp/v144-browser-results/board-response-large-board-cd216--and-geometry-at-1280-in-ja-firefox/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) [firefox] › tests/e2e/board-response.spec.ts:59:5 › large board keeps input, focus and geometry at 1280 in en
+
+    Error: browserType.launch: Executable doesn't exist at /home/agent/.cache/ms-playwright/firefox-1538/firefox/firefox
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: ../../tmp/v144-browser-results/board-response-large-board-56c2c--and-geometry-at-1280-in-en-firefox/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../tmp/v144-browser-results/board-response-large-board-56c2c--and-geometry-at-1280-in-en-firefox/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../tmp/v144-browser-results/board-response-large-board-56c2c--and-geometry-at-1280-in-en-firefox/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) [firefox] › tests/e2e/board-response.spec.ts:59:5 › large board keeps input, focus and geometry at 390 in ja
+
+    Error: browserType.launch: Executable doesn't exist at /home/agent/.cache/ms-playwright/firefox-1538/firefox/firefox
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: ../../tmp/v144-browser-results/board-response-large-board-a3a81-s-and-geometry-at-390-in-ja-firefox/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../tmp/v144-browser-results/board-response-large-board-a3a81-s-and-geometry-at-390-in-ja-firefox/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../tmp/v144-browser-results/board-response-large-board-a3a81-s-and-geometry-at-390-in-ja-firefox/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) [firefox] › tests/e2e/board-response.spec.ts:59:5 › large board keeps input, focus and geometry at 390 in en
+
+    Error: browserType.launch: Executable doesn't exist at /home/agent/.cache/ms-playwright/firefox-1538/firefox/firefox
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: ../../tmp/v144-browser-results/board-response-large-board-3ba16-s-and-geometry-at-390-in-en-firefox/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../tmp/v144-browser-results/board-response-large-board-3ba16-s-and-geometry-at-390-in-en-firefox/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../tmp/v144-browser-results/board-response-large-board-3ba16-s-and-geometry-at-390-in-en-firefox/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) [firefox] › tests/e2e/finite-supplies.spec.ts:5:5 › starts and resumes finite APC supplies at 1280
+
+    Error: browserType.launch: Executable doesn't exist at /home/agent/.cache/ms-playwright/firefox-1538/firefox/firefox
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: ../../tmp/v144-browser-results/finite-supplies-starts-and-9f124-finite-APC-supplies-at-1280-firefox/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../tmp/v144-browser-results/finite-supplies-starts-and-9f124-finite-APC-supplies-at-1280-firefox/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../tmp/v144-browser-results/finite-supplies-starts-and-9f124-finite-APC-supplies-at-1280-firefox/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  7) [firefox] › tests/e2e/finite-supplies.spec.ts:5:5 › starts and resumes unlimited APC supplies at 1280
+
+    Error: browserType.launch: Executable doesn't exist at /home/agent/.cache/ms-playwright/firefox-1538/firefox/firefox
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: ../../tmp/v144-browser-results/finite-supplies-starts-and-2cdfd-imited-APC-supplies-at-1280-firefox/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../tmp/v144-browser-results/finite-supplies-starts-and-2cdfd-imited-APC-supplies-at-1280-firefox/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../tmp/v144-browser-results/finite-supplies-starts-and-2cdfd-imited-APC-supplies-at-1280-firefox/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  8) [firefox] › tests/e2e/finite-supplies.spec.ts:5:5 › starts and resumes finite APC supplies at 390
+
+    Error: browserType.launch: Executable doesn't exist at /home/agent/.cache/ms-playwright/firefox-1538/firefox/firefox
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: ../../tmp/v144-browser-results/finite-supplies-starts-and-640cb--finite-APC-supplies-at-390-firefox/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../tmp/v144-browser-results/finite-supplies-starts-and-640cb--finite-APC-supplies-at-390-firefox/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../tmp/v144-browser-results/finite-supplies-starts-and-640cb--finite-APC-supplies-at-390-firefox/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  9) [firefox] › tests/e2e/finite-supplies.spec.ts:5:5 › starts and resumes unlimited APC supplies at 390
+
+    Error: browserType.launch: Executable doesn't exist at /home/agent/.cache/ms-playwright/firefox-1538/firefox/firefox
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: ../../tmp/v144-browser-results/finite-supplies-starts-and-ecc47-limited-APC-supplies-at-390-firefox/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../tmp/v144-browser-results/finite-supplies-starts-and-ecc47-limited-APC-supplies-at-390-firefox/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../tmp/v144-browser-results/finite-supplies-starts-and-ecc47-limited-APC-supplies-at-390-firefox/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  10) [firefox] › tests/e2e/tactical-rules.spec.ts:42:5 › starts a localized combined-tactics map and saves its snapshot at 1280/ja
+
+    Error: browserType.launch: Executable doesn't exist at /home/agent/.cache/ms-playwright/firefox-1538/firefox/firefox
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: ../../tmp/v144-browser-results/tactical-rules-starts-a-lo-64c4d-ves-its-snapshot-at-1280-ja-firefox/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../tmp/v144-browser-results/tactical-rules-starts-a-lo-64c4d-ves-its-snapshot-at-1280-ja-firefox/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../tmp/v144-browser-results/tactical-rules-starts-a-lo-64c4d-ves-its-snapshot-at-1280-ja-firefox/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  11) [firefox] › tests/e2e/tactical-rules.spec.ts:67:7 › unloads a moved apc and resumes both spent actions at 1280/ja
+
+    Error: browserType.launch: Executable doesn't exist at /home/agent/.cache/ms-playwright/firefox-1538/firefox/firefox
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: ../../tmp/v144-browser-results/tactical-rules-unloads-a-m-a661b-th-spent-actions-at-1280-ja-firefox/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../tmp/v144-browser-results/tactical-rules-unloads-a-m-a661b-th-spent-actions-at-1280-ja-firefox/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../tmp/v144-browser-results/tactical-rules-unloads-a-m-a661b-th-spent-actions-at-1280-ja-firefox/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  12) [firefox] › tests/e2e/tactical-rules.spec.ts:67:7 › unloads a moved landingShip and resumes both spent actions at 1280/ja
+
+    Error: browserType.launch: Executable doesn't exist at /home/agent/.cache/ms-playwright/firefox-1538/firefox/firefox
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: ../../tmp/v144-browser-results/tactical-rules-unloads-a-m-85c05-th-spent-actions-at-1280-ja-firefox/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../tmp/v144-browser-results/tactical-rules-unloads-a-m-85c05-th-spent-actions-at-1280-ja-firefox/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../tmp/v144-browser-results/tactical-rules-unloads-a-m-85c05-th-spent-actions-at-1280-ja-firefox/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  13) [firefox] › tests/e2e/tactical-rules.spec.ts:67:7 › unloads a moved transportHelicopter and resumes both spent actions at 1280/ja
+
+    Error: browserType.launch: Executable doesn't exist at /home/agent/.cache/ms-playwright/firefox-1538/firefox/firefox
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: ../../tmp/v144-browser-results/tactical-rules-unloads-a-m-f35b5-th-spent-actions-at-1280-ja-firefox/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../tmp/v144-browser-results/tactical-rules-unloads-a-m-f35b5-th-spent-actions-at-1280-ja-firefox/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../tmp/v144-browser-results/tactical-rules-unloads-a-m-f35b5-th-spent-actions-at-1280-ja-firefox/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  14) [firefox] › tests/e2e/tactical-rules.spec.ts:101:5 › shows submarine details only in an explicit full spectator view at 1280/ja
+
+    Error: browserType.launch: Executable doesn't exist at /home/agent/.cache/ms-playwright/firefox-1538/firefox/firefox
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: ../../tmp/v144-browser-results/tactical-rules-shows-subma-480ac-l-spectator-view-at-1280-ja-firefox/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../tmp/v144-browser-results/tactical-rules-shows-subma-480ac-l-spectator-view-at-1280-ja-firefox/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../tmp/v144-browser-results/tactical-rules-shows-subma-480ac-l-spectator-view-at-1280-ja-firefox/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  15) [firefox] › tests/e2e/tactical-rules.spec.ts:131:7 › presents simultaneous return fire and saves both magazines after skip at 1280/ja
+
+    Error: browserType.launch: Executable doesn't exist at /home/agent/.cache/ms-playwright/firefox-1538/firefox/firefox
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: ../../tmp/v144-browser-results/tactical-rules-presents-si-456f4-zines-after-skip-at-1280-ja-firefox/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../tmp/v144-browser-results/tactical-rules-presents-si-456f4-zines-after-skip-at-1280-ja-firefox/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../tmp/v144-browser-results/tactical-rules-presents-si-456f4-zines-after-skip-at-1280-ja-firefox/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  16) [firefox] › tests/e2e/tactical-rules.spec.ts:131:7 › presents simultaneous return fire and saves both magazines after elapsed at 1280/ja
+
+    Error: browserType.launch: Executable doesn't exist at /home/agent/.cache/ms-playwright/firefox-1538/firefox/firefox
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: ../../tmp/v144-browser-results/tactical-rules-presents-si-50767-es-after-elapsed-at-1280-ja-firefox/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../tmp/v144-browser-results/tactical-rules-presents-si-50767-es-after-elapsed-at-1280-ja-firefox/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../tmp/v144-browser-results/tactical-rules-presents-si-50767-es-after-elapsed-at-1280-ja-firefox/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  17) [firefox] › tests/e2e/tactical-rules.spec.ts:175:5 › presents a prepared hidden encounter without an automatic counter at 1280/ja
+
+    Error: browserType.launch: Executable doesn't exist at /home/agent/.cache/ms-playwright/firefox-1538/firefox/firefox
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: ../../tmp/v144-browser-results/tactical-rules-presents-a--1906e-utomatic-counter-at-1280-ja-firefox/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../tmp/v144-browser-results/tactical-rules-presents-a--1906e-utomatic-counter-at-1280-ja-firefox/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../tmp/v144-browser-results/tactical-rules-presents-a--1906e-utomatic-counter-at-1280-ja-firefox/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  18) [firefox] › tests/e2e/tactical-rules.spec.ts:201:5 › spends and restores its own dive action at 1280/ja
+
+    Error: browserType.launch: Executable doesn't exist at /home/agent/.cache/ms-playwright/firefox-1538/firefox/firefox
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: ../../tmp/v144-browser-results/tactical-rules-spends-and--66142--own-dive-action-at-1280-ja-firefox/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../tmp/v144-browser-results/tactical-rules-spends-and--66142--own-dive-action-at-1280-ja-firefox/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../tmp/v144-browser-results/tactical-rules-spends-and--66142--own-dive-action-at-1280-ja-firefox/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  19) [firefox] › tests/e2e/tactical-rules.spec.ts:227:5 › detects a submerged enemy with sonar after movement and reload at 1280/ja
+
+    Error: browserType.launch: Executable doesn't exist at /home/agent/.cache/ms-playwright/firefox-1538/firefox/firefox
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: ../../tmp/v144-browser-results/tactical-rules-detects-a-s-ece2d-ement-and-reload-at-1280-ja-firefox/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../tmp/v144-browser-results/tactical-rules-detects-a-s-ece2d-ement-and-reload-at-1280-ja-firefox/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../tmp/v144-browser-results/tactical-rules-detects-a-s-ece2d-ement-and-reload-at-1280-ja-firefox/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  20) [firefox] › tests/e2e/tactical-rules.spec.ts:42:5 › starts a localized combined-tactics map and saves its snapshot at 1280/en
+
+    Error: browserType.launch: Executable doesn't exist at /home/agent/.cache/ms-playwright/firefox-1538/firefox/firefox
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: ../../tmp/v144-browser-results/tactical-rules-starts-a-lo-52af7-ves-its-snapshot-at-1280-en-firefox/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../tmp/v144-browser-results/tactical-rules-starts-a-lo-52af7-ves-its-snapshot-at-1280-en-firefox/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../tmp/v144-browser-results/tactical-rules-starts-a-lo-52af7-ves-its-snapshot-at-1280-en-firefox/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  21) [firefox] › tests/e2e/tactical-rules.spec.ts:67:7 › unloads a moved apc and resumes both spent actions at 1280/en
+
+    Error: browserType.launch: Executable doesn't exist at /home/agent/.cache/ms-playwright/firefox-1538/firefox/firefox
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: ../../tmp/v144-browser-results/tactical-rules-unloads-a-m-94569-th-spent-actions-at-1280-en-firefox/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../tmp/v144-browser-results/tactical-rules-unloads-a-m-94569-th-spent-actions-at-1280-en-firefox/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../tmp/v144-browser-results/tactical-rules-unloads-a-m-94569-th-spent-actions-at-1280-en-firefox/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  22) [firefox] › tests/e2e/tactical-rules.spec.ts:67:7 › unloads a moved landingShip and resumes both spent actions at 1280/en
+
+    Error: browserType.launch: Executable doesn't exist at /home/agent/.cache/ms-playwright/firefox-1538/firefox/firefox
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: ../../tmp/v144-browser-results/tactical-rules-unloads-a-m-e3954-th-spent-actions-at-1280-en-firefox/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../tmp/v144-browser-results/tactical-rules-unloads-a-m-e3954-th-spent-actions-at-1280-en-firefox/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../tmp/v144-browser-results/tactical-rules-unloads-a-m-e3954-th-spent-actions-at-1280-en-firefox/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  23) [firefox] › tests/e2e/tactical-rules.spec.ts:67:7 › unloads a moved transportHelicopter and resumes both spent actions at 1280/en
+
+    Error: browserType.launch: Executable doesn't exist at /home/agent/.cache/ms-playwright/firefox-1538/firefox/firefox
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: ../../tmp/v144-browser-results/tactical-rules-unloads-a-m-a43d4-th-spent-actions-at-1280-en-firefox/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../tmp/v144-browser-results/tactical-rules-unloads-a-m-a43d4-th-spent-actions-at-1280-en-firefox/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../tmp/v144-browser-results/tactical-rules-unloads-a-m-a43d4-th-spent-actions-at-1280-en-firefox/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  24) [firefox] › tests/e2e/tactical-rules.spec.ts:101:5 › shows submarine details only in an explicit full spectator view at 1280/en
+
+    Error: browserType.launch: Executable doesn't exist at /home/agent/.cache/ms-playwright/firefox-1538/firefox/firefox
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: ../../tmp/v144-browser-results/tactical-rules-shows-subma-5fda5-l-spectator-view-at-1280-en-firefox/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../tmp/v144-browser-results/tactical-rules-shows-subma-5fda5-l-spectator-view-at-1280-en-firefox/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../tmp/v144-browser-results/tactical-rules-shows-subma-5fda5-l-spectator-view-at-1280-en-firefox/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  25) [firefox] › tests/e2e/tactical-rules.spec.ts:131:7 › presents simultaneous return fire and saves both magazines after skip at 1280/en
+
+    Error: browserType.launch: Executable doesn't exist at /home/agent/.cache/ms-playwright/firefox-1538/firefox/firefox
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: ../../tmp/v144-browser-results/tactical-rules-presents-si-9e316-zines-after-skip-at-1280-en-firefox/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../tmp/v144-browser-results/tactical-rules-presents-si-9e316-zines-after-skip-at-1280-en-firefox/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../tmp/v144-browser-results/tactical-rules-presents-si-9e316-zines-after-skip-at-1280-en-firefox/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  26) [firefox] › tests/e2e/tactical-rules.spec.ts:131:7 › presents simultaneous return fire and saves both magazines after elapsed at 1280/en
+
+    Error: browserType.launch: Executable doesn't exist at /home/agent/.cache/ms-playwright/firefox-1538/firefox/firefox
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: ../../tmp/v144-browser-results/tactical-rules-presents-si-9b114-es-after-elapsed-at-1280-en-firefox/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../tmp/v144-browser-results/tactical-rules-presents-si-9b114-es-after-elapsed-at-1280-en-firefox/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../tmp/v144-browser-results/tactical-rules-presents-si-9b114-es-after-elapsed-at-1280-en-firefox/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  27) [firefox] › tests/e2e/tactical-rules.spec.ts:175:5 › presents a prepared hidden encounter without an automatic counter at 1280/en
+
+    Error: browserType.launch: Executable doesn't exist at /home/agent/.cache/ms-playwright/firefox-1538/firefox/firefox
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: ../../tmp/v144-browser-results/tactical-rules-presents-a--014b1-utomatic-counter-at-1280-en-firefox/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../tmp/v144-browser-results/tactical-rules-presents-a--014b1-utomatic-counter-at-1280-en-firefox/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../tmp/v144-browser-results/tactical-rules-presents-a--014b1-utomatic-counter-at-1280-en-firefox/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  28) [firefox] › tests/e2e/tactical-rules.spec.ts:201:5 › spends and restores its own dive action at 1280/en
+
+    Error: browserType.launch: Executable doesn't exist at /home/agent/.cache/ms-playwright/firefox-1538/firefox/firefox
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: ../../tmp/v144-browser-results/tactical-rules-spends-and--c6c89--own-dive-action-at-1280-en-firefox/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../tmp/v144-browser-results/tactical-rules-spends-and--c6c89--own-dive-action-at-1280-en-firefox/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../tmp/v144-browser-results/tactical-rules-spends-and--c6c89--own-dive-action-at-1280-en-firefox/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  29) [firefox] › tests/e2e/tactical-rules.spec.ts:227:5 › detects a submerged enemy with sonar after movement and reload at 1280/en
+
+    Error: browserType.launch: Executable doesn't exist at /home/agent/.cache/ms-playwright/firefox-1538/firefox/firefox
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: ../../tmp/v144-browser-results/tactical-rules-detects-a-s-a29f5-ement-and-reload-at-1280-en-firefox/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../tmp/v144-browser-results/tactical-rules-detects-a-s-a29f5-ement-and-reload-at-1280-en-firefox/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../tmp/v144-browser-results/tactical-rules-detects-a-s-a29f5-ement-and-reload-at-1280-en-firefox/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  30) [firefox] › tests/e2e/tactical-rules.spec.ts:42:5 › starts a localized combined-tactics map and saves its snapshot at 390/ja
+
+    Error: browserType.launch: Executable doesn't exist at /home/agent/.cache/ms-playwright/firefox-1538/firefox/firefox
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: ../../tmp/v144-browser-results/tactical-rules-starts-a-lo-0e424-aves-its-snapshot-at-390-ja-firefox/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../tmp/v144-browser-results/tactical-rules-starts-a-lo-0e424-aves-its-snapshot-at-390-ja-firefox/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../tmp/v144-browser-results/tactical-rules-starts-a-lo-0e424-aves-its-snapshot-at-390-ja-firefox/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  31) [firefox] › tests/e2e/tactical-rules.spec.ts:67:7 › unloads a moved apc and resumes both spent actions at 390/ja
+
+    Error: browserType.launch: Executable doesn't exist at /home/agent/.cache/ms-playwright/firefox-1538/firefox/firefox
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: ../../tmp/v144-browser-results/tactical-rules-unloads-a-m-24a8e-oth-spent-actions-at-390-ja-firefox/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../tmp/v144-browser-results/tactical-rules-unloads-a-m-24a8e-oth-spent-actions-at-390-ja-firefox/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../tmp/v144-browser-results/tactical-rules-unloads-a-m-24a8e-oth-spent-actions-at-390-ja-firefox/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  32) [firefox] › tests/e2e/tactical-rules.spec.ts:67:7 › unloads a moved landingShip and resumes both spent actions at 390/ja
+
+    Error: browserType.launch: Executable doesn't exist at /home/agent/.cache/ms-playwright/firefox-1538/firefox/firefox
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: ../../tmp/v144-browser-results/tactical-rules-unloads-a-m-26a43-oth-spent-actions-at-390-ja-firefox/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../tmp/v144-browser-results/tactical-rules-unloads-a-m-26a43-oth-spent-actions-at-390-ja-firefox/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../tmp/v144-browser-results/tactical-rules-unloads-a-m-26a43-oth-spent-actions-at-390-ja-firefox/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  33) [firefox] › tests/e2e/tactical-rules.spec.ts:67:7 › unloads a moved transportHelicopter and resumes both spent actions at 390/ja
+
+    Error: browserType.launch: Executable doesn't exist at /home/agent/.cache/ms-playwright/firefox-1538/firefox/firefox
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: ../../tmp/v144-browser-results/tactical-rules-unloads-a-m-07ae5-oth-spent-actions-at-390-ja-firefox/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../tmp/v144-browser-results/tactical-rules-unloads-a-m-07ae5-oth-spent-actions-at-390-ja-firefox/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../tmp/v144-browser-results/tactical-rules-unloads-a-m-07ae5-oth-spent-actions-at-390-ja-firefox/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  34) [firefox] › tests/e2e/tactical-rules.spec.ts:101:5 › shows submarine details only in an explicit full spectator view at 390/ja
+
+    Error: browserType.launch: Executable doesn't exist at /home/agent/.cache/ms-playwright/firefox-1538/firefox/firefox
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: ../../tmp/v144-browser-results/tactical-rules-shows-subma-c1eec-ll-spectator-view-at-390-ja-firefox/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../tmp/v144-browser-results/tactical-rules-shows-subma-c1eec-ll-spectator-view-at-390-ja-firefox/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../tmp/v144-browser-results/tactical-rules-shows-subma-c1eec-ll-spectator-view-at-390-ja-firefox/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  35) [firefox] › tests/e2e/tactical-rules.spec.ts:131:7 › presents simultaneous return fire and saves both magazines after skip at 390/ja
+
+    Error: browserType.launch: Executable doesn't exist at /home/agent/.cache/ms-playwright/firefox-1538/firefox/firefox
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: ../../tmp/v144-browser-results/tactical-rules-presents-si-d3319-azines-after-skip-at-390-ja-firefox/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../tmp/v144-browser-results/tactical-rules-presents-si-d3319-azines-after-skip-at-390-ja-firefox/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../tmp/v144-browser-results/tactical-rules-presents-si-d3319-azines-after-skip-at-390-ja-firefox/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  36) [firefox] › tests/e2e/tactical-rules.spec.ts:131:7 › presents simultaneous return fire and saves both magazines after elapsed at 390/ja
+
+    Error: browserType.launch: Executable doesn't exist at /home/agent/.cache/ms-playwright/firefox-1538/firefox/firefox
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: ../../tmp/v144-browser-results/tactical-rules-presents-si-595ce-nes-after-elapsed-at-390-ja-firefox/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../tmp/v144-browser-results/tactical-rules-presents-si-595ce-nes-after-elapsed-at-390-ja-firefox/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../tmp/v144-browser-results/tactical-rules-presents-si-595ce-nes-after-elapsed-at-390-ja-firefox/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  37) [firefox] › tests/e2e/tactical-rules.spec.ts:175:5 › presents a prepared hidden encounter without an automatic counter at 390/ja
+
+    Error: browserType.launch: Executable doesn't exist at /home/agent/.cache/ms-playwright/firefox-1538/firefox/firefox
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: ../../tmp/v144-browser-results/tactical-rules-presents-a--d04bb-automatic-counter-at-390-ja-firefox/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../tmp/v144-browser-results/tactical-rules-presents-a--d04bb-automatic-counter-at-390-ja-firefox/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../tmp/v144-browser-results/tactical-rules-presents-a--d04bb-automatic-counter-at-390-ja-firefox/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  38) [firefox] › tests/e2e/tactical-rules.spec.ts:201:5 › spends and restores its own dive action at 390/ja
+
+    Error: browserType.launch: Executable doesn't exist at /home/agent/.cache/ms-playwright/firefox-1538/firefox/firefox
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: ../../tmp/v144-browser-results/tactical-rules-spends-and--6f5a2-s-own-dive-action-at-390-ja-firefox/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../tmp/v144-browser-results/tactical-rules-spends-and--6f5a2-s-own-dive-action-at-390-ja-firefox/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../tmp/v144-browser-results/tactical-rules-spends-and--6f5a2-s-own-dive-action-at-390-ja-firefox/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  39) [firefox] › tests/e2e/tactical-rules.spec.ts:227:5 › detects a submerged enemy with sonar after movement and reload at 390/ja
+
+    Error: browserType.launch: Executable doesn't exist at /home/agent/.cache/ms-playwright/firefox-1538/firefox/firefox
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: ../../tmp/v144-browser-results/tactical-rules-detects-a-s-17110-vement-and-reload-at-390-ja-firefox/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../tmp/v144-browser-results/tactical-rules-detects-a-s-17110-vement-and-reload-at-390-ja-firefox/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../tmp/v144-browser-results/tactical-rules-detects-a-s-17110-vement-and-reload-at-390-ja-firefox/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  40) [firefox] › tests/e2e/tactical-rules.spec.ts:42:5 › starts a localized combined-tactics map and saves its snapshot at 390/en
+
+    Error: browserType.launch: Executable doesn't exist at /home/agent/.cache/ms-playwright/firefox-1538/firefox/firefox
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: ../../tmp/v144-browser-results/tactical-rules-starts-a-lo-96e71-aves-its-snapshot-at-390-en-firefox/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../tmp/v144-browser-results/tactical-rules-starts-a-lo-96e71-aves-its-snapshot-at-390-en-firefox/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../tmp/v144-browser-results/tactical-rules-starts-a-lo-96e71-aves-its-snapshot-at-390-en-firefox/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  41) [firefox] › tests/e2e/tactical-rules.spec.ts:67:7 › unloads a moved apc and resumes both spent actions at 390/en
+
+    Error: browserType.launch: Executable doesn't exist at /home/agent/.cache/ms-playwright/firefox-1538/firefox/firefox
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: ../../tmp/v144-browser-results/tactical-rules-unloads-a-m-1aa9c-oth-spent-actions-at-390-en-firefox/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../tmp/v144-browser-results/tactical-rules-unloads-a-m-1aa9c-oth-spent-actions-at-390-en-firefox/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../tmp/v144-browser-results/tactical-rules-unloads-a-m-1aa9c-oth-spent-actions-at-390-en-firefox/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  42) [firefox] › tests/e2e/tactical-rules.spec.ts:67:7 › unloads a moved landingShip and resumes both spent actions at 390/en
+
+    Error: browserType.launch: Executable doesn't exist at /home/agent/.cache/ms-playwright/firefox-1538/firefox/firefox
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: ../../tmp/v144-browser-results/tactical-rules-unloads-a-m-728a9-oth-spent-actions-at-390-en-firefox/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../tmp/v144-browser-results/tactical-rules-unloads-a-m-728a9-oth-spent-actions-at-390-en-firefox/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../tmp/v144-browser-results/tactical-rules-unloads-a-m-728a9-oth-spent-actions-at-390-en-firefox/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  43) [firefox] › tests/e2e/tactical-rules.spec.ts:67:7 › unloads a moved transportHelicopter and resumes both spent actions at 390/en
+
+    Error: browserType.launch: Executable doesn't exist at /home/agent/.cache/ms-playwright/firefox-1538/firefox/firefox
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: ../../tmp/v144-browser-results/tactical-rules-unloads-a-m-18fdb-oth-spent-actions-at-390-en-firefox/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../tmp/v144-browser-results/tactical-rules-unloads-a-m-18fdb-oth-spent-actions-at-390-en-firefox/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../tmp/v144-browser-results/tactical-rules-unloads-a-m-18fdb-oth-spent-actions-at-390-en-firefox/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  44) [firefox] › tests/e2e/tactical-rules.spec.ts:101:5 › shows submarine details only in an explicit full spectator view at 390/en
+
+    Error: browserType.launch: Executable doesn't exist at /home/agent/.cache/ms-playwright/firefox-1538/firefox/firefox
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: ../../tmp/v144-browser-results/tactical-rules-shows-subma-c17c4-ll-spectator-view-at-390-en-firefox/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../tmp/v144-browser-results/tactical-rules-shows-subma-c17c4-ll-spectator-view-at-390-en-firefox/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../tmp/v144-browser-results/tactical-rules-shows-subma-c17c4-ll-spectator-view-at-390-en-firefox/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  45) [firefox] › tests/e2e/tactical-rules.spec.ts:131:7 › presents simultaneous return fire and saves both magazines after skip at 390/en
+
+    Error: browserType.launch: Executable doesn't exist at /home/agent/.cache/ms-playwright/firefox-1538/firefox/firefox
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: ../../tmp/v144-browser-results/tactical-rules-presents-si-47d5a-azines-after-skip-at-390-en-firefox/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../tmp/v144-browser-results/tactical-rules-presents-si-47d5a-azines-after-skip-at-390-en-firefox/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../tmp/v144-browser-results/tactical-rules-presents-si-47d5a-azines-after-skip-at-390-en-firefox/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  46) [firefox] › tests/e2e/tactical-rules.spec.ts:131:7 › presents simultaneous return fire and saves both magazines after elapsed at 390/en
+
+    Error: browserType.launch: Executable doesn't exist at /home/agent/.cache/ms-playwright/firefox-1538/firefox/firefox
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: ../../tmp/v144-browser-results/tactical-rules-presents-si-7598f-nes-after-elapsed-at-390-en-firefox/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../tmp/v144-browser-results/tactical-rules-presents-si-7598f-nes-after-elapsed-at-390-en-firefox/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../tmp/v144-browser-results/tactical-rules-presents-si-7598f-nes-after-elapsed-at-390-en-firefox/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  47) [firefox] › tests/e2e/tactical-rules.spec.ts:175:5 › presents a prepared hidden encounter without an automatic counter at 390/en
+
+    Error: browserType.launch: Executable doesn't exist at /home/agent/.cache/ms-playwright/firefox-1538/firefox/firefox
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: ../../tmp/v144-browser-results/tactical-rules-presents-a--2273f-automatic-counter-at-390-en-firefox/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../tmp/v144-browser-results/tactical-rules-presents-a--2273f-automatic-counter-at-390-en-firefox/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../tmp/v144-browser-results/tactical-rules-presents-a--2273f-automatic-counter-at-390-en-firefox/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  48) [firefox] › tests/e2e/tactical-rules.spec.ts:201:5 › spends and restores its own dive action at 390/en
+
+    Error: browserType.launch: Executable doesn't exist at /home/agent/.cache/ms-playwright/firefox-1538/firefox/firefox
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: ../../tmp/v144-browser-results/tactical-rules-spends-and--be6e4-s-own-dive-action-at-390-en-firefox/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../tmp/v144-browser-results/tactical-rules-spends-and--be6e4-s-own-dive-action-at-390-en-firefox/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../tmp/v144-browser-results/tactical-rules-spends-and--be6e4-s-own-dive-action-at-390-en-firefox/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  49) [firefox] › tests/e2e/tactical-rules.spec.ts:227:5 › detects a submerged enemy with sonar after movement and reload at 390/en
+
+    Error: browserType.launch: Executable doesn't exist at /home/agent/.cache/ms-playwright/firefox-1538/firefox/firefox
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: ../../tmp/v144-browser-results/tactical-rules-detects-a-s-9b876-vement-and-reload-at-390-en-firefox/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../tmp/v144-browser-results/tactical-rules-detects-a-s-9b876-vement-and-reload-at-390-en-firefox/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../tmp/v144-browser-results/tactical-rules-detects-a-s-9b876-vement-and-reload-at-390-en-firefox/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  50) [firefox] › tests/e2e/wide-front.spec.ts:16:5 › plays and observes a wide front in ja at 1280
+
+    Error: browserType.launch: Executable doesn't exist at /home/agent/.cache/ms-playwright/firefox-1538/firefox/firefox
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: ../../tmp/v144-browser-results/wide-front-plays-and-observes-a-wide-front-in-ja-at-1280-firefox/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../tmp/v144-browser-results/wide-front-plays-and-observes-a-wide-front-in-ja-at-1280-firefox/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../tmp/v144-browser-results/wide-front-plays-and-observes-a-wide-front-in-ja-at-1280-firefox/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  51) [firefox] › tests/e2e/wide-front.spec.ts:60:5 › generates, persists and plays a 32×32 map in ja at 1280
+
+    Error: browserType.launch: Executable doesn't exist at /home/agent/.cache/ms-playwright/firefox-1538/firefox/firefox
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: ../../tmp/v144-browser-results/wide-front-generates-persi-239c4-s-a-32×32-map-in-ja-at-1280-firefox/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../tmp/v144-browser-results/wide-front-generates-persi-239c4-s-a-32×32-map-in-ja-at-1280-firefox/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../tmp/v144-browser-results/wide-front-generates-persi-239c4-s-a-32×32-map-in-ja-at-1280-firefox/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  52) [firefox] › tests/e2e/wide-front.spec.ts:16:5 › plays and observes a wide front in en at 1280
+
+    Error: browserType.launch: Executable doesn't exist at /home/agent/.cache/ms-playwright/firefox-1538/firefox/firefox
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: ../../tmp/v144-browser-results/wide-front-plays-and-observes-a-wide-front-in-en-at-1280-firefox/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../tmp/v144-browser-results/wide-front-plays-and-observes-a-wide-front-in-en-at-1280-firefox/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../tmp/v144-browser-results/wide-front-plays-and-observes-a-wide-front-in-en-at-1280-firefox/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  53) [firefox] › tests/e2e/wide-front.spec.ts:60:5 › generates, persists and plays a 32×32 map in en at 1280
+
+    Error: browserType.launch: Executable doesn't exist at /home/agent/.cache/ms-playwright/firefox-1538/firefox/firefox
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: ../../tmp/v144-browser-results/wide-front-generates-persi-34fd4-s-a-32×32-map-in-en-at-1280-firefox/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../tmp/v144-browser-results/wide-front-generates-persi-34fd4-s-a-32×32-map-in-en-at-1280-firefox/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../tmp/v144-browser-results/wide-front-generates-persi-34fd4-s-a-32×32-map-in-en-at-1280-firefox/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  54) [firefox] › tests/e2e/wide-front.spec.ts:16:5 › plays and observes a wide front in ja at 390 ─
+
+    Error: browserType.launch: Executable doesn't exist at /home/agent/.cache/ms-playwright/firefox-1538/firefox/firefox
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: ../../tmp/v144-browser-results/wide-front-plays-and-observes-a-wide-front-in-ja-at-390-firefox/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../tmp/v144-browser-results/wide-front-plays-and-observes-a-wide-front-in-ja-at-390-firefox/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../tmp/v144-browser-results/wide-front-plays-and-observes-a-wide-front-in-ja-at-390-firefox/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  55) [firefox] › tests/e2e/wide-front.spec.ts:60:5 › generates, persists and plays a 32×32 map in ja at 390
+
+    Error: browserType.launch: Executable doesn't exist at /home/agent/.cache/ms-playwright/firefox-1538/firefox/firefox
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: ../../tmp/v144-browser-results/wide-front-generates-persi-45f98-ys-a-32×32-map-in-ja-at-390-firefox/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../tmp/v144-browser-results/wide-front-generates-persi-45f98-ys-a-32×32-map-in-ja-at-390-firefox/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../tmp/v144-browser-results/wide-front-generates-persi-45f98-ys-a-32×32-map-in-ja-at-390-firefox/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  56) [firefox] › tests/e2e/wide-front.spec.ts:16:5 › plays and observes a wide front in en at 390 ─
+
+    Error: browserType.launch: Executable doesn't exist at /home/agent/.cache/ms-playwright/firefox-1538/firefox/firefox
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: ../../tmp/v144-browser-results/wide-front-plays-and-observes-a-wide-front-in-en-at-390-firefox/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../tmp/v144-browser-results/wide-front-plays-and-observes-a-wide-front-in-en-at-390-firefox/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../tmp/v144-browser-results/wide-front-plays-and-observes-a-wide-front-in-en-at-390-firefox/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  57) [firefox] › tests/e2e/wide-front.spec.ts:60:5 › generates, persists and plays a 32×32 map in en at 390
+
+    Error: browserType.launch: Executable doesn't exist at /home/agent/.cache/ms-playwright/firefox-1538/firefox/firefox
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: ../../tmp/v144-browser-results/wide-front-generates-persi-0d53b-ys-a-32×32-map-in-en-at-390-firefox/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../tmp/v144-browser-results/wide-front-generates-persi-0d53b-ys-a-32×32-map-in-en-at-390-firefox/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../tmp/v144-browser-results/wide-front-generates-persi-0d53b-ys-a-32×32-map-in-en-at-390-firefox/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  57 failed
+    [firefox] › tests/e2e/board-response.spec.ts:4:1 › 390px touch selects once and keeps a scrolled board stable after localized redraw
+    [firefox] › tests/e2e/board-response.spec.ts:59:5 › large board keeps input, focus and geometry at 1280 in ja
+    [firefox] › tests/e2e/board-response.spec.ts:59:5 › large board keeps input, focus and geometry at 1280 in en
+    [firefox] › tests/e2e/board-response.spec.ts:59:5 › large board keeps input, focus and geometry at 390 in ja
+    [firefox] › tests/e2e/board-response.spec.ts:59:5 › large board keeps input, focus and geometry at 390 in en
+    [firefox] › tests/e2e/finite-supplies.spec.ts:5:5 › starts and resumes finite APC supplies at 1280
+    [firefox] › tests/e2e/finite-supplies.spec.ts:5:5 › starts and resumes unlimited APC supplies at 1280
+    [firefox] › tests/e2e/finite-supplies.spec.ts:5:5 › starts and resumes finite APC supplies at 390
+    [firefox] › tests/e2e/finite-supplies.spec.ts:5:5 › starts and resumes unlimited APC supplies at 390
+    [firefox] › tests/e2e/tactical-rules.spec.ts:42:5 › starts a localized combined-tactics map and saves its snapshot at 1280/ja
+    [firefox] › tests/e2e/tactical-rules.spec.ts:67:7 › unloads a moved apc and resumes both spent actions at 1280/ja
+    [firefox] › tests/e2e/tactical-rules.spec.ts:67:7 › unloads a moved landingShip and resumes both spent actions at 1280/ja
+    [firefox] › tests/e2e/tactical-rules.spec.ts:67:7 › unloads a moved transportHelicopter and resumes both spent actions at 1280/ja
+    [firefox] › tests/e2e/tactical-rules.spec.ts:101:5 › shows submarine details only in an explicit full spectator view at 1280/ja
+    [firefox] › tests/e2e/tactical-rules.spec.ts:131:7 › presents simultaneous return fire and saves both magazines after skip at 1280/ja
+    [firefox] › tests/e2e/tactical-rules.spec.ts:131:7 › presents simultaneous return fire and saves both magazines after elapsed at 1280/ja
+    [firefox] › tests/e2e/tactical-rules.spec.ts:175:5 › presents a prepared hidden encounter without an automatic counter at 1280/ja
+    [firefox] › tests/e2e/tactical-rules.spec.ts:201:5 › spends and restores its own dive action at 1280/ja
+    [firefox] › tests/e2e/tactical-rules.spec.ts:227:5 › detects a submerged enemy with sonar after movement and reload at 1280/ja
+    [firefox] › tests/e2e/tactical-rules.spec.ts:42:5 › starts a localized combined-tactics map and saves its snapshot at 1280/en
+    [firefox] › tests/e2e/tactical-rules.spec.ts:67:7 › unloads a moved apc and resumes both spent actions at 1280/en
+    [firefox] › tests/e2e/tactical-rules.spec.ts:67:7 › unloads a moved landingShip and resumes both spent actions at 1280/en
+    [firefox] › tests/e2e/tactical-rules.spec.ts:67:7 › unloads a moved transportHelicopter and resumes both spent actions at 1280/en
+    [firefox] › tests/e2e/tactical-rules.spec.ts:101:5 › shows submarine details only in an explicit full spectator view at 1280/en
+    [firefox] › tests/e2e/tactical-rules.spec.ts:131:7 › presents simultaneous return fire and saves both magazines after skip at 1280/en
+    [firefox] › tests/e2e/tactical-rules.spec.ts:131:7 › presents simultaneous return fire and saves both magazines after elapsed at 1280/en
+    [firefox] › tests/e2e/tactical-rules.spec.ts:175:5 › presents a prepared hidden encounter without an automatic counter at 1280/en
+    [firefox] › tests/e2e/tactical-rules.spec.ts:201:5 › spends and restores its own dive action at 1280/en
+    [firefox] › tests/e2e/tactical-rules.spec.ts:227:5 › detects a submerged enemy with sonar after movement and reload at 1280/en
+    [firefox] › tests/e2e/tactical-rules.spec.ts:42:5 › starts a localized combined-tactics map and saves its snapshot at 390/ja
+    [firefox] › tests/e2e/tactical-rules.spec.ts:67:7 › unloads a moved apc and resumes both spent actions at 390/ja
+    [firefox] › tests/e2e/tactical-rules.spec.ts:67:7 › unloads a moved landingShip and resumes both spent actions at 390/ja
+    [firefox] › tests/e2e/tactical-rules.spec.ts:67:7 › unloads a moved transportHelicopter and resumes both spent actions at 390/ja
+    [firefox] › tests/e2e/tactical-rules.spec.ts:101:5 › shows submarine details only in an explicit full spectator view at 390/ja
+    [firefox] › tests/e2e/tactical-rules.spec.ts:131:7 › presents simultaneous return fire and saves both magazines after skip at 390/ja
+    [firefox] › tests/e2e/tactical-rules.spec.ts:131:7 › presents simultaneous return fire and saves both magazines after elapsed at 390/ja
+    [firefox] › tests/e2e/tactical-rules.spec.ts:175:5 › presents a prepared hidden encounter without an automatic counter at 390/ja
+    [firefox] › tests/e2e/tactical-rules.spec.ts:201:5 › spends and restores its own dive action at 390/ja
+    [firefox] › tests/e2e/tactical-rules.spec.ts:227:5 › detects a submerged enemy with sonar after movement and reload at 390/ja
+    [firefox] › tests/e2e/tactical-rules.spec.ts:42:5 › starts a localized combined-tactics map and saves its snapshot at 390/en
+    [firefox] › tests/e2e/tactical-rules.spec.ts:67:7 › unloads a moved apc and resumes both spent actions at 390/en
+    [firefox] › tests/e2e/tactical-rules.spec.ts:67:7 › unloads a moved landingShip and resumes both spent actions at 390/en
+    [firefox] › tests/e2e/tactical-rules.spec.ts:67:7 › unloads a moved transportHelicopter and resumes both spent actions at 390/en
+    [firefox] › tests/e2e/tactical-rules.spec.ts:101:5 › shows submarine details only in an explicit full spectator view at 390/en
+    [firefox] › tests/e2e/tactical-rules.spec.ts:131:7 › presents simultaneous return fire and saves both magazines after skip at 390/en
+    [firefox] › tests/e2e/tactical-rules.spec.ts:131:7 › presents simultaneous return fire and saves both magazines after elapsed at 390/en
+    [firefox] › tests/e2e/tactical-rules.spec.ts:175:5 › presents a prepared hidden encounter without an automatic counter at 390/en
+    [firefox] › tests/e2e/tactical-rules.spec.ts:201:5 › spends and restores its own dive action at 390/en
+    [firefox] › tests/e2e/tactical-rules.spec.ts:227:5 › detects a submerged enemy with sonar after movement and reload at 390/en
+    [firefox] › tests/e2e/wide-front.spec.ts:16:5 › plays and observes a wide front in ja at 1280 ──
+    [firefox] › tests/e2e/wide-front.spec.ts:60:5 › generates, persists and plays a 32×32 map in ja at 1280
+    [firefox] › tests/e2e/wide-front.spec.ts:16:5 › plays and observes a wide front in en at 1280 ──
+    [firefox] › tests/e2e/wide-front.spec.ts:60:5 › generates, persists and plays a 32×32 map in en at 1280
+    [firefox] › tests/e2e/wide-front.spec.ts:16:5 › plays and observes a wide front in ja at 390 ───
+    [firefox] › tests/e2e/wide-front.spec.ts:60:5 › generates, persists and plays a 32×32 map in ja at 390
+    [firefox] › tests/e2e/wide-front.spec.ts:16:5 › plays and observes a wide front in en at 390 ───
+    [firefox] › tests/e2e/wide-front.spec.ts:60:5 › generates, persists and plays a 32×32 map in en at 390
+  57 passed (5.0m)

@@ -1,0 +1,20 @@
+diff --git a/src/game/tacticalMaps.ts b/src/game/tacticalMaps.ts
+index a87ce73..c17c22b 100644
+--- a/src/game/tacticalMaps.ts
++++ b/src/game/tacticalMaps.ts
+@@ -37,7 +37,14 @@ export function tacticalScenario(source: ScenarioDefinition, reviseLayout = true
+     set(x, Math.floor(h / 2) - 1, 'supplyDepot');
+     set(w - 1 - x, h - Math.floor(h / 2), 'supplyDepot');
+     data.board.cells = [...cells.values()];
+-    data.name += ' / Tactical v2';
++    if (source.id === 'wide-front') {
++      // Cover on both approaches to the scored depots; objectives stay intact.
++      for (const [x, y] of [[14, 16], [15, 15], [15, 14]] as const) {
++        set(x, y, 'forest');
++        set(w - 1 - x, h - 1 - y, 'forest');
++      }
++    }
++    data.name += source.id === 'wide-front' ? ' / Tactical v3' : ' / Tactical v2';
+   }
+   const loaded = loadScenarioDefinitions([data]);
+   if (!loaded.ok) throw Error(loaded.error);

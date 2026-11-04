@@ -1,0 +1,56 @@
+{
+  "sources": [
+    {
+      "candidate": "cpu-a",
+      "sourceDigest": "fb0645c3884a925bcb2892c8b320b44b5b14085a4efa10382df23a19bb8a38ae",
+      "matches": true
+    },
+    {
+      "candidate": "cpu-b",
+      "sourceDigest": "833aa80203c650a3ddab6f7484022142e779a2325e9dd1e46b313e0d9a1c002f",
+      "matches": true
+    },
+    {
+      "candidate": "map-b",
+      "sourceDigest": "a7b9c787422d5bbed4c0d505e1446a8c961fe394282911129cdbc53664be33a5",
+      "matches": true
+    },
+    {
+      "candidate": "map-c",
+      "sourceDigest": "2e464c5542d02eb3e29eed7997760f443956a961d9105173a410ea082018b52b",
+      "matches": true
+    },
+    {
+      "candidate": "map-d",
+      "sourceDigest": "75bc7a9180be12a495ece4d26296da8b10726180a78aabc671bc3d9327d1b66d",
+      "matches": true
+    },
+    {
+      "candidate": "map-a",
+      "sourceDigest": "5e4e1aed88f177f7f73d52347d2384b617266d69e618ac59ddb9123d3c491a2b",
+      "matches": true
+    },
+    {
+      "candidate": "baseline",
+      "sourceDigest": "6ac0abb99a15a24e686c94a23c40cd0ceb6c558cd8c7337456406d21e1225e0f",
+      "matches": true
+    }
+  ],
+  "harnesses": [
+    {
+      "cli": "original-harness.txt",
+      "metrics": "original-metrics.txt",
+      "digest": "a13ff0592d34d6b0536723a0e2adc672510be6845d1cc57fde1187e3142a0162"
+    },
+    {
+      "cli": "expanded-harness.txt",
+      "metrics": "original-metrics.txt",
+      "digest": "42005f3b280eaf8f6c386b7ec4b7593357049d79a46caffa3a3b9a15ed3dc4c6"
+    },
+    {
+      "cli": "expanded-harness.txt",
+      "metrics": "scripts/tacticalMetrics.ts",
+      "digest": "147d0ffaae9155782bdae1f7a043440b8029d63235080a92b3f6d58281da0101"
+    }
+  ]
+}

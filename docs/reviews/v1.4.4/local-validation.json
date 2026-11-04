@@ -1,0 +1,33 @@
+{
+  "unit": {
+    "passed": 1507,
+    "files": 148,
+    "seconds": 225.85,
+    "exitCode": 0
+  },
+  "distributedUI": {
+    "assertionsPassed": 60,
+    "rpcErrors": 1,
+    "runs": 2,
+    "overallSuccess": false,
+    "note": "Installed Vitest3.2.7 differs from the formal lockfile Vitest5.0.5; do not call these runs successful."
+  },
+  "browser": {
+    "chromium": {
+      "passed": 57
+    },
+    "firefox": {
+      "passed": 57,
+      "seconds": 180
+    },
+    "initialFirefox": "57 failed before browser launch because the default /home/agent cache did not contain Firefox; rerun used existing /workspace/.cache/ms-playwright. First retry also had a CLI argument error before running tests.",
+    "initialMixedRunSeconds": 300,
+    "note": "Initial 5.0 minute mixed run includes 57 Firefox launch failures; it is not a Chromium-only duration."
+  },
+  "typecheck": "success",
+  "lint": "success",
+  "format": "success",
+  "build": "success with existing chunk-size warning",
+  "privateLinks": "success",
+  "reproduction": "7 sources and 3 harnesses exactly match"
+}

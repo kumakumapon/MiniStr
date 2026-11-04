@@ -1,0 +1,95 @@
+diff --git a/src/ai/rules.ts b/src/ai/rules.ts
+index 4ee4214..a0ee576 100644
+--- a/src/ai/rules.ts
++++ b/src/ai/rules.ts
+@@ -20,7 +20,7 @@ import { visibleEnemies as getVisibleEnemies } from '../game/fog';
+ import { scenarioForState, type EvacuationCondition } from '../game/maps';
+ import { manhattanDistance, unitMovementCost, terrainAt } from '../game/terrain';
+ import { isDeployedUnit, usesDecisionRules, usesOperationsRules, usesModernRules, usesReconRules, type Board, type DeployedUnit, type GameState, type PlayerId, type Position, type Unit, type UnitKind } from '../game/types';
+-import { fixedSupplyAvailable, resupplyAvailable, isGroundUnit, isServiceTile, REPAIR_HP_PER_TURN } from '../game/logistics';
++import { affordableRepair, fixedSupplyAvailable, resupplyAvailable, isGroundUnit, isServiceTile, REPAIR_HP_PER_TURN } from '../game/logistics';
+ import { isEmbarkableUnit, isMergeableUnit, isSupplyUnit, remainingAmmo, unitCategory, unitStats } from '../game/units';
+ import { coordinatedOrder, coordinationValue, cpuRole, isPriorityTarget, transportSafeAt } from './coordination';
+ import { canEvacuateUnit, evacuationObjectives, isEvacuationTarget } from '../game/evacuation';
+@@ -518,6 +518,11 @@ export function evaluateCpuPosition(
+   // Under modern rules only compatible facilities (or, for ground units, a supply vehicle) resupply.
+   const resupplied = cpuSupplyAvailable(state, player, unit, destination);
+   const supply = needsSupply(unit, state) && resupplied ? 80 : 0;
++  // A supplied but damaged defender still needs a compatible repair facility.
++  // Trucks and depots restore ammunition/fuel, never HP. Use public own funds
++  // and next-turn income; no speculative capture income or hidden enemy data.
++  const repair = config.coordinatedDefense && unit.hp <= 50 && isServiceTile(state, destination, unit.kind, player)
++    ? affordableRepair(unit.kind, 100 - unit.hp, state.players[player].gold + state.players[player].income) * 2 : 0;
+   const serviceTargets = needsSupply(unit, state) ? supplyTargets(state, player, unit) : [];
+   const serviceDistance = serviceTargets.length ? Math.min(...serviceTargets.map(position => manhattanDistance(destination, position))) : undefined;
+   // A secondary gun can cover a retreat, but does not replace a depleted primary.
+@@ -567,7 +572,7 @@ export function evaluateCpuPosition(
+   // Healthy combat units leave uncaptured facilities open for the infantry.
+   const captureLane = unit.hp > 50 && unitStats[unit.kind].capturePower === 0 && isPropertyTerrainKind(terrain.kind) && terrain.owner !== player ? 30 : 0;
+   const control = controlled ? terrain.owner === player ? 20 : unitStats[unit.kind].capturePower > 0 ? 110 : -80 : 0;
+-  return coordinationValue(state, player, unit, destination, targets) + defense + supply + response + retreatCover + logistics + hold + contest + score + control + firePosition
++  return coordinationValue(state, player, unit, destination, targets) + defense + supply + repair + response + retreatCover + logistics + hold + contest + score + control + firePosition
+     - (criticalSupply && serviceDistance !== undefined ? serviceDistance : distance) * config.objectiveDistanceWeight
+     - pressure * config.threatAvoidanceWeight * (1 - stalemateRelief(state))
+     - retreatPressure
+diff --git a/src/ai/supplyRendezvous.ts b/src/ai/supplyRendezvous.ts
+index 74ff551..36efea7 100644
+--- a/src/ai/supplyRendezvous.ts
++++ b/src/ai/supplyRendezvous.ts
+@@ -1,7 +1,7 @@
+ import { reachablePositionsForPlayer } from '../game/commands';
+ import { isEvacuationTarget } from '../game/evacuation';
+ import { fixedSupplyAvailable, isGroundUnit } from '../game/logistics';
+-import { SUPPLY_CAPACITY, stockCanSupply, supplyStock } from '../game/supplyStock';
++import { SUPPLY_CAPACITY, stockCanSupply, supplyFromStock, supplyStock } from '../game/supplyStock';
+ import { manhattanDistance } from '../game/terrain';
+ import { STRATEGY_RULE_VERSION, type DeployedUnit, type GameState, type PlayerId, type Position } from '../game/types';
+ import { remainingAmmo, unitStats } from '../game/units';
+@@ -28,11 +28,35 @@ export function supplyRendezvous(
+     (unit) =>
+       unit.kind === 'apc' && supplyStock(unit) > SUPPLY_CAPACITY / 3 && !isEvacuationTarget(state, unit.id, player) && !state.units.some((cargo) => cargo.embarkedIn === unit.id),
+   );
++  // Turn-start stock is allocated in stable ID order, including non-critical
++  // neighbours. A nominally adjacent truck may run dry before this recipient.
++  const recipients = [...units].filter((unit) => isGroundUnit(unit.kind)).sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
++  const delivery = (truck: DeployedUnit, position: Position, recipient?: DeployedUnit): number => {
++    let stock = supplyStock(truck),
++      value = 0;
++    for (const unit of recipients) {
++      if (unit.id === truck.id || manhattanDistance(unit.position, position) !== 1 || fixedSupplyAvailable(state, unit.position, unit.kind, player)) continue;
++      const supplied = supplyFromStock(state, unit, stock);
++      stock -= supplied.spent;
++      if (!needy.includes(unit) || (recipient && unit.id !== recipient.id)) continue;
++      const ammo = remainingAmmo(supplied.unit) - remainingAmmo(unit);
++      const fuel = (supplied.unit.fuel ?? unitStats[unit.kind].fuel) - (unit.fuel ?? unitStats[unit.kind].fuel);
++      // Restoring a primary shot or mobility takes precedence over topping up.
++      value += Math.min(3, ammo) * 12 + (fuel > 0 ? 12 : 0);
++    }
++    return value;
++  };
+   // Once the provider has committed its berth, do not send a dry unit away.
+   const waiting = needy.find(
+     (unit) =>
+       !unit.hasActed &&
+-      trucks.some((truck) => (truck.hasMoved || truck.hasActed) && manhattanDistance(unit.position, truck.position) === 1 && stockCanSupply(state, supplyStock(truck), unit)),
++      trucks.some(
++        (truck) =>
++          (truck.hasMoved || truck.hasActed) &&
++          manhattanDistance(unit.position, truck.position) === 1 &&
++          delivery(truck, truck.position, unit) > 0 &&
++          Number.isFinite(score(truck, truck.position)),
++      ),
+   );
+   if (waiting) return { type: 'wait', unitId: waiting.id };
+   for (const truck of trucks) {
+@@ -40,7 +64,9 @@ export function supplyRendezvous(
+     const destinations = truck.hasMoved ? [truck.position] : [truck.position, ...reachablePositionsForPlayer(state, truck.id, player)];
+     const best = destinations
+       .filter((position) => needy.some((unit) => manhattanDistance(unit.position, position) === 1 && stockCanSupply(state, supplyStock(truck), unit)))
+-      .map((position) => ({ position, value: score(truck, position) }))
++      .map((position) => ({ position, delivery: delivery(truck, position), value: score(truck, position) }))
++      .filter((candidate) => candidate.delivery > 0)
++      .map((candidate) => ({ ...candidate, value: candidate.value }))
+       .filter((candidate) => Number.isFinite(candidate.value))
+       .sort(
+         (a, b) =>
