@@ -88,18 +88,28 @@ for (const width of [1280, 390])
       await expect(first).toBeFocused();
       await expect(page.locator('.tile[tabindex="0"]')).toHaveCount(1);
       await expect(first.locator('.selected-marker')).toHaveCount(1);
-      // Observe the app root: choosing another unit should rebuild it once.
+      // Selection must keep the board's entire ancestor path connected.
       const stableTile = await page.locator('.tile[data-x="30"][data-y="0"]').elementHandle();
       const writes = await page.evaluate(() => {
         const app = document.querySelector('#app')!;
         const observer = new MutationObserver(() => {});
-        observer.observe(app, { childList: true });
+        const retained = [
+          app.querySelector('main'),
+          app.querySelector('.battle-layout'),
+          app.querySelector('.battlefield-wrap'),
+          app.querySelector('.battlefield-stage'),
+          app.querySelector('#board-viewport'),
+          app.querySelector('.board'),
+        ];
+        observer.observe(app, { childList: true, subtree: true });
         document.querySelector<HTMLButtonElement>('.tile[data-x="1"][data-y="1"]')!.click();
-        const count = observer.takeRecords().filter((record) => [...record.addedNodes].some((node) => node instanceof HTMLElement && node.matches('main'))).length;
+        const records = observer.takeRecords();
+        const count = records.filter((record) => [...record.addedNodes].some((node) => node instanceof HTMLElement && node.matches('main'))).length;
+        const disconnected = records.some((record) => [...record.removedNodes].some((node) => retained.includes(node as Element)));
         observer.disconnect();
-        return count;
+        return { count, disconnected, connected: retained.every((node) => node?.isConnected) };
       });
-      expect(writes).toBe(1);
+      expect(writes).toEqual({ count: 0, disconnected: false, connected: true });
       expect(await stableTile!.evaluate((tile) => tile === document.querySelector('.tile[data-x="30"][data-y="0"]'))).toBe(true);
       await expect(page.locator('.tile[data-x="1"][data-y="1"] .selected-marker')).toHaveCount(1);
       const retained = await page.evaluate(() => {

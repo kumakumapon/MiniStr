@@ -11,7 +11,7 @@ const draw = (view: BoardView, root: HTMLElement, cells: string[], identity = 'j
   view.update(root.querySelector('.board'), cells, identity);
   return root.querySelector<HTMLElement>('.board')!;
 };
-it('keeps unchanged board and tiles, replaces changed cells, refreshes attributes and handlers', () => {
+it('keeps board and tile buttons, updates changed cells, refreshes attributes and handlers', () => {
   const view = new BoardView(),
     host = root();
   const a = draw(view, host, [tile('plain'), tile('enemy')]);
@@ -27,7 +27,7 @@ it('keeps unchanged board and tiles, replaces changed cells, refreshes attribute
   const b = draw(view, host, [tile('plain'), tile('fog', 'fog')]);
   expect(b).toBe(a);
   expect(b.children[0]).toBe(first);
-  expect(b.children[1]).not.toBe(second);
+  expect(b.children[1]).toBe(second);
   expect(b.textContent).not.toContain('enemy');
   expect(b.querySelector('.presentation-effect')).toBeNull();
   expect(b.hasAttribute('data-old')).toBe(false);
@@ -85,4 +85,22 @@ it('localizes new markup once and skips unchanged tile content', () => {
   expect(localized).toEqual(['ab']);
   paint([tile('a'), tile('c')]);
   expect(localized).toEqual(['ab', 'c']);
+});
+
+it('updates a connected focused button without blurring or retaining hidden unit attributes', () => {
+  const view = new BoardView(),
+    host = root();
+  const board = draw(view, host, [tile('enemy', 'enemy')]);
+  const button = board.firstElementChild as HTMLButtonElement;
+  button.setAttribute('data-secret', 'old');
+  button.focus();
+  view.update(board, [tile('fog', 'fog')], 'ja:2:1');
+  expect(document.activeElement).toBe(button);
+  expect(button.textContent).toBe('fog');
+  expect(button.getAttribute('aria-label')).toBe('fog');
+  expect(button.hasAttribute('data-secret')).toBe(false);
+  expect(button.classList.contains('enemy')).toBe(false);
+  expect(button.classList.contains('fog')).toBe(true);
+  view.update(board, [tile('fog', 'fog')], 'ja:2:1');
+  expect(document.activeElement).toBe(button);
 });

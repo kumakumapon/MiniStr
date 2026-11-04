@@ -1,0 +1,82 @@
+{
+  "baseline": {
+    "commit": "6041c97fe7505c21667cf1869b811389a6f4e987",
+    "tree": "ed4bfc8cee8f08d127013b64acee6e67b1f83f9b",
+    "source": {
+      "sha256": "2ab7b13eaa16d115b75ac83ec6a23b14bd6d4fd7254dd50fdc71b211cfc4e728",
+      "fileCount": 138,
+      "algorithm": "sorted src/**/*.ts,css excluding *.test.ts and *.fixture.ts; sha256(relativePath + NUL + bytes + NUL)"
+    },
+    "measuredAssets": [
+      {
+        "path": "assets/cpuFallback-BCnFOT5v.js",
+        "sha256": "bc0382eea0811e0aa32502890cf26470adffcfa25e1e94f9dce92e5a25ac4817",
+        "bytes": 40353
+      },
+      {
+        "path": "assets/cpuWorker-2QGNKibG.js",
+        "sha256": "31651c2e0d628216ce685b0981971232fa83a37ae57f07a550ca1b74f54e2389",
+        "bytes": 116093
+      },
+      {
+        "path": "assets/index-B7H6OZv-.js",
+        "sha256": "1f6f2663521ba6bb112fadb087a85a425c81dcd1c19f3492d6339074ca4e82c6",
+        "bytes": 541737
+      },
+      {
+        "path": "assets/index-Br5KQc_D.css",
+        "sha256": "8b9b9aae00d0519972e31deaeff4ba6d30a834cd217a31550c22900d59da3c16",
+        "bytes": 94708
+      }
+    ]
+  },
+  "candidate": {
+    "localCommit": "815e8beef41f5b0017c7f5e2b8c3ad7d6432414e",
+    "source": {
+      "sha256": "ec10a8c1ab97073ec2aaec61285136d53b3150750477df90164a5d858bb5bbc2",
+      "fileCount": 141,
+      "algorithm": "sorted src/**/*.ts,css excluding *.test.ts and *.fixture.ts; sha256(relativePath + NUL + bytes + NUL)"
+    },
+    "measuredAssets": [
+      {
+        "path": "assets/cpuFallback-CzjsNsAU.js",
+        "sha256": "1da00f493ad6220aca3cc5d2b8d2e411b70c2f8a146065e651171b7143e502f9",
+        "bytes": 40353
+      },
+      {
+        "path": "assets/cpuWorker-2QGNKibG.js",
+        "sha256": "31651c2e0d628216ce685b0981971232fa83a37ae57f07a550ca1b74f54e2389",
+        "bytes": 116093
+      },
+      {
+        "path": "assets/index-Br5KQc_D.css",
+        "sha256": "8b9b9aae00d0519972e31deaeff4ba6d30a834cd217a31550c22900d59da3c16",
+        "bytes": 94708
+      },
+      {
+        "path": "assets/index-NVhFjhE3.js",
+        "sha256": "02cadcfd9f11f8ca00845f536a9980ca7fcbad30888461adc0af4f9357143a9b",
+        "bytes": 542306
+      }
+    ],
+    "buildInfo": "v1.4.5 · source-archive (local git child process unavailable in sandbox; source digest and measured artifact hashes identify the build)"
+  },
+  "harnessSha256": "91e07ae69c072a0b3307fea7672263d7dcb65cdac048d9c0eb9cc3bce8bae668",
+  "lockfileSha256": "1ba324e87ae74c9a504940d50030d0f59f313db13f73a0e56307c78bb0177f49",
+  "node": "v24.19.0",
+  "npm": "11.9.0",
+  "localPackages": {
+    "vite": "6.4.3",
+    "vitest": "3.2.7",
+    "@playwright/test": "1.62.1",
+    "typescript": "5.9.3",
+    "jsdom": "29.1.1",
+    "eslint": "10.8.0"
+  },
+  "notes": [
+    "Local installed packages differ from the committed lockfile. GitHub CI clean install is authoritative.",
+    "Only cdn.playwright.dev is allowed by the managed network; no local npm ci or fresh registry audit performed.",
+    "Three alternating before/after response pairs are run serially without parallel local tests.",
+    "Initial exploratory before-1 and CPU profiles are diagnostic only, excluded from final acceptance measurements."
+  ]
+}
