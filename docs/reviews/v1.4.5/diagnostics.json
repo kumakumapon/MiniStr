@@ -1,0 +1,40 @@
+{
+  "note": "Exploratory CPU-profiler runs, one 390x32 context each; high sampling overhead. Not acceptance performance measurements. First before-1 run overlapped profiling and is excluded from final pairs. Intermediate after retained containers but still replaced focused buttons; final after2 retains buttons.",
+  "runs": {
+    "before": {
+      "build": "LanguageJapaneseEnglishv1.4.4 · 6041c97fe750 Download diagnostics",
+      "handlerP95": 102.40000000037253,
+      "metrics": {
+        "LayoutCount": 54,
+        "RecalcStyleCount": 156,
+        "LayoutDuration": 0.613801,
+        "RecalcStyleDuration": 0.696165
+      }
+    },
+    "after": {
+      "build": "LanguageJapaneseEnglishv1.4.4 · source-archi Download diagnostics",
+      "handlerP95": 92.1000000005588,
+      "metrics": {
+        "LayoutCount": 79,
+        "RecalcStyleCount": 156,
+        "LayoutDuration": 1.07085,
+        "RecalcStyleDuration": 0.349057
+      }
+    },
+    "after2": {
+      "build": "LanguageJapaneseEnglishv1.4.4 · source-archi Download diagnostics",
+      "handlerP95": 69.5,
+      "metrics": {
+        "LayoutCount": 54,
+        "RecalcStyleCount": 156,
+        "LayoutDuration": 0.441957,
+        "RecalcStyleDuration": 0.285421
+      }
+    }
+  },
+  "launchErrors": [
+    "Initial typecheck command used node_modules/tsc/bin/tsc instead of npm run typecheck:test; corrected.",
+    "Initial Playwright CLI consumed the file as a project argument; reordered positional file, then 10 passed.",
+    "Temporary diagnostic script caused format:check warning; moved outside repository without changing ignore rules."
+  ]
+}
