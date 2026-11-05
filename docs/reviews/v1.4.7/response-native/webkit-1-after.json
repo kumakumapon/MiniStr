@@ -1,0 +1,481 @@
+{
+  "format": "browser-response-v147",
+  "variant": "after",
+  "pair": "1",
+  "engine": "webkit",
+  "engineReadyMs": 253.90414899999996,
+  "harnessSha256": "cdde3ab8860ad02bfd0f16abad114a2e20cb6da1a12ec641758e6d04ea267f50",
+  "browser": "27.2",
+  "url": "http://127.0.0.1:4191",
+  "samples": [
+    {
+      "width": 1280,
+      "size": 32,
+      "coldTitleMs": 366.429982,
+      "coldVisiblePreviewMs": 913.628188,
+      "titleDOM": {
+        "cards": 26,
+        "previews": 8,
+        "elements": 2178
+      },
+      "build": "LanguageJapaneseEnglishv1.4.7 · 4bc043a4a904 Download diagnostics",
+      "start": {
+        "handlerMs": 39,
+        "paintMs": 263
+      },
+      "selections": [
+        {
+          "startTime": 1978,
+          "handlerMs": 57,
+          "paintMs": 224
+        },
+        {
+          "startTime": 2203,
+          "handlerMs": 35,
+          "paintMs": 184
+        },
+        {
+          "startTime": 2387,
+          "handlerMs": 36,
+          "paintMs": 181
+        },
+        {
+          "startTime": 2568,
+          "handlerMs": 35,
+          "paintMs": 177
+        },
+        {
+          "startTime": 2745,
+          "handlerMs": 35,
+          "paintMs": 182
+        },
+        {
+          "startTime": 2927,
+          "handlerMs": 37,
+          "paintMs": 178
+        },
+        {
+          "startTime": 3105,
+          "handlerMs": 35,
+          "paintMs": 183
+        },
+        {
+          "startTime": 3288,
+          "handlerMs": 35,
+          "paintMs": 176
+        },
+        {
+          "startTime": 3464,
+          "handlerMs": 34,
+          "paintMs": 182
+        },
+        {
+          "startTime": 3646,
+          "handlerMs": 35,
+          "paintMs": 181
+        },
+        {
+          "startTime": 3827,
+          "handlerMs": 34,
+          "paintMs": 180
+        },
+        {
+          "startTime": 4007,
+          "handlerMs": 36,
+          "paintMs": 176
+        },
+        {
+          "startTime": 4183,
+          "handlerMs": 35,
+          "paintMs": 185
+        },
+        {
+          "startTime": 4368,
+          "handlerMs": 37,
+          "paintMs": 180
+        },
+        {
+          "startTime": 4548,
+          "handlerMs": 37,
+          "paintMs": 187
+        },
+        {
+          "startTime": 4735,
+          "handlerMs": 36,
+          "paintMs": 177
+        },
+        {
+          "startTime": 4913,
+          "handlerMs": 36,
+          "paintMs": 183
+        },
+        {
+          "startTime": 5096,
+          "handlerMs": 33,
+          "paintMs": 176
+        },
+        {
+          "startTime": 5272,
+          "handlerMs": 36,
+          "paintMs": 183
+        },
+        {
+          "startTime": 5455,
+          "handlerMs": 33,
+          "paintMs": 175
+        },
+        {
+          "startTime": 5630,
+          "handlerMs": 36,
+          "paintMs": 188
+        },
+        {
+          "startTime": 5818,
+          "handlerMs": 37,
+          "paintMs": 178
+        },
+        {
+          "startTime": 5996,
+          "handlerMs": 36,
+          "paintMs": 186
+        },
+        {
+          "startTime": 6182,
+          "handlerMs": 35,
+          "paintMs": 180
+        },
+        {
+          "startTime": 6362,
+          "handlerMs": 37,
+          "paintMs": 185
+        }
+      ],
+      "title": {
+        "handlerMs": 30,
+        "paintMs": 192
+      },
+      "resume": {
+        "handlerMs": 53,
+        "paintMs": 178
+      },
+      "zoom": "100",
+      "guideClosed": true,
+      "hiddenReferenceRows": 0,
+      "hasLongTasks": false,
+      "longTasks": []
+    },
+    {
+      "width": 390,
+      "size": 32,
+      "coldTitleMs": 315.82448699999986,
+      "coldVisiblePreviewMs": 559.7630449999997,
+      "titleDOM": {
+        "cards": 26,
+        "previews": 2,
+        "elements": 769
+      },
+      "build": "LanguageJapaneseEnglishv1.4.7 · 4bc043a4a904 Download diagnostics",
+      "start": {
+        "handlerMs": 33,
+        "paintMs": 155
+      },
+      "selections": [
+        {
+          "startTime": 1265,
+          "handlerMs": 58,
+          "paintMs": 178
+        },
+        {
+          "startTime": 1443,
+          "handlerMs": 37,
+          "paintMs": 146
+        },
+        {
+          "startTime": 1589,
+          "handlerMs": 36,
+          "paintMs": 147
+        },
+        {
+          "startTime": 1736,
+          "handlerMs": 36,
+          "paintMs": 143
+        },
+        {
+          "startTime": 1879,
+          "handlerMs": 37,
+          "paintMs": 146
+        },
+        {
+          "startTime": 2025,
+          "handlerMs": 37,
+          "paintMs": 143
+        },
+        {
+          "startTime": 2168,
+          "handlerMs": 38,
+          "paintMs": 145
+        },
+        {
+          "startTime": 2313,
+          "handlerMs": 39,
+          "paintMs": 145
+        },
+        {
+          "startTime": 2458,
+          "handlerMs": 39,
+          "paintMs": 149
+        },
+        {
+          "startTime": 2607,
+          "handlerMs": 37,
+          "paintMs": 145
+        },
+        {
+          "startTime": 2752,
+          "handlerMs": 40,
+          "paintMs": 151
+        },
+        {
+          "startTime": 2903,
+          "handlerMs": 37,
+          "paintMs": 141
+        },
+        {
+          "startTime": 3044,
+          "handlerMs": 38,
+          "paintMs": 146
+        },
+        {
+          "startTime": 3190,
+          "handlerMs": 37,
+          "paintMs": 143
+        },
+        {
+          "startTime": 3333,
+          "handlerMs": 36,
+          "paintMs": 146
+        },
+        {
+          "startTime": 3479,
+          "handlerMs": 38,
+          "paintMs": 142
+        },
+        {
+          "startTime": 3621,
+          "handlerMs": 37,
+          "paintMs": 146
+        },
+        {
+          "startTime": 3767,
+          "handlerMs": 36,
+          "paintMs": 143
+        },
+        {
+          "startTime": 3910,
+          "handlerMs": 38,
+          "paintMs": 147
+        },
+        {
+          "startTime": 4057,
+          "handlerMs": 35,
+          "paintMs": 144
+        },
+        {
+          "startTime": 4201,
+          "handlerMs": 35,
+          "paintMs": 145
+        },
+        {
+          "startTime": 4346,
+          "handlerMs": 38,
+          "paintMs": 145
+        },
+        {
+          "startTime": 4491,
+          "handlerMs": 35,
+          "paintMs": 145
+        },
+        {
+          "startTime": 4636,
+          "handlerMs": 36,
+          "paintMs": 145
+        },
+        {
+          "startTime": 4781,
+          "handlerMs": 35,
+          "paintMs": 144
+        }
+      ],
+      "title": {
+        "handlerMs": 32,
+        "paintMs": 113
+      },
+      "resume": {
+        "handlerMs": 45,
+        "paintMs": 129
+      },
+      "zoom": "100",
+      "guideClosed": true,
+      "hiddenReferenceRows": 0,
+      "hasLongTasks": false,
+      "longTasks": []
+    },
+    {
+      "width": 390,
+      "size": 16,
+      "coldTitleMs": 313.2943410000007,
+      "coldVisiblePreviewMs": 541.4939450000002,
+      "titleDOM": {
+        "cards": 26,
+        "previews": 2,
+        "elements": 769
+      },
+      "build": "LanguageJapaneseEnglishv1.4.7 · 4bc043a4a904 Download diagnostics",
+      "start": {
+        "handlerMs": 22,
+        "paintMs": 159
+      },
+      "selections": [
+        {
+          "startTime": 1213,
+          "handlerMs": 49,
+          "paintMs": 165
+        },
+        {
+          "startTime": 1378,
+          "handlerMs": 29,
+          "paintMs": 132
+        },
+        {
+          "startTime": 1511,
+          "handlerMs": 31,
+          "paintMs": 140
+        },
+        {
+          "startTime": 1651,
+          "handlerMs": 28,
+          "paintMs": 130
+        },
+        {
+          "startTime": 1781,
+          "handlerMs": 29,
+          "paintMs": 135
+        },
+        {
+          "startTime": 1916,
+          "handlerMs": 30,
+          "paintMs": 142
+        },
+        {
+          "startTime": 2058,
+          "handlerMs": 28,
+          "paintMs": 134
+        },
+        {
+          "startTime": 2192,
+          "handlerMs": 29,
+          "paintMs": 137
+        },
+        {
+          "startTime": 2329,
+          "handlerMs": 28,
+          "paintMs": 134
+        },
+        {
+          "startTime": 2463,
+          "handlerMs": 28,
+          "paintMs": 129
+        },
+        {
+          "startTime": 2592,
+          "handlerMs": 28,
+          "paintMs": 132
+        },
+        {
+          "startTime": 2725,
+          "handlerMs": 28,
+          "paintMs": 135
+        },
+        {
+          "startTime": 2860,
+          "handlerMs": 28,
+          "paintMs": 134
+        },
+        {
+          "startTime": 2994,
+          "handlerMs": 29,
+          "paintMs": 132
+        },
+        {
+          "startTime": 3126,
+          "handlerMs": 29,
+          "paintMs": 137
+        },
+        {
+          "startTime": 3263,
+          "handlerMs": 27,
+          "paintMs": 129
+        },
+        {
+          "startTime": 3392,
+          "handlerMs": 29,
+          "paintMs": 135
+        },
+        {
+          "startTime": 3527,
+          "handlerMs": 30,
+          "paintMs": 139
+        },
+        {
+          "startTime": 3666,
+          "handlerMs": 27,
+          "paintMs": 134
+        },
+        {
+          "startTime": 3800,
+          "handlerMs": 28,
+          "paintMs": 132
+        },
+        {
+          "startTime": 3932,
+          "handlerMs": 29,
+          "paintMs": 138
+        },
+        {
+          "startTime": 4070,
+          "handlerMs": 29,
+          "paintMs": 131
+        },
+        {
+          "startTime": 4201,
+          "handlerMs": 28,
+          "paintMs": 135
+        },
+        {
+          "startTime": 4336,
+          "handlerMs": 30,
+          "paintMs": 136
+        },
+        {
+          "startTime": 4472,
+          "handlerMs": 29,
+          "paintMs": 135
+        }
+      ],
+      "title": {
+        "handlerMs": 33,
+        "paintMs": 107
+      },
+      "resume": {
+        "handlerMs": 29,
+        "paintMs": 113
+      },
+      "zoom": "100",
+      "guideClosed": true,
+      "hiddenReferenceRows": 0,
+      "hasLongTasks": false,
+      "longTasks": []
+    }
+  ],
+  "note": "Fresh contexts; real owned hotseat units; first selection separate from warm selections; DOM click handler and two animation frames. Native engine startup separate. Diagnostic hardware, not physical touch. No absolute timing gate."
+}

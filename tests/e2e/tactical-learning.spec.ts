@@ -39,7 +39,13 @@ for (const width of [1280, 390])
         await expect(panel.locator('.unit-reference tbody tr')).toHaveCount(18);
         if (locale === 'en') {
           expect(await panel.innerText()).not.toMatch(/[\u3040-\u30ff\u3400-\u9fff]/);
-          if (id === 'tactics-supply') expect(await page.locator('.capture-card').innerText()).not.toMatch(/[\u3040-\u30ff\u3400-\u9fff]/);
+          if (id === 'tactics-supply')
+            expect(
+              await page
+                .locator('.capture-card')
+                .filter({ has: page.locator('#capture') })
+                .innerText(),
+            ).not.toMatch(/[\u3040-\u30ff\u3400-\u9fff]/);
         }
         await page.locator('.battlefield-heading').evaluate((element) => element.scrollIntoView({ block: 'start' }));
         await page.screenshot({ path: info.outputPath(`systems-learning-board-${id}-${width}-${locale}.png`) });

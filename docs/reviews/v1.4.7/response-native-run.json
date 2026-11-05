@@ -1,0 +1,16 @@
+{
+  "runId": 42063112793,
+  "runUrl": "https://github.com/kumakumapon/MiniStr/actions/runs/42063112793",
+  "head": "573236c6bc69edca51a6ae1a3f986ae22c6ab20d",
+  "mergeBuildPrefix": "4bc043a4a904",
+  "artifactId": 13431204864,
+  "artifactSha256": "c595c98e463837a491270300570c34c921d7914e43340427537a34863bac8861",
+  "conclusion": "success",
+  "engines": 3,
+  "pairsPerEngine": 3,
+  "contexts": 54,
+  "harnessSha256": "cdde3ab8860ad02bfd0f16abad114a2e20cb6da1a12ec641758e6d04ea267f50",
+  "node": "24.22.1",
+  "npm": "11.9.0",
+  "mergeBuild": "4bc043a4a904e748066c30a2f143b23320f030bd"
+}

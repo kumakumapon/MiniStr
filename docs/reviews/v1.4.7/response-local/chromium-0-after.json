@@ -1,0 +1,608 @@
+{
+  "format": "browser-response-v147",
+  "variant": "after",
+  "pair": "0",
+  "engine": "chromium",
+  "engineReadyMs": 333.760988,
+  "harnessSha256": "cdde3ab8860ad02bfd0f16abad114a2e20cb6da1a12ec641758e6d04ea267f50",
+  "browser": "151.0.7922.173",
+  "url": "http://127.0.0.1:4191",
+  "samples": [
+    {
+      "width": 1280,
+      "size": 32,
+      "coldTitleMs": 454.9770440000001,
+      "coldVisiblePreviewMs": 486.82373599999994,
+      "titleDOM": {
+        "cards": 26,
+        "previews": 8,
+        "elements": 2178
+      },
+      "build": "LanguageJapaneseEnglishv1.4.7 · 765b4c49aa47 Download diagnostics",
+      "start": {
+        "handlerMs": 28.90000000037253,
+        "paintMs": 68.79999999888241
+      },
+      "selections": [
+        {
+          "startTime": 1078.800000000745,
+          "handlerMs": 53,
+          "paintMs": 71.19999999925494
+        },
+        {
+          "startTime": 1150,
+          "handlerMs": 27.700000001117587,
+          "paintMs": 49.30000000074506
+        },
+        {
+          "startTime": 1199.300000000745,
+          "handlerMs": 24.90000000037253,
+          "paintMs": 48.90000000037253
+        },
+        {
+          "startTime": 1248.2000000011176,
+          "handlerMs": 25.5,
+          "paintMs": 48.5
+        },
+        {
+          "startTime": 1296.7000000011176,
+          "handlerMs": 25.199999999254942,
+          "paintMs": 35.19999999925494
+        },
+        {
+          "startTime": 1331.9000000003725,
+          "handlerMs": 27.40000000037253,
+          "paintMs": 50.20000000111759
+        },
+        {
+          "startTime": 1382.1000000014901,
+          "handlerMs": 27.59999999962747,
+          "paintMs": 48.09999999962747
+        },
+        {
+          "startTime": 1430.2000000011176,
+          "handlerMs": 24.699999999254942,
+          "paintMs": 34.79999999888241
+        },
+        {
+          "startTime": 1465,
+          "handlerMs": 27.40000000037253,
+          "paintMs": 50.80000000074506
+        },
+        {
+          "startTime": 1515.800000000745,
+          "handlerMs": 29.800000000745058,
+          "paintMs": 48.30000000074506
+        },
+        {
+          "startTime": 1564.1000000014901,
+          "handlerMs": 23.699999999254942,
+          "paintMs": 36
+        },
+        {
+          "startTime": 1600.1000000014901,
+          "handlerMs": 25.5,
+          "paintMs": 54.899999998509884
+        },
+        {
+          "startTime": 1655,
+          "handlerMs": 23.5,
+          "paintMs": 41.70000000111759
+        },
+        {
+          "startTime": 1696.7000000011176,
+          "handlerMs": 23.59999999962747,
+          "paintMs": 34.69999999925494
+        },
+        {
+          "startTime": 1731.4000000003725,
+          "handlerMs": 25,
+          "paintMs": 51.09999999962747
+        },
+        {
+          "startTime": 1782.5,
+          "handlerMs": 30.200000001117587,
+          "paintMs": 48.90000000037253
+        },
+        {
+          "startTime": 1831.4000000003725,
+          "handlerMs": 24.5,
+          "paintMs": 34.90000000037253
+        },
+        {
+          "startTime": 1866.300000000745,
+          "handlerMs": 23.800000000745058,
+          "paintMs": 47.09999999962747
+        },
+        {
+          "startTime": 1913.4000000003725,
+          "handlerMs": 23.5,
+          "paintMs": 34.70000000111759
+        },
+        {
+          "startTime": 1948.1000000014901,
+          "handlerMs": 24.199999999254942,
+          "paintMs": 48.69999999925494
+        },
+        {
+          "startTime": 1996.800000000745,
+          "handlerMs": 25.09999999962747,
+          "paintMs": 35.90000000037253
+        },
+        {
+          "startTime": 2032.7000000011176,
+          "handlerMs": 28.5,
+          "paintMs": 47.5
+        },
+        {
+          "startTime": 2080.2000000011176,
+          "handlerMs": 27.799999998882413,
+          "paintMs": 51
+        },
+        {
+          "startTime": 2131.300000000745,
+          "handlerMs": 26.5,
+          "paintMs": 49
+        },
+        {
+          "startTime": 2180.300000000745,
+          "handlerMs": 24.5,
+          "paintMs": 34.90000000037253
+        }
+      ],
+      "title": {
+        "handlerMs": 28.90000000037253,
+        "paintMs": 48.09999999962747
+      },
+      "resume": {
+        "handlerMs": 48.59999999962747,
+        "paintMs": 66.59999999962747
+      },
+      "zoom": "100",
+      "guideClosed": true,
+      "hiddenReferenceRows": 0,
+      "hasLongTasks": true,
+      "longTasks": [
+        {
+          "startTime": 1078.800000000745,
+          "duration": 63
+        },
+        {
+          "startTime": 2263.300000000745,
+          "duration": 58
+        }
+      ]
+    },
+    {
+      "width": 390,
+      "size": 32,
+      "coldTitleMs": 280.77893200000017,
+      "coldVisiblePreviewMs": 369.8217749999999,
+      "titleDOM": {
+        "cards": 26,
+        "previews": 3,
+        "elements": 944
+      },
+      "build": "LanguageJapaneseEnglishv1.4.7 · 765b4c49aa47 Download diagnostics",
+      "start": {
+        "handlerMs": 50.90000000037253,
+        "paintMs": 90.40000000037253
+      },
+      "selections": [
+        {
+          "startTime": 810,
+          "handlerMs": 52.80000000074506,
+          "paintMs": 71.69999999925494
+        },
+        {
+          "startTime": 881.6999999992549,
+          "handlerMs": 50.70000000111759,
+          "paintMs": 99.70000000111759
+        },
+        {
+          "startTime": 981.4000000003725,
+          "handlerMs": 55.5,
+          "paintMs": 79.79999999888241
+        },
+        {
+          "startTime": 1061.199999999255,
+          "handlerMs": 53.5,
+          "paintMs": 85.80000000074506
+        },
+        {
+          "startTime": 1147,
+          "handlerMs": 43.59999999962747,
+          "paintMs": 79.90000000037253
+        },
+        {
+          "startTime": 1227,
+          "handlerMs": 31.40000000037253,
+          "paintMs": 66.59999999962747
+        },
+        {
+          "startTime": 1293.5999999996275,
+          "handlerMs": 37,
+          "paintMs": 66.70000000111759
+        },
+        {
+          "startTime": 1360.300000000745,
+          "handlerMs": 45.29999999888241,
+          "paintMs": 83.19999999925494
+        },
+        {
+          "startTime": 1443.5,
+          "handlerMs": 42.69999999925494,
+          "paintMs": 66.69999999925494
+        },
+        {
+          "startTime": 1510.199999999255,
+          "handlerMs": 41.80000000074506,
+          "paintMs": 83.70000000111759
+        },
+        {
+          "startTime": 1593.9000000003725,
+          "handlerMs": 40.40000000037253,
+          "paintMs": 83.09999999962747
+        },
+        {
+          "startTime": 1677,
+          "handlerMs": 39.09999999962747,
+          "paintMs": 87.30000000074506
+        },
+        {
+          "startTime": 1764.300000000745,
+          "handlerMs": 40.69999999925494,
+          "paintMs": 79.09999999962747
+        },
+        {
+          "startTime": 1843.4000000003725,
+          "handlerMs": 49.59999999962747,
+          "paintMs": 83.5
+        },
+        {
+          "startTime": 1926.9000000003725,
+          "handlerMs": 47.19999999925494,
+          "paintMs": 83.29999999888241
+        },
+        {
+          "startTime": 2010.199999999255,
+          "handlerMs": 43.100000001490116,
+          "paintMs": 67.20000000111759
+        },
+        {
+          "startTime": 2077.5,
+          "handlerMs": 50.19999999925494,
+          "paintMs": 82.69999999925494
+        },
+        {
+          "startTime": 2160.199999999255,
+          "handlerMs": 46.100000001490116,
+          "paintMs": 83.30000000074506
+        },
+        {
+          "startTime": 2243.5,
+          "handlerMs": 43.90000000037253,
+          "paintMs": 67.5
+        },
+        {
+          "startTime": 2311,
+          "handlerMs": 53.90000000037253,
+          "paintMs": 99.19999999925494
+        },
+        {
+          "startTime": 2410.199999999255,
+          "handlerMs": 34.90000000037253,
+          "paintMs": 66.90000000037253
+        },
+        {
+          "startTime": 2477.0999999996275,
+          "handlerMs": 43.59999999962747,
+          "paintMs": 84.59999999962747
+        },
+        {
+          "startTime": 2561.699999999255,
+          "handlerMs": 43.600000001490116,
+          "paintMs": 81.70000000111759
+        },
+        {
+          "startTime": 2643.4000000003725,
+          "handlerMs": 38.79999999888241,
+          "paintMs": 83.40000000037253
+        },
+        {
+          "startTime": 2726.9000000003725,
+          "handlerMs": 46.29999999888241,
+          "paintMs": 83.5
+        }
+      ],
+      "title": {
+        "handlerMs": 43.90000000037253,
+        "paintMs": 66.40000000037253
+      },
+      "resume": {
+        "handlerMs": 70.39999999850988,
+        "paintMs": 83.39999999850988
+      },
+      "zoom": "100",
+      "guideClosed": true,
+      "hiddenReferenceRows": 0,
+      "hasLongTasks": true,
+      "longTasks": [
+        {
+          "startTime": 696.5,
+          "duration": 52
+        },
+        {
+          "startTime": 809.9000000003725,
+          "duration": 63
+        },
+        {
+          "startTime": 881.5999999996275,
+          "duration": 70
+        },
+        {
+          "startTime": 981.0999999996275,
+          "duration": 61
+        },
+        {
+          "startTime": 1060,
+          "duration": 60
+        },
+        {
+          "startTime": 1146.699999999255,
+          "duration": 50
+        },
+        {
+          "startTime": 1360.0999999996275,
+          "duration": 64
+        },
+        {
+          "startTime": 1509.9000000003725,
+          "duration": 63
+        },
+        {
+          "startTime": 1593.699999999255,
+          "duration": 59
+        },
+        {
+          "startTime": 1676.800000000745,
+          "duration": 56
+        },
+        {
+          "startTime": 1764.0999999996275,
+          "duration": 51
+        },
+        {
+          "startTime": 1843.199999999255,
+          "duration": 55
+        },
+        {
+          "startTime": 1926.699999999255,
+          "duration": 53
+        },
+        {
+          "startTime": 2077.0999999996275,
+          "duration": 56
+        },
+        {
+          "startTime": 2159.9000000003725,
+          "duration": 52
+        },
+        {
+          "startTime": 2243.300000000745,
+          "duration": 50
+        },
+        {
+          "startTime": 2310.800000000745,
+          "duration": 74
+        },
+        {
+          "startTime": 2476.699999999255,
+          "duration": 51
+        },
+        {
+          "startTime": 2561.5999999996275,
+          "duration": 61
+        },
+        {
+          "startTime": 2643.199999999255,
+          "duration": 58
+        },
+        {
+          "startTime": 2726.5999999996275,
+          "duration": 52
+        },
+        {
+          "startTime": 2876.5999999996275,
+          "duration": 79
+        }
+      ]
+    },
+    {
+      "width": 390,
+      "size": 16,
+      "coldTitleMs": 332.34905699999945,
+      "coldVisiblePreviewMs": 389.11309899999924,
+      "titleDOM": {
+        "cards": 26,
+        "previews": 3,
+        "elements": 944
+      },
+      "build": "LanguageJapaneseEnglishv1.4.7 · 765b4c49aa47 Download diagnostics",
+      "start": {
+        "handlerMs": 34.600000001490116,
+        "paintMs": 63.100000001490116
+      },
+      "selections": [
+        {
+          "startTime": 768.7000000011176,
+          "handlerMs": 45.09999999962747,
+          "paintMs": 66.90000000037253
+        },
+        {
+          "startTime": 835.7000000011176,
+          "handlerMs": 44.19999999925494,
+          "paintMs": 83.09999999962747
+        },
+        {
+          "startTime": 918.8000000007451,
+          "handlerMs": 36.69999999925494,
+          "paintMs": 66.69999999925494
+        },
+        {
+          "startTime": 985.5,
+          "handlerMs": 37.70000000111759,
+          "paintMs": 66.70000000111759
+        },
+        {
+          "startTime": 1052.300000000745,
+          "handlerMs": 37.69999999925494,
+          "paintMs": 83.19999999925494
+        },
+        {
+          "startTime": 1135.5,
+          "handlerMs": 40.70000000111759,
+          "paintMs": 83.5
+        },
+        {
+          "startTime": 1219,
+          "handlerMs": 33.90000000037253,
+          "paintMs": 66.60000000149012
+        },
+        {
+          "startTime": 1285.6000000014901,
+          "handlerMs": 34.399999998509884,
+          "paintMs": 66.69999999925494
+        },
+        {
+          "startTime": 1352.300000000745,
+          "handlerMs": 35.80000000074506,
+          "paintMs": 66.80000000074506
+        },
+        {
+          "startTime": 1419.2000000011176,
+          "handlerMs": 39.19999999925494,
+          "paintMs": 66.40000000037253
+        },
+        {
+          "startTime": 1485.6000000014901,
+          "handlerMs": 37.5,
+          "paintMs": 83.19999999925494
+        },
+        {
+          "startTime": 1568.800000000745,
+          "handlerMs": 29.90000000037253,
+          "paintMs": 66.90000000037253
+        },
+        {
+          "startTime": 1635.7000000011176,
+          "handlerMs": 31.90000000037253,
+          "paintMs": 66.79999999888241
+        },
+        {
+          "startTime": 1702.5,
+          "handlerMs": 35.5,
+          "paintMs": 66.60000000149012
+        },
+        {
+          "startTime": 1769.1000000014901,
+          "handlerMs": 35.59999999962747,
+          "paintMs": 67.59999999962747
+        },
+        {
+          "startTime": 1836.7000000011176,
+          "handlerMs": 35.90000000037253,
+          "paintMs": 65.59999999962747
+        },
+        {
+          "startTime": 1902.300000000745,
+          "handlerMs": 43.40000000037253,
+          "paintMs": 67.80000000074506
+        },
+        {
+          "startTime": 1970.2000000011176,
+          "handlerMs": 47.90000000037253,
+          "paintMs": 84.79999999888241
+        },
+        {
+          "startTime": 2055,
+          "handlerMs": 35.20000000111759,
+          "paintMs": 63.70000000111759
+        },
+        {
+          "startTime": 2118.7000000011176,
+          "handlerMs": 35.79999999888241,
+          "paintMs": 83.29999999888241
+        },
+        {
+          "startTime": 2202,
+          "handlerMs": 37.90000000037253,
+          "paintMs": 66.80000000074506
+        },
+        {
+          "startTime": 2268.800000000745,
+          "handlerMs": 41.09999999962747,
+          "paintMs": 66.80000000074506
+        },
+        {
+          "startTime": 2335.60000000149,
+          "handlerMs": 37,
+          "paintMs": 66.39999999850988
+        },
+        {
+          "startTime": 2402,
+          "handlerMs": 34.20000000111759,
+          "paintMs": 66.90000000037253
+        },
+        {
+          "startTime": 2468.9000000003725,
+          "handlerMs": 30.5,
+          "paintMs": 66.80000000074506
+        }
+      ],
+      "title": {
+        "handlerMs": 30.699999999254942,
+        "paintMs": 66.29999999888241
+      },
+      "resume": {
+        "handlerMs": 40.399999998509884,
+        "paintMs": 50
+      },
+      "zoom": "100",
+      "guideClosed": true,
+      "hiddenReferenceRows": 0,
+      "hasLongTasks": true,
+      "longTasks": [
+        {
+          "startTime": 768.6000000014901,
+          "duration": 51
+        },
+        {
+          "startTime": 835.4000000003725,
+          "duration": 60
+        },
+        {
+          "startTime": 1051.9000000003725,
+          "duration": 62
+        },
+        {
+          "startTime": 1135.300000000745,
+          "duration": 50
+        },
+        {
+          "startTime": 1485.300000000745,
+          "duration": 52
+        },
+        {
+          "startTime": 1970,
+          "duration": 52
+        },
+        {
+          "startTime": 2118.5,
+          "duration": 51
+        }
+      ]
+    }
+  ],
+  "note": "Fresh contexts; real owned hotseat units; first selection separate from warm selections; DOM click handler and two animation frames. Native engine startup separate. Diagnostic hardware, not physical touch. No absolute timing gate."
+}

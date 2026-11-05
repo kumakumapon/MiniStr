@@ -1,0 +1,2030 @@
+{
+  "format": "response-summary-v147",
+  "harnessSha256": "cdde3ab8860ad02bfd0f16abad114a2e20cb6da1a12ec641758e6d04ea267f50",
+  "note": "Median and nearest-rank p95; three fresh contexts per variant/condition, 72 warm selections. p95 of three cold/start samples is the maximum, not a stable tail estimate. Keep hosts, browser engines and local/CI measurements separate.",
+  "engines": [
+    {
+      "engine": "chromium",
+      "browserVersions": [
+        "156.0.8078.4"
+      ],
+      "builds": {
+        "before": [
+          "LanguageJapaneseEnglishv1.4.6 · 0342b69444a5 Download diagnostics"
+        ],
+        "after": [
+          "LanguageJapaneseEnglishv1.4.7 · 4bc043a4a904 Download diagnostics"
+        ]
+      },
+      "rows": [
+        {
+          "width": 1280,
+          "size": 32,
+          "before": {
+            "samples": 3,
+            "coldTitleMs": {
+              "n": 3,
+              "p50": 341.79144399999996,
+              "p95": 342.67392,
+              "max": 342.67392
+            },
+            "coldVisiblePreviewMs": {
+              "n": 3,
+              "p50": 396.133611,
+              "p95": 397.0758660000001,
+              "max": 397.0758660000001
+            },
+            "titleElements": [
+              5088,
+              5088,
+              5088
+            ],
+            "titlePreviews": [
+              24,
+              24,
+              24
+            ],
+            "titleCards": [
+              24,
+              24,
+              24
+            ],
+            "hiddenReferenceRows": [
+              18,
+              18,
+              18
+            ],
+            "zoom": [
+              "100",
+              "100",
+              "100"
+            ],
+            "hasLongTasks": true,
+            "longTasks": [
+              {
+                "startTime": 1703.1999999999534,
+                "duration": 66
+              },
+              {
+                "startTime": 1743.9000000000233,
+                "duration": 68
+              },
+              {
+                "startTime": 1725.0999999999767,
+                "duration": 73
+              },
+              {
+                "startTime": 1804.2999999999302,
+                "duration": 61
+              }
+            ],
+            "start.handlerMs": {
+              "n": 3,
+              "p50": 38.09999999997672,
+              "p95": 45.10000000009313,
+              "max": 45.10000000009313
+            },
+            "start.paintMs": {
+              "n": 3,
+              "p50": 71.30000000004657,
+              "p95": 77.5,
+              "max": 77.5
+            },
+            "title.handlerMs": {
+              "n": 3,
+              "p50": 44.20000000006985,
+              "p95": 48.800000000046566,
+              "max": 48.800000000046566
+            },
+            "title.paintMs": {
+              "n": 3,
+              "p50": 81.30000000004657,
+              "p95": 84.90000000002328,
+              "max": 84.90000000002328
+            },
+            "resume.handlerMs": {
+              "n": 3,
+              "p50": 40.70000000006985,
+              "p95": 50.300000000046566,
+              "max": 50.300000000046566
+            },
+            "resume.paintMs": {
+              "n": 3,
+              "p50": 50,
+              "p95": 83.20000000006985,
+              "max": 83.20000000006985
+            },
+            "firstSelection.handlerMs": {
+              "n": 3,
+              "p50": 30.199999999953434,
+              "p95": 31.5,
+              "max": 31.5
+            },
+            "warmSelection.handlerMs": {
+              "n": 72,
+              "p50": 16.95000000001164,
+              "p95": 20.5,
+              "max": 26,
+              "above50ms": 0
+            },
+            "firstSelection.paintMs": {
+              "n": 3,
+              "p50": 49.300000000046566,
+              "p95": 52.300000000046566,
+              "max": 52.300000000046566
+            },
+            "warmSelection.paintMs": {
+              "n": 72,
+              "p50": 33.54999999998836,
+              "p95": 50.09999999997672,
+              "max": 56.59999999997672,
+              "above50ms": 4
+            }
+          },
+          "after": {
+            "samples": 3,
+            "coldTitleMs": {
+              "n": 3,
+              "p50": 251.884137,
+              "p95": 262.9538150000001,
+              "max": 262.9538150000001
+            },
+            "coldVisiblePreviewMs": {
+              "n": 3,
+              "p50": 329.75345699999997,
+              "p95": 332.62403000000006,
+              "max": 332.62403000000006
+            },
+            "titleElements": [
+              2178,
+              2178,
+              2178
+            ],
+            "titlePreviews": [
+              8,
+              8,
+              8
+            ],
+            "titleCards": [
+              26,
+              26,
+              26
+            ],
+            "hiddenReferenceRows": [
+              0,
+              0,
+              0
+            ],
+            "zoom": [
+              "100",
+              "100",
+              "100"
+            ],
+            "hasLongTasks": true,
+            "longTasks": [],
+            "start.handlerMs": {
+              "n": 3,
+              "p50": 32.59999999997672,
+              "p95": 38.20000000006985,
+              "max": 38.20000000006985
+            },
+            "start.paintMs": {
+              "n": 3,
+              "p50": 61.09999999997672,
+              "p95": 82.70000000006985,
+              "max": 82.70000000006985
+            },
+            "title.handlerMs": {
+              "n": 3,
+              "p50": 17.599999999976717,
+              "p95": 18.199999999953434,
+              "max": 18.199999999953434
+            },
+            "title.paintMs": {
+              "n": 3,
+              "p50": 32.40000000002328,
+              "p95": 32.699999999953434,
+              "max": 32.699999999953434
+            },
+            "resume.handlerMs": {
+              "n": 3,
+              "p50": 33.699999999953434,
+              "p95": 33.800000000046566,
+              "max": 33.800000000046566
+            },
+            "resume.paintMs": {
+              "n": 3,
+              "p50": 50.59999999997672,
+              "p95": 66.69999999995343,
+              "max": 66.69999999995343
+            },
+            "firstSelection.handlerMs": {
+              "n": 3,
+              "p50": 31,
+              "p95": 33.800000000046566,
+              "max": 33.800000000046566
+            },
+            "warmSelection.handlerMs": {
+              "n": 72,
+              "p50": 16.95000000001164,
+              "p95": 24.900000000023283,
+              "max": 28.5,
+              "above50ms": 0
+            },
+            "firstSelection.paintMs": {
+              "n": 3,
+              "p50": 50.300000000046566,
+              "p95": 50.5,
+              "max": 50.5
+            },
+            "warmSelection.paintMs": {
+              "n": 72,
+              "p50": 33.90000000002328,
+              "p95": 50,
+              "max": 51.09999999997672,
+              "above50ms": 1
+            }
+          }
+        },
+        {
+          "width": 390,
+          "size": 32,
+          "before": {
+            "samples": 3,
+            "coldTitleMs": {
+              "n": 3,
+              "p50": 281.4272430000001,
+              "p95": 314.1144419999996,
+              "max": 314.1144419999996
+            },
+            "coldVisiblePreviewMs": {
+              "n": 3,
+              "p50": 337.36090200000035,
+              "p95": 356.59556299999986,
+              "max": 356.59556299999986
+            },
+            "titleElements": [
+              5088,
+              5088,
+              5088
+            ],
+            "titlePreviews": [
+              24,
+              24,
+              24
+            ],
+            "titleCards": [
+              24,
+              24,
+              24
+            ],
+            "hiddenReferenceRows": [
+              18,
+              18,
+              18
+            ],
+            "zoom": [
+              "100",
+              "100",
+              "100"
+            ],
+            "hasLongTasks": true,
+            "longTasks": [
+              {
+                "startTime": 1897.1999999999534,
+                "duration": 71
+              },
+              {
+                "startTime": 1979.0999999999767,
+                "duration": 56
+              },
+              {
+                "startTime": 1892.0999999999767,
+                "duration": 67
+              },
+              {
+                "startTime": 1975.4000000000233,
+                "duration": 51
+              },
+              {
+                "startTime": 688.9000000000233,
+                "duration": 57
+              },
+              {
+                "startTime": 2089,
+                "duration": 77
+              },
+              {
+                "startTime": 2174.100000000093,
+                "duration": 58
+              }
+            ],
+            "start.handlerMs": {
+              "n": 3,
+              "p50": 25.70000000006985,
+              "p95": 33,
+              "max": 33
+            },
+            "start.paintMs": {
+              "n": 3,
+              "p50": 53.10000000009313,
+              "p95": 63.800000000046566,
+              "max": 63.800000000046566
+            },
+            "title.handlerMs": {
+              "n": 3,
+              "p50": 52.59999999997672,
+              "p95": 58.89999999990687,
+              "max": 58.89999999990687
+            },
+            "title.paintMs": {
+              "n": 3,
+              "p50": 83.20000000006985,
+              "p95": 85.09999999997672,
+              "max": 85.09999999997672
+            },
+            "resume.handlerMs": {
+              "n": 3,
+              "p50": 48.70000000006985,
+              "p95": 51.59999999997672,
+              "max": 51.59999999997672
+            },
+            "resume.paintMs": {
+              "n": 3,
+              "p50": 66.60000000009313,
+              "p95": 66.79999999993015,
+              "max": 66.79999999993015
+            },
+            "firstSelection.handlerMs": {
+              "n": 3,
+              "p50": 36.5,
+              "p95": 48.70000000006985,
+              "max": 48.70000000006985
+            },
+            "warmSelection.handlerMs": {
+              "n": 72,
+              "p50": 21.249999999941792,
+              "p95": 32.699999999953434,
+              "max": 36.300000000046566,
+              "above50ms": 0
+            },
+            "firstSelection.paintMs": {
+              "n": 3,
+              "p50": 50,
+              "p95": 66,
+              "max": 66
+            },
+            "warmSelection.paintMs": {
+              "n": 72,
+              "p50": 50,
+              "p95": 67.90000000002328,
+              "max": 75.29999999993015,
+              "above50ms": 30
+            }
+          },
+          "after": {
+            "samples": 3,
+            "coldTitleMs": {
+              "n": 3,
+              "p50": 181.1198400000003,
+              "p95": 182.00349199999982,
+              "max": 182.00349199999982
+            },
+            "coldVisiblePreviewMs": {
+              "n": 3,
+              "p50": 211.29820000000018,
+              "p95": 212.20295899999974,
+              "max": 212.20295899999974
+            },
+            "titleElements": [
+              769,
+              769,
+              769
+            ],
+            "titlePreviews": [
+              2,
+              2,
+              2
+            ],
+            "titleCards": [
+              26,
+              26,
+              26
+            ],
+            "hiddenReferenceRows": [
+              0,
+              0,
+              0
+            ],
+            "zoom": [
+              "100",
+              "100",
+              "100"
+            ],
+            "hasLongTasks": true,
+            "longTasks": [],
+            "start.handlerMs": {
+              "n": 3,
+              "p50": 24.70000000006985,
+              "p95": 30.199999999953434,
+              "max": 30.199999999953434
+            },
+            "start.paintMs": {
+              "n": 3,
+              "p50": 55.90000000002328,
+              "p95": 60.09999999997672,
+              "max": 60.09999999997672
+            },
+            "title.handlerMs": {
+              "n": 3,
+              "p50": 22.099999999976717,
+              "p95": 24.70000000006985,
+              "max": 24.70000000006985
+            },
+            "title.paintMs": {
+              "n": 3,
+              "p50": 50,
+              "p95": 50.29999999993015,
+              "max": 50.29999999993015
+            },
+            "resume.handlerMs": {
+              "n": 3,
+              "p50": 37.09999999997672,
+              "p95": 38.70000000006985,
+              "max": 38.70000000006985
+            },
+            "resume.paintMs": {
+              "n": 3,
+              "p50": 49.70000000006985,
+              "p95": 50.10000000009313,
+              "max": 50.10000000009313
+            },
+            "firstSelection.handlerMs": {
+              "n": 3,
+              "p50": 35.10000000009313,
+              "p95": 38.59999999997672,
+              "max": 38.59999999997672
+            },
+            "warmSelection.handlerMs": {
+              "n": 72,
+              "p50": 19.54999999998836,
+              "p95": 31.400000000023283,
+              "max": 33.300000000046566,
+              "above50ms": 0
+            },
+            "firstSelection.paintMs": {
+              "n": 3,
+              "p50": 50.09999999997672,
+              "p95": 52.29999999993015,
+              "max": 52.29999999993015
+            },
+            "warmSelection.paintMs": {
+              "n": 72,
+              "p50": 50,
+              "p95": 64.5,
+              "max": 67.40000000002328,
+              "above50ms": 20
+            }
+          }
+        },
+        {
+          "width": 390,
+          "size": 16,
+          "before": {
+            "samples": 3,
+            "coldTitleMs": {
+              "n": 3,
+              "p50": 278.6365990000004,
+              "p95": 323.737607,
+              "max": 323.737607
+            },
+            "coldVisiblePreviewMs": {
+              "n": 3,
+              "p50": 338.50350700000035,
+              "p95": 385.050338,
+              "max": 385.050338
+            },
+            "titleElements": [
+              5056,
+              5056,
+              5056
+            ],
+            "titlePreviews": [
+              24,
+              24,
+              24
+            ],
+            "titleCards": [
+              24,
+              24,
+              24
+            ],
+            "hiddenReferenceRows": [
+              18,
+              18,
+              18
+            ],
+            "zoom": [
+              "100",
+              "100",
+              "100"
+            ],
+            "hasLongTasks": true,
+            "longTasks": [
+              {
+                "startTime": 1806.2000000000698,
+                "duration": 63
+              },
+              {
+                "startTime": 1872.8000000000466,
+                "duration": 62
+              },
+              {
+                "startTime": 1803.3000000000466,
+                "duration": 62
+              },
+              {
+                "startTime": 738.6999999999534,
+                "duration": 52
+              },
+              {
+                "startTime": 2000,
+                "duration": 68
+              }
+            ],
+            "start.handlerMs": {
+              "n": 3,
+              "p50": 13.29999999993015,
+              "p95": 17.900000000023283,
+              "max": 17.900000000023283
+            },
+            "start.paintMs": {
+              "n": 3,
+              "p50": 29.5,
+              "p95": 39.40000000002328,
+              "max": 39.40000000002328
+            },
+            "title.handlerMs": {
+              "n": 3,
+              "p50": 45.09999999997672,
+              "p95": 50,
+              "max": 50
+            },
+            "title.paintMs": {
+              "n": 3,
+              "p50": 66.69999999995343,
+              "p95": 84.90000000002328,
+              "max": 84.90000000002328
+            },
+            "resume.handlerMs": {
+              "n": 3,
+              "p50": 37.199999999953434,
+              "p95": 56.90000000002328,
+              "max": 56.90000000002328
+            },
+            "resume.paintMs": {
+              "n": 3,
+              "p50": 48.79999999993015,
+              "p95": 83.30000000004657,
+              "max": 83.30000000004657
+            },
+            "firstSelection.handlerMs": {
+              "n": 3,
+              "p50": 28.699999999953434,
+              "p95": 37,
+              "max": 37
+            },
+            "warmSelection.handlerMs": {
+              "n": 72,
+              "p50": 20.5,
+              "p95": 29.29999999993015,
+              "max": 48.5,
+              "above50ms": 0
+            },
+            "firstSelection.paintMs": {
+              "n": 3,
+              "p50": 50.29999999993015,
+              "p95": 51.5,
+              "max": 51.5
+            },
+            "warmSelection.paintMs": {
+              "n": 72,
+              "p50": 50,
+              "p95": 65.30000000004657,
+              "max": 78.20000000006985,
+              "above50ms": 29
+            }
+          },
+          "after": {
+            "samples": 3,
+            "coldTitleMs": {
+              "n": 3,
+              "p50": 180.0680110000003,
+              "p95": 188.05501800000002,
+              "max": 188.05501800000002
+            },
+            "coldVisiblePreviewMs": {
+              "n": 3,
+              "p50": 205.64612000000034,
+              "p95": 209.14161800000056,
+              "max": 209.14161800000056
+            },
+            "titleElements": [
+              769,
+              769,
+              769
+            ],
+            "titlePreviews": [
+              2,
+              2,
+              2
+            ],
+            "titleCards": [
+              26,
+              26,
+              26
+            ],
+            "hiddenReferenceRows": [
+              0,
+              0,
+              0
+            ],
+            "zoom": [
+              "100",
+              "100",
+              "100"
+            ],
+            "hasLongTasks": true,
+            "longTasks": [],
+            "start.handlerMs": {
+              "n": 3,
+              "p50": 16,
+              "p95": 19.599999999976717,
+              "max": 19.599999999976717
+            },
+            "start.paintMs": {
+              "n": 3,
+              "p50": 31.400000000023283,
+              "p95": 39,
+              "max": 39
+            },
+            "title.handlerMs": {
+              "n": 3,
+              "p50": 19,
+              "p95": 25.800000000046566,
+              "max": 25.800000000046566
+            },
+            "title.paintMs": {
+              "n": 3,
+              "p50": 61.20000000006985,
+              "p95": 62,
+              "max": 62
+            },
+            "resume.handlerMs": {
+              "n": 3,
+              "p50": 16.79999999993015,
+              "p95": 25.400000000023283,
+              "max": 25.400000000023283
+            },
+            "resume.paintMs": {
+              "n": 3,
+              "p50": 23.199999999953434,
+              "p95": 33.300000000046566,
+              "max": 33.300000000046566
+            },
+            "firstSelection.handlerMs": {
+              "n": 3,
+              "p50": 28.599999999976717,
+              "p95": 34.5,
+              "max": 34.5
+            },
+            "warmSelection.handlerMs": {
+              "n": 72,
+              "p50": 19.400000000023283,
+              "p95": 28.099999999976717,
+              "max": 32,
+              "above50ms": 0
+            },
+            "firstSelection.paintMs": {
+              "n": 3,
+              "p50": 50,
+              "p95": 50,
+              "max": 50
+            },
+            "warmSelection.paintMs": {
+              "n": 72,
+              "p50": 50,
+              "p95": 64.59999999997672,
+              "max": 67.19999999995343,
+              "above50ms": 21
+            }
+          }
+        }
+      ]
+    },
+    {
+      "engine": "firefox",
+      "browserVersions": [
+        "157.0"
+      ],
+      "builds": {
+        "before": [
+          "LanguageJapaneseEnglishv1.4.6 · 0342b69444a5 Download diagnostics"
+        ],
+        "after": [
+          "LanguageJapaneseEnglishv1.4.7 · 4bc043a4a904 Download diagnostics"
+        ]
+      },
+      "rows": [
+        {
+          "width": 1280,
+          "size": 32,
+          "before": {
+            "samples": 3,
+            "coldTitleMs": {
+              "n": 3,
+              "p50": 657.5260499999999,
+              "p95": 662.9186650000001,
+              "max": 662.9186650000001
+            },
+            "coldVisiblePreviewMs": {
+              "n": 3,
+              "p50": 680.6284909999999,
+              "p95": 703.2300479999999,
+              "max": 703.2300479999999
+            },
+            "titleElements": [
+              5088,
+              5088,
+              5088
+            ],
+            "titlePreviews": [
+              24,
+              24,
+              24
+            ],
+            "titleCards": [
+              24,
+              24,
+              24
+            ],
+            "hiddenReferenceRows": [
+              18,
+              18,
+              18
+            ],
+            "zoom": [
+              "100",
+              "100",
+              "100"
+            ],
+            "hasLongTasks": false,
+            "longTasks": [],
+            "start.handlerMs": {
+              "n": 3,
+              "p50": 36,
+              "p95": 37,
+              "max": 37
+            },
+            "start.paintMs": {
+              "n": 3,
+              "p50": 54,
+              "p95": 58,
+              "max": 58
+            },
+            "title.handlerMs": {
+              "n": 3,
+              "p50": 62,
+              "p95": 69,
+              "max": 69
+            },
+            "title.paintMs": {
+              "n": 3,
+              "p50": 108,
+              "p95": 123,
+              "max": 123
+            },
+            "resume.handlerMs": {
+              "n": 3,
+              "p50": 41,
+              "p95": 42,
+              "max": 42
+            },
+            "resume.paintMs": {
+              "n": 3,
+              "p50": 63,
+              "p95": 75,
+              "max": 75
+            },
+            "firstSelection.handlerMs": {
+              "n": 3,
+              "p50": 40,
+              "p95": 43,
+              "max": 43
+            },
+            "warmSelection.handlerMs": {
+              "n": 72,
+              "p50": 24,
+              "p95": 29,
+              "max": 32,
+              "above50ms": 0
+            },
+            "firstSelection.paintMs": {
+              "n": 3,
+              "p50": 74,
+              "p95": 76,
+              "max": 76
+            },
+            "warmSelection.paintMs": {
+              "n": 72,
+              "p50": 50,
+              "p95": 62,
+              "max": 65,
+              "above50ms": 26
+            }
+          },
+          "after": {
+            "samples": 3,
+            "coldTitleMs": {
+              "n": 3,
+              "p50": 486.62975099999994,
+              "p95": 522.994488,
+              "max": 522.994488
+            },
+            "coldVisiblePreviewMs": {
+              "n": 3,
+              "p50": 587.8713609999998,
+              "p95": 622.3461560000001,
+              "max": 622.3461560000001
+            },
+            "titleElements": [
+              2178,
+              2178,
+              2178
+            ],
+            "titlePreviews": [
+              8,
+              8,
+              8
+            ],
+            "titleCards": [
+              26,
+              26,
+              26
+            ],
+            "hiddenReferenceRows": [
+              0,
+              0,
+              0
+            ],
+            "zoom": [
+              "100",
+              "100",
+              "100"
+            ],
+            "hasLongTasks": false,
+            "longTasks": [],
+            "start.handlerMs": {
+              "n": 3,
+              "p50": 40,
+              "p95": 41,
+              "max": 41
+            },
+            "start.paintMs": {
+              "n": 3,
+              "p50": 59,
+              "p95": 61,
+              "max": 61
+            },
+            "title.handlerMs": {
+              "n": 3,
+              "p50": 20,
+              "p95": 21,
+              "max": 21
+            },
+            "title.paintMs": {
+              "n": 3,
+              "p50": 72,
+              "p95": 73,
+              "max": 73
+            },
+            "resume.handlerMs": {
+              "n": 3,
+              "p50": 33,
+              "p95": 34,
+              "max": 34
+            },
+            "resume.paintMs": {
+              "n": 3,
+              "p50": 60,
+              "p95": 77,
+              "max": 77
+            },
+            "firstSelection.handlerMs": {
+              "n": 3,
+              "p50": 41,
+              "p95": 43,
+              "max": 43
+            },
+            "warmSelection.handlerMs": {
+              "n": 72,
+              "p50": 23,
+              "p95": 30,
+              "max": 41,
+              "above50ms": 0
+            },
+            "firstSelection.paintMs": {
+              "n": 3,
+              "p50": 78,
+              "p95": 78,
+              "max": 78
+            },
+            "warmSelection.paintMs": {
+              "n": 72,
+              "p50": 50,
+              "p95": 63,
+              "max": 66,
+              "above50ms": 29
+            }
+          }
+        },
+        {
+          "width": 390,
+          "size": 32,
+          "before": {
+            "samples": 3,
+            "coldTitleMs": {
+              "n": 3,
+              "p50": 325.1072690000001,
+              "p95": 369.6369590000004,
+              "max": 369.6369590000004
+            },
+            "coldVisiblePreviewMs": {
+              "n": 3,
+              "p50": 360.2130500000003,
+              "p95": 403.33280300000024,
+              "max": 403.33280300000024
+            },
+            "titleElements": [
+              5088,
+              5088,
+              5088
+            ],
+            "titlePreviews": [
+              24,
+              24,
+              24
+            ],
+            "titleCards": [
+              24,
+              24,
+              24
+            ],
+            "hiddenReferenceRows": [
+              18,
+              18,
+              18
+            ],
+            "zoom": [
+              "100",
+              "100",
+              "100"
+            ],
+            "hasLongTasks": false,
+            "longTasks": [],
+            "start.handlerMs": {
+              "n": 3,
+              "p50": 30,
+              "p95": 33,
+              "max": 33
+            },
+            "start.paintMs": {
+              "n": 3,
+              "p50": 45,
+              "p95": 52,
+              "max": 52
+            },
+            "title.handlerMs": {
+              "n": 3,
+              "p50": 62,
+              "p95": 63,
+              "max": 63
+            },
+            "title.paintMs": {
+              "n": 3,
+              "p50": 96,
+              "p95": 96,
+              "max": 96
+            },
+            "resume.handlerMs": {
+              "n": 3,
+              "p50": 41,
+              "p95": 41,
+              "max": 41
+            },
+            "resume.paintMs": {
+              "n": 3,
+              "p50": 46,
+              "p95": 48,
+              "max": 48
+            },
+            "firstSelection.handlerMs": {
+              "n": 3,
+              "p50": 41,
+              "p95": 42,
+              "max": 42
+            },
+            "warmSelection.handlerMs": {
+              "n": 72,
+              "p50": 24,
+              "p95": 29,
+              "max": 34,
+              "above50ms": 0
+            },
+            "firstSelection.paintMs": {
+              "n": 3,
+              "p50": 68,
+              "p95": 69,
+              "max": 69
+            },
+            "warmSelection.paintMs": {
+              "n": 72,
+              "p50": 41,
+              "p95": 50,
+              "max": 53,
+              "above50ms": 2
+            }
+          },
+          "after": {
+            "samples": 3,
+            "coldTitleMs": {
+              "n": 3,
+              "p50": 203.01135500000055,
+              "p95": 219.56384799999978,
+              "max": 219.56384799999978
+            },
+            "coldVisiblePreviewMs": {
+              "n": 3,
+              "p50": 234.23687299999983,
+              "p95": 246.89640299999974,
+              "max": 246.89640299999974
+            },
+            "titleElements": [
+              769,
+              769,
+              769
+            ],
+            "titlePreviews": [
+              2,
+              2,
+              2
+            ],
+            "titleCards": [
+              26,
+              26,
+              26
+            ],
+            "hiddenReferenceRows": [
+              0,
+              0,
+              0
+            ],
+            "zoom": [
+              "100",
+              "100",
+              "100"
+            ],
+            "hasLongTasks": false,
+            "longTasks": [],
+            "start.handlerMs": {
+              "n": 3,
+              "p50": 29,
+              "p95": 32,
+              "max": 32
+            },
+            "start.paintMs": {
+              "n": 3,
+              "p50": 48,
+              "p95": 48,
+              "max": 48
+            },
+            "title.handlerMs": {
+              "n": 3,
+              "p50": 22,
+              "p95": 24,
+              "max": 24
+            },
+            "title.paintMs": {
+              "n": 3,
+              "p50": 34,
+              "p95": 41,
+              "max": 41
+            },
+            "resume.handlerMs": {
+              "n": 3,
+              "p50": 34,
+              "p95": 42,
+              "max": 42
+            },
+            "resume.paintMs": {
+              "n": 3,
+              "p50": 49,
+              "p95": 49,
+              "max": 49
+            },
+            "firstSelection.handlerMs": {
+              "n": 3,
+              "p50": 36,
+              "p95": 43,
+              "max": 43
+            },
+            "warmSelection.handlerMs": {
+              "n": 72,
+              "p50": 23,
+              "p95": 28,
+              "max": 30,
+              "above50ms": 0
+            },
+            "firstSelection.paintMs": {
+              "n": 3,
+              "p50": 67,
+              "p95": 67,
+              "max": 67
+            },
+            "warmSelection.paintMs": {
+              "n": 72,
+              "p50": 41,
+              "p95": 47,
+              "max": 51,
+              "above50ms": 1
+            }
+          }
+        },
+        {
+          "width": 390,
+          "size": 16,
+          "before": {
+            "samples": 3,
+            "coldTitleMs": {
+              "n": 3,
+              "p50": 324.6897090000002,
+              "p95": 592.1076059999996,
+              "max": 592.1076059999996
+            },
+            "coldVisiblePreviewMs": {
+              "n": 3,
+              "p50": 371.1515380000001,
+              "p95": 616.5754789999992,
+              "max": 616.5754789999992
+            },
+            "titleElements": [
+              5056,
+              5056,
+              5056
+            ],
+            "titlePreviews": [
+              24,
+              24,
+              24
+            ],
+            "titleCards": [
+              24,
+              24,
+              24
+            ],
+            "hiddenReferenceRows": [
+              18,
+              18,
+              18
+            ],
+            "zoom": [
+              "100",
+              "100",
+              "100"
+            ],
+            "hasLongTasks": false,
+            "longTasks": [],
+            "start.handlerMs": {
+              "n": 3,
+              "p50": 17,
+              "p95": 18,
+              "max": 18
+            },
+            "start.paintMs": {
+              "n": 3,
+              "p50": 30,
+              "p95": 34,
+              "max": 34
+            },
+            "title.handlerMs": {
+              "n": 3,
+              "p50": 61,
+              "p95": 62,
+              "max": 62
+            },
+            "title.paintMs": {
+              "n": 3,
+              "p50": 89,
+              "p95": 93,
+              "max": 93
+            },
+            "resume.handlerMs": {
+              "n": 3,
+              "p50": 28,
+              "p95": 30,
+              "max": 30
+            },
+            "resume.paintMs": {
+              "n": 3,
+              "p50": 44,
+              "p95": 45,
+              "max": 45
+            },
+            "firstSelection.handlerMs": {
+              "n": 3,
+              "p50": 40,
+              "p95": 41,
+              "max": 41
+            },
+            "warmSelection.handlerMs": {
+              "n": 72,
+              "p50": 21,
+              "p95": 26,
+              "max": 31,
+              "above50ms": 0
+            },
+            "firstSelection.paintMs": {
+              "n": 3,
+              "p50": 66,
+              "p95": 70,
+              "max": 70
+            },
+            "warmSelection.paintMs": {
+              "n": 72,
+              "p50": 34.5,
+              "p95": 48,
+              "max": 51,
+              "above50ms": 2
+            }
+          },
+          "after": {
+            "samples": 3,
+            "coldTitleMs": {
+              "n": 3,
+              "p50": 222.54329899999993,
+              "p95": 224.4764269999996,
+              "max": 224.4764269999996
+            },
+            "coldVisiblePreviewMs": {
+              "n": 3,
+              "p50": 240.9395829999994,
+              "p95": 251.72500799999943,
+              "max": 251.72500799999943
+            },
+            "titleElements": [
+              769,
+              769,
+              769
+            ],
+            "titlePreviews": [
+              2,
+              2,
+              2
+            ],
+            "titleCards": [
+              26,
+              26,
+              26
+            ],
+            "hiddenReferenceRows": [
+              0,
+              0,
+              0
+            ],
+            "zoom": [
+              "100",
+              "100",
+              "100"
+            ],
+            "hasLongTasks": false,
+            "longTasks": [],
+            "start.handlerMs": {
+              "n": 3,
+              "p50": 16,
+              "p95": 17,
+              "max": 17
+            },
+            "start.paintMs": {
+              "n": 3,
+              "p50": 30,
+              "p95": 33,
+              "max": 33
+            },
+            "title.handlerMs": {
+              "n": 3,
+              "p50": 20,
+              "p95": 20,
+              "max": 20
+            },
+            "title.paintMs": {
+              "n": 3,
+              "p50": 26,
+              "p95": 26,
+              "max": 26
+            },
+            "resume.handlerMs": {
+              "n": 3,
+              "p50": 22,
+              "p95": 22,
+              "max": 22
+            },
+            "resume.paintMs": {
+              "n": 3,
+              "p50": 33,
+              "p95": 34,
+              "max": 34
+            },
+            "firstSelection.handlerMs": {
+              "n": 3,
+              "p50": 37,
+              "p95": 37,
+              "max": 37
+            },
+            "warmSelection.handlerMs": {
+              "n": 72,
+              "p50": 20,
+              "p95": 24,
+              "max": 31,
+              "above50ms": 0
+            },
+            "firstSelection.paintMs": {
+              "n": 3,
+              "p50": 67,
+              "p95": 67,
+              "max": 67
+            },
+            "warmSelection.paintMs": {
+              "n": 72,
+              "p50": 34,
+              "p95": 43,
+              "max": 51,
+              "above50ms": 2
+            }
+          }
+        }
+      ]
+    },
+    {
+      "engine": "webkit",
+      "browserVersions": [
+        "27.2"
+      ],
+      "builds": {
+        "before": [
+          "LanguageJapaneseEnglishv1.4.6 · 0342b69444a5 Download diagnostics"
+        ],
+        "after": [
+          "LanguageJapaneseEnglishv1.4.7 · 4bc043a4a904 Download diagnostics"
+        ]
+      },
+      "rows": [
+        {
+          "width": 1280,
+          "size": 32,
+          "before": {
+            "samples": 3,
+            "coldTitleMs": {
+              "n": 3,
+              "p50": 709.8381410000001,
+              "p95": 724.960891,
+              "max": 724.960891
+            },
+            "coldVisiblePreviewMs": {
+              "n": 3,
+              "p50": 933.192492,
+              "p95": 4366.5219480000005,
+              "max": 4366.5219480000005
+            },
+            "titleElements": [
+              5088,
+              5088,
+              5088
+            ],
+            "titlePreviews": [
+              24,
+              24,
+              24
+            ],
+            "titleCards": [
+              24,
+              24,
+              24
+            ],
+            "hiddenReferenceRows": [
+              18,
+              18,
+              18
+            ],
+            "zoom": [
+              "100",
+              "100",
+              "100"
+            ],
+            "hasLongTasks": false,
+            "longTasks": [],
+            "start.handlerMs": {
+              "n": 3,
+              "p50": 42,
+              "p95": 45,
+              "max": 45
+            },
+            "start.paintMs": {
+              "n": 3,
+              "p50": 267,
+              "p95": 735,
+              "max": 735
+            },
+            "title.handlerMs": {
+              "n": 3,
+              "p50": 94,
+              "p95": 97,
+              "max": 97
+            },
+            "title.paintMs": {
+              "n": 3,
+              "p50": 262,
+              "p95": 265,
+              "max": 265
+            },
+            "resume.handlerMs": {
+              "n": 3,
+              "p50": 67,
+              "p95": 70,
+              "max": 70
+            },
+            "resume.paintMs": {
+              "n": 3,
+              "p50": 195,
+              "p95": 195,
+              "max": 195
+            },
+            "firstSelection.handlerMs": {
+              "n": 3,
+              "p50": 63,
+              "p95": 67,
+              "max": 67
+            },
+            "warmSelection.handlerMs": {
+              "n": 72,
+              "p50": 38,
+              "p95": 42,
+              "max": 60,
+              "above50ms": 1
+            },
+            "firstSelection.paintMs": {
+              "n": 3,
+              "p50": 229,
+              "p95": 761,
+              "max": 761
+            },
+            "warmSelection.paintMs": {
+              "n": 72,
+              "p50": 184,
+              "p95": 194,
+              "max": 211,
+              "above50ms": 72
+            }
+          },
+          "after": {
+            "samples": 3,
+            "coldTitleMs": {
+              "n": 3,
+              "p50": 349.5838739999999,
+              "p95": 366.429982,
+              "max": 366.429982
+            },
+            "coldVisiblePreviewMs": {
+              "n": 3,
+              "p50": 897.2607529999999,
+              "p95": 913.628188,
+              "max": 913.628188
+            },
+            "titleElements": [
+              2178,
+              2178,
+              2178
+            ],
+            "titlePreviews": [
+              8,
+              8,
+              8
+            ],
+            "titleCards": [
+              26,
+              26,
+              26
+            ],
+            "hiddenReferenceRows": [
+              0,
+              0,
+              0
+            ],
+            "zoom": [
+              "100",
+              "100",
+              "100"
+            ],
+            "hasLongTasks": false,
+            "longTasks": [],
+            "start.handlerMs": {
+              "n": 3,
+              "p50": 34,
+              "p95": 39,
+              "max": 39
+            },
+            "start.paintMs": {
+              "n": 3,
+              "p50": 269,
+              "p95": 274,
+              "max": 274
+            },
+            "title.handlerMs": {
+              "n": 3,
+              "p50": 30,
+              "p95": 30,
+              "max": 30
+            },
+            "title.paintMs": {
+              "n": 3,
+              "p50": 195,
+              "p95": 195,
+              "max": 195
+            },
+            "resume.handlerMs": {
+              "n": 3,
+              "p50": 50,
+              "p95": 53,
+              "max": 53
+            },
+            "resume.paintMs": {
+              "n": 3,
+              "p50": 178,
+              "p95": 178,
+              "max": 178
+            },
+            "firstSelection.handlerMs": {
+              "n": 3,
+              "p50": 58,
+              "p95": 63,
+              "max": 63
+            },
+            "warmSelection.handlerMs": {
+              "n": 72,
+              "p50": 36,
+              "p95": 40,
+              "max": 53,
+              "above50ms": 1
+            },
+            "firstSelection.paintMs": {
+              "n": 3,
+              "p50": 227,
+              "p95": 229,
+              "max": 229
+            },
+            "warmSelection.paintMs": {
+              "n": 72,
+              "p50": 183,
+              "p95": 192,
+              "max": 203,
+              "above50ms": 72
+            }
+          }
+        },
+        {
+          "width": 390,
+          "size": 32,
+          "before": {
+            "samples": 3,
+            "coldTitleMs": {
+              "n": 3,
+              "p50": 617.3538870000002,
+              "p95": 623.1126759999997,
+              "max": 623.1126759999997
+            },
+            "coldVisiblePreviewMs": {
+              "n": 3,
+              "p50": 711.7839709999998,
+              "p95": 932.2228260000011,
+              "max": 932.2228260000011
+            },
+            "titleElements": [
+              5088,
+              5088,
+              5088
+            ],
+            "titlePreviews": [
+              24,
+              24,
+              24
+            ],
+            "titleCards": [
+              24,
+              24,
+              24
+            ],
+            "hiddenReferenceRows": [
+              18,
+              18,
+              18
+            ],
+            "zoom": [
+              "100",
+              "100",
+              "100"
+            ],
+            "hasLongTasks": false,
+            "longTasks": [],
+            "start.handlerMs": {
+              "n": 3,
+              "p50": 43,
+              "p95": 50,
+              "max": 50
+            },
+            "start.paintMs": {
+              "n": 3,
+              "p50": 194,
+              "p95": 468,
+              "max": 468
+            },
+            "title.handlerMs": {
+              "n": 3,
+              "p50": 94,
+              "p95": 100,
+              "max": 100
+            },
+            "title.paintMs": {
+              "n": 3,
+              "p50": 172,
+              "p95": 175,
+              "max": 175
+            },
+            "resume.handlerMs": {
+              "n": 3,
+              "p50": 66,
+              "p95": 69,
+              "max": 69
+            },
+            "resume.paintMs": {
+              "n": 3,
+              "p50": 161,
+              "p95": 163,
+              "max": 163
+            },
+            "firstSelection.handlerMs": {
+              "n": 3,
+              "p50": 65,
+              "p95": 70,
+              "max": 70
+            },
+            "warmSelection.handlerMs": {
+              "n": 72,
+              "p50": 39,
+              "p95": 45,
+              "max": 55,
+              "above50ms": 1
+            },
+            "firstSelection.paintMs": {
+              "n": 3,
+              "p50": 194,
+              "p95": 348,
+              "max": 348
+            },
+            "warmSelection.paintMs": {
+              "n": 72,
+              "p50": 147.5,
+              "p95": 162,
+              "max": 173,
+              "above50ms": 72
+            }
+          },
+          "after": {
+            "samples": 3,
+            "coldTitleMs": {
+              "n": 3,
+              "p50": 324.1953659999999,
+              "p95": 332.8863629999996,
+              "max": 332.8863629999996
+            },
+            "coldVisiblePreviewMs": {
+              "n": 3,
+              "p50": 559.7630449999997,
+              "p95": 562.635988,
+              "max": 562.635988
+            },
+            "titleElements": [
+              769,
+              769,
+              769
+            ],
+            "titlePreviews": [
+              2,
+              2,
+              2
+            ],
+            "titleCards": [
+              26,
+              26,
+              26
+            ],
+            "hiddenReferenceRows": [
+              0,
+              0,
+              0
+            ],
+            "zoom": [
+              "100",
+              "100",
+              "100"
+            ],
+            "hasLongTasks": false,
+            "longTasks": [],
+            "start.handlerMs": {
+              "n": 3,
+              "p50": 38,
+              "p95": 39,
+              "max": 39
+            },
+            "start.paintMs": {
+              "n": 3,
+              "p50": 156,
+              "p95": 168,
+              "max": 168
+            },
+            "title.handlerMs": {
+              "n": 3,
+              "p50": 33,
+              "p95": 35,
+              "max": 35
+            },
+            "title.paintMs": {
+              "n": 3,
+              "p50": 113,
+              "p95": 118,
+              "max": 118
+            },
+            "resume.handlerMs": {
+              "n": 3,
+              "p50": 47,
+              "p95": 53,
+              "max": 53
+            },
+            "resume.paintMs": {
+              "n": 3,
+              "p50": 129,
+              "p95": 146,
+              "max": 146
+            },
+            "firstSelection.handlerMs": {
+              "n": 3,
+              "p50": 58,
+              "p95": 61,
+              "max": 61
+            },
+            "warmSelection.handlerMs": {
+              "n": 72,
+              "p50": 38,
+              "p95": 41,
+              "max": 42,
+              "above50ms": 0
+            },
+            "firstSelection.paintMs": {
+              "n": 3,
+              "p50": 178,
+              "p95": 187,
+              "max": 187
+            },
+            "warmSelection.paintMs": {
+              "n": 72,
+              "p50": 145,
+              "p95": 152,
+              "max": 155,
+              "above50ms": 72
+            }
+          }
+        },
+        {
+          "width": 390,
+          "size": 16,
+          "before": {
+            "samples": 3,
+            "coldTitleMs": {
+              "n": 3,
+              "p50": 615.6286980000004,
+              "p95": 621.8689400000003,
+              "max": 621.8689400000003
+            },
+            "coldVisiblePreviewMs": {
+              "n": 3,
+              "p50": 713.7551519999997,
+              "p95": 722.786887000002,
+              "max": 722.786887000002
+            },
+            "titleElements": [
+              5056,
+              5056,
+              5056
+            ],
+            "titlePreviews": [
+              24,
+              24,
+              24
+            ],
+            "titleCards": [
+              24,
+              24,
+              24
+            ],
+            "hiddenReferenceRows": [
+              18,
+              18,
+              18
+            ],
+            "zoom": [
+              "100",
+              "100",
+              "100"
+            ],
+            "hasLongTasks": false,
+            "longTasks": [],
+            "start.handlerMs": {
+              "n": 3,
+              "p50": 24,
+              "p95": 26,
+              "max": 26
+            },
+            "start.paintMs": {
+              "n": 3,
+              "p50": 170,
+              "p95": 172,
+              "max": 172
+            },
+            "title.handlerMs": {
+              "n": 3,
+              "p50": 97,
+              "p95": 100,
+              "max": 100
+            },
+            "title.paintMs": {
+              "n": 3,
+              "p50": 166,
+              "p95": 176,
+              "max": 176
+            },
+            "resume.handlerMs": {
+              "n": 3,
+              "p50": 45,
+              "p95": 46,
+              "max": 46
+            },
+            "resume.paintMs": {
+              "n": 3,
+              "p50": 130,
+              "p95": 130,
+              "max": 130
+            },
+            "firstSelection.handlerMs": {
+              "n": 3,
+              "p50": 54,
+              "p95": 71,
+              "max": 71
+            },
+            "warmSelection.handlerMs": {
+              "n": 72,
+              "p50": 31,
+              "p95": 35,
+              "max": 41,
+              "above50ms": 0
+            },
+            "firstSelection.paintMs": {
+              "n": 3,
+              "p50": 173,
+              "p95": 209,
+              "max": 209
+            },
+            "warmSelection.paintMs": {
+              "n": 72,
+              "p50": 138,
+              "p95": 145,
+              "max": 151,
+              "above50ms": 72
+            }
+          },
+          "after": {
+            "samples": 3,
+            "coldTitleMs": {
+              "n": 3,
+              "p50": 320.67228499999874,
+              "p95": 338.4880259999991,
+              "max": 338.4880259999991
+            },
+            "coldVisiblePreviewMs": {
+              "n": 3,
+              "p50": 560.1392469999992,
+              "p95": 571.2596959999992,
+              "max": 571.2596959999992
+            },
+            "titleElements": [
+              769,
+              769,
+              769
+            ],
+            "titlePreviews": [
+              2,
+              2,
+              2
+            ],
+            "titleCards": [
+              26,
+              26,
+              26
+            ],
+            "hiddenReferenceRows": [
+              0,
+              0,
+              0
+            ],
+            "zoom": [
+              "100",
+              "100",
+              "100"
+            ],
+            "hasLongTasks": false,
+            "longTasks": [],
+            "start.handlerMs": {
+              "n": 3,
+              "p50": 24,
+              "p95": 37,
+              "max": 37
+            },
+            "start.paintMs": {
+              "n": 3,
+              "p50": 159,
+              "p95": 176,
+              "max": 176
+            },
+            "title.handlerMs": {
+              "n": 3,
+              "p50": 33,
+              "p95": 34,
+              "max": 34
+            },
+            "title.paintMs": {
+              "n": 3,
+              "p50": 107,
+              "p95": 119,
+              "max": 119
+            },
+            "resume.handlerMs": {
+              "n": 3,
+              "p50": 28,
+              "p95": 29,
+              "max": 29
+            },
+            "resume.paintMs": {
+              "n": 3,
+              "p50": 113,
+              "p95": 113,
+              "max": 113
+            },
+            "firstSelection.handlerMs": {
+              "n": 3,
+              "p50": 50,
+              "p95": 53,
+              "max": 53
+            },
+            "warmSelection.handlerMs": {
+              "n": 72,
+              "p50": 29,
+              "p95": 33,
+              "max": 47,
+              "above50ms": 0
+            },
+            "firstSelection.paintMs": {
+              "n": 3,
+              "p50": 176,
+              "p95": 177,
+              "max": 177
+            },
+            "warmSelection.paintMs": {
+              "n": 72,
+              "p50": 136,
+              "p95": 145,
+              "max": 154,
+              "above50ms": 72
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
