@@ -7,8 +7,13 @@ test('picks a map on the title screen, goes back from the briefing, and starts (
   await expect(page.locator('.briefing-overlay')).toHaveCount(0);
   expect(await page.locator('.title-map-card').count()).toBeGreaterThanOrEqual(11);
   await expect(page.locator('#title-continue')).toBeDisabled();
-  // Every card shows its map's miniature (#145).
+  // Each card draws its miniature when brought into view (#145, v1.4.7).
   const cards = await page.locator('.title-map-card').count();
+  for (let index = 0; index < cards; index++) {
+    const card = page.locator('.title-map-card').nth(index);
+    await card.scrollIntoViewIfNeeded();
+    await expect(card.locator('svg.map-preview')).toBeVisible();
+  }
   await expect(page.locator('.title-map-card svg.map-preview')).toHaveCount(cards);
 
   const landing = page.locator('.title-map-card[data-map-id="landing"]');

@@ -431,6 +431,7 @@ button, select, .tile { touch-action: manipulation; }
 /* Map previews on title cards (#145). */
 /* A fixed height with the width following the map's shape, so wide cards do not letterbox. */
 .map-preview { display: block; width: auto; height: 110px; max-width: 100%; margin: 0 auto 2px; border-radius: 4px; }
+.title-preview-slot { display: block; width: 100%; height: 112px; }
 /* Allow grid tracks to shrink around the independently scrolling reference table. */
 .command-bar { flex-wrap: wrap; }
 .command-panel, .command-panel > *, .backup-actions > *, .learning-panel { min-width: 0; }

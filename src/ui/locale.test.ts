@@ -38,6 +38,8 @@ describe('complete English display resources', () => {
     expect(translateText('未行動の自軍ユニットが 12 部隊あります。ターンを終了しますか？')).toBe('12 friendly units have not acted. End the turn?');
     expect(translateText('編成予算を2000G超過しています。')).toBe('Deployment exceeds the budget by 2000G.');
     expect(translateText('ターン終了')).toBe('End turn');
+    expect(translateText('中立拠点・占領値 20')).toBe('Neutral property; capture points 20');
+    expect(translateText('敵軍拠点・占領値 12')).toBe('Enemy property; capture points 12');
   });
 
   it('handles composed app copy and numeric phrases without consuming their prefixes', () => {

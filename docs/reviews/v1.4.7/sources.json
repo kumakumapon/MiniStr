@@ -1,0 +1,16 @@
+{
+  "baselineCommit": "0342b69444a5b6910ec9f25e025ac9bf619bc043",
+  "baselineTree": "a241a21d7f40ff3ca5e31ec541fbd690f0282a69",
+  "candidateProductCommit": "765b4c49aa4795d9aea50fe56dfce94d99cd9811",
+  "productDigest": "253b96ad9b9db9e449959ae0f87359c869f12541ce5937044087f1ea367d6935",
+  "digestMethod": "Sorted src/**/*.ts path + NUL + bytes, excluding test.ts/fixture.ts/d.ts",
+  "harnessDigest": "cdde3ab8860ad02bfd0f16abad114a2e20cb6da1a12ec641758e6d04ea267f50",
+  "localTools": {
+    "vite": "6.4.3",
+    "vitest": "3.2.7",
+    "typescript": "5.9.3",
+    "@playwright/test": "1.62.1"
+  },
+  "node": "24.19.0",
+  "notes": "Final evidence, aggregation scripts and test corrections may follow this product commit. Game/UI production source digest stays fixed."
+}

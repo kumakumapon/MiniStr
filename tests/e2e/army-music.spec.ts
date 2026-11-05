@@ -1,4 +1,5 @@
-import { expect, test, type Page } from '@playwright/test';
+import { expect, type Page } from '@playwright/test';
+import { test } from './helpers/engineTest';
 import { operationData } from '../../src/game/operations.fixture';
 
 async function prepareMusic(page: Page, width: number, spectating = false) {

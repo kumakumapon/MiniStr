@@ -386,6 +386,22 @@ describe('distributed application boundaries', () => {
     expect(document.querySelector('.resource-row.enemy')?.textContent).toContain('不明');
   });
 
+  it('opens the tactical exercise guide after saving and restarting the application', () => {
+    const document = launch();
+    click('.title-map-card[data-map-id="tactics-supply"]');
+    click('#begin-operation');
+    click('.tile[data-x="2"][data-y="3"]');
+    click('.tile[data-x="4"][data-y="3"]');
+    expect(document.querySelector('.learning-progress')?.textContent).toContain('1/6');
+    click('#save');
+    const raw = dom.window.localStorage.getItem('ministr.save.manual')!;
+    dom.window.close();
+    const resumed = launch({ storage: { 'ministr.save.manual': raw } });
+    click('#title-continue');
+    expect(resumed.querySelector('#learning-panel')?.hasAttribute('open')).toBe(true);
+    expect(resumed.querySelector('.learning-progress')?.textContent).toContain('1/6');
+  });
+
   it('keeps the board when loading fails and exposes invalid entries for deletion', () => {
     const document = launch({ storage: { 'ministr.save.manual': '{broken' } });
     click('.title-map-card[data-map-id="skirmish"]');

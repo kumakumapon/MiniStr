@@ -1,4 +1,5 @@
 import { detectedContact } from './tactics';
+import { LearningLog, type LearningProgress } from './learningLog';
 import { visibleEnemies, visiblePositions } from './fog';
 import { applyGameCommand, type GameCommand } from './session';
 import { isPropertyTerrainKind } from './facilities';
@@ -38,6 +39,7 @@ export interface BattleAnalysis {
 
 /** Viewer information is reconstructed only from the prefix of the recorded legal commands. */
 export class BattleHistory {
+  private learningLog = new LearningLog();
   private state: GameState;
   private index = 0;
   private lastCommand?: GameCommand;
@@ -56,6 +58,7 @@ export class BattleHistory {
   }
 
   private reset(): void {
+    this.learningLog = new LearningLog();
     this.state = this.initial;
     this.index = 0;
     this.lastCommand = undefined;
@@ -122,6 +125,7 @@ export class BattleHistory {
       const applied = applyGameCommand(before, command);
       if (!applied.ok) return applied;
       this.state = applied.value;
+      this.learningLog.observe(before, this.state, command);
       let summary = this.summaries.at(-1);
       if (!summary || summary.turn !== before.turn) {
         summary = { turn: before.turn, attacks: 0, produced: 0, captured: 0, evacuated: 0, losses: { red: 0, blue: 0 } };
@@ -161,6 +165,11 @@ export class BattleHistory {
       ok: true,
       value: [...this.contacts[player].values()].filter((contact) => !current.has(contact.id)).map((contact) => ({ ...contact, position: { ...contact.position } })),
     };
+  }
+
+  learning(index: number, player: PlayerId): GameResult<LearningProgress> {
+    const result = this.seek(index);
+    return result.ok ? { ok: true, value: this.learningLog.snapshot(player) } : result;
   }
 
   analysis(index: number, viewpoint: PlayerId | 'all'): GameResult<BattleAnalysis | undefined> {

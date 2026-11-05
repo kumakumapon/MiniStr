@@ -2,6 +2,18 @@ import { japaneseUnitNames, englishUnitNames } from './unitNameText';
 
 /** English display resources. IDs, authored data and saved JSON stay unchanged. */
 export const englishResources: readonly (readonly [string, string])[] = [
+  ['戦術演習・補給拠点の確保', 'Tactical Exercise: Supply Position'],
+  ['戦術演習・渡河と輸送', 'Tactical Exercise: River Transport'],
+  ['中立拠点・占領値 {0}', 'Neutral property; capture points {0}'],
+  ['敵軍拠点・占領値 {0}', 'Enemy property; capture points {0}'],
+  [
+    '中央の都市 (5, 4) を占領し、地上部隊で3回連続、自軍ターン終了まで保持せよ。敵司令部の占領や敵の全滅は必要ない。歩兵を戦車・砲兵で守り、補給車や占領した都市を使う。工場での生産も試せる。操作ガイドに学習課題を表示する。課題は勝利の追加条件ではない。期限は30ターン。',
+    'Capture the central city at (5, 4) and hold it with a ground unit through three consecutive own turn endings. You do not need to capture enemy headquarters or eliminate the enemy. Protect infantry with armour and artillery, use supply vehicles or the captured city, and try producing units at your factory. Learning tasks appear in the guide; they are not extra victory conditions. The limit is 30 turns.',
+  ],
+  [
+    '指定歩兵 r2 を対岸の出口 (9, 4) へ送り、「撤退」で脱出させよ。対象を失うと敗北。広域偵察で対岸を確認し、工兵で川 (6, 4) に仮設橋を架け、輸送車で歩兵を運ぶ練習ができる。上下端の道路からの迂回も可能。降車は空いている隣接陸地へ。学習課題は勝利の追加条件ではない。期限は30ターン。',
+    'Evacuate mission infantry r2 from the far-bank exit at (9, 4). Losing the target means defeat. Practice scanning the far bank, building a temporary bridge at (6, 4) and carrying infantry in a transport. Roads at both edges offer detours. Unload onto adjacent empty land. Learning tasks are not extra victory conditions. The limit is 30 turns.',
+  ],
   ['広域戦線32', 'Wide Front 32'],
   [
     '32×32の広域戦線。中央の補給所2か所の所有で各ラウンド1点ずつ獲得し、20点で勝利。敵司令部の占領でも勝利する。前線工場から増援し、砲兵と補給車を連携させよ。両軍は180度回転対称、後攻補償+2000G。90ターン終了時に判定。',

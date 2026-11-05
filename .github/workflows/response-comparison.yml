@@ -1,0 +1,79 @@
+name: Response comparison v1.4.7
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - scripts/browser-response-v147.mjs
+      - .github/workflows/response-comparison.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  compare:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.ref }}
+      cancel-in-progress: true
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm install --global npm@11.9.0
+      - run: npm ci
+      - name: Build the released baseline using the same installed tools
+        env:
+          BASELINE_SHA: 0342b69444a5b6910ec9f25e025ac9bf619bc043
+        run: |
+          mkdir -p "$RUNNER_TEMP/ministr-before"
+          git archive "$BASELINE_SHA" | tar -x -C "$RUNNER_TEMP/ministr-before"
+          ln -s "$GITHUB_WORKSPACE/node_modules" "$RUNNER_TEMP/ministr-before/node_modules"
+          cd "$RUNNER_TEMP/ministr-before"
+          GITHUB_SHA="$BASELINE_SHA" npm run build
+      - run: npm run build
+      - name: Install native browser engines and their system libraries
+        run: |
+          sudo bash scripts/use-ubuntu-https-mirror.sh
+          npx playwright install --with-deps chromium firefox webkit
+      - name: Measure alternating pairs without parallel workloads
+        run: |
+          mkdir -p response-comparison
+          npm --prefix "$RUNNER_TEMP/ministr-before" run preview -- --host 127.0.0.1 --port 4192 --strictPort > response-comparison/before-server.log 2>&1 &
+          BEFORE_PID=$!
+          npm run preview -- --host 127.0.0.1 --port 4191 --strictPort > response-comparison/after-server.log 2>&1 &
+          AFTER_PID=$!
+          trap 'kill "$BEFORE_PID" "$AFTER_PID"' EXIT
+          node --input-type=module <<'JS'
+          for (const port of [4192, 4191]) {
+            const deadline = Date.now() + 30000;
+            while (true) {
+              try { if ((await fetch(`http://127.0.0.1:${port}`)).ok) break; } catch {}
+              if (Date.now() > deadline) throw Error(`Preview not ready on ${port}`);
+              await new Promise(resolve => setTimeout(resolve, 100));
+            }
+          }
+          JS
+          for engine in chromium firefox webkit; do
+            for pair in 0 1 2; do
+              if [ "$pair" = 1 ]; then variants='after before'; else variants='before after'; fi
+              for variant in $variants; do
+                if [ "$variant" = before ]; then port=4192; else port=4191; fi
+                node scripts/browser-response-v147.mjs "http://127.0.0.1:$port" "response-comparison/$engine-$pair-$variant.json" "$variant" "$pair" "$engine"
+              done
+            done
+          done
+      - name: Preserve raw response evidence
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: response-comparison-v147
+          path: response-comparison/
+          retention-days: 14
