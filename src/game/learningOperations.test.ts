@@ -9,6 +9,7 @@ import { createReplay, parseReplay, serializeReplay } from './replay';
 import { learningSteps } from '../ui/learningSteps';
 import { v146CatalogHashes } from './v146Catalog.fixture';
 import { valueOf } from './operations.fixture';
+import type { GameState } from './types';
 
 const setups: Record<string, GameCommand[]> = {
   'tactics-supply': [
@@ -46,7 +47,7 @@ for (const id of Object.keys(setups)) {
   it(`${id}: completes every guide task through legal commands and restores the same save/replay history`, () => {
     const scenario = operationScenarios.find((map) => map.id === id)!;
     const initial = { ...createScenarioInitialState(scenario), ruleVersion: 13 as const };
-    let state = initial;
+    let state: GameState = initial;
     const commands: GameCommand[] = [];
     const apply = (command: GameCommand) => {
       state = valueOf(applyGameCommand(state, command));
@@ -87,7 +88,7 @@ for (const id of Object.keys(setups)) {
 
   for (const difficulty of ['normal', 'hard'] as const)
     it(`${id}: ${difficulty} CPU can solve the objective from its original setup`, () => {
-      let state = { ...createScenarioInitialState(operationScenarios.find((map) => map.id === id)!), ruleVersion: 13 as const };
+      let state: GameState = { ...createScenarioInitialState(operationScenarios.find((map) => map.id === id)!), ruleVersion: 13 };
       let count = 0;
       while (!state.winner && !state.draw && state.turn <= 30 && count++ < 3000)
         state = valueOf(applyGameCommand(state, chooseCpuAction(state, state.activePlayer === 'red' ? difficulty : 'easy')));
