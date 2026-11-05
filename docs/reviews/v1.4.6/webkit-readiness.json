@@ -1,0 +1,129 @@
+{
+  "priorFailure": {
+    "run": 41866630323,
+    "job": 126702367272,
+    "failed": 2,
+    "passed": 31,
+    "browserLaunchMsApprox": 6600,
+    "newPageMsApprox": 16140,
+    "beforeEachMsApprox": 22740,
+    "timeoutMs": 30000,
+    "notes": "First temperate 1280 cases in repeat 0 and 1. Button visible in traces; actual click stage had about 2.1s remaining. Unchanged attempt 2 passed 33/33. Timing derived from retained Playwright trace, not RGB failures."
+  },
+  "runs": [
+    {
+      "run": 42033742340,
+      "engine": [
+        {
+          "phase": "webkit-engine-ready",
+          "target": "about:blank",
+          "worker": 1,
+          "version": "27.2",
+          "contextMs": 20.01204000000007,
+          "pageMs": 1430.808727,
+          "roundTripMs": 11.500864999999976,
+          "totalMs": 1602.606926
+        },
+        {
+          "phase": "webkit-engine-ready",
+          "target": "about:blank",
+          "worker": 0,
+          "version": "27.2",
+          "contextMs": 20.09305900000004,
+          "pageMs": 1433.980743,
+          "roundTripMs": 7.9662969999999405,
+          "totalMs": 1612.857591
+        },
+        {
+          "phase": "webkit-engine-ready",
+          "target": "about:blank",
+          "worker": 2,
+          "version": "27.2",
+          "contextMs": 11.54490800000002,
+          "pageMs": 136.97146000000004,
+          "roundTripMs": 6.179985999999985,
+          "totalMs": 293.96810700000003
+        }
+      ],
+      "result": [
+        "2026-11-05T13:16:46.9489529Z   33 passed (2.8m)"
+      ]
+    },
+    {
+      "run": 42034933202,
+      "engine": [
+        {
+          "phase": "webkit-engine-ready",
+          "target": "about:blank",
+          "worker": 1,
+          "version": "27.2",
+          "contextMs": 20.450053000000025,
+          "pageMs": 2745.8164530000004,
+          "roundTripMs": 9.1016139999997,
+          "totalMs": 2928.5772659999993
+        },
+        {
+          "phase": "webkit-engine-ready",
+          "target": "about:blank",
+          "worker": 0,
+          "version": "27.2",
+          "contextMs": 20.965035999999827,
+          "pageMs": 2749.730367,
+          "roundTripMs": 5.818201000000045,
+          "totalMs": 2930.6482049999995
+        },
+        {
+          "phase": "webkit-engine-ready",
+          "target": "about:blank",
+          "worker": 2,
+          "version": "27.2",
+          "contextMs": 12.611456999999973,
+          "pageMs": 145.17134800000008,
+          "roundTripMs": 6.429669999999987,
+          "totalMs": 305.420966
+        }
+      ],
+      "result": [
+        "2026-11-05T13:25:01.9869539Z   33 passed (2.9m)"
+      ]
+    },
+    {
+      "run": 42036487544,
+      "engine": [
+        {
+          "phase": "webkit-engine-ready",
+          "target": "about:blank",
+          "worker": 1,
+          "version": "27.2",
+          "contextMs": 32.85292199999981,
+          "pageMs": 1675.42609,
+          "roundTripMs": 11.57016700000031,
+          "totalMs": 1909.79575
+        },
+        {
+          "phase": "webkit-engine-ready",
+          "target": "about:blank",
+          "worker": 0,
+          "version": "27.2",
+          "contextMs": 30.86228899999992,
+          "pageMs": 1684.4965070000003,
+          "roundTripMs": 6.137747999999647,
+          "totalMs": 1913.924303
+        },
+        {
+          "phase": "webkit-engine-ready",
+          "target": "about:blank",
+          "worker": 2,
+          "version": "27.2",
+          "contextMs": 18.332883999999922,
+          "pageMs": 172.86865799999998,
+          "roundTripMs": 7.883935000000065,
+          "totalMs": 393.864773
+        }
+      ],
+      "result": [
+        "2026-11-05T13:36:16.2834831Z   33 passed (3.6m)"
+      ]
+    }
+  ]
+}

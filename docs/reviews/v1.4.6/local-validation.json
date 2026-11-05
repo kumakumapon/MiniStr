@@ -1,0 +1,64 @@
+{
+  "runtime": {
+    "node": "24.19.0",
+    "npm": "11.9.0",
+    "vitest": "3.2.7",
+    "vite": "6.4.3",
+    "typescript": "5.9.3",
+    "playwright": "1.62.1"
+  },
+  "sourceCommit": "cd1d1a70436edc0fdfea8557c8a8b1ea12852ee7",
+  "unit": {
+    "initial": {
+      "passed": 1520,
+      "failed": 3,
+      "files": 152,
+      "reason": "sandbox denied spawnSync bash (EPERM) in existing scripts/ubuntuMirrors.test.ts"
+    },
+    "sameSuiteWithChildProcessPermission": {
+      "passed": 1523,
+      "files": 152,
+      "failed": 0
+    }
+  },
+  "lint": "passed",
+  "format": "passed",
+  "typecheckIncludingTests": "passed",
+  "links": "passed",
+  "ciPolicy": {
+    "passed": 13,
+    "failed": 0
+  },
+  "build": "passed (existing bundle-size warning retained)",
+  "distributedUi": {
+    "passed": 60,
+    "files": 9,
+    "failed": 0
+  },
+  "browser": {
+    "passed": 34,
+    "failed": 0,
+    "engines": [
+      "system Chromium",
+      "cached native Firefox"
+    ],
+    "specs": [
+      "board-response",
+      "finite-supplies",
+      "wide-front"
+    ],
+    "workers": 2,
+    "widths": [
+      1280,
+      390
+    ],
+    "languages": [
+      "ja",
+      "en"
+    ]
+  },
+  "webKitLocal": "not run: required libharfbuzz-icu.so.0 and libhyphen.so.0 absent; use official native WebKit CI",
+  "cleanInstallAndFreshAuditLocal": "not run: registry.npmjs.org is not allowed by current network policy; use official clean lockfile CI",
+  "coverageLocal": "not run; formal lockfile coverage is the acceptance result",
+  "gameUiScope": "No product UI changes; existing PC/mobile input and visual tests run; manual real-device checks remain low priority."
+}
