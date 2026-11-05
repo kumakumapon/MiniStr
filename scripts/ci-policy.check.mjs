@@ -204,3 +204,10 @@ test('the optional response comparison is read-only, paired, and separate from p
   for (const action of [...comparison.matchAll(/uses: (\S+)/g)].map((match) => match[1])) assert.match(action, /^actions\/[\w-]+@[a-f0-9]{40}$/);
   assert.doesNotMatch(ci, /response-comparison/);
 });
+
+test('audio recovery uses the bounded native WebKit readiness with a fresh application context', () => {
+  const audio = readFileSync(new URL('../tests/e2e/army-music.spec.ts', import.meta.url), 'utf8');
+  assert.match(audio, /from '\.\/helpers\/engineTest'/);
+  assert.doesNotMatch(audio, /test\.(skip|slow|setTimeout)\(/);
+  assert.doesNotMatch(audio, /(?:timeout|retries):\s*[1-9]/);
+});
