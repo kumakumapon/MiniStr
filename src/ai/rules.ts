@@ -1,4 +1,5 @@
 import { supplyRendezvous } from './supplyRendezvous';
+import { defensiveRepairRoute } from './recovery';
 import { supportedAttack } from './supportAttack';
 import { policyConfig } from './armyPolicy';
 import { chooseTacticalAction } from './tactics';
@@ -527,6 +528,7 @@ export function evaluateCpuPosition(
   const serviceDistance = serviceTargets.length ? Math.min(...serviceTargets.map(position => manhattanDistance(destination, position))) : undefined;
   // A secondary gun can cover a retreat, but does not replace a depleted primary.
   const criticalSupply = usesFiniteSupplyRules(state) && unit.kind === 'apc' && supplyStock(unit) <= SUPPLY_CAPACITY / 3 || remainingAmmo(unit) === 0 && unitStats[unit.kind].ammo > 0 || (unit.fuel ?? unitStats[unit.kind].fuel) <= unitStats[unit.kind].fuelPerTurn * 2;
+  const recoveryDistance = config.coordinatedDefense ? defensiveRepairRoute(state, player, unit)?.get(`${destination.x},${destination.y}`) : undefined;
   const distance = crossingDistance(state, unit.kind, destination, targets);
   const deployedEnemies = knownEnemies.filter(isDeployedUnit);
   const pressure = deployedEnemies.reduce((risk, enemy) => {
@@ -573,7 +575,7 @@ export function evaluateCpuPosition(
   const captureLane = unit.hp > 50 && unitStats[unit.kind].capturePower === 0 && isPropertyTerrainKind(terrain.kind) && terrain.owner !== player ? 30 : 0;
   const control = controlled ? terrain.owner === player ? 20 : unitStats[unit.kind].capturePower > 0 ? 110 : -80 : 0;
   return coordinationValue(state, player, unit, destination, targets) + defense + supply + repair + response + retreatCover + logistics + hold + contest + score + control + firePosition
-    - (criticalSupply && serviceDistance !== undefined ? serviceDistance : distance) * config.objectiveDistanceWeight
+    - (criticalSupply && serviceDistance !== undefined ? serviceDistance : recoveryDistance ?? distance) * config.objectiveDistanceWeight
     - pressure * config.threatAvoidanceWeight * (1 - stalemateRelief(state))
     - retreatPressure
     - captureLane
