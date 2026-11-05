@@ -4,6 +4,8 @@ import { japaneseUnitNames, englishUnitNames } from './unitNameText';
 export const englishResources: readonly (readonly [string, string])[] = [
   ['戦術演習・補給拠点の確保', 'Tactical Exercise: Supply Position'],
   ['戦術演習・渡河と輸送', 'Tactical Exercise: River Transport'],
+  ['中立拠点・占領値 {0}', 'Neutral property; capture points {0}'],
+  ['敵軍拠点・占領値 {0}', 'Enemy property; capture points {0}'],
   [
     '中央の都市 (5, 4) を占領し、地上部隊で3回連続、自軍ターン終了まで保持せよ。敵司令部の占領や敵の全滅は必要ない。歩兵を戦車・砲兵で守り、補給車や占領した都市を使う。工場での生産も試せる。操作ガイドに学習課題を表示する。課題は勝利の追加条件ではない。期限は30ターン。',
     'Capture the central city at (5, 4) and hold it with a ground unit through three consecutive own turn endings. You do not need to capture enemy headquarters or eliminate the enemy. Protect infantry with armour and artillery, use supply vehicles or the captured city, and try producing units at your factory. Learning tasks appear in the guide; they are not extra victory conditions. The limit is 30 turns.',
