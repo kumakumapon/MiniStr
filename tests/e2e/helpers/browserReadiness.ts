@@ -15,8 +15,8 @@ export async function checkBrowserReadiness(browser: ProbeBrowser, now: () => nu
   const started = now();
   const context = await browser.newContext();
   const contextReady = now();
-  let pageReady = contextReady;
-  let roundTripReady = contextReady;
+  let pageReady: number;
+  let roundTripReady: number;
   try {
     const page = await context.newPage();
     pageReady = now();
