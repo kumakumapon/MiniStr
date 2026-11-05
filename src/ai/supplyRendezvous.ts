@@ -66,7 +66,7 @@ export function supplyRendezvous(
       .filter((position) => needy.some((unit) => manhattanDistance(unit.position, position) === 1 && stockCanSupply(state, supplyStock(truck), unit)))
       .map((position) => ({ position, delivery: delivery(truck, position), value: score(truck, position) }))
       .filter((candidate) => candidate.delivery > 0)
-      .map((candidate) => ({ ...candidate, value: candidate.value }))
+      .map((candidate) => ({ ...candidate, value: candidate.value + candidate.delivery }))
       .filter((candidate) => Number.isFinite(candidate.value))
       .sort(
         (a, b) =>

@@ -1,0 +1,24 @@
+{
+  "baselineSource": "833aa80203c650a3ddab6f7484022142e779a2325e9dd1e46b313e0d9a1c002f",
+  "candidateSource": "57c99298683c610a57d0020503af5cef7df80bd4989e5f823f8e2575413c1ed6",
+  "harness": "147d0ffaae9155782bdae1f7a043440b8029d63235080a92b3f6d58281da0101",
+  "rawFilesVerified": 18,
+  "totalGames": 120,
+  "patches": [
+    {
+      "variant": "cpu-a",
+      "source": "57c99298683c610a57d0020503af5cef7df80bd4989e5f823f8e2575413c1ed6",
+      "reproduced": true
+    },
+    {
+      "variant": "route-only",
+      "source": "03a869cec023e52bc7feaffd607d5d12cf12f7360d21efcf63473f7ac3f93af4",
+      "reproduced": true
+    },
+    {
+      "variant": "delivery-only",
+      "source": "fb0645c3884a925bcb2892c8b320b44b5b14085a4efa10382df23a19bb8a38ae",
+      "reproduced": true
+    }
+  ]
+}

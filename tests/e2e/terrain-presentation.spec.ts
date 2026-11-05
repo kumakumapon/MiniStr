@@ -1,4 +1,5 @@
-import { expect, test } from '@playwright/test';
+import { expect } from '@playwright/test';
+import { test } from './helpers/engineTest';
 import { compareTerrainCaptures } from './helpers/terrainPixels';
 import type { ScenarioData } from '../../src/game/maps';
 

@@ -1,0 +1,1522 @@
+{
+  "note": "Red always starts. Return legs exchange policies/difficulty and rotate the map. Counts are correlated fixed conditions, not independent win probabilities. HP, supplies and dry starts depend on duration and surviving units. cpuP95 is a separate per-game latency statistic, not pooled p95.",
+  "mainGames": 88,
+  "totalGames": 120,
+  "files": [
+    {
+      "file": "before-train-generated.jsonl",
+      "sha256": "8bcbfc6cdeaccd9678cddd043d2e3e2e91af4534469575a4eb46847c40d89c67",
+      "header": {
+        "format": "tactical-balance-v1",
+        "source": "833aa80203c650a3ddab6f7484022142e779a2325e9dd1e46b313e0d9a1c002f",
+        "harness": "147d0ffaae9155782bdae1f7a043440b8029d63235080a92b3f6d58281da0101",
+        "runtime": "v24.19.0",
+        "requested": 4,
+        "rounds": 90,
+        "note": "Red always starts. Return legs rotate the map and exchange policies; observations are correlated. Base is v13 common observed-route/contact physics with all optional features off. Transport isolates moved unloading on legacy movement. Baseline CPU means old heuristics using the current legal forecasts. Weather has an independent fixed stream. Undecided games are neither wins nor draws."
+      },
+      "complete": {
+        "complete": true,
+        "completed": 4,
+        "elapsedMs": 13188.197752
+      }
+    },
+    {
+      "file": "after-a-train-generated.jsonl",
+      "sha256": "c9919313ede0c1fd0add24d2c85dddb1ccadca10345571ed94176296941b6fac",
+      "header": {
+        "format": "tactical-balance-v1",
+        "source": "57c99298683c610a57d0020503af5cef7df80bd4989e5f823f8e2575413c1ed6",
+        "harness": "147d0ffaae9155782bdae1f7a043440b8029d63235080a92b3f6d58281da0101",
+        "runtime": "v24.19.0",
+        "requested": 4,
+        "rounds": 90,
+        "note": "Red always starts. Return legs rotate the map and exchange policies; observations are correlated. Base is v13 common observed-route/contact physics with all optional features off. Transport isolates moved unloading on legacy movement. Baseline CPU means old heuristics using the current legal forecasts. Weather has an independent fixed stream. Undecided games are neither wins nor draws."
+      },
+      "complete": {
+        "complete": true,
+        "completed": 4,
+        "elapsedMs": 11756.923297
+      }
+    },
+    {
+      "file": "before-train-wide.jsonl",
+      "sha256": "2f0c3d878d8a563144cba4ad96affde2a5d0c654fdb8b3427e90775527354c14",
+      "header": {
+        "format": "tactical-balance-v1",
+        "source": "833aa80203c650a3ddab6f7484022142e779a2325e9dd1e46b313e0d9a1c002f",
+        "harness": "147d0ffaae9155782bdae1f7a043440b8029d63235080a92b3f6d58281da0101",
+        "runtime": "v24.19.0",
+        "requested": 4,
+        "catalog": "wide-front",
+        "rounds": 90,
+        "note": "Red always starts. Return legs rotate the map and exchange policies; observations are correlated. Base is v13 common observed-route/contact physics with all optional features off. Transport isolates moved unloading on legacy movement. Baseline CPU means old heuristics using the current legal forecasts. Weather has an independent fixed stream. Undecided games are neither wins nor draws."
+      },
+      "complete": {
+        "complete": true,
+        "completed": 4,
+        "elapsedMs": 8353.083011
+      }
+    },
+    {
+      "file": "after-a-train-wide.jsonl",
+      "sha256": "eadc18485fbc4d9549bfdcef64aa5c527d9272340c85f4a9257a07e2c2c82de8",
+      "header": {
+        "format": "tactical-balance-v1",
+        "source": "57c99298683c610a57d0020503af5cef7df80bd4989e5f823f8e2575413c1ed6",
+        "harness": "147d0ffaae9155782bdae1f7a043440b8029d63235080a92b3f6d58281da0101",
+        "runtime": "v24.19.0",
+        "requested": 4,
+        "catalog": "wide-front",
+        "rounds": 90,
+        "note": "Red always starts. Return legs rotate the map and exchange policies; observations are correlated. Base is v13 common observed-route/contact physics with all optional features off. Transport isolates moved unloading on legacy movement. Baseline CPU means old heuristics using the current legal forecasts. Weather has an independent fixed stream. Undecided games are neither wins nor draws."
+      },
+      "complete": {
+        "complete": true,
+        "completed": 4,
+        "elapsedMs": 7833.981868000001
+      }
+    },
+    {
+      "file": "before-hold-generated.jsonl",
+      "sha256": "8656a1e5b673dc77462bac5e10565a991b72875173742786f96f2e48daf95d1d",
+      "header": {
+        "format": "tactical-balance-v1",
+        "source": "833aa80203c650a3ddab6f7484022142e779a2325e9dd1e46b313e0d9a1c002f",
+        "harness": "147d0ffaae9155782bdae1f7a043440b8029d63235080a92b3f6d58281da0101",
+        "runtime": "v24.19.0",
+        "requested": 8,
+        "rounds": 90,
+        "note": "Red always starts. Return legs rotate the map and exchange policies; observations are correlated. Base is v13 common observed-route/contact physics with all optional features off. Transport isolates moved unloading on legacy movement. Baseline CPU means old heuristics using the current legal forecasts. Weather has an independent fixed stream. Undecided games are neither wins nor draws."
+      },
+      "complete": {
+        "complete": true,
+        "completed": 8,
+        "elapsedMs": 25897.880984000003
+      }
+    },
+    {
+      "file": "after-a-hold-generated.jsonl",
+      "sha256": "b293e4d1210e5762346d79a20ebc9c870e43ab11da5674e350e570cff939cb87",
+      "header": {
+        "format": "tactical-balance-v1",
+        "source": "57c99298683c610a57d0020503af5cef7df80bd4989e5f823f8e2575413c1ed6",
+        "harness": "147d0ffaae9155782bdae1f7a043440b8029d63235080a92b3f6d58281da0101",
+        "runtime": "v24.19.0",
+        "requested": 8,
+        "rounds": 90,
+        "note": "Red always starts. Return legs rotate the map and exchange policies; observations are correlated. Base is v13 common observed-route/contact physics with all optional features off. Transport isolates moved unloading on legacy movement. Baseline CPU means old heuristics using the current legal forecasts. Weather has an independent fixed stream. Undecided games are neither wins nor draws."
+      },
+      "complete": {
+        "complete": true,
+        "completed": 8,
+        "elapsedMs": 27608.437601999998
+      }
+    },
+    {
+      "file": "before-hold-wide.jsonl",
+      "sha256": "c6778c83a3e78d833df6e18009fdf9826c349b4288fe7420ad6a6f0ee3fa897a",
+      "header": {
+        "format": "tactical-balance-v1",
+        "source": "833aa80203c650a3ddab6f7484022142e779a2325e9dd1e46b313e0d9a1c002f",
+        "harness": "147d0ffaae9155782bdae1f7a043440b8029d63235080a92b3f6d58281da0101",
+        "runtime": "v24.19.0",
+        "requested": 8,
+        "catalog": "wide-front",
+        "rounds": 90,
+        "note": "Red always starts. Return legs rotate the map and exchange policies; observations are correlated. Base is v13 common observed-route/contact physics with all optional features off. Transport isolates moved unloading on legacy movement. Baseline CPU means old heuristics using the current legal forecasts. Weather has an independent fixed stream. Undecided games are neither wins nor draws."
+      },
+      "complete": {
+        "complete": true,
+        "completed": 8,
+        "elapsedMs": 16590.128543
+      }
+    },
+    {
+      "file": "after-a-hold-wide.jsonl",
+      "sha256": "ed2e46c7adad4204c23fd87eb857cb101bc98cfc615d3440ea0779ffa42e5003",
+      "header": {
+        "format": "tactical-balance-v1",
+        "source": "57c99298683c610a57d0020503af5cef7df80bd4989e5f823f8e2575413c1ed6",
+        "harness": "147d0ffaae9155782bdae1f7a043440b8029d63235080a92b3f6d58281da0101",
+        "runtime": "v24.19.0",
+        "requested": 8,
+        "catalog": "wide-front",
+        "rounds": 90,
+        "note": "Red always starts. Return legs rotate the map and exchange policies; observations are correlated. Base is v13 common observed-route/contact physics with all optional features off. Transport isolates moved unloading on legacy movement. Baseline CPU means old heuristics using the current legal forecasts. Weather has an independent fixed stream. Undecided games are neither wins nor draws."
+      },
+      "complete": {
+        "complete": true,
+        "completed": 8,
+        "elapsedMs": 15525.550425
+      }
+    },
+    {
+      "file": "before-final-generated.jsonl",
+      "sha256": "2f0327e813ead85dda52b7769245f7cdfc02dac7c4d58d6c0fba5fb43591f448",
+      "header": {
+        "format": "tactical-balance-v1",
+        "source": "833aa80203c650a3ddab6f7484022142e779a2325e9dd1e46b313e0d9a1c002f",
+        "harness": "147d0ffaae9155782bdae1f7a043440b8029d63235080a92b3f6d58281da0101",
+        "runtime": "v24.19.0",
+        "requested": 8,
+        "rounds": 90,
+        "note": "Red always starts. Return legs rotate the map and exchange policies; observations are correlated. Base is v13 common observed-route/contact physics with all optional features off. Transport isolates moved unloading on legacy movement. Baseline CPU means old heuristics using the current legal forecasts. Weather has an independent fixed stream. Undecided games are neither wins nor draws."
+      },
+      "complete": {
+        "complete": true,
+        "completed": 8,
+        "elapsedMs": 23287.322380999998
+      }
+    },
+    {
+      "file": "after-a-final-generated.jsonl",
+      "sha256": "ae9441f30b0361ba67d47de7125eddc39d78ebb655746725e6651e02bedfa85d",
+      "header": {
+        "format": "tactical-balance-v1",
+        "source": "57c99298683c610a57d0020503af5cef7df80bd4989e5f823f8e2575413c1ed6",
+        "harness": "147d0ffaae9155782bdae1f7a043440b8029d63235080a92b3f6d58281da0101",
+        "runtime": "v24.19.0",
+        "requested": 8,
+        "rounds": 90,
+        "note": "Red always starts. Return legs rotate the map and exchange policies; observations are correlated. Base is v13 common observed-route/contact physics with all optional features off. Transport isolates moved unloading on legacy movement. Baseline CPU means old heuristics using the current legal forecasts. Weather has an independent fixed stream. Undecided games are neither wins nor draws."
+      },
+      "complete": {
+        "complete": true,
+        "completed": 8,
+        "elapsedMs": 23099.970081
+      }
+    },
+    {
+      "file": "before-final-wide.jsonl",
+      "sha256": "bdf20a8053fbd01016f2f30954da4701322326d950977211187def6339cb3ac6",
+      "header": {
+        "format": "tactical-balance-v1",
+        "source": "833aa80203c650a3ddab6f7484022142e779a2325e9dd1e46b313e0d9a1c002f",
+        "harness": "147d0ffaae9155782bdae1f7a043440b8029d63235080a92b3f6d58281da0101",
+        "runtime": "v24.19.0",
+        "requested": 8,
+        "catalog": "wide-front",
+        "rounds": 90,
+        "note": "Red always starts. Return legs rotate the map and exchange policies; observations are correlated. Base is v13 common observed-route/contact physics with all optional features off. Transport isolates moved unloading on legacy movement. Baseline CPU means old heuristics using the current legal forecasts. Weather has an independent fixed stream. Undecided games are neither wins nor draws."
+      },
+      "complete": {
+        "complete": true,
+        "completed": 8,
+        "elapsedMs": 19971.921349999997
+      }
+    },
+    {
+      "file": "after-a-final-wide.jsonl",
+      "sha256": "1119a4441faaeca85ad32c5fee96480efe2d22335baa640260e4cdecdb67cbe7",
+      "header": {
+        "format": "tactical-balance-v1",
+        "source": "57c99298683c610a57d0020503af5cef7df80bd4989e5f823f8e2575413c1ed6",
+        "harness": "147d0ffaae9155782bdae1f7a043440b8029d63235080a92b3f6d58281da0101",
+        "runtime": "v24.19.0",
+        "requested": 8,
+        "catalog": "wide-front",
+        "rounds": 90,
+        "note": "Red always starts. Return legs rotate the map and exchange policies; observations are correlated. Base is v13 common observed-route/contact physics with all optional features off. Transport isolates moved unloading on legacy movement. Baseline CPU means old heuristics using the current legal forecasts. Weather has an independent fixed stream. Undecided games are neither wins nor draws."
+      },
+      "complete": {
+        "complete": true,
+        "completed": 8,
+        "elapsedMs": 19127.587362000002
+      }
+    },
+    {
+      "file": "before-final-classic.jsonl",
+      "sha256": "8ece9b1a24c8edd1983ecdd9af5822e5fe934c9cd04b36265b1f0dd013875e09",
+      "header": {
+        "format": "tactical-balance-v1",
+        "source": "833aa80203c650a3ddab6f7484022142e779a2325e9dd1e46b313e0d9a1c002f",
+        "harness": "147d0ffaae9155782bdae1f7a043440b8029d63235080a92b3f6d58281da0101",
+        "runtime": "v24.19.0",
+        "requested": 4,
+        "rounds": 90,
+        "note": "Red always starts. Return legs rotate the map and exchange policies; observations are correlated. Base is v13 common observed-route/contact physics with all optional features off. Transport isolates moved unloading on legacy movement. Baseline CPU means old heuristics using the current legal forecasts. Weather has an independent fixed stream. Undecided games are neither wins nor draws."
+      },
+      "complete": {
+        "complete": true,
+        "completed": 4,
+        "elapsedMs": 12635.968588
+      }
+    },
+    {
+      "file": "after-a-final-classic.jsonl",
+      "sha256": "f95d065991cabc60696068397cc41e7d97c08d8a7bc73e793955aa94fda5a98d",
+      "header": {
+        "format": "tactical-balance-v1",
+        "source": "57c99298683c610a57d0020503af5cef7df80bd4989e5f823f8e2575413c1ed6",
+        "harness": "147d0ffaae9155782bdae1f7a043440b8029d63235080a92b3f6d58281da0101",
+        "runtime": "v24.19.0",
+        "requested": 4,
+        "rounds": 90,
+        "note": "Red always starts. Return legs rotate the map and exchange policies; observations are correlated. Base is v13 common observed-route/contact physics with all optional features off. Transport isolates moved unloading on legacy movement. Baseline CPU means old heuristics using the current legal forecasts. Weather has an independent fixed stream. Undecided games are neither wins nor draws."
+      },
+      "complete": {
+        "complete": true,
+        "completed": 4,
+        "elapsedMs": 14278.936848000001
+      }
+    },
+    {
+      "file": "route-only-hold-generated.jsonl",
+      "sha256": "039c3e7fb5685606810dae7f56a3481551ad12a2e35976e5db5303659b6b890e",
+      "header": {
+        "format": "tactical-balance-v1",
+        "source": "03a869cec023e52bc7feaffd607d5d12cf12f7360d21efcf63473f7ac3f93af4",
+        "harness": "147d0ffaae9155782bdae1f7a043440b8029d63235080a92b3f6d58281da0101",
+        "runtime": "v24.19.0",
+        "requested": 8,
+        "rounds": 90,
+        "note": "Red always starts. Return legs rotate the map and exchange policies; observations are correlated. Base is v13 common observed-route/contact physics with all optional features off. Transport isolates moved unloading on legacy movement. Baseline CPU means old heuristics using the current legal forecasts. Weather has an independent fixed stream. Undecided games are neither wins nor draws."
+      },
+      "complete": {
+        "complete": true,
+        "completed": 8,
+        "elapsedMs": 31990.946836
+      }
+    },
+    {
+      "file": "route-only-final-generated.jsonl",
+      "sha256": "cf386baf2b27e1db74494adfb15ff48f4e3e86fce5a9b794d61b0e76cd3d1a5d",
+      "header": {
+        "format": "tactical-balance-v1",
+        "source": "03a869cec023e52bc7feaffd607d5d12cf12f7360d21efcf63473f7ac3f93af4",
+        "harness": "147d0ffaae9155782bdae1f7a043440b8029d63235080a92b3f6d58281da0101",
+        "runtime": "v24.19.0",
+        "requested": 8,
+        "rounds": 90,
+        "note": "Red always starts. Return legs rotate the map and exchange policies; observations are correlated. Base is v13 common observed-route/contact physics with all optional features off. Transport isolates moved unloading on legacy movement. Baseline CPU means old heuristics using the current legal forecasts. Weather has an independent fixed stream. Undecided games are neither wins nor draws."
+      },
+      "complete": {
+        "complete": true,
+        "completed": 8,
+        "elapsedMs": 24270.617711000003
+      }
+    },
+    {
+      "file": "delivery-only-hold-generated.jsonl",
+      "sha256": "a825a964eaca31576be8abd85193ab150d645e2965b8c74ff2f55f52f8331843",
+      "header": {
+        "format": "tactical-balance-v1",
+        "source": "fb0645c3884a925bcb2892c8b320b44b5b14085a4efa10382df23a19bb8a38ae",
+        "harness": "147d0ffaae9155782bdae1f7a043440b8029d63235080a92b3f6d58281da0101",
+        "runtime": "v24.19.0",
+        "requested": 8,
+        "rounds": 90,
+        "note": "Red always starts. Return legs rotate the map and exchange policies; observations are correlated. Base is v13 common observed-route/contact physics with all optional features off. Transport isolates moved unloading on legacy movement. Baseline CPU means old heuristics using the current legal forecasts. Weather has an independent fixed stream. Undecided games are neither wins nor draws."
+      },
+      "complete": {
+        "complete": true,
+        "completed": 8,
+        "elapsedMs": 30624.294422000003
+      }
+    },
+    {
+      "file": "delivery-only-final-generated.jsonl",
+      "sha256": "d67adc9b5b5dc2f5db4490b4975062a529bd49b724a7b33eb2fed2c068f52edc",
+      "header": {
+        "format": "tactical-balance-v1",
+        "source": "fb0645c3884a925bcb2892c8b320b44b5b14085a4efa10382df23a19bb8a38ae",
+        "harness": "147d0ffaae9155782bdae1f7a043440b8029d63235080a92b3f6d58281da0101",
+        "runtime": "v24.19.0",
+        "requested": 8,
+        "rounds": 90,
+        "note": "Red always starts. Return legs rotate the map and exchange policies; observations are correlated. Base is v13 common observed-route/contact physics with all optional features off. Transport isolates moved unloading on legacy movement. Baseline CPU means old heuristics using the current legal forecasts. Weather has an independent fixed stream. Undecided games are neither wins nor draws."
+      },
+      "complete": {
+        "complete": true,
+        "completed": 8,
+        "elapsedMs": 25338.625726
+      }
+    }
+  ],
+  "comparisons": [
+    {
+      "group": "train-generated",
+      "before": {
+        "games": 4,
+        "winners": {
+          "red": 0,
+          "blue": 4,
+          "draw": 0,
+          "undecided": 0
+        },
+        "defensiveWins": 2,
+        "defensiveGames": 4,
+        "turnsMedian": 61.0,
+        "turnsTotal": 217,
+        "commandsTotal": 6952,
+        "maxCommands": 2179,
+        "maxGameCpuP95Ms": 4.11654499999986,
+        "logisticsBothArmies": {
+          "restoredHP": 1164,
+          "rearmedPrimary": 347,
+          "netFuelGain": 6098,
+          "dryGroundStarts": 30,
+          "dryTruckStarts": 0
+        },
+        "logisticsDefensiveArmy": {
+          "restoredHP": 938,
+          "rearmedPrimary": 176,
+          "netFuelGain": 3005,
+          "dryGroundStarts": 21,
+          "dryTruckStarts": 0
+        }
+      },
+      "after": {
+        "games": 4,
+        "winners": {
+          "red": 0,
+          "blue": 4,
+          "draw": 0,
+          "undecided": 0
+        },
+        "defensiveWins": 2,
+        "defensiveGames": 4,
+        "turnsMedian": 61.0,
+        "turnsTotal": 230,
+        "commandsTotal": 7091,
+        "maxCommands": 2173,
+        "maxGameCpuP95Ms": 3.4311680000000706,
+        "logisticsBothArmies": {
+          "restoredHP": 1516,
+          "rearmedPrimary": 388,
+          "netFuelGain": 6609,
+          "dryGroundStarts": 43,
+          "dryTruckStarts": 0
+        },
+        "logisticsDefensiveArmy": {
+          "restoredHP": 1293,
+          "rearmedPrimary": 225,
+          "netFuelGain": 3080,
+          "dryGroundStarts": 12,
+          "dryTruckStarts": 0
+        }
+      },
+      "changedWinners": 0,
+      "identicalCommands": 0,
+      "pairs": [
+        {
+          "size": 20,
+          "sea": "none",
+          "policy": "defensive:offensive",
+          "leg": 0,
+          "matchup": "normal:normal",
+          "damageSeed": 1450,
+          "secondPlayerBonus": 2000,
+          "beforeWinner": "blue",
+          "afterWinner": "blue",
+          "beforeTurns": 34,
+          "afterTurns": 61
+        },
+        {
+          "size": 20,
+          "sea": "none",
+          "policy": "defensive:offensive",
+          "leg": 1,
+          "matchup": "normal:normal",
+          "damageSeed": 1450,
+          "secondPlayerBonus": 2000,
+          "beforeWinner": "blue",
+          "afterWinner": "blue",
+          "beforeTurns": 61,
+          "afterTurns": 61
+        },
+        {
+          "size": 32,
+          "sea": "none",
+          "policy": "defensive:offensive",
+          "leg": 0,
+          "matchup": "normal:normal",
+          "damageSeed": 1450,
+          "secondPlayerBonus": 2000,
+          "beforeWinner": "blue",
+          "afterWinner": "blue",
+          "beforeTurns": 61,
+          "afterTurns": 47
+        },
+        {
+          "size": 32,
+          "sea": "none",
+          "policy": "defensive:offensive",
+          "leg": 1,
+          "matchup": "normal:normal",
+          "damageSeed": 1450,
+          "secondPlayerBonus": 2000,
+          "beforeWinner": "blue",
+          "afterWinner": "blue",
+          "beforeTurns": 61,
+          "afterTurns": 61
+        }
+      ]
+    },
+    {
+      "group": "train-wide",
+      "before": {
+        "games": 4,
+        "winners": {
+          "red": 3,
+          "blue": 1,
+          "draw": 0,
+          "undecided": 0
+        },
+        "defensiveWins": 1,
+        "defensiveGames": 2,
+        "turnsMedian": 22.5,
+        "turnsTotal": 90,
+        "commandsTotal": 3560,
+        "maxCommands": 917,
+        "maxGameCpuP95Ms": 5.228098999999929,
+        "logisticsBothArmies": {
+          "restoredHP": 40,
+          "rearmedPrimary": 159,
+          "netFuelGain": 2355,
+          "dryGroundStarts": 7,
+          "dryTruckStarts": 0
+        },
+        "logisticsDefensiveArmy": {
+          "restoredHP": 0,
+          "rearmedPrimary": 74,
+          "netFuelGain": 814,
+          "dryGroundStarts": 7,
+          "dryTruckStarts": 0
+        }
+      },
+      "after": {
+        "games": 4,
+        "winners": {
+          "red": 3,
+          "blue": 1,
+          "draw": 0,
+          "undecided": 0
+        },
+        "defensiveWins": 1,
+        "defensiveGames": 2,
+        "turnsMedian": 22.5,
+        "turnsTotal": 90,
+        "commandsTotal": 3562,
+        "maxCommands": 919,
+        "maxGameCpuP95Ms": 4.273394000000053,
+        "logisticsBothArmies": {
+          "restoredHP": 20,
+          "rearmedPrimary": 155,
+          "netFuelGain": 2288,
+          "dryGroundStarts": 8,
+          "dryTruckStarts": 0
+        },
+        "logisticsDefensiveArmy": {
+          "restoredHP": 0,
+          "rearmedPrimary": 67,
+          "netFuelGain": 738,
+          "dryGroundStarts": 8,
+          "dryTruckStarts": 0
+        }
+      },
+      "changedWinners": 0,
+      "identicalCommands": 2,
+      "pairs": [
+        {
+          "size": 32,
+          "sea": "catalog",
+          "policy": "balanced:balanced",
+          "leg": 0,
+          "matchup": "normal:normal",
+          "damageSeed": 1451,
+          "secondPlayerBonus": 2000,
+          "beforeWinner": "blue",
+          "afterWinner": "blue",
+          "beforeTurns": 21,
+          "afterTurns": 21
+        },
+        {
+          "size": 32,
+          "sea": "catalog",
+          "policy": "balanced:balanced",
+          "leg": 1,
+          "matchup": "normal:normal",
+          "damageSeed": 1451,
+          "secondPlayerBonus": 2000,
+          "beforeWinner": "red",
+          "afterWinner": "red",
+          "beforeTurns": 23,
+          "afterTurns": 23
+        },
+        {
+          "size": 32,
+          "sea": "catalog",
+          "policy": "defensive:offensive",
+          "leg": 0,
+          "matchup": "normal:normal",
+          "damageSeed": 1451,
+          "secondPlayerBonus": 2000,
+          "beforeWinner": "red",
+          "afterWinner": "red",
+          "beforeTurns": 22,
+          "afterTurns": 22
+        },
+        {
+          "size": 32,
+          "sea": "catalog",
+          "policy": "defensive:offensive",
+          "leg": 1,
+          "matchup": "normal:normal",
+          "damageSeed": 1451,
+          "secondPlayerBonus": 2000,
+          "beforeWinner": "red",
+          "afterWinner": "red",
+          "beforeTurns": 24,
+          "afterTurns": 24
+        }
+      ]
+    },
+    {
+      "group": "hold-generated",
+      "before": {
+        "games": 8,
+        "winners": {
+          "red": 4,
+          "blue": 4,
+          "draw": 0,
+          "undecided": 0
+        },
+        "defensiveWins": 2,
+        "defensiveGames": 8,
+        "turnsMedian": 59.5,
+        "turnsTotal": 425,
+        "commandsTotal": 13829,
+        "maxCommands": 2327,
+        "maxGameCpuP95Ms": 4.0870410000025,
+        "logisticsBothArmies": {
+          "restoredHP": 2948,
+          "rearmedPrimary": 701,
+          "netFuelGain": 11589,
+          "dryGroundStarts": 39,
+          "dryTruckStarts": 3
+        },
+        "logisticsDefensiveArmy": {
+          "restoredHP": 2121,
+          "rearmedPrimary": 334,
+          "netFuelGain": 4788,
+          "dryGroundStarts": 15,
+          "dryTruckStarts": 0
+        }
+      },
+      "after": {
+        "games": 8,
+        "winners": {
+          "red": 3,
+          "blue": 5,
+          "draw": 0,
+          "undecided": 0
+        },
+        "defensiveWins": 3,
+        "defensiveGames": 8,
+        "turnsMedian": 61.0,
+        "turnsTotal": 436,
+        "commandsTotal": 13916,
+        "maxCommands": 2271,
+        "maxGameCpuP95Ms": 3.9733569999989413,
+        "logisticsBothArmies": {
+          "restoredHP": 4316,
+          "rearmedPrimary": 733,
+          "netFuelGain": 12727,
+          "dryGroundStarts": 63,
+          "dryTruckStarts": 3
+        },
+        "logisticsDefensiveArmy": {
+          "restoredHP": 3149,
+          "rearmedPrimary": 327,
+          "netFuelGain": 4390,
+          "dryGroundStarts": 18,
+          "dryTruckStarts": 0
+        }
+      },
+      "changedWinners": 3,
+      "identicalCommands": 0,
+      "pairs": [
+        {
+          "size": 20,
+          "sea": "none",
+          "policy": "defensive:offensive",
+          "leg": 0,
+          "matchup": "normal:normal",
+          "damageSeed": 1461,
+          "secondPlayerBonus": 2000,
+          "beforeWinner": "blue",
+          "afterWinner": "blue",
+          "beforeTurns": 31,
+          "afterTurns": 31
+        },
+        {
+          "size": 20,
+          "sea": "none",
+          "policy": "defensive:offensive",
+          "leg": 1,
+          "matchup": "normal:normal",
+          "damageSeed": 1461,
+          "secondPlayerBonus": 2000,
+          "beforeWinner": "blue",
+          "afterWinner": "blue",
+          "beforeTurns": 58,
+          "afterTurns": 61
+        },
+        {
+          "size": 20,
+          "sea": "coast",
+          "policy": "defensive:offensive",
+          "leg": 0,
+          "matchup": "normal:normal",
+          "damageSeed": 1461,
+          "secondPlayerBonus": 2000,
+          "beforeWinner": "blue",
+          "afterWinner": "red",
+          "beforeTurns": 61,
+          "afterTurns": 39
+        },
+        {
+          "size": 20,
+          "sea": "coast",
+          "policy": "defensive:offensive",
+          "leg": 1,
+          "matchup": "normal:normal",
+          "damageSeed": 1461,
+          "secondPlayerBonus": 2000,
+          "beforeWinner": "red",
+          "afterWinner": "red",
+          "beforeTurns": 37,
+          "afterTurns": 61
+        },
+        {
+          "size": 32,
+          "sea": "none",
+          "policy": "defensive:offensive",
+          "leg": 0,
+          "matchup": "normal:normal",
+          "damageSeed": 1461,
+          "secondPlayerBonus": 2000,
+          "beforeWinner": "blue",
+          "afterWinner": "blue",
+          "beforeTurns": 55,
+          "afterTurns": 61
+        },
+        {
+          "size": 32,
+          "sea": "none",
+          "policy": "defensive:offensive",
+          "leg": 1,
+          "matchup": "normal:normal",
+          "damageSeed": 1461,
+          "secondPlayerBonus": 2000,
+          "beforeWinner": "red",
+          "afterWinner": "red",
+          "beforeTurns": 61,
+          "afterTurns": 61
+        },
+        {
+          "size": 32,
+          "sea": "coast",
+          "policy": "defensive:offensive",
+          "leg": 0,
+          "matchup": "normal:normal",
+          "damageSeed": 1461,
+          "secondPlayerBonus": 2000,
+          "beforeWinner": "red",
+          "afterWinner": "blue",
+          "beforeTurns": 61,
+          "afterTurns": 61
+        },
+        {
+          "size": 32,
+          "sea": "coast",
+          "policy": "defensive:offensive",
+          "leg": 1,
+          "matchup": "normal:normal",
+          "damageSeed": 1461,
+          "secondPlayerBonus": 2000,
+          "beforeWinner": "red",
+          "afterWinner": "blue",
+          "beforeTurns": 61,
+          "afterTurns": 61
+        }
+      ]
+    },
+    {
+      "group": "hold-wide",
+      "before": {
+        "games": 8,
+        "winners": {
+          "red": 5,
+          "blue": 3,
+          "draw": 0,
+          "undecided": 0
+        },
+        "defensiveWins": 5,
+        "defensiveGames": 8,
+        "turnsMedian": 24.0,
+        "turnsTotal": 187,
+        "commandsTotal": 7485,
+        "maxCommands": 1058,
+        "maxGameCpuP95Ms": 4.8327250000002095,
+        "logisticsBothArmies": {
+          "restoredHP": 120,
+          "rearmedPrimary": 340,
+          "netFuelGain": 4117,
+          "dryGroundStarts": 21,
+          "dryTruckStarts": 0
+        },
+        "logisticsDefensiveArmy": {
+          "restoredHP": 100,
+          "rearmedPrimary": 290,
+          "netFuelGain": 2900,
+          "dryGroundStarts": 19,
+          "dryTruckStarts": 0
+        }
+      },
+      "after": {
+        "games": 8,
+        "winners": {
+          "red": 5,
+          "blue": 3,
+          "draw": 0,
+          "undecided": 0
+        },
+        "defensiveWins": 5,
+        "defensiveGames": 8,
+        "turnsMedian": 24.0,
+        "turnsTotal": 187,
+        "commandsTotal": 7476,
+        "maxCommands": 1058,
+        "maxGameCpuP95Ms": 4.581455999999889,
+        "logisticsBothArmies": {
+          "restoredHP": 140,
+          "rearmedPrimary": 357,
+          "netFuelGain": 4151,
+          "dryGroundStarts": 23,
+          "dryTruckStarts": 2
+        },
+        "logisticsDefensiveArmy": {
+          "restoredHP": 120,
+          "rearmedPrimary": 298,
+          "netFuelGain": 2908,
+          "dryGroundStarts": 21,
+          "dryTruckStarts": 2
+        }
+      },
+      "changedWinners": 0,
+      "identicalCommands": 4,
+      "pairs": [
+        {
+          "size": 32,
+          "sea": "catalog",
+          "policy": "defensive:offensive",
+          "leg": 0,
+          "matchup": "normal:normal",
+          "damageSeed": 1462,
+          "secondPlayerBonus": 0,
+          "beforeWinner": "red",
+          "afterWinner": "red",
+          "beforeTurns": 22,
+          "afterTurns": 22
+        },
+        {
+          "size": 32,
+          "sea": "catalog",
+          "policy": "defensive:offensive",
+          "leg": 1,
+          "matchup": "normal:normal",
+          "damageSeed": 1462,
+          "secondPlayerBonus": 0,
+          "beforeWinner": "blue",
+          "afterWinner": "blue",
+          "beforeTurns": 22,
+          "afterTurns": 23
+        },
+        {
+          "size": 32,
+          "sea": "catalog",
+          "policy": "defensive:offensive",
+          "leg": 0,
+          "matchup": "normal:normal",
+          "damageSeed": 1463,
+          "secondPlayerBonus": 0,
+          "beforeWinner": "red",
+          "afterWinner": "red",
+          "beforeTurns": 25,
+          "afterTurns": 25
+        },
+        {
+          "size": 32,
+          "sea": "catalog",
+          "policy": "defensive:offensive",
+          "leg": 1,
+          "matchup": "normal:normal",
+          "damageSeed": 1463,
+          "secondPlayerBonus": 0,
+          "beforeWinner": "red",
+          "afterWinner": "red",
+          "beforeTurns": 24,
+          "afterTurns": 24
+        },
+        {
+          "size": 32,
+          "sea": "catalog",
+          "policy": "defensive:offensive",
+          "leg": 0,
+          "matchup": "normal:normal",
+          "damageSeed": 1462,
+          "secondPlayerBonus": 2000,
+          "beforeWinner": "red",
+          "afterWinner": "red",
+          "beforeTurns": 25,
+          "afterTurns": 25
+        },
+        {
+          "size": 32,
+          "sea": "catalog",
+          "policy": "defensive:offensive",
+          "leg": 1,
+          "matchup": "normal:normal",
+          "damageSeed": 1462,
+          "secondPlayerBonus": 2000,
+          "beforeWinner": "red",
+          "afterWinner": "red",
+          "beforeTurns": 24,
+          "afterTurns": 24
+        },
+        {
+          "size": 32,
+          "sea": "catalog",
+          "policy": "defensive:offensive",
+          "leg": 0,
+          "matchup": "normal:normal",
+          "damageSeed": 1463,
+          "secondPlayerBonus": 2000,
+          "beforeWinner": "blue",
+          "afterWinner": "blue",
+          "beforeTurns": 25,
+          "afterTurns": 25
+        },
+        {
+          "size": 32,
+          "sea": "catalog",
+          "policy": "defensive:offensive",
+          "leg": 1,
+          "matchup": "normal:normal",
+          "damageSeed": 1463,
+          "secondPlayerBonus": 2000,
+          "beforeWinner": "blue",
+          "afterWinner": "blue",
+          "beforeTurns": 20,
+          "afterTurns": 19
+        }
+      ]
+    },
+    {
+      "group": "final-generated",
+      "before": {
+        "games": 8,
+        "winners": {
+          "red": 2,
+          "blue": 6,
+          "draw": 0,
+          "undecided": 0
+        },
+        "defensiveWins": 4,
+        "defensiveGames": 8,
+        "turnsMedian": 60.0,
+        "turnsTotal": 440,
+        "commandsTotal": 13579,
+        "maxCommands": 2126,
+        "maxGameCpuP95Ms": 3.7934540000023844,
+        "logisticsBothArmies": {
+          "restoredHP": 2915,
+          "rearmedPrimary": 643,
+          "netFuelGain": 11912,
+          "dryGroundStarts": 41,
+          "dryTruckStarts": 0
+        },
+        "logisticsDefensiveArmy": {
+          "restoredHP": 1664,
+          "rearmedPrimary": 350,
+          "netFuelGain": 5766,
+          "dryGroundStarts": 18,
+          "dryTruckStarts": 0
+        }
+      },
+      "after": {
+        "games": 8,
+        "winners": {
+          "red": 3,
+          "blue": 5,
+          "draw": 0,
+          "undecided": 0
+        },
+        "defensiveWins": 3,
+        "defensiveGames": 8,
+        "turnsMedian": 61.0,
+        "turnsTotal": 440,
+        "commandsTotal": 13367,
+        "maxCommands": 2114,
+        "maxGameCpuP95Ms": 4.057146000002831,
+        "logisticsBothArmies": {
+          "restoredHP": 3900,
+          "rearmedPrimary": 682,
+          "netFuelGain": 12538,
+          "dryGroundStarts": 28,
+          "dryTruckStarts": 0
+        },
+        "logisticsDefensiveArmy": {
+          "restoredHP": 3149,
+          "rearmedPrimary": 404,
+          "netFuelGain": 6571,
+          "dryGroundStarts": 15,
+          "dryTruckStarts": 0
+        }
+      },
+      "changedWinners": 1,
+      "identicalCommands": 1,
+      "pairs": [
+        {
+          "size": 20,
+          "sea": "none",
+          "policy": "defensive:offensive",
+          "leg": 0,
+          "matchup": "normal:normal",
+          "damageSeed": 1466,
+          "secondPlayerBonus": 2000,
+          "beforeWinner": "blue",
+          "afterWinner": "blue",
+          "beforeTurns": 38,
+          "afterTurns": 61
+        },
+        {
+          "size": 20,
+          "sea": "none",
+          "policy": "defensive:offensive",
+          "leg": 1,
+          "matchup": "normal:normal",
+          "damageSeed": 1466,
+          "secondPlayerBonus": 2000,
+          "beforeWinner": "red",
+          "afterWinner": "red",
+          "beforeTurns": 59,
+          "afterTurns": 31
+        },
+        {
+          "size": 32,
+          "sea": "none",
+          "policy": "defensive:offensive",
+          "leg": 0,
+          "matchup": "normal:normal",
+          "damageSeed": 1466,
+          "secondPlayerBonus": 2000,
+          "beforeWinner": "blue",
+          "afterWinner": "blue",
+          "beforeTurns": 61,
+          "afterTurns": 61
+        },
+        {
+          "size": 32,
+          "sea": "none",
+          "policy": "defensive:offensive",
+          "leg": 1,
+          "matchup": "normal:normal",
+          "damageSeed": 1466,
+          "secondPlayerBonus": 2000,
+          "beforeWinner": "blue",
+          "afterWinner": "red",
+          "beforeTurns": 61,
+          "afterTurns": 61
+        },
+        {
+          "size": 20,
+          "sea": "none",
+          "policy": "defensive:offensive",
+          "leg": 0,
+          "matchup": "hard:normal",
+          "damageSeed": 1466,
+          "secondPlayerBonus": 2000,
+          "beforeWinner": "blue",
+          "afterWinner": "blue",
+          "beforeTurns": 52,
+          "afterTurns": 61
+        },
+        {
+          "size": 20,
+          "sea": "none",
+          "policy": "defensive:offensive",
+          "leg": 1,
+          "matchup": "normal:hard",
+          "damageSeed": 1466,
+          "secondPlayerBonus": 2000,
+          "beforeWinner": "blue",
+          "afterWinner": "blue",
+          "beforeTurns": 47,
+          "afterTurns": 47
+        },
+        {
+          "size": 32,
+          "sea": "none",
+          "policy": "defensive:offensive",
+          "leg": 0,
+          "matchup": "hard:normal",
+          "damageSeed": 1466,
+          "secondPlayerBonus": 2000,
+          "beforeWinner": "red",
+          "afterWinner": "red",
+          "beforeTurns": 61,
+          "afterTurns": 57
+        },
+        {
+          "size": 32,
+          "sea": "none",
+          "policy": "defensive:offensive",
+          "leg": 1,
+          "matchup": "normal:hard",
+          "damageSeed": 1466,
+          "secondPlayerBonus": 2000,
+          "beforeWinner": "blue",
+          "afterWinner": "blue",
+          "beforeTurns": 61,
+          "afterTurns": 61
+        }
+      ]
+    },
+    {
+      "group": "final-wide",
+      "before": {
+        "games": 8,
+        "winners": {
+          "red": 6,
+          "blue": 2,
+          "draw": 0,
+          "undecided": 0
+        },
+        "defensiveWins": 2,
+        "defensiveGames": 4,
+        "turnsMedian": 24.0,
+        "turnsTotal": 213,
+        "commandsTotal": 8499,
+        "maxCommands": 1776,
+        "maxGameCpuP95Ms": 5.638271999999688,
+        "logisticsBothArmies": {
+          "restoredHP": 39,
+          "rearmedPrimary": 361,
+          "netFuelGain": 4754,
+          "dryGroundStarts": 18,
+          "dryTruckStarts": 0
+        },
+        "logisticsDefensiveArmy": {
+          "restoredHP": 20,
+          "rearmedPrimary": 149,
+          "netFuelGain": 1252,
+          "dryGroundStarts": 13,
+          "dryTruckStarts": 0
+        }
+      },
+      "after": {
+        "games": 8,
+        "winners": {
+          "red": 6,
+          "blue": 2,
+          "draw": 0,
+          "undecided": 0
+        },
+        "defensiveWins": 2,
+        "defensiveGames": 4,
+        "turnsMedian": 24.0,
+        "turnsTotal": 213,
+        "commandsTotal": 8505,
+        "maxCommands": 1776,
+        "maxGameCpuP95Ms": 5.48776799999996,
+        "logisticsBothArmies": {
+          "restoredHP": 79,
+          "rearmedPrimary": 382,
+          "netFuelGain": 4951,
+          "dryGroundStarts": 17,
+          "dryTruckStarts": 0
+        },
+        "logisticsDefensiveArmy": {
+          "restoredHP": 60,
+          "rearmedPrimary": 151,
+          "netFuelGain": 1350,
+          "dryGroundStarts": 12,
+          "dryTruckStarts": 0
+        }
+      },
+      "changedWinners": 0,
+      "identicalCommands": 6,
+      "pairs": [
+        {
+          "size": 32,
+          "sea": "catalog",
+          "policy": "balanced:balanced",
+          "leg": 0,
+          "matchup": "normal:normal",
+          "damageSeed": 1467,
+          "secondPlayerBonus": 2000,
+          "beforeWinner": "red",
+          "afterWinner": "red",
+          "beforeTurns": 42,
+          "afterTurns": 42
+        },
+        {
+          "size": 32,
+          "sea": "catalog",
+          "policy": "balanced:balanced",
+          "leg": 1,
+          "matchup": "normal:normal",
+          "damageSeed": 1467,
+          "secondPlayerBonus": 2000,
+          "beforeWinner": "red",
+          "afterWinner": "red",
+          "beforeTurns": 23,
+          "afterTurns": 23
+        },
+        {
+          "size": 32,
+          "sea": "catalog",
+          "policy": "defensive:offensive",
+          "leg": 0,
+          "matchup": "normal:normal",
+          "damageSeed": 1467,
+          "secondPlayerBonus": 2000,
+          "beforeWinner": "red",
+          "afterWinner": "red",
+          "beforeTurns": 24,
+          "afterTurns": 24
+        },
+        {
+          "size": 32,
+          "sea": "catalog",
+          "policy": "defensive:offensive",
+          "leg": 1,
+          "matchup": "normal:normal",
+          "damageSeed": 1467,
+          "secondPlayerBonus": 2000,
+          "beforeWinner": "red",
+          "afterWinner": "red",
+          "beforeTurns": 24,
+          "afterTurns": 24
+        },
+        {
+          "size": 32,
+          "sea": "catalog",
+          "policy": "balanced:balanced",
+          "leg": 0,
+          "matchup": "normal:normal",
+          "damageSeed": 1468,
+          "secondPlayerBonus": 2000,
+          "beforeWinner": "red",
+          "afterWinner": "red",
+          "beforeTurns": 28,
+          "afterTurns": 28
+        },
+        {
+          "size": 32,
+          "sea": "catalog",
+          "policy": "balanced:balanced",
+          "leg": 1,
+          "matchup": "normal:normal",
+          "damageSeed": 1468,
+          "secondPlayerBonus": 2000,
+          "beforeWinner": "red",
+          "afterWinner": "red",
+          "beforeTurns": 23,
+          "afterTurns": 23
+        },
+        {
+          "size": 32,
+          "sea": "catalog",
+          "policy": "defensive:offensive",
+          "leg": 0,
+          "matchup": "normal:normal",
+          "damageSeed": 1468,
+          "secondPlayerBonus": 2000,
+          "beforeWinner": "blue",
+          "afterWinner": "blue",
+          "beforeTurns": 25,
+          "afterTurns": 25
+        },
+        {
+          "size": 32,
+          "sea": "catalog",
+          "policy": "defensive:offensive",
+          "leg": 1,
+          "matchup": "normal:normal",
+          "damageSeed": 1468,
+          "secondPlayerBonus": 2000,
+          "beforeWinner": "blue",
+          "afterWinner": "blue",
+          "beforeTurns": 24,
+          "afterTurns": 24
+        }
+      ]
+    },
+    {
+      "group": "final-classic",
+      "before": {
+        "games": 4,
+        "winners": {
+          "red": 2,
+          "blue": 2,
+          "draw": 0,
+          "undecided": 0
+        },
+        "defensiveWins": 0,
+        "defensiveGames": 0,
+        "turnsMedian": 61.0,
+        "turnsTotal": 218,
+        "commandsTotal": 7424,
+        "maxCommands": 2259,
+        "maxGameCpuP95Ms": 3.963104000000385,
+        "logisticsBothArmies": {
+          "restoredHP": 838,
+          "rearmedPrimary": 365,
+          "netFuelGain": 6573,
+          "dryGroundStarts": 28,
+          "dryTruckStarts": 0
+        },
+        "logisticsDefensiveArmy": {
+          "restoredHP": 0,
+          "rearmedPrimary": 0,
+          "netFuelGain": 0,
+          "dryGroundStarts": 0,
+          "dryTruckStarts": 0
+        }
+      },
+      "after": {
+        "games": 4,
+        "winners": {
+          "red": 2,
+          "blue": 2,
+          "draw": 0,
+          "undecided": 0
+        },
+        "defensiveWins": 0,
+        "defensiveGames": 0,
+        "turnsMedian": 61.0,
+        "turnsTotal": 218,
+        "commandsTotal": 7424,
+        "maxCommands": 2259,
+        "maxGameCpuP95Ms": 4.84967400000005,
+        "logisticsBothArmies": {
+          "restoredHP": 838,
+          "rearmedPrimary": 365,
+          "netFuelGain": 6573,
+          "dryGroundStarts": 28,
+          "dryTruckStarts": 0
+        },
+        "logisticsDefensiveArmy": {
+          "restoredHP": 0,
+          "rearmedPrimary": 0,
+          "netFuelGain": 0,
+          "dryGroundStarts": 0,
+          "dryTruckStarts": 0
+        }
+      },
+      "changedWinners": 0,
+      "identicalCommands": 4,
+      "pairs": [
+        {
+          "size": 20,
+          "sea": "coast",
+          "policy": "balanced:balanced",
+          "leg": 0,
+          "matchup": "normal:normal",
+          "damageSeed": 1469,
+          "secondPlayerBonus": 2000,
+          "beforeWinner": "red",
+          "afterWinner": "red",
+          "beforeTurns": 61,
+          "afterTurns": 61
+        },
+        {
+          "size": 20,
+          "sea": "coast",
+          "policy": "balanced:balanced",
+          "leg": 1,
+          "matchup": "normal:normal",
+          "damageSeed": 1469,
+          "secondPlayerBonus": 2000,
+          "beforeWinner": "blue",
+          "afterWinner": "blue",
+          "beforeTurns": 35,
+          "afterTurns": 35
+        },
+        {
+          "size": 32,
+          "sea": "coast",
+          "policy": "balanced:balanced",
+          "leg": 0,
+          "matchup": "normal:normal",
+          "damageSeed": 1469,
+          "secondPlayerBonus": 2000,
+          "beforeWinner": "blue",
+          "afterWinner": "blue",
+          "beforeTurns": 61,
+          "afterTurns": 61
+        },
+        {
+          "size": 32,
+          "sea": "coast",
+          "policy": "balanced:balanced",
+          "leg": 1,
+          "matchup": "normal:normal",
+          "damageSeed": 1469,
+          "secondPlayerBonus": 2000,
+          "beforeWinner": "red",
+          "afterWinner": "red",
+          "beforeTurns": 61,
+          "afterTurns": 61
+        }
+      ]
+    }
+  ],
+  "ablations": [
+    {
+      "variant": "route-only",
+      "group": "hold-generated",
+      "stats": {
+        "games": 8,
+        "winners": {
+          "red": 3,
+          "blue": 5,
+          "draw": 0,
+          "undecided": 0
+        },
+        "defensiveWins": 3,
+        "defensiveGames": 8,
+        "turnsMedian": 61.0,
+        "turnsTotal": 436,
+        "commandsTotal": 13916,
+        "maxCommands": 2271,
+        "maxGameCpuP95Ms": 8.535827000000154,
+        "logisticsBothArmies": {
+          "restoredHP": 4316,
+          "rearmedPrimary": 733,
+          "netFuelGain": 12727,
+          "dryGroundStarts": 63,
+          "dryTruckStarts": 3
+        },
+        "logisticsDefensiveArmy": {
+          "restoredHP": 3149,
+          "rearmedPrimary": 327,
+          "netFuelGain": 4390,
+          "dryGroundStarts": 18,
+          "dryTruckStarts": 0
+        }
+      },
+      "note": "Diagnostic runs shared the host with other local tests. Latencies are not used for acceptance."
+    },
+    {
+      "variant": "route-only",
+      "group": "final-generated",
+      "stats": {
+        "games": 8,
+        "winners": {
+          "red": 3,
+          "blue": 5,
+          "draw": 0,
+          "undecided": 0
+        },
+        "defensiveWins": 3,
+        "defensiveGames": 8,
+        "turnsMedian": 61.0,
+        "turnsTotal": 440,
+        "commandsTotal": 13367,
+        "maxCommands": 2114,
+        "maxGameCpuP95Ms": 4.241034000000582,
+        "logisticsBothArmies": {
+          "restoredHP": 3900,
+          "rearmedPrimary": 682,
+          "netFuelGain": 12538,
+          "dryGroundStarts": 28,
+          "dryTruckStarts": 0
+        },
+        "logisticsDefensiveArmy": {
+          "restoredHP": 3149,
+          "rearmedPrimary": 404,
+          "netFuelGain": 6571,
+          "dryGroundStarts": 15,
+          "dryTruckStarts": 0
+        }
+      },
+      "note": "Diagnostic runs shared the host with other local tests. Latencies are not used for acceptance."
+    },
+    {
+      "variant": "delivery-only",
+      "group": "hold-generated",
+      "stats": {
+        "games": 8,
+        "winners": {
+          "red": 4,
+          "blue": 4,
+          "draw": 0,
+          "undecided": 0
+        },
+        "defensiveWins": 2,
+        "defensiveGames": 8,
+        "turnsMedian": 59.5,
+        "turnsTotal": 425,
+        "commandsTotal": 13829,
+        "maxCommands": 2327,
+        "maxGameCpuP95Ms": 5.0282139999999345,
+        "logisticsBothArmies": {
+          "restoredHP": 2948,
+          "rearmedPrimary": 701,
+          "netFuelGain": 11589,
+          "dryGroundStarts": 39,
+          "dryTruckStarts": 3
+        },
+        "logisticsDefensiveArmy": {
+          "restoredHP": 2121,
+          "rearmedPrimary": 334,
+          "netFuelGain": 4788,
+          "dryGroundStarts": 15,
+          "dryTruckStarts": 0
+        }
+      },
+      "note": "Diagnostic runs shared the host with other local tests. Latencies are not used for acceptance."
+    },
+    {
+      "variant": "delivery-only",
+      "group": "final-generated",
+      "stats": {
+        "games": 8,
+        "winners": {
+          "red": 2,
+          "blue": 6,
+          "draw": 0,
+          "undecided": 0
+        },
+        "defensiveWins": 4,
+        "defensiveGames": 8,
+        "turnsMedian": 60.0,
+        "turnsTotal": 440,
+        "commandsTotal": 13579,
+        "maxCommands": 2126,
+        "maxGameCpuP95Ms": 4.493529999999737,
+        "logisticsBothArmies": {
+          "restoredHP": 2915,
+          "rearmedPrimary": 643,
+          "netFuelGain": 11912,
+          "dryGroundStarts": 41,
+          "dryTruckStarts": 0
+        },
+        "logisticsDefensiveArmy": {
+          "restoredHP": 1664,
+          "rearmedPrimary": 350,
+          "netFuelGain": 5766,
+          "dryGroundStarts": 18,
+          "dryTruckStarts": 0
+        }
+      },
+      "note": "Diagnostic runs shared the host with other local tests. Latencies are not used for acceptance."
+    }
+  ]
+}

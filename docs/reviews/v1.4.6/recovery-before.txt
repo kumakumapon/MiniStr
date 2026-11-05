@@ -1,0 +1,58 @@
+
+ RUN  v3.2.7 /workspace/MiniStr-v1.4.6
+
+ ❯ |node| src/ai/recoveryRoute.test.ts (4 tests | 3 failed) 37ms
+   × routes a supplied, badly hurt red defender over several turns to actual paid repair 19ms
+     → expected 14 to be less than 10
+   × routes a supplied, badly hurt blue defender over several turns to actual paid repair 2ms
+     → expected 14 to be less than 10
+   ✓ keeps healthy, unaffordable, incompatible and disconnected repair approaches on their mission 9ms
+   × uses useful delivered stock to rank safe berths and restores both recipients next turn 6ms
+     → expected { type: 'wait', unitId: 'truck' } to deeply equal { type: 'move', unitId: 'truck', …(1) }
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |node| src/ai/recoveryRoute.test.ts > routes a supplied, badly hurt red defender over several turns to actual paid repair
+ FAIL  |node| src/ai/recoveryRoute.test.ts > routes a supplied, badly hurt blue defender over several turns to actual paid repair
+AssertionError: expected 14 to be less than 10
+ ❯ src/ai/recoveryRoute.test.ts:30:34
+     28|     if (action.type !== 'move') throw Error('Expected a repair approac…
+     29|     const previous = state.units.find((unit) => unit.id === 'hurt')!;
+     30|     expect(action.destination.x).toBeLessThan(previous.position!.x);
+       |                                  ^
+     31|     expect(chooseCpuAction(structuredClone(state), 'normal', player, '…
+     32|     expect(state).toEqual(before);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  |node| src/ai/recoveryRoute.test.ts > uses useful delivered stock to rank safe berths and restores both recipients next turn
+AssertionError: expected { type: 'wait', unitId: 'truck' } to deeply equal { type: 'move', unitId: 'truck', …(1) }
+
+- Expected
++ Received
+
+  {
+-   "destination": {
+-     "x": 2,
+-     "y": 1,
+-   },
+-   "type": "move",
++   "type": "wait",
+    "unitId": "truck",
+  }
+
+ ❯ src/ai/recoveryRoute.test.ts:70:18
+     68|   const before = structuredClone(state);
+     69|   const action = supplyRendezvous(state, 'red', own, () => 0);
+     70|   expect(action).toEqual({ type: 'move', unitId: 'truck', destination:…
+       |                  ^
+     71|   expect(state).toEqual(before);
+     72|   state = valueOf(applyGameCommand(state, action!));
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  3 failed | 1 passed (4)
+   Start at  13:19:52
+   Duration  998ms (transform 493ms, setup 0ms, collect 703ms, tests 37ms, environment 0ms, prepare 74ms)

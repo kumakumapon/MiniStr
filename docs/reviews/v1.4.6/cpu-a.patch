@@ -1,0 +1,86 @@
+diff --git a/src/ai/recovery.ts b/src/ai/recovery.ts
+new file mode 100644
+index 0000000..38472f7
+--- /dev/null
++++ b/src/ai/recovery.ts
+@@ -0,0 +1,40 @@
++import { isEvacuationTarget } from '../game/evacuation';
++import { affordableRepair, isServiceTile } from '../game/logistics';
++import { positionKey } from '../game/terrain';
++import { isDeployedUnit, usesModernRules, type DeployedUnit, type GameState, type PlayerId } from '../game/types';
++import { crossingDistances } from './crossing';
++
++const routes = new WeakMap<GameState, Map<string, ReadonlyMap<string, number> | null>>();
++
++/** Multi-turn recovery on public terrain, using friendly funds, berths and mission orders only. */
++export function defensiveRepairRoute(state: GameState, player: PlayerId, unit: DeployedUnit): ReadonlyMap<string, number> | undefined {
++  if (
++    !usesModernRules(state) ||
++    unit.owner !== player ||
++    unit.hp > 35 ||
++    affordableRepair(unit.kind, 100 - unit.hp, state.players[player].gold + state.players[player].income) === 0
++  )
++    return;
++  let cache = routes.get(state);
++  if (!cache) {
++    cache = new Map();
++    routes.set(state, cache);
++  }
++  const cached = cache.get(unit.id);
++  if (cached !== undefined) return cached ?? undefined;
++  if (isEvacuationTarget(state, unit.id, player) || state.units.some((ally) => ally.owner === player && ally.embarkedIn === unit.id)) {
++    cache.set(unit.id, null);
++    return;
++  }
++  const occupied = new Set(state.units.filter((ally) => ally.owner === player && ally.id !== unit.id && isDeployedUnit(ally)).map((ally) => positionKey(ally.position!)));
++  const targets = state.board.terrain.flatMap((row, y) =>
++    row.flatMap((_tile, x) => {
++      const position = { x, y };
++      return !occupied.has(positionKey(position)) && isServiceTile(state, position, unit.kind, player) ? [position] : [];
++    }),
++  );
++  const distances = targets.length ? crossingDistances(state, unit.kind, targets) : undefined;
++  const result = distances?.has(positionKey(unit.position)) ? distances : undefined;
++  cache.set(unit.id, result ?? null);
++  return result;
++}
+diff --git a/src/ai/rules.ts b/src/ai/rules.ts
+index a0ee576..6a9f237 100644
+--- a/src/ai/rules.ts
++++ b/src/ai/rules.ts
+@@ -1,4 +1,5 @@
+ import { supplyRendezvous } from './supplyRendezvous';
++import { defensiveRepairRoute } from './recovery';
+ import { supportedAttack } from './supportAttack';
+ import { policyConfig } from './armyPolicy';
+ import { chooseTacticalAction } from './tactics';
+@@ -527,6 +528,7 @@ export function evaluateCpuPosition(
+   const serviceDistance = serviceTargets.length ? Math.min(...serviceTargets.map(position => manhattanDistance(destination, position))) : undefined;
+   // A secondary gun can cover a retreat, but does not replace a depleted primary.
+   const criticalSupply = usesFiniteSupplyRules(state) && unit.kind === 'apc' && supplyStock(unit) <= SUPPLY_CAPACITY / 3 || remainingAmmo(unit) === 0 && unitStats[unit.kind].ammo > 0 || (unit.fuel ?? unitStats[unit.kind].fuel) <= unitStats[unit.kind].fuelPerTurn * 2;
++  const recoveryDistance = config.coordinatedDefense ? defensiveRepairRoute(state, player, unit)?.get(`${destination.x},${destination.y}`) : undefined;
+   const distance = crossingDistance(state, unit.kind, destination, targets);
+   const deployedEnemies = knownEnemies.filter(isDeployedUnit);
+   const pressure = deployedEnemies.reduce((risk, enemy) => {
+@@ -573,7 +575,7 @@ export function evaluateCpuPosition(
+   const captureLane = unit.hp > 50 && unitStats[unit.kind].capturePower === 0 && isPropertyTerrainKind(terrain.kind) && terrain.owner !== player ? 30 : 0;
+   const control = controlled ? terrain.owner === player ? 20 : unitStats[unit.kind].capturePower > 0 ? 110 : -80 : 0;
+   return coordinationValue(state, player, unit, destination, targets) + defense + supply + repair + response + retreatCover + logistics + hold + contest + score + control + firePosition
+-    - (criticalSupply && serviceDistance !== undefined ? serviceDistance : distance) * config.objectiveDistanceWeight
++    - (criticalSupply && serviceDistance !== undefined ? serviceDistance : recoveryDistance ?? distance) * config.objectiveDistanceWeight
+     - pressure * config.threatAvoidanceWeight * (1 - stalemateRelief(state))
+     - retreatPressure
+     - captureLane
+diff --git a/src/ai/supplyRendezvous.ts b/src/ai/supplyRendezvous.ts
+index 36efea7..b0f6d24 100644
+--- a/src/ai/supplyRendezvous.ts
++++ b/src/ai/supplyRendezvous.ts
+@@ -66,7 +66,7 @@ export function supplyRendezvous(
+       .filter((position) => needy.some((unit) => manhattanDistance(unit.position, position) === 1 && stockCanSupply(state, supplyStock(truck), unit)))
+       .map((position) => ({ position, delivery: delivery(truck, position), value: score(truck, position) }))
+       .filter((candidate) => candidate.delivery > 0)
+-      .map((candidate) => ({ ...candidate, value: candidate.value }))
++      .map((candidate) => ({ ...candidate, value: candidate.value + candidate.delivery }))
+       .filter((candidate) => Number.isFinite(candidate.value))
+       .sort(
+         (a, b) =>

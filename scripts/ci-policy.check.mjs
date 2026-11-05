@@ -171,3 +171,23 @@ test('native audio recovery has an output device and runs before the unchanged f
   assert.ok(audio > ci.indexOf('run: npx playwright install --with-deps chromium firefox webkit'));
   assert.ok(audio < ci.indexOf('run: npm run test:e2e'));
 });
+
+test('WebKit engine readiness keeps fresh app contexts and existing validation budgets', () => {
+  const fixture = readFileSync(new URL('../tests/e2e/helpers/engineTest.ts', import.meta.url), 'utf8');
+  const readiness = readFileSync(new URL('../tests/e2e/helpers/browserReadiness.ts', import.meta.url), 'utf8');
+  const terrain = readFileSync(new URL('../tests/e2e/terrain-presentation.spec.ts', import.meta.url), 'utf8');
+  const config = readFileSync(new URL('../playwright.config.ts', import.meta.url), 'utf8');
+  assert.match(fixture, /scope:\s*'worker'/);
+  assert.match(fixture, /timeout:\s*30_000/);
+  assert.match(fixture, /browserName === 'webkit'/);
+  assert.match(fixture, /checkBrowserReadiness\(browser\)/);
+  assert.match(readiness, /page\.url\(\) !== 'about:blank'/);
+  assert.match(readiness, /await context\.close\(\)/);
+  assert.doesNotMatch(readiness, /\.(goto|addInitScript|setStorageState)\(/);
+  assert.match(terrain, /from '\.\/helpers\/engineTest'/);
+  assert.match(config, /timeout:\s*30_000/);
+  assert.doesNotMatch(config, /retries:\s*[1-9]/);
+  assert.doesNotMatch(terrain, /test\.(skip|slow|setTimeout)\(/);
+  assert.match(ci, /terrain-presentation\.spec\.ts --project=webkit --repeat-each=3 --workers=2/);
+  assert.match(terrain, /\.toBeLessThan\(8\)/);
+});
