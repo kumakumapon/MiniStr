@@ -46,13 +46,13 @@ jobs:
       - name: Measure alternating pairs without parallel workloads
         run: |
           mkdir -p response-comparison
-          npm --prefix "$RUNNER_TEMP/ministr-before" run preview -- --host 127.0.0.1 --port 4190 > response-comparison/before-server.log 2>&1 &
+          npm --prefix "$RUNNER_TEMP/ministr-before" run preview -- --host 127.0.0.1 --port 4192 --strictPort > response-comparison/before-server.log 2>&1 &
           BEFORE_PID=$!
-          npm run preview -- --host 127.0.0.1 --port 4191 > response-comparison/after-server.log 2>&1 &
+          npm run preview -- --host 127.0.0.1 --port 4191 --strictPort > response-comparison/after-server.log 2>&1 &
           AFTER_PID=$!
           trap 'kill "$BEFORE_PID" "$AFTER_PID"' EXIT
           node --input-type=module <<'JS'
-          for (const port of [4190, 4191]) {
+          for (const port of [4192, 4191]) {
             const deadline = Date.now() + 30000;
             while (true) {
               try { if ((await fetch(`http://127.0.0.1:${port}`)).ok) break; } catch {}
@@ -65,7 +65,7 @@ jobs:
             for pair in 0 1 2; do
               if [ "$pair" = 1 ]; then variants='after before'; else variants='before after'; fi
               for variant in $variants; do
-                if [ "$variant" = before ]; then port=4190; else port=4191; fi
+                if [ "$variant" = before ]; then port=4192; else port=4191; fi
                 node scripts/browser-response-v147.mjs "http://127.0.0.1:$port" "response-comparison/$engine-$pair-$variant.json" "$variant" "$pair" "$engine"
               done
             done
