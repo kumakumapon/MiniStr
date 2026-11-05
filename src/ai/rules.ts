@@ -1,5 +1,6 @@
 import { supplyRendezvous } from './supplyRendezvous';
-import { defensiveRepairRoute } from './recovery';
+import { defensiveRepairRoute, defensiveServiceWait } from './recovery';
+import { defensiveHoldRelief } from './holdRelief';
 import { supportedAttack } from './supportAttack';
 import { policyConfig } from './armyPolicy';
 import { chooseTacticalAction } from './tactics';
@@ -522,7 +523,7 @@ export function evaluateCpuPosition(
   // A supplied but damaged defender still needs a compatible repair facility.
   // Trucks and depots restore ammunition/fuel, never HP. Use public own funds
   // and next-turn income; no speculative capture income or hidden enemy data.
-  const repair = config.coordinatedDefense && unit.hp <= 50 && isServiceTile(state, destination, unit.kind, player)
+  const repair = config.coordinatedDefense && unit.hp < 60 && isServiceTile(state, destination, unit.kind, player)
     ? affordableRepair(unit.kind, 100 - unit.hp, state.players[player].gold + state.players[player].income) * 2 : 0;
   const serviceTargets = needsSupply(unit, state) ? supplyTargets(state, player, unit) : [];
   const serviceDistance = serviceTargets.length ? Math.min(...serviceTargets.map(position => manhattanDistance(destination, position))) : undefined;
@@ -972,6 +973,10 @@ function chooseOrientedCpuAction(state: GameState, difficulty: CpuDifficulty, pl
   // objective) in order to seek an optional attack or move.
   if (endTurn(state).winner === player) return { type: 'endTurn' };
   const config = { ...policyConfig(cpuDifficultyConfig[difficulty], policy), tacticalPlanning: adaptTactics };
+  // Fill a relief vacancy before consuming its replacement on an unrelated
+  // capture or engineering order. Ending the turn to win remains first.
+  const relief = config.coordinatedDefense ? defensiveHoldRelief(state, player, getVisibleEnemies(state, player)) : undefined;
+  if (relief) return relief;
   const readyUnits = orderedUnits(state, player);
   const replacementFor = (unit: DeployedUnit) => readyUnits.some(ally => ally.id !== unit.id && unitStats[ally.kind].capturePower > 0
     && !ally.hasMoved && !ally.hasActed && ally.hp >= Math.max(60, unit.hp + 30)
@@ -1004,7 +1009,8 @@ function chooseOrientedCpuAction(state: GameState, difficulty: CpuDifficulty, pl
     const clear = clearCaptureLane(state, player, obstructing, readyUnits);
     if (clear) return clear;
   }
-  return attackAction(state, player, config, context.visibleEnemies)
+  return (config.coordinatedDefense ? defensiveServiceWait(state, player, context.visibleEnemies) : undefined)
+    ?? attackAction(state, player, config, context.visibleEnemies)
     ?? strikeAction(state, player, config, context.visibleEnemies)
     ?? (adaptTactics ? chooseTacticalAction(state, player, policy === 'defensive') : undefined)
     ?? chooseDemolition(state, player, context.visibleEnemies)

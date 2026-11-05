@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './helpers/engineTest';
 import type { ScenarioData } from '../../src/game/maps';
 
 test('390px touch selects once and keeps a scrolled board stable after localized redraw', async ({ browser, baseURL }, testInfo) => {
@@ -87,6 +87,16 @@ for (const width of [1280, 390])
       await first.click();
       await expect(first).toBeFocused();
       await expect(page.locator('.tile[tabindex="0"]')).toHaveCount(1);
+      await expect(first.locator('.selected-marker')).toHaveCount(1);
+      const originalBoard = await page.locator('.board').elementHandle();
+      await page.locator('#open-title').click();
+      await expect(page.locator('main')).toHaveAttribute('inert', '');
+      expect(await originalBoard!.evaluate((board) => board.isConnected && board === document.querySelector('.board'))).toBe(true);
+      await page.locator('#title-resume').click();
+      await expect(page.locator('main')).not.toHaveAttribute('inert', '');
+      expect(await originalBoard!.evaluate((board) => board === document.querySelector('.board'))).toBe(true);
+      await first.click();
+      await expect(first).toBeFocused();
       await expect(first.locator('.selected-marker')).toHaveCount(1);
       // Selection must keep the board's entire ancestor path connected.
       const stableTile = await page.locator('.tile[data-x="30"][data-y="0"]').elementHandle();

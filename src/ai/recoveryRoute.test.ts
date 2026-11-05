@@ -4,7 +4,7 @@ import { force, operation, valueOf } from '../game/operations.fixture';
 import { chooseCpuAction } from './rules';
 import { supplyRendezvous } from './supplyRendezvous';
 import { isDeployedUnit } from '../game/types';
-import { defensiveRepairRoute } from './recovery';
+import { defensiveRepairRoute, defensiveServiceWait } from './recovery';
 
 function fixture(player: PlayerId = 'red'): GameState {
   const foe = player === 'red' ? 'blue' : 'red';
@@ -120,4 +120,60 @@ it('preserves an evacuation target mission even when it is badly hurt', () => {
   expect(unit.id).toBe('r1');
   if (!isDeployedUnit(unit)) throw Error('Expected deployed evacuee');
   expect(defensiveRepairRoute(state, 'red', unit)).toBeUndefined();
+});
+
+it('rejects fuel-starved and too-late repair journeys, including public survive deadlines', () => {
+  const dry = fixture();
+  dry.units[0]!.fuel = 9;
+  const late = fixture();
+  late.scenarioSnapshot!.decisionRound = 6;
+  const survive = fixture();
+  survive.scenarioSnapshot!.defeatConditions = [{ type: 'survive', untilTurn: 6 }];
+  for (const state of [dry, late, survive]) {
+    const unit = state.units[0]!;
+    if (!isDeployedUnit(unit)) throw Error('Expected defender');
+    expect(defensiveRepairRoute(state, 'red', unit)).toBeUndefined();
+  }
+});
+
+it('finishes affordable repair but releases healthy, spent, loaded, legacy, evacuation and threatened units', () => {
+  const state = fixture();
+  state.units[0]!.position = { x: 0, y: 1 };
+  state.units[0]!.hp = 50;
+  expect(defensiveServiceWait(state, 'red', [])).toEqual({ type: 'wait', unitId: 'hurt' });
+  for (const patch of [
+    (s: GameState) => {
+      s.units[0]!.hp = 60;
+    },
+    (s: GameState) => {
+      s.units[0]!.hasMoved = true;
+    },
+    (s: GameState) => {
+      s.units[0]!.hasActed = true;
+    },
+    (s: GameState) => {
+      s.players.red.gold = 0;
+    },
+    (s: GameState) => {
+      s.board.terrain[1]![0] = { kind: 'plain' };
+    },
+    (s: GameState) => {
+      s.units.push({ ...force('cargo', 'infantry', 0, 0), position: undefined, embarkedIn: 'hurt' });
+    },
+    (s: GameState) => {
+      s.units[0]!.id = 'r1';
+      s.scenarioSnapshot!.victoryConditions = [{ type: 'withdraw', unitIds: ['r1'], positions: [{ x: 19, y: 1 }], required: 1 }];
+    },
+    (s: GameState) => {
+      delete s.ruleVersion;
+    },
+  ]) {
+    const next = structuredClone(state);
+    patch(next);
+    expect(defensiveServiceWait(next, 'red', [])).toBeUndefined();
+  }
+  const threatened = structuredClone(state);
+  threatened.units[0]!.hp = 1;
+  threatened.units[1] = force('enemy', 'rocket', 3, 1, { owner: 'blue' });
+  expect(defensiveServiceWait(threatened, 'red', [threatened.units[1]!, { ...force('cargo', 'infantry', 0, 0), position: undefined, embarkedIn: 'enemy' }])).toBeUndefined();
 });

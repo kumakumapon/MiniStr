@@ -68,8 +68,11 @@ test('CPU worker pauses, resumes and never applies results after returning to ti
   await expect.poll(() => page.locator('.board').innerHTML()).not.toBe(paused);
   await page.locator('#spectate-toggle').click();
   await page.locator('#open-title').click();
-  await expect(page.locator('.board .tile')).toHaveCount(0);
+  await expect(page.locator('.board .tile')).toHaveCount(1024);
+  await expect(page.locator('main')).toHaveAttribute('inert', '');
+  const covered = await page.locator('.board').innerHTML();
   await page.waitForTimeout(400);
+  expect(await page.locator('.board').innerHTML()).toBe(covered);
   await expect(page.locator('.title-overlay')).toBeVisible();
 });
 

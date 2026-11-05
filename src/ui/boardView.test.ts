@@ -104,3 +104,30 @@ it('updates a connected focused button without blurring or retaining hidden unit
   view.update(board, [tile('fog', 'fog')], 'ja:2:1');
   expect(document.activeElement).toBe(button);
 });
+
+it('keeps only the same immutable match under a menu and resumes without rebuilding localized tiles', () => {
+  const view = new BoardView(),
+    host = root(),
+    match = {};
+  host.innerHTML = '<div class="board"></div>';
+  view.update(host.querySelector('.board'), [tile('plain')], 'en', undefined, match);
+  const board = host.querySelector<HTMLElement>('.board')!,
+    button = board.firstElementChild;
+  button!.textContent = 'Localized';
+  board.insertAdjacentHTML('beforeend', '<span class="presentation-effect"></span>');
+  expect(view.cover(board, 'en', match)).toBe(true);
+  expect(view.cover(board, 'en', match)).toBe(true);
+  expect(board.querySelector('.presentation-effect')).toBeNull();
+  view.update(board, [tile('plain')], 'en', undefined, match);
+  expect(board.firstElementChild).toBe(button);
+  expect(button!.textContent).toBe('Localized');
+  host.innerHTML = '<div class="board"></div>';
+  expect(view.cover(host.querySelector('.board'), 'en', match)).toBe(true);
+  expect(host.querySelector('.board')).toBe(board);
+  expect(view.cover(board, 'ja', match)).toBe(false);
+  expect(board.children).toHaveLength(0);
+  view.update(board, [tile('new match')], 'ja', undefined, match);
+  expect(view.cover(board, 'ja', {})).toBe(false);
+  expect(board.children).toHaveLength(0);
+  expect(view.cover(null, 'ja', match)).toBe(false);
+});

@@ -17,7 +17,8 @@ export function localized<T extends object>(ja: T, en: Localized<T>): Localized<
     },
   });
 }
-export const formatNumber = (value: number): string => new Intl.NumberFormat(locale).format(value);
+const numberFormats = { ja: new Intl.NumberFormat('ja'), en: new Intl.NumberFormat('en') };
+export const formatNumber = (value: number): string => numberFormats[locale].format(value);
 export function formatDate(value: string): string {
   return Number.isFinite(Date.parse(value))
     ? new Intl.DateTimeFormat(locale, {
@@ -107,11 +108,25 @@ function englishDisplayText(value: string, owned: boolean, depth = 0): string {
   return value;
 }
 
+// Keep one bounded working set, never an unbounded history of match messages or
+// imported prose. Ownership is part of the key: authored names stay verbatim.
+const displayCache = new Map<string, string>();
+function displayText(value: string, owned: boolean): string {
+  if (locale !== 'en' || !japaneseCharacters.test(value) || value.length > 8192) return value;
+  const key = `${Number(owned)}:${value}`;
+  const previous = displayCache.get(key);
+  if (previous !== undefined) return previous;
+  const result = englishDisplayText(value, owned);
+  if (displayCache.size >= 512) displayCache.clear();
+  displayCache.set(key, result);
+  return result;
+}
+
 /** Translate UI copy while leaving interpolated names and identifiers verbatim. */
-export const translateText = (value: string): string => (locale === 'en' ? englishDisplayText(value, false) : value);
+export const translateText = (value: string): string => displayText(value, false);
 
 /** Only for app-owned generated descriptions; never pass user-authored prose. */
-export const translateGameText = (value: string): string => (locale === 'en' ? englishDisplayText(value, true) : value);
+export const translateGameText = (value: string): string => displayText(value, true);
 
 /** Legacy control aliases; general UI resources also cover dynamic copy. */
 const controls: Record<string, string> = {

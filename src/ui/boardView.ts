@@ -5,11 +5,25 @@ export class BoardView {
   private board?: HTMLElement;
   private cells: readonly string[] = [];
   private identity = '';
+  private context?: object;
 
-  update(replacement: HTMLElement | null, cells: readonly string[], identity: string, localize: (root: HTMLElement) => void = () => {}): void {
+  /** Freeze only the current match beneath its inert menu. No second board is cached. */
+  cover(replacement: HTMLElement | null, identity: string, context: object): boolean {
+    if (!replacement || !this.board || this.identity !== identity || this.context !== context) {
+      this.update(replacement, [], identity);
+      replacement?.replaceChildren();
+      return false;
+    }
+    if (replacement !== this.board) replacement.replaceWith(this.board);
+    this.board.querySelectorAll('.presentation-effect').forEach((effect) => effect.remove());
+    return true;
+  }
+
+  update(replacement: HTMLElement | null, cells: readonly string[], identity: string, localize: (root: HTMLElement) => void = () => {}, context?: object): void {
     if (!replacement || !cells.length) {
       this.board = undefined;
       this.cells = [];
+      this.context = undefined;
       return;
     }
     const retained = this.board && this.identity === identity && this.cells.length === cells.length;
@@ -26,6 +40,7 @@ export class BoardView {
       this.board = board;
       this.cells = cells;
       this.identity = identity;
+      this.context = context;
       return;
     }
     const tiles = [...board.children] as HTMLElement[];
@@ -57,5 +72,6 @@ export class BoardView {
     this.board = board;
     this.cells = cells;
     this.identity = identity;
+    this.context = context;
   }
 }

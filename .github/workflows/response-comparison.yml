@@ -1,10 +1,10 @@
-name: Response comparison v1.4.7
+name: Response comparison v1.4.8
 
 on:
   pull_request:
     branches: [main]
     paths:
-      - scripts/browser-response-v147.mjs
+      - scripts/browser-response-v148.mjs
       - .github/workflows/response-comparison.yml
   workflow_dispatch:
 
@@ -31,7 +31,7 @@ jobs:
       - run: npm ci
       - name: Build the released baseline using the same installed tools
         env:
-          BASELINE_SHA: 0342b69444a5b6910ec9f25e025ac9bf619bc043
+          BASELINE_SHA: f2746441154e648a951ea146d9edd8a492fb3854
         run: |
           mkdir -p "$RUNNER_TEMP/ministr-before"
           git archive "$BASELINE_SHA" | tar -x -C "$RUNNER_TEMP/ministr-before"
@@ -66,7 +66,7 @@ jobs:
               if [ "$pair" = 1 ]; then variants='after before'; else variants='before after'; fi
               for variant in $variants; do
                 if [ "$variant" = before ]; then port=4192; else port=4191; fi
-                node scripts/browser-response-v147.mjs "http://127.0.0.1:$port" "response-comparison/$engine-$pair-$variant.json" "$variant" "$pair" "$engine"
+                node scripts/browser-response-v148.mjs "http://127.0.0.1:$port" "response-comparison/$engine-$pair-$variant.json" "$variant" "$pair" "$engine"
               done
             done
           done
@@ -74,6 +74,6 @@ jobs:
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
-          name: response-comparison-v147
+          name: response-comparison-v148
           path: response-comparison/
           retention-days: 14
