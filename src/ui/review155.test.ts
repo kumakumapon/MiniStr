@@ -4,8 +4,8 @@ import { ScreenController } from './screenController';
 import { formatDate, formatNumber, getLocale, localized, localizeControls, renderLocalePicker, setLocale } from './locale';
 import { commandErrorMessage, uiText } from './strings';
 import { diagnosticReport } from './buildInfo';
-import { lessonProgress, renderLearning } from './learning';
-import { createScenarioInitialState, maps } from '../game';
+import { learningProgress, lessonProgress, renderLearning } from './learning';
+import { createScenarioInitialState, maps, reachablePositionsForPlayer } from '../game';
 import { createScenarioEditor, saveCustomScenario, scenarioDefinitionToData } from '../game';
 import { renderEditorView } from './editorView';
 import { EditorHistory } from '../game/editorTools';
@@ -129,11 +129,13 @@ describe('locale, learning and user-selected diagnostics', () => {
   it('provides skippable practice guidance and statistics from actual unit rules', () => {
     const state = createScenarioInitialState(maps[0]!);
     expect(lessonProgress(state, 'red', [{ type: 'endTurn' }])).toEqual([false, false, false, true, false, false]);
-    const html = renderLearning({ ...state, scenarioId: 'training' }, 'red', [{ type: 'move', unitId: 'r1', destination: { x: 0, y: 2 } }], true);
+    const unit = state.units.find((unit) => unit.owner === 'red')!;
+    const destination = reachablePositionsForPlayer(state, unit.id, 'red')[0]!;
+    const html = renderLearning({ ...state, scenarioId: 'training' }, 'red', learningProgress(state, 'red', [{ type: 'move', unitId: unit.id, destination }]), true);
     expect(html).toContain('✓ 移動');
     expect(html).toContain('毎ターン消費');
     expect(html).toContain('open');
-    expect(renderLearning(state, 'red', [], false)).toContain('ユニットを選択');
+    expect(renderLearning(state, 'red', learningProgress(state, 'red', []), false)).toContain('ユニットを選択');
   });
   it('exports operational metadata without play data, path, URL or user agent', () => {
     const report = JSON.parse(diagnosticReport({ persistent: false, bytes: 123, locale: 'ja', viewport: { width: 360, height: 780 } }));

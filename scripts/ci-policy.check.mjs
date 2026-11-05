@@ -191,3 +191,16 @@ test('WebKit engine readiness keeps fresh app contexts and existing validation b
   assert.match(ci, /terrain-presentation\.spec\.ts --project=webkit --repeat-each=3 --workers=2/);
   assert.match(terrain, /\.toBeLessThan\(8\)/);
 });
+
+test('the optional response comparison is read-only, paired, and separate from publication', () => {
+  const comparison = readFileSync(new URL('../.github/workflows/response-comparison.yml', import.meta.url), 'utf8');
+  assert.match(comparison, /permissions:\n {2}contents: read/);
+  assert.doesNotMatch(comparison, /pull_request_target:|workflow_run:|secrets:|pages: write|id-token: write|continue-on-error:/);
+  assert.match(comparison, /BASELINE_SHA: 0342b69444a5b6910ec9f25e025ac9bf619bc043/);
+  assert.match(comparison, /for engine in chromium firefox webkit/);
+  assert.match(comparison, /for pair in 0 1 2/);
+  assert.match(comparison, /variants='after before'/);
+  assert.match(comparison, /if: always\(\)/);
+  for (const action of [...comparison.matchAll(/uses: (\S+)/g)].map((match) => match[1])) assert.match(action, /^actions\/[\w-]+@[a-f0-9]{40}$/);
+  assert.doesNotMatch(ci, /response-comparison/);
+});

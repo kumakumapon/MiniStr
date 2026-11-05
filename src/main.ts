@@ -38,6 +38,8 @@ import './style.css';
 import { getLocale, setLocale, localizeControls, renderLocalePicker, localized, translateText, translateGameText } from './ui/locale';
 import { conditionDescription, scenarioDisplayName, scenarioDisplayBriefing } from './ui/scenarioText';
 import { renderLearning } from './ui/learning';
+import { emptyLearningProgress } from './game/learningLog';
+import { isLearningOperation } from './ui/learningSteps';
 import { ResultCache } from './ui/resultCache';
 import { buildInfo, diagnosticReport } from './ui/buildInfo';
 const resultCache = new ResultCache();
@@ -45,6 +47,8 @@ let learningOpen = false;
 import { ScreenController } from './ui/screenController';
 const screens = new ScreenController();
 import { TitleState, buildTitleOverlay } from './ui/titleScreen';
+import { TitlePreviews } from './ui/titlePreviews';
+const titlePreviews = new TitlePreviews();
 import { bindTitleEvents, installShareLink, installTitleDelegation, type TitleEventDeps } from './ui/titleEvents';
 import { renderShareLinkDialog, shareDialogVisible } from './ui/shareLinkDialog';
 const titleState = new TitleState(screens);
@@ -545,6 +549,7 @@ function resetGame(mapId: string, operation?: ScenarioDefinition): void {
   if (presetCatalog) presetNotice = '';
   resetSpectatorCamera();
   initialState = structuredClone(game);
+  if (isLearningOperation(game)) learningOpen = true;
   commandHistory = [];
   undoStack = new UndoHistory(() => initialState, () => commandHistory);
   selected = undefined;
@@ -724,6 +729,7 @@ function continueSavedGame(slotId?: string): boolean {
   initialState = { ...structuredClone(loaded.value.initialState), scenarioId: map.id };
   commandHistory = [...loaded.value.commands];
   game = { ...structuredClone(loaded.value.gameState), scenarioId: map.id };
+  if (isLearningOperation(game)) learningOpen = true;
   resetSpectatorCamera();
   if (loaded.value.campaignScenarioId && isCampaignScenarioUnlocked(campaignProgress, loaded.value.campaignScenarioId)) {
     campaignRun = { scenarioId: loaded.value.campaignScenarioId };
@@ -1064,6 +1070,7 @@ function render(): void {
   const wholeBoardShown = fullBoardView();
   const history = historyFor(replay?.file.initialState ?? initialState, replay?.file.commands ?? commandHistory);
   const historyIndex = replay?.index ?? commandHistory.length;
+  const learning = learningOpen ? history.learning(historyIndex, me) : undefined;
   const recordedContacts = !boardCovered && !wholeBoardShown && !concealed ? history.recon(historyIndex, me) : undefined;
   const contacts = recordedContacts?.ok ? recordedContacts.value : [];
   const contactsByPosition = new Map(showReconMarkers ? contacts.map(contact => [key(contact.position), contact]) : []);
@@ -1320,16 +1327,17 @@ function render(): void {
   const shareDialog = shareDialogOpen && titleState.pendingShare
     ? renderShareLinkDialog({ share: titleState.pendingShare.share, name: scenarioDisplayName(titleState.pendingShare.scenario), status: translateText(titleState.pendingShare.status) })
     : '';
+  titlePreviews.reset();
   const titleOverlay = buildTitleOverlay({
     state: titleState, tacticalPreset,
     titleOpen: screens.titleOpen && !shareDialogOpen, replayMode, campaignMenuOpen: screens.campaignMenuOpen, editorOpen: screens.editorOpen,
     scenarios: () => availableScenarios().map(map => tacticalPreset && !isDailyScenarioId(map.id) && map.id !== 'training' ? tacticalScenario(map) : map),
     selectedMapId: selectedMap.id,
-    mapPreview: map => mapPreviews.get(map) ?? (() => {
+    mapPreview: map => titlePreviews.placeholder(map.id, () => mapPreviews.get(map) ?? (() => {
       const preview = renderMapPreview(map.board, map.initialUnits, map.theme);
       mapPreviews.set(map, preview);
       return preview;
-    })(),
+    })()),
     operationCatalog, operationNotice,
     dailyCatalog, dailyNotice, dailyClock,
     savePicker: () => (localStorage.conflicted ? `<p role="alert">${getLocale() === 'en' ? 'Another tab changed the data. Export your match before reloading.' : '別タブで変更されました。現在の対局を書き出してから再読み込みしてください。'}<button id="storage-session-export">${getLocale() === 'en' ? 'Export current match' : '現在の対局を書き出す'}</button><button id="storage-reload">${getLocale() === 'en' ? 'Reload' : '再読み込み'}</button></p>` : '') + renderSaveSlotManager(listSaveSlots(localStorage), getStorageUsage(localStorage), false, matchMode === 'spectate'),
@@ -1379,7 +1387,7 @@ function render(): void {
     ${!hasSave() && hasStoredSave() ? `<p class="scenario-warning" role="status">${matchSaveDeletionAllowed(matchMode) ? uiText.invalidSaveWarning : uiText.invalidSaveWarningSpectating}</p>` : ''}
     ${replay ? `<section class="replay-toolbar" aria-label="リプレイ再生コントロール"><div><p class="card-kicker">REPLAY</p><strong aria-live="polite">${Number(replay.index)} / ${replay.file.commands.length} 手</strong></div><button id="replay-toggle" class="end-turn" aria-label="${replay.playing ? 'リプレイを一時停止' : replay.index >= replay.file.commands.length ? 'リプレイを最初から再生' : 'リプレイを再生'}" ${replay.file.commands.length === 0 ? 'disabled' : ''}>${replay.playing ? '一時停止' : replay.index >= replay.file.commands.length ? 'もう一度再生' : '再生'}</button><button id="replay-step" class="save-action" ${replay.playing || replay.index >= replay.file.commands.length ? 'disabled' : ''}>1手送り</button><label class="replay-speed">速度<select id="replay-speed" aria-label="リプレイ再生速度">${COMMAND_SPEEDS.map(speed => `<option value="${speed}" ${speed === replay!.speed ? 'selected' : ''}>${speed}x</option>`).join('')}</select></label>${renderReplayNavigation(replay.index, replay.file.commands.length, replay.viewpoint, replay.timeline)}<button id="replay-exit" class="save-action">リプレイを終了</button></section>` : ''}
     ${concealed ? '' : `<section class="battle-layout"><div class="battlefield-wrap ${escapeHtml(mapTheme)}"><div class="battlefield-heading"><div><p>OPERATION MAP</p><h2 data-user-content>${escapeHtml(scenarioDisplayName(renderedMap))}</h2></div><p class="status-message" aria-live="polite">${escapeHtml(message)}</p></div><p id="board-instructions" class="board-instructions">盤面では矢印キーでマスを移動し、Enter または Space で選択・行動、Esc で選択を解除できます。敵部隊を選択またはフォーカスすると、移動範囲と攻撃危険域を確認できます。N キーで次の未行動部隊へ移動します。</p>${spectateCameraControls}${turnStatus}${!replayMode && (renderedGame.ruleVersion ?? 0) >= 12 && matchMode !== 'hotseat' ? renderArmyPolicySummary(dailyLocked() ? defaultArmyPolicies() : cpuPolicies, matchMode === 'spectate') : ''}<div class="battlefield-stage">${!replayMode ? renderReconControl(renderedGame, me, canAct, reconTargeting) : ''}${renderControlObjective(renderedGame, renderedMap)}${evacuationAction}${renderFrontlineControls(renderedGame, me, selected, canAct && !replayMode, showSupplyRange, fortifyPending)}${renderBridgeControls(renderedGame, me, selected, canAct && !replayMode, bridgePending)}${renderTacticalControls(renderedGame, me, selected, canAct && !replayMode)}${unitBriefPanel}<div id="board-viewport" class="board-viewport" tabindex="0" aria-label="盤面スクロール領域" style="max-height:min(70vh, ${Number(boardViewportHeight)}px)"><div data-zoom="${boardZoomPercent(boardZoomIndex)}" class="board ${reconTargeting ? 'recon-targeting' : ''}" role="group" data-user-attributes="aria-label" aria-label="${escapeHtml(translateText(`${scenarioDisplayName(renderedMap)}の戦術マップ`))}" aria-describedby="board-instructions" style="grid-template-columns:repeat(${Number(renderedGame.board.width)},${Number(tileSize)}px);grid-template-rows:repeat(${Number(renderedGame.board.height)},${Number(tileSize)}px);aspect-ratio:${Number(renderedGame.board.width)} / ${Number(renderedGame.board.height)}"></div></div></div>${boardZoomControls}<div class="board-production-controls">${productionLauncher}</div><div class="map-legend" aria-label="マップ凡例"><span><i class="legend-dot reachable-dot" aria-hidden="true">移</i>移動可能</span><span><i class="legend-dot danger-dot" aria-hidden="true">危</i>敵の攻撃危険域</span><span><i class="legend-dot enemy-move-dot" aria-hidden="true">敵移</i>選択敵の移動範囲</span>${wholeBoardShown ? '' : '<span><i class="legend-dot fog-dot" aria-hidden="true">?</i>未索敵</span>'}<span><i class="legend-unit ${me}-dot" aria-hidden="true">自</i>自軍${matchMode === 'cpu' ? '' : `（${sideName(matchMode, me)}）`}</span><span><i class="legend-unit ${foe}-dot" aria-hidden="true">敵</i>敵軍${matchMode === 'cpu' ? '' : `（${sideName(matchMode, foe)}）`}</span><span><i class="legend-facility" aria-hidden="true">拠</i>拠点（市・工・空・港・司・補）</span><span><i class="legend-dot facility-ready-dot" aria-hidden="true">産</i>生産可能</span></div>${renderTerrainLegend(renderedMap.theme, terrainLegendOpen)}${tileInspectorPanel}${reconPanel}${analysisPanel}</div>
-    <aside id="command-panel" class="command-panel" aria-label="作戦情報" tabindex="-1">${objectivePanel}${unitQueuePanel}${selectedUnitActions}${cpuActivityPanel}<section class="commander-card ${escapeHtml(renderedGame.activePlayer)}"><img src="${commander.image}" alt="${commander.alt}" width="512" height="768" loading="lazy" decoding="async"><div><p>COMMANDER</p><h2>${commander.title}</h2><span>${commander.label}</span></div></section>${renderLearning(renderedGame, me, commandHistory, learningOpen)}${transportAction}${forecastCard}<section class="intel-card"><p class="card-kicker">RESOURCES</p><div class="resource-row"><span>自軍資金</span><strong>${Number(renderedGame.players[me].gold)}<small>G</small></strong></div><div class="resource-row enemy"><span>敵軍資金</span><strong>${wholeBoardShown ? Number(renderedGame.players[foe].gold) : '不明'}<small>G</small></strong></div></section><section class="intel-card"><p class="card-kicker">RECON</p><div class="recon-count"><strong>${renderedGame.units.filter(unit => unit.owner === foe && isDeployedUnit(unit) && visible.has(key(unit.position)) && (wholeBoardShown || detectedContact(renderedGame, me, unit))).length}</strong><span>確認済み敵部隊</span></div></section>${renderProductionCard(productionTargetLine, productionSummary, production)}${turnSetting}${saveSlotManager}<p class="command-tip">歩兵は中立・敵軍の都市、工場、空港、港湾、司令部で<strong>${getLocale() === 'en' ? 'capture' : '占領'}</strong>できます。生産先は盤面の空き「産」マスを選び、工場・空港・港湾から対応する部隊を生産します。輸送艦は歩兵を1部隊搭載し、別の島へ上陸させられます。</p></aside>
+    <aside id="command-panel" class="command-panel" aria-label="作戦情報" tabindex="-1">${objectivePanel}${unitQueuePanel}${selectedUnitActions}${cpuActivityPanel}<section class="commander-card ${escapeHtml(renderedGame.activePlayer)}"><img src="${commander.image}" alt="${commander.alt}" width="512" height="768" loading="lazy" decoding="async"><div><p>COMMANDER</p><h2>${commander.title}</h2><span>${commander.label}</span></div></section>${renderLearning(renderedGame, me, learning?.ok ? learning.value : emptyLearningProgress(), learningOpen)}${transportAction}${forecastCard}<section class="intel-card"><p class="card-kicker">RESOURCES</p><div class="resource-row"><span>自軍資金</span><strong>${Number(renderedGame.players[me].gold)}<small>G</small></strong></div><div class="resource-row enemy"><span>敵軍資金</span><strong>${wholeBoardShown ? Number(renderedGame.players[foe].gold) : '不明'}<small>G</small></strong></div></section><section class="intel-card"><p class="card-kicker">RECON</p><div class="recon-count"><strong>${renderedGame.units.filter(unit => unit.owner === foe && isDeployedUnit(unit) && visible.has(key(unit.position)) && (wholeBoardShown || detectedContact(renderedGame, me, unit))).length}</strong><span>確認済み敵部隊</span></div></section>${renderProductionCard(productionTargetLine, productionSummary, production)}${turnSetting}${saveSlotManager}<p class="command-tip">歩兵は中立・敵軍の都市、工場、空港、港湾、司令部で<strong>${getLocale() === 'en' ? 'capture' : '占領'}</strong>できます。生産先は盤面の空き「産」マスを選び、工場・空港・港湾から対応する部隊を生産します。輸送艦は歩兵を1部隊搭載し、別の島へ上陸させられます。</p></aside>
   </section>${mobileActionBar}`}</main>`, !boardCovered && !concealed);
   // Keep each complete overlay at its own HTML boundary instead of mixing
   // independent markup into the main screen's large template.
@@ -1388,6 +1396,7 @@ function render(): void {
   app.insertAdjacentHTML('beforeend', gameOverOverlay);
   app.insertAdjacentHTML('beforeend', briefing);
   app.insertAdjacentHTML('beforeend', titleOverlay);
+  titlePreviews.connect(app);
   app.insertAdjacentHTML('beforeend', shareDialog);
   app.insertAdjacentHTML('beforeend', campaignOverlay);
   app.insertAdjacentHTML('beforeend', editorOverlay);
@@ -1566,7 +1575,13 @@ function render(): void {
     else presetNotice = result.error;
     deploymentOpen = true; focusSelector = '#briefing-deployment-reset'; render();
   }));
-  app.querySelector<HTMLDetailsElement>('#learning-panel')?.addEventListener('toggle', event => { learningOpen = (event.currentTarget as HTMLDetailsElement).open; });
+  app.querySelector<HTMLDetailsElement>('#learning-panel')?.addEventListener('toggle', event => {
+    const next = (event.currentTarget as HTMLDetailsElement).open;
+    if (learningOpen === next) return;
+    learningOpen = next;
+    focusSelector = '#learning-panel > summary';
+    render();
+  });
   app.querySelector('#title-training')?.addEventListener('click', () => {
     if (!confirmReplaceMatch()) return;
     titleState.leaveTitle(); campaignRun = undefined; campaignOutcome = undefined; restoreUserSettings(); matchMode = 'cpu'; difficulty = 'easy'; learningOpen = true;

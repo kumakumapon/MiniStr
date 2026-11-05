@@ -6,6 +6,7 @@ import { specialOperationData } from './specialOperations';
 import { standaloneOperationData } from './standaloneOperations';
 import { crossingOperationData } from './crossingOperations';
 import { frontlineOperationData } from './frontlineOperations';
+import { learningOperationData } from './learningOperations';
 import { isUnitKindAvailable } from './facilities';
 import { controlOperationData } from './controlOperations';
 import { applyGameCommand, isGameCommand, isGameState, matchesScenarioInitialState, withinReplayBudget, type GameCommand, type StorageLike } from './session';
@@ -15,7 +16,9 @@ export const OPERATION_RECORDS_KEY = 'ministr.operations.records';
 export const MAX_OPERATION_RECORDS = 128;
 export const MAX_OPERATION_RECORD_BYTES = 384_000;
 export const operationIds: ReadonlySet<string> = new Set(
-  [...specialOperationData, ...standaloneOperationData, ...controlOperationData, ...frontlineOperationData, ...crossingOperationData].map((data) => data.id),
+  [...specialOperationData, ...standaloneOperationData, ...controlOperationData, ...frontlineOperationData, ...crossingOperationData, ...learningOperationData].map(
+    (data) => data.id,
+  ),
 );
 export const OPERATION_CHALLENGES = ['swift', 'careful', 'survivors'] as const;
 export type OperationChallenge = (typeof OPERATION_CHALLENGES)[number];
