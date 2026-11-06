@@ -13,6 +13,8 @@ it('opens lazily, filters all friendly units including cargo and dispatches expl
     { id: 'r3', kind: 'apc', owner: 'red', hp: 100, position: { x: 3, y: 2 }, hasMoved: false, hasActed: false },
     { id: 'b1', kind: 'tank', owner: 'blue', hp: 50, position: { x: 4, y: 4 }, hasMoved: false, hasActed: false },
   ];
+  state.board.terrain[2]![2] = { kind: 'city', owner: 'red' };
+  state.players.red.income = 0; // Cached income predates the newly captured city.
   const root = document.createElement('div');
   const commands: GameCommand[] = [],
     selected: string[] = [];
@@ -32,6 +34,8 @@ it('opens lazily, filters all friendly units including cargo and dispatches expl
   details.dispatchEvent(new Event('toggle'));
   expect(root.querySelectorAll('[data-logistics-row]')).toHaveLength(3);
   expect(root.textContent).toContain('Embarked');
+  expect(root.querySelector('[data-logistics-row]')!.textContent).toContain('HP 60');
+  expect(state.units[0]!.hp).toBe(50);
   expect(root.textContent).not.toContain('b1');
   expect(root.textContent).not.toMatch(/[\u3040-\u30ff\u3400-\u9fff]/);
   const priority = root.querySelector<HTMLSelectElement>('[data-logistics-field="priority"]')!;

@@ -1,4 +1,5 @@
-import { isDeployedUnit, type GameState, type PlayerId } from '../game/types';
+import { incomePropertyCount } from '../game/state';
+import { isDeployedUnit, usesModernRules, type GameState, type PlayerId } from '../game/types';
 import { logisticsOrder, usesLogisticsOrders } from '../game/logisticsOrders';
 import { unitStats } from '../game/units';
 import { weaponAmmo, weaponsForUnit } from '../game/weapons';
@@ -18,10 +19,12 @@ export function renderLogisticsRoster(state: GameState, player: PlayerId, canAct
   const units = state.units.filter((u) => u.owner === player);
   const summary = `${t('部隊・兵站一覧', 'Units and logistics')} (${units.length})`;
   if (!rosterOpen) return `<details id="logistics-roster" class="logistics-roster"><summary id="logistics-roster-toggle">${summary}</summary></details>`;
-  const projected = applyModernUpkeep(
-    { ...state, players: { ...state.players, [player]: { ...state.players[player], gold: state.players[player].gold + state.players[player].income } } },
-    player,
-  );
+  const projected = usesModernRules(state)
+    ? applyModernUpkeep(
+        { ...state, players: { ...state.players, [player]: { ...state.players[player], gold: state.players[player].gold + incomePropertyCount(state, player) * 1000 } } },
+        player,
+      )
+    : state;
   const supported = usesLogisticsOrders(state);
   const rows = units
     .map((unit) => {
@@ -44,7 +47,7 @@ export function renderLogisticsRoster(state: GameState, player: PlayerId, canAct
         )}</p>${supported ? field('priority', t('補給順', 'Supply priority'), `<option value="false" ${!order.priority ? 'selected' : ''}>${t('通常', 'Normal')}</option><option value="true" ${order.priority ? 'selected' : ''}>${t('優先', 'Priority')}</option>`) + field('resource', t('物資配分', 'Allocation'), `<option value="ammo" ${order.resource === 'ammo' ? 'selected' : ''}>${t('弾薬優先', 'Ammo first')}</option><option value="fuel" ${order.resource === 'fuel' ? 'selected' : ''}>${t('燃料優先', 'Fuel first')}</option>`) + field('repair', t('修理', 'Repair'), `<option value="true" ${order.repair ? 'selected' : ''}>${t('実施', 'Enabled')}</option><option value="false" ${!order.repair ? 'selected' : ''}>${t('保留', 'Hold')}</option>`) : ''}</li>`;
     })
     .join('');
-  return `<details open id="logistics-roster" class="logistics-roster"><summary id="logistics-roster-toggle">${t('部隊・兵站一覧', 'Units and logistics')} (${units.length})</summary><p>${t('敵行動や施設所有の変化で見込みは変わります。留保資金は修理だけを制限します。', 'Enemy actions or ownership changes can alter estimates. Reserved funds limit repairs only.')}</p>${supported ? `<label>${t('修理後に残す資金', 'Funds to reserve after repairs')}<input id="repair-reserve" type="number" min="0" max="1000000" step="100" value="${state.repairReserve?.[player] ?? 0}" ${!canAct ? 'disabled' : ''}></label>` : `<p>${t('この対局は従来の自動補給・修理を使用します。', 'This match uses legacy automatic supply and repairs.')}</p>`}<label>${t('絞り込み', 'Filter')}<select id="logistics-filter"><option value="all">${t('すべて', 'All')}</option><option value="damaged">${t('損傷', 'Damaged')}</option><option value="ammo">${t('弾薬不足', 'Ammo missing')}</option><option value="fuel">${t('燃料不足', 'Low fuel')}</option><option value="ready">${t('未行動', 'Ready')}</option></select></label><ul id="logistics-list">${rows}</ul></details>`;
+  return `<details open id="logistics-roster" class="logistics-roster"><summary id="logistics-roster-toggle">${t('部隊・兵站一覧', 'Units and logistics')} (${units.length})</summary><p>${t('敵行動や施設所有の変化で見込みは変わります。留保資金は修理だけを制限します。', 'Enemy actions or ownership changes can alter estimates. Reserved funds limit repairs only.')}</p>${supported ? `<label>${t('修理後に残す資金', 'Funds to reserve after repairs')}<input id="repair-reserve" type="number" min="0" max="1000000" step="1" value="${state.repairReserve?.[player] ?? 0}" ${!canAct ? 'disabled' : ''}></label>` : `<p>${t('この対局は従来の自動補給・修理を使用します。', 'This match uses legacy automatic supply and repairs.')}</p>`}<label>${t('絞り込み', 'Filter')}<select id="logistics-filter"><option value="all">${t('すべて', 'All')}</option><option value="damaged">${t('損傷', 'Damaged')}</option><option value="ammo">${t('弾薬不足', 'Ammo missing')}</option><option value="fuel">${t('燃料不足', 'Low fuel')}</option><option value="ready">${t('未行動', 'Ready')}</option></select></label><ul id="logistics-list">${rows}</ul></details>`;
 }
 
 export function bindLogisticsRoster(root: HTMLElement, refresh: () => void, dispatch: (command: GameCommand) => void, select: (id: string) => void): void {
