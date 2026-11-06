@@ -1,0 +1,728 @@
+{
+  "format": "v149-cpu-results",
+  "before": {
+    "games": 26,
+    "redWins": 15,
+    "blueWins": 11,
+    "defensiveWins": 10,
+    "offensiveWins": 16
+  },
+  "after": {
+    "games": 26,
+    "redWins": 14,
+    "blueWins": 12,
+    "defensiveWins": 11,
+    "offensiveWins": 15
+  },
+  "identicalCommandStreams": 24,
+  "unchangedWinners": 25,
+  "rows": [
+    {
+      "case": "coast",
+      "leg": 0,
+      "before": {
+        "winner": "blue",
+        "turns": 61,
+        "commands": 2161,
+        "commandDigest": "7b4cc99cf13ffd3abe42054d8d9e7f1850bec609dfd62a6ea2455c11134f3e68"
+      },
+      "after": {
+        "winner": "blue",
+        "turns": 61,
+        "commands": 2161,
+        "commandDigest": "7b4cc99cf13ffd3abe42054d8d9e7f1850bec609dfd62a6ea2455c11134f3e68"
+      },
+      "changedMetrics": {}
+    },
+    {
+      "case": "coast",
+      "leg": 1,
+      "before": {
+        "winner": "red",
+        "turns": 61,
+        "commands": 2261,
+        "commandDigest": "da5cd507efbce0c5a2ad9c93683f02bc66d9dd8e0d2063c681ab89c7c7b991fe"
+      },
+      "after": {
+        "winner": "blue",
+        "turns": 61,
+        "commands": 2271,
+        "commandDigest": "9ac9b78548e6dd76df70cb3e32cec3f23d9fe73c3da818b0e864b093de82dddc"
+      },
+      "changedMetrics": {
+        "damageValue": {
+          "before": {
+            "red": 415410,
+            "blue": 348190
+          },
+          "after": {
+            "red": 401900,
+            "blue": 347560
+          }
+        },
+        "destroyedValue": {
+          "before": {
+            "red": 411000,
+            "blue": 326000
+          },
+          "after": {
+            "red": 397000,
+            "blue": 311000
+          }
+        },
+        "repairExpense": {
+          "before": {
+            "red": 2000,
+            "blue": 11600
+          },
+          "after": {
+            "red": 3600,
+            "blue": 18600
+          }
+        },
+        "ammunitionSpent": {
+          "before": {
+            "red": 223,
+            "blue": 242
+          },
+          "after": {
+            "red": 214,
+            "blue": 230
+          }
+        },
+        "logistics": {
+          "before": {
+            "restoredHP": {
+              "red": 80,
+              "blue": 280
+            },
+            "rearmedPrimary": {
+              "red": 18,
+              "blue": 54
+            },
+            "netFuelGain": {
+              "red": 953,
+              "blue": 1098
+            },
+            "dryGroundStarts": {
+              "red": 3,
+              "blue": 0
+            },
+            "dryTruckStarts": {
+              "red": 0,
+              "blue": 0
+            }
+          },
+          "after": {
+            "restoredHP": {
+              "red": 80,
+              "blue": 500
+            },
+            "rearmedPrimary": {
+              "red": 33,
+              "blue": 55
+            },
+            "netFuelGain": {
+              "red": 1097,
+              "blue": 1254
+            },
+            "dryGroundStarts": {
+              "red": 6,
+              "blue": 0
+            },
+            "dryTruckStarts": {
+              "red": 0,
+              "blue": 0
+            }
+          }
+        },
+        "ambush": {
+          "before": {
+            "prepared": {
+              "red": 2,
+              "blue": 64
+            },
+            "fired": {
+              "red": 0,
+              "blue": 0
+            },
+            "expired": {
+              "red": 0,
+              "blue": 62
+            },
+            "cancelled": {
+              "red": 2,
+              "blue": 1
+            }
+          },
+          "after": {
+            "prepared": {
+              "red": 2,
+              "blue": 60
+            },
+            "fired": {
+              "red": 0,
+              "blue": 0
+            },
+            "expired": {
+              "red": 0,
+              "blue": 59
+            },
+            "cancelled": {
+              "red": 2,
+              "blue": 1
+            }
+          }
+        },
+        "diveActions": {
+          "before": {
+            "red": 11,
+            "blue": 8
+          },
+          "after": {
+            "red": 9,
+            "blue": 9
+          }
+        }
+      }
+    },
+    {
+      "case": "control-objective",
+      "leg": 0,
+      "before": {
+        "winner": "red",
+        "turns": 18,
+        "commands": 403,
+        "commandDigest": "c471247d286c51f025389910656e9f37b09d822bf372c0f41c293a6bec96466d"
+      },
+      "after": {
+        "winner": "red",
+        "turns": 18,
+        "commands": 403,
+        "commandDigest": "c471247d286c51f025389910656e9f37b09d822bf372c0f41c293a6bec96466d"
+      },
+      "changedMetrics": {}
+    },
+    {
+      "case": "control-objective",
+      "leg": 1,
+      "before": {
+        "winner": "blue",
+        "turns": 18,
+        "commands": 411,
+        "commandDigest": "4d082aa8c236c96778ea6bb629d60e6ac9b3136f41957fc7af3eb721877f81e3"
+      },
+      "after": {
+        "winner": "blue",
+        "turns": 18,
+        "commands": 411,
+        "commandDigest": "4d082aa8c236c96778ea6bb629d60e6ac9b3136f41957fc7af3eb721877f81e3"
+      },
+      "changedMetrics": {}
+    },
+    {
+      "case": "control",
+      "leg": 0,
+      "before": {
+        "winner": "red",
+        "turns": 39,
+        "commands": 1036,
+        "commandDigest": "1b1920ce272c95a1093f45577cff6a076529357228b593d5579958640b1f86c6"
+      },
+      "after": {
+        "winner": "red",
+        "turns": 39,
+        "commands": 1036,
+        "commandDigest": "1b1920ce272c95a1093f45577cff6a076529357228b593d5579958640b1f86c6"
+      },
+      "changedMetrics": {}
+    },
+    {
+      "case": "control",
+      "leg": 1,
+      "before": {
+        "winner": "red",
+        "turns": 61,
+        "commands": 1524,
+        "commandDigest": "ce8a1efaa89b2dfe52b5ae1d42b8cacca702a0e74cadc72276d513ec91171bfd"
+      },
+      "after": {
+        "winner": "red",
+        "turns": 61,
+        "commands": 1524,
+        "commandDigest": "ce8a1efaa89b2dfe52b5ae1d42b8cacca702a0e74cadc72276d513ec91171bfd"
+      },
+      "changedMetrics": {}
+    },
+    {
+      "case": "held-coast",
+      "leg": 0,
+      "before": {
+        "winner": "red",
+        "turns": 61,
+        "commands": 2335,
+        "commandDigest": "f1dd36d5a32ca35361b33b090d49fb1c47ff42dbdcf70af711c86d86210d33d5"
+      },
+      "after": {
+        "winner": "red",
+        "turns": 61,
+        "commands": 2335,
+        "commandDigest": "f1dd36d5a32ca35361b33b090d49fb1c47ff42dbdcf70af711c86d86210d33d5"
+      },
+      "changedMetrics": {}
+    },
+    {
+      "case": "held-coast",
+      "leg": 1,
+      "before": {
+        "winner": "blue",
+        "turns": 61,
+        "commands": 2361,
+        "commandDigest": "87c819b981291d2a22535c2c4105a0e20b671217d7cbd5fbce8bd554c3b28008"
+      },
+      "after": {
+        "winner": "blue",
+        "turns": 61,
+        "commands": 2361,
+        "commandDigest": "87c819b981291d2a22535c2c4105a0e20b671217d7cbd5fbce8bd554c3b28008"
+      },
+      "changedMetrics": {}
+    },
+    {
+      "case": "held-inland",
+      "leg": 0,
+      "before": {
+        "winner": "blue",
+        "turns": 46,
+        "commands": 1672,
+        "commandDigest": "be5310869090b02e39a6bb130c9f3dd6e3a605cf4edf43305fa014774d229b4f"
+      },
+      "after": {
+        "winner": "blue",
+        "turns": 46,
+        "commands": 1672,
+        "commandDigest": "be5310869090b02e39a6bb130c9f3dd6e3a605cf4edf43305fa014774d229b4f"
+      },
+      "changedMetrics": {}
+    },
+    {
+      "case": "held-inland",
+      "leg": 1,
+      "before": {
+        "winner": "red",
+        "turns": 56,
+        "commands": 1890,
+        "commandDigest": "26e66996d83a2fb7477b5f07250a6cf19f41b2ed4428775820df153ceea49c5a"
+      },
+      "after": {
+        "winner": "red",
+        "turns": 56,
+        "commands": 1890,
+        "commandDigest": "26e66996d83a2fb7477b5f07250a6cf19f41b2ed4428775820df153ceea49c5a"
+      },
+      "changedMetrics": {}
+    },
+    {
+      "case": "hold-objective",
+      "leg": 0,
+      "before": {
+        "winner": "red",
+        "turns": 8,
+        "commands": 170,
+        "commandDigest": "4a53569fe0c7e342a357d9f3e42d27ff7beeb052d4393ef2b1b4d3cded899bda"
+      },
+      "after": {
+        "winner": "red",
+        "turns": 8,
+        "commands": 170,
+        "commandDigest": "4a53569fe0c7e342a357d9f3e42d27ff7beeb052d4393ef2b1b4d3cded899bda"
+      },
+      "changedMetrics": {}
+    },
+    {
+      "case": "hold-objective",
+      "leg": 1,
+      "before": {
+        "winner": "red",
+        "turns": 8,
+        "commands": 175,
+        "commandDigest": "5fdf9c0f010121574300036a753fdc8d12384b6038f1d98f02c31255adf14f5f"
+      },
+      "after": {
+        "winner": "red",
+        "turns": 8,
+        "commands": 175,
+        "commandDigest": "5fdf9c0f010121574300036a753fdc8d12384b6038f1d98f02c31255adf14f5f"
+      },
+      "changedMetrics": {}
+    },
+    {
+      "case": "inland",
+      "leg": 0,
+      "before": {
+        "winner": "blue",
+        "turns": 61,
+        "commands": 2058,
+        "commandDigest": "a0e1498ebc08e91ccfecb1a9a4b215ddb7864365b7e03fcf91ef9b347a74b687"
+      },
+      "after": {
+        "winner": "blue",
+        "turns": 61,
+        "commands": 2058,
+        "commandDigest": "a0e1498ebc08e91ccfecb1a9a4b215ddb7864365b7e03fcf91ef9b347a74b687"
+      },
+      "changedMetrics": {}
+    },
+    {
+      "case": "inland",
+      "leg": 1,
+      "before": {
+        "winner": "red",
+        "turns": 61,
+        "commands": 2073,
+        "commandDigest": "9451fb64e4ecbda8b2c7208128afdf7ac1bc602b926b6a3c776168c6522a8044"
+      },
+      "after": {
+        "winner": "red",
+        "turns": 61,
+        "commands": 2073,
+        "commandDigest": "9451fb64e4ecbda8b2c7208128afdf7ac1bc602b926b6a3c776168c6522a8044"
+      },
+      "changedMetrics": {}
+    },
+    {
+      "case": "new-coast",
+      "leg": 0,
+      "before": {
+        "winner": "red",
+        "turns": 61,
+        "commands": 2422,
+        "commandDigest": "225e33bc82414a95f243051f51cc9ad3439a38e12026ed0785397b10b6ca9a9b"
+      },
+      "after": {
+        "winner": "red",
+        "turns": 61,
+        "commands": 2422,
+        "commandDigest": "225e33bc82414a95f243051f51cc9ad3439a38e12026ed0785397b10b6ca9a9b"
+      },
+      "changedMetrics": {}
+    },
+    {
+      "case": "new-coast",
+      "leg": 1,
+      "before": {
+        "winner": "blue",
+        "turns": 61,
+        "commands": 2315,
+        "commandDigest": "305e4d9b0081260fdb2c3a42b0593c2a7969c2b84f26a0f4d6d6e7f1faa9f88d"
+      },
+      "after": {
+        "winner": "blue",
+        "turns": 61,
+        "commands": 2315,
+        "commandDigest": "305e4d9b0081260fdb2c3a42b0593c2a7969c2b84f26a0f4d6d6e7f1faa9f88d"
+      },
+      "changedMetrics": {}
+    },
+    {
+      "case": "new-inland",
+      "leg": 0,
+      "before": {
+        "winner": "blue",
+        "turns": 61,
+        "commands": 2166,
+        "commandDigest": "f04de1f6dddd9867e7305fcbf9834b8fdfa86cd134402c46d7e08f3ee0c41446"
+      },
+      "after": {
+        "winner": "blue",
+        "turns": 61,
+        "commands": 2122,
+        "commandDigest": "139d96c1423402a1a42facee94f54a391fac46a3a901d256c277036834d3efde"
+      },
+      "changedMetrics": {
+        "damageValue": {
+          "before": {
+            "red": 244730,
+            "blue": 308600
+          },
+          "after": {
+            "red": 242490,
+            "blue": 299050
+          }
+        },
+        "destroyedValue": {
+          "before": {
+            "red": 223000,
+            "blue": 298000
+          },
+          "after": {
+            "red": 224000,
+            "blue": 283000
+          }
+        },
+        "repairExpense": {
+          "before": {
+            "red": 13570,
+            "blue": 1700
+          },
+          "after": {
+            "red": 18490,
+            "blue": 170
+          }
+        },
+        "ammunitionSpent": {
+          "before": {
+            "red": 205,
+            "blue": 236
+          },
+          "after": {
+            "red": 218,
+            "blue": 245
+          }
+        },
+        "logistics": {
+          "before": {
+            "restoredHP": {
+              "red": 253,
+              "blue": 50
+            },
+            "rearmedPrimary": {
+              "red": 24,
+              "blue": 61
+            },
+            "netFuelGain": {
+              "red": 623,
+              "blue": 1832
+            },
+            "dryGroundStarts": {
+              "red": 0,
+              "blue": 15
+            },
+            "dryTruckStarts": {
+              "red": 0,
+              "blue": 0
+            }
+          },
+          "after": {
+            "restoredHP": {
+              "red": 301,
+              "blue": 13
+            },
+            "rearmedPrimary": {
+              "red": 28,
+              "blue": 55
+            },
+            "netFuelGain": {
+              "red": 589,
+              "blue": 1755
+            },
+            "dryGroundStarts": {
+              "red": 2,
+              "blue": 8
+            },
+            "dryTruckStarts": {
+              "red": 0,
+              "blue": 0
+            }
+          }
+        },
+        "ambush": {
+          "before": {
+            "prepared": {
+              "red": 27,
+              "blue": 0
+            },
+            "fired": {
+              "red": 1,
+              "blue": 0
+            },
+            "expired": {
+              "red": 22,
+              "blue": 0
+            },
+            "cancelled": {
+              "red": 4,
+              "blue": 0
+            }
+          },
+          "after": {
+            "prepared": {
+              "red": 34,
+              "blue": 0
+            },
+            "fired": {
+              "red": 1,
+              "blue": 0
+            },
+            "expired": {
+              "red": 24,
+              "blue": 0
+            },
+            "cancelled": {
+              "red": 9,
+              "blue": 0
+            }
+          }
+        },
+        "peakUnits": {
+          "before": 42,
+          "after": 40
+        }
+      }
+    },
+    {
+      "case": "new-inland",
+      "leg": 1,
+      "before": {
+        "winner": "red",
+        "turns": 61,
+        "commands": 2172,
+        "commandDigest": "9b3f0610111b3da97ab97acd27ee4bcab27e1f4439512d9a175ef705321fe79b"
+      },
+      "after": {
+        "winner": "red",
+        "turns": 61,
+        "commands": 2172,
+        "commandDigest": "9b3f0610111b3da97ab97acd27ee4bcab27e1f4439512d9a175ef705321fe79b"
+      },
+      "changedMetrics": {}
+    },
+    {
+      "case": "validation-coast",
+      "leg": 0,
+      "before": {
+        "winner": "blue",
+        "turns": 61,
+        "commands": 2225,
+        "commandDigest": "0b9ee9144c626283a9cd6266f35484e66150cb2b1338b75ad3f0abff9e6d758d"
+      },
+      "after": {
+        "winner": "blue",
+        "turns": 61,
+        "commands": 2225,
+        "commandDigest": "0b9ee9144c626283a9cd6266f35484e66150cb2b1338b75ad3f0abff9e6d758d"
+      },
+      "changedMetrics": {}
+    },
+    {
+      "case": "validation-coast",
+      "leg": 1,
+      "before": {
+        "winner": "blue",
+        "turns": 61,
+        "commands": 2165,
+        "commandDigest": "31dd49b99abdff3f5e0f74803cc02737e81f6a389c6a8667a2a0c8059586f388"
+      },
+      "after": {
+        "winner": "blue",
+        "turns": 61,
+        "commands": 2165,
+        "commandDigest": "31dd49b99abdff3f5e0f74803cc02737e81f6a389c6a8667a2a0c8059586f388"
+      },
+      "changedMetrics": {}
+    },
+    {
+      "case": "validation-inland",
+      "leg": 0,
+      "before": {
+        "winner": "blue",
+        "turns": 61,
+        "commands": 2151,
+        "commandDigest": "d2b0bcb5b38541daac8536da6eaef00873ae9af0350246184bbd6979f0e26ae3"
+      },
+      "after": {
+        "winner": "blue",
+        "turns": 61,
+        "commands": 2151,
+        "commandDigest": "d2b0bcb5b38541daac8536da6eaef00873ae9af0350246184bbd6979f0e26ae3"
+      },
+      "changedMetrics": {}
+    },
+    {
+      "case": "validation-inland",
+      "leg": 1,
+      "before": {
+        "winner": "red",
+        "turns": 53,
+        "commands": 1777,
+        "commandDigest": "06d799bb41eeb0fa5bdb171f204e49557da1cd02627210d402eef6f6c2f75048"
+      },
+      "after": {
+        "winner": "red",
+        "turns": 53,
+        "commands": 1777,
+        "commandDigest": "06d799bb41eeb0fa5bdb171f204e49557da1cd02627210d402eef6f6c2f75048"
+      },
+      "changedMetrics": {}
+    },
+    {
+      "case": "holdout-coast",
+      "leg": 0,
+      "before": {
+        "winner": "red",
+        "turns": 61,
+        "commands": 2293,
+        "commandDigest": "effb0bd72e34764e0d5c8f2ccfef2534c525e1165dfb876cb48b94e17f490567"
+      },
+      "after": {
+        "winner": "red",
+        "turns": 61,
+        "commands": 2293,
+        "commandDigest": "effb0bd72e34764e0d5c8f2ccfef2534c525e1165dfb876cb48b94e17f490567"
+      },
+      "changedMetrics": {}
+    },
+    {
+      "case": "holdout-coast",
+      "leg": 1,
+      "before": {
+        "winner": "red",
+        "turns": 61,
+        "commands": 2262,
+        "commandDigest": "ecb7a7d4fffa758185aac72c08f6b85f00d27460ba7ea7908dfa782571c372e6"
+      },
+      "after": {
+        "winner": "red",
+        "turns": 61,
+        "commands": 2262,
+        "commandDigest": "ecb7a7d4fffa758185aac72c08f6b85f00d27460ba7ea7908dfa782571c372e6"
+      },
+      "changedMetrics": {}
+    },
+    {
+      "case": "holdout-inland",
+      "leg": 0,
+      "before": {
+        "winner": "blue",
+        "turns": 61,
+        "commands": 2076,
+        "commandDigest": "965b463e10ba324ed1f928ddf4c2373736603b915b0e49030115eefa6a85ea94"
+      },
+      "after": {
+        "winner": "blue",
+        "turns": 61,
+        "commands": 2076,
+        "commandDigest": "965b463e10ba324ed1f928ddf4c2373736603b915b0e49030115eefa6a85ea94"
+      },
+      "changedMetrics": {}
+    },
+    {
+      "case": "holdout-inland",
+      "leg": 1,
+      "before": {
+        "winner": "red",
+        "turns": 61,
+        "commands": 2138,
+        "commandDigest": "eea6a331a99b19d61884c03fba35ba3596bb01422f8e18f829b7472485b5d221"
+      },
+      "after": {
+        "winner": "red",
+        "turns": 61,
+        "commands": 2138,
+        "commandDigest": "eea6a331a99b19d61884c03fba35ba3596bb01422f8e18f829b7472485b5d221"
+      },
+      "changedMetrics": {}
+    }
+  ],
+  "note": "Red starts. Paired return legs rotate maps and exchange policies; observations are correlated. Holdout seeds were fixed after the judgement was frozen and not used for further tuning. No fairness or global win-rate claim."
+}

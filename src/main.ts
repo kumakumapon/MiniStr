@@ -55,7 +55,7 @@ const titleState = new TitleState(screens);
 import { AsyncRequestGate } from './ui/asyncRequest';
 const fileReadGate = new AsyncRequestGate();
 import { installModalFocusTrap } from './ui/modalFocus';
-import { FocusRestoreGuard } from './ui/focusRestore';
+import { focusIfChanged, FocusRestoreGuard } from './ui/focusRestore';
 import { EditorHistory, inspectEditorScenario, paintEditor, resizeEditor, type PaintMode } from './game/editorTools';
 import { renderEditorView } from './ui/editorView';
 import { deleteCustomScenario, scenarioDefinitionToData } from './game/maps';
@@ -227,7 +227,7 @@ let spectateLastAction: Position | undefined;
 let spectateLocatedUnitId: string | undefined;
 let pendingBoardCenter: Position | undefined;
 let preserveBoardOnCover = true;
-let coveredBoardScroll: { left: number; top: number } | undefined;
+let coveredBoardScroll: { viewport: HTMLElement; zoom: number; left: number; top: number } | undefined;
 
 function resetSpectatorCamera(): void {
   coveredBoardScroll = undefined;
@@ -1038,8 +1038,13 @@ function render(): void {
   const boardCovered = screens.titleOpen || screens.briefingOpen || screens.campaignMenuOpen;
   if (boardCovered && preserveBoardOnCover && !coveredBoardScroll && app.querySelector('.board .tile')) {
     const viewport = app.querySelector<HTMLElement>('#board-viewport');
-    if (viewport) coveredBoardScroll = { left: viewport.scrollLeft, top: viewport.scrollTop };
+    if (viewport) coveredBoardScroll = { viewport, zoom: boardZoomIndex, left: viewport.scrollLeft, top: viewport.scrollTop };
   }
+  // Read before DOM writes. A retained, unchanged viewport already has its
+  // saved offsets; writing them again would force layout during menu resume.
+  const coveredViewport = !boardCovered && coveredBoardScroll ? app.querySelector<HTMLElement>('#board-viewport') : null;
+  const coveredScrollRetained = coveredBoardScroll && coveredViewport === coveredBoardScroll.viewport && boardZoomIndex === coveredBoardScroll.zoom
+    && coveredViewport.scrollLeft === coveredBoardScroll.left && coveredViewport.scrollTop === coveredBoardScroll.top;
   preserveBoardOnCover = true;
   const generation = ++renderGeneration;
   const restoreScroll = captureRenderScroll(app, window, Boolean(pendingBoardCenter && matchMode === 'spectate' && !replay));
@@ -1425,7 +1430,10 @@ function render(): void {
   restoreScroll();
   if (!boardCovered && coveredBoardScroll) {
     const viewport = app.querySelector<HTMLElement>('#board-viewport');
-    if (viewport) { viewport.scrollLeft = coveredBoardScroll.left; viewport.scrollTop = coveredBoardScroll.top; }
+    if (viewport && (!coveredScrollRetained || viewport !== coveredBoardScroll.viewport)) {
+      viewport.scrollLeft = coveredBoardScroll.left;
+      viewport.scrollTop = coveredBoardScroll.top;
+    }
     coveredBoardScroll = undefined;
   }
   if (pendingBoardCenter && spectateCameraControls) {
@@ -1485,7 +1493,7 @@ function render(): void {
       const target = app.querySelector<HTMLElement>(previousSelector);
       const focusTarget = target && !('disabled' in target && target.disabled) ? target : app.querySelector<HTMLElement>('#command-panel');
       if (allowBoardFocusScroll && focusTarget?.matches('.tile')) focusTarget.scrollIntoView({ block: 'nearest', inline: 'nearest' });
-      focusTarget?.focus({ preventScroll: true });
+      focusIfChanged(focusTarget, { preventScroll: true });
     });
   }
   // Board commands need the side on the device to be active; menus and the result
@@ -1793,7 +1801,7 @@ function render(): void {
     const target = tile && !tile.disabled ? tile : app.querySelector<HTMLElement>('#command-panel');
     if (!preventBoardFocusScroll && target === tile) tile?.scrollIntoView({ block: 'nearest', inline: 'nearest' });
     preventBoardFocusScroll = false;
-    target?.focus({ preventScroll: true });
+    focusIfChanged(target, { preventScroll: true });
   };
   app.querySelector<HTMLButtonElement>('#board-zoom-out')?.addEventListener('click', changeBoardZoom(-1));
   app.querySelector<HTMLButtonElement>('#board-zoom-in')?.addEventListener('click', changeBoardZoom(1));
@@ -2017,7 +2025,7 @@ function render(): void {
       focusSelector = boardTileSelector(position);
       act(position);
       if (!bridgePending?.destination && !productionMenuOpen) {
-        app.querySelector<HTMLElement>(boardTileSelector(focusedPosition))?.focus({ preventScroll: true });
+        focusIfChanged(app.querySelector<HTMLElement>(boardTileSelector(focusedPosition)), { preventScroll: true });
       }
     },
     key: handleBoardKey,
@@ -2282,7 +2290,7 @@ function focusBoardPosition(position: Position): void {
   focusSelector = boardTileSelector(position);
   render();
   // Focus before the next keydown, including engines that delay animation frames.
-  app.querySelector<HTMLElement>(boardTileSelector(position))?.focus({ preventScroll: true });
+  focusIfChanged(app.querySelector<HTMLElement>(boardTileSelector(position)), { preventScroll: true });
 }
 
 function handleBoardKey(event: KeyboardEvent, position: Position): void {

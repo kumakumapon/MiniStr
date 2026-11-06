@@ -196,7 +196,7 @@ test('the optional response comparison is read-only, paired, and separate from p
   const comparison = readFileSync(new URL('../.github/workflows/response-comparison.yml', import.meta.url), 'utf8');
   assert.match(comparison, /permissions:\n {2}contents: read/);
   assert.doesNotMatch(comparison, /pull_request_target:|workflow_run:|secrets:|pages: write|id-token: write|continue-on-error:/);
-  assert.match(comparison, /BASELINE_SHA: f2746441154e648a951ea146d9edd8a492fb3854/);
+  assert.match(comparison, /BASELINE_SHA: ad4b900ff2fa645cf39f89141b55a0bd301443a8/);
   assert.match(comparison, /for engine in chromium firefox webkit/);
   assert.match(comparison, /for pair in 0 1 2/);
   assert.match(comparison, /variants='after before'/);

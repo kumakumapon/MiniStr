@@ -47,6 +47,19 @@ test('390px touch selects once and keeps a scrolled board stable after localized
     expect(offsets.before.left).toBe(90);
     expect(offsets.before.top).toBe(80);
     expect(offsets.after).toEqual(offsets.before);
+    const resumedScroll = await page.evaluate(async () => {
+      const viewport = document.querySelector<HTMLElement>('#board-viewport')!;
+      const before = { left: viewport.scrollLeft, top: viewport.scrollTop };
+      document.querySelector<HTMLButtonElement>('#open-title')!.click();
+      await new Promise<void>((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve())));
+      const hiddenTiles = document.querySelectorAll('.board .tile').length;
+      document.querySelector<HTMLButtonElement>('#title-resume')!.click();
+      await new Promise<void>((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve())));
+      const after = document.querySelector<HTMLElement>('#board-viewport')!;
+      return { before, after: { left: after.scrollLeft, top: after.scrollTop }, hiddenTiles };
+    });
+    expect(resumedScroll.hiddenTiles).toBe(0);
+    expect(resumedScroll.after).toEqual(resumedScroll.before);
     await expect(page.locator('.selected-marker')).toHaveCount(1);
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(391);
     await page.screenshot({ path: testInfo.outputPath('systems-390-touch-response.png') });

@@ -1,0 +1,72 @@
+{
+  "format": "v149-local-validation",
+  "runtime": {
+    "node": "24.19.0",
+    "npm": "11.9.0",
+    "vitest": "3.2.7",
+    "vite": "6.4.3",
+    "typescript": "5.9.3",
+    "playwright": "1.62.1",
+    "chromium": "151.0.7922.173",
+    "firefox": "153.0"
+  },
+  "source": "9090dadacaa490859d4f31dfe50de8fc7f3784c7",
+  "note": "Local tools differ from formal lock. Full tests exercised source candidate A. Subsequent edits only add evidence and continuation final-state fields. Final HEAD formal CI is authoritative.",
+  "logs": [
+    {
+      "name": "unit-full.log",
+      "sha256": "77c8bd46cb15c028a43da09b85cf6dea632a746cb4935c2a330fa668df74e5b3",
+      "bytes": 20680
+    },
+    {
+      "name": "ui-full.log",
+      "sha256": "24e7bb5baa170454c6d48733021ec778f24088822d79c57092ea509070aef199",
+      "bytes": 7905
+    },
+    {
+      "name": "local-e2e-c.log",
+      "sha256": "0ac6d5f49e0d6011ccfd55fac9e5eea575e3ff2a5091056572cc797d2ce57e8d",
+      "bytes": 12802
+    },
+    {
+      "name": "cpu-tests-frozen-a.log",
+      "sha256": "d3bba594f2966df0ec5077b3ee14927ac35ef6c361ff0ed1776783996c3f79a5",
+      "bytes": 399
+    },
+    {
+      "name": "focused-a.log",
+      "sha256": "5e8bf608a27e6e2b7651a25aee1e4022520e0eb37bb971eee3f047091cc75b01",
+      "bytes": 508
+    },
+    {
+      "name": "lint-final.log",
+      "sha256": "23b3e8399fe61d5a47eff0b210c28c5399e8cb5b4018924aeca5371df905b20a",
+      "bytes": 34
+    },
+    {
+      "name": "typecheck-final.log",
+      "sha256": "bcc0da4e6ec6feac82363922f8d959ee7606851208c6785227834ddd252dc495",
+      "bytes": 70
+    },
+    {
+      "name": "format-final.log",
+      "sha256": "0a373a18219d0af92d1341cc46a48db9b145ac3c7f15746f42903f71a97e605a",
+      "bytes": 213
+    },
+    {
+      "name": "links-final.log",
+      "sha256": "307e101c3e1d19377460583e98a6d04051b53fa322e19dfedd142730197b3d1e",
+      "bytes": 68
+    },
+    {
+      "name": "ci-policy-final.log",
+      "sha256": "cb0c610d777886303658d64dd1b5c8203f0190455e507156edcac16a418a0f33",
+      "bytes": 230
+    },
+    {
+      "name": "build-source-a.log",
+      "sha256": "f394d7302aa32c6460f1270c87b04f193d785a650ca335b27c649242728e42a8",
+      "bytes": 968
+    }
+  ]
+}

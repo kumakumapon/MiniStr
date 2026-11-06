@@ -1,0 +1,72 @@
+{
+  "format": "cpu-limited-v149",
+  "group": "holdout",
+  "sourceDirectory": "/workspace/MiniStr-v149-baseline",
+  "runnerSha256": "deb56008e609ef8e224bb4d7a27959c5df19f011c923011dcf54ea186c67aa8f",
+  "cases": [
+    {
+      "name": "holdout-inland",
+      "args": [
+        "node_modules/.bin/vite-node",
+        "scripts/tactical-balance.ts",
+        "--profiles",
+        "combined",
+        "--layouts",
+        "revised",
+        "--sizes",
+        "32",
+        "--seas",
+        "none",
+        "--seeds",
+        "v149-hold",
+        "--damage-seeds",
+        "1491",
+        "--policies",
+        "defensive:offensive",
+        "--matchups",
+        "normal:normal",
+        "--rounds",
+        "90",
+        "--max-games",
+        "2",
+        "--seconds",
+        "1800",
+        "--output",
+        "/workspace/v149-work/cpu-holdout-before/holdout-inland.jsonl"
+      ],
+      "exit": 0
+    },
+    {
+      "name": "holdout-coast",
+      "args": [
+        "node_modules/.bin/vite-node",
+        "scripts/tactical-balance.ts",
+        "--profiles",
+        "combined",
+        "--layouts",
+        "revised",
+        "--sizes",
+        "32",
+        "--seas",
+        "coast",
+        "--seeds",
+        "v149-hold",
+        "--damage-seeds",
+        "1491",
+        "--policies",
+        "defensive:offensive",
+        "--matchups",
+        "normal:normal",
+        "--rounds",
+        "90",
+        "--max-games",
+        "2",
+        "--seconds",
+        "1800",
+        "--output",
+        "/workspace/v149-work/cpu-holdout-before/holdout-coast.jsonl"
+      ],
+      "exit": 0
+    }
+  ]
+}
