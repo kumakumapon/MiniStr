@@ -2038,8 +2038,8 @@ function render(): void {
     },
   });
   bindLogisticsRoster(app, render, command => { if (canAct && !replayMode) { focusSelector = document.activeElement?.id ? `#${CSS.escape(document.activeElement.id)}` : undefined; dispatch(command, true); render(); } }, id => {
-    const unit = game.units.find(u => u.id === id && u.owner === me);
-    const deployed = unit && (isDeployedUnit(unit) ? unit : game.units.find(u => u.id === unit.embarkedIn));
+    const unit = renderedGame.units.find(u => u.id === id && u.owner === me);
+    const deployed = unit && (isDeployedUnit(unit) ? unit : renderedGame.units.find(u => u.id === unit.embarkedIn));
     if (deployed && isDeployedUnit(deployed)) { selected = deployed.id; focusBoardPosition(deployed.position); app.querySelector<HTMLElement>(boardTileSelector(deployed.position))?.scrollIntoView({ block: 'nearest', inline: 'nearest' }); }
   });
   if (!replayMode) {

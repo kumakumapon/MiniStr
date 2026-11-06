@@ -46,6 +46,7 @@ for (const width of [390, 1280])
       await expect(page.locator('.tile.selected')).toHaveAttribute('data-x', '2');
       if (locale === 'en') expect(await roster.innerText()).not.toMatch(/[\u3040-\u30ff\u3400-\u9fff]/);
       await page.locator('#save').click();
+      await roster.locator('summary').evaluate((element) => element.scrollIntoView({ block: 'start' }));
       await page.screenshot({ path: info.outputPath(`systems-logistics-${width}-${locale}.png`) });
       await page.reload();
       await page.locator('#title-continue').click();
