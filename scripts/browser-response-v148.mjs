@@ -47,6 +47,7 @@ try {
     [390, 16, 'en', 0, 16],
     [390, 32, 'ja', 0, 16],
     [390, 32, 'en', 100, 32],
+    [390, 32, 'en', 50, 32],
   ]) {
     const context = await browser.newContext({ viewport: { width, height: 844 } });
     try {
@@ -104,7 +105,9 @@ try {
           };
           const start = await click('#begin-operation');
           if (zoom) {
-            while (Number(document.querySelector('.board').dataset.zoom) < zoom) await click('#board-zoom-in');
+            for (let step = 0; step < 8 && Number(document.querySelector('.board').dataset.zoom) !== zoom; step++)
+              await click(Number(document.querySelector('.board').dataset.zoom) < zoom ? '#board-zoom-in' : '#board-zoom-out');
+            if (Number(document.querySelector('.board').dataset.zoom) !== zoom) throw Error('Requested zoom was not reached');
           }
           if (document.querySelectorAll('.board .tile').length !== size * size) throw Error('Missing board');
           const guideClosed = !document.querySelector('#learning-panel')?.open;

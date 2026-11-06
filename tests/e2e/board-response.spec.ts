@@ -92,10 +92,13 @@ for (const width of [1280, 390])
       const originalBoard = await page.locator('.board').elementHandle();
       await page.locator('#open-title').click();
       await expect(page.locator('main')).toHaveAttribute('inert', '');
-      expect(await originalBoard!.evaluate((board) => board.isConnected && board === document.querySelector('.board'))).toBe(true);
+      // Park localized content off-DOM; normal selection/zoom still keeps live tiles.
+      expect(await originalBoard!.evaluate((board) => board.isConnected)).toBe(false);
+      await expect(page.locator('.board .tile')).toHaveCount(0);
       await page.locator('#title-resume').click();
       await expect(page.locator('main')).not.toHaveAttribute('inert', '');
-      expect(await originalBoard!.evaluate((board) => board === document.querySelector('.board'))).toBe(true);
+      expect(await originalBoard!.evaluate((board) => board.isConnected)).toBe(false);
+      await expect(page.locator('.board .tile')).toHaveCount(1024);
       await first.click();
       await expect(first).toBeFocused();
       await expect(first.locator('.selected-marker')).toHaveCount(1);

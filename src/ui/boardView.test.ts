@@ -105,7 +105,7 @@ it('updates a connected focused button without blurring or retaining hidden unit
   expect(document.activeElement).toBe(button);
 });
 
-it('keeps only the same immutable match under a menu and resumes without rebuilding localized tiles', () => {
+it('parks one current match, restores localized tiles and invalidates obsolete content', () => {
   const view = new BoardView(),
     host = root(),
     match = {};
@@ -116,18 +116,34 @@ it('keeps only the same immutable match under a menu and resumes without rebuild
   button!.textContent = 'Localized';
   board.insertAdjacentHTML('beforeend', '<span class="presentation-effect"></span>');
   expect(view.cover(board, 'en', match)).toBe(true);
-  expect(view.cover(board, 'en', match)).toBe(true);
+  expect(board.isConnected).toBe(false);
+  expect(host.querySelector('.board')!.children).toHaveLength(0);
+  expect(view.cover(host.querySelector('.board'), 'en', match)).toBe(true);
   expect(board.querySelector('.presentation-effect')).toBeNull();
-  view.update(board, [tile('plain')], 'en', undefined, match);
-  expect(board.firstElementChild).toBe(button);
-  expect(button!.textContent).toBe('Localized');
+  let localizedAgain = 0;
+  view.update(
+    host.querySelector('.board'),
+    [tile('plain')],
+    'en',
+    () => {
+      localizedAgain++;
+    },
+    match,
+  );
+  expect(localizedAgain).toBe(0);
+  const resumed = host.querySelector<HTMLElement>('.board')!;
+  expect(resumed).not.toBe(board);
+  expect(resumed.firstElementChild!.textContent).toBe('Localized');
+  expect(resumed.querySelector('.presentation-effect')).toBeNull();
   host.innerHTML = '<div class="board"></div>';
   expect(view.cover(host.querySelector('.board'), 'en', match)).toBe(true);
-  expect(host.querySelector('.board')).toBe(board);
-  expect(view.cover(board, 'ja', match)).toBe(false);
-  expect(board.children).toHaveLength(0);
-  view.update(board, [tile('new match')], 'ja', undefined, match);
-  expect(view.cover(board, 'ja', {})).toBe(false);
-  expect(board.children).toHaveLength(0);
+  expect(host.querySelector('.board')!.children).toHaveLength(0);
+  view.update(host.querySelector('.board'), [tile('plain')], 'en', undefined, match);
+  expect(host.querySelector('.board')).toBe(resumed);
+  expect(view.cover(resumed, 'ja', match)).toBe(false);
+  expect(resumed.children).toHaveLength(0);
+  view.update(resumed, [tile('new match')], 'ja', undefined, match);
+  expect(view.cover(resumed, 'ja', {})).toBe(false);
+  expect(resumed.children).toHaveLength(0);
   expect(view.cover(null, 'ja', match)).toBe(false);
 });

@@ -1,5 +1,5 @@
 name: Response comparison v1.4.8
-# Final UI comparison includes translation traversal and same-match board resume.
+# Compare translation traversal, parked-board resume and explicit 50%/100% zoom.
 
 on:
   pull_request:

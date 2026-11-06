@@ -31,6 +31,7 @@ for (const engine of [...new Set(documents.map((document) => document.engine))])
     [390, 16, 'en', 0],
     [390, 32, 'ja', 0],
     [390, 32, 'en', 100],
+    [390, 32, 'en', 50],
   ]) {
     const row = { width, size, locale, requestedZoom };
     for (const variant of ['before', 'after']) {
