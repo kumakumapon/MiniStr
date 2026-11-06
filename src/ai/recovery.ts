@@ -10,15 +10,16 @@ import type { CpuAction } from './rules';
 import { decisionRound } from '../game/victory';
 
 /** Finish paid repair before returning; do not wait in an observed lethal firing lane. */
-export function defensiveServiceWait(state: GameState, player: PlayerId, knownEnemies: readonly Unit[]): CpuAction | undefined {
+export function defensiveServiceWait(state: GameState, player: PlayerId, knownEnemies: readonly Unit[], unitId?: string): CpuAction | undefined {
   if (!usesModernRules(state)) return;
   for (const unit of state.units) {
     if (
       unit.owner !== player ||
+      (unitId !== undefined && unit.id !== unitId) ||
       !isDeployedUnit(unit) ||
       unit.hasMoved ||
       unit.hasActed ||
-      unit.hp >= 60 ||
+      unit.hp >= 50 ||
       !isServiceTile(state, unit.position, unit.kind, player) ||
       affordableRepair(unit.kind, 100 - unit.hp, state.players[player].gold + state.players[player].income) === 0 ||
       isEvacuationTarget(state, unit.id, player) ||
@@ -38,7 +39,7 @@ export function defensiveServiceWait(state: GameState, player: PlayerId, knownEn
 const routes = new WeakMap<GameState, Map<string, ReadonlyMap<string, number> | null>>();
 
 /** Multi-turn recovery on public terrain, using friendly funds, berths and mission orders only. */
-export function defensiveRepairRoute(state: GameState, player: PlayerId, unit: DeployedUnit): ReadonlyMap<string, number> | undefined {
+export function defensiveRepairRoute(state: GameState, player: PlayerId, unit: DeployedUnit, purpose: 'recovery' | 'relief' = 'recovery'): ReadonlyMap<string, number> | undefined {
   if (
     !usesModernRules(state) ||
     unit.owner !== player ||
@@ -51,10 +52,11 @@ export function defensiveRepairRoute(state: GameState, player: PlayerId, unit: D
     cache = new Map();
     routes.set(state, cache);
   }
-  const cached = cache.get(unit.id);
+  const cacheKey = `${unit.id}:${purpose}`;
+  const cached = cache.get(cacheKey);
   if (cached !== undefined) return cached ?? undefined;
   if (isEvacuationTarget(state, unit.id, player) || state.units.some((ally) => ally.owner === player && ally.embarkedIn === unit.id)) {
-    cache.set(unit.id, null);
+    cache.set(cacheKey, null);
     return;
   }
   const occupied = new Set(state.units.filter((ally) => ally.owner === player && ally.id !== unit.id && isDeployedUnit(ally)).map((ally) => positionKey(ally.position!)));
@@ -71,11 +73,13 @@ export function defensiveRepairRoute(state: GameState, player: PlayerId, unit: D
   const scenario = scenarioForState(state);
   const opposing = player === 'red' ? scenario?.defeatConditions : scenario?.victoryConditions;
   const deadline = Math.min(decisionRound(state, scenario) ?? Infinity, ...(opposing?.flatMap((condition) => (condition.type === 'survive' ? [condition.untilTurn] : [])) ?? []));
-  // Do not order a journey that runs dry before servicing, or cannot bring
-  // even one repaired turn back to the front before a public mission deadline.
+  // A new relief commitment needs fuel and an estimated round trip plus a
+  // repair turn within the public mission budget. Keep the existing general
+  // recovery order: service can still preserve unit value at adjudication.
   const fuel = unit.fuel ?? stats.fuel;
-  const useful = distance !== undefined && distance + Math.max(0, travelTurns - 1) * stats.fuelPerTurn <= fuel && state.turn + travelTurns * 2 + 1 < deadline;
+  const useful =
+    distance !== undefined && (purpose === 'recovery' || (distance + Math.max(0, travelTurns - 1) * stats.fuelPerTurn <= fuel && state.turn + travelTurns * 2 + 1 < deadline));
   const result = useful ? distances : undefined;
-  cache.set(unit.id, result ?? null);
+  cache.set(cacheKey, result ?? null);
   return result;
 }

@@ -523,7 +523,7 @@ export function evaluateCpuPosition(
   // A supplied but damaged defender still needs a compatible repair facility.
   // Trucks and depots restore ammunition/fuel, never HP. Use public own funds
   // and next-turn income; no speculative capture income or hidden enemy data.
-  const repair = config.coordinatedDefense && unit.hp < 60 && isServiceTile(state, destination, unit.kind, player)
+  const repair = config.coordinatedDefense && unit.hp <= 50 && isServiceTile(state, destination, unit.kind, player)
     ? affordableRepair(unit.kind, 100 - unit.hp, state.players[player].gold + state.players[player].income) * 2 : 0;
   const serviceTargets = needsSupply(unit, state) ? supplyTargets(state, player, unit) : [];
   const serviceDistance = serviceTargets.length ? Math.min(...serviceTargets.map(position => manhattanDistance(destination, position))) : undefined;
@@ -736,6 +736,10 @@ function moveAction(state: GameState, player: PlayerId, config: CpuDifficultyCon
       }
       return { type: 'wait', unitId: unit.id };
     }
+    // Repair and firing can share a turn. Only ordinary relocation waits for
+    // recovery; keep attacks, mission orders and the existing unit order first.
+    const repair = config.coordinatedDefense && unit.hp < 50 ? defensiveServiceWait(state, player, context.visibleEnemies, unit.id) : undefined;
+    if (repair) return repair;
     const openTargets = targets.filter(target => !state.units.some(ally => ally.owner === player && ally.id !== unit.id
       && isDeployedUnit(ally) && ally.position.x === target.x && ally.position.y === target.y));
     const assignedTargets = mission?.positions ?? (openTargets.length ? openTargets : targets);
@@ -1009,8 +1013,7 @@ function chooseOrientedCpuAction(state: GameState, difficulty: CpuDifficulty, pl
     const clear = clearCaptureLane(state, player, obstructing, readyUnits);
     if (clear) return clear;
   }
-  return (config.coordinatedDefense ? defensiveServiceWait(state, player, context.visibleEnemies) : undefined)
-    ?? attackAction(state, player, config, context.visibleEnemies)
+  return attackAction(state, player, config, context.visibleEnemies)
     ?? strikeAction(state, player, config, context.visibleEnemies)
     ?? (adaptTactics ? chooseTacticalAction(state, player, policy === 'defensive') : undefined)
     ?? chooseDemolition(state, player, context.visibleEnemies)

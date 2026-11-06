@@ -4,6 +4,7 @@ import { force, operation, valueOf } from '../game/operations.fixture';
 import { isDeployedUnit } from '../game/types';
 import { defensiveHoldRelief } from './holdRelief';
 import { chooseCpuAction } from './rules';
+import { visibleEnemies } from '../game/fog';
 
 function fixture(player: PlayerId = 'red'): GameState {
   const hold = { type: 'hold' as const, positions: [{ x: 6, y: 2 }], turns: 30, groundOnly: true };
@@ -52,10 +53,10 @@ it.each(['red', 'blue'] as const)('relieves a hurt %s holder, keeps the objectiv
     }
     state = endTurn(endTurn(state));
     const unit = state.units.find((u) => u.id === 'hurt')!;
-    repaired ||= unit.hp >= 60;
+    repaired ||= unit.hp >= 50;
     expect(state.units.find((u) => u.id === 'relief')!.position).toEqual({ x: 6, y: 2 });
     if (repaired && unit.position!.x > 0) {
-      expect(unit.hp).toBeGreaterThanOrEqual(60);
+      expect(unit.hp).toBeGreaterThanOrEqual(50);
       expect(state.objectiveHoldTurns?.[player]).toBeDefined();
       return;
     }
@@ -81,6 +82,13 @@ it('does not vacate a post without a ready, healthy, compatible, reachable relie
       s.units[1]!.kind = 'fighter';
     },
     (s: GameState) => {
+      s.units.push({ ...force('cargo', 'infantry', 0, 0), position: undefined, embarkedIn: 'relief' });
+    },
+    (s: GameState) => {
+      s.units[1]!.id = 'r1';
+      s.scenarioSnapshot!.victoryConditions = [...s.scenarioSnapshot!.victoryConditions, { type: 'withdraw', unitIds: ['r1'], positions: [{ x: 11, y: 0 }], required: 1 }];
+    },
+    (s: GameState) => {
       s.units[1]!.position = { x: 11, y: 0 };
       s.units[1]!.fuel = 1;
     },
@@ -95,6 +103,9 @@ it('does not vacate a post without a ready, healthy, compatible, reachable relie
     },
     (s: GameState) => {
       s.players.red.gold = 0;
+    },
+    (s: GameState) => {
+      s.units[0]!.fuel = 1;
     },
     (s: GameState) => {
       delete s.ruleVersion;
@@ -151,5 +162,36 @@ it('ignores invisible enemy placement when planning a relief', () => {
   const hidden = structuredClone(state);
   hidden.units = hidden.units.map((u) => (u.owner === 'blue' && isDeployedUnit(u) ? { ...u, position: { x: 11, y: 0 }, hp: 1 } : u));
   expect(defensiveHoldRelief(hidden, 'red', [])).toEqual(action);
+  expect(chooseCpuAction(hidden, 'normal', 'red', 'defensive')).toEqual(chooseCpuAction(state, 'normal', 'red', 'defensive'));
   expect(before.units.filter((u) => u.owner === 'blue')).toEqual(enemies);
+});
+
+it('keeps a completed hold win ahead of optional relief and supports non-ground posts', () => {
+  const state = fixture();
+  const hold = state.scenarioSnapshot!.victoryConditions[0]!;
+  if (hold.type !== 'hold') throw Error('Expected hold');
+  hold.turns = 1;
+  expect(chooseCpuAction(state, 'normal', 'red', 'defensive')).toEqual({ type: 'endTurn' });
+  const any = fixture();
+  const condition = any.scenarioSnapshot!.victoryConditions[0]!;
+  if (condition.type !== 'hold') throw Error('Expected hold');
+  condition.groundOnly = false;
+  expect(order(any)).toMatchObject({ type: 'move', unitId: 'hurt' });
+  delete any.scenarioSnapshot;
+  expect(order(any)).toBeUndefined();
+});
+
+it('does not discover hidden contacts through a projected retreat position', () => {
+  const base = fixture();
+  const expected = defensiveHoldRelief(base, 'red', []);
+  let checked = 0;
+  for (let y = 0; y < base.board.height; y++)
+    for (let x = 0; x < base.board.width; x++) {
+      const state = structuredClone(base);
+      state.units[2]!.position = { x, y };
+      if (visibleEnemies(state, 'red').length) continue;
+      expect(defensiveHoldRelief(state, 'red', [])).toEqual(expected);
+      checked++;
+    }
+  expect(checked).toBeGreaterThan(10);
 });

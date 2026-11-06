@@ -1,4 +1,5 @@
-import { expect, test } from './helpers/engineTest';
+import { expect } from '@playwright/test';
+import { test } from './helpers/engineTest';
 import type { ScenarioData } from '../../src/game/maps';
 
 test('390px touch selects once and keeps a scrolled board stable after localized redraw', async ({ browser, baseURL }, testInfo) => {

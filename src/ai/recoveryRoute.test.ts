@@ -122,7 +122,7 @@ it('preserves an evacuation target mission even when it is badly hurt', () => {
   expect(defensiveRepairRoute(state, 'red', unit)).toBeUndefined();
 });
 
-it('rejects fuel-starved and too-late repair journeys, including public survive deadlines', () => {
+it('rejects fuel-starved and too-late relief commitments without discarding general recovery orders', () => {
   const dry = fixture();
   dry.units[0]!.fuel = 9;
   const late = fixture();
@@ -132,18 +132,20 @@ it('rejects fuel-starved and too-late repair journeys, including public survive 
   for (const state of [dry, late, survive]) {
     const unit = state.units[0]!;
     if (!isDeployedUnit(unit)) throw Error('Expected defender');
-    expect(defensiveRepairRoute(state, 'red', unit)).toBeUndefined();
+    expect(defensiveRepairRoute(state, 'red', unit, 'relief')).toBeUndefined();
+    expect(defensiveRepairRoute(state, 'red', unit)).toBeDefined();
+    expect(defensiveRepairRoute(state, 'red', unit, 'relief')).toBeUndefined();
   }
 });
 
 it('finishes affordable repair but releases healthy, spent, loaded, legacy, evacuation and threatened units', () => {
   const state = fixture();
   state.units[0]!.position = { x: 0, y: 1 };
-  state.units[0]!.hp = 50;
+  state.units[0]!.hp = 41;
   expect(defensiveServiceWait(state, 'red', [])).toEqual({ type: 'wait', unitId: 'hurt' });
   for (const patch of [
     (s: GameState) => {
-      s.units[0]!.hp = 60;
+      s.units[0]!.hp = 50;
     },
     (s: GameState) => {
       s.units[0]!.hasMoved = true;
@@ -176,4 +178,20 @@ it('finishes affordable repair but releases healthy, spent, loaded, legacy, evac
   threatened.units[0]!.hp = 1;
   threatened.units[1] = force('enemy', 'rocket', 3, 1, { owner: 'blue' });
   expect(defensiveServiceWait(threatened, 'red', [threatened.units[1]!, { ...force('cargo', 'infantry', 0, 0), position: undefined, embarkedIn: 'enemy' }])).toBeUndefined();
+});
+
+it.each(['red', 'blue'] as const)('finishes %s recovery in movement order while keeping useful attacks available', (player) => {
+  let state = fixture(player);
+  state.units[0] = force('hurt', 'recon', 0, 1, { owner: player, hp: 41 });
+  expect(chooseCpuAction(state, 'normal', player, 'defensive')).toEqual({ type: 'wait', unitId: 'hurt' });
+  state = endTurn(endTurn(valueOf(applyGameCommand(state, { type: 'wait', unitId: 'hurt' }))));
+  expect(state.units[0]!.hp).toBe(61);
+  const returned = chooseCpuAction(state, 'normal', player, 'defensive');
+  expect(returned).toMatchObject({ type: 'move', unitId: 'hurt' });
+  if (returned.type !== 'move') throw Error('Expected repaired return');
+  expect(returned.destination.x).toBeGreaterThan(0);
+  const shooting = fixture(player);
+  shooting.units[0] = force('hurt', 'recon', 0, 1, { owner: player, hp: 41 });
+  shooting.units[1] = force('enemy', 'infantry', 1, 1, { owner: player === 'red' ? 'blue' : 'red', hp: 1 });
+  expect(chooseCpuAction(shooting, 'normal', player, 'defensive')).toEqual({ type: 'attack', unitId: 'hurt', targetId: 'enemy' });
 });

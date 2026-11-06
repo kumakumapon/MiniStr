@@ -11,6 +11,10 @@ import { isEvacuationTarget } from '../game/evacuation';
 /** Public mission orders and observed units only. Re-plan after every legal move. */
 export function defensiveHoldRelief(state: GameState, player: PlayerId, knownEnemies: readonly Unit[]): CpuAction | undefined {
   if (!usesOperationsRules(state)) return;
+  // A projected retreat changes friendly sight. Do not let a hypothetical
+  // position reveal contacts before the real move has actually discovered them.
+  const known = new Set(knownEnemies.map((unit) => unit.id));
+  state = { ...state, units: state.units.filter((unit) => unit.owner === player || known.has(unit.id)) };
   const scenario = scenarioForState(state);
   const conditions = player === 'red' ? scenario?.victoryConditions : scenario?.defeatConditions;
   const own = state.units.filter((unit): unit is DeployedUnit => unit.owner === player && isDeployedUnit(unit));
@@ -49,7 +53,7 @@ export function defensiveHoldRelief(state: GameState, player: PlayerId, knownEne
         continue;
       }
       if (holder.hp > 35 || holder.hasMoved || holder.hasActed || !eligible.length) continue;
-      const route = defensiveRepairRoute(state, player, holder);
+      const route = defensiveRepairRoute(state, player, holder, 'relief');
       const distance = route?.get(positionKey(position));
       if (distance === undefined) continue;
       const berths = reachablePositionsForPlayer(state, holder.id, player)

@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { englishResources } from './english';
 import { formatNumber, getLocale, localizeControls, renderLocalePicker, setLocale, translateGameText, translateText } from './locale';
 import { rankNames, unitNames, unitTokens } from './labels';
@@ -125,4 +125,22 @@ it('keeps cached translations separate by ownership, survives eviction and follo
     expect(formatNumber(12345)).toBe(new Intl.NumberFormat(locale).format(12345));
     expect(translateText('ターン終了')).toBe(locale === 'en' ? 'End turn' : 'ターン終了');
   }
+});
+
+it('prunes the retained board attribute query while localizing sibling SVG and nested controls', () => {
+  setLocale('en');
+  const host = document.createElement('div');
+  host.innerHTML =
+    '<main><section><div class="board" aria-label="盤面を拡大"><button title="盤面を縮小">平原</button></div><svg aria-label="盤面を縮小"><g title="盤面を拡大"></g></svg></section><aside><button title="ターン終了">ターン終了</button></aside></main>';
+  const board = host.querySelector<HTMLElement>('.board')!;
+  const query = vi.spyOn(host, 'querySelectorAll');
+  localizeControls(host, board);
+  expect(query).not.toHaveBeenCalled();
+  expect(board.querySelector('button')!.title).toBe('盤面を縮小');
+  expect(host.querySelector('svg')!.getAttribute('aria-label')).toBe('Zoom out');
+  expect(host.querySelector('g')!.getAttribute('title')).toBe('Zoom in');
+  expect(host.querySelector('aside button')!.getAttribute('title')).toBe('End turn');
+  expect(board.getAttribute('aria-label')).toBe('Zoom in');
+  localizeControls(host, document.createElement('div'));
+  expect(board.querySelector('button')!.title).toBe('Zoom out');
 });
