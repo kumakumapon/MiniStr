@@ -1,0 +1,8 @@
+diff --git a/src/main.ts b/src/main.ts
+index 2774c27..b50c47b 100644
+--- a/src/main.ts
++++ b/src/main.ts
+@@ -2025,0 +2026,3 @@ function render(): void {
++      // A pointer already reached this tile. Do not scroll it again after the
++      // redraw; keyboard and unit-queue navigation still reveal their targets.
++      preventBoardFocusScroll = true;

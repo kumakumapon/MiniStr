@@ -1,0 +1,13 @@
+{
+  "format": "v149-response-native-a-artifact",
+  "run": 42224021224,
+  "job": 127912821933,
+  "artifact": 13504779228,
+  "artifactName": "response-comparison-v149",
+  "zipSha256": "46bbf40b83f5e1a7a0e439a5eee0d35e8276a22ac19e0cdec0fe81c1029972e9",
+  "baselineCommit": "ad4b900ff2fa645cf39f89141b55a0bd301443a8",
+  "candidateHead": "170e75bdc68896bcaf41e9e8323fc068bb20bdbd",
+  "actualMerge": "eb11087dd5ec0915b7089a6ed044eaf0371e1d86",
+  "candidateTree": "04c1f9a09601da30504cf28e463bafa38938f4ef",
+  "note": "JSON whitespace compacted only; no numeric values or observations removed. Native and local tools are different; keep runs separate."
+}

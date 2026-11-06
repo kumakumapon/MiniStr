@@ -1,0 +1,71 @@
+diff --git a/src/main.ts b/src/main.ts
+index 2774c27..082340c 100644
+--- a/src/main.ts
++++ b/src/main.ts
+@@ -58 +58 @@ import { installModalFocusTrap } from './ui/modalFocus';
+-import { focusIfChanged, FocusRestoreGuard } from './ui/focusRestore';
++import { focusIfChanged, FocusRestoreGuard, restoreBattleFocus } from './ui/focusRestore';
+@@ -1490,8 +1490 @@ function render(): void {
+-    const focusTicket = focusRestoreGuard.capture(generation);
+-    window.requestAnimationFrame(() => {
+-      if (!focusRestoreGuard.isCurrent(focusTicket, renderGeneration)) return;
+-      const target = app.querySelector<HTMLElement>(previousSelector);
+-      const focusTarget = target && !('disabled' in target && target.disabled) ? target : app.querySelector<HTMLElement>('#command-panel');
+-      if (allowBoardFocusScroll && focusTarget?.matches('.tile')) focusTarget.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+-      focusIfChanged(focusTarget, { preventScroll: true });
+-    });
++    restoreBattleFocus(app, previousSelector, allowBoardFocusScroll);
+diff --git a/src/ui/focusRestore.test.ts b/src/ui/focusRestore.test.ts
+index 9e9e2b6..f007fd0 100644
+--- a/src/ui/focusRestore.test.ts
++++ b/src/ui/focusRestore.test.ts
+@@ -2 +2,35 @@ import { describe, expect, it, vi } from 'vitest';
+-import { focusIfChanged, FocusRestoreGuard } from './focusRestore';
++import { focusIfChanged, FocusRestoreGuard, restoreBattleFocus } from './focusRestore';
++
++it('restores a replaced battle control synchronously', () => {
++  document.body.innerHTML = '<main><button id="control">old</button><aside id="command-panel" tabindex="-1"></aside></main>';
++  document.querySelector<HTMLButtonElement>('#control')!.focus();
++  const root = document.querySelector('main')!;
++  root.innerHTML = '<button id="control">new</button><aside id="command-panel" tabindex="-1"></aside>';
++  restoreBattleFocus(root, '#control', false);
++  expect(document.activeElement).toBe(root.querySelector('#control'));
++});
++
++it('keeps fallback focus for disabled or missing controls without repeating writes', () => {
++  document.body.innerHTML = '<main><button id="control" disabled>disabled</button><aside id="command-panel" tabindex="-1"></aside></main>';
++  const root = document.querySelector('main')!,
++    panel = root.querySelector<HTMLElement>('#command-panel')!;
++  const focus = vi.spyOn(panel, 'focus');
++  restoreBattleFocus(root, '#control', false);
++  restoreBattleFocus(root, '#missing', false);
++  expect(document.activeElement).toBe(panel);
++  expect(focus).toHaveBeenCalledTimes(1);
++});
++
++it('preserves requested tile visibility while retaining native focus', () => {
++  document.body.innerHTML = '<main><button class="tile" id="tile">tile</button></main>';
++  const root = document.querySelector('main')!,
++    tile = root.querySelector<HTMLButtonElement>('.tile')!;
++  tile.scrollIntoView = vi.fn();
++  tile.focus();
++  const focus = vi.spyOn(tile, 'focus');
++  restoreBattleFocus(root, '#tile', true);
++  expect(tile.scrollIntoView).toHaveBeenCalledWith({ block: 'nearest', inline: 'nearest' });
++  restoreBattleFocus(root, '#tile', false);
++  expect(tile.scrollIntoView).toHaveBeenCalledTimes(1);
++  expect(focus).not.toHaveBeenCalled();
++});
+diff --git a/src/ui/focusRestore.ts b/src/ui/focusRestore.ts
+index 1fe3ed5..7cb8ff3 100644
+--- a/src/ui/focusRestore.ts
++++ b/src/ui/focusRestore.ts
+@@ -10,0 +11,8 @@ export function focusIfChanged(target: HTMLElement | null | undefined, options:
++/** Battle controls are ready after the DOM update; focus before the next input/frame. */
++export function restoreBattleFocus(root: ParentNode, selector: string, scrollBoard: boolean): void {
++  const target = root.querySelector<HTMLElement>(selector);
++  const focusTarget = target && !('disabled' in target && target.disabled) ? target : root.querySelector<HTMLElement>('#command-panel');
++  if (scrollBoard && focusTarget?.matches('.tile')) focusTarget.scrollIntoView({ block: 'nearest', inline: 'nearest' });
++  focusIfChanged(focusTarget, { preventScroll: true });
++}
++

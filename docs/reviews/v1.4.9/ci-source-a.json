@@ -1,0 +1,154 @@
+{
+  "format": "v149-source-a-ci",
+  "run": 42224021044,
+  "head": "170e75bdc68896bcaf41e9e8323fc068bb20bdbd",
+  "tree": "04c1f9a09601da30504cf28e463bafa38938f4ef",
+  "dependencies": {
+    "node24": "24.22.2",
+    "nodeMinimum": "22.13.0",
+    "npm": "11.9.0",
+    "vite": "8.3.5",
+    "vitest": "5.0.5",
+    "coverage": "5.0.5",
+    "typescript": "6.0.3",
+    "playwright": "1.64.1"
+  },
+  "jobs": [
+    {
+      "id": 127912821288,
+      "name": "terrain-stability",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 127912821467,
+      "name": "quality-shard (1)",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 127912821539,
+      "name": "commit-hygiene",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 127912821659,
+      "name": "quality-shard (2)",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 127912821732,
+      "name": "runtime-compatibility",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 127923264139,
+      "name": "test-and-build",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 127923321373,
+      "name": "deploy",
+      "status": "completed",
+      "conclusion": "skipped"
+    }
+  ],
+  "audits": [
+    {
+      "job": 127912821467,
+      "auditScope": "all",
+      "metadata": {
+        "vulnerabilities": {
+          "info": 0,
+          "low": 0,
+          "moderate": 0,
+          "high": 0,
+          "critical": 0,
+          "total": 0
+        },
+        "dependencies": {
+          "prod": 1,
+          "dev": 213,
+          "optional": 27,
+          "peer": 0,
+          "peerOptional": 0,
+          "total": 213
+        }
+      },
+      "vulnerabilities": {}
+    },
+    {
+      "job": 127912821467,
+      "auditScope": "production",
+      "metadata": {
+        "vulnerabilities": {
+          "info": 0,
+          "low": 0,
+          "moderate": 0,
+          "high": 0,
+          "critical": 0,
+          "total": 0
+        },
+        "dependencies": {
+          "prod": 1,
+          "dev": 213,
+          "optional": 27,
+          "peer": 0,
+          "peerOptional": 0,
+          "total": 213
+        }
+      },
+      "vulnerabilities": {}
+    },
+    {
+      "job": 127912821659,
+      "auditScope": "all",
+      "metadata": {
+        "vulnerabilities": {
+          "info": 0,
+          "low": 0,
+          "moderate": 0,
+          "high": 0,
+          "critical": 0,
+          "total": 0
+        },
+        "dependencies": {
+          "prod": 1,
+          "dev": 213,
+          "optional": 27,
+          "peer": 0,
+          "peerOptional": 0,
+          "total": 213
+        }
+      },
+      "vulnerabilities": {}
+    },
+    {
+      "job": 127912821659,
+      "auditScope": "production",
+      "metadata": {
+        "vulnerabilities": {
+          "info": 0,
+          "low": 0,
+          "moderate": 0,
+          "high": 0,
+          "critical": 0,
+          "total": 0
+        },
+        "dependencies": {
+          "prod": 1,
+          "dev": 213,
+          "optional": 27,
+          "peer": 0,
+          "peerOptional": 0,
+          "total": 213
+        }
+      },
+      "vulnerabilities": {}
+    }
+  ]
+}

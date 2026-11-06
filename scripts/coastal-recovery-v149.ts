@@ -74,6 +74,11 @@ const result = {
   turn: state.turn,
   commandDigest: digest.digest('hex'),
   metrics: metrics.summary(),
+  final: {
+    players: state.players,
+    properties: Object.fromEntries(['red', 'blue'].map((player) => [player, state.board.terrain.flat().filter((tile) => tile.owner === player).length])),
+    subject: state.units.find((unit) => unit.id === fixture.result.unit.id) ?? null,
+  },
   timeline,
   commands,
   note:
