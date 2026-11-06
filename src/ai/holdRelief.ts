@@ -7,17 +7,30 @@ import { isDeployedUnit, usesOperationsRules, type DeployedUnit, type GameState,
 import { defensiveRepairRoute } from './recovery';
 import type { CpuAction } from './rules';
 import { isEvacuationTarget } from '../game/evacuation';
+import { isPropertyTerrainKind } from '../game/facilities';
+import { unitStats } from '../game/units';
 
 /** Public mission orders and observed units only. Re-plan after every legal move. */
 export function defensiveHoldRelief(state: GameState, player: PlayerId, knownEnemies: readonly Unit[]): CpuAction | undefined {
   if (!usesOperationsRules(state)) return;
+  const scenario = scenarioForState(state);
+  const conditions = player === 'red' ? scenario?.victoryConditions : scenario?.defeatConditions;
+  if (!conditions?.some((condition) => condition.type === 'hold')) return;
   // A projected retreat changes friendly sight. Do not let a hypothetical
   // position reveal contacts before the real move has actually discovered them.
   const known = new Set(knownEnemies.map((unit) => unit.id));
   state = { ...state, units: state.units.filter((unit) => unit.owner === player || known.has(unit.id)) };
-  const scenario = scenarioForState(state);
-  const conditions = player === 'red' ? scenario?.victoryConditions : scenario?.defeatConditions;
   const own = state.units.filter((unit): unit is DeployedUnit => unit.owner === player && isDeployedUnit(unit));
+  const committed = (unit: DeployedUnit): boolean => {
+    const tile = terrainAt(state.board, unit.position);
+    if (unitStats[unit.kind].capturePower > 0 && tile && isPropertyTerrainKind(tile.kind) && tile.owner !== player) return true;
+    // A capture or guaranteed current-position kill can finish the operation.
+    // Do not borrow either actor for relief and move it away from that action.
+    return knownEnemies.some((enemy) => {
+      const shot = forecastCombat(state, unit, enemy);
+      return shot.ok && shot.value.outgoing.min >= enemy.hp;
+    });
+  };
   const posts = conditions?.flatMap((condition) => (condition.type === 'hold' ? condition.positions : [])) ?? [];
   const ready = own.filter(
     (unit) =>
@@ -26,7 +39,8 @@ export function defensiveHoldRelief(state: GameState, player: PlayerId, knownEne
       !unit.hasActed &&
       !posts.some((p) => samePosition(unit.position, p)) &&
       !isEvacuationTarget(state, unit.id, player) &&
-      !state.units.some((ally) => ally.embarkedIn === unit.id),
+      !state.units.some((ally) => ally.embarkedIn === unit.id) &&
+      !committed(unit),
   );
   if (!ready.length) return;
   const damageAt = (projected: GameState, unit: DeployedUnit): number =>
@@ -52,7 +66,7 @@ export function defensiveHoldRelief(state: GameState, player: PlayerId, knownEne
         if (relief) return { type: 'move', unitId: relief.id, destination: position };
         continue;
       }
-      if (holder.hp > 35 || holder.hasMoved || holder.hasActed || !eligible.length) continue;
+      if (holder.hp > 35 || holder.hasMoved || holder.hasActed || !eligible.length || committed(holder)) continue;
       const route = defensiveRepairRoute(state, player, holder, 'relief');
       const distance = route?.get(positionKey(position));
       if (distance === undefined) continue;

@@ -195,3 +195,31 @@ it('does not discover hidden contacts through a projected retreat position', () 
     }
   expect(checked).toBeGreaterThan(10);
 });
+
+it.each(['red', 'blue'] as const)('preserves immediate captures and lethal attacks by the %s holder or relief unit', (player) => {
+  const foe = player === 'red' ? 'blue' : 'red';
+  for (const mode of ['holder-capture', 'relief-capture', 'holder-attack', 'relief-attack']) {
+    const state = fixture(player);
+    const snapshot = state.scenarioSnapshot!;
+    const own = player === 'red' ? snapshot.victoryConditions : snapshot.defeatConditions;
+    const conditions = [...own, { type: 'captureCapital' as const }, { type: 'eliminate' as const }];
+    if (player === 'red') snapshot.victoryConditions = conditions;
+    else snapshot.defeatConditions = conditions;
+    const capturing = mode.endsWith('capture'),
+      holder = mode.startsWith('holder');
+    const actor = holder ? 'hurt' : 'relief';
+    if (capturing) {
+      const position = holder ? { x: 6, y: 2 } : { x: 8, y: 2 };
+      snapshot.board.cells = [...snapshot.board.cells, [position.x, position.y, 'capital', foe]];
+      state.board.terrain[position.y]![position.x] = { kind: 'capital', owner: foe, capturePoints: 1 };
+      state.units[holder ? 0 : 1] = force(actor, 'infantry', position.x, position.y, { owner: player, hp: holder ? 30 : 100 });
+    } else {
+      state.units[0] = force('hurt', holder ? 'tank' : 'apc', 6, 2, { owner: player, hp: 30 });
+      state.units[1] = force('relief', 'tank', 8, 2, { owner: player });
+      state.units[2] = force('enemy', 'infantry', holder ? 7 : 9, 2, { owner: foe, hp: 1 });
+    }
+    const action = chooseCpuAction(state, 'normal', player, 'defensive');
+    expect(action, mode).toMatchObject({ type: capturing ? 'capture' : 'attack', unitId: actor });
+    expect(valueOf(applyGameCommand(state, action)).winner, mode).toBe(player);
+  }
+});
