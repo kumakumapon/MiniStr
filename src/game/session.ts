@@ -1,3 +1,4 @@
+import { setLogisticsOrder, setRepairReserve, usesLogisticsOrders, validLogisticsOrder, validRepairReserve, type LogisticsOrder } from './logisticsOrders';
 import { prepareAmbush, toggleDive } from './tacticalActions';
 import { validTacticalState } from './tactics';
 import { validCallsign } from './veteranIdentity';
@@ -34,6 +35,8 @@ export const MAX_SAVE_SLOTS = 12;
 export const STORAGE_WARNING_BYTES = 4_000_000;
 
 export type GameCommand =
+  | { type: 'logistics'; unitId: string; order: LogisticsOrder }
+  | { type: 'repairReserve'; amount: number }
   | { type: 'recon'; center: Position }
   | { type: 'move'; unitId: string; destination: Position }
   | { type: 'fortify'; unitId: string }
@@ -147,6 +150,8 @@ export function applyGameCommand(state: GameState, command: GameCommand): GameRe
   if (state.draw) return { ok: false, error: 'Game has finished' };
   if (state.tactics?.lastCombat) state = { ...state, tactics: { ...state.tactics, lastCombat: undefined } };
   switch (command.type) {
+    case 'logistics': return setLogisticsOrder(state, command.unitId, command.order);
+    case 'repairReserve': return setRepairReserve(state, command.amount);
     case 'recon': return scanArea(state, command.center);
     case 'move': return moveUnit(state, command.unitId, command.destination);
     case 'bridge': return buildBridge(state, command.unitId, command.destination);
@@ -254,6 +259,8 @@ export function matchesScenarioInitialState(value: unknown, scenario: ScenarioDe
 
 export function isGameCommand(value: unknown): value is GameCommand {
   if (!isRecord(value) || typeof value.type !== 'string') return false;
+  if (value.type === 'logistics') return typeof value.unitId === 'string' && validLogisticsOrder(value.order) && Object.keys(value).sort().join() === 'order,type,unitId';
+  if (value.type === 'repairReserve') return validRepairReserve(value.amount) && Object.keys(value).sort().join() === 'amount,type';
   if (value.type === 'endTurn') return true;
   if (value.type === 'recon') return isPosition(value.center) && Object.keys(value).sort().join() === 'center,type';
   if (value.type === 'move') return typeof value.unitId === 'string' && isPosition(value.destination);
@@ -287,6 +294,7 @@ export function isGameState(value: unknown): value is GameState {
     && (tile.capturePoints === undefined || (isFiniteNumber(tile.capturePoints) && tile.capturePoints >= 0 && tile.capturePoints <= 20))))) return false;
 
   if (value.ruleVersion !== undefined && !ruleVersions.includes(value.ruleVersion as never)) return false;
+  if (value.repairReserve !== undefined && (!usesLogisticsOrders(value as unknown as GameState) || !isRecord(value.repairReserve) || !Object.entries(value.repairReserve).every(([owner, amount]) => players.has(owner) && validRepairReserve(amount)))) return false;
   const modern = value.ruleVersion !== undefined;
   const operations = usesOperationsRules(value as unknown as GameState);
   if (value.evacuatedUnits !== undefined && (!operations || !Array.isArray(value.evacuatedUnits))) return false;
@@ -298,6 +306,7 @@ export function isGameState(value: unknown): value is GameState {
   const unitsById = new Map<string, Record<string, unknown>>();
   for (const unit of [...value.units, ...evacuated]) {
     if (!isRecord(unit) || typeof unit.id !== 'string' || ids.has(unit.id)
+      || (unit.logistics !== undefined && (!usesLogisticsOrders(value as unknown as GameState) || !validLogisticsOrder(unit.logistics)))
       || typeof unit.kind !== 'string' || !unitKindSet.has(unit.kind)
       // Modern-only units cannot appear in a classic match, even through a map's initial forces.
       || !isUnitKindAvailable(unit.kind as UnitKind, value.ruleVersion as GameState['ruleVersion'])
@@ -338,6 +347,7 @@ export function isGameState(value: unknown): value is GameState {
     const transport = unitsById.get(unit.embarkedIn as string);
     if (!transport || typeof transport.kind !== 'string' || !unitKindSet.has(transport.kind)
       || transport.owner !== unit.owner || transport.embarkedIn !== undefined
+      || (unit.logistics !== undefined && (!usesLogisticsOrders(value as unknown as GameState) || !validLogisticsOrder(unit.logistics)))
       || typeof unit.kind !== 'string' || !unitKindSet.has(unit.kind) || !isEmbarkableUnit(unit.kind as UnitKind)) return false;
     const cargoCount = (cargoByTransport.get(unit.embarkedIn as string) ?? 0) + 1;
     if (cargoCount > transportCapacity(transport.kind as UnitKind)) return false;

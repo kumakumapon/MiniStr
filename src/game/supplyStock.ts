@@ -1,3 +1,4 @@
+import { logisticsOrder } from './logisticsOrders';
 import { usesFiniteSupplyRules, type GameState, type Unit } from './types';
 import { unitStats, type WeaponSlot } from './units';
 import { weaponAmmo, weaponsForUnit } from './weapons';
@@ -25,6 +26,16 @@ export function stockCanSupply(state: Pick<GameState, 'ruleVersion'>, stock: num
 export function supplyFromStock(state: Pick<GameState, 'ruleVersion'>, unit: Unit, stock: number): { unit: Unit; spent: number } {
   let next = unit;
   let remaining = stock;
+  const refuel = () => {
+    const fuel = next.fuel ?? unitStats[next.kind].fuel;
+    const delivered = Math.min(unitStats[next.kind].fuel - fuel, remaining);
+    if (delivered > 0) {
+      next = { ...next, fuel: fuel + delivered };
+      remaining -= delivered;
+    }
+  };
+  const fuelFirst = logisticsOrder(state, unit).resource === 'fuel';
+  if (fuelFirst) refuel();
   weaponsForUnit(unit.kind, state).forEach((weapon, index) => {
     const slot = index as WeaponSlot;
     const current = weaponAmmo(next, slot);
@@ -34,11 +45,6 @@ export function supplyFromStock(state: Pick<GameState, 'ruleVersion'>, unit: Uni
       remaining -= rounds * AMMO_SUPPLY_COST;
     }
   });
-  const fuel = next.fuel ?? unitStats[next.kind].fuel;
-  const delivered = Math.min(unitStats[next.kind].fuel - fuel, remaining);
-  if (delivered > 0) {
-    next = { ...next, fuel: fuel + delivered };
-    remaining -= delivered;
-  }
+  if (!fuelFirst) refuel();
   return { unit: next, spent: stock - remaining };
 }

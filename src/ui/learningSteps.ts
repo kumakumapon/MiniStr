@@ -17,7 +17,7 @@ const step = (title: string, englishTitle: string, text: string, englishText: st
 });
 
 export function isLearningOperation(state: GameState): boolean {
-  if (state.scenarioId !== 'tactics-supply' && state.scenarioId !== 'tactics-crossing') return false;
+  if (state.scenarioId !== 'tactics-logistics' && state.scenarioId !== 'tactics-supply' && state.scenarioId !== 'tactics-crossing') return false;
   const actual = scenarioForState(state),
     canonical = operationScenarios.find((map) => map.id === state.scenarioId);
   return !!actual && !!canonical && [canonical, tacticalScenario(canonical)].some((map) => operationRevision(map) === operationRevision(actual));
@@ -26,6 +26,27 @@ export function isLearningOperation(state: GameState): boolean {
 /** Instructions describe the known exercise; progress comes only from the viewer's legal history. */
 export function learningSteps(state: GameState, viewer: PlayerId, p: LearningProgress): LearningStep[] | undefined {
   if (viewer !== 'red') return;
+  if (state.scenarioId === 'tactics-logistics')
+    return [
+      step(
+        '補給を指定',
+        'Set supply priorities',
+        '部隊・兵站一覧を開き、砲兵の補給優先と弾薬優先を指定します。',
+        'Open Units and logistics and prioritize artillery ammunition.',
+        p.logistics,
+      ),
+      step(
+        '修理予算',
+        'Reserve repair funds',
+        '一覧の「修理後に残す資金」を指定します。生産時に使うこともできます。',
+        'Reserve funds after repairs. These funds remain available for production.',
+        p.repairReserve,
+      ),
+      step('占領', 'Capture', '中央都市を歩兵で占領します。', 'Capture the central city with infantry.', p.capture),
+      step('補給', 'Resupply', '弾薬や燃料を消費した部隊を補給車や補給所へ戻します。', 'Return units with missing ammunition or fuel to supply sources.', p.resupply),
+      step('修理', 'Repair', '損傷した部隊を対応する自軍施設で修理します。', 'Repair damaged units at compatible owned facilities.', p.repair),
+      step('生産', 'Produce', '留保した資金で工場から部隊を生産できます。', 'Use reserved funds to produce a unit at a factory.', p.produce),
+    ];
   if (state.scenarioId === 'training')
     return [
       step(

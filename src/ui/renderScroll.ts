@@ -5,7 +5,7 @@ export function captureRenderScroll(root: ParentNode, viewport: Window, skipBoar
   // the viewport connected preserves page offsets without a forced layout.
   const shell = root.querySelector('main.game-shell');
   const board = root.querySelector('#board-viewport');
-  const containers = (skipBoard ? ['production-menu-body'] : ['board-viewport', 'production-menu-body']).flatMap((id) => {
+  const containers = (skipBoard ? ['production-menu-body', 'logistics-list'] : ['board-viewport', 'production-menu-body', 'logistics-list']).flatMap((id) => {
     const element = root.querySelector<HTMLElement>(`#${id}`);
     const left = element?.scrollLeft ?? 0,
       top = element?.scrollTop ?? 0;

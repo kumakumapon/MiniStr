@@ -2,6 +2,12 @@ import { japaneseUnitNames, englishUnitNames } from './unitNameText';
 
 /** English display resources. IDs, authored data and saved JSON stay unchanged. */
 export const englishResources: readonly (readonly [string, string])[] = [
+  ['戦術演習・限られた物資', 'Tactical Exercise: Limited Supplies'],
+  [
+    '中央都市 (6, 4) を占領し、地上部隊で4回連続保持せよ。期限は30ターン。部隊・兵站一覧で補給優先と弾薬／燃料優先を指定し、損傷した部隊は都市へ戻す。修理を保留するか、修理後に残す資金を指定して工場の生産費を確保できる。補給所はHPを修理しない。指定は任意で、勝利条件は都市の保持のみ。',
+    'Capture the central city (6, 4) and hold it with a ground unit for four consecutive friendly turn ends. Time limit: 30 turns. Use Units and logistics to prioritize recipients and ammo or fuel. Return damaged units to cities. Hold repairs or reserve funds for factory production. Supply depots do not repair HP. These settings are optional; holding the city is the only victory objective.',
+  ],
+
   ['戦術演習・補給拠点の確保', 'Tactical Exercise: Supply Position'],
   ['戦術演習・渡河と輸送', 'Tactical Exercise: River Transport'],
   ['中立拠点・占領値 {0}', 'Neutral property; capture points {0}'],

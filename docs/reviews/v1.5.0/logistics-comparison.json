@@ -1,0 +1,341 @@
+{
+  "note": "Bounded normal CPU comparisons. Blue-first starts at the ordinary round counter and is a legal stress condition, not a calibrated first-player fairness estimate. Two fixed combat seeds; no global balance claim.",
+  "rows": [
+    {
+      "id": "skirmish",
+      "seed": 1501,
+      "first": "red",
+      "ruleVersion": 13,
+      "winner": null,
+      "draw": false,
+      "bounded": true,
+      "turn": 21,
+      "commands": 780,
+      "orders": 0,
+      "gold": {
+        "red": 9680,
+        "blue": 2800
+      },
+      "units": {
+        "red": 32,
+        "blue": 19
+      },
+      "milliseconds": 1515.071007
+    },
+    {
+      "id": "skirmish",
+      "seed": 1501,
+      "first": "red",
+      "ruleVersion": 14,
+      "winner": null,
+      "draw": false,
+      "bounded": true,
+      "turn": 21,
+      "commands": 786,
+      "orders": 6,
+      "gold": {
+        "red": 9680,
+        "blue": 2800
+      },
+      "units": {
+        "red": 32,
+        "blue": 19
+      },
+      "milliseconds": 1273.4628619999999
+    },
+    {
+      "id": "skirmish",
+      "seed": 1501,
+      "first": "blue",
+      "ruleVersion": 13,
+      "winner": null,
+      "draw": false,
+      "bounded": true,
+      "turn": 21,
+      "commands": 778,
+      "orders": 0,
+      "gold": {
+        "red": 7000,
+        "blue": 2170
+      },
+      "units": {
+        "red": 19,
+        "blue": 30
+      },
+      "milliseconds": 1629.1982389999994
+    },
+    {
+      "id": "skirmish",
+      "seed": 1501,
+      "first": "blue",
+      "ruleVersion": 14,
+      "winner": null,
+      "draw": false,
+      "bounded": true,
+      "turn": 21,
+      "commands": 782,
+      "orders": 4,
+      "gold": {
+        "red": 7000,
+        "blue": 2170
+      },
+      "units": {
+        "red": 19,
+        "blue": 30
+      },
+      "milliseconds": 1707.7515030000004
+    },
+    {
+      "id": "skirmish",
+      "seed": 1502,
+      "first": "red",
+      "ruleVersion": 13,
+      "winner": null,
+      "draw": false,
+      "bounded": true,
+      "turn": 21,
+      "commands": 799,
+      "orders": 0,
+      "gold": {
+        "red": 8040,
+        "blue": 580
+      },
+      "units": {
+        "red": 31,
+        "blue": 29
+      },
+      "milliseconds": 1780.9319969999988
+    },
+    {
+      "id": "skirmish",
+      "seed": 1502,
+      "first": "red",
+      "ruleVersion": 14,
+      "winner": null,
+      "draw": false,
+      "bounded": true,
+      "turn": 21,
+      "commands": 805,
+      "orders": 6,
+      "gold": {
+        "red": 8040,
+        "blue": 580
+      },
+      "units": {
+        "red": 31,
+        "blue": 29
+      },
+      "milliseconds": 1937.9971659999992
+    },
+    {
+      "id": "skirmish",
+      "seed": 1502,
+      "first": "blue",
+      "ruleVersion": 13,
+      "winner": null,
+      "draw": false,
+      "bounded": true,
+      "turn": 21,
+      "commands": 782,
+      "orders": 0,
+      "gold": {
+        "red": 12510,
+        "blue": 800
+      },
+      "units": {
+        "red": 22,
+        "blue": 25
+      },
+      "milliseconds": 1554.8581009999998
+    },
+    {
+      "id": "skirmish",
+      "seed": 1502,
+      "first": "blue",
+      "ruleVersion": 14,
+      "winner": null,
+      "draw": false,
+      "bounded": true,
+      "turn": 21,
+      "commands": 790,
+      "orders": 8,
+      "gold": {
+        "red": 12510,
+        "blue": 800
+      },
+      "units": {
+        "red": 22,
+        "blue": 25
+      },
+      "milliseconds": 1252.2062609999994
+    },
+    {
+      "id": "tactics-logistics",
+      "seed": 1501,
+      "first": "red",
+      "ruleVersion": 13,
+      "winner": null,
+      "draw": false,
+      "bounded": true,
+      "turn": 21,
+      "commands": 383,
+      "orders": 0,
+      "gold": {
+        "red": 19500,
+        "blue": 500
+      },
+      "units": {
+        "red": 4,
+        "blue": 9
+      },
+      "milliseconds": 261.4274779999996
+    },
+    {
+      "id": "tactics-logistics",
+      "seed": 1501,
+      "first": "red",
+      "ruleVersion": 14,
+      "winner": null,
+      "draw": false,
+      "bounded": true,
+      "turn": 21,
+      "commands": 385,
+      "orders": 2,
+      "gold": {
+        "red": 19500,
+        "blue": 500
+      },
+      "units": {
+        "red": 4,
+        "blue": 9
+      },
+      "milliseconds": 222.14570599999934
+    },
+    {
+      "id": "tactics-logistics",
+      "seed": 1501,
+      "first": "blue",
+      "ruleVersion": 13,
+      "winner": null,
+      "draw": false,
+      "bounded": true,
+      "turn": 21,
+      "commands": 401,
+      "orders": 0,
+      "gold": {
+        "red": 8000,
+        "blue": 4730
+      },
+      "units": {
+        "red": 9,
+        "blue": 7
+      },
+      "milliseconds": 282.3858110000001
+    },
+    {
+      "id": "tactics-logistics",
+      "seed": 1501,
+      "first": "blue",
+      "ruleVersion": 14,
+      "winner": null,
+      "draw": false,
+      "bounded": true,
+      "turn": 21,
+      "commands": 401,
+      "orders": 0,
+      "gold": {
+        "red": 8000,
+        "blue": 4730
+      },
+      "units": {
+        "red": 9,
+        "blue": 7
+      },
+      "milliseconds": 275.9351349999997
+    },
+    {
+      "id": "tactics-logistics",
+      "seed": 1502,
+      "first": "red",
+      "ruleVersion": 13,
+      "winner": null,
+      "draw": false,
+      "bounded": true,
+      "turn": 21,
+      "commands": 440,
+      "orders": 0,
+      "gold": {
+        "red": 9000,
+        "blue": 220
+      },
+      "units": {
+        "red": 6,
+        "blue": 15
+      },
+      "milliseconds": 293.0817100000004
+    },
+    {
+      "id": "tactics-logistics",
+      "seed": 1502,
+      "first": "red",
+      "ruleVersion": 14,
+      "winner": null,
+      "draw": false,
+      "bounded": true,
+      "turn": 21,
+      "commands": 442,
+      "orders": 2,
+      "gold": {
+        "red": 9000,
+        "blue": 220
+      },
+      "units": {
+        "red": 6,
+        "blue": 15
+      },
+      "milliseconds": 316.77976800000033
+    },
+    {
+      "id": "tactics-logistics",
+      "seed": 1502,
+      "first": "blue",
+      "ruleVersion": 13,
+      "winner": null,
+      "draw": false,
+      "bounded": true,
+      "turn": 21,
+      "commands": 414,
+      "orders": 0,
+      "gold": {
+        "red": 7000,
+        "blue": 4040
+      },
+      "units": {
+        "red": 7,
+        "blue": 13
+      },
+      "milliseconds": 256.16249099999914
+    },
+    {
+      "id": "tactics-logistics",
+      "seed": 1502,
+      "first": "blue",
+      "ruleVersion": 14,
+      "winner": null,
+      "draw": false,
+      "bounded": true,
+      "turn": 21,
+      "commands": 415,
+      "orders": 1,
+      "gold": {
+        "red": 7000,
+        "blue": 4040
+      },
+      "units": {
+        "red": 7,
+        "blue": 13
+      },
+      "milliseconds": 259.2601419999992
+    }
+  ]
+}

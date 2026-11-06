@@ -446,7 +446,7 @@ export function createScenarioInitialState(scenario: ScenarioDefinition): GameSt
   // is a separate, one-off opening grant.
   const redIncome = incomePropertyCount(base, 'red') * 1000;
   return {
-    ...base, ...(scenario.tacticalOptions ? { tactics: initialTactics(scenario.tacticalOptions, scenario.battleSeed ?? 1) } : {}), scenarioId: scenario.id, scenarioSnapshot: scenarioDefinitionToData(scenario), ruleVersion: scenario.tacticalOptions ? TACTICAL_RULE_VERSION : STRATEGY_RULE_VERSION,
+    ...base, ...(scenario.tacticalOptions ? { tactics: initialTactics(scenario.tacticalOptions, scenario.battleSeed ?? 1) } : {}), scenarioId: scenario.id, scenarioSnapshot: scenarioDefinitionToData(scenario), ruleVersion: scenario.id === 'tactics-logistics' ? 14 : scenario.tacticalOptions ? TACTICAL_RULE_VERSION : STRATEGY_RULE_VERSION,
     players: { red: { gold: scenario.startingGold + redIncome + (scenario.firstPlayerBonus ?? 0), income: redIncome }, blue: { gold: scenario.startingGold + (scenario.secondPlayerBonus ?? 0), income: 0 } },
     units: scenario.initialUnits.map(unit => {
       nextId[unit.owner] += 1;
