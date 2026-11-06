@@ -1,11 +1,11 @@
-name: Response comparison v1.4.8
+name: Response comparison v1.4.9
 # Compare translation traversal, parked-board resume and explicit 50%/100% zoom.
 
 on:
   pull_request:
     branches: [main]
     paths:
-      - scripts/browser-response-v148.mjs
+      - scripts/browser-response-v149.mjs
       - .github/workflows/response-comparison.yml
   workflow_dispatch:
 
@@ -32,7 +32,7 @@ jobs:
       - run: npm ci
       - name: Build the released baseline using the same installed tools
         env:
-          BASELINE_SHA: f2746441154e648a951ea146d9edd8a492fb3854
+          BASELINE_SHA: ad4b900ff2fa645cf39f89141b55a0bd301443a8
         run: |
           mkdir -p "$RUNNER_TEMP/ministr-before"
           git archive "$BASELINE_SHA" | tar -x -C "$RUNNER_TEMP/ministr-before"
@@ -67,7 +67,7 @@ jobs:
               if [ "$pair" = 1 ]; then variants='after before'; else variants='before after'; fi
               for variant in $variants; do
                 if [ "$variant" = before ]; then port=4192; else port=4191; fi
-                node scripts/browser-response-v148.mjs "http://127.0.0.1:$port" "response-comparison/$engine-$pair-$variant.json" "$variant" "$pair" "$engine"
+                node scripts/browser-response-v149.mjs "http://127.0.0.1:$port" "response-comparison/$engine-$pair-$variant.json" "$variant" "$pair" "$engine"
               done
             done
           done
@@ -75,6 +75,6 @@ jobs:
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
-          name: response-comparison-v148
+          name: response-comparison-v149
           path: response-comparison/
           retention-days: 14

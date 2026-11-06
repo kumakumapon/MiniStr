@@ -1,6 +1,6 @@
 import { isEvacuationTarget } from '../game/evacuation';
-import { affordableRepair, isServiceTile } from '../game/logistics';
-import { positionKey } from '../game/terrain';
+import { affordableRepair, isGroundUnit, isServiceTile } from '../game/logistics';
+import { positionKey, samePosition, terrainAt } from '../game/terrain';
 import { isDeployedUnit, usesModernRules, type DeployedUnit, type GameState, type PlayerId, type Unit } from '../game/types';
 import { crossingDistances } from './crossing';
 import { unitStats } from '../game/units';
@@ -34,6 +34,43 @@ export function defensiveServiceWait(state: GameState, player: PlayerId, knownEn
     if (incoming < unit.hp) return { type: 'wait', unitId: unit.id };
   }
   return;
+}
+
+/** A ready field gun may take a useful firing berth instead of another repair turn. */
+export function canLeaveRepairForFire(state: GameState, player: PlayerId, unit: DeployedUnit, destination: { x: number; y: number }, knownEnemies: readonly Unit[]): boolean {
+  if (
+    !usesModernRules(state) ||
+    unit.owner !== player ||
+    unit.hasMoved ||
+    unit.hasActed ||
+    unit.hp <= 35 ||
+    unit.hp >= 50 ||
+    terrainAt(state.board, unit.position)?.kind === 'capital' ||
+    !isGroundUnit(unit.kind) ||
+    !unitStats[unit.kind].indirect ||
+    samePosition(unit.position, destination)
+  )
+    return false;
+  const scenario = scenarioForState(state);
+  const conditions = player === 'red' ? scenario?.victoryConditions : scenario?.defeatConditions;
+  if (conditions?.some((condition) => condition.type === 'hold' && condition.positions.some((position) => samePosition(unit.position, position)))) return false;
+  // Projection must not discover hidden contacts from the proposed position.
+  const known = new Set(knownEnemies.map((enemy) => enemy.id));
+  const observed = { ...state, units: state.units.filter((other) => other.owner === player || known.has(other.id)) };
+  if (knownEnemies.some((enemy) => forecastCombat(observed, unit, enemy).ok)) return false;
+  const deployed = { ...unit, position: destination, hasMoved: false, hasActed: false };
+  const projected = { ...observed, units: observed.units.map((other) => (other.id === unit.id ? deployed : other)) };
+  const fire = knownEnemies.some((enemy) => {
+    const shot = forecastCombat(projected, deployed, enemy, 0);
+    return shot.ok && shot.value.outgoing.min > 0;
+  });
+  if (!fire) return false;
+  const incoming = knownEnemies.reduce((sum, enemy) => {
+    if (!isDeployedUnit(enemy)) return sum;
+    const shot = forecastCombat(projected, { ...enemy, hasMoved: false, hasActed: false }, deployed);
+    return sum + (shot.ok ? shot.value.outgoing.max : 0);
+  }, 0);
+  return incoming < unit.hp;
 }
 
 const routes = new WeakMap<GameState, Map<string, ReadonlyMap<string, number> | null>>();

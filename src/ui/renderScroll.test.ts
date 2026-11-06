@@ -2,6 +2,41 @@ import { describe, expect, it, vi } from 'vitest';
 import { captureRenderScroll } from './renderScroll';
 
 describe('render scroll restoration', () => {
+  it('keeps retained battle containers without scroll writes or post-update page reads', () => {
+    document.body.innerHTML = '<main class="game-shell"><div id="board-viewport"></div><div id="production-menu-body"></div></main>';
+    const board = document.querySelector<HTMLElement>('#board-viewport')!;
+    board.scrollLeft = 180;
+    board.scrollTop = 70;
+    const menu = document.querySelector<HTMLElement>('#production-menu-body')!;
+    menu.scrollTop = 90;
+    const viewport = { scrollX: 0, scrollY: 400, scrollTo: vi.fn() };
+    const restore = captureRenderScroll(document, viewport as unknown as Window);
+    const left = vi.spyOn(board, 'scrollLeft', 'set');
+    const top = vi.spyOn(board, 'scrollTop', 'set');
+    const menuTop = vi.spyOn(menu, 'scrollTop', 'set');
+    Object.defineProperty(viewport, 'scrollY', {
+      get: () => {
+        throw Error('post-update page layout');
+      },
+    });
+    restore();
+    expect(left).not.toHaveBeenCalled();
+    expect(top).not.toHaveBeenCalled();
+    expect(menuTop).not.toHaveBeenCalled();
+    expect(viewport.scrollTo).not.toHaveBeenCalled();
+  });
+
+  it('restores a replaced page even when its board node has been carried over', () => {
+    document.body.innerHTML = '<main class="game-shell"><div id="board-viewport"></div></main>';
+    const board = document.querySelector<HTMLElement>('#board-viewport')!;
+    const viewport = { scrollX: 0, scrollY: 400, scrollTo: vi.fn() };
+    const restore = captureRenderScroll(document, viewport as unknown as Window);
+    document.body.innerHTML = '<main class="game-shell"></main>';
+    document.querySelector('main')!.append(board);
+    restore();
+    expect(viewport.scrollTo).toHaveBeenCalledWith({ left: 0, top: 400, behavior: 'instant' });
+  });
+
   it('lets spectator centering replace board restoration while preserving menu and page', () => {
     document.body.innerHTML = '<div id="board-viewport"></div><div id="production-menu-body"></div>';
     document.querySelector<HTMLElement>('#board-viewport')!.scrollLeft = 200;

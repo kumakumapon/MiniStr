@@ -1,5 +1,5 @@
 import { supplyRendezvous } from './supplyRendezvous';
-import { defensiveRepairRoute, defensiveServiceWait } from './recovery';
+import { canLeaveRepairForFire, defensiveRepairRoute, defensiveServiceWait } from './recovery';
 import { defensiveHoldRelief } from './holdRelief';
 import { supportedAttack } from './supportAttack';
 import { policyConfig } from './armyPolicy';
@@ -739,7 +739,7 @@ function moveAction(state: GameState, player: PlayerId, config: CpuDifficultyCon
     // Repair and firing can share a turn. Only ordinary relocation waits for
     // recovery; keep attacks, mission orders and the existing unit order first.
     const repair = config.coordinatedDefense && unit.hp < 50 ? defensiveServiceWait(state, player, context.visibleEnemies, unit.id) : undefined;
-    if (repair) return repair;
+    if (repair && (!unitStats[unit.kind].indirect || !isGroundUnit(unit.kind) || unit.hp <= 35)) return repair;
     const openTargets = targets.filter(target => !state.units.some(ally => ally.owner === player && ally.id !== unit.id
       && isDeployedUnit(ally) && ally.position.x === target.x && ally.position.y === target.y));
     const assignedTargets = mission?.positions ?? (openTargets.length ? openTargets : targets);
@@ -762,6 +762,10 @@ function moveAction(state: GameState, player: PlayerId, config: CpuDifficultyCon
       .filter(position => transportSafeAt(state, unit, position, context.visibleEnemies))
       .map(position => ({ position, score: evaluateCpuPosition(state, player, unit, position, unitTargets, config, context.visibleEnemies) }))
       .sort((a, b) => b.score - a.score || a.position.y - b.position.y || a.position.x - b.position.x)[0]?.position;
+    // Preserve the existing positional trade (including repair value). A ready
+    // field gun can deploy for a new observed shot; critical repair and actual
+    // holding posts still wait. Indirect fire is planned for the next turn.
+    if (repair && (!destination || !canLeaveRepairForFire(state, player, unit, destination, context.visibleEnemies))) return repair;
     if (destination) {
       if (destination.x === unit.position.x && destination.y === unit.position.y)
         return { type: 'wait', unitId: unit.id };
