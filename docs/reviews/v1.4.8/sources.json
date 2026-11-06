@@ -1,0 +1,539 @@
+{
+  "format": "sources-v148",
+  "releasedBaseline": {
+    "remote": "f2746441154e648a951ea146d9edd8a492fb3854",
+    "local": "8ca38e857acb7ebf5e536dc29eabda907825bc69",
+    "tree": "e621b35e09acb047a1e532dfdff90c639ce961a3"
+  },
+  "candidateA": {
+    "remote": "44bcdb30876e3fc7d3495e2d83956a26b3f1e6ca",
+    "local": "c06f3196fe5c58ec6d50114fac089e16dfde0f05",
+    "tree": "a838c2cc9e79c70efde9448d74e21a595c1d3e3e"
+  },
+  "finalCode": {
+    "remote": "18ce8b8966ac63b3928439850501832167ab6901",
+    "local": "b3d6d2009e904efedf77e37a05367a48f742c979",
+    "tree": "6aca467b59167185638f91cddc16857de0290f1c"
+  },
+  "groupHashAlgorithm": "SHA256 of sorted relative path + NUL + exact file bytes; tests, fixtures and declarations excluded. Baseline has no holdRelief.ts.",
+  "groups": {
+    "game": {
+      "files": [
+        "src/game/armyPolicy.ts",
+        "src/game/backup.ts",
+        "src/game/battleHistory.ts",
+        "src/game/bridges.ts",
+        "src/game/campaign.ts",
+        "src/game/campaignOperations.ts",
+        "src/game/combat.ts",
+        "src/game/commands.ts",
+        "src/game/control.ts",
+        "src/game/controlOperations.ts",
+        "src/game/crossingOperations.ts",
+        "src/game/dailyChallenge.ts",
+        "src/game/deployment.ts",
+        "src/game/deploymentPresets.ts",
+        "src/game/editor.ts",
+        "src/game/editorTools.ts",
+        "src/game/engineering.ts",
+        "src/game/evacuation.ts",
+        "src/game/expandedMaps.ts",
+        "src/game/experience.ts",
+        "src/game/facilities.ts",
+        "src/game/fog.ts",
+        "src/game/frontlineOperations.ts",
+        "src/game/index.ts",
+        "src/game/jsonBoundary.ts",
+        "src/game/learningLog.ts",
+        "src/game/learningOperations.ts",
+        "src/game/logistics.ts",
+        "src/game/mapGenerator.ts",
+        "src/game/maps.ts",
+        "src/game/musicSettings.ts",
+        "src/game/operationRecords.ts",
+        "src/game/recon.ts",
+        "src/game/replay.ts",
+        "src/game/replayTimeline.ts",
+        "src/game/rng.ts",
+        "src/game/saveRecovery.ts",
+        "src/game/session.ts",
+        "src/game/shareLink.ts",
+        "src/game/specialOperations.ts",
+        "src/game/standaloneOperations.ts",
+        "src/game/state.ts",
+        "src/game/supplyStock.ts",
+        "src/game/tacticalActions.ts",
+        "src/game/tacticalMaps.ts",
+        "src/game/tactics.ts",
+        "src/game/terrain.ts",
+        "src/game/threat.ts",
+        "src/game/training.ts",
+        "src/game/types.ts",
+        "src/game/units.ts",
+        "src/game/veteranIdentity.ts",
+        "src/game/victory.ts",
+        "src/game/weapons.ts",
+        "src/game/wideOperations.ts"
+      ],
+      "before": "8709d53a5d31444cecb73bd43e506ff62a85fd4063197f26264403e59da967fd",
+      "candidateA": "8709d53a5d31444cecb73bd43e506ff62a85fd4063197f26264403e59da967fd",
+      "after": "8709d53a5d31444cecb73bd43e506ff62a85fd4063197f26264403e59da967fd",
+      "candidateC": "8709d53a5d31444cecb73bd43e506ff62a85fd4063197f26264403e59da967fd"
+    },
+    "ai": {
+      "files": [
+        "src/ai/airlift.ts",
+        "src/ai/armyPolicy.ts",
+        "src/ai/balance.ts",
+        "src/ai/coordination.ts",
+        "src/ai/crossing.ts",
+        "src/ai/demolition.ts",
+        "src/ai/holdRelief.ts",
+        "src/ai/index.ts",
+        "src/ai/perspective.ts",
+        "src/ai/recon.ts",
+        "src/ai/recovery.ts",
+        "src/ai/rules.ts",
+        "src/ai/supplyRendezvous.ts",
+        "src/ai/supportAttack.ts",
+        "src/ai/tactics.ts"
+      ],
+      "before": "67c23eba92a8aeb289cca7e83ff0dc0e704f22b4292f8fd1734db05ae3dbe972",
+      "candidateA": "706859b868fb8d84bfdcf84d53e0544ed23a4c39a406638c71dbe54691e54ff5",
+      "after": "e8dec12a75ebfba02fb757cbefcf2b24616e5f9b0b87a46c6512e7ed78ea45cc",
+      "candidateC": "1cd567b7d11cd65beb40b59d5fb3867ac3b6f53819fa7bef109c3600846fdcff"
+    },
+    "ui": {
+      "files": [
+        "src/main.ts",
+        "src/style.css",
+        "src/ui/actionScene.ts",
+        "src/ui/armyPolicy.ts",
+        "src/ui/asyncRequest.ts",
+        "src/ui/audioRecovery.ts",
+        "src/ui/battleAudio.ts",
+        "src/ui/battleScene.ts",
+        "src/ui/boardFocus.ts",
+        "src/ui/boardInput.ts",
+        "src/ui/boardNavigation.ts",
+        "src/ui/boardView.ts",
+        "src/ui/boardZoom.ts",
+        "src/ui/boardZoomView.ts",
+        "src/ui/bridges.ts",
+        "src/ui/buildInfo.ts",
+        "src/ui/campaignRoster.ts",
+        "src/ui/commandScheduler.ts",
+        "src/ui/cpuFallback.ts",
+        "src/ui/cpuPlanner.ts",
+        "src/ui/cpuResponse.ts",
+        "src/ui/cpuSpeed.ts",
+        "src/ui/cpuWorker.ts",
+        "src/ui/dailyChallenge.ts",
+        "src/ui/deployment.ts",
+        "src/ui/domAttributes.ts",
+        "src/ui/download.ts",
+        "src/ui/editorTools.ts",
+        "src/ui/editorView.ts",
+        "src/ui/english.ts",
+        "src/ui/focusRestore.ts",
+        "src/ui/fogDisplay.ts",
+        "src/ui/frontline.ts",
+        "src/ui/labels.ts",
+        "src/ui/learning.ts",
+        "src/ui/learningSteps.ts",
+        "src/ui/locale.ts",
+        "src/ui/mapPreview.ts",
+        "src/ui/matchControl.ts",
+        "src/ui/modalFocus.ts",
+        "src/ui/music.ts",
+        "src/ui/musicControls.ts",
+        "src/ui/operationsExpansion.ts",
+        "src/ui/overlays.ts",
+        "src/ui/presentationEffects.ts",
+        "src/ui/productionMenu.ts",
+        "src/ui/renderScroll.ts",
+        "src/ui/replayControls.ts",
+        "src/ui/replayRuntime.ts",
+        "src/ui/resultCache.ts",
+        "src/ui/retainControls.ts",
+        "src/ui/saveSlots.ts",
+        "src/ui/scenarioText.ts",
+        "src/ui/screenController.ts",
+        "src/ui/screenView.ts",
+        "src/ui/shareLinkDialog.ts",
+        "src/ui/sound.ts",
+        "src/ui/spectatorCamera.ts",
+        "src/ui/spectatorSceneControls.ts",
+        "src/ui/standaloneSystems.ts",
+        "src/ui/stateMemo.ts",
+        "src/ui/storage.ts",
+        "src/ui/storageWriter.ts",
+        "src/ui/strings.ts",
+        "src/ui/tactics.ts",
+        "src/ui/terrainAppearance.ts",
+        "src/ui/terrainLegend.ts",
+        "src/ui/tileInspector.ts",
+        "src/ui/tileMarkupCache.ts",
+        "src/ui/titleEvents.ts",
+        "src/ui/titlePreviews.ts",
+        "src/ui/titleScreen.ts",
+        "src/ui/undoHistory.ts",
+        "src/ui/unitBrief.ts",
+        "src/ui/unitNameText.ts",
+        "src/ui/webAudioMusic.ts"
+      ],
+      "before": "8d90c2113d8b4f872fb6523300264a78378382d7f04b01ad343b0c34fcaf2e3a",
+      "candidateA": "25d16e194903c447dbe6f536d09bbd54ef72eb8dbf084b7866a916e16a297a76",
+      "after": "69fb6ed07ea6b26092b7157cf39e633a0ae9aafa5adc4965e80b9d5459d0c0c1",
+      "candidateC": "a24abb8ecb0a98fc09bcd623d148d5e7a8fbb93c861c77f98b5458b148bb71c1"
+    }
+  },
+  "harnesses": {
+    "scripts/tactical-balance.ts": "18eef097567824a1bd64550627a811dd59be83d561702f48929a0f2c603cd6eb",
+    "scripts/tacticalMetrics.ts": "2a886ffcad73aeb9c3f19cfdd0981a47b7af184a47c0677680ff1c274102c501",
+    "scripts/tacticalScenarios.ts": "bffd8dbe1ba561f974de76865211d1af1c5c97869396c1f2e5730d94bb12f6ef",
+    "scripts/browser-response-v148.mjs": "bb337b59b98a1605b7574245a95bf1fce38898eacd4bc35dd8e7deb3ca1a7674",
+    "scripts/response-summary-v148.mjs": "c79c15d8c7d26e641c11f071cf2aea65ff312ef1d6822973fedc4aab14aac246",
+    "scripts/cpu-limited-v148.mjs": "63123123a16d9c27da69a82b100e3547485fb686b23a5e8ccf771bf3b6ed7410",
+    "scripts/recovery-report-v148.ts": "16f5bc99b46f06d77267ccaf553b11377654773cda82f4ed1f320cd05733ff38",
+    "scripts/recovery-examples-v148.ts": "d7ffce24772f3ad617c161bb93c6ce32af9968195461b40a7c157a0eb356cbb2"
+  },
+  "cpuComparisons": {
+    "before": [
+      {
+        "path": "cpu-before/coast.jsonl",
+        "source": "a3dc0f7bdff84bce739e063779b8a8e033e3f36ab10537cf56e6970d63db47bb",
+        "harness": "147d0ffaae9155782bdae1f7a043440b8029d63235080a92b3f6d58281da0101",
+        "games": 2
+      },
+      {
+        "path": "cpu-before/control-objective.jsonl",
+        "source": "a3dc0f7bdff84bce739e063779b8a8e033e3f36ab10537cf56e6970d63db47bb",
+        "harness": "147d0ffaae9155782bdae1f7a043440b8029d63235080a92b3f6d58281da0101",
+        "games": 2
+      },
+      {
+        "path": "cpu-before/control.jsonl",
+        "source": "a3dc0f7bdff84bce739e063779b8a8e033e3f36ab10537cf56e6970d63db47bb",
+        "harness": "147d0ffaae9155782bdae1f7a043440b8029d63235080a92b3f6d58281da0101",
+        "games": 2
+      },
+      {
+        "path": "cpu-before/held-coast.jsonl",
+        "source": "a3dc0f7bdff84bce739e063779b8a8e033e3f36ab10537cf56e6970d63db47bb",
+        "harness": "147d0ffaae9155782bdae1f7a043440b8029d63235080a92b3f6d58281da0101",
+        "games": 2
+      },
+      {
+        "path": "cpu-before/held-inland.jsonl",
+        "source": "a3dc0f7bdff84bce739e063779b8a8e033e3f36ab10537cf56e6970d63db47bb",
+        "harness": "147d0ffaae9155782bdae1f7a043440b8029d63235080a92b3f6d58281da0101",
+        "games": 2
+      },
+      {
+        "path": "cpu-before/hold-objective.jsonl",
+        "source": "a3dc0f7bdff84bce739e063779b8a8e033e3f36ab10537cf56e6970d63db47bb",
+        "harness": "147d0ffaae9155782bdae1f7a043440b8029d63235080a92b3f6d58281da0101",
+        "games": 2
+      },
+      {
+        "path": "cpu-before/inland.jsonl",
+        "source": "a3dc0f7bdff84bce739e063779b8a8e033e3f36ab10537cf56e6970d63db47bb",
+        "harness": "147d0ffaae9155782bdae1f7a043440b8029d63235080a92b3f6d58281da0101",
+        "games": 2
+      },
+      {
+        "path": "cpu-before/new-coast.jsonl",
+        "source": "a3dc0f7bdff84bce739e063779b8a8e033e3f36ab10537cf56e6970d63db47bb",
+        "harness": "147d0ffaae9155782bdae1f7a043440b8029d63235080a92b3f6d58281da0101",
+        "games": 2
+      },
+      {
+        "path": "cpu-before/new-inland.jsonl",
+        "source": "a3dc0f7bdff84bce739e063779b8a8e033e3f36ab10537cf56e6970d63db47bb",
+        "harness": "147d0ffaae9155782bdae1f7a043440b8029d63235080a92b3f6d58281da0101",
+        "games": 2
+      }
+    ],
+    "candidate-a": [
+      {
+        "path": "cpu-candidate-a/coast.jsonl",
+        "source": "d074b5cd3aa3888c02b453e018e0f51a9969a74be8c503bbab5fc22783f26c71",
+        "harness": "147d0ffaae9155782bdae1f7a043440b8029d63235080a92b3f6d58281da0101",
+        "games": 2
+      },
+      {
+        "path": "cpu-candidate-a/control-objective.jsonl",
+        "source": "d074b5cd3aa3888c02b453e018e0f51a9969a74be8c503bbab5fc22783f26c71",
+        "harness": "147d0ffaae9155782bdae1f7a043440b8029d63235080a92b3f6d58281da0101",
+        "games": 2
+      },
+      {
+        "path": "cpu-candidate-a/control.jsonl",
+        "source": "d074b5cd3aa3888c02b453e018e0f51a9969a74be8c503bbab5fc22783f26c71",
+        "harness": "147d0ffaae9155782bdae1f7a043440b8029d63235080a92b3f6d58281da0101",
+        "games": 2
+      },
+      {
+        "path": "cpu-candidate-a/held-coast.jsonl",
+        "source": "d074b5cd3aa3888c02b453e018e0f51a9969a74be8c503bbab5fc22783f26c71",
+        "harness": "147d0ffaae9155782bdae1f7a043440b8029d63235080a92b3f6d58281da0101",
+        "games": 2
+      },
+      {
+        "path": "cpu-candidate-a/held-inland.jsonl",
+        "source": "d074b5cd3aa3888c02b453e018e0f51a9969a74be8c503bbab5fc22783f26c71",
+        "harness": "147d0ffaae9155782bdae1f7a043440b8029d63235080a92b3f6d58281da0101",
+        "games": 2
+      },
+      {
+        "path": "cpu-candidate-a/hold-objective.jsonl",
+        "source": "d074b5cd3aa3888c02b453e018e0f51a9969a74be8c503bbab5fc22783f26c71",
+        "harness": "147d0ffaae9155782bdae1f7a043440b8029d63235080a92b3f6d58281da0101",
+        "games": 2
+      },
+      {
+        "path": "cpu-candidate-a/inland.jsonl",
+        "source": "d074b5cd3aa3888c02b453e018e0f51a9969a74be8c503bbab5fc22783f26c71",
+        "harness": "147d0ffaae9155782bdae1f7a043440b8029d63235080a92b3f6d58281da0101",
+        "games": 2
+      },
+      {
+        "path": "cpu-candidate-a/new-coast.jsonl",
+        "source": "d074b5cd3aa3888c02b453e018e0f51a9969a74be8c503bbab5fc22783f26c71",
+        "harness": "147d0ffaae9155782bdae1f7a043440b8029d63235080a92b3f6d58281da0101",
+        "games": 2
+      },
+      {
+        "path": "cpu-candidate-a/new-inland.jsonl",
+        "source": "d074b5cd3aa3888c02b453e018e0f51a9969a74be8c503bbab5fc22783f26c71",
+        "harness": "147d0ffaae9155782bdae1f7a043440b8029d63235080a92b3f6d58281da0101",
+        "games": 2
+      }
+    ],
+    "service-only": [
+      {
+        "path": "cpu-service-only/coast.jsonl",
+        "source": "6ca2fe2c4682532466591f001ea5e5ccfdce4471b8c234023824d446275a470b",
+        "harness": "147d0ffaae9155782bdae1f7a043440b8029d63235080a92b3f6d58281da0101",
+        "games": 2
+      },
+      {
+        "path": "cpu-service-only/held-coast.jsonl",
+        "source": "6ca2fe2c4682532466591f001ea5e5ccfdce4471b8c234023824d446275a470b",
+        "harness": "147d0ffaae9155782bdae1f7a043440b8029d63235080a92b3f6d58281da0101",
+        "games": 2
+      },
+      {
+        "path": "cpu-service-only/inland.jsonl",
+        "source": "6ca2fe2c4682532466591f001ea5e5ccfdce4471b8c234023824d446275a470b",
+        "harness": "147d0ffaae9155782bdae1f7a043440b8029d63235080a92b3f6d58281da0101",
+        "games": 2
+      }
+    ],
+    "route-only": [
+      {
+        "path": "cpu-route-only/coast.jsonl",
+        "source": "b9b59f17a3037829d553268adfdcf2581836bc68899bce5f9a519ffa4aaa7dd1",
+        "harness": "147d0ffaae9155782bdae1f7a043440b8029d63235080a92b3f6d58281da0101",
+        "games": 2
+      },
+      {
+        "path": "cpu-route-only/held-coast.jsonl",
+        "source": "b9b59f17a3037829d553268adfdcf2581836bc68899bce5f9a519ffa4aaa7dd1",
+        "harness": "147d0ffaae9155782bdae1f7a043440b8029d63235080a92b3f6d58281da0101",
+        "games": 2
+      },
+      {
+        "path": "cpu-route-only/inland.jsonl",
+        "source": "b9b59f17a3037829d553268adfdcf2581836bc68899bce5f9a519ffa4aaa7dd1",
+        "harness": "147d0ffaae9155782bdae1f7a043440b8029d63235080a92b3f6d58281da0101",
+        "games": 2
+      }
+    ],
+    "candidate-b": [
+      {
+        "path": "cpu-candidate-b/coast.jsonl",
+        "source": "482c7ba1cc2f82f300de5c80da933e660f6ddce5b5e9b51a486d16ad20335c85",
+        "harness": "147d0ffaae9155782bdae1f7a043440b8029d63235080a92b3f6d58281da0101",
+        "games": 2
+      },
+      {
+        "path": "cpu-candidate-b/control-objective.jsonl",
+        "source": "482c7ba1cc2f82f300de5c80da933e660f6ddce5b5e9b51a486d16ad20335c85",
+        "harness": "147d0ffaae9155782bdae1f7a043440b8029d63235080a92b3f6d58281da0101",
+        "games": 2
+      },
+      {
+        "path": "cpu-candidate-b/control.jsonl",
+        "source": "482c7ba1cc2f82f300de5c80da933e660f6ddce5b5e9b51a486d16ad20335c85",
+        "harness": "147d0ffaae9155782bdae1f7a043440b8029d63235080a92b3f6d58281da0101",
+        "games": 2
+      },
+      {
+        "path": "cpu-candidate-b/held-coast.jsonl",
+        "source": "482c7ba1cc2f82f300de5c80da933e660f6ddce5b5e9b51a486d16ad20335c85",
+        "harness": "147d0ffaae9155782bdae1f7a043440b8029d63235080a92b3f6d58281da0101",
+        "games": 2
+      },
+      {
+        "path": "cpu-candidate-b/held-inland.jsonl",
+        "source": "482c7ba1cc2f82f300de5c80da933e660f6ddce5b5e9b51a486d16ad20335c85",
+        "harness": "147d0ffaae9155782bdae1f7a043440b8029d63235080a92b3f6d58281da0101",
+        "games": 2
+      },
+      {
+        "path": "cpu-candidate-b/hold-objective.jsonl",
+        "source": "482c7ba1cc2f82f300de5c80da933e660f6ddce5b5e9b51a486d16ad20335c85",
+        "harness": "147d0ffaae9155782bdae1f7a043440b8029d63235080a92b3f6d58281da0101",
+        "games": 2
+      },
+      {
+        "path": "cpu-candidate-b/inland.jsonl",
+        "source": "482c7ba1cc2f82f300de5c80da933e660f6ddce5b5e9b51a486d16ad20335c85",
+        "harness": "147d0ffaae9155782bdae1f7a043440b8029d63235080a92b3f6d58281da0101",
+        "games": 2
+      },
+      {
+        "path": "cpu-candidate-b/new-coast.jsonl",
+        "source": "482c7ba1cc2f82f300de5c80da933e660f6ddce5b5e9b51a486d16ad20335c85",
+        "harness": "147d0ffaae9155782bdae1f7a043440b8029d63235080a92b3f6d58281da0101",
+        "games": 2
+      },
+      {
+        "path": "cpu-candidate-b/new-inland.jsonl",
+        "source": "482c7ba1cc2f82f300de5c80da933e660f6ddce5b5e9b51a486d16ad20335c85",
+        "harness": "147d0ffaae9155782bdae1f7a043440b8029d63235080a92b3f6d58281da0101",
+        "games": 2
+      }
+    ],
+    "after": [
+      {
+        "path": "cpu-after/coast.jsonl",
+        "source": "6f712926a804cb12eb27b0848b2bf243a52077d341eef4f5e7a602a71cef5e23",
+        "harness": "147d0ffaae9155782bdae1f7a043440b8029d63235080a92b3f6d58281da0101",
+        "games": 2
+      },
+      {
+        "path": "cpu-after/control-objective.jsonl",
+        "source": "6f712926a804cb12eb27b0848b2bf243a52077d341eef4f5e7a602a71cef5e23",
+        "harness": "147d0ffaae9155782bdae1f7a043440b8029d63235080a92b3f6d58281da0101",
+        "games": 2
+      },
+      {
+        "path": "cpu-after/control.jsonl",
+        "source": "6f712926a804cb12eb27b0848b2bf243a52077d341eef4f5e7a602a71cef5e23",
+        "harness": "147d0ffaae9155782bdae1f7a043440b8029d63235080a92b3f6d58281da0101",
+        "games": 2
+      },
+      {
+        "path": "cpu-after/held-coast.jsonl",
+        "source": "6f712926a804cb12eb27b0848b2bf243a52077d341eef4f5e7a602a71cef5e23",
+        "harness": "147d0ffaae9155782bdae1f7a043440b8029d63235080a92b3f6d58281da0101",
+        "games": 2
+      },
+      {
+        "path": "cpu-after/held-inland.jsonl",
+        "source": "6f712926a804cb12eb27b0848b2bf243a52077d341eef4f5e7a602a71cef5e23",
+        "harness": "147d0ffaae9155782bdae1f7a043440b8029d63235080a92b3f6d58281da0101",
+        "games": 2
+      },
+      {
+        "path": "cpu-after/hold-objective.jsonl",
+        "source": "6f712926a804cb12eb27b0848b2bf243a52077d341eef4f5e7a602a71cef5e23",
+        "harness": "147d0ffaae9155782bdae1f7a043440b8029d63235080a92b3f6d58281da0101",
+        "games": 2
+      },
+      {
+        "path": "cpu-after/inland.jsonl",
+        "source": "6f712926a804cb12eb27b0848b2bf243a52077d341eef4f5e7a602a71cef5e23",
+        "harness": "147d0ffaae9155782bdae1f7a043440b8029d63235080a92b3f6d58281da0101",
+        "games": 2
+      },
+      {
+        "path": "cpu-after/new-coast.jsonl",
+        "source": "6f712926a804cb12eb27b0848b2bf243a52077d341eef4f5e7a602a71cef5e23",
+        "harness": "147d0ffaae9155782bdae1f7a043440b8029d63235080a92b3f6d58281da0101",
+        "games": 2
+      },
+      {
+        "path": "cpu-after/new-inland.jsonl",
+        "source": "6f712926a804cb12eb27b0848b2bf243a52077d341eef4f5e7a602a71cef5e23",
+        "harness": "147d0ffaae9155782bdae1f7a043440b8029d63235080a92b3f6d58281da0101",
+        "games": 2
+      }
+    ],
+    "candidate-c": [
+      {
+        "path": "cpu-candidate-c/coast.jsonl",
+        "source": "9928c2e5ad36769fe7613a9a2d655f5021988629524c227611c6807e04410bcf",
+        "harness": "147d0ffaae9155782bdae1f7a043440b8029d63235080a92b3f6d58281da0101",
+        "games": 2
+      },
+      {
+        "path": "cpu-candidate-c/control-objective.jsonl",
+        "source": "9928c2e5ad36769fe7613a9a2d655f5021988629524c227611c6807e04410bcf",
+        "harness": "147d0ffaae9155782bdae1f7a043440b8029d63235080a92b3f6d58281da0101",
+        "games": 2
+      },
+      {
+        "path": "cpu-candidate-c/control.jsonl",
+        "source": "9928c2e5ad36769fe7613a9a2d655f5021988629524c227611c6807e04410bcf",
+        "harness": "147d0ffaae9155782bdae1f7a043440b8029d63235080a92b3f6d58281da0101",
+        "games": 2
+      },
+      {
+        "path": "cpu-candidate-c/held-coast.jsonl",
+        "source": "9928c2e5ad36769fe7613a9a2d655f5021988629524c227611c6807e04410bcf",
+        "harness": "147d0ffaae9155782bdae1f7a043440b8029d63235080a92b3f6d58281da0101",
+        "games": 2
+      },
+      {
+        "path": "cpu-candidate-c/held-inland.jsonl",
+        "source": "9928c2e5ad36769fe7613a9a2d655f5021988629524c227611c6807e04410bcf",
+        "harness": "147d0ffaae9155782bdae1f7a043440b8029d63235080a92b3f6d58281da0101",
+        "games": 2
+      },
+      {
+        "path": "cpu-candidate-c/hold-objective.jsonl",
+        "source": "9928c2e5ad36769fe7613a9a2d655f5021988629524c227611c6807e04410bcf",
+        "harness": "147d0ffaae9155782bdae1f7a043440b8029d63235080a92b3f6d58281da0101",
+        "games": 2
+      },
+      {
+        "path": "cpu-candidate-c/inland.jsonl",
+        "source": "9928c2e5ad36769fe7613a9a2d655f5021988629524c227611c6807e04410bcf",
+        "harness": "147d0ffaae9155782bdae1f7a043440b8029d63235080a92b3f6d58281da0101",
+        "games": 2
+      },
+      {
+        "path": "cpu-candidate-c/new-coast.jsonl",
+        "source": "9928c2e5ad36769fe7613a9a2d655f5021988629524c227611c6807e04410bcf",
+        "harness": "147d0ffaae9155782bdae1f7a043440b8029d63235080a92b3f6d58281da0101",
+        "games": 2
+      },
+      {
+        "path": "cpu-candidate-c/new-inland.jsonl",
+        "source": "9928c2e5ad36769fe7613a9a2d655f5021988629524c227611c6807e04410bcf",
+        "harness": "147d0ffaae9155782bdae1f7a043440b8029d63235080a92b3f6d58281da0101",
+        "games": 2
+      }
+    ]
+  },
+  "cpuCode": {
+    "remote": "18ce8b8966ac63b3928439850501832167ab6901",
+    "local": "b3d6d2009e904efedf77e37a05367a48f742c979",
+    "tree": "6aca467b59167185638f91cddc16857de0290f1c"
+  },
+  "measurementNotes": "Final CPU data use the exact bytes of 18ce8b8966ac63b3928439850501832167ab6901. Native UI data use c72fdc320f1d3683c6016b478e2b0a131981b1dc, whose UI/game bytes are unchanged by the CPU-only guard commit. Final evidence-only commits retain these game/AI/UI hashes.",
+  "candidateCCode": {
+    "remote": "fef6c5501cdf740ab15e3a7a8a1a73745b4a1e2f",
+    "local": "8544c7f3a8d2ca43327458d3965b85fb26e8e74f",
+    "tree": "696d27687ba721b9fd63ad4d45d2d2b5a470cb4c"
+  },
+  "uiMeasuredCode": {
+    "remote": "c72fdc320f1d3683c6016b478e2b0a131981b1dc",
+    "local": "6b003263668adac204a73d67ce0799e9bcb9c120",
+    "tree": "7a343d791b1dac7fc17326c26d4ceb394ba62e2f"
+  }
+}

@@ -1,0 +1,220 @@
+diff --git a/src/ai/holdRelief.ts b/src/ai/holdRelief.ts
+new file mode 100644
+index 0000000..3f1b4c6
+--- /dev/null
++++ b/src/ai/holdRelief.ts
+@@ -0,0 +1,92 @@
++import { reachablePositionsForPlayer } from '../game/commands';
++import { forecastCombat } from '../game/combat';
++import { isGroundUnit } from '../game/logistics';
++import { scenarioForState } from '../game/maps';
++import { positionKey, samePosition, terrainAt } from '../game/terrain';
++import { isDeployedUnit, usesOperationsRules, type DeployedUnit, type GameState, type PlayerId, type Unit } from '../game/types';
++import { defensiveRepairRoute } from './recovery';
++import type { CpuAction } from './rules';
++import { isEvacuationTarget } from '../game/evacuation';
++import { isPropertyTerrainKind } from '../game/facilities';
++import { unitStats } from '../game/units';
++
++/** Public mission orders and observed units only. Re-plan after every legal move. */
++export function defensiveHoldRelief(state: GameState, player: PlayerId, knownEnemies: readonly Unit[]): CpuAction | undefined {
++  if (!usesOperationsRules(state)) return;
++  const scenario = scenarioForState(state);
++  const conditions = player === 'red' ? scenario?.victoryConditions : scenario?.defeatConditions;
++  if (!conditions?.some((condition) => condition.type === 'hold')) return;
++  // A projected retreat changes friendly sight. Do not let a hypothetical
++  // position reveal contacts before the real move has actually discovered them.
++  const known = new Set(knownEnemies.map((unit) => unit.id));
++  state = { ...state, units: state.units.filter((unit) => unit.owner === player || known.has(unit.id)) };
++  const own = state.units.filter((unit): unit is DeployedUnit => unit.owner === player && isDeployedUnit(unit));
++  const committed = (unit: DeployedUnit): boolean => {
++    const tile = terrainAt(state.board, unit.position);
++    if (unitStats[unit.kind].capturePower > 0 && tile && isPropertyTerrainKind(tile.kind) && tile.owner !== player) return true;
++    // A capture or guaranteed current-position kill can finish the operation.
++    // Do not borrow either actor for relief and move it away from that action.
++    return knownEnemies.some((enemy) => {
++      const shot = forecastCombat(state, unit, enemy);
++      return shot.ok && shot.value.outgoing.min >= enemy.hp;
++    });
++  };
++  const posts = conditions?.flatMap((condition) => (condition.type === 'hold' ? condition.positions : [])) ?? [];
++  const ready = own.filter(
++    (unit) =>
++      unit.hp >= 60 &&
++      !unit.hasMoved &&
++      !unit.hasActed &&
++      !posts.some((p) => samePosition(unit.position, p)) &&
++      !isEvacuationTarget(state, unit.id, player) &&
++      !state.units.some((ally) => ally.embarkedIn === unit.id) &&
++      !committed(unit),
++  );
++  if (!ready.length) return;
++  const damageAt = (projected: GameState, unit: DeployedUnit): number =>
++    knownEnemies.reduce((sum, enemy) => {
++      if (!isDeployedUnit(enemy)) return sum;
++      const shot = forecastCombat(projected, { ...enemy, hasMoved: false, hasActed: false }, unit);
++      return sum + (shot.ok ? shot.value.outgoing.max : 0);
++    }, 0);
++  for (const condition of conditions ?? []) {
++    if (condition.type !== 'hold') continue;
++    for (const position of condition.positions) {
++      if (condition.requireOwnership && terrainAt(state.board, position)?.owner !== player) continue;
++      const holder = own.find((unit) => samePosition(unit.position, position));
++      const eligible = ready.filter((unit) => (!condition.groundOnly || isGroundUnit(unit.kind)) && unit.id !== holder?.id);
++      // Fill a vacated post before optional attacks or production. An aircraft
++      // cannot relieve a ground-only objective, nor can a spent/damaged ally.
++      if (!holder) {
++        const relief = eligible.find(
++          (unit) =>
++            reachablePositionsForPlayer(state, unit.id, player).some((p) => samePosition(p, position)) &&
++            damageAt({ ...state, units: state.units.map((ally) => (ally.id === unit.id ? { ...unit, position } : ally)) }, { ...unit, position }) < unit.hp,
++        );
++        if (relief) return { type: 'move', unitId: relief.id, destination: position };
++        continue;
++      }
++      if (holder.hp > 35 || holder.hasMoved || holder.hasActed || !eligible.length || committed(holder)) continue;
++      const route = defensiveRepairRoute(state, player, holder, 'relief');
++      const distance = route?.get(positionKey(position));
++      if (distance === undefined) continue;
++      const berths = reachablePositionsForPlayer(state, holder.id, player)
++        .filter((p) => (route?.get(positionKey(p)) ?? Infinity) < distance)
++        .sort((a, b) => route!.get(positionKey(a))! - route!.get(positionKey(b))! || a.y - b.y || a.x - b.x);
++      for (const destination of berths) {
++        const moved = { ...holder, position: destination, hasMoved: true };
++        const projected = { ...state, units: state.units.map((unit) => (unit.id === holder.id ? moved : unit)) };
++        if (damageAt(projected, moved) >= holder.hp) continue;
++        if (
++          eligible.some(
++            (unit) =>
++              reachablePositionsForPlayer(projected, unit.id, player).some((p) => samePosition(p, position)) &&
++              damageAt({ ...projected, units: projected.units.map((ally) => (ally.id === unit.id ? { ...unit, position } : ally)) }, { ...unit, position }) < unit.hp,
++          )
++        )
++          return { type: 'move', unitId: holder.id, destination };
++      }
++    }
++  }
++  return;
++}
+diff --git a/src/ai/recovery.ts b/src/ai/recovery.ts
+index 38472f7..c01f429 100644
+--- a/src/ai/recovery.ts
++++ b/src/ai/recovery.ts
+@@ -1,13 +1,45 @@
+ import { isEvacuationTarget } from '../game/evacuation';
+ import { affordableRepair, isServiceTile } from '../game/logistics';
+ import { positionKey } from '../game/terrain';
+-import { isDeployedUnit, usesModernRules, type DeployedUnit, type GameState, type PlayerId } from '../game/types';
++import { isDeployedUnit, usesModernRules, type DeployedUnit, type GameState, type PlayerId, type Unit } from '../game/types';
+ import { crossingDistances } from './crossing';
++import { unitStats } from '../game/units';
++import { scenarioForState } from '../game/maps';
++import { forecastCombat } from '../game/combat';
++import type { CpuAction } from './rules';
++import { decisionRound } from '../game/victory';
++
++/** Finish paid repair before returning; do not wait in an observed lethal firing lane. */
++export function defensiveServiceWait(state: GameState, player: PlayerId, knownEnemies: readonly Unit[], unitId?: string): CpuAction | undefined {
++  if (!usesModernRules(state)) return;
++  for (const unit of state.units) {
++    if (
++      unit.owner !== player ||
++      (unitId !== undefined && unit.id !== unitId) ||
++      !isDeployedUnit(unit) ||
++      unit.hasMoved ||
++      unit.hasActed ||
++      unit.hp >= 50 ||
++      !isServiceTile(state, unit.position, unit.kind, player) ||
++      affordableRepair(unit.kind, 100 - unit.hp, state.players[player].gold + state.players[player].income) === 0 ||
++      isEvacuationTarget(state, unit.id, player) ||
++      state.units.some((ally) => ally.embarkedIn === unit.id)
++    )
++      continue;
++    const incoming = knownEnemies.reduce((sum, enemy) => {
++      if (!isDeployedUnit(enemy)) return sum;
++      const shot = forecastCombat(state, { ...enemy, hasMoved: false, hasActed: false }, unit);
++      return sum + (shot.ok ? shot.value.outgoing.max : 0);
++    }, 0);
++    if (incoming < unit.hp) return { type: 'wait', unitId: unit.id };
++  }
++  return;
++}
+ 
+ const routes = new WeakMap<GameState, Map<string, ReadonlyMap<string, number> | null>>();
+ 
+ /** Multi-turn recovery on public terrain, using friendly funds, berths and mission orders only. */
+-export function defensiveRepairRoute(state: GameState, player: PlayerId, unit: DeployedUnit): ReadonlyMap<string, number> | undefined {
++export function defensiveRepairRoute(state: GameState, player: PlayerId, unit: DeployedUnit, purpose: 'recovery' | 'relief' = 'recovery'): ReadonlyMap<string, number> | undefined {
+   if (
+     !usesModernRules(state) ||
+     unit.owner !== player ||
+@@ -20,10 +52,11 @@ export function defensiveRepairRoute(state: GameState, player: PlayerId, unit: D
+     cache = new Map();
+     routes.set(state, cache);
+   }
+-  const cached = cache.get(unit.id);
++  const cacheKey = `${unit.id}:${purpose}`;
++  const cached = cache.get(cacheKey);
+   if (cached !== undefined) return cached ?? undefined;
+   if (isEvacuationTarget(state, unit.id, player) || state.units.some((ally) => ally.owner === player && ally.embarkedIn === unit.id)) {
+-    cache.set(unit.id, null);
++    cache.set(cacheKey, null);
+     return;
+   }
+   const occupied = new Set(state.units.filter((ally) => ally.owner === player && ally.id !== unit.id && isDeployedUnit(ally)).map((ally) => positionKey(ally.position!)));
+@@ -34,7 +67,19 @@ export function defensiveRepairRoute(state: GameState, player: PlayerId, unit: D
+     }),
+   );
+   const distances = targets.length ? crossingDistances(state, unit.kind, targets) : undefined;
+-  const result = distances?.has(positionKey(unit.position)) ? distances : undefined;
+-  cache.set(unit.id, result ?? null);
++  const distance = distances?.get(positionKey(unit.position));
++  const stats = unitStats[unit.kind];
++  const travelTurns = distance === undefined ? Infinity : Math.ceil(distance / stats.movement);
++  const scenario = scenarioForState(state);
++  const opposing = player === 'red' ? scenario?.defeatConditions : scenario?.victoryConditions;
++  const deadline = Math.min(decisionRound(state, scenario) ?? Infinity, ...(opposing?.flatMap((condition) => (condition.type === 'survive' ? [condition.untilTurn] : [])) ?? []));
++  // A new relief commitment needs fuel and an estimated round trip plus a
++  // repair turn within the public mission budget. Keep the existing general
++  // recovery order: service can still preserve unit value at adjudication.
++  const fuel = unit.fuel ?? stats.fuel;
++  const useful =
++    distance !== undefined && (purpose === 'recovery' || (distance + Math.max(0, travelTurns - 1) * stats.fuelPerTurn <= fuel && state.turn + travelTurns * 2 + 1 < deadline));
++  const result = useful ? distances : undefined;
++  cache.set(cacheKey, result ?? null);
+   return result;
+ }
+diff --git a/src/ai/rules.ts b/src/ai/rules.ts
+index 6a9f237..64baed2 100644
+--- a/src/ai/rules.ts
++++ b/src/ai/rules.ts
+@@ -1,5 +1,6 @@
+ import { supplyRendezvous } from './supplyRendezvous';
+-import { defensiveRepairRoute } from './recovery';
++import { defensiveRepairRoute, defensiveServiceWait } from './recovery';
++import { defensiveHoldRelief } from './holdRelief';
+ import { supportedAttack } from './supportAttack';
+ import { policyConfig } from './armyPolicy';
+ import { chooseTacticalAction } from './tactics';
+@@ -735,6 +736,10 @@ function moveAction(state: GameState, player: PlayerId, config: CpuDifficultyCon
+       }
+       return { type: 'wait', unitId: unit.id };
+     }
++    // Repair and firing can share a turn. Only ordinary relocation waits for
++    // recovery; keep attacks, mission orders and the existing unit order first.
++    const repair = config.coordinatedDefense && unit.hp < 50 ? defensiveServiceWait(state, player, context.visibleEnemies, unit.id) : undefined;
++    if (repair) return repair;
+     const openTargets = targets.filter(target => !state.units.some(ally => ally.owner === player && ally.id !== unit.id
+       && isDeployedUnit(ally) && ally.position.x === target.x && ally.position.y === target.y));
+     const assignedTargets = mission?.positions ?? (openTargets.length ? openTargets : targets);
+@@ -972,6 +977,10 @@ function chooseOrientedCpuAction(state: GameState, difficulty: CpuDifficulty, pl
+   // objective) in order to seek an optional attack or move.
+   if (endTurn(state).winner === player) return { type: 'endTurn' };
+   const config = { ...policyConfig(cpuDifficultyConfig[difficulty], policy), tacticalPlanning: adaptTactics };
++  // Fill a relief vacancy before consuming its replacement on an unrelated
++  // capture or engineering order. Ending the turn to win remains first.
++  const relief = config.coordinatedDefense ? defensiveHoldRelief(state, player, getVisibleEnemies(state, player)) : undefined;
++  if (relief) return relief;
+   const readyUnits = orderedUnits(state, player);
+   const replacementFor = (unit: DeployedUnit) => readyUnits.some(ally => ally.id !== unit.id && unitStats[ally.kind].capturePower > 0
+     && !ally.hasMoved && !ally.hasActed && ally.hp >= Math.max(60, unit.hp + 30)

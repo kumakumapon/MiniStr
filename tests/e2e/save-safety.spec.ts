@@ -67,10 +67,24 @@ test('CPU worker pauses, resumes and never applies results after returning to ti
   await page.locator('#spectate-toggle').click();
   await expect.poll(() => page.locator('.board').innerHTML()).not.toBe(paused);
   await page.locator('#spectate-toggle').click();
+  await page.locator('#spectate-whole-board').click();
+  const snapshot = await page
+    .locator('.board .tile')
+    .evaluateAll((tiles) => tiles.map((tile) => [tile.getAttribute('data-x'), tile.getAttribute('data-y'), tile.querySelector('.unit')?.textContent]));
   await page.locator('#open-title').click();
   await expect(page.locator('.board .tile')).toHaveCount(0);
+  await expect(page.locator('main')).toHaveAttribute('inert', '');
+  const covered = await page.locator('.board').innerHTML();
   await page.waitForTimeout(400);
+  expect(await page.locator('.board').innerHTML()).toBe(covered);
   await expect(page.locator('.title-overlay')).toBeVisible();
+  await page.locator('#title-resume').click();
+  await expect(page.locator('#spectate-toggle')).toHaveAttribute('aria-pressed', 'true');
+  expect(
+    await page
+      .locator('.board .tile')
+      .evaluateAll((tiles) => tiles.map((tile) => [tile.getAttribute('data-x'), tile.getAttribute('data-y'), tile.querySelector('.unit')?.textContent])),
+  ).toEqual(snapshot);
 });
 
 test('worker decisions match the synchronous CPU for archived state snapshots', async ({ page }) => {

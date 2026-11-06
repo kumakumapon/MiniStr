@@ -104,3 +104,46 @@ it('updates a connected focused button without blurring or retaining hidden unit
   view.update(board, [tile('fog', 'fog')], 'ja:2:1');
   expect(document.activeElement).toBe(button);
 });
+
+it('parks one current match, restores localized tiles and invalidates obsolete content', () => {
+  const view = new BoardView(),
+    host = root(),
+    match = {};
+  host.innerHTML = '<div class="board"></div>';
+  view.update(host.querySelector('.board'), [tile('plain')], 'en', undefined, match);
+  const board = host.querySelector<HTMLElement>('.board')!,
+    button = board.firstElementChild;
+  button!.textContent = 'Localized';
+  board.insertAdjacentHTML('beforeend', '<span class="presentation-effect"></span>');
+  expect(view.cover(board, 'en', match)).toBe(true);
+  expect(board.isConnected).toBe(false);
+  expect(host.querySelector('.board')!.children).toHaveLength(0);
+  expect(view.cover(host.querySelector('.board'), 'en', match)).toBe(true);
+  expect(board.querySelector('.presentation-effect')).toBeNull();
+  let localizedAgain = 0;
+  view.update(
+    host.querySelector('.board'),
+    [tile('plain')],
+    'en',
+    () => {
+      localizedAgain++;
+    },
+    match,
+  );
+  expect(localizedAgain).toBe(0);
+  const resumed = host.querySelector<HTMLElement>('.board')!;
+  expect(resumed).not.toBe(board);
+  expect(resumed.firstElementChild!.textContent).toBe('Localized');
+  expect(resumed.querySelector('.presentation-effect')).toBeNull();
+  host.innerHTML = '<div class="board"></div>';
+  expect(view.cover(host.querySelector('.board'), 'en', match)).toBe(true);
+  expect(host.querySelector('.board')!.children).toHaveLength(0);
+  view.update(host.querySelector('.board'), [tile('plain')], 'en', undefined, match);
+  expect(host.querySelector('.board')).toBe(resumed);
+  expect(view.cover(resumed, 'ja', match)).toBe(false);
+  expect(resumed.children).toHaveLength(0);
+  view.update(resumed, [tile('new match')], 'ja', undefined, match);
+  expect(view.cover(resumed, 'ja', {})).toBe(false);
+  expect(resumed.children).toHaveLength(0);
+  expect(view.cover(null, 'ja', match)).toBe(false);
+});

@@ -52,6 +52,7 @@ for (const width of [1280, 390])
         const scroll = await page.locator('#board-viewport').evaluate((node) => ({ left: node.scrollLeft, top: node.scrollTop }));
         await page.locator('#open-title').click();
         await expect(page.locator('.board .tile')).toHaveCount(0);
+        await expect(page.locator('main')).toHaveAttribute('inert', '');
         await page.locator('#title-resume').click();
         expect(await page.locator('#board-viewport').evaluate((node) => ({ left: node.scrollLeft, top: node.scrollTop }))).toEqual(scroll);
       });

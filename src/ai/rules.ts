@@ -1,5 +1,6 @@
 import { supplyRendezvous } from './supplyRendezvous';
-import { defensiveRepairRoute } from './recovery';
+import { defensiveRepairRoute, defensiveServiceWait } from './recovery';
+import { defensiveHoldRelief } from './holdRelief';
 import { supportedAttack } from './supportAttack';
 import { policyConfig } from './armyPolicy';
 import { chooseTacticalAction } from './tactics';
@@ -735,6 +736,10 @@ function moveAction(state: GameState, player: PlayerId, config: CpuDifficultyCon
       }
       return { type: 'wait', unitId: unit.id };
     }
+    // Repair and firing can share a turn. Only ordinary relocation waits for
+    // recovery; keep attacks, mission orders and the existing unit order first.
+    const repair = config.coordinatedDefense && unit.hp < 50 ? defensiveServiceWait(state, player, context.visibleEnemies, unit.id) : undefined;
+    if (repair) return repair;
     const openTargets = targets.filter(target => !state.units.some(ally => ally.owner === player && ally.id !== unit.id
       && isDeployedUnit(ally) && ally.position.x === target.x && ally.position.y === target.y));
     const assignedTargets = mission?.positions ?? (openTargets.length ? openTargets : targets);
@@ -972,6 +977,10 @@ function chooseOrientedCpuAction(state: GameState, difficulty: CpuDifficulty, pl
   // objective) in order to seek an optional attack or move.
   if (endTurn(state).winner === player) return { type: 'endTurn' };
   const config = { ...policyConfig(cpuDifficultyConfig[difficulty], policy), tacticalPlanning: adaptTactics };
+  // Fill a relief vacancy before consuming its replacement on an unrelated
+  // capture or engineering order. Ending the turn to win remains first.
+  const relief = config.coordinatedDefense ? defensiveHoldRelief(state, player, getVisibleEnemies(state, player)) : undefined;
+  if (relief) return relief;
   const readyUnits = orderedUnits(state, player);
   const replacementFor = (unit: DeployedUnit) => readyUnits.some(ally => ally.id !== unit.id && unitStats[ally.kind].capturePower > 0
     && !ally.hasMoved && !ally.hasActed && ally.hp >= Math.max(60, unit.hp + 30)

@@ -1,0 +1,5 @@
+{
+  "format": "local-menu-candidates-v148",
+  "sourceBase": "8544c7f3a8d2ca43327458d3965b85fb26e8e74f",
+  "note": "One diagnostic A/B pair for each patch, local legacy installed tools, no statistical tail claim. Separate native comparison is required. The frozen CPU source does not change."
+}

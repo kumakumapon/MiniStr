@@ -17,7 +17,8 @@ export function localized<T extends object>(ja: T, en: Localized<T>): Localized<
     },
   });
 }
-export const formatNumber = (value: number): string => new Intl.NumberFormat(locale).format(value);
+const numberFormats = { ja: new Intl.NumberFormat('ja'), en: new Intl.NumberFormat('en') };
+export const formatNumber = (value: number): string => numberFormats[locale].format(value);
 export function formatDate(value: string): string {
   return Number.isFinite(Date.parse(value))
     ? new Intl.DateTimeFormat(locale, {
@@ -107,11 +108,25 @@ function englishDisplayText(value: string, owned: boolean, depth = 0): string {
   return value;
 }
 
+// Keep one bounded working set, never an unbounded history of match messages or
+// imported prose. Ownership is part of the key: authored names stay verbatim.
+const displayCache = new Map<string, string>();
+function displayText(value: string, owned: boolean): string {
+  if (locale !== 'en' || !japaneseCharacters.test(value) || value.length > 8192) return value;
+  const key = `${Number(owned)}:${value}`;
+  const previous = displayCache.get(key);
+  if (previous !== undefined) return previous;
+  const result = englishDisplayText(value, owned);
+  if (displayCache.size >= 512) displayCache.delete(displayCache.keys().next().value!);
+  displayCache.set(key, result);
+  return result;
+}
+
 /** Translate UI copy while leaving interpolated names and identifiers verbatim. */
-export const translateText = (value: string): string => (locale === 'en' ? englishDisplayText(value, false) : value);
+export const translateText = (value: string): string => displayText(value, false);
 
 /** Only for app-owned generated descriptions; never pass user-authored prose. */
-export const translateGameText = (value: string): string => (locale === 'en' ? englishDisplayText(value, true) : value);
+export const translateGameText = (value: string): string => displayText(value, true);
 
 /** Legacy control aliases; general UI resources also cover dynamic copy. */
 const controls: Record<string, string> = {
@@ -177,8 +192,7 @@ export function localizeControls(root: HTMLElement, stableRoot?: HTMLElement | n
     const translated = controls[text] ?? (owned ? translateGameText(text) : translateText(text));
     if (translated !== text) node.textContent = node.textContent!.replace(text, () => translated);
   }
-  [root, ...root.querySelectorAll<HTMLElement>('[aria-label], [title], [placeholder], [alt], [label]')].forEach((element) => {
-    if (stableRoot && element !== stableRoot && stableRoot.contains(element)) return;
+  const localizeAttributes = (element: HTMLElement) => {
     if (element.closest('[data-user-content]')) return;
     for (const attribute of ['aria-label', 'title', 'placeholder', 'alt', 'label']) {
       if (element.dataset.userAttributes?.split(' ').includes(attribute)) continue;
@@ -189,7 +203,27 @@ export function localizeControls(root: HTMLElement, stableRoot?: HTMLElement | n
         if (translated !== text) element.setAttribute(attribute, translated);
       }
     }
-  });
+  };
+  const attributeTree = (element: HTMLElement) => {
+    localizeAttributes(element);
+    element.querySelectorAll<HTMLElement>('[aria-label], [title], [placeholder], [alt], [label]').forEach(localizeAttributes);
+  };
+  if (!stableRoot || !root.contains(stableRoot)) attributeTree(root);
+  else {
+    // Query the sibling subtrees, never all 1,024 tile attributes just to discard
+    // them afterwards. Native queries still handle SVG previews and other copy.
+    const path = new Set<HTMLElement>();
+    for (let node: HTMLElement | null = stableRoot; node && node !== root; node = node.parentElement) path.add(node);
+    const outsideBoard = (element: HTMLElement) => {
+      localizeAttributes(element);
+      if (element === stableRoot) return;
+      for (const child of element.children) {
+        if (path.has(child as HTMLElement)) outsideBoard(child as HTMLElement);
+        else attributeTree(child as HTMLElement);
+      }
+    };
+    outsideBoard(root);
+  }
 }
 export function renderLocalePicker(): string {
   const label = locale === 'en' ? 'Language' : '言語 / Language';

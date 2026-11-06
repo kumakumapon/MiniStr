@@ -1,0 +1,45 @@
+{
+  "format": "local-verification-v148",
+  "node": "24.19.0",
+  "npm": "11.9.0",
+  "installed": {
+    "vitest": "3.2.7",
+    "vite": "6.4.3",
+    "typescript": "5.9.3",
+    "@playwright/test": "1.62.1"
+  },
+  "unit": {
+    "tests": 1563,
+    "files": 156,
+    "exit": 0,
+    "runtimeSource": "18ce8b8966ac63b3928439850501832167ab6901"
+  },
+  "targeted": {
+    "tests": 37,
+    "note": "CPU21 plus locale9 and board7; final formal CI re-runs all."
+  },
+  "e2e": {
+    "tests": 74,
+    "exit": 0,
+    "engines": [
+      "system Chromium",
+      "cached Firefox153"
+    ],
+    "source": "c72fdc320f1d3683c6016b478e2b0a131981b1dc"
+  },
+  "coverage": {
+    "exit": 1,
+    "testsPassed": 1561,
+    "error": "Vitest 3.2.7 worker RPC timeout onTaskUpdate; not accepted as a passing coverage run. Formal Vitest 5 CI is authoritative."
+  },
+  "screenshots": [
+    "screenshots/board-1280-ja-chromium.png",
+    "screenshots/board-390-en-chromium.png"
+  ],
+  "note": "No local fresh install or npm audit: network policy allows only cdn.playwright.dev. Official CI uses the lock and native engines.",
+  "integration": {
+    "tests": 61,
+    "exit": 0,
+    "source": "18ce8b8966ac63b3928439850501832167ab6901"
+  }
+}

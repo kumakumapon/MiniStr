@@ -5,11 +5,28 @@ export class BoardView {
   private board?: HTMLElement;
   private cells: readonly string[] = [];
   private identity = '';
+  private context?: object;
 
-  update(replacement: HTMLElement | null, cells: readonly string[], identity: string, localize: (root: HTMLElement) => void = () => {}): void {
+  /** Park one localized clone off-DOM; native listeners are rebound on resume. */
+  cover(replacement: HTMLElement | null, identity: string, context: object): boolean {
+    if (!replacement || !this.board || this.identity !== identity || this.context !== context) {
+      this.update(replacement, [], identity);
+      replacement?.replaceChildren();
+      return false;
+    }
+    this.board.querySelectorAll('.presentation-effect').forEach((effect) => effect.remove());
+    if (replacement === this.board) {
+      this.board = replacement.cloneNode(true) as HTMLElement;
+      replacement.replaceWith(replacement.cloneNode(false));
+    } else replacement.replaceChildren();
+    return true;
+  }
+
+  update(replacement: HTMLElement | null, cells: readonly string[], identity: string, localize: (root: HTMLElement) => void = () => {}, context?: object): void {
     if (!replacement || !cells.length) {
       this.board = undefined;
       this.cells = [];
+      this.context = undefined;
       return;
     }
     const retained = this.board && this.identity === identity && this.cells.length === cells.length;
@@ -26,6 +43,7 @@ export class BoardView {
       this.board = board;
       this.cells = cells;
       this.identity = identity;
+      this.context = context;
       return;
     }
     const tiles = [...board.children] as HTMLElement[];
@@ -57,5 +75,6 @@ export class BoardView {
     this.board = board;
     this.cells = cells;
     this.identity = identity;
+    this.context = context;
   }
 }
