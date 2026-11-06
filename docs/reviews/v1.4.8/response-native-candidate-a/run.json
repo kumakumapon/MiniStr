@@ -1,0 +1,9 @@
+{
+  "run": 42131354156,
+  "artifact": 13464735167,
+  "artifactSha256": "82f400fcffcaf16281e3257741cd3c57a609d637d1f3fa575e404602b499afd0",
+  "head": "44bcdb30876e3fc7d3495e2d83956a26b3f1e6ca",
+  "baseline": "f2746441154e648a951ea146d9edd8a492fb3854",
+  "url": "https://github.com/kumakumapon/MiniStr/actions/runs/42131354156",
+  "note": "The UI and hotseat harness remain unchanged by subsequent CPU-only refinements; source digests are recorded separately."
+}

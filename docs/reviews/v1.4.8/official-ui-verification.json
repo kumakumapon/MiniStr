@@ -1,0 +1,63 @@
+{
+  "format": "official-ui-verification-v148",
+  "head": "c72fdc320f1d3683c6016b478e2b0a131981b1dc",
+  "run": 42137142998,
+  "url": "https://github.com/kumakumapon/MiniStr/actions/runs/42137142998",
+  "conclusion": "success",
+  "unit": 1561,
+  "integration": 61,
+  "e2e": 535,
+  "terrain": 33,
+  "node2213": "success",
+  "note": "This validates the final UI. The later CPU-only guard has 1,563 local passing tests and requires the final PR HEAD CI/CodeQL again.",
+  "excerpts": [
+    {
+      "id": 127628065058,
+      "lines": [
+        "2026-11-06T00:29:38.8798731Z > vitest run --coverage",
+        "2026-11-06T00:29:39.2232027Z  RUN  v5.0.5 /home/runner/work/MiniStr/MiniStr",
+        "2026-11-06T00:33:54.4824342Z  Test Files  156 passed (156)",
+        "2026-11-06T00:33:54.4833350Z       Tests  1561 passed (1561)",
+        "2026-11-06T00:33:54.5051702Z All files          |   72.22 |    71.02 |   77.51 |   75.64 |                   ",
+        "2026-11-06T00:33:54.5062066Z  src/ai            |   98.77 |    96.52 |   99.04 |   99.73 |                   ",
+        "2026-11-06T00:33:58.8647257Z  RUN  v5.0.5 /home/runner/work/MiniStr/MiniStr",
+        "2026-11-06T00:34:55.9495917Z  Test Files  9 passed (9)",
+        "2026-11-06T00:34:55.9496873Z       Tests  61 passed (61)",
+        "2026-11-06T00:36:21.9368468Z   6 passed (26.6s)",
+        "2026-11-06T00:36:48.9667658Z   2 passed (26.2s)",
+        "2026-11-06T00:43:48.6877958Z   275 passed (7.0m)"
+      ]
+    },
+    {
+      "id": 127628065097,
+      "lines": [
+        "2026-11-06T00:29:33.3703868Z > vitest run --coverage",
+        "2026-11-06T00:29:33.6255916Z  RUN  v5.0.5 /home/runner/work/MiniStr/MiniStr",
+        "2026-11-06T00:31:58.7817518Z  Test Files  156 passed (156)",
+        "2026-11-06T00:31:58.7826488Z       Tests  1561 passed (1561)",
+        "2026-11-06T00:31:58.8067361Z All files          |   72.22 |    71.02 |   77.51 |   75.64 |                   ",
+        "2026-11-06T00:31:58.8074052Z  src/ai            |   98.77 |    96.52 |   99.04 |   99.73 |                   ",
+        "2026-11-06T00:32:01.6971487Z  RUN  v5.0.5 /home/runner/work/MiniStr/MiniStr",
+        "2026-11-06T00:32:44.9098963Z  Test Files  9 passed (9)",
+        "2026-11-06T00:32:44.9099915Z       Tests  61 passed (61)",
+        "2026-11-06T00:34:09.7935770Z   6 passed (22.3s)",
+        "2026-11-06T00:34:27.5641222Z   2 passed (17.2s)",
+        "2026-11-06T00:44:50.9114265Z   260 passed (10.4m)"
+      ]
+    },
+    {
+      "id": 127628065106,
+      "lines": [
+        "2026-11-06T00:29:29.2210628Z  RUN  v5.0.5 /home/runner/work/MiniStr/MiniStr",
+        "2026-11-06T00:31:31.4310486Z  Test Files  156 passed (156)",
+        "2026-11-06T00:31:31.4319272Z       Tests  1561 passed (1561)"
+      ]
+    },
+    {
+      "id": 127628065088,
+      "lines": [
+        "2026-11-06T00:33:44.6123194Z   33 passed (3.5m)"
+      ]
+    }
+  ]
+}

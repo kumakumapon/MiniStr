@@ -1,0 +1,23 @@
+diff --git a/src/ai/rules.ts b/src/ai/rules.ts
+index ad11f58..e8c6ba1 100644
+--- a/src/ai/rules.ts
++++ b/src/ai/rules.ts
+@@ -523,7 +523,7 @@ export function evaluateCpuPosition(
+   // A supplied but damaged defender still needs a compatible repair facility.
+   // Trucks and depots restore ammunition/fuel, never HP. Use public own funds
+   // and next-turn income; no speculative capture income or hidden enemy data.
+-  const repair = config.coordinatedDefense && unit.hp < 60 && isServiceTile(state, destination, unit.kind, player)
++  const repair = config.coordinatedDefense && unit.hp <= 50 && isServiceTile(state, destination, unit.kind, player)
+     ? affordableRepair(unit.kind, 100 - unit.hp, state.players[player].gold + state.players[player].income) * 2 : 0;
+   const serviceTargets = needsSupply(unit, state) ? supplyTargets(state, player, unit) : [];
+   const serviceDistance = serviceTargets.length ? Math.min(...serviceTargets.map(position => manhattanDistance(destination, position))) : undefined;
+@@ -1009,8 +1009,7 @@ function chooseOrientedCpuAction(state: GameState, difficulty: CpuDifficulty, pl
+     const clear = clearCaptureLane(state, player, obstructing, readyUnits);
+     if (clear) return clear;
+   }
+-  return (config.coordinatedDefense ? defensiveServiceWait(state, player, context.visibleEnemies) : undefined)
+-    ?? attackAction(state, player, config, context.visibleEnemies)
++  return attackAction(state, player, config, context.visibleEnemies)
+     ?? strikeAction(state, player, config, context.visibleEnemies)
+     ?? (adaptTactics ? chooseTacticalAction(state, player, policy === 'defensive') : undefined)
+     ?? chooseDemolition(state, player, context.visibleEnemies)

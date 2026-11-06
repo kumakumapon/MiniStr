@@ -1,0 +1,20 @@
+--- a/src/ui/boardView.ts
++++ b/src/ui/boardView.ts
+@@ -7,14 +7,15 @@
+   private identity = '';
+   private context?: object;
+ 
+-  /** Freeze only the current match beneath its inert menu. No second board is cached. */
++  /** Park one current board off-DOM so menu inert/layout updates never traverse its tiles. */
+   cover(replacement: HTMLElement | null, identity: string, context: object): boolean {
+     if (!replacement || !this.board || this.identity !== identity || this.context !== context) {
+       this.update(replacement, [], identity);
+       replacement?.replaceChildren();
+       return false;
+     }
+-    if (replacement !== this.board) replacement.replaceWith(this.board);
++    if (replacement === this.board) replacement.replaceWith(replacement.cloneNode(false));
++    else replacement.replaceChildren();
+     this.board.querySelectorAll('.presentation-effect').forEach((effect) => effect.remove());
+     return true;
+   }
