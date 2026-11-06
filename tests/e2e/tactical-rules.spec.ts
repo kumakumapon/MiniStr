@@ -51,7 +51,7 @@ for (const width of [1280, 390])
       await expect(page.locator('.tactics-status')).toContainText(locale === 'en' ? 'Next round' : '次ラウンド');
       await page.locator('#save').click();
       const saved = await page.evaluate(() => JSON.parse(localStorage.getItem('ministr.save.manual')!));
-      expect(saved.gameState.ruleVersion).toBe(13);
+      expect(saved.gameState.ruleVersion).toBe(14);
       expect(saved.initialState.scenarioSnapshot.tacticalOptions).toEqual(combinedTactics);
       await page.reload();
       await page.locator('#title-continue').click();
