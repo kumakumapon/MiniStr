@@ -53,6 +53,10 @@ it('opens lazily, filters all friendly units including cargo and dispatches expl
   filter.value = 'damaged';
   filter.dispatchEvent(new Event('change'));
   expect(root.querySelectorAll('li:not([hidden])')).toHaveLength(1);
+  filter.value = 'supply';
+  filter.dispatchEvent(new Event('change'));
+  expect(root.querySelectorAll('li:not([hidden])')).toHaveLength(1);
+  expect(root.querySelector('li:not([hidden]) [data-logistics-select]')!.getAttribute('data-logistics-select')).toBe('r1');
   root.querySelector<HTMLButtonElement>('[data-logistics-select="r2"]')!.click();
   expect(selected).toEqual(['r2']);
   root.innerHTML = renderLogisticsRoster({ ...state, ruleVersion: 13 }, 'red', false);
