@@ -3,7 +3,7 @@
 ## 依存の対応範囲
 
 - Node 24 / npm 11.9.0を正式CIに使用。Node 22.13.0でもnpm ci、依存整合性、型、全単体、ビルドを検証します。enginesは従来の22.13以降の22系または24系を維持します。
-- Vite 8とvite-node 6を組み合わせ、補助スクリプトも同じViteを使用します。Vitest本体とcoverageは5.0.5の組み合わせを維持します。
+- Vite 8とvite-node 6を組み合わせ、補助スクリプトも同じViteを使用します。Vitest本体とcoverageは5.1.0を同時に使用し、ESLintは10.14.0へ更新しました。#268／#269を組み合わせた依存だけのCIを先行して確認しています（[v1.5.2確認記録](reviews/2026-11-07-v1.5.2.md)）。
 - TypeScript 6.0.3とtypescript-eslint 8.72.1を使用します。2026-10-28に取得した最新版のtypescript-eslintもpeer条件は`>=4.8.4 <6.1.0`です。TypeScript 7の#162は採用せず、`--force`／`--legacy-peer-deps`で回避しません。Dependabotの6.1以降の制限はtypescript-eslint更新時に再評価し、対応範囲が変わったら解除します（#168）。
 - Node型は実行環境に合わせた24系。#202の26系への更新は採用しません。DependabotのNode型major更新を抑制し、ランタイム更新時に合わせて見直します。
 - Vitest、TypeScript関連、Vite関連はそれぞれDependabotのグループで更新します。全依存を一括でmajor更新する運用にはしません。

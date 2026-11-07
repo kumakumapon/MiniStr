@@ -1,0 +1,335 @@
+{
+  "turn": 61,
+  "target": {
+    "id": "r1",
+    "kind": "apc",
+    "owner": "red",
+    "position": {
+      "x": 11,
+      "y": 7
+    },
+    "hp": 100,
+    "fuel": 63,
+    "ammo": 6,
+    "hasMoved": false,
+    "hasActed": false,
+    "supplyStock": 179,
+    "experience": 2
+  },
+  "cargo": [],
+  "near": [
+    {
+      "id": "r1",
+      "kind": "apc",
+      "owner": "red",
+      "position": {
+        "x": 11,
+        "y": 7
+      },
+      "hp": 100,
+      "fuel": 63,
+      "ammo": 6,
+      "hasMoved": false,
+      "hasActed": false,
+      "supplyStock": 179,
+      "experience": 2
+    },
+    {
+      "id": "r4",
+      "kind": "artillery",
+      "owner": "red",
+      "position": {
+        "x": 10,
+        "y": 6
+      },
+      "hp": 56,
+      "fuel": 49,
+      "ammo": 6,
+      "hasMoved": false,
+      "hasActed": false,
+      "secondaryAmmo": 6,
+      "experience": 9
+    },
+    {
+      "id": "u1",
+      "kind": "engineer",
+      "owner": "red",
+      "position": {
+        "x": 10,
+        "y": 4
+      },
+      "hp": 73,
+      "fuel": 95,
+      "ammo": 8,
+      "hasMoved": false,
+      "hasActed": false,
+      "experience": 1
+    },
+    {
+      "id": "u5",
+      "kind": "mech",
+      "owner": "red",
+      "position": {
+        "x": 11,
+        "y": 6
+      },
+      "hp": 100,
+      "fuel": 70,
+      "ammo": 3,
+      "hasMoved": false,
+      "hasActed": false,
+      "secondaryAmmo": 9
+    },
+    {
+      "id": "u7",
+      "kind": "infantry",
+      "owner": "red",
+      "position": {
+        "x": 9,
+        "y": 4
+      },
+      "hp": 28,
+      "fuel": 92,
+      "ammo": 7,
+      "hasMoved": false,
+      "hasActed": false,
+      "experience": 3
+    },
+    {
+      "id": "u11",
+      "kind": "infantry",
+      "owner": "red",
+      "position": {
+        "x": 11,
+        "y": 3
+      },
+      "hp": 32,
+      "fuel": 94,
+      "ammo": 7,
+      "hasMoved": false,
+      "hasActed": false,
+      "experience": 3
+    },
+    {
+      "id": "u15",
+      "kind": "infantry",
+      "owner": "red",
+      "position": {
+        "x": 10,
+        "y": 5
+      },
+      "hp": 100,
+      "fuel": 92,
+      "ammo": 9,
+      "hasMoved": false,
+      "hasActed": false
+    },
+    {
+      "id": "u17",
+      "kind": "infantry",
+      "owner": "red",
+      "position": {
+        "x": 9,
+        "y": 5
+      },
+      "hp": 100,
+      "fuel": 96,
+      "ammo": 9,
+      "hasMoved": false,
+      "hasActed": false
+    },
+    {
+      "id": "u21",
+      "kind": "infantry",
+      "owner": "red",
+      "position": {
+        "x": 9,
+        "y": 6
+      },
+      "hp": 100,
+      "fuel": 97,
+      "ammo": 9,
+      "hasMoved": false,
+      "hasActed": false
+    },
+    {
+      "id": "u27",
+      "kind": "tank",
+      "owner": "red",
+      "position": {
+        "x": 11,
+        "y": 8
+      },
+      "hp": 100,
+      "fuel": 70,
+      "ammo": 6,
+      "hasMoved": false,
+      "hasActed": false,
+      "secondaryAmmo": 6
+    },
+    {
+      "id": "u29",
+      "kind": "infantry",
+      "owner": "red",
+      "position": {
+        "x": 10,
+        "y": 3
+      },
+      "hp": 79,
+      "fuel": 95,
+      "ammo": 8,
+      "hasMoved": false,
+      "hasActed": false,
+      "experience": 2
+    },
+    {
+      "id": "u32",
+      "kind": "tank",
+      "owner": "red",
+      "position": {
+        "x": 10,
+        "y": 7
+      },
+      "hp": 100,
+      "fuel": 70,
+      "ammo": 6,
+      "hasMoved": false,
+      "hasActed": false,
+      "secondaryAmmo": 6
+    },
+    {
+      "id": "u37",
+      "kind": "infantry",
+      "owner": "red",
+      "position": {
+        "x": 9,
+        "y": 3
+      },
+      "hp": 100,
+      "fuel": 92,
+      "ammo": 9,
+      "hasMoved": false,
+      "hasActed": false
+    },
+    {
+      "id": "u38",
+      "kind": "artillery",
+      "owner": "red",
+      "position": {
+        "x": 9,
+        "y": 7
+      },
+      "hp": 100,
+      "fuel": 47,
+      "ammo": 6,
+      "hasMoved": false,
+      "hasActed": false,
+      "secondaryAmmo": 6
+    },
+    {
+      "id": "u39",
+      "kind": "infantry",
+      "owner": "red",
+      "position": {
+        "x": 10,
+        "y": 2
+      },
+      "hp": 100,
+      "fuel": 94,
+      "ammo": 9,
+      "hasMoved": false,
+      "hasActed": false
+    },
+    {
+      "id": "u47",
+      "kind": "tank",
+      "owner": "red",
+      "position": {
+        "x": 11,
+        "y": 2
+      },
+      "hp": 51,
+      "fuel": 60,
+      "ammo": 0,
+      "hasMoved": false,
+      "hasActed": false,
+      "secondaryAmmo": 4,
+      "experience": 10,
+      "logistics": {
+        "priority": true,
+        "resource": "ammo",
+        "repair": true
+      }
+    }
+  ],
+  "last": [
+    {
+      "type": "wait",
+      "unitId": "u45"
+    },
+    {
+      "type": "wait",
+      "unitId": "u46"
+    },
+    {
+      "type": "wait",
+      "unitId": "u47"
+    },
+    {
+      "type": "wait",
+      "unitId": "u53"
+    },
+    {
+      "type": "wait",
+      "unitId": "u56"
+    },
+    {
+      "type": "wait",
+      "unitId": "u60"
+    },
+    {
+      "type": "wait",
+      "unitId": "r4"
+    },
+    {
+      "type": "wait",
+      "unitId": "u23"
+    },
+    {
+      "type": "wait",
+      "unitId": "u38"
+    },
+    {
+      "type": "wait",
+      "unitId": "u40"
+    },
+    {
+      "type": "wait",
+      "unitId": "u48"
+    },
+    {
+      "type": "wait",
+      "unitId": "u49"
+    },
+    {
+      "type": "wait",
+      "unitId": "r1"
+    },
+    {
+      "type": "endTurn"
+    },
+    {
+      "type": "endTurn"
+    }
+  ],
+  "key": "convoy-escort/default/hard:easy/15241/outbound",
+  "before": {
+    "winner": "red",
+    "turn": 12
+  },
+  "after": {
+    "winner": "blue",
+    "turn": 61
+  },
+  "note": "Protected APC survives at full HP with fuel63 and no cargo; allied congestion near exit remains unresolved. Frozen final candidate is not tuned on this fresh case."
+}

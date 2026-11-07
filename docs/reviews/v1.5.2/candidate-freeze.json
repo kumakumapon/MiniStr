@@ -1,0 +1,24 @@
+{
+  "frozenAt": "2026-11-07T12:08:36.309445+00:00",
+  "source": "9efa7a2c797e5c4c563b31a571ec6e0814952f102580ac9f3275ff8ed4f84d1d",
+  "harness": "c5dbc88a916bc5d7aa491ea11089645ddf110ba9ebd4ceb17a7f825189f68ad7",
+  "freshHarness": "944f107087e3c2b5f28ab0268965713e41f010faeca2de1e3783f34c9ba7f625",
+  "referenceNode": "v24.19.0",
+  "initialCandidate": "b4382b1b6d6660c3a3edae824e3054c9596bd0fef85b02cba5dab556adbbc6ca",
+  "edgeCandidate": "6be86d1860784c0a7d114008ce86a93168e2c6e509e3a085ee50a951f5ce20fd",
+  "reason": "Rearward withdrawals lead guards; forward breakthroughs follow guards. Freeze before opening fresh15241/15242. Fuel/next-weather projection correction retained.",
+  "freshConfirmationSeeds": [
+    15241,
+    15242
+  ],
+  "developmentSeeds": [
+    "authored",
+    15201,
+    15211,
+    15212,
+    15231,
+    15232
+  ],
+  "balanceKnownSeed": 15101,
+  "balanceConfirmationSeed": 15221
+}

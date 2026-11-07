@@ -1,0 +1,15 @@
+{
+  "frozenAt": "2026-11-07T11:52:41.226766+00:00",
+  "source": "b4382b1b6d6660c3a3edae824e3054c9596bd0fef85b02cba5dab556adbbc6ca",
+  "harness": "c5dbc88a916bc5d7aa491ea11089645ddf110ba9ebd4ceb17a7f825189f68ad7",
+  "referenceNode": "v24.19.0",
+  "tuneGames": 32,
+  "tuneRedWins": 27,
+  "confirmationSeeds": [
+    15211,
+    15212
+  ],
+  "balanceKnownSeed": 15101,
+  "balanceConfirmationSeed": 15221,
+  "note": "Frozen before running/opening mission confirmation and before opening balance seed15221 outcomes."
+}
