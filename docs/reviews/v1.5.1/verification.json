@@ -1,0 +1,27 @@
+{
+  "verifiedAt": "2026-11-07T18:45:38.556905+09:00",
+  "runtime": "v24.19.0",
+  "phases": {
+    "playthrough": {
+      "games": 52,
+      "commands": 48084,
+      "sourceSHA256": "52851b77afe38076db2566dcab59293c70f569b5179c860fcdb305f086b042c5",
+      "scriptSHA256": "496b62de4d10f66330597ea0c21817cabaec55cfb024b47810f54c82f93db762",
+      "allCommandDigestsVerified": true
+    },
+    "balance": {
+      "games": 36,
+      "commands": 119036,
+      "sourceSHA256": "52851b77afe38076db2566dcab59293c70f569b5179c860fcdb305f086b042c5",
+      "scriptSHA256": "496b62de4d10f66330597ea0c21817cabaec55cfb024b47810f54c82f93db762",
+      "allCommandDigestsVerified": true
+    }
+  },
+  "artifacts": {
+    "balance.commands.json.gz": "77dd2cb1afbc140111a0fdc00ba51d258c31bbc75b1add3a34ad095b6806c88e",
+    "balance.jsonl": "5a3d03e007b6fa5d83a5d15f9d6198e52e0006fb077c81e74fcf71e551414f61",
+    "playthrough.commands.json.gz": "08466c853399e52761e4abef1c9a9f402cd6c6e01a6170deef9237bb34be2392",
+    "playthrough.jsonl": "08031a0ac256a8276ba95ae845d9c0f754ef0d72cb94bfcec20019cf507209b8",
+    "witnesses.commands.json.gz": "9170043ff9a3410ef2c493e947bdf0ff2f63d5ad5f87e5749e0ba3bd3c79439a"
+  }
+}

@@ -10,6 +10,7 @@ for (const viewport of [
     await page.setViewportSize(viewport);
     page.on('dialog', (dialog) => dialog.accept());
     await page.goto('/');
+    await page.locator('#title-tactical-preset').uncheck(); // Keep this original-layout regression fixture.
     await page.locator('#title-editor').click();
     await page.locator('#editor-json').fill(JSON.stringify(operationData({ id: 'browser-withdrawal', name: '撤退の操作確認' })));
     await page.locator('#editor-import').click();

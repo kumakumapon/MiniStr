@@ -140,6 +140,14 @@ function context(state: TitleState, screens: ScreenController, overrides: Partia
 }
 
 describe('buildTitleOverlay', () => {
+  it('defaults to combined tactics and honors an explicit OFF choice', () => {
+    const { screens, state } = openTitle();
+    for (const locale of ['ja', 'en']) {
+      setLocale(locale);
+      expect(buildTitleOverlay(context(state, screens))).toMatch(/id="title-tactical-preset"[^>]*checked/);
+      expect(buildTitleOverlay(context(state, screens, { tacticalPreset: false }))).not.toMatch(/id="title-tactical-preset"[^>]*checked/);
+    }
+  });
   it('builds nothing, and none of the costly parts, while another screen shows', () => {
     const scenarios = vi.fn(() => maps);
     const mapPreview = vi.fn(() => '');

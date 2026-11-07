@@ -5,7 +5,7 @@ import { BoardInput } from './ui/boardInput';
 import { LOGISTICS_RULE_VERSION } from './game/logisticsOrders';
 import { renderLogisticsRoster, bindLogisticsRoster } from './ui/logisticsRoster';
 import { observedCommand, tacticalScenario, tacticalEnabled, detectedContact, TACTICAL_RULE_VERSION, zocTiles, unitMovementCost } from './game';
-import { renderTacticalControls } from './ui/tactics';
+import { DEFAULT_TACTICAL_PRESET, renderTacticalControls } from './ui/tactics';
 import { BoardView } from './ui/boardView';
 import { installAudioRecovery } from './ui/audioRecovery';
 import { retainControls } from './ui/retainControls';
@@ -109,7 +109,8 @@ import { renderBriefingOverlay, renderCampaignOverlay, renderGameOverOverlay, re
 import { commandAllowed, cpuDifficultyFor, cpuShouldRun, cpuSkipAllowed, handoffAfterEndTurn, menuAllowed, parseMatchMode, autosaveAllowed, manualSaveTarget, matchSaveDeletionAllowed, showsWholeBoard, sideName, spectateContinues, SPECTATE_TURN_LIMIT, undoAllowed, viewerFor, type MatchContext, type MatchMode } from './ui/matchControl';
 import { deleteSaveSlot, getStorageUsage, listSaveSlots, loadGameFromSlot, saveGameToSlot, type SavedGame, type ScenarioTheme } from './game';
 
-let tacticalPreset = false;
+let campaignRun: { scenarioId: string } | undefined;
+let tacticalPreset = DEFAULT_TACTICAL_PRESET;
 let selectedMap = maps[0]!;
 let game = start(selectedMap.id);
 let deploymentBase: ScenarioDefinition | undefined = selectedMap;
@@ -247,7 +248,6 @@ function centerSpectatorOn(position: Position): void {
 let finiteSupplies = true;
 
 let campaignReturnToBriefing = false;
-let campaignRun: { scenarioId: string } | undefined;
 let campaignOutcome: { result: CampaignGradeResult; persisted: boolean; nextScenarioId?: string; veteranCount: number } | undefined;
 
 let editor: ScenarioEditorState = createScenarioEditor();

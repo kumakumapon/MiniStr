@@ -104,6 +104,7 @@ describe('English distributed UI', () => {
 
   it('keeps custom names, authored briefings and saved JSON unchanged across language changes', () => {
     const document = launch();
+    click('#title-tactical-preset'); // Preserve this original-layout regression fixture.
     click('#title-editor');
     const data = operationData({ id: 'custom-language', name: '占領', briefing: '利用者の作戦説明は翻訳しない' });
     const editorJson = document.querySelector('#editor-json');

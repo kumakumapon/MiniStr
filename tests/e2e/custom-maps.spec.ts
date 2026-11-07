@@ -45,10 +45,10 @@ for (const width of [1280, 390]) {
     expect(await page.evaluate(() => localStorage.getItem('ministr.save.manual'))).toBe(saved);
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width + 1);
     await page.locator('#title-resume').click();
-    await expect(page.locator('.battlefield-heading h2')).toHaveText('戦車');
+    await expect(page.locator('.battlefield-heading h2')).toHaveText('戦車 / Tactical v2');
     await page.reload();
     await expect(page.locator('.title-map-card[data-map-id="custom-delete"]')).toHaveCount(0);
     await page.locator('#title-continue').click();
-    await expect(page.locator('.battlefield-heading h2')).toHaveText('戦車');
+    await expect(page.locator('.battlefield-heading h2')).toHaveText('戦車 / Tactical v2');
   });
 }

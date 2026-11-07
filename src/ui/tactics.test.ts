@@ -5,7 +5,7 @@ import { operationData } from '../game/operations.fixture';
 import { combinedTactics } from '../game/tactics';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { setLocale } from './locale';
-import { renderTacticalControls, renderTacticalPreset } from './tactics';
+import { DEFAULT_TACTICAL_PRESET, renderTacticalControls, renderTacticalPreset } from './tactics';
 import { renderUnitBrief } from './unitBrief';
 import { inspectTile } from './tileInspector';
 import { decodeCpuResponse } from './cpuResponse';
@@ -42,7 +42,8 @@ describe('tactical controls and contact privacy', () => {
     expect(JSON.parse(exportScenarioEditorJson(imported)).tacticalOptions).toEqual(combinedTactics);
     expect(ok(createEditorGameState(imported)).state.ruleVersion).toBe(13);
   });
-  it('renders the opt-in title control and localized rule explanations', () => {
+  it('renders the default-on title choice and localized rule explanations', () => {
+    expect(DEFAULT_TACTICAL_PRESET).toBe(true);
     expect(renderTacticalPreset(false)).not.toContain('checked');
     expect(renderTacticalPreset(true)).toContain('checked');
     setLocale('en');

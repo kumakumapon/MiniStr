@@ -3,9 +3,11 @@ import { prepareAmbush, toggleDive } from '../game/tacticalActions';
 import { weaponsForUnit } from '../game/weapons';
 import { getLocale } from './locale';
 
+export const DEFAULT_TACTICAL_PRESET = true;
+
 export function renderTacticalPreset(selected: boolean): string {
   const en = getLocale() === 'en';
-  return `<section class="tactics-settings"><label><input type="checkbox" id="title-tactical-preset" ${selected ? 'checked' : ''}> ${en ? 'Combined tactics (v1.4)' : '統合戦術（v1.4）'}</label><p>${en ? 'Simultaneous fire, prepared ambush, terrain cover, forecast weather, ground ZOC and submarines. Applies to new standalone matches; map variants have separate records.' : '同時射撃・待伏せ・地形防御・天候予報・地上ZOC・潜航。新しい通常戦・単体作戦へ適用し、マップ差分は別の記録として扱います。'}</p></section>`;
+  return `<section class="tactics-settings"><label><input type="checkbox" id="title-tactical-preset" ${selected ? 'checked' : ''}> ${en ? 'Combined tactics (on by default)' : '統合戦術（標準ON）'}</label><p>${en ? 'Simultaneous fire, prepared ambush, terrain cover, forecast weather, ground ZOC and submarines. On by default for new standalone matches; turn off for the original setup. Campaigns, daily challenges and basic training keep their own rules. Map variants have separate records.' : '同時射撃・待伏せ・地形防御・天候予報・地上ZOC・潜航。新しい通常戦・単体作戦で標準ON。OFFで従来設定。キャンペーン・日替わり・基本訓練は専用ルールを使い、マップ差分は別の戦績として扱います。'}</p></section>`;
 }
 export function renderTacticalControls(state: GameState, player: PlayerId, selected: string | undefined, canAct: boolean): string {
   if (!state.tactics) return '';

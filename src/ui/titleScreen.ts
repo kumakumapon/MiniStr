@@ -1,4 +1,4 @@
-import { renderTacticalPreset } from './tactics';
+import { DEFAULT_TACTICAL_PRESET, renderTacticalPreset } from './tactics';
 import { maps, operationScenarios, type PlayerId, type ScenarioTheme } from '../game';
 import type { ScenarioDefinition } from '../game/maps';
 import type { GeneratedShare } from '../game/shareLink';
@@ -184,7 +184,7 @@ export function buildTitleOverlay(context: TitleOverlayContext): string {
         })()
       : undefined,
     generator: titleVisible
-      ? renderTacticalPreset(context.tacticalPreset === true) +
+      ? renderTacticalPreset(context.tacticalPreset ?? DEFAULT_TACTICAL_PRESET) +
         renderMapGenerator(state.generatorForm, state.generatorNotice, state.generatorOpen, { status: state.generatorLinkStatus, text: state.generatorLinkText }) +
         renderOperationRecords(context.operationCatalog, context.operationNotice, state.operationRecordsOpen)
       : undefined,

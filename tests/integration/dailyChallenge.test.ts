@@ -157,6 +157,7 @@ describe('daily challenge in the distributed app', () => {
 
   it('gives the players own settings back when leaving the daily match', () => {
     const document = launch();
+    click('#title-tactical-preset'); // Preserve this original-layout regression fixture.
     click('.title-map-card[data-map-id="skirmish"]');
     change('#briefing-supply-mode', 'unlimited');
     click('#begin-operation');

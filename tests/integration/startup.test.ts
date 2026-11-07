@@ -227,6 +227,7 @@ describe('distributed application boundaries', () => {
 
   it('reconstructs stale observations after undo and save/resume without exposing full analysis', () => {
     const document = launch();
+    click('#title-tactical-preset'); // Preserve this original-layout regression fixture.
     click('#title-editor');
     change(
       '#editor-json',
