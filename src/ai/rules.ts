@@ -1,4 +1,5 @@
 import { logisticsOrder, usesLogisticsOrders } from '../game/logisticsOrders';
+import { missionGuardsPending, missionSafeAt } from './missionSafety';
 import { supplyRendezvous } from './supplyRendezvous';
 import { canLeaveRepairForFire, defensiveRepairRoute, defensiveServiceWait } from './recovery';
 import { defensiveHoldRelief } from './holdRelief';
@@ -728,6 +729,7 @@ function moveAction(state: GameState, player: PlayerId, config: CpuDifficultyCon
       const escape = moveToEvacuationExit(state, player, unit, mission);
       if (escape) return escape;
     }
+    if (missionGuardsPending(state, unit)) continue;
     if (unit.kind === 'landingShip' && !mission && !state.units.some(candidate => candidate.embarkedIn === unit.id)) {
       const tile = terrainAt(state.board, unit.position);
       if (tile?.kind === 'port' && tile.owner === player) {
@@ -769,6 +771,7 @@ function moveAction(state: GameState, player: PlayerId, config: CpuDifficultyCon
     // holding posts still wait. Indirect fire is planned for the next turn.
     if (repair && (!destination || !canLeaveRepairForFire(state, player, unit, destination, context.visibleEnemies))) return repair;
     if (destination) {
+      if (!missionSafeAt(state, unit, destination, context.visibleEnemies)) return { type: 'wait', unitId: unit.id };
       if (destination.x === unit.position.x && destination.y === unit.position.y)
         return { type: 'wait', unitId: unit.id };
       return { type: 'move', unitId: unit.id, destination };
@@ -792,6 +795,7 @@ function strikeAction(state: GameState, player: PlayerId, config: CpuDifficultyC
   for (const unit of orderedUnits(state, player)) {
     const stats = unitStats[unit.kind];
     if (unit.hasMoved || unit.hasActed || !hasUsableWeapon(state, unit, true)) continue;
+    if (missionGuardsPending(state, unit)) continue;
     const directWeapons = weaponsForUnit(unit.kind, state).filter((weapon, slot) => !weapon.indirect && weaponAmmo(unit, slot as WeaponSlot) > 0);
     const maximumRange = Math.max(...directWeapons.map(weapon => weapon.range[1]));
     const targets = visibleTargets.filter((target): target is DeployedUnit => isDeployedUnit(target)
@@ -833,6 +837,8 @@ function strikeAction(state: GameState, player: PlayerId, config: CpuDifficultyC
       }
     }
   }
+  if (best && !missionSafeAt(state, orderedUnits(state, player).find(unit => unit.id === best.unitId)!, best.destination, visibleTargets))
+    return { type: 'wait', unitId: best.unitId };
   return best && { type: 'move', unitId: best.unitId, destination: best.destination };
 }
 
@@ -925,13 +931,17 @@ function evacuationAction(state: GameState, player: PlayerId, config: CpuDifficu
     if (!condition) continue;
     const escape = moveToEvacuationExit(state, player, unit, condition);
     if (escape) return escape;
+    if (missionGuardsPending(state, unit)) continue;
     const destination = [unit.position, ...reachablePositionsForPlayer(state, unit.id, player)]
       .filter(position => transportSafeAt(state, unit, position, context.visibleEnemies))
       .map(position => ({ position, score: evaluateCpuPosition(state, player, unit, position, condition.positions, config, context.visibleEnemies)
         // Under v7, new sight must not tempt withdrawing units into firing or service positions away from their exit.
         - (usesReconRules(state) ? crossingDistance(state, unit.kind, position, condition.positions) * 100 : 0) }))
       .sort((a, b) => b.score - a.score || a.position.y - b.position.y || a.position.x - b.position.x)[0]?.position;
-    if (destination && (destination.x !== unit.position.x || destination.y !== unit.position.y)) return { type: 'move', unitId: unit.id, destination };
+    if (destination && (destination.x !== unit.position.x || destination.y !== unit.position.y)) {
+      if (!missionSafeAt(state, unit, destination, context.visibleEnemies)) return { type: 'wait', unitId: unit.id };
+      return { type: 'move', unitId: unit.id, destination };
+    }
     if (usesReconRules(state)) {
       const exitDistance = (p: Position) => Math.min(...condition.positions.map(exit => manhattanDistance(p, exit)));
       const blocker = orderedUnits(state, player).find(ally => ally.id !== unit.id && !ally.hasMoved && !ally.hasActed

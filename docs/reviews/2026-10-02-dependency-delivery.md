@@ -92,3 +92,9 @@ CI 41172269209（head `2d633af0f0508e305740bba0a81c31aa484d4574`）で、全依�
 minimatch11は既存利用側の要求majorを越えるため、Nodeのengine範囲・ESM/CJSの公開APIを上流package.jsonで確認したうえで、正式依存でのlint・型・coverage・配布UI・3ブラウザによって利用経路を確認する。overrideは上流ESLint／typescript-eslint等が修正版へ移行した時点で取り外しを再評価する。
 
 #253のjsdom30.1.3はNode ^22.22.2 || ^24.15.0を要求し、推移的undici8もNode>=22.19を要求する。現行のNode22.13互換性を維持するため、今回は29.1.1を保持してDependabotに>=30の上限を明示。Nodeサポート下限を意図して引き上げる際に、この制限を再評価する。互換性ゲート・監査重大度・公開条件・権限の緩和は行わない。
+
+## 2026-11-07 v1.5.2 依存先行段階（PR #272）
+
+#269のESLint10.14.0と#268のVitest／coverage-v8 5.1.0だけを現在のmainへ統合し、CPU変更前のhead `bda1b8f8c1bd1fc911e1b10a46ad61b627f585b7`、tree `23cb6a9b36ec7ea0315561a5ba3d135c00a11c02` で[CI 42367560295](https://github.com/kumakumapon/MiniStr/actions/runs/42367560295)と[CodeQL 42367557475](https://github.com/kumakumapon/MiniStr/actions/runs/42367557475)が成功した。
+
+2026-11-07 11:18 UTCの全依存／本番依存監査は全重大度0件。npm ci、npm ls --all、型、lint、coverage（単体1589件）、UI67件、3ブラウザー559件、地形33件、Node22.13互換性を確認した。[監査・依存段階の記録](v1.5.2/dependency-phase.json)を保存する。旧moderate例外は復活させず、minimatch11.0.1 overrideとNode22.13／jsdom29.1.1の制限は今回取り外していない。CPUを組み合わせた最終headは[最終確認記録](2026-11-07-v1.5.2.md)で別途確認する。

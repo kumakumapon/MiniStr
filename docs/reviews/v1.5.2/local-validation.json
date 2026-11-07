@@ -1,0 +1,56 @@
+{
+  "source": "9efa7a2c797e5c4c563b31a571ec6e0814952f102580ac9f3275ff8ed4f84d1d",
+  "referenceOnly": true,
+  "node": "24.19.0",
+  "vitest": "3.2.7",
+  "unitFiles": 163,
+  "unitTests": 1608,
+  "unitAndCoverageExit": 0,
+  "coverage": {
+    "statements": 83.32,
+    "branches": 94.13,
+    "functions": 96.67,
+    "lines": 83.32
+  },
+  "newModuleFocusedTests": 19,
+  "newModuleCoverage": {
+    "statements": 100,
+    "branches": 97.36,
+    "functions": 100,
+    "lines": 100
+  },
+  "commands": [
+    {
+      "command": "npm run lint",
+      "exit": 0,
+      "seconds": 5.377
+    },
+    {
+      "command": "npm run format:check",
+      "exit": 0,
+      "seconds": 4.52
+    },
+    {
+      "command": "npm run typecheck:test",
+      "exit": 0,
+      "seconds": 5.027
+    },
+    {
+      "command": "npm run build",
+      "exit": 0,
+      "seconds": 4.705
+    },
+    {
+      "command": "npm run check:links",
+      "exit": 0,
+      "seconds": 0.333
+    },
+    {
+      "command": "npm run test:ci",
+      "exit": 0,
+      "seconds": 0.203
+    }
+  ],
+  "initialFailedRun": "Sandbox bash EPERM in 3 existing mirror tests and a Vitest3 RPC timeout. Not counted as success. Mirror6 and final full run1608 pass with spawning permitted and isolated coverage output.",
+  "formalVerdict": "Updated locked dependencies and fresh audits are verified by the same-head GitHub CI/CodeQL on PR272."
+}

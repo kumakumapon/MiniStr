@@ -1,0 +1,19 @@
+{
+  "frozenAt": "2026-11-07T12:05:25.720192+00:00",
+  "source": "6be86d1860784c0a7d114008ce86a93168e2c6e509e3a085ee50a951f5ce20fd",
+  "harness": "c5dbc88a916bc5d7aa491ea11089645ddf110ba9ebd4ceb17a7f825189f68ad7",
+  "freshHarness": "4a8d66fb0438bf4ecde8ce3e34fa13d2fbcfff5f9c09167453befdc97fe22c77",
+  "referenceNode": "v24.19.0",
+  "initialCandidate": "b4382b1b6d6660c3a3edae824e3054c9596bd0fef85b02cba5dab556adbbc6ca",
+  "reason": "Correct own remaining fuel and next-round weather in the further-escape projection; parameters unchanged after opening first confirmation.",
+  "freshConfirmationSeeds": [
+    15231,
+    15232
+  ],
+  "originalConfirmationSeeds": [
+    15211,
+    15212
+  ],
+  "balanceKnownSeed": 15101,
+  "balanceConfirmationSeed": 15221
+}
