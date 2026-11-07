@@ -33,6 +33,7 @@ async function resume(page: Page, saved: SavedGame, locale: string) {
   );
   page.on('dialog', (dialog) => dialog.accept());
   await page.goto('/');
+  await expect(page.locator('#title-tactical-preset')).toBeChecked();
   await page.locator('#title-continue').click();
 }
 const tile = (page: Page, x: number, y: number) => page.locator(`.tile[data-x="${x}"][data-y="${y}"]`);
@@ -44,7 +45,7 @@ for (const width of [1280, 390])
       await page.addInitScript((locale) => localStorage.setItem('ministr.locale', locale), locale);
       page.on('dialog', (dialog) => dialog.accept());
       await page.goto('/');
-      await page.locator('#title-tactical-preset').check();
+      await expect(page.locator('#title-tactical-preset')).toBeChecked();
       await page.locator('.title-map-card[data-map-id="skirmish"]').click();
       await expect(page.locator('#briefing-supply-mode option[value="unlimited"]')).toBeDisabled();
       await page.locator('#begin-operation').click();
@@ -61,6 +62,30 @@ for (const width of [1280, 390])
       if (locale === 'en') await expect(page.locator('.battlefield-heading h2')).toContainText('Green Border');
       await page.screenshot({ path: info.outputPath(`systems-tactics-${width}-${locale}.png`) });
       expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width + 1);
+    });
+
+    test(`explicitly starts OFF and preserves that saved match at ${width}/${locale}`, async ({ page }) => {
+      await page.setViewportSize({ width, height: 844 });
+      await page.addInitScript((locale) => localStorage.setItem('ministr.locale', locale), locale);
+      page.on('dialog', (dialog) => dialog.accept());
+      await page.goto('/');
+      await expect(page.locator('#title-tactical-preset')).toBeChecked();
+      await page.locator('#title-tactical-preset').uncheck();
+      await page.locator('.title-map-card[data-map-id="skirmish"]').click();
+      await page.locator('#begin-operation').click();
+      await expect(page.locator('.tactics-status')).toHaveCount(0);
+      await page.locator('#save').click();
+      const before = await page.evaluate(() => JSON.parse(localStorage.getItem('ministr.save.manual')!));
+      expect(before.initialState.ruleVersion).toBe(14);
+      expect(before.initialState.scenarioSnapshot.tacticalOptions).toBeUndefined();
+      await page.reload();
+      await expect(page.locator('#title-tactical-preset')).toBeChecked();
+      await page.locator('#title-continue').click();
+      await expect(page.locator('.tactics-status')).toHaveCount(0);
+      await page.locator('#save').click();
+      const after = await page.evaluate(() => JSON.parse(localStorage.getItem('ministr.save.manual')!));
+      expect(after.initialState).toEqual(before.initialState);
+      expect(after.commands).toEqual(before.commands);
     });
 
     for (const kind of ['apc', 'landingShip', 'transportHelicopter'] as const) {

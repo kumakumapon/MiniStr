@@ -46,12 +46,12 @@ for (const viewport of [
     await page.addInitScript(() => localStorage.setItem('ministr.locale', 'en'));
     await page.goto('/');
     await expect(page.locator('html')).toHaveAttribute('lang', 'en');
-    await expect(page.locator('.title-map-card[data-map-id="skirmish"] .title-map-name')).toHaveText('Green Border');
+    await expect(page.locator('.title-map-card[data-map-id="skirmish"] .title-map-name')).toHaveText('Green Border / Tactical v2');
     await expectEnglish(page);
     await page.screenshot({ path: testInfo.outputPath(`systems-en-${viewport.width}-title.png`), fullPage: false });
 
     await page.locator('.title-map-card[data-map-id="bridgehead"]').click();
-    await expect(page.locator('#briefing-title')).toHaveText('Establish a Bridgehead');
+    await expect(page.locator('#briefing-title')).toHaveText('Establish a Bridgehead / Tactical v2');
     await expect(page.locator('#briefing-copy')).toContainText('1000G');
     await page.locator('#briefing-deployment summary').click();
     await expect(page.locator('#briefing-preset-red-0-name')).toHaveValue('Deployment 1');

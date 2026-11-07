@@ -20,7 +20,7 @@ test('picks a map on the title screen, goes back from the briefing, and starts (
   await expect(landing).toContainText('海峡上陸作戦');
   await expect(landing).toContainText('40ターン制限');
   await landing.click();
-  await expect(page.locator('#briefing-title')).toHaveText('海峡上陸作戦');
+  await expect(page.locator('#briefing-title')).toHaveText('海峡上陸作戦 / Tactical v2');
 
   // The briefing leads back to the map list, which now marks the last choice.
   await page.locator('#briefing-back-to-title').click();
@@ -29,7 +29,7 @@ test('picks a map on the title screen, goes back from the briefing, and starts (
 
   await page.locator('.title-map-card[data-map-id="skirmish"]').click();
   await page.getByRole('button', { name: /単体作戦を開始/ }).click();
-  await expect(page.locator('.battlefield-heading h2')).toHaveText('緑の国境');
+  await expect(page.locator('.battlefield-heading h2')).toHaveText('緑の国境 / Tactical v2');
 });
 
 test('opens the title during a match and returns to the same match (#143)', async ({ page }) => {
@@ -68,7 +68,7 @@ test('works from the keyboard alone (#143)', async ({ page }) => {
   await page.keyboard.press('Tab');
   await expect(page.locator('.title-map-card[data-map-id="islands"]')).toBeFocused();
   await page.keyboard.press('Enter');
-  await expect(page.locator('#briefing-title')).toHaveText('群島補給線');
+  await expect(page.locator('#briefing-title')).toHaveText('群島補給線 / Tactical v2');
 });
 
 test('fits a phone screen without horizontal scrolling (#143)', async ({ page }) => {
@@ -115,7 +115,7 @@ test('lands on the start button after going back and forth by keyboard (#143 rev
   await expect(page.locator('.title-overlay')).toBeVisible();
   await page.locator('.title-map-card[data-map-id="islands"]').focus();
   await page.keyboard.press('Enter');
-  await expect(page.locator('#briefing-title')).toHaveText('群島補給線');
+  await expect(page.locator('#briefing-title')).toHaveText('群島補給線 / Tactical v2');
   await expect(page.locator('#begin-operation')).toBeFocused();
 });
 

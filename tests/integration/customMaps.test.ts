@@ -30,6 +30,7 @@ afterEach(() => dom?.window.close());
 
 it.each(['ja', 'en'])('confirms deletion in %s and keeps the running match and saved state', (locale) => {
   const document = launch(locale);
+  click('#title-tactical-preset'); // This regression exercises the original custom snapshot.
   expect(document.querySelectorAll('[data-delete-custom-map]')).toHaveLength(2);
   expect(document.querySelector('#title-delete-skirmish')).toBeNull();
   click('.title-map-card[data-map-id="custom-delete"]');
@@ -77,6 +78,7 @@ it('keeps the map and reports an error when catalog persistence fails', () => {
 
 it.each(['finite', 'unlimited'])('records the chosen %s supply rule and restores it from a save', (mode) => {
   const document = launch('en');
+  click('#title-tactical-preset'); // Unlimited supplies remain available with tactics OFF.
   click('.title-map-card[data-map-id="custom-delete"]');
   const select = document.querySelector('#briefing-supply-mode');
   select.value = mode;

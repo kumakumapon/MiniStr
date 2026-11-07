@@ -27,6 +27,7 @@ for (const width of [1280, 390])
         localStorage.setItem('ministr.scenarios.custom', JSON.stringify({ schemaVersion: 1, scenarios: [value], history: [] }));
       }, scenario);
       await page.goto('/');
+      await page.locator('#title-tactical-preset').uncheck(); // Compare the authored terrain samples without a layout transform.
       const card = page.locator('.title-map-card[data-map-id="terrain-colors"]');
       await card.scrollIntoViewIfNeeded();
       const preview = await card.locator('.map-preview').evaluate((element) => ({

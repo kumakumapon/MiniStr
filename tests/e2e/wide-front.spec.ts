@@ -20,6 +20,7 @@ for (const width of [1280, 390])
         await page.locator('input[name="match-mode"][value="spectate"]').check();
         await page.locator('#begin-operation').click();
         await expect(page.locator('.board .tile')).toHaveCount(1024);
+        await expect(page.locator('.tactics-status')).toBeVisible();
         // Worker completion is independent of Playwright's paused timer clock.
         // Isolate zoom identity from legitimate CPU state updates.
         await page.locator('#spectate-toggle').click();
@@ -75,6 +76,7 @@ for (const width of [1280, 390])
         await page.locator('input[name="match-mode"][value="hotseat"]').check();
         await page.locator('#begin-operation').click();
         await expect(page.locator('.board .tile')).toHaveCount(1024);
+        await expect(page.locator('.tactics-status')).toBeVisible();
       });
     });
   }
