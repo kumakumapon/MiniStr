@@ -5,6 +5,8 @@ import { weaponAmmo } from './weapons';
 import { unitStats } from './units';
 
 export const learningActions = [
+  'logistics',
+  'repairReserve',
   'move',
   'attack',
   'capture',
@@ -34,6 +36,8 @@ export class LearningLog {
     const player = before.activePlayer,
       progress = this.progress[player];
     if (
+      command.type === 'logistics' ||
+      command.type === 'repairReserve' ||
       command.type === 'move' ||
       command.type === 'attack' ||
       command.type === 'endTurn' ||

@@ -1,3 +1,4 @@
+import { logisticsOrder, usesLogisticsOrders } from '../game/logisticsOrders';
 import { supplyRendezvous } from './supplyRendezvous';
 import { canLeaveRepairForFire, defensiveRepairRoute, defensiveServiceWait } from './recovery';
 import { defensiveHoldRelief } from './holdRelief';
@@ -90,6 +91,7 @@ export const cpuDifficultyConfig: Record<CpuDifficulty, CpuDifficultyConfig> = {
 export const MIN_CPU_FORCE = 4;
 
 export type CpuAction =
+  | Extract<import('../game/session').GameCommand, { type: 'logistics' | 'repairReserve' }>
   | { type: 'destroyBridge'; unitId: string; destination: Position }
   | { type: 'recon'; center: Position }
   | { type: 'fortify'; unitId: string }
@@ -977,6 +979,15 @@ function engineeringAction(state: GameState, player: PlayerId, context: CpuPlann
 function chooseOrientedCpuAction(state: GameState, difficulty: CpuDifficulty, player: PlayerId, policy: ArmyPolicy = 'balanced', adaptTactics = true): CpuAction {
   if (state.winner || state.draw || player !== state.activePlayer) return { type: 'endTurn' };
   state = observeLogistics(state, player);
+  if (usesLogisticsOrders(state)) {
+    for (const unit of state.units.filter(u => u.owner === player).sort((a, b) => a.id.localeCompare(b.id))) {
+      const fuelLow = (unit.fuel ?? unitStats[unit.kind].fuel) < unitStats[unit.kind].fuel / 3;
+      const empty = weaponsForUnit(unit.kind, state).some((w, i) => w.attack > 0 && weaponAmmo(unit, i === 0 ? 0 : 1) === 0);
+      const desired = { priority: fuelLow || empty, resource: fuelLow ? 'fuel' as const : 'ammo' as const, repair: true };
+      const current = logisticsOrder(state, unit);
+      if (current.priority !== desired.priority || current.resource !== desired.resource || !current.repair) return { type: 'logistics', unitId: unit.id, order: desired };
+    }
+  }
   // Never abandon a win secured by ending this turn (notably a completed hold
   // objective) in order to seek an optional attack or move.
   if (endTurn(state).winner === player) return { type: 'endTurn' };

@@ -31,6 +31,7 @@ export function spectatorActionPosition(before: GameState, after: GameState, com
   if (command.type === 'recon') return { ...command.center };
   if (command.type === 'disembark' || command.type === 'bridge' || command.type === 'destroyBridge') return { ...command.destination };
   if (command.type === 'produce') return { ...command.factory };
+  if (command.type === 'repairReserve') return undefined;
   if (command.type === 'endTurn') {
     const unit = after.units.find((unit) => unit.owner === after.activePlayer && isDeployedUnit(unit));
     return unit?.position && { ...unit.position };

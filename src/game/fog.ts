@@ -28,6 +28,7 @@ export function visibleEnemies(state: GameState, player: PlayerId): Unit[] {
 /** Public enemy type/HP/rank/location; private logistics are conservatively full. */
 export function observedEnemy(unit: Unit): Unit {
   const observed = { ...unit, fuel: unitStats[unit.kind].fuel, ammo: unitStats[unit.kind].ammo, hasMoved: false, hasActed: false };
+  delete observed.logistics;
   delete observed.supplyStock; // Enemy stock is private, including CPU planning.
   delete observed.ambush; delete observed.diveTurns;
   delete observed.secondaryAmmo; // Omission means full; never expose a private secondary magazine.
@@ -37,7 +38,7 @@ export function observedEnemy(unit: Unit): Unit {
 /** Hide logistics and funds even from heuristics which inspect the full state. */
 export function observeLogistics(state: GameState, player: PlayerId): GameState {
   const enemy = player === 'red' ? 'blue' : 'red';
-  return { ...state, units: state.units.map(unit => unit.owner === player ? unit : observedEnemy(unit)),
+  return { ...state, repairReserve: state.repairReserve ? { [player]: state.repairReserve[player] } : undefined, units: state.units.map(unit => unit.owner === player ? unit : observedEnemy(unit)),
     players: { ...state.players, [enemy]: { gold: 0, income: 0 } } };
 }
 

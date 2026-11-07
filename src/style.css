@@ -1141,3 +1141,11 @@ body.production-menu-open { overflow: hidden; }
 .storage-write-notice { padding: 12px; margin-bottom: 12px; border: 1px solid #b49a5c; background: #20323b; color: #f5e6bd; }
 .storage-write-notice p { margin: 0 0 8px; }
 .storage-write-notice button { margin: 4px; }
+
+.logistics-roster { margin-block: 12px; padding: 12px; border: 1px solid #8e8655; border-radius: 8px; min-width: 0; }
+.logistics-roster ul { list-style: none; padding: 0; max-height: 65vh; overflow-y: auto; }
+.logistics-roster li { border-top: 1px solid #68735c; padding-block: 12px; overflow-wrap: anywhere; }
+.logistics-roster label { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-block: 6px; }
+.logistics-roster select, .logistics-roster input { min-height: 36px; max-width: 100%; min-width: 0; }
+.logistics-roster p { font-size: .85rem; }
+.logistics-roster [data-selected="true"] { border-inline-start: 3px solid #e2cf78; padding-inline-start: 6px; }

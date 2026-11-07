@@ -25,6 +25,10 @@ export function decodeCpuResponse(value: unknown, state: GameState): GameCommand
     return { x: Number(received.x), y: Number(received.y) };
   };
   switch (value.type) {
+    case 'logistics':
+      return { type: 'logistics', unitId: id(value.unitId), order: { priority: value.order.priority, resource: value.order.resource, repair: value.order.repair } };
+    case 'repairReserve':
+      return { type: 'repairReserve', amount: Number(value.amount) };
     case 'endTurn':
       return { type: 'endTurn' };
     case 'recon':

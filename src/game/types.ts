@@ -1,4 +1,5 @@
 import type { unitDefinitions } from './units';
+import type { LogisticsOrder } from './logisticsOrders';
 import type { ScenarioData } from './maps';
 import type { TacticalState } from './tactics';
 
@@ -17,6 +18,7 @@ export interface Terrain {
 }
 
 export interface Unit {
+  logistics?: LogisticsOrder;
   callsign?: string;
   id: string;
   kind: UnitKind;
@@ -58,6 +60,7 @@ export interface Board {
 export interface PlayerState { gold: number; income: number }
 
 export interface GameState {
+  repairReserve?: Partial<Record<PlayerId, number>>;
   board: Board;
   /** Rule v8: ground cover, distinct from the original terrain. */
   fortifications?: { position: Position; owner: PlayerId }[];
@@ -119,13 +122,14 @@ export const AIRLIFT_RULE_VERSION = 11 as const;
 /** v1.1.0: bridge demolition and strategy expansion. */
 export const STRATEGY_RULE_VERSION = 12 as const;
 export const TACTICAL_RULE_VERSION = 13 as const;
+export const LOGISTICS_RULE_VERSION = 14 as const;
 /** Standard/campaign/daily baseline; v13 is selected explicitly for new standalone play. */
 export const CURRENT_RULE_VERSION = STRATEGY_RULE_VERSION;
 export const usesFiniteSupplyRules = (state: Pick<GameState, 'ruleVersion'>): boolean => (state.ruleVersion ?? 0) >= FINITE_SUPPLY_RULE_VERSION;
 export const usesBridgeRules = (state: Pick<GameState, 'ruleVersion'>): boolean => (state.ruleVersion ?? 0) >= BRIDGE_RULE_VERSION;
 export const usesFrontlineRules = (state: Pick<GameState, 'ruleVersion'>): boolean => (state.ruleVersion ?? 0) >= FRONTLINE_RULE_VERSION;
-export type RuleVersion = typeof MODERN_RULE_VERSION | typeof DECISION_RULE_VERSION | typeof BALANCED_RULE_VERSION | typeof DUAL_WEAPON_RULE_VERSION | typeof OPERATIONS_RULE_VERSION | typeof RECON_CONTROL_RULE_VERSION | typeof FRONTLINE_RULE_VERSION | typeof BRIDGE_RULE_VERSION | typeof FINITE_SUPPLY_RULE_VERSION | typeof AIRLIFT_RULE_VERSION | typeof STRATEGY_RULE_VERSION | typeof TACTICAL_RULE_VERSION;
-export const ruleVersions: readonly RuleVersion[] = [MODERN_RULE_VERSION, DECISION_RULE_VERSION, BALANCED_RULE_VERSION, DUAL_WEAPON_RULE_VERSION, OPERATIONS_RULE_VERSION, RECON_CONTROL_RULE_VERSION, FRONTLINE_RULE_VERSION, BRIDGE_RULE_VERSION, FINITE_SUPPLY_RULE_VERSION, AIRLIFT_RULE_VERSION, STRATEGY_RULE_VERSION, TACTICAL_RULE_VERSION];
+export type RuleVersion = typeof MODERN_RULE_VERSION | typeof DECISION_RULE_VERSION | typeof BALANCED_RULE_VERSION | typeof DUAL_WEAPON_RULE_VERSION | typeof OPERATIONS_RULE_VERSION | typeof RECON_CONTROL_RULE_VERSION | typeof FRONTLINE_RULE_VERSION | typeof BRIDGE_RULE_VERSION | typeof FINITE_SUPPLY_RULE_VERSION | typeof AIRLIFT_RULE_VERSION | typeof STRATEGY_RULE_VERSION | typeof TACTICAL_RULE_VERSION | typeof LOGISTICS_RULE_VERSION;
+export const ruleVersions: readonly RuleVersion[] = [MODERN_RULE_VERSION, DECISION_RULE_VERSION, BALANCED_RULE_VERSION, DUAL_WEAPON_RULE_VERSION, OPERATIONS_RULE_VERSION, RECON_CONTROL_RULE_VERSION, FRONTLINE_RULE_VERSION, BRIDGE_RULE_VERSION, FINITE_SUPPLY_RULE_VERSION, AIRLIFT_RULE_VERSION, STRATEGY_RULE_VERSION, TACTICAL_RULE_VERSION, LOGISTICS_RULE_VERSION];
 export const isGameOver = (state: Pick<GameState, 'winner' | 'draw'>): boolean => state.winner !== undefined || state.draw === true;
 export const usesReconRules = (state: Pick<GameState, 'ruleVersion'>): boolean => (state.ruleVersion ?? 0) >= RECON_CONTROL_RULE_VERSION;
 export const usesOperationsRules = (state: Pick<GameState, 'ruleVersion'>): boolean => (state.ruleVersion ?? 0) >= OPERATIONS_RULE_VERSION;

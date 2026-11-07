@@ -1,3 +1,4 @@
+import { logisticsOrder, usesLogisticsOrders } from './logisticsOrders';
 import { rearmUnit } from './weapons';
 import { isPropertyTerrainKind } from './facilities';
 import { manhattanDistance, terrainAt } from './terrain';
@@ -101,7 +102,7 @@ function finiteResupply(state: GameState, player: PlayerId, consumed: Unit[]): U
   const received = new Map<string, Unit>();
   // Cargo gets priority. Stable IDs make allocation independent of array order.
   const recipients = supplied.filter(unit => unit.owner === player && isGroundUnit(unit.kind) && !fixed(unit))
-    .sort((left, right) => Number(left.embarkedIn === undefined) - Number(right.embarkedIn === undefined) || compareIds(left, right));
+    .sort((left, right) => Number(logisticsOrder(state, right).priority) - Number(logisticsOrder(state, left).priority) || Number(left.embarkedIn === undefined) - Number(right.embarkedIn === undefined) || compareIds(left, right));
   for (const recipient of recipients) {
     let next = recipient;
     for (const provider of providers) {
@@ -138,9 +139,10 @@ export function applyModernUpkeep(state: GameState, player: PlayerId, consumeFue
     return isDeployedUnit(unit) && (suppliedByDepot(state, unit.position, player) || adjacentToSupplyUnit({ ...state, units: consumed }, unit.position, player, unit.id)) ? withFullSupplies(unit, state) : unit;
   });
   let gold = state.players[player].gold;
+  const reserve = usesLogisticsOrders(state) ? state.repairReserve?.[player] ?? 0 : 0;
   const repaired = supplied.map(unit => {
     if (unit.owner !== player || !isDeployedUnit(unit) || !isServiceTile(state, unit.position, unit.kind, player)) return unit;
-    const hp = affordableRepair(unit.kind, 100 - unit.hp, gold);
+    const hp = logisticsOrder(state, unit).repair ? affordableRepair(unit.kind, 100 - unit.hp, Math.max(0, gold - reserve)) : 0;
     gold -= repairCost(unit.kind, hp);
     return { ...withFullSupplies(unit, state), hp: unit.hp + hp };
   });
