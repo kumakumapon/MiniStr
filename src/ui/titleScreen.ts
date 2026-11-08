@@ -10,7 +10,8 @@ import { localized } from './locale';
 import type { MusicSettings } from './music';
 import { renderOperationRecords } from './operationsExpansion';
 import { renderTitleOverlay } from './overlays';
-import { conditionDescription, scenarioDisplayName } from './scenarioText';
+import { scenarioDisplayName } from './scenarioText';
+import { scenarioConditionDescription, scenarioTiming, timingSummary } from './turnTiming';
 import type { ScreenController } from './screenController';
 import { renderMapGenerator, type GeneratorForm } from './standaloneSystems';
 import { uiText } from './strings';
@@ -156,9 +157,9 @@ export function buildTitleOverlay(context: TitleOverlayContext): string {
           width: map.board.width,
           height: map.board.height,
           startingGold: map.startingGold,
-          turnLimit: map.turnLimit,
+          timing: timingSummary(scenarioTiming(map)),
           victory:
-            map.victoryConditions.map(conditionDescription).join(' / ') +
+            map.victoryConditions.map((condition) => scenarioConditionDescription(map, condition, 'red')).join(' / ') +
             (context.operationCatalog?.records.some((record) => record.scenarioId === map.id && record.revision === operationRevision(map)) ? ' ／ クリア記録あり' : ''),
           custom: ![...maps, ...operationScenarios].some((builtIn) => builtIn.id === map.id),
           selected: map.id === context.selectedMapId,

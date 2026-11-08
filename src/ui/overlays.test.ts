@@ -206,8 +206,8 @@ describe('title screen (#143)', () => {
     expect(result).toContain('data-map-id="skirmish"');
     expect(result).toContain('12×8');
     expect(result).toContain('初期資金 6000G');
-    expect(result).toContain('ターン制限なし');
-    expect(result).toContain('18ターン制限');
+    expect(result).toContain('期限・定時判定なし（作戦目標で終了）');
+    expect(result).toContain('期限：18ラウンド終了');
     expect(result).toContain('敵部隊を全滅させる');
     expect(result).toMatch(/data-map-id="landing" aria-current="true"/);
     expect(result).not.toMatch(/data-map-id="skirmish" aria-current/);
@@ -304,5 +304,5 @@ it.each([undefined, 60, '<img data-injected="true" src="x">'] as const)('renders
   });
   expect(document.querySelector('[data-injected]')).toBeNull();
   const limit = document.querySelectorAll('.briefing-meta strong')[1]?.textContent;
-  expect(limit).toBe(turnLimit === undefined ? 'なし' : typeof turnLimit === 'number' ? '60' : 'NaN');
+  expect(limit).toBe(turnLimit === undefined ? '期限・定時判定なし（作戦目標で終了）' : typeof turnLimit === 'number' ? '期限：60ラウンド終了' : '期限：NaNラウンド終了');
 });

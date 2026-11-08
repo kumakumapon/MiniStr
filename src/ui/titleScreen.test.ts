@@ -140,6 +140,19 @@ function context(state: TitleState, screens: ScreenController, overrides: Partia
 }
 
 describe('buildTitleOverlay', () => {
+  it('passes actual decision and deadline timing to title cards in both languages', () => {
+    const { screens, state } = openTitle();
+    for (const locale of ['ja', 'en']) {
+      setLocale(locale);
+      document.body.innerHTML = buildTitleOverlay(context(state, screens));
+      const decision = document.querySelector('[data-map-id="skirmish"] .title-map-facts')!.textContent!;
+      const deadline = document.querySelector('[data-map-id="landing"] .title-map-facts')!.textContent!;
+      expect(decision).toContain(locale === 'en' ? 'Decision: from the end of round 60' : '判定：60ラウンド終了時から');
+      expect(decision).not.toMatch(/No round limit|ターン制限なし/);
+      expect(deadline).toContain(locale === 'en' ? 'Deadline: end of round 40' : '期限：40ラウンド終了');
+    }
+  });
+
   it('defaults to combined tactics and honors an explicit OFF choice', () => {
     const { screens, state } = openTitle();
     for (const locale of ['ja', 'en']) {
