@@ -104,8 +104,9 @@ describe('effective turn timing (#273)', () => {
     const result = createCampaignScenario(createCampaignProgress(), 'skirmish');
     if (!result.ok) throw Error(result.error);
     expect(scenarioTiming(result.value)).toEqual({ deadline: 50, decision: undefined });
-    expect(campaignTimingSummary(22, result.value.turnLimit)).toBe('推奨：22ラウンド（評価の目安） / 期限：50ラウンド終了');
+    expect(campaignTimingSummary(22, scenarioTiming(result.value))).toBe('推奨：22ラウンド（評価の目安） / 期限：50ラウンド終了');
     expect(campaignTimingSummary(24)).toContain('期限・定時判定なし');
+    expect(campaignTimingSummary(22, { decision: 40 })).toContain('判定：40ラウンド終了時から');
   });
 
   it('matches game evaluation for every catalogue and training scenario', () => {
@@ -140,6 +141,6 @@ describe('effective turn timing (#273)', () => {
     const landing = map('landing');
     expect(scenarioConditionDescription(landing, { type: 'survive', untilTurn: 41 }, 'blue')).toBe('Deadline reached (end of round 40)');
     expect(scenarioConditionDescription(landing, { type: 'survive', untilTurn: 41 }, 'red')).toBe('Survive to the start of round 41');
-    expect(campaignTimingSummary(22, 50)).toContain('Recommended: 22 rounds (grading guide) / Deadline: end of round 50');
+    expect(campaignTimingSummary(22, { deadline: 50 })).toContain('Recommended: 22 rounds (grading guide) / Deadline: end of round 50');
   });
 });

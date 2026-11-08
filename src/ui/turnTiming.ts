@@ -49,7 +49,7 @@ export function timingProgress(timing: { deadline?: number; decision?: number },
   return en ? 'Victory by objectives' : '作戦目標で決着';
 }
 
-export function campaignTimingSummary(recommended: number, deadline?: number): string {
+export function campaignTimingSummary(recommended: number, timing: { deadline?: number; decision?: number } = {}): string {
   const en = getLocale() === 'en';
-  return (en ? `Recommended: ${Number(recommended)} rounds (grading guide)` : `推奨：${Number(recommended)}ラウンド（評価の目安）`) + ' / ' + timingSummary({ deadline });
+  return (en ? `Recommended: ${Number(recommended)} rounds (grading guide)` : `推奨：${Number(recommended)}ラウンド（評価の目安）`) + ' / ' + timingSummary(timing);
 }
