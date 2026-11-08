@@ -47,7 +47,7 @@ export function scenarioDisplayBriefing(scenario: ScenarioDefinition): string {
 }
 
 export function conditionDescription(condition: VictoryCondition): string {
-  if (getLocale() !== 'en') return describeVictoryCondition(condition);
+  if (getLocale() !== 'en') return condition.type === 'survive' ? `${condition.untilTurn}ラウンド開始まで生存する` : describeVictoryCondition(condition);
   switch (condition.type) {
     case 'eliminate':
       return 'Eliminate all enemy units';
@@ -56,7 +56,7 @@ export function conditionDescription(condition: VictoryCondition): string {
     case 'hold':
       return `${condition.requireOwnership ? 'Capture the designated property, then hold it' : 'Hold the designated location'}${condition.groundOnly ? ' with ground units' : ''} for ${condition.turns} consecutive turns`;
     case 'survive':
-      return `Survive until round ${condition.untilTurn}`;
+      return `Survive to the start of round ${condition.untilTurn}`;
     case 'score':
       return `Earn ${condition.target} points`;
     case 'control':

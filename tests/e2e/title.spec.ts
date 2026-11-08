@@ -18,7 +18,7 @@ test('picks a map on the title screen, goes back from the briefing, and starts (
 
   const landing = page.locator('.title-map-card[data-map-id="landing"]');
   await expect(landing).toContainText('海峡上陸作戦');
-  await expect(landing).toContainText('40ターン制限');
+  await expect(landing).toContainText('期限：40ラウンド終了');
   await landing.click();
   await expect(page.locator('#briefing-title')).toHaveText('海峡上陸作戦 / Tactical v2');
 
@@ -139,3 +139,52 @@ test('tells why continue is unavailable when the stored save cannot be read (#14
   await expect(page.locator('#title-continue')).toBeDisabled();
   await expect(page.locator('.title-notice')).toContainText('有効なセーブデータを読み込めません');
 });
+
+for (const locale of ['ja', 'en'] as const) {
+  for (const width of [1280, 390]) {
+    test(`consistent decision and deadline from title to match: ${locale} ${width} (#273)`, async ({ page }, testInfo) => {
+      await page.setViewportSize({ width, height: 844 });
+      await page.addInitScript((value) => localStorage.setItem('ministr.locale', value), locale);
+      await page.goto('/');
+      const decision = locale === 'en' ? 'Decision: from the end of round 60; complete ties continue' : '判定：60ラウンド終了時から・完全同点なら続行';
+      const deadline = locale === 'en' ? 'Deadline: end of round 40' : '期限：40ラウンド終了';
+      for (const tactics of [true, false]) {
+        await page.locator('#title-tactical-preset').setChecked(tactics);
+        const card = page.locator('[data-map-id="skirmish"]');
+        await expect(card).toContainText(decision);
+        await card.click();
+        await expect(page.locator('.briefing-timing')).toHaveText(decision);
+        await page.locator('#begin-operation').click();
+        await expect(page.locator('.mission-timing')).toHaveText(decision);
+        await expect(page.locator('.objective-heading .turn-limit')).toContainText('60');
+        const layout = await page.locator('.objective-card').evaluate((element) => ({ width: element.clientWidth, content: element.scrollWidth }));
+        expect(layout.content).toBeLessThanOrEqual(layout.width + 1);
+        await page.locator('#open-title').click();
+      }
+      const landing = page.locator('[data-map-id="landing"]');
+      await expect(landing).toContainText(deadline);
+      await landing.click();
+      await expect(page.locator('.briefing-timing')).toHaveText(deadline);
+      await expect(page.locator('.briefing-objectives')).toContainText(locale === 'en' ? 'Deadline reached (end of round 40)' : '作戦期限（40ラウンド終了）に到達');
+      await page.locator('.briefing-timing').scrollIntoViewIfNeeded();
+      await page.screenshot({ path: testInfo.outputPath(`timing-${locale}-${width}-briefing.png`) });
+      await page.locator('#begin-operation').click();
+      await expect(page.locator('.mission-timing')).toHaveText(deadline);
+      await expect(page.locator('.objective-card .defeat')).toContainText(locale === 'en' ? 'Deadline reached (end of round 40)' : '作戦期限（40ラウンド終了）に到達');
+      await expect(page.locator('.objective-card')).not.toContainText(locale === 'en' ? 'round 41' : '41ラウンド');
+      await page.locator('.objective-card').scrollIntoViewIfNeeded();
+      await page.screenshot({ path: testInfo.outputPath(`timing-${locale}-${width}-match.png`) });
+    });
+  }
+  test(`campaign grading guide and deadline remain distinct: ${locale} (#273)`, async ({ page }) => {
+    await page.addInitScript((value) => localStorage.setItem('ministr.locale', value), locale);
+    await page.goto('/');
+    await page.locator('#title-campaign').click();
+    const timing = locale === 'en' ? 'Recommended: 22 rounds (grading guide) / Deadline: end of round 50' : '推奨：22ラウンド（評価の目安） / 期限：50ラウンド終了';
+    await expect(page.locator('.campaign-timing').first()).toHaveText(timing);
+    await page.locator('.campaign-start[data-campaign-id="skirmish"]').click();
+    await expect(page.locator('.briefing-timing')).toHaveText(timing);
+    await page.locator('#begin-operation').click();
+    await expect(page.locator('.mission-timing')).toHaveText(locale === 'en' ? 'Deadline: end of round 50' : '期限：50ラウンド終了');
+  });
+}

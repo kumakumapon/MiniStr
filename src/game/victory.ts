@@ -216,7 +216,7 @@ export function isDecisionScenario(scenario: ScenarioDefinition): boolean {
 }
 
 /** The decision round for this match, or undefined when no decision victory applies. */
-export function decisionRound(state: GameState, scenario: ScenarioDefinition | undefined = scenarioForState(state)): number | undefined {
+export function decisionRound<T extends Pick<GameState, 'ruleVersion' | 'scenarioId' | 'scenarioSnapshot'>>(state: T, scenario: ScenarioDefinition | undefined = scenarioForState(state)): number | undefined {
   if (!usesDecisionRules(state) || !scenario || !isDecisionScenario(scenario)) return undefined;
   return (state.ruleVersion ?? 0) >= BALANCED_RULE_VERSION ? scenario.decisionRound ?? DECISION_ROUND : DECISION_ROUND;
 }

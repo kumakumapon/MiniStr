@@ -1149,3 +1149,8 @@ body.production-menu-open { overflow: hidden; }
 .logistics-roster select, .logistics-roster input { min-height: 36px; max-width: 100%; min-width: 0; }
 .logistics-roster p { font-size: .85rem; }
 .logistics-roster [data-selected="true"] { border-inline-start: 3px solid #e2cf78; padding-inline-start: 6px; }
+
+/* Timing explanations wrap at phone widths, including tied-decision extensions. */
+.objective-heading .turn-limit { flex-shrink: 1; min-width: 0; max-width: 100%; white-space: normal; overflow-wrap: anywhere; }
+.mission-timing { color: #b8cbbf; font-size: .75rem; line-height: 1.6; overflow-wrap: anywhere; }
+.briefing-meta .briefing-timing { min-width: 0; max-width: 100%; overflow-wrap: anywhere; }
