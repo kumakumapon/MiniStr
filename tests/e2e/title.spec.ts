@@ -165,12 +165,14 @@ for (const locale of ['ja', 'en'] as const) {
       await expect(landing).toContainText(deadline);
       await landing.click();
       await expect(page.locator('.briefing-timing')).toHaveText(deadline);
-      await expect(page.locator('.briefing-objectives')).toContainText(locale === 'en' ? 'Defend through the end of round 40 (deadline)' : '40ラウンド終了まで防衛（作戦期限）');
+      await expect(page.locator('.briefing-objectives')).toContainText(locale === 'en' ? 'Deadline reached (end of round 40)' : '作戦期限（40ラウンド終了）に到達');
+      await page.locator('.briefing-timing').scrollIntoViewIfNeeded();
       await page.screenshot({ path: testInfo.outputPath(`timing-${locale}-${width}-briefing.png`) });
       await page.locator('#begin-operation').click();
       await expect(page.locator('.mission-timing')).toHaveText(deadline);
-      await expect(page.locator('.objective-card .defeat')).toContainText(locale === 'en' ? 'Defend through the end of round 40 (deadline)' : '40ラウンド終了まで防衛（作戦期限）');
+      await expect(page.locator('.objective-card .defeat')).toContainText(locale === 'en' ? 'Deadline reached (end of round 40)' : '作戦期限（40ラウンド終了）に到達');
       await expect(page.locator('.objective-card')).not.toContainText(locale === 'en' ? 'round 41' : '41ラウンド');
+      await page.locator('.objective-card').scrollIntoViewIfNeeded();
       await page.screenshot({ path: testInfo.outputPath(`timing-${locale}-${width}-match.png`) });
     });
   }

@@ -26,7 +26,7 @@ export function isDeadlineCondition(scenario: ScenarioDefinition | undefined, co
 
 export function scenarioConditionDescription(scenario: ScenarioDefinition, condition: VictoryCondition, player: PlayerId): string {
   if (!isDeadlineCondition(scenario, condition, player)) return conditionDescription(condition);
-  return getLocale() === 'en' ? `Defend through the end of round ${Number(scenario.turnLimit)} (deadline)` : `${Number(scenario.turnLimit)}ラウンド終了まで防衛（作戦期限）`;
+  return getLocale() === 'en' ? `Deadline reached (end of round ${Number(scenario.turnLimit)})` : `作戦期限（${Number(scenario.turnLimit)}ラウンド終了）に到達`;
 }
 
 export function objectiveTimingDescription(state: GameState, condition: VictoryCondition, player: PlayerId): string {

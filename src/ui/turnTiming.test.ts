@@ -76,8 +76,8 @@ describe('effective turn timing (#273)', () => {
     expect(condition).toBeDefined();
     expect(scenarioTiming(scenario).decision).toBeUndefined();
     expect(timingSummary(scenarioTiming(scenario))).toBe(`期限：${limit}ラウンド終了`);
-    expect(scenarioConditionDescription(scenario, condition, 'blue')).toBe(`${limit}ラウンド終了まで防衛（作戦期限）`);
-    expect(objectiveTimingDescription(initial, structuredClone(condition), 'blue')).toBe(`${limit}ラウンド終了まで防衛（作戦期限）`);
+    expect(scenarioConditionDescription(scenario, condition, 'blue')).toBe(`作戦期限（${limit}ラウンド終了）に到達`);
+    expect(objectiveTimingDescription(initial, structuredClone(condition), 'blue')).toBe(`作戦期限（${limit}ラウンド終了）に到達`);
     expect(timingProgress(scenarioTiming(scenario), limit)).toBe('期限まで残り1ラウンド');
     expect(timingProgress(scenarioTiming(scenario), limit + 1)).toBe('期限まで残り0ラウンド');
     expect(isDeadlineCondition(scenario, condition, 'red')).toBe(false);
@@ -138,7 +138,7 @@ describe('effective turn timing (#273)', () => {
     expect(timingProgress({ decision: 60 }, 61)).toContain('each round end');
     expect(timingProgress({}, 1)).toBe('Victory by objectives');
     const landing = map('landing');
-    expect(scenarioConditionDescription(landing, { type: 'survive', untilTurn: 41 }, 'blue')).toBe('Defend through the end of round 40 (deadline)');
+    expect(scenarioConditionDescription(landing, { type: 'survive', untilTurn: 41 }, 'blue')).toBe('Deadline reached (end of round 40)');
     expect(scenarioConditionDescription(landing, { type: 'survive', untilTurn: 41 }, 'red')).toBe('Survive to the start of round 41');
     expect(campaignTimingSummary(22, 50)).toContain('Recommended: 22 rounds (grading guide) / Deadline: end of round 50');
   });

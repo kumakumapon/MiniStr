@@ -144,9 +144,9 @@ describe('buildTitleOverlay', () => {
     const { screens, state } = openTitle();
     for (const locale of ['ja', 'en']) {
       setLocale(locale);
-      document.body.innerHTML = buildTitleOverlay(context(state, screens));
-      const decision = document.querySelector('[data-map-id="skirmish"] .title-map-facts')!.textContent!;
-      const deadline = document.querySelector('[data-map-id="landing"] .title-map-facts')!.textContent!;
+      const html = buildTitleOverlay(context(state, screens));
+      const decision = html.split('data-map-id="skirmish"')[1]!.split('</button>')[0]!;
+      const deadline = html.split('data-map-id="landing"')[1]!.split('</button>')[0]!;
       expect(decision).toContain(locale === 'en' ? 'Decision: from the end of round 60' : '判定：60ラウンド終了時から');
       expect(decision).not.toMatch(/No round limit|ターン制限なし/);
       expect(deadline).toContain(locale === 'en' ? 'Deadline: end of round 40' : '期限：40ラウンド終了');
