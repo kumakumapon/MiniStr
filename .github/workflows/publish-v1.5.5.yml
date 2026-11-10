@@ -98,7 +98,10 @@ jobs:
               && url.pathname.startsWith('/MiniStr/assets/') && url.pathname.endsWith('.js'));
             check(entries.length === 1, 'Could not identify the deployed entry bundle.');
             const code = await fetchText(entries[0].href);
-            check(code.includes(JSON.stringify('1.5.5')) && code.includes(JSON.stringify(TARGET)),
+            const identity = code.match(/\{\s*version\s*:\s*(["'\x60])([^"'\x60\r\n]+)\1\s*,\s*sha\s*:\s*(["'\x60])([a-f0-9]{40})\3\s*\}/);
+            console.log('Live Pages build: ' + JSON.stringify({ entry: entries[0].href,
+              version: identity?.[2] ?? null, sha: identity?.[4] ?? null, literalQuote: identity?.[1] ?? null }));
+            check(identity?.[2] === '1.5.5' && identity?.[4] === TARGET,
               'Live Pages version/SHA does not match the release target.');
             console.log('Verified live Pages v1.5.5 at ' + TARGET);
           }
