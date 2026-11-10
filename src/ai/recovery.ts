@@ -1,4 +1,5 @@
-import { isEvacuationTarget } from '../game/evacuation';
+import { evacuationObjectives, isEvacuationTarget } from '../game/evacuation';
+import { usesMissionSafety } from './missionSafety';
 import { affordableRepair, isGroundUnit, isServiceTile } from '../game/logistics';
 import { positionKey, samePosition, terrainAt } from '../game/terrain';
 import { isDeployedUnit, usesModernRules, type DeployedUnit, type GameState, type PlayerId, type Unit } from '../game/types';
@@ -22,7 +23,8 @@ export function defensiveServiceWait(state: GameState, player: PlayerId, knownEn
       unit.hp >= 50 ||
       !isServiceTile(state, unit.position, unit.kind, player) ||
       affordableRepair(unit.kind, 100 - unit.hp, state.players[player].gold + state.players[player].income) === 0 ||
-      isEvacuationTarget(state, unit.id, player) ||
+      (isEvacuationTarget(state, unit.id, player) &&
+        !(usesMissionSafety(state, unit) && evacuationObjectives(state, player).some((condition) => condition.type === 'escort' && condition.unitIds.includes(unit.id)))) ||
       state.units.some((ally) => ally.embarkedIn === unit.id)
     )
       continue;

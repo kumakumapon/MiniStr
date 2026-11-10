@@ -1,0 +1,64 @@
+{
+  "scenario": "convoy-escort",
+  "profile": "default",
+  "seed": 15422,
+  "red": "hard",
+  "blue": "easy",
+  "ruleVersion": 14,
+  "firstDifferentCommandZeroBased": 191,
+  "beforeCommand": {
+    "type": "move",
+    "unitId": "r1",
+    "destination": {
+      "x": 2,
+      "y": 5
+    }
+  },
+  "afterCommand": {
+    "type": "wait",
+    "unitId": "r1"
+  },
+  "beforeResult": {
+    "winner": "blue",
+    "turn": 16
+  },
+  "afterResult": {
+    "winner": "red",
+    "turn": 18,
+    "evacuatedUnits": [
+      {
+        "id": "r1",
+        "kind": "apc",
+        "owner": "red",
+        "position": {
+          "x": 11,
+          "y": 5
+        },
+        "hp": 50,
+        "fuel": 62,
+        "ammo": 5,
+        "hasMoved": true,
+        "hasActed": true,
+        "supplyStock": 235,
+        "experience": 7,
+        "logistics": {
+          "priority": false,
+          "resource": "ammo",
+          "repair": true
+        }
+      }
+    ]
+  },
+  "repairDecision": {
+    "turn": 9,
+    "unitId": "r1",
+    "position": {
+      "x": 0,
+      "y": 9
+    },
+    "hp": 35,
+    "nextRepairHP": 55,
+    "gold": 4500,
+    "income": 2000
+  }
+}

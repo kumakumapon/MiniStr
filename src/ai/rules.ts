@@ -1,5 +1,5 @@
 import { logisticsOrder, usesLogisticsOrders } from '../game/logisticsOrders';
-import { missionGuardsPending, missionSafeAt } from './missionSafety';
+import { missionGuardsPending, missionSafeAt, usesMissionSafety } from './missionSafety';
 import { clearMissionExit } from './missionLane';
 import { supplyRendezvous } from './supplyRendezvous';
 import { canLeaveRepairForFire, defensiveRepairRoute, defensiveServiceWait } from './recovery';
@@ -743,7 +743,8 @@ function moveAction(state: GameState, player: PlayerId, config: CpuDifficultyCon
     }
     // Repair and firing can share a turn. Only ordinary relocation waits for
     // recovery; keep attacks, mission orders and the existing unit order first.
-    const repair = config.coordinatedDefense && unit.hp < 50 ? defensiveServiceWait(state, player, context.visibleEnemies, unit.id) : undefined;
+    const repair = (config.coordinatedDefense || mission?.type === 'escort' && usesMissionSafety(state, unit)) && unit.hp < 50
+      ? defensiveServiceWait(state, player, context.visibleEnemies, unit.id) : undefined;
     if (repair && (!unitStats[unit.kind].indirect || !isGroundUnit(unit.kind) || unit.hp <= 35)) return repair;
     const openTargets = targets.filter(target => !state.units.some(ally => ally.owner === player && ally.id !== unit.id
       && isDeployedUnit(ally) && ally.position.x === target.x && ally.position.y === target.y));
