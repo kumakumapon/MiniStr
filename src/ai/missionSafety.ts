@@ -124,6 +124,13 @@ function exposure(state: GameState, unit: DeployedUnit, destination: Position, k
   return result;
 }
 
+/** Moving a lane blocker must neither sacrifice it nor materially increase its exposure. */
+export function missionLaneSafeAt(state: GameState, unit: DeployedUnit, destination: Position, known: readonly Unit[]): boolean {
+  const { risks, current } = exposure(state, unit, destination, known);
+  const risk = risks.get(positionKey(destination))!;
+  return risk < unit.hp && risk <= current + unit.hp / 10;
+}
+
 /** Avoid a material increase in exposure; preserve advances and exits otherwise. */
 export function missionSafeAt(state: GameState, unit: DeployedUnit, destination: Position, known: readonly Unit[]): boolean {
   if (!usesMissionSafety(state, unit) || samePosition(unit.position, destination)) return true;
