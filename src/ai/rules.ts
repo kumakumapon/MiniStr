@@ -1,5 +1,6 @@
 import { logisticsOrder, usesLogisticsOrders } from '../game/logisticsOrders';
 import { missionGuardsPending, missionSafeAt } from './missionSafety';
+import { clearMissionExit } from './missionLane';
 import { supplyRendezvous } from './supplyRendezvous';
 import { canLeaveRepairForFire, defensiveRepairRoute, defensiveServiceWait } from './recovery';
 import { defensiveHoldRelief } from './holdRelief';
@@ -1015,6 +1016,8 @@ function chooseOrientedCpuAction(state: GameState, difficulty: CpuDifficulty, pl
   const scan = chooseReconCenter(state, player);
   if (scan) return { type: 'recon', center: scan };
   const context = createCpuPlanningContext(state, player, config);
+  const missionExit = clearMissionExit(state, player, context.visibleEnemies);
+  if (missionExit) return missionExit;
   const crossing = chooseBridgeAction(state, player, context.targets, context.visibleEnemies);
   if (crossing) return crossing;
   const clearance = clearBridgeLane(state, player, context.targets, context.visibleEnemies);

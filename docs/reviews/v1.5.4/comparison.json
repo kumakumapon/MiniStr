@@ -1,0 +1,126 @@
+{
+  "catalog": {
+    "conditions": 52,
+    "identicalHistories": 51,
+    "beforeWins": 46,
+    "afterWins": 46,
+    "newLosses": [],
+    "changed": [
+      {
+        "key": "convoy-escort/default/hard:easy/authored/outbound",
+        "before": {
+          "winner": "red",
+          "turn": 7
+        },
+        "after": {
+          "winner": "red",
+          "turn": 7
+        }
+      }
+    ],
+    "sourceBefore": "022fb15459267dd3e3804c879ed778e4bd8127ae12a604b393fd2ac6a391e4fd",
+    "sourceAfter": "c031be2283eccca70e7f98c4308443422ddeb2821e44b62c2566018f4844f69c",
+    "harness": "22d7a27228f8e2570c5e5e7943cac79968eb3f316bcac906ca5ac2dedec30254"
+  },
+  "confirm": {
+    "conditions": 32,
+    "identicalHistories": 29,
+    "beforeWins": 25,
+    "afterWins": 26,
+    "newLosses": [],
+    "changed": [
+      {
+        "key": "convoy-escort/default/normal:easy/15411/outbound",
+        "before": {
+          "winner": "blue",
+          "turn": 61
+        },
+        "after": {
+          "winner": "red",
+          "turn": 8
+        }
+      },
+      {
+        "key": "convoy-escort/default/normal:easy/15412/outbound",
+        "before": {
+          "winner": "red",
+          "turn": 17
+        },
+        "after": {
+          "winner": "red",
+          "turn": 12
+        }
+      },
+      {
+        "key": "convoy-escort/default/hard:easy/15412/outbound",
+        "before": {
+          "winner": "red",
+          "turn": 16
+        },
+        "after": {
+          "winner": "red",
+          "turn": 13
+        }
+      }
+    ],
+    "sourceBefore": "022fb15459267dd3e3804c879ed778e4bd8127ae12a604b393fd2ac6a391e4fd",
+    "sourceAfter": "c031be2283eccca70e7f98c4308443422ddeb2821e44b62c2566018f4844f69c",
+    "harness": "22d7a27228f8e2570c5e5e7943cac79968eb3f316bcac906ca5ac2dedec30254"
+  },
+  "fresh": {
+    "conditions": 32,
+    "identicalHistories": 28,
+    "beforeWins": 28,
+    "afterWins": 29,
+    "newLosses": [],
+    "changed": [
+      {
+        "key": "convoy-escort/default/normal:easy/15421/outbound",
+        "before": {
+          "winner": "blue",
+          "turn": 61
+        },
+        "after": {
+          "winner": "red",
+          "turn": 29
+        }
+      },
+      {
+        "key": "convoy-escort/default/normal:easy/15422/outbound",
+        "before": {
+          "winner": "red",
+          "turn": 17
+        },
+        "after": {
+          "winner": "red",
+          "turn": 8
+        }
+      },
+      {
+        "key": "convoy-escort/default/hard:easy/15422/outbound",
+        "before": {
+          "winner": "blue",
+          "turn": 61
+        },
+        "after": {
+          "winner": "blue",
+          "turn": 16
+        }
+      },
+      {
+        "key": "convoy-escort/default/normal:normal/15422/outbound",
+        "before": {
+          "winner": "red",
+          "turn": 10
+        },
+        "after": {
+          "winner": "red",
+          "turn": 9
+        }
+      }
+    ],
+    "sourceBefore": "022fb15459267dd3e3804c879ed778e4bd8127ae12a604b393fd2ac6a391e4fd",
+    "sourceAfter": "c031be2283eccca70e7f98c4308443422ddeb2821e44b62c2566018f4844f69c",
+    "harness": "7448d02406214217ac7fd507cd25aa8411f6652351978f24e6ac00596a8d291a"
+  }
+}
