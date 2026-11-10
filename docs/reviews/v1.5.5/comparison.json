@@ -1,0 +1,2330 @@
+{
+  "baseline": "0f016e46bdff2e896f3592b4c4784efe8dd10386",
+  "phases": {
+    "catalog": {
+      "beforeHeader": {
+        "format": "cpu-escort-v155-v1",
+        "stage": "before",
+        "phase": "catalog",
+        "source": "c031be2283eccca70e7f98c4308443422ddeb2821e44b62c2566018f4844f69c",
+        "script": "5539b9c8246ebabae4d9adfc333add5dcd24c2c6598cdf6dad27515a3b3b7b57",
+        "node": "v24.19.0",
+        "roundLimit": 120,
+        "commandLimit": 15000,
+        "secondsLimit": 120,
+        "seedPolicy": "known=15241/15411/15412/15422; confirmation=fresh15511/15512; balance=known15101/15221. Freeze source before opening confirmation results.",
+        "note": "Mission games are asymmetric red objectives, not first/second win-rate samples. Balance return legs exchange armies/goals and are correlated; no independent win-rate claim."
+      },
+      "afterHeader": {
+        "format": "cpu-escort-v155-v1",
+        "stage": "after",
+        "phase": "catalog",
+        "source": "5b4ddb2a1ad856eaa70948c46be6e4a7325d5a65d18a3820275a2bb2e324f639",
+        "script": "5539b9c8246ebabae4d9adfc333add5dcd24c2c6598cdf6dad27515a3b3b7b57",
+        "node": "v24.19.0",
+        "roundLimit": 120,
+        "commandLimit": 15000,
+        "secondsLimit": 120,
+        "seedPolicy": "known=15241/15411/15412/15422; confirmation=fresh15511/15512; balance=known15101/15221. Freeze source before opening confirmation results.",
+        "note": "Mission games are asymmetric red objectives, not first/second win-rate samples. Balance return legs exchange armies/goals and are correlated; no independent win-rate claim."
+      },
+      "conditions": 52,
+      "beforeRedWins": 46,
+      "afterRedWins": 46,
+      "identicalCommands": 52,
+      "lostPriorWins": 0,
+      "results": [
+        {
+          "key": "skirmish/off/hard:easy/authored/outbound",
+          "before": {
+            "winner": "red",
+            "turns": 61,
+            "digest": "1971a19beddbfdb3fdb2e5172962536c2bc42eff59036a2728042e9b69aac364"
+          },
+          "after": {
+            "winner": "red",
+            "turns": 61,
+            "digest": "1971a19beddbfdb3fdb2e5172962536c2bc42eff59036a2728042e9b69aac364"
+          },
+          "identicalCommands": true,
+          "lostPriorWin": false
+        },
+        {
+          "key": "skirmish/default/hard:easy/authored/outbound",
+          "before": {
+            "winner": "red",
+            "turns": 55,
+            "digest": "dfd4220383e54b187d0af66261199004f356d39d1227d26eb5b62848b5f315a9"
+          },
+          "after": {
+            "winner": "red",
+            "turns": 55,
+            "digest": "dfd4220383e54b187d0af66261199004f356d39d1227d26eb5b62848b5f315a9"
+          },
+          "identicalCommands": true,
+          "lostPriorWin": false
+        },
+        {
+          "key": "islands/off/hard:easy/authored/outbound",
+          "before": {
+            "winner": "red",
+            "turns": 29,
+            "digest": "7cbb279058a730f284097c884cd0975641df91a66e5621a71634d488627cec15"
+          },
+          "after": {
+            "winner": "red",
+            "turns": 29,
+            "digest": "7cbb279058a730f284097c884cd0975641df91a66e5621a71634d488627cec15"
+          },
+          "identicalCommands": true,
+          "lostPriorWin": false
+        },
+        {
+          "key": "islands/default/hard:easy/authored/outbound",
+          "before": {
+            "winner": "red",
+            "turns": 53,
+            "digest": "21d0b12d6adf3b0623dba27133e715dd0fcfb1488138e088f47e7416f8b154bd"
+          },
+          "after": {
+            "winner": "red",
+            "turns": 53,
+            "digest": "21d0b12d6adf3b0623dba27133e715dd0fcfb1488138e088f47e7416f8b154bd"
+          },
+          "identicalCommands": true,
+          "lostPriorWin": false
+        },
+        {
+          "key": "landing/off/hard:easy/authored/outbound",
+          "before": {
+            "winner": "blue",
+            "turns": 41,
+            "digest": "352d3a76562dea09d92ea727363d2ad3f90d4dfb4e2b3ea0a39f1bf8753a7358"
+          },
+          "after": {
+            "winner": "blue",
+            "turns": 41,
+            "digest": "352d3a76562dea09d92ea727363d2ad3f90d4dfb4e2b3ea0a39f1bf8753a7358"
+          },
+          "identicalCommands": true,
+          "lostPriorWin": false
+        },
+        {
+          "key": "landing/default/hard:easy/authored/outbound",
+          "before": {
+            "winner": "blue",
+            "turns": 41,
+            "digest": "23160f7394e172e8ef6b7e3158a5cb928f145a36afff82699b39ee33b81fc2c4"
+          },
+          "after": {
+            "winner": "blue",
+            "turns": 41,
+            "digest": "23160f7394e172e8ef6b7e3158a5cb928f145a36afff82699b39ee33b81fc2c4"
+          },
+          "identicalCommands": true,
+          "lostPriorWin": false
+        },
+        {
+          "key": "canyon/off/hard:easy/authored/outbound",
+          "before": {
+            "winner": "red",
+            "turns": 61,
+            "digest": "a3f600c7820feaeede0063e571178391896c048bde14d7510711782ceaf1f04e"
+          },
+          "after": {
+            "winner": "red",
+            "turns": 61,
+            "digest": "a3f600c7820feaeede0063e571178391896c048bde14d7510711782ceaf1f04e"
+          },
+          "identicalCommands": true,
+          "lostPriorWin": false
+        },
+        {
+          "key": "canyon/default/hard:easy/authored/outbound",
+          "before": {
+            "winner": "red",
+            "turns": 61,
+            "digest": "8c39821c8487708949840f2a04492b40e9e634deadd70ac3ffd806e82e167a6e"
+          },
+          "after": {
+            "winner": "red",
+            "turns": 61,
+            "digest": "8c39821c8487708949840f2a04492b40e9e634deadd70ac3ffd806e82e167a6e"
+          },
+          "identicalCommands": true,
+          "lostPriorWin": false
+        },
+        {
+          "key": "siege/off/hard:easy/authored/outbound",
+          "before": {
+            "winner": "red",
+            "turns": 50,
+            "digest": "00d4891d2e2caf2df8be4b8919100b653b9aa54e2f87db02bc1d565f34d148d2"
+          },
+          "after": {
+            "winner": "red",
+            "turns": 50,
+            "digest": "00d4891d2e2caf2df8be4b8919100b653b9aa54e2f87db02bc1d565f34d148d2"
+          },
+          "identicalCommands": true,
+          "lostPriorWin": false
+        },
+        {
+          "key": "siege/default/hard:easy/authored/outbound",
+          "before": {
+            "winner": "red",
+            "turns": 45,
+            "digest": "05928d68b834a256959906266772d0c06b91dd0750233767b33d060e7a4ddeaa"
+          },
+          "after": {
+            "winner": "red",
+            "turns": 45,
+            "digest": "05928d68b834a256959906266772d0c06b91dd0750233767b33d060e7a4ddeaa"
+          },
+          "identicalCommands": true,
+          "lostPriorWin": false
+        },
+        {
+          "key": "river/off/hard:easy/authored/outbound",
+          "before": {
+            "winner": "red",
+            "turns": 31,
+            "digest": "ccc8e3f6ef5ac022d9c538882d0c59228d6541446b086675efef3fdec052b675"
+          },
+          "after": {
+            "winner": "red",
+            "turns": 31,
+            "digest": "ccc8e3f6ef5ac022d9c538882d0c59228d6541446b086675efef3fdec052b675"
+          },
+          "identicalCommands": true,
+          "lostPriorWin": false
+        },
+        {
+          "key": "river/default/hard:easy/authored/outbound",
+          "before": {
+            "winner": "red",
+            "turns": 38,
+            "digest": "a175311bc3b3e29338e9780249bbbe45c7d2e1b3d34625953ba2a47b3372ab73"
+          },
+          "after": {
+            "winner": "red",
+            "turns": 38,
+            "digest": "a175311bc3b3e29338e9780249bbbe45c7d2e1b3d34625953ba2a47b3372ab73"
+          },
+          "identicalCommands": true,
+          "lostPriorWin": false
+        },
+        {
+          "key": "industrial/off/hard:easy/authored/outbound",
+          "before": {
+            "winner": "blue",
+            "turns": 15,
+            "digest": "b43dc3eaca4df1d8ebc2d7e78b0bcd95be4a7e1cf773aecc82b5993a664f1895"
+          },
+          "after": {
+            "winner": "blue",
+            "turns": 15,
+            "digest": "b43dc3eaca4df1d8ebc2d7e78b0bcd95be4a7e1cf773aecc82b5993a664f1895"
+          },
+          "identicalCommands": true,
+          "lostPriorWin": false
+        },
+        {
+          "key": "industrial/default/hard:easy/authored/outbound",
+          "before": {
+            "winner": "blue",
+            "turns": 15,
+            "digest": "ee940e2d0b672e7956dca0b9f50ace9e43bb30ae50ca9c9db2aeaf4d1da0ef89"
+          },
+          "after": {
+            "winner": "blue",
+            "turns": 15,
+            "digest": "ee940e2d0b672e7956dca0b9f50ace9e43bb30ae50ca9c9db2aeaf4d1da0ef89"
+          },
+          "identicalCommands": true,
+          "lostPriorWin": false
+        },
+        {
+          "key": "tundra/off/hard:easy/authored/outbound",
+          "before": {
+            "winner": "red",
+            "turns": 20,
+            "digest": "67045a642820e29d388a9618ce7443c6da4591d8f4273c9a540abc9fa7e31e34"
+          },
+          "after": {
+            "winner": "red",
+            "turns": 20,
+            "digest": "67045a642820e29d388a9618ce7443c6da4591d8f4273c9a540abc9fa7e31e34"
+          },
+          "identicalCommands": true,
+          "lostPriorWin": false
+        },
+        {
+          "key": "tundra/default/hard:easy/authored/outbound",
+          "before": {
+            "winner": "red",
+            "turns": 20,
+            "digest": "8bc34829d74bdc9900059e5b2bfdee95ee5435ae98c37cd2e122b3c64a768206"
+          },
+          "after": {
+            "winner": "red",
+            "turns": 20,
+            "digest": "8bc34829d74bdc9900059e5b2bfdee95ee5435ae98c37cd2e122b3c64a768206"
+          },
+          "identicalCommands": true,
+          "lostPriorWin": false
+        },
+        {
+          "key": "outpost/off/hard:easy/authored/outbound",
+          "before": {
+            "winner": "blue",
+            "turns": 40,
+            "digest": "0d2660379ab2535e18df0b4b57fd1bd2fe9381896fa3cf572f8633fc19906ea7"
+          },
+          "after": {
+            "winner": "blue",
+            "turns": 40,
+            "digest": "0d2660379ab2535e18df0b4b57fd1bd2fe9381896fa3cf572f8633fc19906ea7"
+          },
+          "identicalCommands": true,
+          "lostPriorWin": false
+        },
+        {
+          "key": "outpost/default/hard:easy/authored/outbound",
+          "before": {
+            "winner": "red",
+            "turns": 38,
+            "digest": "640b86643bb10e4238347e80bdba6f1742b53de775d9aca8c61ee552a9dc9546"
+          },
+          "after": {
+            "winner": "red",
+            "turns": 38,
+            "digest": "640b86643bb10e4238347e80bdba6f1742b53de775d9aca8c61ee552a9dc9546"
+          },
+          "identicalCommands": true,
+          "lostPriorWin": false
+        },
+        {
+          "key": "marsh/off/hard:easy/authored/outbound",
+          "before": {
+            "winner": "blue",
+            "turns": 61,
+            "digest": "7c1462286778b58b236a0f7ee53841cbeab7eec6c252ed3f81f185bb659c0c36"
+          },
+          "after": {
+            "winner": "blue",
+            "turns": 61,
+            "digest": "7c1462286778b58b236a0f7ee53841cbeab7eec6c252ed3f81f185bb659c0c36"
+          },
+          "identicalCommands": true,
+          "lostPriorWin": false
+        },
+        {
+          "key": "marsh/default/hard:easy/authored/outbound",
+          "before": {
+            "winner": "red",
+            "turns": 61,
+            "digest": "08b9134a23f8dd07a945adab03482d4f38a892fbd47cd8961071b356cc4a48ea"
+          },
+          "after": {
+            "winner": "red",
+            "turns": 61,
+            "digest": "08b9134a23f8dd07a945adab03482d4f38a892fbd47cd8961071b356cc4a48ea"
+          },
+          "identicalCommands": true,
+          "lostPriorWin": false
+        },
+        {
+          "key": "admiralty/off/hard:easy/authored/outbound",
+          "before": {
+            "winner": "red",
+            "turns": 43,
+            "digest": "09cffd726a42c629d9ce07cf33c5ea4af409087af2cd3e3b2350232bc7f611b6"
+          },
+          "after": {
+            "winner": "red",
+            "turns": 43,
+            "digest": "09cffd726a42c629d9ce07cf33c5ea4af409087af2cd3e3b2350232bc7f611b6"
+          },
+          "identicalCommands": true,
+          "lostPriorWin": false
+        },
+        {
+          "key": "admiralty/default/hard:easy/authored/outbound",
+          "before": {
+            "winner": "red",
+            "turns": 32,
+            "digest": "98c0e487bc1892613089196e9148a576b5d2eb992261de5b49c2fa1c7ddde046"
+          },
+          "after": {
+            "winner": "red",
+            "turns": 32,
+            "digest": "98c0e487bc1892613089196e9148a576b5d2eb992261de5b49c2fa1c7ddde046"
+          },
+          "identicalCommands": true,
+          "lostPriorWin": false
+        },
+        {
+          "key": "convoy-escort/off/hard:easy/authored/outbound",
+          "before": {
+            "winner": "red",
+            "turns": 5,
+            "digest": "b73c14f173503e379bb79974ada0579b5c3da02d96c33d989acdd83db47b7140"
+          },
+          "after": {
+            "winner": "red",
+            "turns": 5,
+            "digest": "b73c14f173503e379bb79974ada0579b5c3da02d96c33d989acdd83db47b7140"
+          },
+          "identicalCommands": true,
+          "lostPriorWin": false
+        },
+        {
+          "key": "convoy-escort/default/hard:easy/authored/outbound",
+          "before": {
+            "winner": "red",
+            "turns": 7,
+            "digest": "9e16a9c05b887a7922e1b9add64a5290ef097517d27ba8e77fbe6017f168752b"
+          },
+          "after": {
+            "winner": "red",
+            "turns": 7,
+            "digest": "9e16a9c05b887a7922e1b9add64a5290ef097517d27ba8e77fbe6017f168752b"
+          },
+          "identicalCommands": true,
+          "lostPriorWin": false
+        },
+        {
+          "key": "fighting-withdrawal/off/hard:easy/authored/outbound",
+          "before": {
+            "winner": "red",
+            "turns": 5,
+            "digest": "74d58b60e1f5b3585037d5fc82146fe823a3c58810cd1dac5dd9b1e06ae503b5"
+          },
+          "after": {
+            "winner": "red",
+            "turns": 5,
+            "digest": "74d58b60e1f5b3585037d5fc82146fe823a3c58810cd1dac5dd9b1e06ae503b5"
+          },
+          "identicalCommands": true,
+          "lostPriorWin": false
+        },
+        {
+          "key": "fighting-withdrawal/default/hard:easy/authored/outbound",
+          "before": {
+            "winner": "red",
+            "turns": 5,
+            "digest": "ca62eef62b4362f1d22644cb7074ac424f104f9cf1415a1651d6f75bcb4e4c6b"
+          },
+          "after": {
+            "winner": "red",
+            "turns": 5,
+            "digest": "ca62eef62b4362f1d22644cb7074ac424f104f9cf1415a1651d6f75bcb4e4c6b"
+          },
+          "identicalCommands": true,
+          "lostPriorWin": false
+        },
+        {
+          "key": "harbor-seizure/off/hard:easy/authored/outbound",
+          "before": {
+            "winner": "red",
+            "turns": 7,
+            "digest": "45f1811300bb6eefe8d1fa76757f86517b0af84c0d184c5eb04af38cf1b51c9a"
+          },
+          "after": {
+            "winner": "red",
+            "turns": 7,
+            "digest": "45f1811300bb6eefe8d1fa76757f86517b0af84c0d184c5eb04af38cf1b51c9a"
+          },
+          "identicalCommands": true,
+          "lostPriorWin": false
+        },
+        {
+          "key": "harbor-seizure/default/hard:easy/authored/outbound",
+          "before": {
+            "winner": "red",
+            "turns": 4,
+            "digest": "9b34a994f90ce3cd7072b4bd8c0625a36d565077e1f093bccb826dbb1fa30f4b"
+          },
+          "after": {
+            "winner": "red",
+            "turns": 4,
+            "digest": "9b34a994f90ce3cd7072b4bd8c0625a36d565077e1f093bccb826dbb1fa30f4b"
+          },
+          "identicalCommands": true,
+          "lostPriorWin": false
+        },
+        {
+          "key": "frontier-defense/off/hard:easy/authored/outbound",
+          "before": {
+            "winner": "red",
+            "turns": 5,
+            "digest": "b9bc94897c370c05be26a0570f2768ee2f1b1d392ec68ae19621624442aa2fed"
+          },
+          "after": {
+            "winner": "red",
+            "turns": 5,
+            "digest": "b9bc94897c370c05be26a0570f2768ee2f1b1d392ec68ae19621624442aa2fed"
+          },
+          "identicalCommands": true,
+          "lostPriorWin": false
+        },
+        {
+          "key": "frontier-defense/default/hard:easy/authored/outbound",
+          "before": {
+            "winner": "red",
+            "turns": 5,
+            "digest": "03631d6a5f3252ae98f36885793af9ec4b1730e266481df45f005d8818e53d41"
+          },
+          "after": {
+            "winner": "red",
+            "turns": 5,
+            "digest": "03631d6a5f3252ae98f36885793af9ec4b1730e266481df45f005d8818e53d41"
+          },
+          "identicalCommands": true,
+          "lostPriorWin": false
+        },
+        {
+          "key": "encirclement-breakout/off/hard:easy/authored/outbound",
+          "before": {
+            "winner": "red",
+            "turns": 3,
+            "digest": "c4963469c82a951a10380e7df9865b9a6e67fc0ec652b48f8069150def1aae43"
+          },
+          "after": {
+            "winner": "red",
+            "turns": 3,
+            "digest": "c4963469c82a951a10380e7df9865b9a6e67fc0ec652b48f8069150def1aae43"
+          },
+          "identicalCommands": true,
+          "lostPriorWin": false
+        },
+        {
+          "key": "encirclement-breakout/default/hard:easy/authored/outbound",
+          "before": {
+            "winner": "red",
+            "turns": 3,
+            "digest": "0b0fb83b4fd53bca2d31045d5e60a5360e31c1a1f5d29da3b01081db36030ab1"
+          },
+          "after": {
+            "winner": "red",
+            "turns": 3,
+            "digest": "0b0fb83b4fd53bca2d31045d5e60a5360e31c1a1f5d29da3b01081db36030ab1"
+          },
+          "identicalCommands": true,
+          "lostPriorWin": false
+        },
+        {
+          "key": "control-crossroads/off/hard:easy/authored/outbound",
+          "before": {
+            "winner": "red",
+            "turns": 14,
+            "digest": "a062e80924164290bb2761405ab67651aa0c160ef0b3c38499c8948060449c77"
+          },
+          "after": {
+            "winner": "red",
+            "turns": 14,
+            "digest": "a062e80924164290bb2761405ab67651aa0c160ef0b3c38499c8948060449c77"
+          },
+          "identicalCommands": true,
+          "lostPriorWin": false
+        },
+        {
+          "key": "control-crossroads/default/hard:easy/authored/outbound",
+          "before": {
+            "winner": "red",
+            "turns": 14,
+            "digest": "55d7c81b334aa3e3180df75ffe7f06d3991f3758d2a05dd9ad65e48cf2c3d30b"
+          },
+          "after": {
+            "winner": "red",
+            "turns": 14,
+            "digest": "55d7c81b334aa3e3180df75ffe7f06d3991f3758d2a05dd9ad65e48cf2c3d30b"
+          },
+          "identicalCommands": true,
+          "lostPriorWin": false
+        },
+        {
+          "key": "control-coast/off/hard:easy/authored/outbound",
+          "before": {
+            "winner": "red",
+            "turns": 12,
+            "digest": "928e006513bc96a082cf13bceac3e062791e938d8dc4e7a23b2aebe15a39f0a2"
+          },
+          "after": {
+            "winner": "red",
+            "turns": 12,
+            "digest": "928e006513bc96a082cf13bceac3e062791e938d8dc4e7a23b2aebe15a39f0a2"
+          },
+          "identicalCommands": true,
+          "lostPriorWin": false
+        },
+        {
+          "key": "control-coast/default/hard:easy/authored/outbound",
+          "before": {
+            "winner": "red",
+            "turns": 14,
+            "digest": "293d23d2f627c3a7afefcf4c341c144a6cff89d1282585a077a86a1e839be44c"
+          },
+          "after": {
+            "winner": "red",
+            "turns": 14,
+            "digest": "293d23d2f627c3a7afefcf4c341c144a6cff89d1282585a077a86a1e839be44c"
+          },
+          "identicalCommands": true,
+          "lostPriorWin": false
+        },
+        {
+          "key": "supply-contest/off/hard:easy/authored/outbound",
+          "before": {
+            "winner": "red",
+            "turns": 15,
+            "digest": "d9d578480c66fd7ba7bc6c3d68aa5a93ed6bc122183796a715ea4779088c79ac"
+          },
+          "after": {
+            "winner": "red",
+            "turns": 15,
+            "digest": "d9d578480c66fd7ba7bc6c3d68aa5a93ed6bc122183796a715ea4779088c79ac"
+          },
+          "identicalCommands": true,
+          "lostPriorWin": false
+        },
+        {
+          "key": "supply-contest/default/hard:easy/authored/outbound",
+          "before": {
+            "winner": "red",
+            "turns": 16,
+            "digest": "daa37f880a9b8f21c79b12fe37405698fcee280fd5792c77b644f784aef8a1ac"
+          },
+          "after": {
+            "winner": "red",
+            "turns": 16,
+            "digest": "daa37f880a9b8f21c79b12fe37405698fcee280fd5792c77b644f784aef8a1ac"
+          },
+          "identicalCommands": true,
+          "lostPriorWin": false
+        },
+        {
+          "key": "supply-ridge/off/hard:easy/authored/outbound",
+          "before": {
+            "winner": "red",
+            "turns": 8,
+            "digest": "1eca232f7b3153b23f9e2e453fe44268040758eb995b85da9a1da05aee8cec86"
+          },
+          "after": {
+            "winner": "red",
+            "turns": 8,
+            "digest": "1eca232f7b3153b23f9e2e453fe44268040758eb995b85da9a1da05aee8cec86"
+          },
+          "identicalCommands": true,
+          "lostPriorWin": false
+        },
+        {
+          "key": "supply-ridge/default/hard:easy/authored/outbound",
+          "before": {
+            "winner": "red",
+            "turns": 8,
+            "digest": "dbc2a2aab1bacaf63d6b0989f46eff478c7250b7bd3aa17232ce08828a341db7"
+          },
+          "after": {
+            "winner": "red",
+            "turns": 8,
+            "digest": "dbc2a2aab1bacaf63d6b0989f46eff478c7250b7bd3aa17232ce08828a341db7"
+          },
+          "identicalCommands": true,
+          "lostPriorWin": false
+        },
+        {
+          "key": "bridgehead/off/hard:easy/authored/outbound",
+          "before": {
+            "winner": "red",
+            "turns": 11,
+            "digest": "b0c66903815e66150e234af0a030e5d1e7eea7408864c52b32ac7c03a8f89647"
+          },
+          "after": {
+            "winner": "red",
+            "turns": 11,
+            "digest": "b0c66903815e66150e234af0a030e5d1e7eea7408864c52b32ac7c03a8f89647"
+          },
+          "identicalCommands": true,
+          "lostPriorWin": false
+        },
+        {
+          "key": "bridgehead/default/hard:easy/authored/outbound",
+          "before": {
+            "winner": "red",
+            "turns": 27,
+            "digest": "7f5027dca79843389e764ddb3a9ab2583cd382fc791a3f39fa90145bb51d9412"
+          },
+          "after": {
+            "winner": "red",
+            "turns": 27,
+            "digest": "7f5027dca79843389e764ddb3a9ab2583cd382fc791a3f39fa90145bb51d9412"
+          },
+          "identicalCommands": true,
+          "lostPriorWin": false
+        },
+        {
+          "key": "river-withdrawal/off/hard:easy/authored/outbound",
+          "before": {
+            "winner": "red",
+            "turns": 5,
+            "digest": "98d00ad3146e9d46c23613dacaad571ead0c9deebb34eec4c1f1e7da3b055497"
+          },
+          "after": {
+            "winner": "red",
+            "turns": 5,
+            "digest": "98d00ad3146e9d46c23613dacaad571ead0c9deebb34eec4c1f1e7da3b055497"
+          },
+          "identicalCommands": true,
+          "lostPriorWin": false
+        },
+        {
+          "key": "river-withdrawal/default/hard:easy/authored/outbound",
+          "before": {
+            "winner": "red",
+            "turns": 3,
+            "digest": "c20933b4cd3553a30bc52c553eda63c41328de19ea97899c4ad3dabf4f4362f2"
+          },
+          "after": {
+            "winner": "red",
+            "turns": 3,
+            "digest": "c20933b4cd3553a30bc52c553eda63c41328de19ea97899c4ad3dabf4f4362f2"
+          },
+          "identicalCommands": true,
+          "lostPriorWin": false
+        },
+        {
+          "key": "wide-front/off/hard:easy/authored/outbound",
+          "before": {
+            "winner": "red",
+            "turns": 15,
+            "digest": "a73b5bd5b6e7e9844bc9c9c576042b162651a470a61fdd15f92675859cf04604"
+          },
+          "after": {
+            "winner": "red",
+            "turns": 15,
+            "digest": "a73b5bd5b6e7e9844bc9c9c576042b162651a470a61fdd15f92675859cf04604"
+          },
+          "identicalCommands": true,
+          "lostPriorWin": false
+        },
+        {
+          "key": "wide-front/default/hard:easy/authored/outbound",
+          "before": {
+            "winner": "red",
+            "turns": 15,
+            "digest": "c22cc2f6f05892b5062dfa69d11ca203da052dd673889874388c5ee0179e9101"
+          },
+          "after": {
+            "winner": "red",
+            "turns": 15,
+            "digest": "c22cc2f6f05892b5062dfa69d11ca203da052dd673889874388c5ee0179e9101"
+          },
+          "identicalCommands": true,
+          "lostPriorWin": false
+        },
+        {
+          "key": "tactics-logistics/off/hard:easy/authored/outbound",
+          "before": {
+            "winner": "red",
+            "turns": 7,
+            "digest": "6894da711b51f961e6dcaad24f4285fced8ee2561445f74e025711576a3dd8a2"
+          },
+          "after": {
+            "winner": "red",
+            "turns": 7,
+            "digest": "6894da711b51f961e6dcaad24f4285fced8ee2561445f74e025711576a3dd8a2"
+          },
+          "identicalCommands": true,
+          "lostPriorWin": false
+        },
+        {
+          "key": "tactics-logistics/default/hard:easy/authored/outbound",
+          "before": {
+            "winner": "red",
+            "turns": 5,
+            "digest": "de72a19e388e6d4bb5cf071b77c9054ad8c6c1bc987942cab302d87203e98653"
+          },
+          "after": {
+            "winner": "red",
+            "turns": 5,
+            "digest": "de72a19e388e6d4bb5cf071b77c9054ad8c6c1bc987942cab302d87203e98653"
+          },
+          "identicalCommands": true,
+          "lostPriorWin": false
+        },
+        {
+          "key": "tactics-supply/off/hard:easy/authored/outbound",
+          "before": {
+            "winner": "red",
+            "turns": 4,
+            "digest": "5b84054ac2925b8d3419a91609bca5f5131be640407d8110fdf66fa840450a33"
+          },
+          "after": {
+            "winner": "red",
+            "turns": 4,
+            "digest": "5b84054ac2925b8d3419a91609bca5f5131be640407d8110fdf66fa840450a33"
+          },
+          "identicalCommands": true,
+          "lostPriorWin": false
+        },
+        {
+          "key": "tactics-supply/default/hard:easy/authored/outbound",
+          "before": {
+            "winner": "red",
+            "turns": 4,
+            "digest": "9ce7b8542823e1d346f0a876fcd7a1b16cd1661d5a5c6a33970e7eb0c3d8f4f2"
+          },
+          "after": {
+            "winner": "red",
+            "turns": 4,
+            "digest": "9ce7b8542823e1d346f0a876fcd7a1b16cd1661d5a5c6a33970e7eb0c3d8f4f2"
+          },
+          "identicalCommands": true,
+          "lostPriorWin": false
+        },
+        {
+          "key": "tactics-crossing/off/hard:easy/authored/outbound",
+          "before": {
+            "winner": "red",
+            "turns": 19,
+            "digest": "5e58aeba168f07787dd27cf534f62f9fd3552892162c05241ffdab9e37518091"
+          },
+          "after": {
+            "winner": "red",
+            "turns": 19,
+            "digest": "5e58aeba168f07787dd27cf534f62f9fd3552892162c05241ffdab9e37518091"
+          },
+          "identicalCommands": true,
+          "lostPriorWin": false
+        },
+        {
+          "key": "tactics-crossing/default/hard:easy/authored/outbound",
+          "before": {
+            "winner": "red",
+            "turns": 9,
+            "digest": "89dfe8d3fe9fe751c95ed2365c1753161363a5869f892988337dc508fcfa2c2c"
+          },
+          "after": {
+            "winner": "red",
+            "turns": 9,
+            "digest": "89dfe8d3fe9fe751c95ed2365c1753161363a5869f892988337dc508fcfa2c2c"
+          },
+          "identicalCommands": true,
+          "lostPriorWin": false
+        }
+      ]
+    },
+    "known": {
+      "beforeHeader": {
+        "format": "cpu-escort-v155-v1",
+        "stage": "before",
+        "phase": "known",
+        "source": "c031be2283eccca70e7f98c4308443422ddeb2821e44b62c2566018f4844f69c",
+        "script": "5539b9c8246ebabae4d9adfc333add5dcd24c2c6598cdf6dad27515a3b3b7b57",
+        "node": "v24.19.0",
+        "roundLimit": 120,
+        "commandLimit": 15000,
+        "secondsLimit": 120,
+        "seedPolicy": "known=15241/15411/15412/15422; confirmation=fresh15511/15512; balance=known15101/15221. Freeze source before opening confirmation results.",
+        "note": "Mission games are asymmetric red objectives, not first/second win-rate samples. Balance return legs exchange armies/goals and are correlated; no independent win-rate claim."
+      },
+      "afterHeader": {
+        "format": "cpu-escort-v155-v1",
+        "stage": "after",
+        "phase": "known",
+        "source": "5b4ddb2a1ad856eaa70948c46be6e4a7325d5a65d18a3820275a2bb2e324f639",
+        "script": "5539b9c8246ebabae4d9adfc333add5dcd24c2c6598cdf6dad27515a3b3b7b57",
+        "node": "v24.19.0",
+        "roundLimit": 120,
+        "commandLimit": 15000,
+        "secondsLimit": 120,
+        "seedPolicy": "known=15241/15411/15412/15422; confirmation=fresh15511/15512; balance=known15101/15221. Freeze source before opening confirmation results.",
+        "note": "Mission games are asymmetric red objectives, not first/second win-rate samples. Balance return legs exchange armies/goals and are correlated; no independent win-rate claim."
+      },
+      "conditions": 64,
+      "beforeRedWins": 54,
+      "afterRedWins": 55,
+      "identicalCommands": 63,
+      "lostPriorWins": 0,
+      "results": [
+        {
+          "key": "convoy-escort/default/normal:easy/15241/outbound",
+          "before": {
+            "winner": "blue",
+            "turns": 14,
+            "digest": "47fd82aba1ca1f57df4554f295ce873195f591a3a1b191db16b7e4fe75a26866"
+          },
+          "after": {
+            "winner": "blue",
+            "turns": 14,
+            "digest": "47fd82aba1ca1f57df4554f295ce873195f591a3a1b191db16b7e4fe75a26866"
+          },
+          "identicalCommands": true,
+          "lostPriorWin": false
+        },
+        {
+          "key": "convoy-escort/default/hard:easy/15241/outbound",
+          "before": {
+            "winner": "red",
+            "turns": 23,
+            "digest": "d69b9ed561df59152d5deae51b3a60061bf0c15f6122f99a20e17fae33adea29"
+          },
+          "after": {
+            "winner": "red",
+            "turns": 23,
+            "digest": "d69b9ed561df59152d5deae51b3a60061bf0c15f6122f99a20e17fae33adea29"
+          },
+          "identicalCommands": true,
+          "lostPriorWin": false
+        },
+        {
+          "key": "convoy-escort/default/normal:normal/15241/outbound",
+          "before": {
+            "winner": "blue",
+            "turns": 8,
+            "digest": "2470a562fd6dca2fd3e3d1cd8a249751e15678ac0a4e0d705b7565b1a8d2a9fb"
+          },
+          "after": {
+            "winner": "blue",
+            "turns": 8,
+            "digest": "2470a562fd6dca2fd3e3d1cd8a249751e15678ac0a4e0d705b7565b1a8d2a9fb"
+          },
+          "identicalCommands": true,
+          "lostPriorWin": false
+        },
+        {
+          "key": "convoy-escort/default/hard:normal/15241/outbound",
+          "before": {
+            "winner": "blue",
+            "turns": 5,
+            "digest": "68c8561f589453065d8a3363a69c2aeb28e7a606009c4ec2ce951cd2be097b08"
+          },
+          "after": {
+            "winner": "blue",
+            "turns": 5,
+            "digest": "68c8561f589453065d8a3363a69c2aeb28e7a606009c4ec2ce951cd2be097b08"
+          },
+          "identicalCommands": true,
+          "lostPriorWin": false
+        },
+        {
+          "key": "convoy-escort/default/normal:easy/15411/outbound",
+          "before": {
+            "winner": "red",
+            "turns": 8,
+            "digest": "71ccdf709694c8d993915683ae20535a2d28b3d1cece675592f870ad0f19e348"
+          },
+          "after": {
+            "winner": "red",
+            "turns": 8,
+            "digest": "71ccdf709694c8d993915683ae20535a2d28b3d1cece675592f870ad0f19e348"
+          },
+          "identicalCommands": true,
+          "lostPriorWin": false
+        },
+        {
+          "key": "convoy-escort/default/hard:easy/15411/outbound",
+          "before": {
+            "winner": "blue",
+            "turns": 3,
+            "digest": "f841b1ca6a185252df6dcbaf34d7a20278afa40fd93496a84770bd62aeae3dd0"
+          },
+          "after": {
+            "winner": "blue",
+            "turns": 3,
+            "digest": "f841b1ca6a185252df6dcbaf34d7a20278afa40fd93496a84770bd62aeae3dd0"
+          },
+          "identicalCommands": true,
+          "lostPriorWin": false
+        },
+        {
+          "key": "convoy-escort/default/normal:normal/15411/outbound",
+          "before": {
+            "winner": "red",
+            "turns": 9,
+            "digest": "80162a11ecc7a9adf18adcc89c138ef6c4c8c7e11fec81d2273b99484b791a76"
+          },
+          "after": {
+            "winner": "red",
+            "turns": 9,
+            "digest": "80162a11ecc7a9adf18adcc89c138ef6c4c8c7e11fec81d2273b99484b791a76"
+          },
+          "identicalCommands": true,
+          "lostPriorWin": false
+        },
+        {
+          "key": "convoy-escort/default/hard:normal/15411/outbound",
+          "before": {
+            "winner": "blue",
+            "turns": 4,
+            "digest": "184cb7401b1575806041903527e5079e9635e01900589f50561b111a89a41209"
+          },
+          "after": {
+            "winner": "blue",
+            "turns": 4,
+            "digest": "184cb7401b1575806041903527e5079e9635e01900589f50561b111a89a41209"
+          },
+          "identicalCommands": true,
+          "lostPriorWin": false
+        },
+        {
+          "key": "convoy-escort/default/normal:easy/15412/outbound",
+          "before": {
+            "winner": "red",
+            "turns": 12,
+            "digest": "0f835eee3081651192cebb059121ad2b2a6d50b03306548a6387917151a9595e"
+          },
+          "after": {
+            "winner": "red",
+            "turns": 12,
+            "digest": "0f835eee3081651192cebb059121ad2b2a6d50b03306548a6387917151a9595e"
+          },
+          "identicalCommands": true,
+          "lostPriorWin": false
+        },
+        {
+          "key": "convoy-escort/default/hard:easy/15412/outbound",
+          "before": {
+            "winner": "red",
+            "turns": 13,
+            "digest": "16e54901f33201b5b6a3c4a928f7621065f2796775b3f0d638af991702118fbf"
+          },
+          "after": {
+            "winner": "red",
+            "turns": 13,
+            "digest": "16e54901f33201b5b6a3c4a928f7621065f2796775b3f0d638af991702118fbf"
+          },
+          "identicalCommands": true,
+          "lostPriorWin": false
+        },
+        {
+          "key": "convoy-escort/default/normal:normal/15412/outbound",
+          "before": {
+            "winner": "red",
+            "turns": 7,
+            "digest": "68e6e479d82f67011cfaaecbaa58e9adeaacd9963097d56e7cc41340077881c6"
+          },
+          "after": {
+            "winner": "red",
+            "turns": 7,
+            "digest": "68e6e479d82f67011cfaaecbaa58e9adeaacd9963097d56e7cc41340077881c6"
+          },
+          "identicalCommands": true,
+          "lostPriorWin": false
+        },
+        {
+          "key": "convoy-escort/default/hard:normal/15412/outbound",
+          "before": {
+            "winner": "red",
+            "turns": 5,
+            "digest": "c94bcf45b30d7693aa53849adc5c828e9f0c59e881564671017a68064f7c9a84"
+          },
+          "after": {
+            "winner": "red",
+            "turns": 5,
+            "digest": "c94bcf45b30d7693aa53849adc5c828e9f0c59e881564671017a68064f7c9a84"
+          },
+          "identicalCommands": true,
+          "lostPriorWin": false
+        },
+        {
+          "key": "convoy-escort/default/normal:easy/15422/outbound",
+          "before": {
+            "winner": "red",
+            "turns": 8,
+            "digest": "a572acecf0f27efbc5fb9e0e17497f03a29deb45f7db51fae9781a7dd4b150f7"
+          },
+          "after": {
+            "winner": "red",
+            "turns": 8,
+            "digest": "a572acecf0f27efbc5fb9e0e17497f03a29deb45f7db51fae9781a7dd4b150f7"
+          },
+          "identicalCommands": true,
+          "lostPriorWin": false
+        },
+        {
+          "key": "convoy-escort/default/hard:easy/15422/outbound",
+          "before": {
+            "winner": "blue",
+            "turns": 16,
+            "digest": "d9b0477da7d5111ff164c562250f4e95d3b98d182c1f8b213b206c65ffb483ef"
+          },
+          "after": {
+            "winner": "red",
+            "turns": 18,
+            "digest": "ee3e1b4492a09e96d3c405a38e4b92594716b6bfb2fa6198b4cf3ec832decda4"
+          },
+          "identicalCommands": false,
+          "lostPriorWin": false
+        },
+        {
+          "key": "convoy-escort/default/normal:normal/15422/outbound",
+          "before": {
+            "winner": "red",
+            "turns": 9,
+            "digest": "f77b3f359b7be11f68f8b8e20b69f146eb6ce6d9513ea1efbffc5dbc3665e87d"
+          },
+          "after": {
+            "winner": "red",
+            "turns": 9,
+            "digest": "f77b3f359b7be11f68f8b8e20b69f146eb6ce6d9513ea1efbffc5dbc3665e87d"
+          },
+          "identicalCommands": true,
+          "lostPriorWin": false
+        },
+        {
+          "key": "convoy-escort/default/hard:normal/15422/outbound",
+          "before": {
+            "winner": "red",
+            "turns": 7,
+            "digest": "27e35c46ef1a8ea0dee8670f4fb1a36385ff1492015524668504199c849176b8"
+          },
+          "after": {
+            "winner": "red",
+            "turns": 7,
+            "digest": "27e35c46ef1a8ea0dee8670f4fb1a36385ff1492015524668504199c849176b8"
+          },
+          "identicalCommands": true,
+          "lostPriorWin": false
+        },
+        {
+          "key": "river-withdrawal/default/normal:easy/15241/outbound",
+          "before": {
+            "winner": "red",
+            "turns": 3,
+            "digest": "daf5918ed1423c6a86d26c4ca753812c7080b3d61cf1458518a2b12667b63804"
+          },
+          "after": {
+            "winner": "red",
+            "turns": 3,
+            "digest": "daf5918ed1423c6a86d26c4ca753812c7080b3d61cf1458518a2b12667b63804"
+          },
+          "identicalCommands": true,
+          "lostPriorWin": false
+        },
+        {
+          "key": "river-withdrawal/default/hard:easy/15241/outbound",
+          "before": {
+            "winner": "red",
+            "turns": 3,
+            "digest": "c20933b4cd3553a30bc52c553eda63c41328de19ea97899c4ad3dabf4f4362f2"
+          },
+          "after": {
+            "winner": "red",
+            "turns": 3,
+            "digest": "c20933b4cd3553a30bc52c553eda63c41328de19ea97899c4ad3dabf4f4362f2"
+          },
+          "identicalCommands": true,
+          "lostPriorWin": false
+        },
+        {
+          "key": "river-withdrawal/default/normal:normal/15241/outbound",
+          "before": {
+            "winner": "red",
+            "turns": 3,
+            "digest": "daf5918ed1423c6a86d26c4ca753812c7080b3d61cf1458518a2b12667b63804"
+          },
+          "after": {
+            "winner": "red",
+            "turns": 3,
+            "digest": "daf5918ed1423c6a86d26c4ca753812c7080b3d61cf1458518a2b12667b63804"
+          },
+          "identicalCommands": true,
+          "lostPriorWin": false
+        },
+        {
+          "key": "river-withdrawal/default/hard:normal/15241/outbound",
+          "before": {
+            "winner": "red",
+            "turns": 3,
+            "digest": "c20933b4cd3553a30bc52c553eda63c41328de19ea97899c4ad3dabf4f4362f2"
+          },
+          "after": {
+            "winner": "red",
+            "turns": 3,
+            "digest": "c20933b4cd3553a30bc52c553eda63c41328de19ea97899c4ad3dabf4f4362f2"
+          },
+          "identicalCommands": true,
+          "lostPriorWin": false
+        },
+        {
+          "key": "river-withdrawal/default/normal:easy/15411/outbound",
+          "before": {
+            "winner": "blue",
+            "turns": 6,
+            "digest": "975e2d501e473785a136a64df07d3545ca8c17d4330a3dde40c902175dc44597"
+          },
+          "after": {
+            "winner": "blue",
+            "turns": 6,
+            "digest": "975e2d501e473785a136a64df07d3545ca8c17d4330a3dde40c902175dc44597"
+          },
+          "identicalCommands": true,
+          "lostPriorWin": false
+        },
+        {
+          "key": "river-withdrawal/default/hard:easy/15411/outbound",
+          "before": {
+            "winner": "blue",
+            "turns": 8,
+            "digest": "a35a25596a316b34987703a73b53c20f8435a3af51dd62c6fab78805118e39f4"
+          },
+          "after": {
+            "winner": "blue",
+            "turns": 8,
+            "digest": "a35a25596a316b34987703a73b53c20f8435a3af51dd62c6fab78805118e39f4"
+          },
+          "identicalCommands": true,
+          "lostPriorWin": false
+        },
+        {
+          "key": "river-withdrawal/default/normal:normal/15411/outbound",
+          "before": {
+            "winner": "blue",
+            "turns": 23,
+            "digest": "f00ea1de9fe5b0115ca16b8f9758f4d6b815004431cb8bfc7fe9c0f11cb4d3b2"
+          },
+          "after": {
+            "winner": "blue",
+            "turns": 23,
+            "digest": "f00ea1de9fe5b0115ca16b8f9758f4d6b815004431cb8bfc7fe9c0f11cb4d3b2"
+          },
+          "identicalCommands": true,
+          "lostPriorWin": false
+        },
+        {
+          "key": "river-withdrawal/default/hard:normal/15411/outbound",
+          "before": {
+            "winner": "blue",
+            "turns": 6,
+            "digest": "04f907ef28257007712c5a7dd31352eeac3b51f7f6cf0cae137073fc78f0317e"
+          },
+          "after": {
+            "winner": "blue",
+            "turns": 6,
+            "digest": "04f907ef28257007712c5a7dd31352eeac3b51f7f6cf0cae137073fc78f0317e"
+          },
+          "identicalCommands": true,
+          "lostPriorWin": false
+        },
+        {
+          "key": "river-withdrawal/default/normal:easy/15412/outbound",
+          "before": {
+            "winner": "red",
+            "turns": 3,
+            "digest": "c69890ca637c5cc42afd3005e3d4702b0629db95efcd24684ac94be505ecb4a0"
+          },
+          "after": {
+            "winner": "red",
+            "turns": 3,
+            "digest": "c69890ca637c5cc42afd3005e3d4702b0629db95efcd24684ac94be505ecb4a0"
+          },
+          "identicalCommands": true,
+          "lostPriorWin": false
+        },
+        {
+          "key": "river-withdrawal/default/hard:easy/15412/outbound",
+          "before": {
+            "winner": "red",
+            "turns": 3,
+            "digest": "69fe1a959eb26f26cf61b5b83f09a06f86441a8b6263cf8b84a7773b4142ba73"
+          },
+          "after": {
+            "winner": "red",
+            "turns": 3,
+            "digest": "69fe1a959eb26f26cf61b5b83f09a06f86441a8b6263cf8b84a7773b4142ba73"
+          },
+          "identicalCommands": true,
+          "lostPriorWin": false
+        },
+        {
+          "key": "river-withdrawal/default/normal:normal/15412/outbound",
+          "before": {
+            "winner": "red",
+            "turns": 3,
+            "digest": "c69890ca637c5cc42afd3005e3d4702b0629db95efcd24684ac94be505ecb4a0"
+          },
+          "after": {
+            "winner": "red",
+            "turns": 3,
+            "digest": "c69890ca637c5cc42afd3005e3d4702b0629db95efcd24684ac94be505ecb4a0"
+          },
+          "identicalCommands": true,
+          "lostPriorWin": false
+        },
+        {
+          "key": "river-withdrawal/default/hard:normal/15412/outbound",
+          "before": {
+            "winner": "red",
+            "turns": 3,
+            "digest": "69fe1a959eb26f26cf61b5b83f09a06f86441a8b6263cf8b84a7773b4142ba73"
+          },
+          "after": {
+            "winner": "red",
+            "turns": 3,
+            "digest": "69fe1a959eb26f26cf61b5b83f09a06f86441a8b6263cf8b84a7773b4142ba73"
+          },
+          "identicalCommands": true,
+          "lostPriorWin": false
+        },
+        {
+          "key": "river-withdrawal/default/normal:easy/15422/outbound",
+          "before": {
+            "winner": "red",
+            "turns": 3,
+            "digest": "c69890ca637c5cc42afd3005e3d4702b0629db95efcd24684ac94be505ecb4a0"
+          },
+          "after": {
+            "winner": "red",
+            "turns": 3,
+            "digest": "c69890ca637c5cc42afd3005e3d4702b0629db95efcd24684ac94be505ecb4a0"
+          },
+          "identicalCommands": true,
+          "lostPriorWin": false
+        },
+        {
+          "key": "river-withdrawal/default/hard:easy/15422/outbound",
+          "before": {
+            "winner": "red",
+            "turns": 3,
+            "digest": "69fe1a959eb26f26cf61b5b83f09a06f86441a8b6263cf8b84a7773b4142ba73"
+          },
+          "after": {
+            "winner": "red",
+            "turns": 3,
+            "digest": "69fe1a959eb26f26cf61b5b83f09a06f86441a8b6263cf8b84a7773b4142ba73"
+          },
+          "identicalCommands": true,
+          "lostPriorWin": false
+        },
+        {
+          "key": "river-withdrawal/default/normal:normal/15422/outbound",
+          "before": {
+            "winner": "red",
+            "turns": 3,
+            "digest": "c69890ca637c5cc42afd3005e3d4702b0629db95efcd24684ac94be505ecb4a0"
+          },
+          "after": {
+            "winner": "red",
+            "turns": 3,
+            "digest": "c69890ca637c5cc42afd3005e3d4702b0629db95efcd24684ac94be505ecb4a0"
+          },
+          "identicalCommands": true,
+          "lostPriorWin": false
+        },
+        {
+          "key": "river-withdrawal/default/hard:normal/15422/outbound",
+          "before": {
+            "winner": "red",
+            "turns": 3,
+            "digest": "69fe1a959eb26f26cf61b5b83f09a06f86441a8b6263cf8b84a7773b4142ba73"
+          },
+          "after": {
+            "winner": "red",
+            "turns": 3,
+            "digest": "69fe1a959eb26f26cf61b5b83f09a06f86441a8b6263cf8b84a7773b4142ba73"
+          },
+          "identicalCommands": true,
+          "lostPriorWin": false
+        },
+        {
+          "key": "fighting-withdrawal/default/normal:easy/15241/outbound",
+          "before": {
+            "winner": "red",
+            "turns": 4,
+            "digest": "5869658194aa28765c2d2c646345d12887bc0d4712c26aa39dc1fb357cbb0951"
+          },
+          "after": {
+            "winner": "red",
+            "turns": 4,
+            "digest": "5869658194aa28765c2d2c646345d12887bc0d4712c26aa39dc1fb357cbb0951"
+          },
+          "identicalCommands": true,
+          "lostPriorWin": false
+        },
+        {
+          "key": "fighting-withdrawal/default/hard:easy/15241/outbound",
+          "before": {
+            "winner": "red",
+            "turns": 4,
+            "digest": "3d89531f8f3d6577e9976985aac170b6fad9f5b23bc7d27728619212f641c8c7"
+          },
+          "after": {
+            "winner": "red",
+            "turns": 4,
+            "digest": "3d89531f8f3d6577e9976985aac170b6fad9f5b23bc7d27728619212f641c8c7"
+          },
+          "identicalCommands": true,
+          "lostPriorWin": false
+        },
+        {
+          "key": "fighting-withdrawal/default/normal:normal/15241/outbound",
+          "before": {
+            "winner": "red",
+            "turns": 4,
+            "digest": "6c0c40873ddae6b342d0f47546e9a33bdbb6b75f0069ec64e1e5403c6c13f2b8"
+          },
+          "after": {
+            "winner": "red",
+            "turns": 4,
+            "digest": "6c0c40873ddae6b342d0f47546e9a33bdbb6b75f0069ec64e1e5403c6c13f2b8"
+          },
+          "identicalCommands": true,
+          "lostPriorWin": false
+        },
+        {
+          "key": "fighting-withdrawal/default/hard:normal/15241/outbound",
+          "before": {
+            "winner": "red",
+            "turns": 4,
+            "digest": "d2fffc2c7734ea9e6c48e642b32c845c5224be134ddb59ad7919dbd90e528a6e"
+          },
+          "after": {
+            "winner": "red",
+            "turns": 4,
+            "digest": "d2fffc2c7734ea9e6c48e642b32c845c5224be134ddb59ad7919dbd90e528a6e"
+          },
+          "identicalCommands": true,
+          "lostPriorWin": false
+        },
+        {
+          "key": "fighting-withdrawal/default/normal:easy/15411/outbound",
+          "before": {
+            "winner": "red",
+            "turns": 4,
+            "digest": "92bcd9f5d3cdba937db8a887046e7aaa5d3a9c804d51bf7bca9c45fb087a5e9c"
+          },
+          "after": {
+            "winner": "red",
+            "turns": 4,
+            "digest": "92bcd9f5d3cdba937db8a887046e7aaa5d3a9c804d51bf7bca9c45fb087a5e9c"
+          },
+          "identicalCommands": true,
+          "lostPriorWin": false
+        },
+        {
+          "key": "fighting-withdrawal/default/hard:easy/15411/outbound",
+          "before": {
+            "winner": "red",
+            "turns": 5,
+            "digest": "a0ce9b6a173b6665d43c2ab6a55726e6e1158bc4b553aa3219edb7c4f304158e"
+          },
+          "after": {
+            "winner": "red",
+            "turns": 5,
+            "digest": "a0ce9b6a173b6665d43c2ab6a55726e6e1158bc4b553aa3219edb7c4f304158e"
+          },
+          "identicalCommands": true,
+          "lostPriorWin": false
+        },
+        {
+          "key": "fighting-withdrawal/default/normal:normal/15411/outbound",
+          "before": {
+            "winner": "red",
+            "turns": 4,
+            "digest": "92bcd9f5d3cdba937db8a887046e7aaa5d3a9c804d51bf7bca9c45fb087a5e9c"
+          },
+          "after": {
+            "winner": "red",
+            "turns": 4,
+            "digest": "92bcd9f5d3cdba937db8a887046e7aaa5d3a9c804d51bf7bca9c45fb087a5e9c"
+          },
+          "identicalCommands": true,
+          "lostPriorWin": false
+        },
+        {
+          "key": "fighting-withdrawal/default/hard:normal/15411/outbound",
+          "before": {
+            "winner": "red",
+            "turns": 5,
+            "digest": "23bf0560ce7edd2a89b3bdd6c683e39673e30b1d575a9cd9d114912130b4e4d5"
+          },
+          "after": {
+            "winner": "red",
+            "turns": 5,
+            "digest": "23bf0560ce7edd2a89b3bdd6c683e39673e30b1d575a9cd9d114912130b4e4d5"
+          },
+          "identicalCommands": true,
+          "lostPriorWin": false
+        },
+        {
+          "key": "fighting-withdrawal/default/normal:easy/15412/outbound",
+          "before": {
+            "winner": "red",
+            "turns": 4,
+            "digest": "92bcd9f5d3cdba937db8a887046e7aaa5d3a9c804d51bf7bca9c45fb087a5e9c"
+          },
+          "after": {
+            "winner": "red",
+            "turns": 4,
+            "digest": "92bcd9f5d3cdba937db8a887046e7aaa5d3a9c804d51bf7bca9c45fb087a5e9c"
+          },
+          "identicalCommands": true,
+          "lostPriorWin": false
+        },
+        {
+          "key": "fighting-withdrawal/default/hard:easy/15412/outbound",
+          "before": {
+            "winner": "red",
+            "turns": 6,
+            "digest": "69bb00bb8e8e8a9a8669717f77bda83d22cdfb6dd89d0498112658f4262359c2"
+          },
+          "after": {
+            "winner": "red",
+            "turns": 6,
+            "digest": "69bb00bb8e8e8a9a8669717f77bda83d22cdfb6dd89d0498112658f4262359c2"
+          },
+          "identicalCommands": true,
+          "lostPriorWin": false
+        },
+        {
+          "key": "fighting-withdrawal/default/normal:normal/15412/outbound",
+          "before": {
+            "winner": "red",
+            "turns": 4,
+            "digest": "92bcd9f5d3cdba937db8a887046e7aaa5d3a9c804d51bf7bca9c45fb087a5e9c"
+          },
+          "after": {
+            "winner": "red",
+            "turns": 4,
+            "digest": "92bcd9f5d3cdba937db8a887046e7aaa5d3a9c804d51bf7bca9c45fb087a5e9c"
+          },
+          "identicalCommands": true,
+          "lostPriorWin": false
+        },
+        {
+          "key": "fighting-withdrawal/default/hard:normal/15412/outbound",
+          "before": {
+            "winner": "red",
+            "turns": 5,
+            "digest": "022df98e5f0121b49482ed4b289896b26c24680afae2ccdcf7aee16b1b986a3a"
+          },
+          "after": {
+            "winner": "red",
+            "turns": 5,
+            "digest": "022df98e5f0121b49482ed4b289896b26c24680afae2ccdcf7aee16b1b986a3a"
+          },
+          "identicalCommands": true,
+          "lostPriorWin": false
+        },
+        {
+          "key": "fighting-withdrawal/default/normal:easy/15422/outbound",
+          "before": {
+            "winner": "red",
+            "turns": 4,
+            "digest": "7126f2c9f270b46217c64e4e2ebf8d27b154fc20a7ea6b8b6cd144f93d34bd72"
+          },
+          "after": {
+            "winner": "red",
+            "turns": 4,
+            "digest": "7126f2c9f270b46217c64e4e2ebf8d27b154fc20a7ea6b8b6cd144f93d34bd72"
+          },
+          "identicalCommands": true,
+          "lostPriorWin": false
+        },
+        {
+          "key": "fighting-withdrawal/default/hard:easy/15422/outbound",
+          "before": {
+            "winner": "red",
+            "turns": 6,
+            "digest": "22a7a2770e58f40893174981b7bb8a4379625b6a526bf6ddbb082b1f4eac885c"
+          },
+          "after": {
+            "winner": "red",
+            "turns": 6,
+            "digest": "22a7a2770e58f40893174981b7bb8a4379625b6a526bf6ddbb082b1f4eac885c"
+          },
+          "identicalCommands": true,
+          "lostPriorWin": false
+        },
+        {
+          "key": "fighting-withdrawal/default/normal:normal/15422/outbound",
+          "before": {
+            "winner": "red",
+            "turns": 4,
+            "digest": "d870f939e2160f5b489ab46332821ae2999a14c2880d5356c249e134470b82a4"
+          },
+          "after": {
+            "winner": "red",
+            "turns": 4,
+            "digest": "d870f939e2160f5b489ab46332821ae2999a14c2880d5356c249e134470b82a4"
+          },
+          "identicalCommands": true,
+          "lostPriorWin": false
+        },
+        {
+          "key": "fighting-withdrawal/default/hard:normal/15422/outbound",
+          "before": {
+            "winner": "red",
+            "turns": 6,
+            "digest": "aeb822c9cf96e2b6849c50844d9b96397962bd92427ee8b5cdb47869578c1580"
+          },
+          "after": {
+            "winner": "red",
+            "turns": 6,
+            "digest": "aeb822c9cf96e2b6849c50844d9b96397962bd92427ee8b5cdb47869578c1580"
+          },
+          "identicalCommands": true,
+          "lostPriorWin": false
+        },
+        {
+          "key": "encirclement-breakout/default/normal:easy/15241/outbound",
+          "before": {
+            "winner": "red",
+            "turns": 6,
+            "digest": "b457af980cc6f23237fd80795e2f028c811c441e3ce076b89168a4ceebcb6671"
+          },
+          "after": {
+            "winner": "red",
+            "turns": 6,
+            "digest": "b457af980cc6f23237fd80795e2f028c811c441e3ce076b89168a4ceebcb6671"
+          },
+          "identicalCommands": true,
+          "lostPriorWin": false
+        },
+        {
+          "key": "encirclement-breakout/default/hard:easy/15241/outbound",
+          "before": {
+            "winner": "red",
+            "turns": 4,
+            "digest": "e01fcd7160e0cc8c0a400f5826efd6bd90f8f4729af06b66dd664ce1bdb92c8c"
+          },
+          "after": {
+            "winner": "red",
+            "turns": 4,
+            "digest": "e01fcd7160e0cc8c0a400f5826efd6bd90f8f4729af06b66dd664ce1bdb92c8c"
+          },
+          "identicalCommands": true,
+          "lostPriorWin": false
+        },
+        {
+          "key": "encirclement-breakout/default/normal:normal/15241/outbound",
+          "before": {
+            "winner": "red",
+            "turns": 6,
+            "digest": "58ff4b07c95d93db4d5219dc60170d7ab4b74951bb5203d6a804f13dcfc164a7"
+          },
+          "after": {
+            "winner": "red",
+            "turns": 6,
+            "digest": "58ff4b07c95d93db4d5219dc60170d7ab4b74951bb5203d6a804f13dcfc164a7"
+          },
+          "identicalCommands": true,
+          "lostPriorWin": false
+        },
+        {
+          "key": "encirclement-breakout/default/hard:normal/15241/outbound",
+          "before": {
+            "winner": "red",
+            "turns": 4,
+            "digest": "33bb978fa446d1f46ab05d7491010e8516eff302d113cba7fb6b0a6ed86cbff2"
+          },
+          "after": {
+            "winner": "red",
+            "turns": 4,
+            "digest": "33bb978fa446d1f46ab05d7491010e8516eff302d113cba7fb6b0a6ed86cbff2"
+          },
+          "identicalCommands": true,
+          "lostPriorWin": false
+        },
+        {
+          "key": "encirclement-breakout/default/normal:easy/15411/outbound",
+          "before": {
+            "winner": "red",
+            "turns": 3,
+            "digest": "463504b331ce629e85b4c1a50f2f2bf3ddaecf86ee32f2de2c5835e3774a387f"
+          },
+          "after": {
+            "winner": "red",
+            "turns": 3,
+            "digest": "463504b331ce629e85b4c1a50f2f2bf3ddaecf86ee32f2de2c5835e3774a387f"
+          },
+          "identicalCommands": true,
+          "lostPriorWin": false
+        },
+        {
+          "key": "encirclement-breakout/default/hard:easy/15411/outbound",
+          "before": {
+            "winner": "red",
+            "turns": 3,
+            "digest": "04bb06aec09f4d2f0968b452a8741d2aa60a6cce923d610f39dd360764e4d6b5"
+          },
+          "after": {
+            "winner": "red",
+            "turns": 3,
+            "digest": "04bb06aec09f4d2f0968b452a8741d2aa60a6cce923d610f39dd360764e4d6b5"
+          },
+          "identicalCommands": true,
+          "lostPriorWin": false
+        },
+        {
+          "key": "encirclement-breakout/default/normal:normal/15411/outbound",
+          "before": {
+            "winner": "red",
+            "turns": 3,
+            "digest": "463504b331ce629e85b4c1a50f2f2bf3ddaecf86ee32f2de2c5835e3774a387f"
+          },
+          "after": {
+            "winner": "red",
+            "turns": 3,
+            "digest": "463504b331ce629e85b4c1a50f2f2bf3ddaecf86ee32f2de2c5835e3774a387f"
+          },
+          "identicalCommands": true,
+          "lostPriorWin": false
+        },
+        {
+          "key": "encirclement-breakout/default/hard:normal/15411/outbound",
+          "before": {
+            "winner": "red",
+            "turns": 3,
+            "digest": "04bb06aec09f4d2f0968b452a8741d2aa60a6cce923d610f39dd360764e4d6b5"
+          },
+          "after": {
+            "winner": "red",
+            "turns": 3,
+            "digest": "04bb06aec09f4d2f0968b452a8741d2aa60a6cce923d610f39dd360764e4d6b5"
+          },
+          "identicalCommands": true,
+          "lostPriorWin": false
+        },
+        {
+          "key": "encirclement-breakout/default/normal:easy/15412/outbound",
+          "before": {
+            "winner": "red",
+            "turns": 3,
+            "digest": "463504b331ce629e85b4c1a50f2f2bf3ddaecf86ee32f2de2c5835e3774a387f"
+          },
+          "after": {
+            "winner": "red",
+            "turns": 3,
+            "digest": "463504b331ce629e85b4c1a50f2f2bf3ddaecf86ee32f2de2c5835e3774a387f"
+          },
+          "identicalCommands": true,
+          "lostPriorWin": false
+        },
+        {
+          "key": "encirclement-breakout/default/hard:easy/15412/outbound",
+          "before": {
+            "winner": "red",
+            "turns": 3,
+            "digest": "04bb06aec09f4d2f0968b452a8741d2aa60a6cce923d610f39dd360764e4d6b5"
+          },
+          "after": {
+            "winner": "red",
+            "turns": 3,
+            "digest": "04bb06aec09f4d2f0968b452a8741d2aa60a6cce923d610f39dd360764e4d6b5"
+          },
+          "identicalCommands": true,
+          "lostPriorWin": false
+        },
+        {
+          "key": "encirclement-breakout/default/normal:normal/15412/outbound",
+          "before": {
+            "winner": "red",
+            "turns": 3,
+            "digest": "463504b331ce629e85b4c1a50f2f2bf3ddaecf86ee32f2de2c5835e3774a387f"
+          },
+          "after": {
+            "winner": "red",
+            "turns": 3,
+            "digest": "463504b331ce629e85b4c1a50f2f2bf3ddaecf86ee32f2de2c5835e3774a387f"
+          },
+          "identicalCommands": true,
+          "lostPriorWin": false
+        },
+        {
+          "key": "encirclement-breakout/default/hard:normal/15412/outbound",
+          "before": {
+            "winner": "red",
+            "turns": 3,
+            "digest": "04bb06aec09f4d2f0968b452a8741d2aa60a6cce923d610f39dd360764e4d6b5"
+          },
+          "after": {
+            "winner": "red",
+            "turns": 3,
+            "digest": "04bb06aec09f4d2f0968b452a8741d2aa60a6cce923d610f39dd360764e4d6b5"
+          },
+          "identicalCommands": true,
+          "lostPriorWin": false
+        },
+        {
+          "key": "encirclement-breakout/default/normal:easy/15422/outbound",
+          "before": {
+            "winner": "red",
+            "turns": 3,
+            "digest": "463504b331ce629e85b4c1a50f2f2bf3ddaecf86ee32f2de2c5835e3774a387f"
+          },
+          "after": {
+            "winner": "red",
+            "turns": 3,
+            "digest": "463504b331ce629e85b4c1a50f2f2bf3ddaecf86ee32f2de2c5835e3774a387f"
+          },
+          "identicalCommands": true,
+          "lostPriorWin": false
+        },
+        {
+          "key": "encirclement-breakout/default/hard:easy/15422/outbound",
+          "before": {
+            "winner": "red",
+            "turns": 3,
+            "digest": "04bb06aec09f4d2f0968b452a8741d2aa60a6cce923d610f39dd360764e4d6b5"
+          },
+          "after": {
+            "winner": "red",
+            "turns": 3,
+            "digest": "04bb06aec09f4d2f0968b452a8741d2aa60a6cce923d610f39dd360764e4d6b5"
+          },
+          "identicalCommands": true,
+          "lostPriorWin": false
+        },
+        {
+          "key": "encirclement-breakout/default/normal:normal/15422/outbound",
+          "before": {
+            "winner": "red",
+            "turns": 3,
+            "digest": "463504b331ce629e85b4c1a50f2f2bf3ddaecf86ee32f2de2c5835e3774a387f"
+          },
+          "after": {
+            "winner": "red",
+            "turns": 3,
+            "digest": "463504b331ce629e85b4c1a50f2f2bf3ddaecf86ee32f2de2c5835e3774a387f"
+          },
+          "identicalCommands": true,
+          "lostPriorWin": false
+        },
+        {
+          "key": "encirclement-breakout/default/hard:normal/15422/outbound",
+          "before": {
+            "winner": "red",
+            "turns": 3,
+            "digest": "04bb06aec09f4d2f0968b452a8741d2aa60a6cce923d610f39dd360764e4d6b5"
+          },
+          "after": {
+            "winner": "red",
+            "turns": 3,
+            "digest": "04bb06aec09f4d2f0968b452a8741d2aa60a6cce923d610f39dd360764e4d6b5"
+          },
+          "identicalCommands": true,
+          "lostPriorWin": false
+        }
+      ]
+    },
+    "confirm": {
+      "beforeHeader": {
+        "format": "cpu-escort-v155-v1",
+        "stage": "before",
+        "phase": "confirm",
+        "source": "c031be2283eccca70e7f98c4308443422ddeb2821e44b62c2566018f4844f69c",
+        "script": "5539b9c8246ebabae4d9adfc333add5dcd24c2c6598cdf6dad27515a3b3b7b57",
+        "node": "v24.19.0",
+        "roundLimit": 120,
+        "commandLimit": 15000,
+        "secondsLimit": 120,
+        "seedPolicy": "known=15241/15411/15412/15422; confirmation=fresh15511/15512; balance=known15101/15221. Freeze source before opening confirmation results.",
+        "note": "Mission games are asymmetric red objectives, not first/second win-rate samples. Balance return legs exchange armies/goals and are correlated; no independent win-rate claim."
+      },
+      "afterHeader": {
+        "format": "cpu-escort-v155-v1",
+        "stage": "after",
+        "phase": "confirm",
+        "source": "5b4ddb2a1ad856eaa70948c46be6e4a7325d5a65d18a3820275a2bb2e324f639",
+        "script": "5539b9c8246ebabae4d9adfc333add5dcd24c2c6598cdf6dad27515a3b3b7b57",
+        "node": "v24.19.0",
+        "roundLimit": 120,
+        "commandLimit": 15000,
+        "secondsLimit": 120,
+        "seedPolicy": "known=15241/15411/15412/15422; confirmation=fresh15511/15512; balance=known15101/15221. Freeze source before opening confirmation results.",
+        "note": "Mission games are asymmetric red objectives, not first/second win-rate samples. Balance return legs exchange armies/goals and are correlated; no independent win-rate claim."
+      },
+      "conditions": 32,
+      "beforeRedWins": 31,
+      "afterRedWins": 31,
+      "identicalCommands": 32,
+      "lostPriorWins": 0,
+      "results": [
+        {
+          "key": "convoy-escort/default/normal:easy/15511/outbound",
+          "before": {
+            "winner": "red",
+            "turns": 8,
+            "digest": "71ccdf709694c8d993915683ae20535a2d28b3d1cece675592f870ad0f19e348"
+          },
+          "after": {
+            "winner": "red",
+            "turns": 8,
+            "digest": "71ccdf709694c8d993915683ae20535a2d28b3d1cece675592f870ad0f19e348"
+          },
+          "identicalCommands": true,
+          "lostPriorWin": false
+        },
+        {
+          "key": "convoy-escort/default/hard:easy/15511/outbound",
+          "before": {
+            "winner": "red",
+            "turns": 15,
+            "digest": "7a24b099522096434a724cb04c5d37b3f7dba79b746ab143db6f4d43d22985dc"
+          },
+          "after": {
+            "winner": "red",
+            "turns": 15,
+            "digest": "7a24b099522096434a724cb04c5d37b3f7dba79b746ab143db6f4d43d22985dc"
+          },
+          "identicalCommands": true,
+          "lostPriorWin": false
+        },
+        {
+          "key": "convoy-escort/default/normal:normal/15511/outbound",
+          "before": {
+            "winner": "red",
+            "turns": 9,
+            "digest": "80162a11ecc7a9adf18adcc89c138ef6c4c8c7e11fec81d2273b99484b791a76"
+          },
+          "after": {
+            "winner": "red",
+            "turns": 9,
+            "digest": "80162a11ecc7a9adf18adcc89c138ef6c4c8c7e11fec81d2273b99484b791a76"
+          },
+          "identicalCommands": true,
+          "lostPriorWin": false
+        },
+        {
+          "key": "convoy-escort/default/hard:normal/15511/outbound",
+          "before": {
+            "winner": "blue",
+            "turns": 4,
+            "digest": "184cb7401b1575806041903527e5079e9635e01900589f50561b111a89a41209"
+          },
+          "after": {
+            "winner": "blue",
+            "turns": 4,
+            "digest": "184cb7401b1575806041903527e5079e9635e01900589f50561b111a89a41209"
+          },
+          "identicalCommands": true,
+          "lostPriorWin": false
+        },
+        {
+          "key": "convoy-escort/default/normal:easy/15512/outbound",
+          "before": {
+            "winner": "red",
+            "turns": 13,
+            "digest": "ea3fb007d53beca21bf5c25c0c41c1f5c5ca7fba2903f2b19efd68bf742f8756"
+          },
+          "after": {
+            "winner": "red",
+            "turns": 13,
+            "digest": "ea3fb007d53beca21bf5c25c0c41c1f5c5ca7fba2903f2b19efd68bf742f8756"
+          },
+          "identicalCommands": true,
+          "lostPriorWin": false
+        },
+        {
+          "key": "convoy-escort/default/hard:easy/15512/outbound",
+          "before": {
+            "winner": "red",
+            "turns": 11,
+            "digest": "13b75785f701ed29e1080344d986af068f6b9b85cbf0b1c71536a7ab66bbbc1f"
+          },
+          "after": {
+            "winner": "red",
+            "turns": 11,
+            "digest": "13b75785f701ed29e1080344d986af068f6b9b85cbf0b1c71536a7ab66bbbc1f"
+          },
+          "identicalCommands": true,
+          "lostPriorWin": false
+        },
+        {
+          "key": "convoy-escort/default/normal:normal/15512/outbound",
+          "before": {
+            "winner": "red",
+            "turns": 7,
+            "digest": "68e6e479d82f67011cfaaecbaa58e9adeaacd9963097d56e7cc41340077881c6"
+          },
+          "after": {
+            "winner": "red",
+            "turns": 7,
+            "digest": "68e6e479d82f67011cfaaecbaa58e9adeaacd9963097d56e7cc41340077881c6"
+          },
+          "identicalCommands": true,
+          "lostPriorWin": false
+        },
+        {
+          "key": "convoy-escort/default/hard:normal/15512/outbound",
+          "before": {
+            "winner": "red",
+            "turns": 5,
+            "digest": "f5d7d3e4a29430fea71f05aa0033cbc34c4fa8dd256f3fba069214982d28aeaf"
+          },
+          "after": {
+            "winner": "red",
+            "turns": 5,
+            "digest": "f5d7d3e4a29430fea71f05aa0033cbc34c4fa8dd256f3fba069214982d28aeaf"
+          },
+          "identicalCommands": true,
+          "lostPriorWin": false
+        },
+        {
+          "key": "river-withdrawal/default/normal:easy/15511/outbound",
+          "before": {
+            "winner": "red",
+            "turns": 3,
+            "digest": "c69890ca637c5cc42afd3005e3d4702b0629db95efcd24684ac94be505ecb4a0"
+          },
+          "after": {
+            "winner": "red",
+            "turns": 3,
+            "digest": "c69890ca637c5cc42afd3005e3d4702b0629db95efcd24684ac94be505ecb4a0"
+          },
+          "identicalCommands": true,
+          "lostPriorWin": false
+        },
+        {
+          "key": "river-withdrawal/default/hard:easy/15511/outbound",
+          "before": {
+            "winner": "red",
+            "turns": 3,
+            "digest": "69fe1a959eb26f26cf61b5b83f09a06f86441a8b6263cf8b84a7773b4142ba73"
+          },
+          "after": {
+            "winner": "red",
+            "turns": 3,
+            "digest": "69fe1a959eb26f26cf61b5b83f09a06f86441a8b6263cf8b84a7773b4142ba73"
+          },
+          "identicalCommands": true,
+          "lostPriorWin": false
+        },
+        {
+          "key": "river-withdrawal/default/normal:normal/15511/outbound",
+          "before": {
+            "winner": "red",
+            "turns": 3,
+            "digest": "c69890ca637c5cc42afd3005e3d4702b0629db95efcd24684ac94be505ecb4a0"
+          },
+          "after": {
+            "winner": "red",
+            "turns": 3,
+            "digest": "c69890ca637c5cc42afd3005e3d4702b0629db95efcd24684ac94be505ecb4a0"
+          },
+          "identicalCommands": true,
+          "lostPriorWin": false
+        },
+        {
+          "key": "river-withdrawal/default/hard:normal/15511/outbound",
+          "before": {
+            "winner": "red",
+            "turns": 3,
+            "digest": "69fe1a959eb26f26cf61b5b83f09a06f86441a8b6263cf8b84a7773b4142ba73"
+          },
+          "after": {
+            "winner": "red",
+            "turns": 3,
+            "digest": "69fe1a959eb26f26cf61b5b83f09a06f86441a8b6263cf8b84a7773b4142ba73"
+          },
+          "identicalCommands": true,
+          "lostPriorWin": false
+        },
+        {
+          "key": "river-withdrawal/default/normal:easy/15512/outbound",
+          "before": {
+            "winner": "red",
+            "turns": 3,
+            "digest": "c69890ca637c5cc42afd3005e3d4702b0629db95efcd24684ac94be505ecb4a0"
+          },
+          "after": {
+            "winner": "red",
+            "turns": 3,
+            "digest": "c69890ca637c5cc42afd3005e3d4702b0629db95efcd24684ac94be505ecb4a0"
+          },
+          "identicalCommands": true,
+          "lostPriorWin": false
+        },
+        {
+          "key": "river-withdrawal/default/hard:easy/15512/outbound",
+          "before": {
+            "winner": "red",
+            "turns": 3,
+            "digest": "69fe1a959eb26f26cf61b5b83f09a06f86441a8b6263cf8b84a7773b4142ba73"
+          },
+          "after": {
+            "winner": "red",
+            "turns": 3,
+            "digest": "69fe1a959eb26f26cf61b5b83f09a06f86441a8b6263cf8b84a7773b4142ba73"
+          },
+          "identicalCommands": true,
+          "lostPriorWin": false
+        },
+        {
+          "key": "river-withdrawal/default/normal:normal/15512/outbound",
+          "before": {
+            "winner": "red",
+            "turns": 3,
+            "digest": "c69890ca637c5cc42afd3005e3d4702b0629db95efcd24684ac94be505ecb4a0"
+          },
+          "after": {
+            "winner": "red",
+            "turns": 3,
+            "digest": "c69890ca637c5cc42afd3005e3d4702b0629db95efcd24684ac94be505ecb4a0"
+          },
+          "identicalCommands": true,
+          "lostPriorWin": false
+        },
+        {
+          "key": "river-withdrawal/default/hard:normal/15512/outbound",
+          "before": {
+            "winner": "red",
+            "turns": 3,
+            "digest": "69fe1a959eb26f26cf61b5b83f09a06f86441a8b6263cf8b84a7773b4142ba73"
+          },
+          "after": {
+            "winner": "red",
+            "turns": 3,
+            "digest": "69fe1a959eb26f26cf61b5b83f09a06f86441a8b6263cf8b84a7773b4142ba73"
+          },
+          "identicalCommands": true,
+          "lostPriorWin": false
+        },
+        {
+          "key": "fighting-withdrawal/default/normal:easy/15511/outbound",
+          "before": {
+            "winner": "red",
+            "turns": 4,
+            "digest": "7126f2c9f270b46217c64e4e2ebf8d27b154fc20a7ea6b8b6cd144f93d34bd72"
+          },
+          "after": {
+            "winner": "red",
+            "turns": 4,
+            "digest": "7126f2c9f270b46217c64e4e2ebf8d27b154fc20a7ea6b8b6cd144f93d34bd72"
+          },
+          "identicalCommands": true,
+          "lostPriorWin": false
+        },
+        {
+          "key": "fighting-withdrawal/default/hard:easy/15511/outbound",
+          "before": {
+            "winner": "red",
+            "turns": 5,
+            "digest": "2c5f2c791bf6250efc685bc6fce69fd0e785cfab02ab5742315d59fa605f3a8f"
+          },
+          "after": {
+            "winner": "red",
+            "turns": 5,
+            "digest": "2c5f2c791bf6250efc685bc6fce69fd0e785cfab02ab5742315d59fa605f3a8f"
+          },
+          "identicalCommands": true,
+          "lostPriorWin": false
+        },
+        {
+          "key": "fighting-withdrawal/default/normal:normal/15511/outbound",
+          "before": {
+            "winner": "red",
+            "turns": 4,
+            "digest": "d870f939e2160f5b489ab46332821ae2999a14c2880d5356c249e134470b82a4"
+          },
+          "after": {
+            "winner": "red",
+            "turns": 4,
+            "digest": "d870f939e2160f5b489ab46332821ae2999a14c2880d5356c249e134470b82a4"
+          },
+          "identicalCommands": true,
+          "lostPriorWin": false
+        },
+        {
+          "key": "fighting-withdrawal/default/hard:normal/15511/outbound",
+          "before": {
+            "winner": "red",
+            "turns": 5,
+            "digest": "23bf0560ce7edd2a89b3bdd6c683e39673e30b1d575a9cd9d114912130b4e4d5"
+          },
+          "after": {
+            "winner": "red",
+            "turns": 5,
+            "digest": "23bf0560ce7edd2a89b3bdd6c683e39673e30b1d575a9cd9d114912130b4e4d5"
+          },
+          "identicalCommands": true,
+          "lostPriorWin": false
+        },
+        {
+          "key": "fighting-withdrawal/default/normal:easy/15512/outbound",
+          "before": {
+            "winner": "red",
+            "turns": 4,
+            "digest": "dfc0abc356b8099425110865e2de9fbdfe1d6e9c04528cd3f3c6b145f4869715"
+          },
+          "after": {
+            "winner": "red",
+            "turns": 4,
+            "digest": "dfc0abc356b8099425110865e2de9fbdfe1d6e9c04528cd3f3c6b145f4869715"
+          },
+          "identicalCommands": true,
+          "lostPriorWin": false
+        },
+        {
+          "key": "fighting-withdrawal/default/hard:easy/15512/outbound",
+          "before": {
+            "winner": "red",
+            "turns": 5,
+            "digest": "5d995992521976e6c82d51442d64d9ee34c3d6b94267c07d6efe7fbea38ed651"
+          },
+          "after": {
+            "winner": "red",
+            "turns": 5,
+            "digest": "5d995992521976e6c82d51442d64d9ee34c3d6b94267c07d6efe7fbea38ed651"
+          },
+          "identicalCommands": true,
+          "lostPriorWin": false
+        },
+        {
+          "key": "fighting-withdrawal/default/normal:normal/15512/outbound",
+          "before": {
+            "winner": "red",
+            "turns": 4,
+            "digest": "1fedcf65c89ec392f0b578f2d15101f25ed4d76fb490b0cbe0d308c76ba6769f"
+          },
+          "after": {
+            "winner": "red",
+            "turns": 4,
+            "digest": "1fedcf65c89ec392f0b578f2d15101f25ed4d76fb490b0cbe0d308c76ba6769f"
+          },
+          "identicalCommands": true,
+          "lostPriorWin": false
+        },
+        {
+          "key": "fighting-withdrawal/default/hard:normal/15512/outbound",
+          "before": {
+            "winner": "red",
+            "turns": 5,
+            "digest": "80e2a9fec629979b8cfd169a8a823e3a59ec9a163a8e461da03014da4db685f9"
+          },
+          "after": {
+            "winner": "red",
+            "turns": 5,
+            "digest": "80e2a9fec629979b8cfd169a8a823e3a59ec9a163a8e461da03014da4db685f9"
+          },
+          "identicalCommands": true,
+          "lostPriorWin": false
+        },
+        {
+          "key": "encirclement-breakout/default/normal:easy/15511/outbound",
+          "before": {
+            "winner": "red",
+            "turns": 3,
+            "digest": "463504b331ce629e85b4c1a50f2f2bf3ddaecf86ee32f2de2c5835e3774a387f"
+          },
+          "after": {
+            "winner": "red",
+            "turns": 3,
+            "digest": "463504b331ce629e85b4c1a50f2f2bf3ddaecf86ee32f2de2c5835e3774a387f"
+          },
+          "identicalCommands": true,
+          "lostPriorWin": false
+        },
+        {
+          "key": "encirclement-breakout/default/hard:easy/15511/outbound",
+          "before": {
+            "winner": "red",
+            "turns": 3,
+            "digest": "04bb06aec09f4d2f0968b452a8741d2aa60a6cce923d610f39dd360764e4d6b5"
+          },
+          "after": {
+            "winner": "red",
+            "turns": 3,
+            "digest": "04bb06aec09f4d2f0968b452a8741d2aa60a6cce923d610f39dd360764e4d6b5"
+          },
+          "identicalCommands": true,
+          "lostPriorWin": false
+        },
+        {
+          "key": "encirclement-breakout/default/normal:normal/15511/outbound",
+          "before": {
+            "winner": "red",
+            "turns": 3,
+            "digest": "463504b331ce629e85b4c1a50f2f2bf3ddaecf86ee32f2de2c5835e3774a387f"
+          },
+          "after": {
+            "winner": "red",
+            "turns": 3,
+            "digest": "463504b331ce629e85b4c1a50f2f2bf3ddaecf86ee32f2de2c5835e3774a387f"
+          },
+          "identicalCommands": true,
+          "lostPriorWin": false
+        },
+        {
+          "key": "encirclement-breakout/default/hard:normal/15511/outbound",
+          "before": {
+            "winner": "red",
+            "turns": 3,
+            "digest": "04bb06aec09f4d2f0968b452a8741d2aa60a6cce923d610f39dd360764e4d6b5"
+          },
+          "after": {
+            "winner": "red",
+            "turns": 3,
+            "digest": "04bb06aec09f4d2f0968b452a8741d2aa60a6cce923d610f39dd360764e4d6b5"
+          },
+          "identicalCommands": true,
+          "lostPriorWin": false
+        },
+        {
+          "key": "encirclement-breakout/default/normal:easy/15512/outbound",
+          "before": {
+            "winner": "red",
+            "turns": 3,
+            "digest": "4b9e7b2f5904a2e274b7ffb2298a6c8aa1ba458f3626ac703c8195ff05fb457d"
+          },
+          "after": {
+            "winner": "red",
+            "turns": 3,
+            "digest": "4b9e7b2f5904a2e274b7ffb2298a6c8aa1ba458f3626ac703c8195ff05fb457d"
+          },
+          "identicalCommands": true,
+          "lostPriorWin": false
+        },
+        {
+          "key": "encirclement-breakout/default/hard:easy/15512/outbound",
+          "before": {
+            "winner": "red",
+            "turns": 3,
+            "digest": "4b9e7b2f5904a2e274b7ffb2298a6c8aa1ba458f3626ac703c8195ff05fb457d"
+          },
+          "after": {
+            "winner": "red",
+            "turns": 3,
+            "digest": "4b9e7b2f5904a2e274b7ffb2298a6c8aa1ba458f3626ac703c8195ff05fb457d"
+          },
+          "identicalCommands": true,
+          "lostPriorWin": false
+        },
+        {
+          "key": "encirclement-breakout/default/normal:normal/15512/outbound",
+          "before": {
+            "winner": "red",
+            "turns": 3,
+            "digest": "4b9e7b2f5904a2e274b7ffb2298a6c8aa1ba458f3626ac703c8195ff05fb457d"
+          },
+          "after": {
+            "winner": "red",
+            "turns": 3,
+            "digest": "4b9e7b2f5904a2e274b7ffb2298a6c8aa1ba458f3626ac703c8195ff05fb457d"
+          },
+          "identicalCommands": true,
+          "lostPriorWin": false
+        },
+        {
+          "key": "encirclement-breakout/default/hard:normal/15512/outbound",
+          "before": {
+            "winner": "red",
+            "turns": 3,
+            "digest": "4b9e7b2f5904a2e274b7ffb2298a6c8aa1ba458f3626ac703c8195ff05fb457d"
+          },
+          "after": {
+            "winner": "red",
+            "turns": 3,
+            "digest": "4b9e7b2f5904a2e274b7ffb2298a6c8aa1ba458f3626ac703c8195ff05fb457d"
+          },
+          "identicalCommands": true,
+          "lostPriorWin": false
+        }
+      ]
+    }
+  }
+}
