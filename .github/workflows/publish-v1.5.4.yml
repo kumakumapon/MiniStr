@@ -33,7 +33,7 @@ jobs:
           export const TARGET = '0f016e46bdff2e896f3592b4c4784efe8dd10386';
           export const TAG = 'v1.5.4';
           const check = (value, message) => { if (!value) throw new Error(message); };
-          
+
           export async function publishRelease(api) {
             const main = await api('GET', '/git/ref/heads/main');
             check(main?.object?.sha === TARGET, 'Current main differs from the approved release target.');
