@@ -1,0 +1,123 @@
+name: Publish v1.5.5
+
+on:
+  push:
+    branches: [release/v1.5.5-publish]
+    paths: [.github/workflows/publish-v1.5.5.yml]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: publish-release-v1.5.5
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    if: github.repository == 'kumakumapon/MiniStr' && github.event_name == 'push' && github.ref == 'refs/heads/release/v1.5.5-publish'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write
+      actions: read
+    steps:
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+          package-manager-cache: false
+      - name: Verify published build and create the pinned release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          node --input-type=module <<'NODE'
+          export const TARGET = '053a22c22b286c5d59051b485a38b734a21112ce';
+          export const TAG = 'v1.5.5';
+          const check = (value, message) => { if (!value) throw new Error(message); };
+
+          export async function publishRelease(api) {
+            const main = await api('GET', '/git/ref/heads/main');
+            check(main?.object?.sha === TARGET, 'Current main differs from the approved release target.');
+            const pkg = await api('GET', `/contents/package.json?ref=${TARGET}`);
+            check(pkg?.encoding === 'base64', 'Missing package metadata.');
+            check(JSON.parse(Buffer.from(pkg.content, 'base64').toString()).version === '1.5.5', 'Unexpected version.');
+            for (const id of [42854367450, 42854366087]) {
+              const run = await api('GET', `/actions/runs/${id}`);
+              check(run?.head_sha === TARGET && run.status === 'completed' && run.conclusion === 'success' && run.head_branch === 'main', `Verification run ${id} did not succeed for the target.`);
+            }
+            const artifact = await api('GET', '/actions/artifacts/13783496886');
+            check(artifact?.name === 'github-pages' && !artifact.expired && artifact.workflow_run?.head_sha === TARGET && artifact.workflow_run?.id === 42854367450
+              && artifact.digest === 'sha256:1d7549efe18fca5172a9f3d7064b79c4d2d540739472d1e2c7a9e88656cc3730', 'Pages artifact does not match the verified build.');
+            const deployment = await api('GET', '/actions/jobs/129976152029');
+            check(deployment?.run_id === 42854367450 && deployment.conclusion === 'success' && deployment.status === 'completed'
+              && deployment.steps?.some(step => step.name === 'Confirm this build is still current main' && step.conclusion === 'success'), 'Pages deployment was not verified.');
+            const refPath = `/git/ref/tags/${TAG}`;
+            const ref = await api('GET', refPath);
+            check(!ref || (ref.object?.type === 'commit' && ref.object.sha === TARGET), 'Existing tag points elsewhere; refusing to overwrite.');
+            const existing = await api('GET', `/releases/tags/${TAG}`);
+            const verifyRelease = release => {
+              check(release?.tag_name === TAG && release.draft === false && release.prerelease === false
+                && release.html_url === `https://github.com/kumakumapon/MiniStr/releases/tag/${TAG}`, 'Release metadata was not confirmed.');
+            };
+            if (existing) {
+              check(ref, 'Existing release has no verified tag.');
+              verifyRelease(existing);
+              return existing;
+            }
+            const notes = await api('GET', `/contents/docs/releases/${TAG}.md?ref=${TARGET}`);
+            check(notes?.encoding === 'base64', 'Missing release notes.');
+            let body = Buffer.from(notes.content, 'base64').toString();
+            check(body.startsWith(`# ${TAG}\n`), 'Release notes version does not match.');
+            body = body.replaceAll('/blob/main/', `/blob/${TARGET}/`)
+              + `\n## 検証・公開\n\n対象: \`${TARGET}\`（PR #278）。\n\n`
+              + '- [main CI・Pages](https://github.com/kumakumapon/MiniStr/actions/runs/42854367450)・[CodeQL](https://github.com/kumakumapon/MiniStr/actions/runs/42854366087): 成功。\n'
+              + '- 単体1,647件、配布UI67件、E2E565件、WebKit地形33件、Node22.13互換を確認。\n'
+              + '- 既知seed15422はT16敗北からT18達成へ改善。148条件の比較で従来勝利の敗北化なし。seed15241のT23達成を維持。\n'
+              + '- Pages artifact 13783496886と公開対象SHAを照合済み。\n'
+              + '- [ゲーム](https://kumakumapon.github.io/MiniStr/)\n';
+            check((await api('GET', '/git/ref/heads/main'))?.object?.sha === TARGET, 'Main changed during preflight.');
+            if (!ref) await api('POST', '/git/refs', { ref: `refs/tags/${TAG}`, sha: TARGET });
+            check((await api('GET', refPath))?.object?.sha === TARGET, 'Tag was not created at the approved commit.');
+            const release = await api('POST', '/releases', { tag_name: TAG, target_commitish: TARGET, name: TAG, body, draft: false, prerelease: false, make_latest: 'true' });
+            verifyRelease(release);
+            check((await api('GET', refPath))?.object?.sha === TARGET, 'Tag changed during publication.');
+            return release;
+          }
+
+          export async function verifyDeployedBuild(fetchPage) {
+            const site = new URL('https://kumakumapon.github.io/MiniStr/');
+            const fetchText = async url => {
+              const response = await fetchPage(url, { redirect: 'error', signal: AbortSignal.timeout(30_000),
+                headers: { 'cache-control': 'no-cache' } });
+              check(response.ok, 'Could not read the deployed Pages build.');
+              return response.text();
+            };
+            const html = await fetchText(site.href + '?release=v1.5.5');
+            const scripts = [...html.matchAll(/<script\b[^>]*\bsrc=["']([^"']+)["'][^>]*>/g)]
+              .map(match => new URL(match[1], site));
+            const entries = scripts.filter(url => url.origin === site.origin
+              && url.pathname.startsWith('/MiniStr/assets/') && url.pathname.endsWith('.js'));
+            check(entries.length === 1, 'Could not identify the deployed entry bundle.');
+            const code = await fetchText(entries[0].href);
+            check(code.includes(JSON.stringify('1.5.5')) && code.includes(JSON.stringify(TARGET)),
+              'Live Pages version/SHA does not match the release target.');
+            console.log('Verified live Pages v1.5.5 at ' + TARGET);
+          }
+          check(process.env.GITHUB_REPOSITORY === 'kumakumapon/MiniStr'
+            && process.env.GITHUB_REF === 'refs/heads/release/v1.5.5-publish'
+            && process.env.GITHUB_EVENT_NAME === 'push' && process.env.GH_TOKEN, 'Invalid publication context.');
+          const api = async (method, path, data) => {
+            const response = await fetch(`https://api.github.com/repos/kumakumapon/MiniStr${path}`, {
+              method,
+              headers: { authorization: `Bearer ${process.env.GH_TOKEN}`, accept: 'application/vnd.github+json',
+                'X-GitHub-Api-Version': '2022-11-28', 'content-type': 'application/json' },
+              body: data === undefined ? undefined : JSON.stringify(data),
+              redirect: 'error', signal: AbortSignal.timeout(30_000),
+            });
+            if (method === 'GET' && response.status === 404) return null;
+            if (!response.ok) throw new Error(`GitHub HTTP ${response.status}: ${method} ${path}`);
+            return response.json();
+          };
+          await verifyDeployedBuild(fetch);
+          const release = await publishRelease(api);
+          console.log(`Published ${release.html_url} at ${TARGET}`);
+          NODE
