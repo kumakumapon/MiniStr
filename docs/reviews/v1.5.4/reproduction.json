@@ -1,0 +1,46 @@
+{
+  "key": "convoy-escort/default/hard:easy/15241/outbound",
+  "before": {
+    "winner": "blue",
+    "turn": 61,
+    "target": {
+      "id": "r1",
+      "kind": "apc",
+      "owner": "red",
+      "position": {
+        "x": 11,
+        "y": 7
+      },
+      "hp": 100,
+      "fuel": 63,
+      "ammo": 6,
+      "hasMoved": false,
+      "hasActed": false,
+      "supplyStock": 179,
+      "experience": 2
+    }
+  },
+  "after": {
+    "winner": "red",
+    "turn": 23,
+    "evacuated": [
+      {
+        "id": "r1",
+        "kind": "apc",
+        "owner": "red",
+        "position": {
+          "x": 11,
+          "y": 4
+        },
+        "hp": 23,
+        "fuel": 62,
+        "ammo": 4,
+        "hasMoved": true,
+        "hasActed": true,
+        "supplyStock": 289,
+        "experience": 4
+      }
+    ]
+  },
+  "baseline": "289bf2e66673ba3f0bc15ae2311b704a0a1e0fac"
+}

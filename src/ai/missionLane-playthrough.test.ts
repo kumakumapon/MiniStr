@@ -1,4 +1,6 @@
 import { expect, it } from 'vitest';
+import { readFileSync } from 'node:fs';
+import { gunzipSync } from 'node:zlib';
 import { evaluationScenario } from '../../scripts/tacticsV151Scenario';
 import { createScenarioInitialState, scenarioById } from '../game/maps';
 import { valueOf } from '../game/operations.fixture';
@@ -43,4 +45,15 @@ it('seed15241: clears the escort exit, resumes a saved CPU turn and replays the 
   expect(state.evacuatedUnits?.some((unit) => unit.id === 'r1')).toBe(true);
   const replay = valueOf(createReplay({ mapId: 'convoy-escort', difficulty: 'easy', redDifficulty: 'hard', initialState, commands }));
   expect(valueOf(parseReplay(valueOf(serializeReplay(replay)))).finalState).toEqual(JSON.parse(JSON.stringify(state)));
+}, 30_000);
+
+it('replays the pre-fix failure from recorded commands without applying new CPU decisions', () => {
+  const histories = JSON.parse(gunzipSync(readFileSync('docs/reviews/v1.5.4/reproduction-before.commands.json.gz')).toString()) as Record<string, GameCommand[]>;
+  const commands = histories['convoy-escort/default/hard:easy/15241/outbound']!;
+  const initialState: GameState = { ...createScenarioInitialState(evaluationScenario(scenarioById('convoy-escort')!, 'default', 15241)), ruleVersion: 14 };
+  const replay = valueOf(createReplay({ mapId: 'convoy-escort', difficulty: 'easy', redDifficulty: 'hard', initialState, commands }));
+  const restored = valueOf(parseReplay(valueOf(serializeReplay(replay))));
+  expect(restored.finalState.winner).toBe('blue');
+  expect(restored.finalState.turn).toBe(61);
+  expect(restored.finalState.units.find((unit) => unit.id === 'r1')?.hp).toBe(100);
 }, 30_000);
