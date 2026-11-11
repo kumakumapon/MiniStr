@@ -1,0 +1,57 @@
+name: Verify v1.5.7 deployment
+
+on:
+  push:
+    branches: [diagnostics/v1.5.7-deployment]
+    paths: [.github/workflows/verify-v1.5.7.yml]
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    if: github.repository == 'kumakumapon/MiniStr' && github.ref == 'refs/heads/diagnostics/v1.5.7-deployment'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: 41dd5617bf82571e048393ba8f736e8e8c1c9b23
+          path: source
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: source/package-lock.json
+      - run: npm install --global npm@11.9.0
+      - run: npm ci
+        working-directory: source
+      - run: npm run lint
+        working-directory: source
+      - run: npm run format:check
+        working-directory: source
+      - run: npm run typecheck:test
+        working-directory: source
+      - name: Check deployment and preset regressions
+        run: npm test -- src/game/deploymentPositions.test.ts src/game/deployment.test.ts src/game/deploymentPresets.test.ts src/ui/deploymentPositions.test.ts src/ui/deployment.test.ts
+        working-directory: source
+      - run: npm run test:ci
+        working-directory: source
+      - run: npm run build
+        working-directory: source
+      - run: sudo bash scripts/use-ubuntu-https-mirror.sh
+        working-directory: source
+      - run: npx playwright install --with-deps chromium firefox webkit
+        working-directory: source
+      - name: Verify new controls in all three browsers
+        run: npx playwright test tests/e2e/strategy-expansion.spec.ts --grep 'pre-operation positions'
+        working-directory: source
+      - name: Preserve screenshots and failure evidence
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: deployment-v157
+          path: source/test-results/
+          if-no-files-found: ignore
+          retention-days: 14
