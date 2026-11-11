@@ -2,6 +2,7 @@ import { afterEach, describe, expect, it } from 'vitest';
 import { deploymentSlots } from '../game/deployment';
 import { defaultDeploymentPlacements } from '../game/deploymentPositions';
 import { maps } from '../game/maps';
+import type { Position } from '../game/types';
 import { renderDeployment } from './deployment';
 import { setLocale } from './locale';
 
@@ -35,5 +36,16 @@ describe('starting-position briefing', () => {
     expect(document.querySelectorAll('[data-position-player="red"]')).toHaveLength(5);
     expect(document.querySelectorAll('[data-position-player="blue"]')).toHaveLength(0);
     expect(document.querySelectorAll('.deployment-position-grid')).toHaveLength(1);
+  });
+
+  it('escapes malformed coordinate attributes before inserting briefing HTML', () => {
+    const placements = defaultDeploymentPlacements(canyon);
+    placements.red[4] = { x: '\"><img src=x onerror=alert(1)>', y: '<script>alert(1)</script>' } as unknown as Position;
+    document.body.innerHTML = renderDeployment(canyon, choices, ['red'], true, '', undefined, { placements });
+    expect(document.querySelectorAll('img, script, [onerror]')).toHaveLength(0);
+    const fixed = document.querySelector<HTMLSelectElement>('#briefing-position-red-4');
+    expect(fixed?.disabled).toBe(true);
+    expect(fixed?.selectedOptions[0]?.textContent).toBe('(NaN, NaN)');
+    expect(fixed?.value).toBe(`${placements.red[4].x},${placements.red[4].y}`);
   });
 });

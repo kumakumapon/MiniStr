@@ -15,7 +15,7 @@ export function renderDeploymentPositionChoice(scenario: ScenarioDefinition, pla
   const fixed = isFixedDeploymentPosition(scenario, player, index);
   const en = getLocale() === 'en';
   const options = fixed ? [position] : deploymentPositionOptions(scenario, player, index, view.placements, kind);
-  return `<label class="deployment-position-choice"><span>${en ? 'Starting position' : '出撃位置'}${fixed ? ` · ${en ? 'Fixed position' : '配置固定'}` : ''}</span><select id="briefing-position-${player}-${index}" data-position-player="${player}" data-position-slot="${index}" aria-label="${escapeHtml(id)} ${en ? 'starting position' : '出撃位置'}" ${fixed ? 'disabled' : ''}>${options.map((candidate) => `<option value="${positionKey(candidate)}" ${positionKey(candidate) === positionKey(position) ? 'selected' : ''}>(${candidate.x + 1}, ${candidate.y + 1})</option>`).join('')}</select></label>`;
+  return `<label class="deployment-position-choice"><span>${en ? 'Starting position' : '出撃位置'}${fixed ? ` · ${en ? 'Fixed position' : '配置固定'}` : ''}</span><select id="briefing-position-${escapeHtml(player)}-${Number(index)}" data-position-player="${escapeHtml(player)}" data-position-slot="${Number(index)}" aria-label="${escapeHtml(id)} ${en ? 'starting position' : '出撃位置'}" ${fixed ? 'disabled' : ''}>${options.map((candidate) => `<option value="${escapeHtml(positionKey(candidate))}" ${positionKey(candidate) === positionKey(position) ? 'selected' : ''}>(${Number(candidate.x) + 1}, ${Number(candidate.y) + 1})</option>`).join('')}</select></label>`;
 }
 
 /** A compact area preview stays inside the briefing; coordinates use the board's one-based labels. */
@@ -25,12 +25,12 @@ export function renderDeploymentPositionArea(scenario: ScenarioDefinition, playe
   const occupied = new Map(view.placements[player].map((position, index) => [positionKey(position), `${player[0]}${index + 1}`]));
   const first = area[0]!,
     last = area.at(-1)!;
-  return `<section class="deployment-position-area" aria-label="${en ? 'Starting area preview' : '配置区域のプレビュー'}"><p>${en ? 'Starting area' : '配置区域'}: X ${first.x + 1}–${last.x + 1}, Y ${first.y + 1}–${last.y + 1} · ${en ? 'Aircraft positions stay fixed.' : '航空部隊の位置は固定です。'}</p><ol class="deployment-position-grid">${area
+  return `<section class="deployment-position-area" aria-label="${en ? 'Starting area preview' : '配置区域のプレビュー'}"><p>${en ? 'Starting area' : '配置区域'}: X ${Number(first.x) + 1}–${Number(last.x) + 1}, Y ${Number(first.y) + 1}–${Number(last.y) + 1} · ${en ? 'Aircraft positions stay fixed.' : '航空部隊の位置は固定です。'}</p><ol class="deployment-position-grid">${area
     .map((position) => {
       const id = occupied.get(positionKey(position));
-      return `<li class="${id ? `deployment-position-unit ${player}` : ''}"><span>(${position.x + 1}, ${position.y + 1})</span><strong>${id ?? (en ? 'Empty' : '空き')}</strong></li>`;
+      return `<li class="${id ? `deployment-position-unit ${escapeHtml(player)}` : ''}"><span>(${Number(position.x) + 1}, ${Number(position.y) + 1})</span><strong>${escapeHtml(id ?? (en ? 'Empty' : '空き'))}</strong></li>`;
     })
-    .join('')}</ol><button class="save-action" data-position-reset="${player}">${en ? 'Restore positions only' : '位置だけ既定に戻す'}</button></section>`;
+    .join('')}</ol><button class="save-action" data-position-reset="${escapeHtml(player)}">${en ? 'Restore positions only' : '位置だけ既定に戻す'}</button></section>`;
 }
 
 export function renderDeploymentPositionNote(): string {
