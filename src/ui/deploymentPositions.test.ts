@@ -59,7 +59,7 @@ describe('starting-position briefing', () => {
     document.body.innerHTML = renderDeployment(canyon, choices, ['red'], true, '', undefined, { placements: defaultDeploymentPlacements(canyon) });
     expect(document.querySelector('summary')?.textContent).toBe(hostile);
     expect(document.querySelectorAll('img, [onerror]')).toHaveLength(0);
-    const mission = operation();
+    const mission = operation({ victoryConditions: [{ type: 'escort', unitIds: ['r1'], positions: [{ x: 3, y: 1 }], required: 1 }] });
     const missionChoices = { red: deploymentSlots(mission).map((slot) => slot.kind), blue: deploymentSlots(mission, 'blue').map((slot) => slot.kind) };
     document.body.innerHTML = renderDeployment(mission, missionChoices, ['red'], true, '');
     expect(document.querySelector('.deployment-slot')?.textContent).toContain(hostile);
