@@ -1,4 +1,4 @@
-name: Diagnose Ubuntu mirrors for v1.5.7
+name: Verify Ubuntu mirror signatures for v1.5.7
 
 on:
   push:
@@ -9,29 +9,19 @@ permissions:
   contents: read
 
 jobs:
-  mirrors:
+  signatures:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - name: Check official signed Ubuntu indexes over HTTPS
+      - name: Verify all required Ubuntu indexes with the existing archive keyring
         shell: bash
         run: |
-          set -u
-          for mirror_url in \
-            https://archive.ubuntu.com/ubuntu \
-            https://security.ubuntu.com/ubuntu \
-            https://azure.archive.ubuntu.com/ubuntu \
-            https://mirrors.edge.kernel.org/ubuntu \
-            https://mirrors.kernel.org/ubuntu \
-            https://mirror.hetzner.com/ubuntu/packages; do
-            mirror_host="${mirror_url#https://}"
-            mirror_host="${mirror_host%%/*}"
-            if timeout 3 getent ahosts "$mirror_host" >/dev/null; then
-              echo "DNS ready: $mirror_host"
-            else
-              echo "DNS unavailable: $mirror_host"
-            fi
-            curl --proto '=https' --silent --show-error --connect-timeout 3 --max-time 5 \
-              --output /dev/null --write-out "HTTPS %{http_code}: $mirror_url/dists/resolute/InRelease\\n" \
-              "$mirror_url/dists/resolute/InRelease" || true
+          set -euo pipefail
+          for ubuntu_suite in resolute resolute-updates resolute-security; do
+            index_file="/tmp/ministr-v157-$ubuntu_suite.InRelease"
+            curl --proto '=https' --fail --silent --show-error --connect-timeout 5 --max-time 20 \
+              --output "$index_file" "https://mirrors.edge.kernel.org/ubuntu/dists/$ubuntu_suite/InRelease"
+            gpgv --keyring /usr/share/keyrings/ubuntu-archive-keyring.gpg "$index_file"
+            echo "Verified Ubuntu signature: $ubuntu_suite"
+            sha256sum "$index_file"
           done
