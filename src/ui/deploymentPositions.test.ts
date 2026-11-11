@@ -40,7 +40,7 @@ describe('starting-position briefing', () => {
 
   it('escapes malformed coordinate attributes before inserting briefing HTML', () => {
     const placements = defaultDeploymentPlacements(canyon);
-    placements.red[4] = { x: '\"><img src=x onerror=alert(1)>', y: '<script>alert(1)</script>' } as unknown as Position;
+    placements.red[4] = { x: '"><img src=x onerror=alert(1)>', y: '<script>alert(1)</script>' } as unknown as Position;
     document.body.innerHTML = renderDeployment(canyon, choices, ['red'], true, '', undefined, { placements });
     expect(document.querySelectorAll('img, script, [onerror]')).toHaveLength(0);
     const fixed = document.querySelector<HTMLSelectElement>('#briefing-position-red-4');
