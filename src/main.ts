@@ -27,6 +27,7 @@ import { BRIDGE_RULE_VERSION, CURRENT_RULE_VERSION } from './game/types';
 import { japaneseUnitNames } from './ui/unitNameText';
 import { createDeploymentScenario, deploymentSlots, evacuationObjectives, canEvacuateUnit, isEvacuationCondition, isEvacuationTarget, operationScenarios, type GameResult } from './game';
 import { renderDeployment } from './ui/deployment';
+import { createPositionedDeploymentScenario, defaultDeploymentPlacements, deploymentPositionOptions, supportsDeploymentPositions } from './game/deploymentPositions';
 import { BattleHistory } from './game/battleHistory';
 import { remainingRecon } from './game/recon';
 import { renderControlObjective, renderOperationChallenges, renderReconControl } from './ui/operationsExpansion';
@@ -116,6 +117,7 @@ let selectedMap = maps[0]!;
 let game = start(selectedMap.id);
 let deploymentBase: ScenarioDefinition | undefined = selectedMap;
 let deploymentChoices: Record<PlayerId, UnitKind[]> = { red: deploymentSlots(selectedMap, 'red').map(slot => slot.kind), blue: deploymentSlots(selectedMap, 'blue').map(slot => slot.kind) };
+let deploymentPlacements = defaultDeploymentPlacements(selectedMap);
 let deploymentOpen = false;
 let deploymentNotice = '';
 const presetLoad = loadDeploymentPresets(localStorage);
@@ -509,8 +511,12 @@ function syncBoardZoom(boardWidth: number): void {
   if (boardZoomAuto) boardZoomIndex = defaultBoardZoomIndex(boardAreaWidth(window.innerWidth), boardWidth);
 }
 
+function positionDeploymentPlayers(): readonly PlayerId[] { return matchMode === 'cpu' ? ['red'] : ['red', 'blue']; }
+function canPositionDeployment(): boolean { return !!deploymentBase && !campaignRun && !dailyLocked() && supportsDeploymentPositions(deploymentBase); }
+
 function plannedDeployment(): GameResult<ScenarioDefinition> {
   if (!deploymentBase || deploymentBase.id === 'training') return { ok: true, value: selectedMap };
+  if (canPositionDeployment()) return createPositionedDeploymentScenario(deploymentBase, deploymentChoices, deploymentPlacements, positionDeploymentPlayers());
   const veterans = campaignRun ? campaignDeployment(campaignProgress, campaignRun.scenarioId).veterans : undefined;
   const red = createDeploymentScenario(deploymentBase, deploymentChoices.red, 'red', veterans);
   if (!red.ok || matchMode === 'cpu') return red;
@@ -547,6 +553,7 @@ function resetGame(mapId: string, operation?: ScenarioDefinition): void {
   if (!campaignRun && !finiteSupplies && !game.tactics) game = { ...game, ruleVersion: BRIDGE_RULE_VERSION };
   deploymentBase = selectedMap;
   deploymentChoices = { red: deploymentSlots(selectedMap, 'red').map(slot => slot.kind), blue: deploymentSlots(selectedMap, 'blue').map(slot => slot.kind) };
+  deploymentPlacements = defaultDeploymentPlacements(selectedMap);
   deploymentOpen = false;
   deploymentNotice = '';
   presetDraftNames = {};
@@ -1367,7 +1374,7 @@ function render(): void {
     requiresAirlift: [...deploymentChoices.red, ...deploymentChoices.blue].includes('transportHelicopter'),
     fixedConditions: dailyLocked(),
     mapName: scenarioDisplayName(renderedMap),
-    deployment: ((game.ruleVersion ?? 0) >= 12 && !dailyLocked() && matchMode !== 'hotseat' ? renderArmyPolicies(cpuPolicies, matchMode === 'spectate') : '') + (dailyLocked() && screens.briefingOpen ? renderDailyBriefingNote({ conditions: dailyBriefingConditions(), standard: !!deployment?.ok && isStandardDailyDefinition(deployment.value) }) : '') + (deploymentBase && deploymentBase.id !== 'training' && screens.briefingOpen ? renderDeployment(deploymentBase, deploymentChoices, matchMode === 'cpu' ? ['red'] : ['red', 'blue'], deploymentOpen, deploymentNotice, { catalog: presetCatalog, notice: presetNotice, draftNames: presetDraftNames }) + renderOperationChallenges(renderedMap.id) : ''),
+    deployment: ((game.ruleVersion ?? 0) >= 12 && !dailyLocked() && matchMode !== 'hotseat' ? renderArmyPolicies(cpuPolicies, matchMode === 'spectate') : '') + (dailyLocked() && screens.briefingOpen ? renderDailyBriefingNote({ conditions: dailyBriefingConditions(), standard: !!deployment?.ok && isStandardDailyDefinition(deployment.value) }) : '') + (deploymentBase && deploymentBase.id !== 'training' && screens.briefingOpen ? renderDeployment(deploymentBase, deploymentChoices, matchMode === 'cpu' ? ['red'] : ['red', 'blue'], deploymentOpen, deploymentNotice, { catalog: presetCatalog, notice: presetNotice, draftNames: presetDraftNames }, canPositionDeployment() ? { placements: deploymentPlacements } : undefined) + renderOperationChallenges(renderedMap.id) : ''),
     beginDisabled: deployment !== undefined && !deployment.ok,
     briefing: scenarioDisplayBriefing(renderedMap),
     victoryConditions: [...renderedMap.victoryConditions.map(condition => scenarioConditionDescription(renderedMap, condition, 'red')), ...(renderedDecisionRound === undefined ? [] : [uiText.decisionRule(renderedDecisionRound)])],
@@ -1572,7 +1579,7 @@ function render(): void {
       const preset = presetCatalog.presets.find(entry => entry.scenarioId === deploymentBase!.id && entry.player === player && entry.slot === slot);
       if (!preset) return;
       const result = applyDeploymentPreset(deploymentBase, player, preset);
-      if (result.ok) { deploymentChoices[player] = result.value; presetNotice = `「${preset.name}」を適用しました。`; deploymentNotice = ''; }
+      if (result.ok) { deploymentChoices[player] = result.value; if (canPositionDeployment()) deploymentPlacements[player] = defaultDeploymentPlacements(deploymentBase)[player]; presetNotice = `「${preset.name}」を適用しました。`; deploymentNotice = ''; }
       else presetNotice = result.error;
     } else if (action === 'save' || action === 'delete') {
       const name = app.querySelector<HTMLInputElement>(`#briefing-preset-${player}-${slot}-name`)?.value ?? '';
@@ -2273,9 +2280,27 @@ function render(): void {
     deploymentChoices[player][slot] = control.value as UnitKind;
     deploymentNotice = ''; deploymentOpen = true; focusSelector = `#${control.id}`; render();
   }));
+  app.querySelectorAll<HTMLSelectElement>('[data-position-player]').forEach(control => control.addEventListener('change', () => {
+    const player = control.dataset.positionPlayer;
+    const index = Number(control.dataset.positionSlot);
+    if (!deploymentBase || !canPositionDeployment() || (player !== 'red' && player !== 'blue') || !positionDeploymentPlayers().includes(player) || !Number.isInteger(index)) return;
+    const kind = deploymentChoices[player][index];
+    if (!kind) return;
+    const position = deploymentPositionOptions(deploymentBase, player, index, deploymentPlacements, kind).find(p => `${p.x},${p.y}` === control.value);
+    if (!position) return;
+    deploymentPlacements[player][index] = { ...position };
+    deploymentNotice = ''; deploymentOpen = true; focusSelector = `#${control.id}`; render();
+  }));
+  app.querySelectorAll<HTMLButtonElement>('[data-position-reset]').forEach(button => button.addEventListener('click', () => {
+    const player = button.dataset.positionReset;
+    if (!deploymentBase || !canPositionDeployment() || (player !== 'red' && player !== 'blue') || !positionDeploymentPlayers().includes(player)) return;
+    deploymentPlacements[player] = defaultDeploymentPlacements(deploymentBase)[player];
+    deploymentNotice = ''; deploymentOpen = true; focusSelector = `#briefing-position-${player}-0`; render();
+  }));
   app.querySelector<HTMLButtonElement>('#briefing-deployment-reset')?.addEventListener('click', () => {
     if (!deploymentBase) return;
     deploymentChoices = { red: deploymentSlots(deploymentBase, 'red').map(slot => slot.kind), blue: deploymentSlots(deploymentBase, 'blue').map(slot => slot.kind) };
+    deploymentPlacements = defaultDeploymentPlacements(deploymentBase);
     deploymentNotice = ''; deploymentOpen = true; focusSelector = '#briefing-deployment-reset'; render();
   });
   document.querySelector<HTMLButtonElement>('#begin-operation')?.addEventListener('click', () => {

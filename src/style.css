@@ -1154,3 +1154,13 @@ body.production-menu-open { overflow: hidden; }
 .objective-heading .turn-limit { flex-shrink: 1; min-width: 0; max-width: 100%; white-space: normal; overflow-wrap: anywhere; }
 .mission-timing { color: #b8cbbf; font-size: .75rem; line-height: 1.6; overflow-wrap: anywhere; }
 .briefing-meta .briefing-timing { min-width: 0; max-width: 100%; overflow-wrap: anywhere; }
+
+/* The first position deployment uses a compact four-column home-area preview. */
+.deployment-position-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); list-style: none; gap: 4px; padding: 0; margin: 8px 0; }
+.deployment-position-grid li { display: grid; gap: 4px; padding: 6px 2px; text-align: center; background: #24392d; border: 1px solid #587461; border-radius: 4px; font-size: .7rem; }
+.deployment-position-grid li.deployment-position-unit { border-color: #f0d079; color: #ffe59d; }
+.deployment-position-grid li.blue { border-color: #8bbcf5; color: #c2ddff; }
+.deployment-position-grid strong { font-size: .85rem; }
+.deployment-position-choice { display: grid; grid-template-columns: minmax(105px, 1fr) minmax(0, 2fr); align-items: center; gap: 8px; margin: 0 0 12px; font-size: .8rem; }
+.deployment-position-choice select { width: 100%; min-width: 0; min-height: 44px; }
+.deployment-position-note { color: #ffe59d; }
