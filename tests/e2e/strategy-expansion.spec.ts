@@ -89,3 +89,130 @@ for (const width of [1280, 390])
       await page.screenshot({ path: info.outputPath(`systems-campaign-branch-${width}-${locale}.png`) });
     });
   }
+
+for (const width of [1280, 390])
+  for (const locale of ['ja', 'en']) {
+    test(`pre-operation positions survive commands and resume at ${width}/${locale}`, async ({ page }, info) => {
+      await page.setViewportSize({ width, height: 844 });
+      await page.addInitScript((locale) => localStorage.setItem('ministr.locale', locale), locale);
+      page.on('dialog', (dialog) => dialog.accept());
+      await page.goto('/');
+      await page.locator('.title-map-card[data-map-id="canyon"]').click();
+      await page.locator('input[name="match-mode"][value="hotseat"]').check();
+      await page.locator('#briefing-deployment summary').click();
+      await expect(page.locator('[data-position-player]')).toHaveCount(10);
+      await expect(page.locator('#briefing-position-red-4')).toBeDisabled();
+      await expect(page.locator('#briefing-position-blue-4')).toBeDisabled();
+      await page.locator('#briefing-position-red-0').selectOption('3,4');
+      await expect(page.locator('#briefing-position-red-0')).toBeFocused();
+      await page.locator('#briefing-position-red-0').press('ArrowUp');
+      await expect(page.locator('#briefing-position-red-0')).toHaveValue('2,4');
+      await page.locator('#briefing-position-red-0').selectOption('3,4');
+      await page.locator('#briefing-position-blue-0').selectOption('16,11');
+      await expect(page.locator('.deployment-position-note')).toContainText(locale === 'en' ? 'types only' : '位置を保存せず');
+      await page.locator('.deployment-position-area').first().scrollIntoViewIfNeeded();
+      expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true);
+      await page.screenshot({ path: info.outputPath(`systems-starting-positions-${width}-${locale}.png`), fullPage: true });
+      await page.locator('#begin-operation').click();
+      await page.locator('#save').click();
+      const saved = await page.evaluate(() => JSON.parse(localStorage.getItem('ministr.save.manual')!));
+      expect(saved.schemaVersion).toBe(4);
+      expect(saved.initialState.units.find((u: { id: string }) => u.id === 'r1').position).toEqual({ x: 3, y: 4 });
+      expect(saved.initialState.units.find((u: { id: string }) => u.id === 'b1').position).toEqual({ x: 16, y: 11 });
+      expect(saved.initialState.units.find((u: { id: string }) => u.id === 'r5').position).toEqual({ x: 2, y: 1 });
+      await page.locator('.tile[data-x="3"][data-y="4"]').click();
+      await page.locator('.tile[data-x="3"][data-y="5"]').click();
+      await page.locator('#save').click();
+      await expect(page.locator('.tile[data-x="3"][data-y="5"] .unit')).toBeVisible();
+      await page.reload();
+      await page.locator('#title-continue').click();
+      await page.locator('#handoff-start').click();
+      await expect(page.locator('.tile[data-x="3"][data-y="5"] .unit')).toBeVisible();
+      await expect(page.locator('[data-position-player]')).toHaveCount(0);
+    });
+
+    test(`pre-operation positions respect presets and CPU defaults at ${width}/${locale}`, async ({ page }) => {
+      await page.setViewportSize({ width, height: 844 });
+      await page.addInitScript((locale) => localStorage.setItem('ministr.locale', locale), locale);
+      page.on('dialog', (dialog) => dialog.accept());
+      await page.goto('/');
+      await page.locator('#title-tactical-preset').uncheck();
+      await page.locator('.title-map-card[data-map-id="canyon"]').click();
+      await page.locator('input[name="match-mode"][value="hotseat"]').check();
+      await page.locator('#briefing-deployment summary').click();
+      await page.locator('#briefing-position-red-0').selectOption('3,4');
+      await page.locator('#briefing-position-blue-0').selectOption('16,11');
+      await page.locator('#briefing-deployment-red-1').selectOption('recon');
+      await page.locator('#briefing-preset-red-0-name').fill('Position test');
+      await page.locator('#briefing-preset-red-0-save').click();
+      await expect(page.locator('#briefing-position-red-0')).toHaveValue('3,4');
+      await page.locator('#briefing-preset-red-0-apply').click();
+      await expect(page.locator('#briefing-position-red-0')).toHaveValue('0,2');
+      await expect(page.locator('#briefing-position-blue-0')).toHaveValue('16,11');
+      await expect(page.locator('#briefing-deployment-red-1')).toHaveValue('recon');
+      await page.locator('#briefing-position-red-0').selectOption('3,4');
+      await page.locator('[data-position-reset="red"]').click();
+      await expect(page.locator('#briefing-position-red-0')).toHaveValue('0,2');
+      await expect(page.locator('#briefing-deployment-red-1')).toHaveValue('recon');
+      await page.locator('#briefing-deployment-reset').click();
+      await expect(page.locator('#briefing-position-blue-0')).toHaveValue('19,13');
+      await expect(page.locator('#briefing-deployment-red-1')).toHaveValue('tank');
+      await page.locator('#briefing-position-red-0').selectOption('3,4');
+      await page.locator('#briefing-position-blue-0').selectOption('16,11');
+      await page.locator('input[name="match-mode"][value="cpu"]').check();
+      await expect(page.locator('[data-position-player="blue"]')).toHaveCount(0);
+      await page.locator('#begin-operation').click();
+      await page.locator('#save').click();
+      const saved = await page.evaluate(() => JSON.parse(localStorage.getItem('ministr.save.manual')!));
+      expect(saved.initialState.units.find((u: { id: string }) => u.id === 'r1').position).toEqual({ x: 3, y: 4 });
+      expect(saved.initialState.units.find((u: { id: string }) => u.id === 'b1').position).toEqual({ x: 19, y: 13 });
+      expect(saved.initialState.tactics).toBeUndefined();
+      await page.locator('.tile[data-x="3"][data-y="4"]').click();
+      await page.locator('.tile[data-x="3"][data-y="5"]').click();
+      await expect(page.locator('#undo')).toBeEnabled();
+      await page.locator('#undo').click();
+      await expect(page.locator('.tile[data-x="3"][data-y="4"] .unit')).toBeVisible();
+    });
+  }
+
+test('pre-operation positions stay outside campaign and other operations', async ({ page }) => {
+  const progress = valueOf(recordCampaignVictory(createCampaignProgress(), 'skirmish', 'A'));
+  await page.addInitScript((progress) => localStorage.setItem('ministr.campaign.progress', JSON.stringify(progress)), progress);
+  await page.goto('/');
+  await page.locator('#title-campaign').click();
+  await page.locator('.campaign-start[data-campaign-id="canyon"]').click();
+  await page.locator('#briefing-deployment summary').click();
+  await expect(page.locator('[data-position-player]')).toHaveCount(0);
+  await expect(page.locator('#briefing-deployment-red-0')).toBeVisible();
+  await page.goto('/');
+  await page.locator('.title-map-card[data-map-id="skirmish"]').click();
+  await page.locator('#briefing-deployment summary').click();
+  await expect(page.locator('[data-position-player]')).toHaveCount(0);
+  await expect(page.locator('#briefing-deployment-red-0')).toBeVisible();
+});
+
+test('pre-operation positions initialize both spectator armies', async ({ page }) => {
+  page.on('dialog', (dialog) => dialog.accept('Deployment spectator'));
+  await page.goto('/');
+  await page.locator('.title-map-card[data-map-id="canyon"]').click();
+  await page.locator('input[name="match-mode"][value="spectate"]').check();
+  await page.locator('#briefing-deployment summary').click();
+  await page.locator('#briefing-position-red-0').selectOption('3,4');
+  await page.locator('#briefing-position-blue-0').selectOption('16,11');
+  await page.locator('#begin-operation').click();
+  await page.locator('#spectate-toggle').click();
+  await expect(page.locator('#spectate-toggle')).toHaveAttribute('aria-pressed', 'true');
+  await page.locator('#save').click();
+  const snapshot = await page.evaluate(() => {
+    const key = Object.keys(localStorage).find((key) => key.startsWith('ministr.save.slot.'));
+    if (!key) throw Error('The spectator slot was not saved');
+    return JSON.parse(localStorage.getItem(key)!);
+  });
+  expect(snapshot.mode).toBe('spectate');
+  expect(snapshot.initialState.units.find((u: { id: string }) => u.id === 'r1').position).toEqual({ x: 3, y: 4 });
+  expect(snapshot.initialState.units.find((u: { id: string }) => u.id === 'b1').position).toEqual({ x: 16, y: 11 });
+  await page.reload();
+  await page.locator('.load-save-slot').first().click();
+  await expect(page.locator('#spectate-toggle')).toBeVisible();
+  await expect(page.locator('[data-position-player]')).toHaveCount(0);
+});

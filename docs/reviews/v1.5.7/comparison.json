@@ -1,0 +1,404 @@
+{
+  "format": "deployment-v157-comparison",
+  "baseline": "ffe87428a4f9941024ed19b98e75938cbb081e9f",
+  "catalog": {
+    "n": 52,
+    "entireCommandsIdentical": 52,
+    "previousRedVictoryBecameLoss": 0
+  },
+  "layouts": {
+    "n": 48,
+    "summaries": [
+      {
+        "profile": "off",
+        "layout": "default",
+        "n": 4,
+        "winners": {
+          "red": 4
+        },
+        "turns": [
+          61,
+          61,
+          61,
+          61
+        ],
+        "firstNeutralCapture": [
+          {
+            "red": 7,
+            "blue": 8
+          },
+          {
+            "red": 7,
+            "blue": 8
+          },
+          {
+            "red": 7,
+            "blue": 8
+          },
+          {
+            "red": 7,
+            "blue": 8
+          }
+        ]
+      },
+      {
+        "profile": "off",
+        "layout": "front-both",
+        "n": 4,
+        "winners": {
+          "blue": 4
+        },
+        "turns": [
+          61,
+          61,
+          61,
+          61
+        ],
+        "firstNeutralCapture": [
+          {
+            "red": 3,
+            "blue": 4
+          },
+          {
+            "red": 3,
+            "blue": 4
+          },
+          {
+            "red": 3,
+            "blue": 4
+          },
+          {
+            "red": 3,
+            "blue": 4
+          }
+        ]
+      },
+      {
+        "profile": "off",
+        "layout": "rear-both",
+        "n": 4,
+        "winners": {
+          "red": 4
+        },
+        "turns": [
+          61,
+          61,
+          61,
+          61
+        ],
+        "firstNeutralCapture": [
+          {
+            "red": 7,
+            "blue": 8
+          },
+          {
+            "red": 7,
+            "blue": 8
+          },
+          {
+            "red": 7,
+            "blue": 8
+          },
+          {
+            "red": 7,
+            "blue": 8
+          }
+        ]
+      },
+      {
+        "profile": "off",
+        "layout": "spread-both",
+        "n": 4,
+        "winners": {
+          "blue": 4
+        },
+        "turns": [
+          58,
+          58,
+          61,
+          61
+        ],
+        "firstNeutralCapture": [
+          {
+            "red": 3,
+            "blue": 4
+          },
+          {
+            "red": 3,
+            "blue": 4
+          },
+          {
+            "red": 3,
+            "blue": 4
+          },
+          {
+            "red": 3,
+            "blue": 4
+          }
+        ]
+      },
+      {
+        "profile": "off",
+        "layout": "front-red",
+        "n": 4,
+        "winners": {
+          "blue": 4
+        },
+        "turns": [
+          61,
+          61,
+          61,
+          61
+        ],
+        "firstNeutralCapture": [
+          {
+            "red": 3,
+            "blue": 8
+          },
+          {
+            "blue": 4,
+            "red": 7
+          },
+          {
+            "red": 3,
+            "blue": 8
+          },
+          {
+            "blue": 4,
+            "red": 7
+          }
+        ]
+      },
+      {
+        "profile": "off",
+        "layout": "front-blue",
+        "n": 4,
+        "winners": {
+          "blue": 4
+        },
+        "turns": [
+          61,
+          61,
+          61,
+          61
+        ],
+        "firstNeutralCapture": [
+          {
+            "blue": 4,
+            "red": 7
+          },
+          {
+            "red": 3,
+            "blue": 8
+          },
+          {
+            "blue": 4,
+            "red": 7
+          },
+          {
+            "red": 3,
+            "blue": 8
+          }
+        ]
+      },
+      {
+        "profile": "default",
+        "layout": "default",
+        "n": 4,
+        "winners": {
+          "red": 4
+        },
+        "turns": [
+          61,
+          61,
+          61,
+          61
+        ],
+        "firstNeutralCapture": [
+          {
+            "red": 7,
+            "blue": 8
+          },
+          {
+            "red": 7,
+            "blue": 8
+          },
+          {
+            "red": 7,
+            "blue": 8
+          },
+          {
+            "red": 7,
+            "blue": 8
+          }
+        ]
+      },
+      {
+        "profile": "default",
+        "layout": "front-both",
+        "n": 4,
+        "winners": {
+          "red": 2,
+          "blue": 2
+        },
+        "turns": [
+          61,
+          61,
+          61,
+          61
+        ],
+        "firstNeutralCapture": [
+          {
+            "red": 3,
+            "blue": 4
+          },
+          {
+            "red": 3,
+            "blue": 4
+          },
+          {
+            "red": 3,
+            "blue": 4
+          },
+          {
+            "red": 3,
+            "blue": 4
+          }
+        ]
+      },
+      {
+        "profile": "default",
+        "layout": "rear-both",
+        "n": 4,
+        "winners": {
+          "red": 4
+        },
+        "turns": [
+          61,
+          61,
+          61,
+          61
+        ],
+        "firstNeutralCapture": [
+          {
+            "red": 7,
+            "blue": 8
+          },
+          {
+            "red": 7,
+            "blue": 8
+          },
+          {
+            "red": 7,
+            "blue": 8
+          },
+          {
+            "red": 7,
+            "blue": 8
+          }
+        ]
+      },
+      {
+        "profile": "default",
+        "layout": "spread-both",
+        "n": 4,
+        "winners": {
+          "red": 4
+        },
+        "turns": [
+          61,
+          61,
+          61,
+          61
+        ],
+        "firstNeutralCapture": [
+          {
+            "red": 3,
+            "blue": 4
+          },
+          {
+            "red": 3,
+            "blue": 4
+          },
+          {
+            "red": 3,
+            "blue": 4
+          },
+          {
+            "red": 3,
+            "blue": 4
+          }
+        ]
+      },
+      {
+        "profile": "default",
+        "layout": "front-red",
+        "n": 4,
+        "winners": {
+          "red": 4
+        },
+        "turns": [
+          50,
+          61,
+          61,
+          61
+        ],
+        "firstNeutralCapture": [
+          {
+            "red": 3,
+            "blue": 8
+          },
+          {
+            "blue": 4,
+            "red": 7
+          },
+          {
+            "red": 3,
+            "blue": 8
+          },
+          {
+            "blue": 4,
+            "red": 7
+          }
+        ]
+      },
+      {
+        "profile": "default",
+        "layout": "front-blue",
+        "n": 4,
+        "winners": {
+          "red": 4
+        },
+        "turns": [
+          61,
+          50,
+          61,
+          61
+        ],
+        "firstNeutralCapture": [
+          {
+            "blue": 4,
+            "red": 7
+          },
+          {
+            "red": 3,
+            "blue": 8
+          },
+          {
+            "blue": 4,
+            "red": 7
+          },
+          {
+            "red": 3,
+            "blue": 8
+          }
+        ]
+      }
+    ],
+    "replayRoundTrips": 2
+  },
+  "executedHarnessSha256": "883e85bf3e3bd2f710b6848ed8937599cf5bb3e83b963cfeb4904c0f96f1d9ea",
+  "committedHarnessSha256": "737872230f8be8b7c6a374492de40f02ac24a651bfc2fd561d9373dcd3a520a1",
+  "harnessDifference": "Type-only: add GameState type import and annotate initial. Exact executed source retained in executed-harness.ts.txt. No runtime change.",
+  "note": "CPU logic, rules and terrain unchanged. Layouts deliberately change initial conditions and can change outcomes. Paired rotations and seeds are correlated; no independent win-rate or fairness claim."
+}
