@@ -19,11 +19,11 @@ jobs:
     timeout-minutes: 30
     env:
       RESPONSE_BEFORE_SHA: 053a22c22b286c5d59051b485a38b734a21112ce
-      RESPONSE_AFTER_SHA: 4a1ed9d1686a7bfa4c376ba004aa176158fdf239
+      RESPONSE_AFTER_SHA: a165c0ec5dc61ef5c4e34923d0ca53b5804dc702
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
-          ref: 4a1ed9d1686a7bfa4c376ba004aa176158fdf239
+          ref: a165c0ec5dc61ef5c4e34923d0ca53b5804dc702
           path: after
           persist-credentials: false
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
@@ -49,10 +49,8 @@ jobs:
         run: npm test -- src/ai/escortScreen.test.ts src/ai/escortScreen-playthrough.test.ts src/ui/logisticsRoster.test.ts src/ui/screenView.test.ts
         working-directory: after
       - name: Build the pinned candidate
-        run: npm run build
+        run: GITHUB_SHA="$RESPONSE_AFTER_SHA" npm run build
         working-directory: after
-        env:
-          GITHUB_SHA: 4a1ed9d1686a7bfa4c376ba004aa176158fdf239
       - name: Build the baseline with the same locked dependencies
         run: |
           ln -s "$GITHUB_WORKSPACE/after/node_modules" before/node_modules
