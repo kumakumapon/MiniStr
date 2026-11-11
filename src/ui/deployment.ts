@@ -14,7 +14,7 @@ export function renderDeployment(
   presets?: PresetView,
   positionView?: DeploymentPositionView,
 ): string {
-  return `<details class="deployment-panel" id="briefing-deployment" ${open ? 'open' : ''}><summary>出撃前編成：兵科と予算を確認</summary><p>初期配置の各枠で兵科を選べます。未使用の編成予算は開始資金へ加算します。護衛対象と輸送艦は固定。占領用の歩兵系を必要数残してください。</p>${positionView ? renderDeploymentPositionNote() : ''}${players
+  return `<details class="deployment-panel" id="briefing-deployment" ${open ? 'open' : ''}><summary>${positionView ? translateText('出撃前編成：兵科・配置・予算') : '出撃前編成：兵科と予算を確認'}</summary><p>初期配置の各枠で兵科を選べます。未使用の編成予算は開始資金へ加算します。護衛対象と輸送艦は固定。占領用の歩兵系を必要数残してください。</p>${positionView ? renderDeploymentPositionNote() : ''}${players
     .map((player) => {
       const slots = deploymentSlots(scenario, player);
       const budget = deploymentBudget(scenario, player);

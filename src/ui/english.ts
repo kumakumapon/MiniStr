@@ -446,6 +446,7 @@ export const englishResources: readonly (readonly [string, string])[] = [
   ['CPU速度', 'CPU speed'],
   ['CPUの行動速度を選択', 'Choose CPU speed'],
   ['出撃前編成：兵科と予算を確認', 'Deployment: choose units and review the budget'],
+  ['出撃前編成：兵科・配置・予算', 'Deployment: units, positions and budget'],
   [
     '初期配置の各枠で兵科を選べます。未使用の編成予算は開始資金へ加算します。護衛対象と輸送艦は固定。占領用の歩兵系を必要数残してください。',
     'Choose a unit type for each starting slot. Unspent deployment funds are added to your starting funds. Escorts and landing ships are fixed. Keep enough infantry-type units to capture objectives.',

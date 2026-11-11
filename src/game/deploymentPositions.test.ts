@@ -45,6 +45,16 @@ describe('standalone canyon starting positions', () => {
     expect(isFixedDeploymentPosition(mission, 'red', 1)).toBe(true);
     expect(isFixedDeploymentPosition(mission, 'red', 2)).toBe(false);
     expect(isFixedDeploymentPosition(mission, 'red', 99)).toBe(true);
+    const naval = operation({
+      board: { width: 8, height: 4, fill: 'sea', cells: [] },
+      initialUnits: [
+        { kind: 'destroyer', owner: 'red', x: 0, y: 0 },
+        { kind: 'destroyer', owner: 'blue', x: 7, y: 3 },
+      ],
+      victoryConditions: [{ type: 'eliminate' }],
+      defeatConditions: [{ type: 'eliminate' }],
+    });
+    expect(isFixedDeploymentPosition(naval, 'red', 0)).toBe(true);
   });
 
   it.each([false, true])('keeps the exact previous prepared initial state with default positions (tactics=%s)', (tactics) => {
@@ -72,6 +82,42 @@ describe('standalone canyon starting positions', () => {
     expect(state.players).toEqual(createScenarioInitialState(canyon).players);
     expect(positions).toEqual(draft);
     expect(canyon.initialUnits[0]).toMatchObject({ x: 0, y: 2 });
+  });
+
+  it('keeps every area cell connected to both capitals for each selectable ground type', () => {
+    for (const base of [canyon, tacticalScenario(canyon)])
+      for (const player of players) {
+        const area = deploymentPositionArea(base, player);
+        const kinds = new Set(
+          deploymentSlots(base, player)
+            .slice(0, 4)
+            .flatMap((slot) => slot.choices),
+        );
+        const capitals = base.board.terrain.flatMap((row, y) => row.flatMap((tile, x) => (tile.kind === 'capital' ? [{ x, y }] : [])));
+        for (const kind of kinds) {
+          const queue = [area[0]!],
+            seen = new Set(queue.map(positionKey));
+          for (let index = 0; index < queue.length; index++) {
+            const current = queue[index]!;
+            for (const [dx, dy] of [
+              [1, 0],
+              [-1, 0],
+              [0, 1],
+              [0, -1],
+            ] as const) {
+              const next = { x: current.x + dx, y: current.y + dy };
+              if (!seen.has(positionKey(next)) && Number.isFinite(movementCost(base.board, next, kind))) {
+                seen.add(positionKey(next));
+                queue.push(next);
+              }
+            }
+          }
+          expect(
+            [...area, ...capitals].every((position) => seen.has(positionKey(position))),
+            `${player}/${kind}`,
+          ).toBe(true);
+        }
+      }
   });
 
   it('keeps uneditable CPU positions and unit choices at their authored defaults', () => {
@@ -150,6 +196,7 @@ describe('standalone canyon starting positions', () => {
     expect(options).not.toContainEqual(positions.red[4]);
     expect(options.every((p) => Number.isFinite(movementCost(canyon.board, p, 'infantry')))).toBe(true);
     expect(deploymentPositionOptions(canyon, 'red', 4, positions, 'bomber')).toEqual([]);
+    expect(deploymentPositionOptions(canyon, 'red', 0, positions, 'destroyer')).toEqual([]);
   });
 
   it('copies coordinate fields only, protecting the unit type and owner from extra keys', () => {

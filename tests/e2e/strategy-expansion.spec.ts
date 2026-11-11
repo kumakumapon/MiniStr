@@ -190,3 +190,29 @@ test('pre-operation positions stay outside campaign and other operations', async
   await expect(page.locator('[data-position-player]')).toHaveCount(0);
   await expect(page.locator('#briefing-deployment-red-0')).toBeVisible();
 });
+
+test('pre-operation positions initialize both spectator armies', async ({ page }) => {
+  page.on('dialog', (dialog) => dialog.accept('Deployment spectator'));
+  await page.goto('/');
+  await page.locator('.title-map-card[data-map-id="canyon"]').click();
+  await page.locator('input[name="match-mode"][value="spectate"]').check();
+  await page.locator('#briefing-deployment summary').click();
+  await page.locator('#briefing-position-red-0').selectOption('3,4');
+  await page.locator('#briefing-position-blue-0').selectOption('16,11');
+  await page.locator('#begin-operation').click();
+  await page.locator('#spectate-toggle').click();
+  await expect(page.locator('#spectate-toggle')).toHaveAttribute('aria-pressed', 'true');
+  await page.locator('#save').click();
+  const snapshot = await page.evaluate(() => {
+    const key = Object.keys(localStorage).find((key) => key.startsWith('ministr.save.slot.'));
+    if (!key) throw Error('The spectator slot was not saved');
+    return JSON.parse(localStorage.getItem(key)!);
+  });
+  expect(snapshot.mode).toBe('spectate');
+  expect(snapshot.initialState.units.find((u: { id: string }) => u.id === 'r1').position).toEqual({ x: 3, y: 4 });
+  expect(snapshot.initialState.units.find((u: { id: string }) => u.id === 'b1').position).toEqual({ x: 16, y: 11 });
+  await page.reload();
+  await page.locator('.load-save-slot').first().click();
+  await expect(page.locator('#spectate-toggle')).toBeVisible();
+  await expect(page.locator('[data-position-player]')).toHaveCount(0);
+});
