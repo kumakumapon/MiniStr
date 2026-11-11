@@ -1,0 +1,74 @@
+name: Response comparison v1.5.6
+
+on:
+  push:
+    branches: [diagnostics/v1.5.6-response]
+    paths: [.github/workflows/measure-v1.5.6.yml]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: response-comparison-v1.5.6
+  cancel-in-progress: false
+
+jobs:
+  compare:
+    if: github.repository == 'kumakumapon/MiniStr' && github.ref == 'refs/heads/diagnostics/v1.5.6-response'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      RESPONSE_BEFORE_SHA: 053a22c22b286c5d59051b485a38b734a21112ce
+      RESPONSE_AFTER_SHA: 4a1ed9d1686a7bfa4c376ba004aa176158fdf239
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: 4a1ed9d1686a7bfa4c376ba004aa176158fdf239
+          path: after
+          persist-credentials: false
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: 053a22c22b286c5d59051b485a38b734a21112ce
+          path: before
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: after/package-lock.json
+      - run: npm install --global npm@11.9.0
+      - run: npm ci
+        working-directory: after
+      - run: npm run lint
+        working-directory: after
+      - run: npm run format:check
+        working-directory: after
+      - run: npm run typecheck:test
+        working-directory: after
+      - name: Verify affected unit tests
+        run: npm test -- src/ai/escortScreen.test.ts src/ai/escortScreen-playthrough.test.ts src/ui/logisticsRoster.test.ts src/ui/screenView.test.ts
+        working-directory: after
+      - name: Build the pinned candidate
+        run: npm run build
+        working-directory: after
+        env:
+          GITHUB_SHA: 4a1ed9d1686a7bfa4c376ba004aa176158fdf239
+      - name: Build the baseline with the same locked dependencies
+        run: |
+          ln -s "$GITHUB_WORKSPACE/after/node_modules" before/node_modules
+          GITHUB_SHA="$RESPONSE_BEFORE_SHA" npm --prefix before run build
+      - run: sudo bash scripts/use-ubuntu-https-mirror.sh
+        working-directory: after
+      - run: npx playwright install --with-deps chromium firefox webkit
+        working-directory: after
+      - name: Measure three alternating pairs per engine sequentially
+        run: node scripts/run-response-v156.mjs ../before . ../response-evidence
+        working-directory: after
+      - name: Preserve all measurements and first-pair screenshots
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: response-v156
+          path: response-evidence/
+          if-no-files-found: ignore
+          retention-days: 14
