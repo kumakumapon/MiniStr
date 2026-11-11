@@ -1,3 +1,4 @@
+import { log } from 'node:console';
 import { chromium, firefox, webkit } from '@playwright/test';
 import { readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { createHash } from 'node:crypto';
@@ -233,7 +234,7 @@ try {
         };
       };
       const stats = (values) => Object.fromEntries(['handlerMs', 'firstFrameMs', 'paintMs'].map((key) => [key, distribution(values.map((value) => value[key]))]));
-      console.log(
+      log(
         'MINISTR_RESPONSE_SUMMARY ' +
           JSON.stringify({
             uiSourceSha256,

@@ -1,3 +1,4 @@
+import { log, error as reportError } from 'node:console';
 import { spawn } from 'node:child_process';
 import { readFileSync, writeFileSync, mkdirSync, openSync, closeSync } from 'node:fs';
 import { resolve, join } from 'node:path';
@@ -44,16 +45,16 @@ try {
     });
     closeSync(log);
     servers.push(child);
-    child.on('error', (error) => console.error(error));
+    child.on('error', (error) => reportError(error));
     let ready = false;
     for (let attempt = 0; attempt < 60; attempt++) {
       try {
-        ready = (await fetch('http://127.0.0.1:' + ports[name], { signal: AbortSignal.timeout(1000) })).ok;
+        ready = (await globalThis.fetch('http://127.0.0.1:' + ports[name], { signal: globalThis.AbortSignal.timeout(1000) })).ok;
       } catch {
         /* startup */
       }
       if (ready) break;
-      await new Promise((resolve) => setTimeout(resolve, 500));
+      await new Promise((resolve) => globalThis.setTimeout(resolve, 500));
     }
     if (!ready) throw Error(name + ' preview did not start');
   }
@@ -106,7 +107,7 @@ try {
         };
       }
       rows.push(row);
-      console.log('MINISTR_RESPONSE_COMPARISON ' + JSON.stringify(row));
+      log('MINISTR_RESPONSE_COMPARISON ' + JSON.stringify(row));
     }
   }
   writeFileSync(
