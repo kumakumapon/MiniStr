@@ -1,0 +1,47 @@
+name: Inspect v1.5.7 CodeQL data flows
+
+on:
+  push:
+    branches: [diagnostics/v1.5.7-codeql]
+    paths: [.github/workflows/inspect-v1.5.7-codeql.yml]
+
+permissions:
+  contents: read
+
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      security-events: read
+    steps:
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
+        with:
+          node-version: 24
+          package-manager-cache: false
+      - name: Read the PR analysis and print only XSS source locations
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          node --input-type=module <<'NODE'
+          const root = 'https://api.github.com/repos/kumakumapon/MiniStr';
+          async function read(path, sarif = false) {
+            const response = await fetch(root + path, {headers: {authorization: 'Bearer ' + process.env.GH_TOKEN, accept: sarif ? 'application/sarif+json' : 'application/vnd.github+json', 'X-GitHub-Api-Version':'2022-11-28'}, redirect:'error', signal:AbortSignal.timeout(30000)});
+            if (!response.ok) throw Error('GitHub read failed: ' + response.status + ' ' + path);
+            return response.json();
+          }
+          const analyses = await read('/code-scanning/analyses?ref=refs%2Fpull%2F283%2Fmerge&per_page=10');
+          console.log(JSON.stringify(analyses.map(a => ({id:a.id,sha:a.commit_sha,category:a.category,created:a.created_at})),null,2));
+          const analysis = analyses.find(a => a.category?.includes('javascript-typescript'));
+          if (!analysis) throw Error('Missing JavaScript analysis.');
+          const report = await read('/code-scanning/analyses/' + analysis.id, true);
+          for (const run of report.runs ?? []) for (const result of run.results ?? []) {
+            if (!(result.locations ?? []).some(l => l.physicalLocation?.artifactLocation?.uri === 'src/ui/deploymentPositions.test.ts')) continue;
+            console.log('RESULT ' + JSON.stringify({rule:result.ruleId,message:result.message,locations:result.locations}));
+            for (const flow of result.codeFlows ?? []) for (const thread of flow.threadFlows ?? []) for (const item of thread.locations ?? []) {
+              const loc = item.location;
+              console.log('FLOW ' + JSON.stringify({path:loc?.physicalLocation?.artifactLocation?.uri,region:loc?.physicalLocation?.region,message:loc?.message}));
+            }
+          }
+          NODE
