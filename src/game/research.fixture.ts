@@ -2,8 +2,9 @@ import { createScenarioInitialState } from './maps';
 import { operation, valueOf } from './operations.fixture';
 import { createReplay, type ReplayFile } from './replay';
 import type { GameCommand } from './session';
+import type { RuleVersion } from './types';
 
-export function researchReplayFixture(ruleVersion = 14, width = 8): ReplayFile {
+export function researchReplayFixture(ruleVersion: RuleVersion = 14, width = 8): ReplayFile {
   const scenario = operation({
     id: 'research-fixture',
     board: { width, height: 4, cells: [] },
