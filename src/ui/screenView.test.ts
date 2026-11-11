@@ -76,3 +76,49 @@ it('composes with BoardView for unchanged tiles, fog changes, locale and geometr
   draw([first], 'en:1');
   expect(board.children).toHaveLength(1);
 });
+
+const withRoster = (version: string, selected = 'r1') =>
+  markup('screen').replace(
+    '<aside>screen</aside>',
+    '<aside id="command-panel"><p>fresh control</p><details open id="logistics-roster" data-logistics-view="' +
+      version +
+      '" data-logistics-selected="' +
+      selected +
+      '"><summary>Roster</summary><ul id="logistics-list"><li><input value="model"></li></ul></details></aside>',
+  );
+
+it('keeps an unchanged open roster connected with focus and native control state', () => {
+  const host = setup();
+  updateScreen(host, withRoster('one'), false);
+  const roster = host.querySelector<HTMLElement>('#logistics-roster')!;
+  const input = roster.querySelector('input')!;
+  input.value = 'draft';
+  input.focus();
+  const observer = new MutationObserver(() => {});
+  observer.observe(host, { childList: true, subtree: true });
+  updateScreen(host, withRoster('one', 'r2'), true);
+  const removed = observer.takeRecords().flatMap((record) => [...record.removedNodes]);
+  observer.disconnect();
+  expect(host.querySelector('#logistics-roster')).toBe(roster);
+  expect(removed.includes(roster)).toBe(false);
+  expect(document.activeElement).toBe(input);
+  expect(input.value).toBe('draft');
+  expect(roster.dataset.logisticsSelected).toBe('r2');
+});
+
+it('refreshes roster controls when the model changes, the screen is concealed or peer order changes', () => {
+  const host = setup();
+  updateScreen(host, withRoster('one'), false);
+  const oldRoster = host.querySelector('#logistics-roster')!;
+  updateScreen(host, withRoster('two'), true);
+  expect(oldRoster.isConnected).toBe(false);
+  const current = host.querySelector('#logistics-roster')!;
+  const reversed = withRoster('two').replace(/(<div class="battlefield-wrap[\s\S]*<\/div>)(<aside id="command-panel"[\s\S]*<\/aside>)/, '$2$1');
+  updateScreen(host, reversed, true);
+  expect(current.isConnected).toBe(false);
+  expect(host.querySelector('#logistics-roster')).not.toBeNull();
+  const next = host.querySelector('#logistics-roster')!;
+  updateScreen(host, '<main class="game-shell" inert>handoff</main>', false);
+  expect(next.isConnected).toBe(false);
+  expect(host.querySelector('#logistics-list')).toBeNull();
+});

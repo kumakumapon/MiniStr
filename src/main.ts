@@ -2027,6 +2027,9 @@ function render(): void {
     click(position) {
       focusedPosition = position;
       focusSelector = boardTileSelector(position);
+      // Focus the connected tile before redraws invalidate layout. A replaced
+      // board still uses the existing post-render fallback below.
+      focusIfChanged(app.querySelector<HTMLElement>(boardTileSelector(position)), { preventScroll: true });
       act(position);
       if (!bridgePending?.destination && !productionMenuOpen) {
         focusIfChanged(app.querySelector<HTMLElement>(boardTileSelector(focusedPosition)), { preventScroll: true });
@@ -2042,7 +2045,7 @@ function render(): void {
   bindLogisticsRoster(app, render, command => { if (canAct && !replayMode) { focusSelector = document.activeElement?.id ? `#${CSS.escape(document.activeElement.id)}` : undefined; dispatch(command, true); render(); } }, id => {
     const unit = renderedGame.units.find(u => u.id === id && u.owner === me);
     const deployed = unit && (isDeployedUnit(unit) ? unit : renderedGame.units.find(u => u.id === unit.embarkedIn));
-    if (deployed && isDeployedUnit(deployed)) { selected = deployed.id; focusBoardPosition(deployed.position); app.querySelector<HTMLElement>(boardTileSelector(deployed.position))?.scrollIntoView({ block: 'nearest', inline: 'nearest' }); }
+    if (deployed && isDeployedUnit(deployed)) { selected = deployed.id; focusBoardPosition(deployed.position); }
   });
   if (!replayMode) {
     app.querySelectorAll<HTMLButtonElement>('.unit-queue-item').forEach(button => button.addEventListener('click', guardCommand(() => {
@@ -2297,6 +2300,7 @@ function focusBoardPosition(position: Position): void {
   if (productionMenuOpen) return;
   focusedPosition = position;
   focusSelector = boardTileSelector(position);
+  focusIfChanged(app.querySelector<HTMLElement>(boardTileSelector(position)), { preventScroll: true });
   render();
   // Focus before the next keydown, including engines that delay animation frames.
   focusIfChanged(app.querySelector<HTMLElement>(boardTileSelector(position)), { preventScroll: true });

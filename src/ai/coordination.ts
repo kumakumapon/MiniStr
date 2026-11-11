@@ -3,6 +3,9 @@ import { isEvacuationCondition, scenarioForState, type ScenarioDefinition } from
 import { manhattanDistance, positionKey } from '../game/terrain';
 import { isDeployedUnit, usesFiniteSupplyRules, usesOperationsRules, type DeployedUnit, type GameState, type PlayerId, type Position, type Unit } from '../game/types';
 import { damageMultiplier, isSupplyUnit, unitCategory, unitStats } from '../game/units';
+import { evacuationObjectives } from '../game/evacuation';
+import { weatherAt } from '../game/tactics';
+import { hasKnownMissionExposure, usesMissionSafety } from './missionSafety';
 
 export type CpuRole = 'frontline' | 'fireSupport' | 'supply' | 'airDefence' | 'transport' | 'mission';
 
@@ -184,4 +187,17 @@ export function transportSafeAt(state: GameState, transport: DeployedUnit, desti
   // enemy is still in fog. An isolated survivor can proceed when no threat is known.
   if (!threatened && !escorts.length) return true;
   return escorts.some((ally) => manhattanDistance(ally.position, destination) <= Math.max(3, unitStats[ally.kind].range[1]));
+}
+
+/** In rain, a convoy already near frontline armor keeps its forward step beside that screen. */
+export function escortScreenAt(state: GameState, unit: DeployedUnit, destination: Position, known: readonly Unit[]): boolean {
+  if (weatherAt(state) !== 'rain' || !usesMissionSafety(state, unit)) return true;
+  const exits = evacuationObjectives(state, unit.owner)
+    .filter((condition) => condition.type === 'escort' && condition.unitIds.includes(unit.id))
+    .flatMap((condition) => condition.positions);
+  if (!exits.length) return true;
+  const distance = (position: Position) => Math.min(...exits.map((exit) => manhattanDistance(position, exit)));
+  if (distance(destination) >= distance(unit.position)) return true;
+  const armor = teamPlan(state, unit.owner).frontline.filter((ally) => unitCategory[ally.kind] === 'armor' && manhattanDistance(ally.position, unit.position) <= 3);
+  return !armor.length || armor.some((ally) => manhattanDistance(ally.position, destination) <= 1) || hasKnownMissionExposure(state, unit, destination, known);
 }

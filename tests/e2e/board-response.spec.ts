@@ -2,6 +2,86 @@ import { expect } from '@playwright/test';
 import { test } from './helpers/engineTest';
 import type { ScenarioData } from '../../src/game/maps';
 
+for (const width of [390, 1280])
+  for (const locale of ['ja', 'en']) {
+    test('retains logistics controls and immediate board focus at ' + width + '/' + locale, async ({ page }, testInfo) => {
+      await page.setViewportSize({ width, height: 844 });
+      const scenario: ScenarioData = {
+        id: 'roster-response',
+        name: 'Roster response',
+        briefing: '',
+        startingGold: 0,
+        board: { width: 32, height: 32, cells: [] },
+        initialUnits: [
+          ...Array.from({ length: 8 }, (_, i) => ({ kind: 'tank' as const, owner: 'red' as const, x: 6 + i, y: 6 })),
+          { kind: 'infantry', owner: 'blue', x: 31, y: 31 },
+        ],
+        tacticalOptions: { simultaneous: true, ambush: true, terrain: true, weather: true, zoc: true, submarines: true },
+        victoryConditions: [{ type: 'eliminate' }],
+        defeatConditions: [{ type: 'eliminate' }],
+      };
+      await page.addInitScript(
+        ({ scenario, locale }) => {
+          localStorage.setItem('ministr.locale', locale);
+          localStorage.setItem('ministr.scenarios.custom', JSON.stringify({ schemaVersion: 1, scenarios: [scenario], history: [] }));
+        },
+        { scenario, locale },
+      );
+      await page.goto('/');
+      await page.locator('.title-map-card[data-map-id="roster-response"]').click();
+      await page.locator('input[name="match-mode"][value="hotseat"]').check();
+      await page.locator('#begin-operation').click();
+      await page.locator('#logistics-roster-toggle').click();
+      await expect(page.locator('[data-logistics-row]')).toHaveCount(8);
+      const list = await page.locator('#logistics-list').elementHandle();
+      await page.locator('[data-logistics-select="r2"]').click();
+      await expect(page.locator('.tile[data-x="7"][data-y="6"] .selected-marker')).toHaveCount(1);
+      await expect(page.locator('[data-logistics-unit="r2"]')).toHaveAttribute('data-selected', 'true');
+      expect(await page.evaluate((node) => node === document.querySelector('#logistics-list'), list!)).toBe(true);
+      await expect(page.locator('.tile[data-x="7"][data-y="6"]')).toBeFocused();
+      const immediate = await page.evaluate(() => {
+        const values: Array<string | undefined> = [];
+        for (const key of ['ArrowRight', 'ArrowLeft']) {
+          document.activeElement!.dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true }));
+          values.push((document.activeElement as HTMLElement).dataset.x);
+        }
+        return values;
+      });
+      expect(immediate).toEqual(['8', '7']);
+      await expect(page.locator('.tile[data-x="7"][data-y="6"]')).toBeFocused();
+      await page.locator('#logistics-filter').selectOption('damaged');
+      await expect(page.locator('[data-logistics-row]:not([hidden])')).toHaveCount(0);
+      await page.locator('#logistics-filter').selectOption('all');
+      await expect(page.locator('[data-logistics-row]:not([hidden])')).toHaveCount(8);
+      await page.locator('#repair-reserve').fill('300');
+      await page.locator('#repair-reserve').press('Tab');
+      await expect(page.locator('#repair-reserve')).toHaveValue('300');
+      expect(await list!.evaluate((node) => node.isConnected)).toBe(false);
+      const before = await page.evaluate(async () => {
+        const viewport = document.querySelector<HTMLElement>('#board-viewport')!;
+        viewport.scrollLeft = 90;
+        viewport.scrollTop = 80;
+        await new Promise<void>((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve())));
+        return { left: viewport.scrollLeft, top: viewport.scrollTop };
+      });
+      await page.evaluate(() => document.querySelector<HTMLButtonElement>('#open-title')!.click());
+      await page.locator('#title-resume').waitFor();
+      await page.evaluate(() => document.querySelector<HTMLButtonElement>('#title-resume')!.click());
+      await expect(page.locator('.title-overlay')).toHaveCount(0);
+      const after = await page.locator('#board-viewport').evaluate((node) => ({ left: node.scrollLeft, top: node.scrollTop }));
+      expect(after).toEqual(before);
+      await expect(page.locator('#repair-reserve')).toHaveValue('300');
+      await page.screenshot({ path: testInfo.outputPath('systems-roster-response.png') });
+      page.on('dialog', (dialog) => dialog.accept());
+      await page.locator('#end').click();
+      await expect(page.locator('#handoff-start')).toBeVisible();
+      await expect(page.locator('[data-logistics-row]')).toHaveCount(0);
+      await page.locator('#handoff-start').click();
+      await expect(page.locator('[data-logistics-select="b1"]')).toHaveCount(1);
+      await expect(page.locator('[data-logistics-select="r1"]')).toHaveCount(0);
+    });
+  }
+
 test('390px touch selects once and keeps a scrolled board stable after localized redraw', async ({ browser, baseURL }, testInfo) => {
   const context = await browser.newContext({ baseURL, viewport: { width: 390, height: 844 }, hasTouch: true });
   try {
