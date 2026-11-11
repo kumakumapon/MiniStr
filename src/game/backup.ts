@@ -1,3 +1,4 @@
+import { isResearchKey, parseResearch } from './research';
 import { MUSIC_SETTINGS_KEY, parseMusicSettings } from './musicSettings';
 import { CAMPAIGN_STORAGE_KEY, parseCampaignProgress } from './campaign';
 import { DAILY_RECORDS_KEY, parseDailyRecords } from './dailyChallenge';
@@ -141,6 +142,9 @@ export function restoreBackup(storage: StorageLike, source: string | BackupPrevi
         if (key === MANUAL_SAVE_KEY || key === AUTO_SAVE_KEY || key.startsWith(SAVE_SLOT_PREFIX)) {
           const saved = parseSavedGame(raw);
           if (!saved.ok) return { ok: false, error: `${key}: ${saved.error}` };
+        } else if (isResearchKey(key)) {
+          const study = parseResearch(raw);
+          if (!study.ok) return { ok: false, error: `${key}: ${study.error}` };
         } else if (key === CAMPAIGN_STORAGE_KEY) {
           const campaign = parseCampaignProgress(raw);
           if (!campaign.ok) return campaign;

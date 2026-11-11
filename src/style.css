@@ -1164,3 +1164,12 @@ body.production-menu-open { overflow: hidden; }
 .deployment-position-choice { display: grid; grid-template-columns: minmax(105px, 1fr) minmax(0, 2fr); align-items: center; gap: 8px; margin: 0 0 12px; font-size: .8rem; }
 .deployment-position-choice select { width: 100%; min-width: 0; min-height: 44px; }
 .deployment-position-note { color: #ffe59d; }
+
+.research-fork, .research-status, .research-saves { min-width: 0; padding: 12px 16px; border: 1px solid #a58c42; border-radius: 7px; background: #222b22; overflow-wrap: anywhere; }
+.research-fork { flex-basis: 100%; }
+.research-status, .research-saves { margin-top: 12px; }
+.research-status strong { color: #fff0b1; }
+.research-fork p, .research-status p, .research-saves p { margin: 6px 0 10px; }
+.research-saves > div { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 8px; }
+.research-saves h2 { font-size: 1.1rem; margin: 0; }
+.research-status button, .research-fork button, .research-fork select, .research-saves button { min-height: 44px; max-width: 100%; margin: 3px; }
