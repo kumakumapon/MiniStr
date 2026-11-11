@@ -131,6 +131,12 @@ export function missionLaneSafeAt(state: GameState, unit: DeployedUnit, destinat
   return risk < unit.hp && risk <= current + unit.hp / 10;
 }
 
+/** Confirmed attackers already participate in the existing mission risk trade. */
+export function hasKnownMissionExposure(state: GameState, unit: DeployedUnit, destination: Position, known: readonly Unit[]): boolean {
+  const knownExposure = exposure(state, unit, destination, known);
+  return knownExposure.current > 0 || (knownExposure.risks.get(positionKey(destination)) ?? 0) > 0;
+}
+
 /** Avoid a material increase in exposure; preserve advances and exits otherwise. */
 export function missionSafeAt(state: GameState, unit: DeployedUnit, destination: Position, known: readonly Unit[]): boolean {
   if (!usesMissionSafety(state, unit) || samePosition(unit.position, destination)) return true;

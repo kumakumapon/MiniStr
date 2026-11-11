@@ -12,8 +12,21 @@ import { escapeHtml } from './strings';
 
 let rosterOpen = false;
 let rosterFilter = 'all';
+let rosterVersion = 0;
+let rosterView: { state: GameState; key: string; version: number; markup: string } | undefined;
 
 export function renderLogisticsRoster(state: GameState, player: PlayerId, canAct: boolean, selected?: string): string {
+  const key = [player, canAct, getLocale(), rosterOpen, rosterFilter].join(':');
+  if (rosterView?.state !== state || rosterView.key !== key) rosterView = { state, key, version: ++rosterVersion, markup: rosterMarkup(state, player, canAct) };
+  const view = rosterView;
+  const selectedId = escapeHtml(selected ?? '');
+  return view.markup
+    .replace('<details ', () => '<details data-logistics-view="' + view.version + '" data-logistics-selected="' + selectedId + '" ')
+    .replace('data-logistics-unit="' + selectedId + '" data-selected="false"', () => 'data-logistics-unit="' + selectedId + '" data-selected="true"');
+}
+
+/** Selection alone does not change the immutable upkeep projection or row controls. */
+function rosterMarkup(state: GameState, player: PlayerId, canAct: boolean): string {
   const en = getLocale() === 'en';
   const t = (ja: string, english: string) => (en ? english : ja);
   const units = state.units.filter((u) => u.owner === player);
@@ -41,7 +54,7 @@ export function renderLogisticsRoster(state: GameState, player: PlayerId, canAct
           weaponsForUnit(unit.kind, state).some((_, i) => weaponAmmo(after, i === 0 ? 0 : 1) > weaponAmmo(unit, i === 0 ? 0 : 1)));
       const field = (key: string, label: string, options: string) =>
         `<label>${label}<select id="logistics-${escapeHtml(unit.id)}-${key}" data-logistics-field="${key}" data-unit="${escapeHtml(unit.id)}" ${!canAct ? 'disabled' : ''}>${options}</select></label>`;
-      return `<li ${rosterFilter !== 'all' && !(rosterFilter === 'damaged' ? unit.hp < 100 : rosterFilter === 'ammo' ? lowAmmo : rosterFilter === 'fuel' ? dry : rosterFilter === 'supply' ? receivingSupply : !unit.hasActed) ? 'hidden' : ''} data-logistics-row data-damaged="${unit.hp < 100}" data-ammo="${lowAmmo}" data-fuel="${dry}" data-ready="${!unit.hasActed}" data-supply="${receivingSupply}" data-selected="${unit.id === selected}"><button class="save-action" data-logistics-select="${escapeHtml(unit.id)}">${escapeHtml(unitNames[unit.kind])} · ${escapeHtml(unit.callsign ?? unit.id)}${!isDeployedUnit(unit) ? ` (${t('搭載中', 'Embarked')})` : ''}</button><p>HP ${unit.hp} · ${t('弾薬', 'Ammo')} ${ammo} · ${t('燃料', 'Fuel')} ${unit.fuel ?? unitStats[unit.kind].fuel}/${unitStats[unit.kind].fuel} · ${unit.hasActed ? t('行動済み', 'Acted') : t('未行動', 'Ready')}</p><p>${escapeHtml(supplyOutlook(state, unit))}</p><p>${t('現配置での次手番見込み', 'Next-turn estimate at current positions')}: HP ${after.hp} · ${t('燃料', 'Fuel')} ${after.fuel ?? unitStats[unit.kind].fuel} · ${t('弾薬', 'Ammo')} ${weaponsForUnit(
+      return `<li ${rosterFilter !== 'all' && !(rosterFilter === 'damaged' ? unit.hp < 100 : rosterFilter === 'ammo' ? lowAmmo : rosterFilter === 'fuel' ? dry : rosterFilter === 'supply' ? receivingSupply : !unit.hasActed) ? 'hidden' : ''} data-logistics-row data-damaged="${unit.hp < 100}" data-ammo="${lowAmmo}" data-fuel="${dry}" data-ready="${!unit.hasActed}" data-supply="${receivingSupply}" data-logistics-unit="${escapeHtml(unit.id)}" data-selected="false"><button class="save-action" data-logistics-select="${escapeHtml(unit.id)}">${escapeHtml(unitNames[unit.kind])} · ${escapeHtml(unit.callsign ?? unit.id)}${!isDeployedUnit(unit) ? ` (${t('搭載中', 'Embarked')})` : ''}</button><p>HP ${unit.hp} · ${t('弾薬', 'Ammo')} ${ammo} · ${t('燃料', 'Fuel')} ${unit.fuel ?? unitStats[unit.kind].fuel}/${unitStats[unit.kind].fuel} · ${unit.hasActed ? t('行動済み', 'Acted') : t('未行動', 'Ready')}</p><p>${escapeHtml(supplyOutlook(state, unit))}</p><p>${t('現配置での次手番見込み', 'Next-turn estimate at current positions')}: HP ${after.hp} · ${t('燃料', 'Fuel')} ${after.fuel ?? unitStats[unit.kind].fuel} · ${t('弾薬', 'Ammo')} ${weaponsForUnit(
         after.kind,
         state,
       )
@@ -56,6 +69,11 @@ export function renderLogisticsRoster(state: GameState, player: PlayerId, canAct
 
 export function bindLogisticsRoster(root: HTMLElement, refresh: () => void, dispatch: (command: GameCommand) => void, select: (id: string) => void): void {
   const details = root.querySelector<HTMLDetailsElement>('#logistics-roster');
+  const selectedId = details?.dataset.logisticsSelected;
+  details?.querySelectorAll<HTMLElement>('[data-logistics-unit]').forEach((row) => {
+    const selected = String(row.dataset.logisticsUnit === selectedId);
+    if (row.dataset.selected !== selected) row.dataset.selected = selected;
+  });
   if (details)
     details.ontoggle = () => {
       if (details.open !== rosterOpen) {

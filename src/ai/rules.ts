@@ -27,7 +27,7 @@ import { manhattanDistance, unitMovementCost, terrainAt } from '../game/terrain'
 import { isDeployedUnit, usesDecisionRules, usesOperationsRules, usesModernRules, usesReconRules, type Board, type DeployedUnit, type GameState, type PlayerId, type Position, type Unit, type UnitKind } from '../game/types';
 import { affordableRepair, fixedSupplyAvailable, resupplyAvailable, isGroundUnit, isServiceTile, REPAIR_HP_PER_TURN } from '../game/logistics';
 import { isEmbarkableUnit, isMergeableUnit, isSupplyUnit, remainingAmmo, unitCategory, unitStats } from '../game/units';
-import { coordinatedOrder, coordinationValue, cpuRole, isPriorityTarget, transportSafeAt } from './coordination';
+import { coordinatedOrder, coordinationValue, cpuRole, escortScreenAt, isPriorityTarget, transportSafeAt } from './coordination';
 import { canEvacuateUnit, evacuationObjectives, isEvacuationTarget } from '../game/evacuation';
 import { isEvacuationCondition } from '../game/maps';
 import { bluePlanningState, rotatePosition } from './perspective';
@@ -764,7 +764,7 @@ function moveAction(state: GameState, player: PlayerId, config: CpuDifficultyCon
     // resupply and visible counterattack risk instead of raw distance alone.
     // Include the current position as an explicit wait order. Unlike a zero-cost
     // move, waiting is legal even when a ground unit has no fuel left.
-    const destination = [unit.position, ...reachablePositionsForPlayer(state, unit.id, player)]
+    let destination = [unit.position, ...reachablePositionsForPlayer(state, unit.id, player)]
       .filter(position => transportSafeAt(state, unit, position, context.visibleEnemies))
       .map(position => ({ position, score: evaluateCpuPosition(state, player, unit, position, unitTargets, config, context.visibleEnemies) }))
       .sort((a, b) => b.score - a.score || a.position.y - b.position.y || a.position.x - b.position.x)[0]?.position;
@@ -774,6 +774,13 @@ function moveAction(state: GameState, player: PlayerId, config: CpuDifficultyCon
     if (repair && (!destination || !canLeaveRepairForFire(state, player, unit, destination, context.visibleEnemies))) return repair;
     if (destination) {
       if (!missionSafeAt(state, unit, destination, context.visibleEnemies)) return { type: 'wait', unitId: unit.id };
+      if (!escortScreenAt(state, unit, destination, context.visibleEnemies)) {
+        destination = [unit.position, ...reachablePositionsForPlayer(state, unit.id, player)]
+          .filter(position => escortScreenAt(state, unit, position, context.visibleEnemies) && transportSafeAt(state, unit, position, context.visibleEnemies)
+            && missionSafeAt(state, unit, position, context.visibleEnemies))
+          .map(position => ({ position, score: evaluateCpuPosition(state, player, unit, position, unitTargets, config, context.visibleEnemies) }))
+          .sort((a, b) => b.score - a.score || a.position.y - b.position.y || a.position.x - b.position.x)[0]?.position ?? unit.position;
+      }
       if (destination.x === unit.position.x && destination.y === unit.position.y)
         return { type: 'wait', unitId: unit.id };
       return { type: 'move', unitId: unit.id, destination };
