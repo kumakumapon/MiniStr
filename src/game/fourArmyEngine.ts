@@ -44,6 +44,17 @@ export interface FourArmyState {
   nextUnitId: number;
   paused: boolean;
 }
+export interface FourArmyObservation {
+  viewer: FourArmyId;
+  board: FourArmyMap['board'];
+  capitals: FourArmyMap['capitals'];
+  units: FourArmyUnit[];
+  player: PlayerState;
+  visible: Position[];
+  round: FourArmyRound;
+  alive: FourArmyId[];
+  outcome: FourArmyOutcome;
+}
 type BasicCommand = Extract<GameCommand, { type: 'move' | 'wait' | 'attack' | 'merge' | 'capture' | 'produce' | 'embark' | 'disembark' | 'endTurn' }>;
 export type FourArmyCommand = (BasicCommand | { type: 'resume' }) & { actor: FourArmyId };
 const commandTypes = ['move', 'wait', 'attack', 'merge', 'capture', 'produce', 'embark', 'disembark', 'endTurn', 'resume'];
@@ -367,32 +378,26 @@ export function applyFourArmyCommand(input: unknown, command: unknown): GameResu
 }
 
 /** Observations omit hidden contacts, enemy funds/cargo/logistics, and the combat RNG stream. */
-export function observeFourArmy(
-  input: unknown,
-  viewer: FourArmyId,
-): GameResult<{
-  viewer: FourArmyId;
-  board: FourArmyMap['board'];
-  units: FourArmyUnit[];
-  player: PlayerState;
-  visible: Position[];
-  round: FourArmyRound;
-  alive: FourArmyId[];
-  outcome: FourArmyOutcome;
-}> {
+export function observeFourArmy(input: unknown, viewer: FourArmyId): GameResult<FourArmyObservation> {
   if (!isFourArmyState(input) || !army(viewer)) return fail('4軍の視点が不正です。');
   const view = project(input, viewer);
   const contacts = new Set(visibleEnemies(view, 'red').map((u) => u.id));
+  const visible = visiblePositions(view, 'red');
+  const seen = new Set(visible.map(positionKey));
   return {
     ok: true,
     value: clean({
       viewer,
-      board: input.board,
+      board: {
+        ...input.board,
+        terrain: input.board.terrain.map((row, y) => row.map((tile, x) => (!seen.has(`${x},${y}`) && tile.capturePoints !== undefined ? { ...tile, capturePoints: 20 } : tile))),
+      },
+      capitals: input.capitals,
       units: input.units
         .filter((u) => u.owner === viewer || contacts.has(u.id))
         .map((u) => (u.owner === viewer ? u : { ...observedEnemy({ ...u, owner: 'blue' }), owner: u.owner })),
       player: input.players[viewer],
-      visible: visiblePositions(view, 'red'),
+      visible,
       round: input.round,
       alive: input.alive,
       outcome: input.outcome,
