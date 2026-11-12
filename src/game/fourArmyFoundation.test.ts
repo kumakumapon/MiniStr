@@ -18,6 +18,7 @@ import { parseReplay, serializeReplay } from './replay';
 import { forkResearch, parseResearch } from './research';
 import { previewSaveRecovery } from './saveRecovery';
 import { parseSavedGame, saveGame } from './session';
+import { restoreBackup } from './backup';
 
 const permutations = (ids: readonly FourArmyId[]): FourArmyId[][] =>
   ids.length === 0 ? [[]] : ids.flatMap((id) => permutations(ids.filter((other) => other !== id)).map((rest) => [id, ...rest]));
@@ -32,7 +33,7 @@ describe('four-army first-stage specification', () => {
     expect(FOUR_ARMY_SCOPE).toMatchObject({ mode: 'spectate', diplomacy: 'free-for-all', mapCount: 1, boardSize: 32, decisionRound: null });
     expect(FOUR_ARMY_SCOPE.trialUnitsPerArmy * 4).toBe(FOUR_ARMY_SCOPE.trialTotalUnits);
     expect(FOUR_ARMY_ARCHIVES.schemaVersion).toBe(1);
-    expect(FOUR_ARMY_ARCHIVES.storagePrefix).not.toMatch(/^ministr\.(save|research|campaign|daily|operations)/);
+    expect(FOUR_ARMY_ARCHIVES.saveFormat).not.toBe(FOUR_ARMY_ARCHIVES.replayFormat);
     expect(Object.isFrozen(FOUR_ARMY_SCOPE)).toBe(true);
   });
 
@@ -299,4 +300,31 @@ it('keeps future four-army envelopes outside legacy save/replay/research/recover
     expect(parseResearch(text).ok).toBe(false);
     expect(previewSaveRecovery(text).ok).toBe(false);
   }
+  const values = new Map([
+    ['ministr.save.manual', JSON.stringify(saved)],
+    ['ministr.locale', 'en'],
+  ]);
+  const original = [...values];
+  const storage = {
+    get length() {
+      return values.size;
+    },
+    key: (i: number) => [...values.keys()][i] ?? null,
+    getItem: (key: string) => values.get(key) ?? null,
+    setItem: (key: string, value: string) => {
+      values.set(key, value);
+    },
+    removeItem: (key: string) => {
+      values.delete(key);
+    },
+  };
+  const unsupported = JSON.stringify({
+    schemaVersion: 1,
+    entries: [
+      ['ministr.locale', 'ja'],
+      ['ministr.fourArmy.manual', '{}'],
+    ],
+  });
+  expect(restoreBackup(storage, unsupported)).toMatchObject({ ok: false, error: expect.stringContaining('未対応の保存項目') });
+  expect([...values]).toEqual(original);
 });

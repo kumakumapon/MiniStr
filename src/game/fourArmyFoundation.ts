@@ -20,7 +20,6 @@ export const FOUR_ARMY_ARCHIVES = Object.freeze({
   replayFormat: 'ministr-four-army-replay',
   schemaVersion: 1,
   ruleset: 'four-army-v1',
-  storagePrefix: 'ministr.fourArmy.',
 } as const);
 
 export interface FourArmyRound {
