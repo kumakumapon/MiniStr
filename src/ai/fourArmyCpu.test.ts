@@ -147,6 +147,14 @@ describe('multiple-enemy CPU', () => {
     const s = value(createFourArmyState(m));
     s.units[0]!.hasActed = true;
     expect(chooseFourArmyCpuCommand(observe(s), options)).toMatchObject({ type: 'endTurn' });
+    const capped = fourCpuMap();
+    capped.players.army1.gold = 50000;
+    capped.board.terrain[2]![1] = { kind: 'factory', owner: 'army1' };
+    for (let x = 0; x < 7; x++) capped.units.push(fourCpuUnit(`reserve${x}`, 'army1', { x, y: 3 }));
+    const full = value(createFourArmyState(capped));
+    full.units.filter((u) => u.owner === 'army1').forEach((u) => (u.hasActed = true));
+    expect(chooseFourArmyCpuCommand(observe(full), { ...options, difficulty: 'easy' })).toMatchObject({ type: 'endTurn' });
+    expect(chooseFourArmyCpuCommand(observe(full), options)).toMatchObject({ type: 'produce' });
   });
   it('prioritises finite supply and visible anti-air needs without reading enemy stock', () => {
     const m = fourCpuMap();
@@ -191,6 +199,8 @@ describe('multiple-enemy CPU', () => {
     const s = value(createFourArmyState(fourCpuMap())),
       o = observe(s);
     expect(chooseFourArmyCpuCommand(value(observeFourArmy(s, 'army2')), options)).toBeUndefined();
+    expect(isObservedFourArmyCommand(value(observeFourArmy(s, 'army2')), { actor: 'army2', type: 'endTurn' })).toBe(false);
+    expect(isObservedFourArmyCommand({ ...o, round: { ...o.round, phase: 'pending' } }, { actor: 'army1', type: 'endTurn' })).toBe(false);
     expect(chooseFourArmyCpuCommand({ ...o, round: { ...o.round, phase: 'pending' } }, options)).toBeUndefined();
     for (const c of [
       null,

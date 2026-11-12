@@ -6,7 +6,7 @@ import { isServiceTile, isGroundUnit } from '../game/logistics';
 import { isArmyPolicy, type ArmyPolicy } from '../game/armyPolicy';
 import { isFourArmyCommand, type FourArmyCommand, type FourArmyObservation } from '../game/fourArmyEngine';
 import { FOUR_ARMY_IDS } from '../game/fourArmyFoundation';
-import { isDeployedUnit, type GameState, type Position, type Unit } from '../game/types';
+import { isDeployedUnit, type Position, type Unit } from '../game/types';
 import { isEmbarkableUnit, transportCapacity, unitStats } from '../game/units';
 import { manhattanDistance, positionKey, terrainAt, unitMovementCost } from '../game/terrain';
 import { crossingDistances } from './crossing';
@@ -26,6 +26,7 @@ export const isFourArmyCpuSettings = (v: unknown): v is FourArmyCpuSettings => r
 
 /** Validate on the known board only. The authoritative four-army engine validates again on commit. */
 export function isObservedFourArmyCommand(o: FourArmyObservation, command: unknown): command is FourArmyCommand {
+  if (o.outcome.type !== 'ongoing' || o.round.phase !== 'active' || o.round.order[o.round.index] !== o.viewer || !o.alive.includes(o.viewer)) return false;
   if (!isFourArmyCommand(command) || command.actor !== o.viewer || command.type === 'resume') return false;
   if (command.type === 'endTurn') return true;
   if (command.type === 'produce' && !canProduceUnit(o.board.terrain[command.factory.y]?.[command.factory.x]?.kind ?? 'plain', command.kind, 'facility-v2', 12)) return false;
