@@ -1,0 +1,44 @@
+name: v1.5.10 WebKit failure triage
+on:
+  push:
+    branches: [diagnostics/v1.5.10-webkit-triage]
+permissions:
+  contents: read
+  actions: read
+jobs:
+  evidence:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
+        with:
+          node-version: 24
+          package-manager-cache: false
+      - name: Read the isolated failed test trace
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          node --input-type=module <<'NODE'
+          import {writeFile} from 'node:fs/promises';
+          const r=await fetch('https://api.github.com/repos/kumakumapon/MiniStr/actions/artifacts/13962828568/zip',{headers:{authorization:'Bearer '+process.env.GH_TOKEN,accept:'application/vnd.github+json'},redirect:'manual'});
+          if(r.status!==302) throw new Error('Artifact download HTTP '+r.status);
+          const b=await fetch(r.headers.get('location'),{redirect:'error'});
+          if(!b.ok) throw new Error('Artifact storage HTTP '+b.status);
+          await writeFile('/tmp/evidence.zip',Buffer.from(await b.arrayBuffer()));
+          NODE
+          python3 - <<'PY'
+          import zipfile,json,io
+          z=zipfile.ZipFile('/tmp/evidence.zip')
+          names=[n for n in z.namelist() if 'a61ab-tactics-crossing-at-1280-ja-webkit/' in n]
+          print('Failed test entries:',names)
+          for n in names:
+              if n.endswith('error-context.md'): print(z.read(n).decode()[:16000])
+              if n.endswith('trace.zip'):
+                  t=zipfile.ZipFile(io.BytesIO(z.read(n)))
+                  for f in t.namelist():
+                      if not f.endswith('.trace'): continue
+                      events=[json.loads(l) for l in t.read(f).decode().splitlines()]
+                      calls=[e for e in events if e.get('type') in ['before','after','log']]
+                      for e in calls[-40:]:
+                          print(json.dumps({k:e[k] for k in ['type','callId','apiName','class','method','params','error','message','startTime','endTime'] if k in e},ensure_ascii=False)[:2000])
+          PY
