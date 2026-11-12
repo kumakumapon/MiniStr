@@ -27,3 +27,6 @@ export * from './replay';
 export * from './campaign';
 export * from './campaignOperations';
 export * from './editor';
+export * from './fourArmyFoundation';
+export * from './fourArmyEngine';
+export * from './fourArmyArchive';
