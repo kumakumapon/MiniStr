@@ -21,3 +21,6 @@ jobs:
       - run: npm run typecheck:test
       - run: npx vitest run src/game/research.test.ts src/ui/research.test.ts src/game/backup.test.ts
       - run: npm run build
+      - run: sudo bash scripts/use-ubuntu-https-mirror.sh
+      - run: npx playwright install --with-deps chromium firefox webkit
+      - run: npx playwright test tests/e2e/research.spec.ts --workers=2

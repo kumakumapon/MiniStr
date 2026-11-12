@@ -154,15 +154,23 @@ test('unknown or corrupt research preserves the original slots and can be export
 test('a changed replay cursor cancels an asynchronous fork without replacing the match', async ({ page }) => {
   await page.addInitScript(() => {
     const original = crypto.subtle.digest.bind(crypto.subtle);
-    crypto.subtle.digest = (...args) => new Promise<void>((resolve) => setTimeout(resolve, 300)).then(() => original(...args));
+    const gate = new Promise<void>((resolve) => Reflect.set(window, 'releaseResearchDigest', resolve));
+    crypto.subtle.digest = (...args) => {
+      const pending = gate.then(() => original(...args));
+      Reflect.set(window, 'pendingResearchDigest', pending);
+      return pending;
+    };
   });
   const entries = await seed(page);
   await importJson(page, valueOf(serializeReplay(researchReplayFixture())), true);
   await seek(page, 3);
   await page.locator('#research-fork').click();
   await seek(page, 1);
+  await page.evaluate(async () => {
+    Reflect.get(window, 'releaseResearchDigest')();
+    await Reflect.get(window, 'pendingResearchDigest');
+  });
   await expect(page.locator('.research-status')).toHaveCount(0);
-  await page.waitForTimeout(400);
   await seek(page, 3);
   await expect(page.locator('#research-fork')).toBeEnabled();
   expect(await page.evaluate((key) => localStorage.getItem(key), RESEARCH_AUTO_KEY)).toBeNull();
