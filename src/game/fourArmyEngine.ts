@@ -282,7 +282,7 @@ export function isFourArmyState(value: unknown): value is FourArmyState {
 }
 
 export function isFourArmyCommand(v: unknown): v is FourArmyCommand {
-  if (!record(v) || !army(v.actor) || !commandTypes.includes(String(v.type))) return false;
+  if (!record(v) || !army(v.actor) || typeof v.type !== 'string' || !commandTypes.includes(v.type)) return false;
   const c = { ...v };
   delete c.actor;
   const fields: Record<string, string[]> = {

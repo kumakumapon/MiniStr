@@ -332,6 +332,20 @@ describe('four-army command engine', () => {
 });
 
 describe('four-army verified engine checkpoint', () => {
+  it('rejects non-string command discriminants without coercing untrusted JSON objects', () => {
+    const map = fixture();
+    const s = value(createFourArmyState(map));
+    const text = value(serializeFourArmyArchive(map, [], s));
+    for (const type of [null, 1, true, [], { toString: 'endTurn' }, { toString: 0, valueOf: 0 }]) {
+      const command = { actor: 'army1', type };
+      expect(isFourArmyCommand(command)).toBe(false);
+      expect(applyFourArmyCommand(s, command).ok).toBe(false);
+      const archive = JSON.parse(text);
+      archive.payload.commands = [command];
+      expect(parseFourArmyArchive(JSON.stringify(archive)).ok).toBe(false);
+    }
+  });
+
   it('rejects a real engine checkpoint in every legacy reader', () => {
     const map = fixture();
     const s = value(createFourArmyState(map));
