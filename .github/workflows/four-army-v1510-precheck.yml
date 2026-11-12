@@ -1,0 +1,24 @@
+name: Four-army v1.5.10 precheck
+on:
+  push:
+    branches: [diagnostics/v1.5.10-boundary-precheck]
+permissions:
+  contents: read
+jobs:
+  engine:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
+        with:
+          node-version: 24
+          package-manager-cache: false
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run format:check
+      - run: npm run typecheck:test
+      - run: npx vitest run src/game/fourArmyEngine.test.ts src/game/fourArmyFoundation.test.ts src/game/backup.test.ts
+      - run: npm run build
