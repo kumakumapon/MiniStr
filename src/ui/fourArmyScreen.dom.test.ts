@@ -87,6 +87,8 @@ describe('four-army spectator controller', () => {
     expect(query('#four-notice').textContent).toContain('exactly once');
     change('#four-order-1', 'army2');
     start();
+    expect(screen.root.tagName).toBe('DIV');
+    expect(screen.root.getAttribute('role')).toBe('main');
     expect(query('#four-turn').textContent).toContain('0 commands');
     const label = query('#four-toggle').firstChild,
       unit = query('#four-unit').firstChild;

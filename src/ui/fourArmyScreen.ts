@@ -48,7 +48,7 @@ interface Dependencies {
 
 /** Separate state owner and DOM surface: no four-army state reaches legacy scores, saves or commands. */
 export class FourArmyScreen {
-  readonly root = document.createElement('main');
+  readonly root = document.createElement('div');
   private session?: FourArmyCpuSession;
   private map?: FourArmyMap;
   private prefix: FourArmyCommand[] = [];
@@ -75,6 +75,8 @@ export class FourArmyScreen {
     this.codec = deps.codec ?? new FourArmyFileCodec();
     this.root.className = 'four-screen';
     this.root.id = 'four-army-screen';
+    this.root.setAttribute('role', 'main');
+    this.root.setAttribute('aria-labelledby', 'four-heading');
     this.root.hidden = true;
     document.body.append(this.root);
     this.root.addEventListener('click', (e) => {
