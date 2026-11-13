@@ -1,7 +1,7 @@
 {
   "name": "ministr",
   "private": true,
-  "version": "1.5.11",
+  "version": "1.5.12",
   "type": "module",
   "license": "MIT",
   "engines": {
@@ -31,7 +31,8 @@
     "test:ci": "node --test scripts/ci-policy.check.mjs",
     "profile": "vite-node scripts/profile-boundaries.ts",
     "balance:paired": "vite-node scripts/paired-balance.ts",
-    "balance:tactics": "vite-node scripts/tactical-balance.ts"
+    "balance:tactics": "vite-node scripts/tactical-balance.ts",
+    "four-army:capacity": "vite-node scripts/four-army-capacity-report.ts"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

@@ -6,6 +6,10 @@ import { defaultFourArmyCpuSettings } from '../../src/ai/fourArmyCpu';
 import { createFourArmyState } from '../../src/game/fourArmyEngine';
 import { serializeFourArmyArchive } from '../../src/game/fourArmyArchive';
 import { FOUR_ARMY_IDS } from '../../src/game/fourArmyFoundation';
+import { createFourArmyMap32 } from '../../src/game/fourArmyMap32';
+import { fourArmyCapacityFixture } from './helpers/fourArmyMapProbe';
+import { writeFile } from 'node:fs/promises';
+import type { FourArmyCpuPlanner } from '../../src/ui/fourArmyCpuPlanner';
 import type { FourArmyCpuSession } from '../../src/ui/fourArmyCpuSession';
 
 let library: string, workerCode: string;
@@ -16,7 +20,7 @@ async function bundle(entry: string, name: string): Promise<string> {
   throw Error('Worker test bundle missing');
 }
 test.beforeAll(async () => {
-  [library, workerCode] = await Promise.all([bundle('src/ui/fourArmyCpuSession.ts', 'FourArmyCpuLib'), bundle('src/ui/fourArmyCpuWorker.ts', 'FourArmyCpuWorkerLib')]);
+  [library, workerCode] = await Promise.all([bundle('tests/e2e/helpers/fourArmyMapBrowser.ts', 'FourArmyCpuLib'), bundle('src/ui/fourArmyCpuWorker.ts', 'FourArmyCpuWorkerLib')]);
 });
 
 test('real Worker cancellation settles old steps and prevents same-turn replacement replies', async ({ page }) => {
@@ -168,4 +172,122 @@ test('real Worker reaches an adjudicated finish and releases computation at game
   expect(result.command).toBeUndefined();
   expect(result.terminated).toBe(1);
   expect(serializeFourArmyArchive(map, result.commands, result.state).ok).toBe(true);
+});
+
+test('real Worker compares 32-board capacity candidates and cancels a crowded 64-unit request', async ({ page, browserName }, testInfo) => {
+  await page.goto('/');
+  await page.addScriptTag({ content: library });
+  const result = await page.evaluate(
+    async ({ workerCode }) => {
+      const lib = (window as unknown as { FourArmyCpuLib: { FourArmyCpuPlanner: typeof FourArmyCpuPlanner; fourArmyCapacityFixture: typeof fourArmyCapacityFixture } })
+        .FourArmyCpuLib;
+      const url = URL.createObjectURL(new Blob([workerCode], { type: 'text/javascript' }));
+      const rows: { cap: number; crowded: boolean; actor: string; sample: number; cold: boolean; elapsedMs: number }[] = [];
+      let terminated = 0,
+        created = 0;
+      const factory = () => {
+        const w = new Worker(url),
+          end = w.terminate.bind(w);
+        created++;
+        w.terminate = () => {
+          terminated++;
+          end();
+        };
+        return w;
+      };
+      for (const cap of [8, 12, 16]) {
+        const planner = new lib.FourArmyCpuPlanner(factory);
+        let cold = true;
+        try {
+          for (const crowded of [false, true])
+            for (const actor of ['army1', 'army2', 'army3', 'army4'] as const) {
+              const { state } = lib.fourArmyCapacityFixture(cap, crowded, actor);
+              for (let sample = 0; sample < 2; sample++) {
+                const start = performance.now(),
+                  command = await planner.plan(state, { difficulty: 'hard', policy: 'balanced' });
+                if (!command || command.actor !== actor) throw Error('Capacity probe failed');
+                rows.push({ cap, crowded, actor, sample, cold, elapsedMs: performance.now() - start });
+                cold = false;
+              }
+            }
+        } finally {
+          planner.cancel();
+        }
+      }
+      const planner = new lib.FourArmyCpuPlanner(factory),
+        stress = lib.fourArmyCapacityFixture(16, true).state;
+      let timer = false;
+      const timerDone = new Promise<void>((resolve) =>
+        setTimeout(() => {
+          timer = true;
+          resolve();
+        }, 0),
+      );
+      await planner.plan(stress, { difficulty: 'hard', policy: 'defensive' });
+      await timerDone;
+      const pending = planner.plan(stress, { difficulty: 'hard', policy: 'defensive' }),
+        started = performance.now();
+      planner.cancel();
+      const cancelled = await pending,
+        cancelMs = performance.now() - started;
+      URL.revokeObjectURL(url);
+      return { rows, cancelled, cancelMs, timer, created, terminated };
+    },
+    { workerCode },
+  );
+  expect(result.cancelled).toBeUndefined();
+  expect(result.cancelMs).toBeLessThan(250);
+  expect(result.timer).toBe(true);
+  expect(result.terminated).toBe(result.created);
+  expect(result.rows).toHaveLength(48);
+  expect(result.rows.every((r) => r.elapsedMs < 2000)).toBe(true);
+  const summaries = [8, 12, 16].map((cap) => {
+    const times = result.rows
+      .filter((r) => r.cap === cap && !r.cold)
+      .map((r) => r.elapsedMs)
+      .sort((a, b) => a - b);
+    return {
+      cap,
+      totalUnits: cap * 4,
+      p50: times[Math.ceil(times.length * 0.5) - 1],
+      p95: times[Math.ceil(times.length * 0.95) - 1],
+      max: times.at(-1),
+      cold: result.rows.find((r) => r.cap === cap && r.cold)!.elapsedMs,
+    };
+  });
+  const report = { schemaVersion: 1, phase: 'four-army-capacity-worker', browser: browserName, summaries, cancelMs: result.cancelMs, rows: result.rows };
+  await writeFile(testInfo.outputPath('four-army-capacity.json'), JSON.stringify(report, null, 2));
+  console.info(JSON.stringify({ ...report, rows: undefined }));
+});
+
+test('real Worker advances the published 32 board with cap16 and verifies v2 command history', async ({ page }) => {
+  const made = createFourArmyMap32();
+  if (!made.ok) throw Error(made.error);
+  const initial = createFourArmyState(made.value);
+  if (!initial.ok) throw Error(initial.error);
+  await page.goto('/');
+  await page.addScriptTag({ content: library });
+  const result = await page.evaluate(
+    async ({ state, workerCode }) => {
+      const Session = (window as unknown as { FourArmyCpuLib: { FourArmyCpuSession: typeof FourArmyCpuSession } }).FourArmyCpuLib.FourArmyCpuSession;
+      const url = URL.createObjectURL(new Blob([workerCode], { type: 'text/javascript' }));
+      const session = new Session(state, () => new Worker(url));
+      session.resume();
+      try {
+        for (let i = 0; i < 96; i++) await session.step();
+        return { state: session.state, commands: session.commands };
+      } finally {
+        session.stop();
+        URL.revokeObjectURL(url);
+      }
+    },
+    { state: initial.value, workerCode },
+  );
+  expect(result.state.engineVersion).toBe(2);
+  expect(result.state.setup).toEqual(made.value.setup);
+  expect(new Set(result.commands.map((c) => c.actor)).size).toBe(4);
+  expect(result.state.units.every((u) => result.state.units.filter((v) => v.owner === u.owner).length <= 16)).toBe(true);
+  const archived = serializeFourArmyArchive(made.value, result.commands, result.state);
+  expect(archived.ok).toBe(true);
+  if (archived.ok) expect(JSON.parse(archived.value).schemaVersion).toBe(2);
 });

@@ -29,7 +29,9 @@ export function fourArmyPlanningView(o: FourArmyObservation): GameState {
 }
 
 export function isFourArmyObservation(v: unknown): v is FourArmyObservation {
-  if (!record(v) || !exactKeys(v, ['viewer', 'board', 'capitals', 'units', 'player', 'visible', 'round', 'alive', 'outcome']) || !isArmy(v.viewer)) return false;
+  if (!record(v) || !exactKeys(v, ['viewer', 'board', 'capitals', 'units', 'player', 'visible', 'round', 'alive', 'outcome'], ['unitLimitPerArmy']) || !isArmy(v.viewer))
+    return false;
+  if (Object.hasOwn(v, 'unitLimitPerArmy') && !boundedInt(v.unitLimitPerArmy, 4, 32)) return false;
   const b = v.board,
     caps = v.capitals,
     p = v.player,
@@ -105,6 +107,7 @@ export function isFourArmyObservation(v: unknown): v is FourArmyObservation {
   )
     return false;
   const view = fourArmyPlanningView(o);
+  if (o.unitLimitPerArmy !== undefined && FOUR_ARMY_IDS.some((a) => o.units.filter((u) => u.owner === a).length > o.unitLimitPerArmy!)) return false;
   if (!isGameState(view) || !boundedInt(view.nextUnitId, 1, 1e9)) return false;
   if (
     o.units.some(
