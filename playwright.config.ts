@@ -13,13 +13,13 @@ export default defineConfig({
     {
       name: 'firefox',
       testMatch:
-        /(?:four-army-cpu|tactical-learning|tactical-rules|save-safety|wide-front|board-response|compatibility|english|custom-maps|finite-supplies|army-music|airlift-and-backup|strategy-expansion|terrain-presentation|share-link|research)\.spec\.ts/,
+        /(?:four-army-cpu|four-army-screen|tactical-learning|tactical-rules|save-safety|wide-front|board-response|compatibility|english|custom-maps|finite-supplies|army-music|airlift-and-backup|strategy-expansion|terrain-presentation|share-link|research)\.spec\.ts/,
       use: { ...devices['Desktop Firefox'] },
     },
     {
       name: 'webkit',
       testMatch:
-        /(?:four-army-cpu|tactical-learning|tactical-rules|save-safety|wide-front|board-response|compatibility|english|custom-maps|finite-supplies|army-music|airlift-and-backup|strategy-expansion|terrain-presentation|share-link|research)\.spec\.ts/,
+        /(?:four-army-cpu|four-army-screen|tactical-learning|tactical-rules|save-safety|wide-front|board-response|compatibility|english|custom-maps|finite-supplies|army-music|airlift-and-backup|strategy-expansion|terrain-presentation|share-link|research)\.spec\.ts/,
       use: { ...devices['Desktop Safari'] },
     },
   ],

@@ -1,5 +1,6 @@
 import { campaignTimingSummary, isDeadlineCondition, objectiveTimingDescription, scenarioConditionDescription, scenarioTiming, timingProgress, timingSummary } from './ui/turnTiming';
 import { updateScreen } from './ui/screenView';
+import { FourArmyScreen } from './ui/fourArmyScreen';
 import { boardTileSelector, syncBoardFocus } from './ui/boardFocus';
 import { TileMarkupCache } from './ui/tileMarkupCache';
 import { BoardInput } from './ui/boardInput';
@@ -281,6 +282,29 @@ const loadedCampaign = loadCampaignProgress(localStorage);
 let campaignProgress = loadedCampaign.ok ? loadedCampaign.value : createCampaignProgress();
 let campaignNotice = loadedCampaign.ok ? '' : loadedCampaign.error;
 const app = document.querySelector<HTMLDivElement>('#app')!;
+const fourArmyScreen = new FourArmyScreen({
+  storage: localStorage,
+  persistent: () => localStorage.persistent,
+  writable: () => !localStorage.persistent || storageWriter.writable && !localStorage.conflicted,
+  conflicted: () => localStorage.conflicted,
+  writerState: () => storageWriter.state,
+  retrySaving: () => storageWriter.acquire(storageWriterChanged),
+  onOpen: () => {
+    commandScheduler.cancel(); cpuRunGeneration += 1; cpuInProgress = false; fileReadGate.invalidate();
+    pauseSpectate(false); dismissTacticalScene(false);
+    musicPlayer.setSettings({ ...musicSettings, armyTracks: false });
+    app.hidden = true; app.inert = true;
+  },
+  onClose: () => {
+    app.hidden = false; app.inert = false; musicPlayer.setSettings(musicSettings);
+    focusSelector = '#title-four-army'; render();
+  },
+  onLocale: locale => {
+    document.documentElement.lang = setLocale(locale);
+    try { localStorage.setItem('ministr.locale', locale); } catch { /* The current locale still applies in memory. */ }
+  },
+  onGesture: () => unlockAudio(),
+});
 app.addEventListener('input', event => {
   const input = event.target;
   if (!(input instanceof HTMLInputElement)) return;
@@ -1099,6 +1123,7 @@ function clearShareHash(): void {
   try { window.history.replaceState(null, '', window.location.pathname + window.location.search); } catch { /* the address bar is cosmetic */ }
 }
 function render(): void {
+  if (fourArmyScreen.active) { fourArmyScreen.refreshStorage(); return; }
   if (screens.briefingOpen && !finiteSupplies && (game.tactics || game.units.some(unit => unit.callsign !== undefined) || game.units.some(unit => unit.kind === 'transportHelicopter') || [...deploymentChoices.red, ...deploymentChoices.blue].includes('transportHelicopter'))) {
     finiteSupplies = true; game = { ...game, ruleVersion: campaignRun || dailyLocked() ? CURRENT_RULE_VERSION : LOGISTICS_RULE_VERSION }; initialState = structuredClone(game);
   }
@@ -1988,6 +2013,7 @@ function render(): void {
     titleState.openFromMatch(); render();
   }));
   bindTitleEvents(app, titleEventDeps);
+  app.querySelector<HTMLButtonElement>('#title-four-army')?.addEventListener('click', () => { if (screens.titleOpen) fourArmyScreen.open(); });
   if (screens.editorOpen) {
     // Keep the existing compact editor markup while adding the production rule
     // as a real form control. The value is part of the exported scenario data.
@@ -2706,6 +2732,7 @@ window.addEventListener('resize', () => {
   if (boardZoomIndex !== previous) render();
 });
 window.addEventListener('keydown', event => {
+  if (fourArmyScreen.active) return;
   if (event.key === 'Escape' && bridgePending) { event.preventDefault(); bridgePending = undefined; focusSelector = '#bridge-unit'; render(); return; }
   if (event.key === 'Escape' && fortifyPending) { event.preventDefault(); fortifyPending = undefined; focusSelector = '#fortify-unit'; render(); return; }
   if (event.key === 'Escape' && reconTargeting) { event.preventDefault(); reconTargeting = false; message = '偵察を中止しました。'; focusSelector = '#recon-target'; render(); return; }

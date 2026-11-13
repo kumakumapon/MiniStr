@@ -1,0 +1,421 @@
+.four-screen {
+  --four-bg: #12251f;
+  --four-panel: #1b3027;
+  --four-ink: #f4eddb;
+  --four-muted: #b7c9bc;
+  --four-line: #587361;
+  --four-gold: #eed08c;
+  max-width: 1440px;
+  margin: auto;
+  padding: 20px;
+  color: var(--four-ink);
+  font:
+    14px/1.5 system-ui,
+    -apple-system,
+    'Segoe UI',
+    sans-serif;
+  background: var(--four-bg);
+  min-height: 100vh;
+  box-sizing: border-box;
+}
+.four-screen[hidden] {
+  display: none;
+}
+.four-screen * {
+  box-sizing: border-box;
+}
+.four-screen h1,
+.four-screen h2,
+.four-screen p {
+  margin: 0;
+}
+.four-screen h1 {
+  font-size: 24px;
+  letter-spacing: 0.03em;
+}
+.four-screen h2 {
+  font-size: 18px;
+}
+.four-kicker {
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  color: var(--four-gold);
+  font-weight: 700;
+}
+.four-screen label {
+  display: grid;
+  gap: 4px;
+  color: var(--four-muted);
+  font-size: 12px;
+}
+.four-screen button,
+.four-screen select,
+.four-screen input {
+  min-height: 44px;
+  font: inherit;
+  color: var(--four-ink);
+  border: 1px solid var(--four-line);
+  border-radius: 5px;
+  background: #203c30;
+  padding: 7px 10px;
+  max-width: 100%;
+}
+.four-screen button {
+  cursor: pointer;
+  font-weight: 650;
+}
+.four-screen button:hover:not(:disabled) {
+  background: #345442;
+}
+.four-screen :focus-visible {
+  outline: 3px solid var(--four-gold);
+  outline-offset: 2px;
+}
+.four-screen button:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+.four-screen .four-primary {
+  background: var(--four-gold);
+  color: #12251f;
+  border-color: var(--four-gold);
+}
+.four-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 16px;
+}
+.four-header > div {
+  margin-right: auto;
+}
+.four-header label {
+  max-width: 120px;
+}
+.four-screen #four-notice:empty {
+  display: none;
+}
+.four-screen #four-notice {
+  padding: 9px 12px;
+  border-left: 3px solid var(--four-gold);
+  background: #253d30;
+  margin: 8px 0;
+}
+.four-setup {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+.four-setup > section,
+.four-brief {
+  background: var(--four-panel);
+  border: 1px solid var(--four-line);
+  padding: 20px;
+  border-radius: 8px;
+}
+.four-brief {
+  display: grid;
+  gap: 18px;
+  align-content: start;
+}
+.four-screen fieldset {
+  min-width: 0;
+  border: 1px solid var(--four-line);
+  padding: 12px;
+  border-radius: 5px;
+}
+.four-order {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+.four-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  align-items: center;
+}
+.four-setting-row {
+  display: grid;
+  grid-template-columns: 90px 1fr 1fr;
+  gap: 8px;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid #58736166;
+}
+.four-army-label {
+  --army: #ef8b7b;
+}
+.four-army-label.army2,
+.four-turn.army2 {
+  --army: #83bdf4;
+}
+.four-army-label.army3,
+.four-turn.army3 {
+  --army: #83d6ad;
+}
+.four-army-label.army4,
+.four-turn.army4 {
+  --army: #f0cf79;
+}
+.four-army-label strong,
+strong.four-army-label {
+  border-left: 4px solid var(--army);
+  padding-left: 8px;
+}
+.four-hint {
+  color: var(--four-muted);
+  font-size: 12px;
+  margin-top: 10px !important;
+}
+.four-screen details {
+  border: 1px solid var(--four-line);
+  border-radius: 6px;
+  padding: 10px;
+  margin: 10px 0;
+  background: var(--four-panel);
+}
+.four-screen summary {
+  cursor: pointer;
+  font-weight: 700;
+  min-height: 28px;
+  display: list-item;
+}
+.four-tools > label {
+  margin: 10px 0;
+}
+.four-tools .four-buttons {
+  margin-bottom: 12px;
+}
+.four-slot {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  gap: 6px;
+  align-items: center;
+  border-top: 1px solid #58736166;
+  padding: 8px 0;
+}
+.four-slot strong {
+  overflow-wrap: anywhere;
+  font-size: 12px;
+}
+.four-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 8px;
+}
+.four-toolbar label {
+  min-width: 110px;
+}
+.four-turn {
+  --army: #ef8b7b;
+  border-left: 4px solid var(--army);
+  padding: 10px 12px;
+  background: var(--four-panel);
+  font-weight: 700;
+  margin-top: 12px !important;
+}
+.four-armies #four-army-info {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+.four-armies .four-army-label {
+  display: grid;
+  gap: 4px;
+  font-size: 12px;
+}
+.four-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 285px;
+  gap: 16px;
+  margin-top: 12px;
+}
+.four-map-panel {
+  min-width: 0;
+  padding: 12px;
+  border: 1px solid var(--four-line);
+  border-radius: 7px;
+  background: #1a3327;
+}
+.four-map-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.four-map-heading button {
+  min-width: 44px;
+}
+.four-map-viewport {
+  max-width: 100%;
+  max-height: 72vh;
+  overflow: auto;
+  padding: 6px;
+  background: #0b1c15;
+  border-radius: 4px;
+  overscroll-behavior: contain;
+  touch-action: pan-x pan-y pinch-zoom;
+  scrollbar-color: #648b72 #12251f;
+}
+.four-map-viewport canvas {
+  display: block;
+  max-width: none;
+  outline-offset: -2px !important;
+}
+.four-inspector {
+  min-width: 0;
+}
+.four-inspector > section {
+  border: 1px solid var(--four-line);
+  border-radius: 6px;
+  padding: 12px;
+  background: var(--four-panel);
+}
+.four-inspector output {
+  display: block;
+  min-height: 70px;
+  margin: 10px 0;
+  overflow-wrap: anywhere;
+}
+.four-inspector label {
+  margin: 8px 0;
+}
+.four-inspector .four-setting-row {
+  grid-template-columns: 1fr 1fr;
+}
+.four-inspector .four-setting-row > strong {
+  grid-column: 1/-1;
+}
+.four-replay-controls {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 12px;
+  margin-top: 12px;
+  border: 1px solid var(--four-gold);
+  border-radius: 6px;
+}
+.four-replay-controls label {
+  flex: 1;
+  min-width: 160px;
+}
+.four-screen #four-unit {
+  width: 100%;
+}
+.four-screen .storage-write-notice {
+  margin-bottom: 12px;
+}
+.four-screen .storage-write-notice button {
+  font-size: 12px;
+}
+.four-screen select {
+  min-width: 0;
+}
+.four-screen input {
+  width: 100%;
+}
+.four-screen button,
+.four-screen select,
+.four-screen input {
+  scroll-margin-top: 12px;
+}
+@media (min-width: 1100px) {
+  .four-screen .four-armies {
+    margin-bottom: 0;
+  }
+  .four-map-viewport {
+    min-height: 400px;
+  }
+}
+@media (max-width: 850px) {
+  .four-screen {
+    padding: 12px;
+  }
+  .four-setup {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+  .four-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .four-inspector {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .four-inspector .four-tools {
+    grid-column: 1/-1;
+  }
+  .four-inspector > details {
+    margin: 0;
+  }
+  .four-screen h1 {
+    font-size: 20px;
+  }
+  .four-map-viewport {
+    max-height: 65vh;
+  }
+  .four-armies #four-army-info {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 480px) {
+  .four-header {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .four-header > div {
+    width: 100%;
+  }
+  .four-header label {
+    margin-right: auto;
+  }
+  .four-inspector {
+    display: block;
+  }
+  .four-inspector > details {
+    margin: 10px 0;
+  }
+  .four-setting-row {
+    grid-template-columns: 62px minmax(0, 1fr) minmax(0, 1fr);
+    gap: 5px;
+  }
+  .four-order {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .four-toolbar > button {
+    flex: 1;
+  }
+  .four-toolbar label {
+    flex: 1 1 40%;
+  }
+  .four-setup > section,
+  .four-brief {
+    padding: 12px;
+  }
+  .four-slot {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+  .four-slot strong {
+    grid-column: 1/-1;
+  }
+  .four-map-panel {
+    padding: 8px;
+  }
+  .four-map-heading h2 {
+    font-size: 16px;
+  }
+  .four-replay-controls label {
+    flex-basis: 100%;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .four-screen * {
+    scroll-behavior: auto !important;
+    transition: none !important;
+  }
+}
