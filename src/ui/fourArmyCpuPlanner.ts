@@ -2,6 +2,7 @@ import { isFourArmyCpuOptions, isObservedFourArmyCommand, type FourArmyCpuOption
 import { handleFourArmyCpuRequest, isFourArmyCpuTicket, type FourArmyCpuRequest } from '../ai/fourArmyCpuProtocol';
 import { exactKeys, record } from '../ai/fourArmyObservation';
 import { isFourArmyState, observeFourArmy, type FourArmyCommand, type FourArmyState } from '../game/fourArmyEngine';
+import { FOUR_ARMY_CPU_VERSION, isFourArmyCpuVersion, type FourArmyCpuVersion } from '../ai/fourArmyCpuVersion';
 
 interface Pending {
   request: FourArmyCpuRequest;
@@ -28,9 +29,9 @@ export class FourArmyCpuPlanner {
     }
     p?.resolve(undefined);
   }
-  plan(state: FourArmyState, options: FourArmyCpuOptions): Promise<FourArmyCommand | undefined> {
+  plan(state: FourArmyState, options: FourArmyCpuOptions, cpuVersion: FourArmyCpuVersion = FOUR_ARMY_CPU_VERSION): Promise<FourArmyCommand | undefined> {
     if (this.pending) this.cancel();
-    if (!isFourArmyState(state) || !isFourArmyCpuOptions(options)) return Promise.reject(Error('Invalid four-army CPU plan'));
+    if (!isFourArmyState(state) || !isFourArmyCpuOptions(options) || !isFourArmyCpuVersion(cpuVersion)) return Promise.reject(Error('Invalid four-army CPU plan'));
     if (state.paused || state.outcome.type !== 'ongoing') {
       this.cancel();
       return Promise.resolve(undefined);
@@ -46,6 +47,7 @@ export class FourArmyCpuPlanner {
       turn: { actor, round: state.round.round, index: state.round.index },
       observation: observed.value,
       options: { ...options },
+      cpuVersion,
     };
     let fallback = false;
     if (!this.worker) {

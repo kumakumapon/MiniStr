@@ -6,6 +6,7 @@ import { FOUR_ARMY_LONG_COMMANDS, packFourArmyCommands, unpackFourArmyCommands }
 import { isFourArmyCpuSettings, type FourArmyCpuSettings } from '../ai/fourArmyCpu';
 import { parseBoundedJson } from './jsonBoundary';
 import type { GameResult } from './types';
+import { isFourArmyCpuVersion, type FourArmyCpuVersion } from '../ai/fourArmyCpuVersion';
 
 export const FOUR_ARMY_SAVE_KEYS = ['ministr.fourArmy.save.1', 'ministr.fourArmy.save.2'] as const;
 export const FOUR_ARMY_FILE_BYTES = 8_000_000;
@@ -15,7 +16,7 @@ export type FourArmyView = 'all' | FourArmyId;
 export interface FourArmySpectatorSave {
   format: 'ministr-four-army-spectator';
   schemaVersion: 1 | 2;
-  cpuVersion: 'four-army-cpu-v1';
+  cpuVersion: FourArmyCpuVersion;
   name: string;
   savedAt: string;
   settings: FourArmyCpuSettings;
@@ -49,7 +50,7 @@ export function isFourArmySpectatorEnvelope(v: unknown): v is FourArmySpectatorS
     keys(v, ['format', 'schemaVersion', 'cpuVersion', 'name', 'savedAt', 'settings', 'view', 'speed', 'archive']) &&
     v.format === 'ministr-four-army-spectator' &&
     (v.schemaVersion === 1 || v.schemaVersion === 2) &&
-    v.cpuVersion === 'four-army-cpu-v1' &&
+    isFourArmyCpuVersion(v.cpuVersion) &&
     typeof v.name === 'string' &&
     v.name.trim() === v.name &&
     v.name.length > 0 &&

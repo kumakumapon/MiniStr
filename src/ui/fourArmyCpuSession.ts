@@ -1,6 +1,7 @@
 import { defaultFourArmyCpuSettings, isFourArmyCpuSettings, type FourArmyCpuSettings } from '../ai/fourArmyCpu';
 import { applyFourArmyCommand, isFourArmyState, type FourArmyCommand, type FourArmyState } from '../game/fourArmyEngine';
 import { FourArmyCpuPlanner } from './fourArmyCpuPlanner';
+import { FOUR_ARMY_CPU_VERSION, isFourArmyCpuVersion, type FourArmyCpuVersion } from '../ai/fourArmyCpuVersion';
 
 /** Authoritative UI-thread owner. One step applies at most one current, legal command. */
 export class FourArmyCpuSession {
@@ -11,8 +12,13 @@ export class FourArmyCpuSession {
   private running = false;
   private stopped = false;
   private readonly planner: FourArmyCpuPlanner;
-  constructor(state: FourArmyState, createWorker: () => Worker, settings: FourArmyCpuSettings = defaultFourArmyCpuSettings()) {
-    if (!isFourArmyState(state) || !isFourArmyCpuSettings(settings)) throw Error('Invalid four-army CPU session');
+  constructor(
+    state: FourArmyState,
+    createWorker: () => Worker,
+    settings: FourArmyCpuSettings = defaultFourArmyCpuSettings(),
+    readonly cpuVersion: FourArmyCpuVersion = FOUR_ARMY_CPU_VERSION,
+  ) {
+    if (!isFourArmyState(state) || !isFourArmyCpuSettings(settings) || !isFourArmyCpuVersion(cpuVersion)) throw Error('Invalid four-army CPU session');
     this.current = structuredClone(state);
     this.settings = structuredClone(settings);
     this.planner = new FourArmyCpuPlanner(createWorker);
@@ -68,7 +74,7 @@ export class FourArmyCpuSession {
     const revision = ++this.revision;
     const actor = this.current.round.order[this.current.round.index]!;
     try {
-      let command = await this.planner.plan(this.current, this.settings[actor]);
+      let command = await this.planner.plan(this.current, this.settings[actor], this.cpuVersion);
       if (!command || this.stopped || !this.running || revision !== this.revision) return undefined;
       let next = applyFourArmyCommand(this.current, command);
       if (!next.ok) {

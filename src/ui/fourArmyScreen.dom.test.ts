@@ -9,6 +9,25 @@ import { FOUR_ARMY_SAVE_KEYS } from '../game/fourArmySpectatorSave';
 import * as download from './download';
 
 describe('four-army spectator controller', () => {
+  it('preserves a legacy save and prefix until explicitly switching the future CPU and saving again', async () => {
+    const old = JSON.stringify(fourArmySpectatorFixture(2));
+    values.set(FOUR_ARMY_SAVE_KEYS[0], old);
+    click('[data-load-slot="0"]');
+    await vi.waitFor(() => expect(query('#four-notice').textContent).toBe('Loaded and paused.'));
+    click('#four-export');
+    await vi.waitFor(() => expect(download.downloadJson).toHaveBeenCalled());
+    expect(JSON.parse(vi.mocked(download.downloadJson).mock.calls.at(-1)![1]).cpuVersion).toBe('four-army-cpu-v1');
+    click('#four-upgrade-cpu');
+    expect(query('#four-turn').textContent).toContain('2 commands');
+    expect(query('#four-toggle').getAttribute('aria-pressed')).toBe('false');
+    expect(values.get(FOUR_ARMY_SAVE_KEYS[0])).toBe(old);
+    expect(document.querySelector('#four-upgrade-cpu')).toBeNull();
+    click('[data-save-slot="0"]');
+    await vi.waitFor(() => expect(JSON.parse(values.get(FOUR_ARMY_SAVE_KEYS[0])!).cpuVersion).toBe('four-army-cpu-v2'));
+    const saved = JSON.parse(values.get(FOUR_ARMY_SAVE_KEYS[0])!);
+    expect(saved.archive.payload.commands.rows).toHaveLength(2);
+    expect(saved.archive.payload.state).toEqual(JSON.parse(old).archive.payload.state);
+  });
   let codec: FourArmyFileCodec;
   let screen: FourArmyScreen, values: Map<string, string>, writable: boolean, closed: () => void;
   const query = <T extends HTMLElement = HTMLElement>(s: string) => document.querySelector<T>(s)!;
@@ -55,7 +74,7 @@ describe('four-army spectator controller', () => {
       onLocale: setLocale,
       onGesture: vi.fn(),
       codec,
-      createSession: (state, settings) =>
+      createSession: (state, settings, cpuVersion) =>
         new FourArmyCpuSession(
           state,
           () => {
@@ -68,6 +87,7 @@ describe('four-army spectator controller', () => {
             return w as unknown as Worker;
           },
           settings,
+          cpuVersion,
         ),
     });
     screen.open();

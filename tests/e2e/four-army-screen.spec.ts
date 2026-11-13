@@ -1,6 +1,8 @@
 import { expect, type Page } from '@playwright/test';
 import { readFile } from 'node:fs/promises';
 import { test } from './helpers/engineTest';
+import { chooseFourArmyCpuCommand } from '../../src/ai/fourArmyCpu';
+import { applyFourArmyCommand, observeFourArmy } from '../../src/game/fourArmyEngine';
 import { fourArmySpectatorFixture } from '../../src/game/fourArmySpectator.fixture';
 import { encodeFourArmySpectatorSave, parseFourArmySpectatorSave } from '../../src/game/fourArmySpectatorSave';
 
@@ -22,6 +24,60 @@ async function importMatch(page: Page, text: string) {
 }
 async function count(page: Page) {
   return Number((await page.locator('#four-turn').textContent())?.match(/(\d+) (?:commands|命令)/)?.[1]);
+}
+
+for (const { locale, width } of [
+  { locale: 'ja', width: 1280 },
+  { locale: 'en', width: 390 },
+]) {
+  test(`four-army retains old CPU until explicit upgrade ${width}/${locale}`, async ({ page, browserName }, info) => {
+    const source = fourArmySpectatorFixture();
+    for (let i = 0; i < 2; i++) {
+      const observed = observeFourArmy(source.archive.payload.state, 'army1');
+      if (!observed.ok) throw Error(observed.error);
+      const command = chooseFourArmyCpuCommand(observed.value, source.settings.army1, 'four-army-cpu-v1')!;
+      const next = applyFourArmyCommand(source.archive.payload.state, command);
+      if (!next.ok) throw Error(next.error);
+      source.archive.payload.commands.push(command);
+      source.archive.payload.state = next.value;
+    }
+    const raw = JSON.stringify(source);
+    await page.setViewportSize({ width, height: 900 });
+    await open(page, locale);
+    await page.evaluate((raw) => localStorage.setItem('ministr.fourArmy.save.1', raw), raw);
+    await importMatch(page, raw);
+    await expect(page.locator('#four-notice')).toHaveText(locale === 'ja' ? '停止状態で読み込みました。' : 'Loaded and paused.');
+    const settings = page.locator('details').filter({ has: page.locator('#four-upgrade-cpu') });
+    await settings.evaluate((e) => {
+      (e as HTMLDetailsElement).open = true;
+    });
+    await expect(page.locator('#four-upgrade-cpu')).toBeVisible();
+    await page.screenshot({ path: info.outputPath(`systems-v1515-legacy-${locale}-${width}.png`), fullPage: true });
+    if (process.env.FOUR_UI_REVIEW && browserName === 'chromium')
+      console.info(
+        JSON.stringify({
+          phase: 'four-ui-shot',
+          name: `legacy-${locale}-${width}`,
+          base64: (await page.screenshot({ type: 'jpeg', quality: 55, fullPage: true })).toString('base64'),
+        }),
+      );
+    await page.locator('#four-upgrade-cpu').click();
+    await expect(page.locator('#four-toggle')).toHaveAttribute('aria-pressed', 'false');
+    expect(await count(page)).toBe(2);
+    expect(await page.evaluate(() => localStorage.getItem('ministr.fourArmy.save.1'))).toBe(raw);
+    await page.locator('#four-step').click();
+    await expect.poll(() => count(page)).toBe(3);
+    await tools(page);
+    await page.locator('[data-save-slot="1"]').click();
+    await expect(page.locator('#four-notice')).toHaveText(locale === 'ja' ? '4軍専用枠へ保存しました。' : 'Saved to the four-army slot.');
+    const stored = await page.evaluate(() => localStorage.getItem('ministr.fourArmy.save.2')!);
+    const checked = parseFourArmySpectatorSave(stored);
+    expect(checked.ok).toBe(true);
+    if (!checked.ok) throw Error(checked.error);
+    expect(checked.value.cpuVersion).toBe('four-army-cpu-v2');
+    expect(checked.value.archive.payload.commands.slice(0, 2)).toEqual(source.archive.payload.commands);
+    expect(checked.value.archive.payload.commands[2]).toMatchObject({ type: 'move', unitId: 'u4', destination: { x: 12, y: 5 } });
+  });
 }
 
 for (const locale of ['ja', 'en'])
