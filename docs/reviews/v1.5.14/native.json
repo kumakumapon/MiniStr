@@ -1,0 +1,1333 @@
+{
+  "schemaVersion": 1,
+  "releaseSource": "a905f0902d06a45cf59582ef22bcf1495af55e69",
+  "mainTarget": "83d8c835c62061a1ac9dc719407f4af28fe39fb3",
+  "environment": "GitHub-hosted ubuntu-latest x64, Node 24, npm 11.9.0, exact package-lock, native Playwright browsers",
+  "identity": "Production src is unchanged between dd0c1b503234095d7528a6abb3c981856dbbf31c and releaseSource; intervening changes affect tests and the comparison helper only.",
+  "runs": {
+    "assessment": 43496013540,
+    "soak": 43499165835,
+    "cpuAndUi": 43500674307,
+    "maximumFinal": 43501658648
+  },
+  "jobs": {
+    "soak": {
+      "chromium": 132140103897,
+      "firefox": 132140103822,
+      "webkit": 132140103701
+    },
+    "maximumFinal": {
+      "chromium": 132148721828,
+      "firefox": 132148721936,
+      "webkit": 132148721813
+    },
+    "cpu": 132145299429,
+    "ui": 132145298957
+  },
+  "maximum": [
+    {
+      "phase": "four-army-long-record",
+      "browser": "chromium",
+      "source": "e35045981c1bc5e11d6c0e8288a39dfe1b5ecc10",
+      "commands": 65536,
+      "rawBytes": 3703113,
+      "compactBytes": 440383,
+      "importMs": 53035.16056700001,
+      "saveMs": 54237.608567999996,
+      "replayOpenMs": 116.17719499999657,
+      "repeatExportMs": 78.00633399997605,
+      "seekMs": {
+        "count": 6,
+        "p95": 2904.442372999998,
+        "max": 2904.442372999998
+      },
+      "retainedReplayStates": 42,
+      "totalSeconds": 231.54314685399999,
+      "beforeReloadWorkers": {
+        "created": 2,
+        "terminated": 2,
+        "active": 0,
+        "pauses": []
+      },
+      "workers": {
+        "created": 1,
+        "terminated": 1,
+        "active": 0,
+        "pauses": []
+      }
+    },
+    {
+      "phase": "four-army-long-record",
+      "browser": "firefox",
+      "source": "e35045981c1bc5e11d6c0e8288a39dfe1b5ecc10",
+      "commands": 65536,
+      "rawBytes": 3703113,
+      "compactBytes": 440383,
+      "importMs": 127667.51968699999,
+      "saveMs": 129193.903211,
+      "replayOpenMs": 177.93527999997605,
+      "repeatExportMs": 102.6984999999986,
+      "seekMs": {
+        "count": 6,
+        "p95": 4600.263963000005,
+        "max": 4600.263963000005
+      },
+      "retainedReplayStates": 42,
+      "totalSeconds": 475.693448414,
+      "beforeReloadWorkers": {
+        "created": 2,
+        "terminated": 2,
+        "active": 0,
+        "pauses": []
+      },
+      "workers": {
+        "created": 1,
+        "terminated": 1,
+        "active": 0,
+        "pauses": []
+      }
+    },
+    {
+      "phase": "four-army-long-record",
+      "browser": "webkit",
+      "source": "e35045981c1bc5e11d6c0e8288a39dfe1b5ecc10",
+      "commands": 65536,
+      "rawBytes": 3703113,
+      "compactBytes": 440383,
+      "importMs": 76095.50827600001,
+      "saveMs": 71104.702808,
+      "replayOpenMs": 357.92740700001013,
+      "repeatExportMs": 177.28350799999316,
+      "seekMs": {
+        "count": 6,
+        "p95": 3533.590130000026,
+        "max": 3533.590130000026
+      },
+      "retainedReplayStates": 42,
+      "totalSeconds": 324.12744914000007,
+      "beforeReloadWorkers": {
+        "created": 2,
+        "terminated": 2,
+        "active": 0,
+        "pauses": []
+      },
+      "workers": {
+        "created": 1,
+        "terminated": 1,
+        "active": 0,
+        "pauses": []
+      }
+    }
+  ],
+  "soak": [
+    {
+      "phase": "four-army-soak",
+      "browser": "chromium",
+      "source": "81ffb00b446cc80ba5a03adad7924a85373b4db0",
+      "elapsedSeconds": 600.588,
+      "games": 1,
+      "samples": [
+        {
+          "minute": 1,
+          "commands": 494,
+          "heap": 5739684,
+          "workers": {
+            "created": 1,
+            "terminated": 1,
+            "active": 0,
+            "pauses": [
+              14
+            ]
+          }
+        },
+        {
+          "minute": 2,
+          "commands": 982,
+          "heap": 5920020,
+          "workers": {
+            "created": 2,
+            "terminated": 2,
+            "active": 0,
+            "pauses": [
+              14,
+              11.400000000023283
+            ]
+          }
+        },
+        {
+          "minute": 3,
+          "commands": 1475,
+          "heap": 6029172,
+          "workers": {
+            "created": 3,
+            "terminated": 3,
+            "active": 0,
+            "pauses": [
+              14,
+              11.400000000023283,
+              13.5
+            ]
+          }
+        },
+        {
+          "minute": 4,
+          "commands": 1966,
+          "heap": 6124436,
+          "workers": {
+            "created": 4,
+            "terminated": 4,
+            "active": 0,
+            "pauses": [
+              14,
+              11.400000000023283,
+              13.5,
+              5.300000000046566
+            ]
+          }
+        },
+        {
+          "minute": 5,
+          "commands": 2460,
+          "heap": 6368040,
+          "workers": {
+            "created": 5,
+            "terminated": 5,
+            "active": 0,
+            "pauses": [
+              14,
+              11.400000000023283,
+              13.5,
+              5.300000000046566,
+              4.699999999953434
+            ]
+          }
+        },
+        {
+          "minute": 6,
+          "commands": 2950,
+          "heap": 6456120,
+          "workers": {
+            "created": 6,
+            "terminated": 6,
+            "active": 0,
+            "pauses": [
+              14,
+              11.400000000023283,
+              13.5,
+              5.300000000046566,
+              4.699999999953434,
+              11
+            ]
+          }
+        },
+        {
+          "minute": 7,
+          "commands": 3442,
+          "heap": 6528584,
+          "workers": {
+            "created": 7,
+            "terminated": 7,
+            "active": 0,
+            "pauses": [
+              14,
+              11.400000000023283,
+              13.5,
+              5.300000000046566,
+              4.699999999953434,
+              11,
+              13.800000000046566
+            ]
+          }
+        },
+        {
+          "minute": 8,
+          "commands": 3932,
+          "heap": 6532596,
+          "workers": {
+            "created": 8,
+            "terminated": 8,
+            "active": 0,
+            "pauses": [
+              14,
+              11.400000000023283,
+              13.5,
+              5.300000000046566,
+              4.699999999953434,
+              11,
+              13.800000000046566,
+              13.199999999953434
+            ]
+          }
+        },
+        {
+          "minute": 9,
+          "commands": 4425,
+          "heap": 6704444,
+          "workers": {
+            "created": 9,
+            "terminated": 9,
+            "active": 0,
+            "pauses": [
+              14,
+              11.400000000023283,
+              13.5,
+              5.300000000046566,
+              4.699999999953434,
+              11,
+              13.800000000046566,
+              13.199999999953434,
+              11.099999999976717
+            ]
+          }
+        },
+        {
+          "minute": 10,
+          "commands": 4915,
+          "heap": 6760188,
+          "workers": {
+            "created": 10,
+            "terminated": 10,
+            "active": 0,
+            "pauses": [
+              14,
+              11.400000000023283,
+              13.5,
+              5.300000000046566,
+              4.699999999953434,
+              11,
+              13.800000000046566,
+              13.199999999953434,
+              11.099999999976717,
+              11.400000000023283
+            ]
+          }
+        }
+      ],
+      "pause": {
+        "count": 10,
+        "p95": 14,
+        "max": 14
+      },
+      "heapAvailable": true,
+      "workers": {
+        "created": 10,
+        "terminated": 10,
+        "active": 0,
+        "pauses": [
+          14,
+          11.400000000023283,
+          13.5,
+          5.300000000046566,
+          4.699999999953434,
+          11,
+          13.800000000046566,
+          13.199999999953434,
+          11.099999999976717,
+          11.400000000023283
+        ]
+      }
+    },
+    {
+      "phase": "four-army-soak",
+      "browser": "firefox",
+      "source": "81ffb00b446cc80ba5a03adad7924a85373b4db0",
+      "elapsedSeconds": 600.677,
+      "games": 1,
+      "samples": [
+        {
+          "minute": 1,
+          "commands": 462,
+          "heap": null,
+          "workers": {
+            "created": 1,
+            "terminated": 1,
+            "active": 0,
+            "pauses": [
+              6
+            ]
+          }
+        },
+        {
+          "minute": 2,
+          "commands": 916,
+          "heap": null,
+          "workers": {
+            "created": 2,
+            "terminated": 2,
+            "active": 0,
+            "pauses": [
+              6,
+              8
+            ]
+          }
+        },
+        {
+          "minute": 3,
+          "commands": 1376,
+          "heap": null,
+          "workers": {
+            "created": 3,
+            "terminated": 3,
+            "active": 0,
+            "pauses": [
+              6,
+              8,
+              7
+            ]
+          }
+        },
+        {
+          "minute": 4,
+          "commands": 1835,
+          "heap": null,
+          "workers": {
+            "created": 4,
+            "terminated": 4,
+            "active": 0,
+            "pauses": [
+              6,
+              8,
+              7,
+              19
+            ]
+          }
+        },
+        {
+          "minute": 5,
+          "commands": 2295,
+          "heap": null,
+          "workers": {
+            "created": 5,
+            "terminated": 5,
+            "active": 0,
+            "pauses": [
+              6,
+              8,
+              7,
+              19,
+              8
+            ]
+          }
+        },
+        {
+          "minute": 6,
+          "commands": 2751,
+          "heap": null,
+          "workers": {
+            "created": 6,
+            "terminated": 6,
+            "active": 0,
+            "pauses": [
+              6,
+              8,
+              7,
+              19,
+              8,
+              20
+            ]
+          }
+        },
+        {
+          "minute": 7,
+          "commands": 3210,
+          "heap": null,
+          "workers": {
+            "created": 7,
+            "terminated": 7,
+            "active": 0,
+            "pauses": [
+              6,
+              8,
+              7,
+              19,
+              8,
+              20,
+              10
+            ]
+          }
+        },
+        {
+          "minute": 8,
+          "commands": 3665,
+          "heap": null,
+          "workers": {
+            "created": 8,
+            "terminated": 8,
+            "active": 0,
+            "pauses": [
+              6,
+              8,
+              7,
+              19,
+              8,
+              20,
+              10,
+              10
+            ]
+          }
+        },
+        {
+          "minute": 9,
+          "commands": 4124,
+          "heap": null,
+          "workers": {
+            "created": 9,
+            "terminated": 9,
+            "active": 0,
+            "pauses": [
+              6,
+              8,
+              7,
+              19,
+              8,
+              20,
+              10,
+              10,
+              9
+            ]
+          }
+        },
+        {
+          "minute": 10,
+          "commands": 4581,
+          "heap": null,
+          "workers": {
+            "created": 10,
+            "terminated": 10,
+            "active": 0,
+            "pauses": [
+              6,
+              8,
+              7,
+              19,
+              8,
+              20,
+              10,
+              10,
+              9,
+              10
+            ]
+          }
+        }
+      ],
+      "pause": {
+        "count": 10,
+        "p95": 20,
+        "max": 20
+      },
+      "heapAvailable": false,
+      "workers": {
+        "created": 10,
+        "terminated": 10,
+        "active": 0,
+        "pauses": [
+          6,
+          8,
+          7,
+          19,
+          8,
+          20,
+          10,
+          10,
+          9,
+          10
+        ]
+      }
+    },
+    {
+      "phase": "four-army-soak",
+      "browser": "webkit",
+      "source": "81ffb00b446cc80ba5a03adad7924a85373b4db0",
+      "elapsedSeconds": 600.827,
+      "games": 1,
+      "samples": [
+        {
+          "minute": 1,
+          "commands": 486,
+          "heap": null,
+          "workers": {
+            "created": 1,
+            "terminated": 1,
+            "active": 0,
+            "pauses": [
+              9
+            ]
+          }
+        },
+        {
+          "minute": 2,
+          "commands": 965,
+          "heap": null,
+          "workers": {
+            "created": 2,
+            "terminated": 2,
+            "active": 0,
+            "pauses": [
+              9,
+              9
+            ]
+          }
+        },
+        {
+          "minute": 3,
+          "commands": 1449,
+          "heap": null,
+          "workers": {
+            "created": 3,
+            "terminated": 3,
+            "active": 0,
+            "pauses": [
+              9,
+              9,
+              10
+            ]
+          }
+        },
+        {
+          "minute": 4,
+          "commands": 1933,
+          "heap": null,
+          "workers": {
+            "created": 4,
+            "terminated": 4,
+            "active": 0,
+            "pauses": [
+              9,
+              9,
+              10,
+              6
+            ]
+          }
+        },
+        {
+          "minute": 5,
+          "commands": 2418,
+          "heap": null,
+          "workers": {
+            "created": 5,
+            "terminated": 5,
+            "active": 0,
+            "pauses": [
+              9,
+              9,
+              10,
+              6,
+              6
+            ]
+          }
+        },
+        {
+          "minute": 6,
+          "commands": 2899,
+          "heap": null,
+          "workers": {
+            "created": 6,
+            "terminated": 6,
+            "active": 0,
+            "pauses": [
+              9,
+              9,
+              10,
+              6,
+              6,
+              6
+            ]
+          }
+        },
+        {
+          "minute": 7,
+          "commands": 3382,
+          "heap": null,
+          "workers": {
+            "created": 7,
+            "terminated": 7,
+            "active": 0,
+            "pauses": [
+              9,
+              9,
+              10,
+              6,
+              6,
+              6,
+              9
+            ]
+          }
+        },
+        {
+          "minute": 8,
+          "commands": 3864,
+          "heap": null,
+          "workers": {
+            "created": 8,
+            "terminated": 8,
+            "active": 0,
+            "pauses": [
+              9,
+              9,
+              10,
+              6,
+              6,
+              6,
+              9,
+              6
+            ]
+          }
+        },
+        {
+          "minute": 9,
+          "commands": 4350,
+          "heap": null,
+          "workers": {
+            "created": 9,
+            "terminated": 9,
+            "active": 0,
+            "pauses": [
+              9,
+              9,
+              10,
+              6,
+              6,
+              6,
+              9,
+              6,
+              4
+            ]
+          }
+        },
+        {
+          "minute": 10,
+          "commands": 4830,
+          "heap": null,
+          "workers": {
+            "created": 10,
+            "terminated": 10,
+            "active": 0,
+            "pauses": [
+              9,
+              9,
+              10,
+              6,
+              6,
+              6,
+              9,
+              6,
+              4,
+              7
+            ]
+          }
+        }
+      ],
+      "pause": {
+        "count": 10,
+        "p95": 10,
+        "max": 10
+      },
+      "heapAvailable": false,
+      "workers": {
+        "created": 10,
+        "terminated": 10,
+        "active": 0,
+        "pauses": [
+          9,
+          9,
+          10,
+          6,
+          6,
+          6,
+          9,
+          6,
+          4,
+          7
+        ]
+      }
+    }
+  ],
+  "cpuComparison": [
+    {
+      "phase": "four-army-cpu-comparison",
+      "browser": "chromium",
+      "source": "65044f00de07af7cee9dd44096c823b09653b967",
+      "report": {
+        "inputPolicy": "fresh structured clone per decision; cloning excluded; five warmups; alternating order",
+        "scope": "Same total units on synthetic 32x32 fixtures. Different algorithms; not game-equivalent win-rate evidence.",
+        "rows": [
+          {
+            "totalUnits": 32,
+            "perFourArmy": 8,
+            "perTwoArmy": 16,
+            "crowded": false,
+            "difficulty": "normal",
+            "twoMs": {
+              "count": 20,
+              "p50": 1.1999999999825377,
+              "p95": 2.7999999999883585,
+              "max": 2.900000000023283
+            },
+            "fourMs": {
+              "count": 20,
+              "p50": 6,
+              "p95": 8.099999999976717,
+              "max": 10.299999999988358
+            }
+          },
+          {
+            "totalUnits": 32,
+            "perFourArmy": 8,
+            "perTwoArmy": 16,
+            "crowded": false,
+            "difficulty": "hard",
+            "twoMs": {
+              "count": 20,
+              "p50": 0.8999999999941792,
+              "p95": 1.8000000000174623,
+              "max": 2.2000000000116415
+            },
+            "fourMs": {
+              "count": 20,
+              "p50": 5.100000000005821,
+              "p95": 6.5,
+              "max": 7.5
+            }
+          },
+          {
+            "totalUnits": 32,
+            "perFourArmy": 8,
+            "perTwoArmy": 16,
+            "crowded": true,
+            "difficulty": "normal",
+            "twoMs": {
+              "count": 20,
+              "p50": 0.8999999999941792,
+              "p95": 2.8000000000174623,
+              "max": 3.599999999976717
+            },
+            "fourMs": {
+              "count": 20,
+              "p50": 7.100000000005821,
+              "p95": 9.60000000000582,
+              "max": 10.10000000000582
+            }
+          },
+          {
+            "totalUnits": 32,
+            "perFourArmy": 8,
+            "perTwoArmy": 16,
+            "crowded": true,
+            "difficulty": "hard",
+            "twoMs": {
+              "count": 20,
+              "p50": 0.7999999999883585,
+              "p95": 1,
+              "max": 1.1000000000058208
+            },
+            "fourMs": {
+              "count": 20,
+              "p50": 8.200000000011642,
+              "p95": 19.70000000001164,
+              "max": 30.300000000017462
+            }
+          },
+          {
+            "totalUnits": 64,
+            "perFourArmy": 16,
+            "perTwoArmy": 32,
+            "crowded": false,
+            "difficulty": "normal",
+            "twoMs": {
+              "count": 20,
+              "p50": 0.7999999999883585,
+              "p95": 1.5,
+              "max": 3.6000000000058208
+            },
+            "fourMs": {
+              "count": 20,
+              "p50": 6.699999999982538,
+              "p95": 10.39999999999418,
+              "max": 11.299999999988358
+            }
+          },
+          {
+            "totalUnits": 64,
+            "perFourArmy": 16,
+            "perTwoArmy": 32,
+            "crowded": false,
+            "difficulty": "hard",
+            "twoMs": {
+              "count": 20,
+              "p50": 0.7000000000116415,
+              "p95": 1.1000000000058208,
+              "max": 1.2000000000116415
+            },
+            "fourMs": {
+              "count": 20,
+              "p50": 5.399999999994179,
+              "p95": 7.699999999982538,
+              "max": 8.199999999982538
+            }
+          },
+          {
+            "totalUnits": 64,
+            "perFourArmy": 16,
+            "perTwoArmy": 32,
+            "crowded": true,
+            "difficulty": "normal",
+            "twoMs": {
+              "count": 20,
+              "p50": 0.8999999999941792,
+              "p95": 1.1000000000058208,
+              "max": 1.6000000000058208
+            },
+            "fourMs": {
+              "count": 20,
+              "p50": 8.60000000000582,
+              "p95": 12.300000000017462,
+              "max": 14.10000000000582
+            }
+          },
+          {
+            "totalUnits": 64,
+            "perFourArmy": 16,
+            "perTwoArmy": 32,
+            "crowded": true,
+            "difficulty": "hard",
+            "twoMs": {
+              "count": 20,
+              "p50": 0.8999999999941792,
+              "p95": 1,
+              "max": 1
+            },
+            "fourMs": {
+              "count": 20,
+              "p50": 9,
+              "p95": 10,
+              "max": 11.400000000023283
+            }
+          }
+        ]
+      }
+    },
+    {
+      "phase": "four-army-cpu-comparison",
+      "browser": "firefox",
+      "source": "65044f00de07af7cee9dd44096c823b09653b967",
+      "report": {
+        "inputPolicy": "fresh structured clone per decision; cloning excluded; five warmups; alternating order",
+        "scope": "Same total units on synthetic 32x32 fixtures. Different algorithms; not game-equivalent win-rate evidence.",
+        "rows": [
+          {
+            "totalUnits": 32,
+            "perFourArmy": 8,
+            "perTwoArmy": 16,
+            "crowded": false,
+            "difficulty": "normal",
+            "twoMs": {
+              "count": 20,
+              "p50": 1,
+              "p95": 2,
+              "max": 3
+            },
+            "fourMs": {
+              "count": 20,
+              "p50": 7,
+              "p95": 11,
+              "max": 12
+            }
+          },
+          {
+            "totalUnits": 32,
+            "perFourArmy": 8,
+            "perTwoArmy": 16,
+            "crowded": false,
+            "difficulty": "hard",
+            "twoMs": {
+              "count": 20,
+              "p50": 1,
+              "p95": 2,
+              "max": 3
+            },
+            "fourMs": {
+              "count": 20,
+              "p50": 7,
+              "p95": 11,
+              "max": 11
+            }
+          },
+          {
+            "totalUnits": 32,
+            "perFourArmy": 8,
+            "perTwoArmy": 16,
+            "crowded": true,
+            "difficulty": "normal",
+            "twoMs": {
+              "count": 20,
+              "p50": 1,
+              "p95": 2,
+              "max": 3
+            },
+            "fourMs": {
+              "count": 20,
+              "p50": 12,
+              "p95": 16,
+              "max": 16
+            }
+          },
+          {
+            "totalUnits": 32,
+            "perFourArmy": 8,
+            "perTwoArmy": 16,
+            "crowded": true,
+            "difficulty": "hard",
+            "twoMs": {
+              "count": 20,
+              "p50": 1,
+              "p95": 2,
+              "max": 3
+            },
+            "fourMs": {
+              "count": 20,
+              "p50": 10,
+              "p95": 14,
+              "max": 16
+            }
+          },
+          {
+            "totalUnits": 64,
+            "perFourArmy": 16,
+            "perTwoArmy": 32,
+            "crowded": false,
+            "difficulty": "normal",
+            "twoMs": {
+              "count": 20,
+              "p50": 1,
+              "p95": 3,
+              "max": 3
+            },
+            "fourMs": {
+              "count": 20,
+              "p50": 8,
+              "p95": 11,
+              "max": 12
+            }
+          },
+          {
+            "totalUnits": 64,
+            "perFourArmy": 16,
+            "perTwoArmy": 32,
+            "crowded": false,
+            "difficulty": "hard",
+            "twoMs": {
+              "count": 20,
+              "p50": 1,
+              "p95": 2,
+              "max": 3
+            },
+            "fourMs": {
+              "count": 20,
+              "p50": 11,
+              "p95": 17,
+              "max": 18
+            }
+          },
+          {
+            "totalUnits": 64,
+            "perFourArmy": 16,
+            "perTwoArmy": 32,
+            "crowded": true,
+            "difficulty": "normal",
+            "twoMs": {
+              "count": 20,
+              "p50": 1,
+              "p95": 2,
+              "max": 2
+            },
+            "fourMs": {
+              "count": 20,
+              "p50": 12,
+              "p95": 14,
+              "max": 15
+            }
+          },
+          {
+            "totalUnits": 64,
+            "perFourArmy": 16,
+            "perTwoArmy": 32,
+            "crowded": true,
+            "difficulty": "hard",
+            "twoMs": {
+              "count": 20,
+              "p50": 1,
+              "p95": 3,
+              "max": 3
+            },
+            "fourMs": {
+              "count": 20,
+              "p50": 12,
+              "p95": 14,
+              "max": 25
+            }
+          }
+        ]
+      }
+    },
+    {
+      "phase": "four-army-cpu-comparison",
+      "browser": "webkit",
+      "source": "65044f00de07af7cee9dd44096c823b09653b967",
+      "report": {
+        "inputPolicy": "fresh structured clone per decision; cloning excluded; five warmups; alternating order",
+        "scope": "Same total units on synthetic 32x32 fixtures. Different algorithms; not game-equivalent win-rate evidence.",
+        "rows": [
+          {
+            "totalUnits": 32,
+            "perFourArmy": 8,
+            "perTwoArmy": 16,
+            "crowded": false,
+            "difficulty": "normal",
+            "twoMs": {
+              "count": 20,
+              "p50": 1,
+              "p95": 3,
+              "max": 4
+            },
+            "fourMs": {
+              "count": 20,
+              "p50": 7,
+              "p95": 13,
+              "max": 19
+            }
+          },
+          {
+            "totalUnits": 32,
+            "perFourArmy": 8,
+            "perTwoArmy": 16,
+            "crowded": false,
+            "difficulty": "hard",
+            "twoMs": {
+              "count": 20,
+              "p50": 1,
+              "p95": 2,
+              "max": 4
+            },
+            "fourMs": {
+              "count": 20,
+              "p50": 4,
+              "p95": 9,
+              "max": 10
+            }
+          },
+          {
+            "totalUnits": 32,
+            "perFourArmy": 8,
+            "perTwoArmy": 16,
+            "crowded": true,
+            "difficulty": "normal",
+            "twoMs": {
+              "count": 20,
+              "p50": 1,
+              "p95": 1,
+              "max": 2
+            },
+            "fourMs": {
+              "count": 20,
+              "p50": 7,
+              "p95": 16,
+              "max": 16
+            }
+          },
+          {
+            "totalUnits": 32,
+            "perFourArmy": 8,
+            "perTwoArmy": 16,
+            "crowded": true,
+            "difficulty": "hard",
+            "twoMs": {
+              "count": 20,
+              "p50": 1,
+              "p95": 1,
+              "max": 2
+            },
+            "fourMs": {
+              "count": 20,
+              "p50": 4,
+              "p95": 9,
+              "max": 10
+            }
+          },
+          {
+            "totalUnits": 64,
+            "perFourArmy": 16,
+            "perTwoArmy": 32,
+            "crowded": false,
+            "difficulty": "normal",
+            "twoMs": {
+              "count": 20,
+              "p50": 1,
+              "p95": 2,
+              "max": 2
+            },
+            "fourMs": {
+              "count": 20,
+              "p50": 7,
+              "p95": 10,
+              "max": 11
+            }
+          },
+          {
+            "totalUnits": 64,
+            "perFourArmy": 16,
+            "perTwoArmy": 32,
+            "crowded": false,
+            "difficulty": "hard",
+            "twoMs": {
+              "count": 20,
+              "p50": 1,
+              "p95": 1,
+              "max": 2
+            },
+            "fourMs": {
+              "count": 20,
+              "p50": 6,
+              "p95": 9,
+              "max": 12
+            }
+          },
+          {
+            "totalUnits": 64,
+            "perFourArmy": 16,
+            "perTwoArmy": 32,
+            "crowded": true,
+            "difficulty": "normal",
+            "twoMs": {
+              "count": 20,
+              "p50": 1,
+              "p95": 1,
+              "max": 1
+            },
+            "fourMs": {
+              "count": 20,
+              "p50": 5,
+              "p95": 8,
+              "max": 16
+            }
+          },
+          {
+            "totalUnits": 64,
+            "perFourArmy": 16,
+            "perTwoArmy": 32,
+            "crowded": true,
+            "difficulty": "hard",
+            "twoMs": {
+              "count": 20,
+              "p50": 1,
+              "p95": 1,
+              "max": 2
+            },
+            "fourMs": {
+              "count": 20,
+              "p50": 6,
+              "p95": 8,
+              "max": 19
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "initialMaximum": [
+    {
+      "phase": "four-army-long-record",
+      "browser": "chromium",
+      "source": "81ffb00b446cc80ba5a03adad7924a85373b4db0",
+      "commands": 65536,
+      "rawBytes": 3703113,
+      "compactBytes": 440383,
+      "importMs": 57743.549795,
+      "saveMs": 58833.637934,
+      "replayOpenMs": 158.00705299997935,
+      "repeatExportMs": 85.35841000001528,
+      "seekMs": {
+        "count": 6,
+        "p95": 2921.100406999991,
+        "max": 2921.100406999991
+      },
+      "retainedReplayStates": 42,
+      "totalSeconds": 252.380521592,
+      "beforeReloadWorkers": {
+        "created": 2,
+        "terminated": 2,
+        "active": 0,
+        "pauses": []
+      },
+      "workers": {
+        "created": 1,
+        "terminated": 1,
+        "active": 0,
+        "pauses": []
+      }
+    },
+    {
+      "phase": "four-army-long-record",
+      "browser": "firefox",
+      "source": "81ffb00b446cc80ba5a03adad7924a85373b4db0",
+      "commands": 65536,
+      "rawBytes": 3703113,
+      "compactBytes": 440383,
+      "importMs": 127039.38637400001,
+      "saveMs": 128911.89716099997,
+      "replayOpenMs": 154.1395879999909,
+      "repeatExportMs": 102.5256759999902,
+      "seekMs": {
+        "count": 6,
+        "p95": 4541.158529999986,
+        "max": 4541.158529999986
+      },
+      "retainedReplayStates": 42,
+      "totalSeconds": 474.777496329,
+      "beforeReloadWorkers": {
+        "created": 2,
+        "terminated": 2,
+        "active": 0,
+        "pauses": []
+      },
+      "workers": {
+        "created": 1,
+        "terminated": 1,
+        "active": 0,
+        "pauses": []
+      }
+    },
+    {
+      "phase": "four-army-long-record",
+      "browser": "webkit",
+      "source": "81ffb00b446cc80ba5a03adad7924a85373b4db0",
+      "commands": 65536,
+      "rawBytes": 3703113,
+      "compactBytes": 440383,
+      "importMs": 65179.37838299999,
+      "saveMs": 59043.829285000014,
+      "replayOpenMs": 282.34495499997865,
+      "repeatExportMs": 150.3099949999887,
+      "seekMs": {
+        "count": 6,
+        "p95": 3504.3821959999914,
+        "max": 3504.3821959999914
+      },
+      "retainedReplayStates": 42,
+      "totalSeconds": 263.082744704,
+      "beforeReloadWorkers": {
+        "created": 2,
+        "terminated": 2,
+        "active": 0,
+        "pauses": []
+      },
+      "workers": {
+        "created": 1,
+        "terminated": 1,
+        "active": 0,
+        "pauses": []
+      }
+    }
+  ],
+  "excludedMeasurement": "Initial CPU comparison reused the same state object and was excluded. Published CPU comparisons use fresh DTOs; cloning is outside timing, five warmups then twenty samples in alternating order.",
+  "limits": "Finite synthetic/CI measurements; no physical touch or assistive-technology test, no Firefox/WebKit heap, no two/four-hour claim, no general fairness claim."
+}
