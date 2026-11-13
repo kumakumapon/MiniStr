@@ -1,0 +1,32 @@
+name: Four army v1.5.14 assessment
+on:
+  push:
+    branches: [diagnostics/v1.5.14-assessment]
+permissions:
+  contents: read
+jobs:
+  simulate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm install --global npm@11.9.0
+      - run: npm ci
+      - name: Run fixed comparison cases without forced adjudication
+        run: npx vite-node scripts/four-army-assessment-report.ts ${{ matrix.shard }} 12 measurements/four-army-${{ matrix.shard }}.json
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        if: always()
+        with:
+          name: four-army-assessment-${{ matrix.shard }}
+          path: measurements/
+          retention-days: 14
