@@ -1,0 +1,6793 @@
+{
+  "schemaVersion": 1,
+  "protocol": "four-army-assessment-v1",
+  "implementationBase": "633a64a15daccd913ec926853c02f50ecafc2bad",
+  "measurementCommit": "6e52c2da278bb56466e2cb8d1d79b43e6ac14814",
+  "workflowRun": 43496013540,
+  "environment": "GitHub-hosted ubuntu-latest, Node24; exact per-shard runtime/CPU metadata retained in the Actions artifacts",
+  "scope": "Fixed finite sample, no inferred population win probability. A measurement budget is not a game deadline. CPU/rules unchanged in v1.5.14.",
+  "summary": [
+    {
+      "group": "orders",
+      "cases": 72,
+      "victories": 50,
+      "draws": 0,
+      "ongoing": 22,
+      "armies": [
+        {
+          "army": "army1",
+          "wins": 16,
+          "observedWinFraction": 0.2222222222222222,
+          "possibleFractionWithCensored": [
+            0.2222222222222222,
+            0.5277777777777778
+          ]
+        },
+        {
+          "army": "army2",
+          "wins": 13,
+          "observedWinFraction": 0.18055555555555555,
+          "possibleFractionWithCensored": [
+            0.18055555555555555,
+            0.4861111111111111
+          ]
+        },
+        {
+          "army": "army3",
+          "wins": 6,
+          "observedWinFraction": 0.08333333333333333,
+          "possibleFractionWithCensored": [
+            0.08333333333333333,
+            0.3888888888888889
+          ]
+        },
+        {
+          "army": "army4",
+          "wins": 15,
+          "observedWinFraction": 0.20833333333333334,
+          "possibleFractionWithCensored": [
+            0.20833333333333334,
+            0.5138888888888888
+          ]
+        }
+      ],
+      "seats": [
+        {
+          "seat": 1,
+          "wins": 15
+        },
+        {
+          "seat": 2,
+          "wins": 12
+        },
+        {
+          "seat": 3,
+          "wins": 11
+        },
+        {
+          "seat": 4,
+          "wins": 12
+        }
+      ],
+      "verdict": "censored-outcomes"
+    },
+    {
+      "group": "settings",
+      "cases": 12,
+      "victories": 10,
+      "draws": 0,
+      "ongoing": 2,
+      "armies": [
+        {
+          "army": "army1",
+          "wins": 2,
+          "observedWinFraction": 0.16666666666666666,
+          "possibleFractionWithCensored": [
+            0.16666666666666666,
+            0.3333333333333333
+          ]
+        },
+        {
+          "army": "army2",
+          "wins": 2,
+          "observedWinFraction": 0.16666666666666666,
+          "possibleFractionWithCensored": [
+            0.16666666666666666,
+            0.3333333333333333
+          ]
+        },
+        {
+          "army": "army3",
+          "wins": 1,
+          "observedWinFraction": 0.08333333333333333,
+          "possibleFractionWithCensored": [
+            0.08333333333333333,
+            0.25
+          ]
+        },
+        {
+          "army": "army4",
+          "wins": 5,
+          "observedWinFraction": 0.4166666666666667,
+          "possibleFractionWithCensored": [
+            0.4166666666666667,
+            0.5833333333333334
+          ]
+        }
+      ],
+      "seats": [
+        {
+          "seat": 1,
+          "wins": 6
+        },
+        {
+          "seat": 2,
+          "wins": 1
+        },
+        {
+          "seat": 3,
+          "wins": 1
+        },
+        {
+          "seat": 4,
+          "wins": 2
+        }
+      ],
+      "verdict": "censored-outcomes"
+    },
+    {
+      "group": "continuation",
+      "cases": 4,
+      "victories": 3,
+      "draws": 0,
+      "ongoing": 1,
+      "armies": [
+        {
+          "army": "army1",
+          "wins": 2,
+          "observedWinFraction": 0.5,
+          "possibleFractionWithCensored": [
+            0.5,
+            0.75
+          ]
+        },
+        {
+          "army": "army2",
+          "wins": 0,
+          "observedWinFraction": 0,
+          "possibleFractionWithCensored": [
+            0,
+            0.25
+          ]
+        },
+        {
+          "army": "army3",
+          "wins": 1,
+          "observedWinFraction": 0.25,
+          "possibleFractionWithCensored": [
+            0.25,
+            0.5
+          ]
+        },
+        {
+          "army": "army4",
+          "wins": 0,
+          "observedWinFraction": 0,
+          "possibleFractionWithCensored": [
+            0,
+            0.25
+          ]
+        }
+      ],
+      "seats": [
+        {
+          "seat": 1,
+          "wins": 0
+        },
+        {
+          "seat": 2,
+          "wins": 0
+        },
+        {
+          "seat": 3,
+          "wins": 1
+        },
+        {
+          "seat": 4,
+          "wins": 2
+        }
+      ],
+      "verdict": "censored-outcomes"
+    }
+  ],
+  "rows": [
+    {
+      "id": "continuation-42-0",
+      "group": "continuation",
+      "seed": 42,
+      "order": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "settings": {
+        "army1": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army2": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army3": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army4": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        }
+      },
+      "maxRound": 1000,
+      "maxCommands": 65536,
+      "count": 15942,
+      "round": 1001,
+      "outcome": {
+        "type": "ongoing"
+      },
+      "alive": [
+        "army1",
+        "army4"
+      ],
+      "eliminations": [
+        {
+          "army": "army3",
+          "round": 74
+        },
+        {
+          "army": "army2",
+          "round": 254
+        }
+      ],
+      "fallbacks": 1580,
+      "resumes": 9,
+      "maxUnits": 44,
+      "traceSha256": "ff52c2857246c595529e7c52b2fd728030d321d8b80fb21651f6a30e5515ec49",
+      "finalStateSha256": "66604a4264cf8583cc0c6c48086485148f8d78963fbaf7ee629df0050741d224",
+      "cpuMs": {
+        "count": 15942,
+        "p50": 4.525,
+        "p95": 8.426,
+        "max": 18.109
+      },
+      "engineMs": {
+        "count": 15942,
+        "p50": 1.522,
+        "p95": 1.802,
+        "max": 4.584
+      },
+      "peakHeapBytes": 164960544,
+      "elapsedSeconds": 95.686,
+      "stoppedBy": "round-budget",
+      "source": "6e52c2da278bb56466e2cb8d1d79b43e6ac14814",
+      "job": 132129186861
+    },
+    {
+      "id": "continuation-42-1",
+      "group": "continuation",
+      "seed": 42,
+      "order": [
+        "army2",
+        "army3",
+        "army4",
+        "army1"
+      ],
+      "settings": {
+        "army1": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army2": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army3": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army4": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        }
+      },
+      "maxRound": 1000,
+      "maxCommands": 65536,
+      "count": 21032,
+      "round": 509,
+      "outcome": {
+        "type": "victory",
+        "winner": "army1"
+      },
+      "alive": [
+        "army1"
+      ],
+      "eliminations": [
+        {
+          "army": "army4",
+          "round": 47
+        },
+        {
+          "army": "army3",
+          "round": 204
+        },
+        {
+          "army": "army2",
+          "round": 509
+        }
+      ],
+      "fallbacks": 133,
+      "resumes": 5,
+      "maxUnits": 44,
+      "traceSha256": "259712f55d70ef181769af3054f4207f2a769f4e26d3fe5b5608fab46738d544",
+      "finalStateSha256": "cb1e79ff0f22ac74cb30dc6f3bc534f82c74eb51c83acc9a4bbb2e3717c2c1f2",
+      "cpuMs": {
+        "count": 21032,
+        "p50": 3.148,
+        "p95": 6.317,
+        "max": 15.148
+      },
+      "engineMs": {
+        "count": 21032,
+        "p50": 1.134,
+        "p95": 1.298,
+        "max": 7.808
+      },
+      "peakHeapBytes": 168190640,
+      "elapsedSeconds": 93.409,
+      "stoppedBy": "outcome",
+      "source": "6e52c2da278bb56466e2cb8d1d79b43e6ac14814",
+      "job": 132129186809
+    },
+    {
+      "id": "continuation-42-2",
+      "group": "continuation",
+      "seed": 42,
+      "order": [
+        "army3",
+        "army4",
+        "army1",
+        "army2"
+      ],
+      "settings": {
+        "army1": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army2": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army3": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army4": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        }
+      },
+      "maxRound": 1000,
+      "maxCommands": 65536,
+      "count": 8955,
+      "round": 199,
+      "outcome": {
+        "type": "victory",
+        "winner": "army1"
+      },
+      "alive": [
+        "army1"
+      ],
+      "eliminations": [
+        {
+          "army": "army3",
+          "round": 32
+        },
+        {
+          "army": "army4",
+          "round": 89
+        },
+        {
+          "army": "army2",
+          "round": 199
+        }
+      ],
+      "fallbacks": 54,
+      "resumes": 1,
+      "maxUnits": 44,
+      "traceSha256": "db61d43f64e7ad22f6941a2a87607fedf3cf49a58f26b225f157473ba7760892",
+      "finalStateSha256": "40e0830c73ce40056da8a8cb3fc3855c7f37f8d1bc0846b95cc087b6fff5e46f",
+      "cpuMs": {
+        "count": 8955,
+        "p50": 4.207,
+        "p95": 8.755,
+        "max": 14.123
+      },
+      "engineMs": {
+        "count": 8955,
+        "p50": 1.509,
+        "p95": 1.769,
+        "max": 4.688
+      },
+      "peakHeapBytes": 159629280,
+      "elapsedSeconds": 52.652,
+      "stoppedBy": "outcome",
+      "source": "6e52c2da278bb56466e2cb8d1d79b43e6ac14814",
+      "job": 132129186893
+    },
+    {
+      "id": "continuation-42-3",
+      "group": "continuation",
+      "seed": 42,
+      "order": [
+        "army4",
+        "army1",
+        "army2",
+        "army3"
+      ],
+      "settings": {
+        "army1": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army2": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army3": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army4": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        }
+      },
+      "maxRound": 1000,
+      "maxCommands": 65536,
+      "count": 5452,
+      "round": 96,
+      "outcome": {
+        "type": "victory",
+        "winner": "army3"
+      },
+      "alive": [
+        "army3"
+      ],
+      "eliminations": [
+        {
+          "army": "army4",
+          "round": 51
+        },
+        {
+          "army": "army2",
+          "round": 57
+        },
+        {
+          "army": "army1",
+          "round": 96
+        }
+      ],
+      "fallbacks": 24,
+      "resumes": 0,
+      "maxUnits": 44,
+      "traceSha256": "a6e3e93f572335d5f98c3e615cc18510d5485cc7f8a449a42954c38c2db3d86a",
+      "finalStateSha256": "18d03eb3b203883f0b86b54a17ee4abaf5904f660f970e60880bc611b4f6d431",
+      "cpuMs": {
+        "count": 5452,
+        "p50": 2.836,
+        "p95": 6.312,
+        "max": 17.226
+      },
+      "engineMs": {
+        "count": 5452,
+        "p50": 1.162,
+        "p95": 1.347,
+        "max": 3.518
+      },
+      "peakHeapBytes": 151326344,
+      "elapsedSeconds": 23.33,
+      "stoppedBy": "outcome",
+      "source": "6e52c2da278bb56466e2cb8d1d79b43e6ac14814",
+      "job": 132129186357
+    },
+    {
+      "id": "orders-15141-0",
+      "group": "orders",
+      "seed": 15141,
+      "order": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "settings": {
+        "army1": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army2": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army3": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army4": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        }
+      },
+      "maxRound": 400,
+      "maxCommands": 65536,
+      "count": 8213,
+      "round": 140,
+      "outcome": {
+        "type": "victory",
+        "winner": "army3"
+      },
+      "alive": [
+        "army3"
+      ],
+      "eliminations": [
+        {
+          "army": "army2",
+          "round": 60
+        },
+        {
+          "army": "army1",
+          "round": 134
+        },
+        {
+          "army": "army4",
+          "round": 140
+        }
+      ],
+      "fallbacks": 44,
+      "resumes": 1,
+      "maxUnits": 44,
+      "traceSha256": "15d191bd074a93c8af4eed5419107df23d4c8367ca61144717058c9dcb32e902",
+      "finalStateSha256": "252a6b4b2a0760d18040264e9a529abf9f33155c0fb4c87c132ab6fddefd3ca6",
+      "cpuMs": {
+        "count": 8213,
+        "p50": 4.079,
+        "p95": 8.101,
+        "max": 36.504
+      },
+      "engineMs": {
+        "count": 8213,
+        "p50": 1.558,
+        "p95": 1.962,
+        "max": 5.934
+      },
+      "peakHeapBytes": 170616528,
+      "elapsedSeconds": 47.275,
+      "stoppedBy": "outcome",
+      "source": "6e52c2da278bb56466e2cb8d1d79b43e6ac14814",
+      "job": 132129186861
+    },
+    {
+      "id": "orders-15141-1",
+      "group": "orders",
+      "seed": 15141,
+      "order": [
+        "army1",
+        "army2",
+        "army4",
+        "army3"
+      ],
+      "settings": {
+        "army1": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army2": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army3": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army4": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        }
+      },
+      "maxRound": 400,
+      "maxCommands": 65536,
+      "count": 6257,
+      "round": 118,
+      "outcome": {
+        "type": "victory",
+        "winner": "army1"
+      },
+      "alive": [
+        "army1"
+      ],
+      "eliminations": [
+        {
+          "army": "army3",
+          "round": 55
+        },
+        {
+          "army": "army2",
+          "round": 74
+        },
+        {
+          "army": "army4",
+          "round": 118
+        }
+      ],
+      "fallbacks": 42,
+      "resumes": 1,
+      "maxUnits": 44,
+      "traceSha256": "e421d3dd59ddf61c36f4b897ceeb88d6627c3199b3710aa7778a1381f911de79",
+      "finalStateSha256": "1dc211919804b00c8f273181a3a2ef627ae40b450988acb1ed2d3334e1491b32",
+      "cpuMs": {
+        "count": 6257,
+        "p50": 3.024,
+        "p95": 6.554,
+        "max": 21.348
+      },
+      "engineMs": {
+        "count": 6257,
+        "p50": 1.196,
+        "p95": 1.596,
+        "max": 4.919
+      },
+      "peakHeapBytes": 143395144,
+      "elapsedSeconds": 27.85,
+      "stoppedBy": "outcome",
+      "source": "6e52c2da278bb56466e2cb8d1d79b43e6ac14814",
+      "job": 132129186809
+    },
+    {
+      "id": "orders-15141-10",
+      "group": "orders",
+      "seed": 15141,
+      "order": [
+        "army2",
+        "army4",
+        "army1",
+        "army3"
+      ],
+      "settings": {
+        "army1": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army2": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army3": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army4": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        }
+      },
+      "maxRound": 400,
+      "maxCommands": 65536,
+      "count": 3215,
+      "round": 56,
+      "outcome": {
+        "type": "victory",
+        "winner": "army4"
+      },
+      "alive": [
+        "army4"
+      ],
+      "eliminations": [
+        {
+          "army": "army3",
+          "round": 26
+        },
+        {
+          "army": "army2",
+          "round": 44
+        },
+        {
+          "army": "army1",
+          "round": 56
+        }
+      ],
+      "fallbacks": 13,
+      "resumes": 0,
+      "maxUnits": 44,
+      "traceSha256": "407367a733a5fade5ce296dbce868edb655efd5e7c538f663eaf992ed9be9659",
+      "finalStateSha256": "d122941566b58181ce904af0e015082c8aa0b59f0becb2fb825939aaacbf06cc",
+      "cpuMs": {
+        "count": 3215,
+        "p50": 3.922,
+        "p95": 8.016,
+        "max": 32.85
+      },
+      "engineMs": {
+        "count": 3215,
+        "p50": 1.514,
+        "p95": 2.352,
+        "max": 6.72
+      },
+      "peakHeapBytes": 128663648,
+      "elapsedSeconds": 18.11,
+      "stoppedBy": "outcome",
+      "source": "6e52c2da278bb56466e2cb8d1d79b43e6ac14814",
+      "job": 132129187036
+    },
+    {
+      "id": "orders-15141-11",
+      "group": "orders",
+      "seed": 15141,
+      "order": [
+        "army2",
+        "army4",
+        "army3",
+        "army1"
+      ],
+      "settings": {
+        "army1": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army2": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army3": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army4": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        }
+      },
+      "maxRound": 400,
+      "maxCommands": 65536,
+      "count": 8109,
+      "round": 154,
+      "outcome": {
+        "type": "victory",
+        "winner": "army1"
+      },
+      "alive": [
+        "army1"
+      ],
+      "eliminations": [
+        {
+          "army": "army4",
+          "round": 21
+        },
+        {
+          "army": "army3",
+          "round": 111
+        },
+        {
+          "army": "army2",
+          "round": 154
+        }
+      ],
+      "fallbacks": 28,
+      "resumes": 1,
+      "maxUnits": 44,
+      "traceSha256": "e4a019c1dc76ff439d8afb8f5246312dfd2a5a40662ae4aef08a7ffaebfa1511",
+      "finalStateSha256": "abea578faa2d8c3348351ea3ba102b317092ec78a1915043e101f4c7fbdce6ab",
+      "cpuMs": {
+        "count": 8109,
+        "p50": 3.341,
+        "p95": 6.775,
+        "max": 24.881
+      },
+      "engineMs": {
+        "count": 8109,
+        "p50": 1.169,
+        "p95": 1.572,
+        "max": 3.764
+      },
+      "peakHeapBytes": 162706088,
+      "elapsedSeconds": 37.076,
+      "stoppedBy": "outcome",
+      "source": "6e52c2da278bb56466e2cb8d1d79b43e6ac14814",
+      "job": 132129186696
+    },
+    {
+      "id": "orders-15141-12",
+      "group": "orders",
+      "seed": 15141,
+      "order": [
+        "army3",
+        "army1",
+        "army2",
+        "army4"
+      ],
+      "settings": {
+        "army1": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army2": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army3": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army4": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        }
+      },
+      "maxRound": 400,
+      "maxCommands": 65536,
+      "count": 13548,
+      "round": 248,
+      "outcome": {
+        "type": "victory",
+        "winner": "army4"
+      },
+      "alive": [
+        "army4"
+      ],
+      "eliminations": [
+        {
+          "army": "army3",
+          "round": 56
+        },
+        {
+          "army": "army2",
+          "round": 224
+        },
+        {
+          "army": "army1",
+          "round": 248
+        }
+      ],
+      "fallbacks": 82,
+      "resumes": 2,
+      "maxUnits": 44,
+      "traceSha256": "38a3fa313ea150b2f83fc940b506ec5af7a9adf4b8c5e278eb11d173de3f2e9c",
+      "finalStateSha256": "5ad22b0c2d7704f3d1ee91c4c867695ef27099d8601571b03f74161d8171e9e2",
+      "cpuMs": {
+        "count": 13548,
+        "p50": 4.208,
+        "p95": 8.284,
+        "max": 15.867
+      },
+      "engineMs": {
+        "count": 13548,
+        "p50": 1.519,
+        "p95": 1.761,
+        "max": 6.339
+      },
+      "peakHeapBytes": 191775520,
+      "elapsedSeconds": 78.64,
+      "stoppedBy": "outcome",
+      "source": "6e52c2da278bb56466e2cb8d1d79b43e6ac14814",
+      "job": 132129186861
+    },
+    {
+      "id": "orders-15141-13",
+      "group": "orders",
+      "seed": 15141,
+      "order": [
+        "army3",
+        "army1",
+        "army4",
+        "army2"
+      ],
+      "settings": {
+        "army1": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army2": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army3": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army4": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        }
+      },
+      "maxRound": 400,
+      "maxCommands": 65536,
+      "count": 10018,
+      "round": 200,
+      "outcome": {
+        "type": "victory",
+        "winner": "army4"
+      },
+      "alive": [
+        "army4"
+      ],
+      "eliminations": [
+        {
+          "army": "army3",
+          "round": 44
+        },
+        {
+          "army": "army2",
+          "round": 116
+        },
+        {
+          "army": "army1",
+          "round": 200
+        }
+      ],
+      "fallbacks": 50,
+      "resumes": 1,
+      "maxUnits": 44,
+      "traceSha256": "9450bf844f4c7cba911abf2975713a39c4055060b0972eefa934e564d45209f8",
+      "finalStateSha256": "fc07bb40ac122bf609f29f025b0474179e10a444b50e2e4d973b396b0d2906e0",
+      "cpuMs": {
+        "count": 10018,
+        "p50": 3.141,
+        "p95": 6.382,
+        "max": 15.806
+      },
+      "engineMs": {
+        "count": 10018,
+        "p50": 1.16,
+        "p95": 1.36,
+        "max": 4.137
+      },
+      "peakHeapBytes": 196014496,
+      "elapsedSeconds": 44.092,
+      "stoppedBy": "outcome",
+      "source": "6e52c2da278bb56466e2cb8d1d79b43e6ac14814",
+      "job": 132129186809
+    },
+    {
+      "id": "orders-15141-14",
+      "group": "orders",
+      "seed": 15141,
+      "order": [
+        "army3",
+        "army2",
+        "army1",
+        "army4"
+      ],
+      "settings": {
+        "army1": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army2": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army3": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army4": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        }
+      },
+      "maxRound": 400,
+      "maxCommands": 65536,
+      "count": 3773,
+      "round": 401,
+      "outcome": {
+        "type": "ongoing"
+      },
+      "alive": [
+        "army1",
+        "army2"
+      ],
+      "eliminations": [
+        {
+          "army": "army4",
+          "round": 20
+        },
+        {
+          "army": "army3",
+          "round": 20
+        }
+      ],
+      "fallbacks": 681,
+      "resumes": 3,
+      "maxUnits": 44,
+      "traceSha256": "138ca0a83130a83ae395c4ee96ce27b570cb2d2a3821a388ac18fe2cecb178bd",
+      "finalStateSha256": "971094ad33c77eb4712ac23bd78beb64df0905959a4f86f96ce0442ddb294c48",
+      "cpuMs": {
+        "count": 3773,
+        "p50": 5.02,
+        "p95": 8.82,
+        "max": 20.088
+      },
+      "engineMs": {
+        "count": 3773,
+        "p50": 1.592,
+        "p95": 2.018,
+        "max": 7.61
+      },
+      "peakHeapBytes": 196379160,
+      "elapsedSeconds": 24.297,
+      "stoppedBy": "round-budget",
+      "source": "6e52c2da278bb56466e2cb8d1d79b43e6ac14814",
+      "job": 132129186893
+    },
+    {
+      "id": "orders-15141-15",
+      "group": "orders",
+      "seed": 15141,
+      "order": [
+        "army3",
+        "army2",
+        "army4",
+        "army1"
+      ],
+      "settings": {
+        "army1": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army2": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army3": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army4": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        }
+      },
+      "maxRound": 400,
+      "maxCommands": 65536,
+      "count": 15268,
+      "round": 295,
+      "outcome": {
+        "type": "victory",
+        "winner": "army2"
+      },
+      "alive": [
+        "army2"
+      ],
+      "eliminations": [
+        {
+          "army": "army3",
+          "round": 33
+        },
+        {
+          "army": "army1",
+          "round": 294
+        },
+        {
+          "army": "army4",
+          "round": 295
+        }
+      ],
+      "fallbacks": 142,
+      "resumes": 2,
+      "maxUnits": 44,
+      "traceSha256": "e1bda3a97477eaa6a015dfd032d270739f8d86dbeb32745556bd94cd842d18c8",
+      "finalStateSha256": "1d211615824d25eadbb9b5b9c665c05051cfba4c471f7806a889fce445e3d551",
+      "cpuMs": {
+        "count": 15268,
+        "p50": 3.209,
+        "p95": 6.443,
+        "max": 15.328
+      },
+      "engineMs": {
+        "count": 15268,
+        "p50": 1.151,
+        "p95": 1.323,
+        "max": 5.292
+      },
+      "peakHeapBytes": 193018872,
+      "elapsedSeconds": 67.53,
+      "stoppedBy": "outcome",
+      "source": "6e52c2da278bb56466e2cb8d1d79b43e6ac14814",
+      "job": 132129186357
+    },
+    {
+      "id": "orders-15141-16",
+      "group": "orders",
+      "seed": 15141,
+      "order": [
+        "army3",
+        "army4",
+        "army1",
+        "army2"
+      ],
+      "settings": {
+        "army1": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army2": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army3": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army4": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        }
+      },
+      "maxRound": 400,
+      "maxCommands": 65536,
+      "count": 9493,
+      "round": 175,
+      "outcome": {
+        "type": "victory",
+        "winner": "army1"
+      },
+      "alive": [
+        "army1"
+      ],
+      "eliminations": [
+        {
+          "army": "army3",
+          "round": 37
+        },
+        {
+          "army": "army4",
+          "round": 162
+        },
+        {
+          "army": "army2",
+          "round": 175
+        }
+      ],
+      "fallbacks": 56,
+      "resumes": 1,
+      "maxUnits": 44,
+      "traceSha256": "d2d3f83cd5bb3f3af17e082aebb5fd0c131a872e5c72a5669027eee4852ce1ba",
+      "finalStateSha256": "31d21f3a22e6978adbd9dc6304fdd0a09103c00accecd503238d67f90655da8e",
+      "cpuMs": {
+        "count": 9493,
+        "p50": 3.184,
+        "p95": 6.327,
+        "max": 10.053
+      },
+      "engineMs": {
+        "count": 9493,
+        "p50": 1.161,
+        "p95": 1.338,
+        "max": 4.694
+      },
+      "peakHeapBytes": 197834520,
+      "elapsedSeconds": 41.684,
+      "stoppedBy": "outcome",
+      "source": "6e52c2da278bb56466e2cb8d1d79b43e6ac14814",
+      "job": 132129186757
+    },
+    {
+      "id": "orders-15141-17",
+      "group": "orders",
+      "seed": 15141,
+      "order": [
+        "army3",
+        "army4",
+        "army2",
+        "army1"
+      ],
+      "settings": {
+        "army1": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army2": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army3": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army4": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        }
+      },
+      "maxRound": 400,
+      "maxCommands": 65536,
+      "count": 7021,
+      "round": 163,
+      "outcome": {
+        "type": "victory",
+        "winner": "army2"
+      },
+      "alive": [
+        "army2"
+      ],
+      "eliminations": [
+        {
+          "army": "army1",
+          "round": 22
+        },
+        {
+          "army": "army3",
+          "round": 42
+        },
+        {
+          "army": "army4",
+          "round": 163
+        }
+      ],
+      "fallbacks": 36,
+      "resumes": 1,
+      "maxUnits": 44,
+      "traceSha256": "dba715c0ad8d67e67d3735e4f4655ea4f402e63614fd713d917d6bf83b2b3bf5",
+      "finalStateSha256": "a4a0ef78453bc0bb214889216003f7835500de7bd55f906f5dfcdaf673c34233",
+      "cpuMs": {
+        "count": 7021,
+        "p50": 2.892,
+        "p95": 6.203,
+        "max": 15.53
+      },
+      "engineMs": {
+        "count": 7021,
+        "p50": 1.138,
+        "p95": 1.419,
+        "max": 4.596
+      },
+      "peakHeapBytes": 192986600,
+      "elapsedSeconds": 29.958,
+      "stoppedBy": "outcome",
+      "source": "6e52c2da278bb56466e2cb8d1d79b43e6ac14814",
+      "job": 132129186770
+    },
+    {
+      "id": "orders-15141-18",
+      "group": "orders",
+      "seed": 15141,
+      "order": [
+        "army4",
+        "army1",
+        "army2",
+        "army3"
+      ],
+      "settings": {
+        "army1": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army2": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army3": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army4": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        }
+      },
+      "maxRound": 400,
+      "maxCommands": 65536,
+      "count": 6232,
+      "round": 108,
+      "outcome": {
+        "type": "victory",
+        "winner": "army2"
+      },
+      "alive": [
+        "army2"
+      ],
+      "eliminations": [
+        {
+          "army": "army1",
+          "round": 51
+        },
+        {
+          "army": "army4",
+          "round": 104
+        },
+        {
+          "army": "army3",
+          "round": 108
+        }
+      ],
+      "fallbacks": 32,
+      "resumes": 1,
+      "maxUnits": 44,
+      "traceSha256": "4509efefe8829f8fa7a8f3ac5125099935c3c91343917ecf23c77fb387a92bd8",
+      "finalStateSha256": "2e8c9adecb879079dd13880cc7c25d92a849064aca0c3b6dab51a7a054a41f09",
+      "cpuMs": {
+        "count": 6232,
+        "p50": 2.139,
+        "p95": 4.258,
+        "max": 13.059
+      },
+      "engineMs": {
+        "count": 6232,
+        "p50": 0.78,
+        "p95": 0.954,
+        "max": 6.555
+      },
+      "peakHeapBytes": 190174776,
+      "elapsedSeconds": 18.28,
+      "stoppedBy": "outcome",
+      "source": "6e52c2da278bb56466e2cb8d1d79b43e6ac14814",
+      "job": 132129186815
+    },
+    {
+      "id": "orders-15141-19",
+      "group": "orders",
+      "seed": 15141,
+      "order": [
+        "army4",
+        "army1",
+        "army3",
+        "army2"
+      ],
+      "settings": {
+        "army1": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army2": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army3": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army4": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        }
+      },
+      "maxRound": 400,
+      "maxCommands": 65536,
+      "count": 9339,
+      "round": 183,
+      "outcome": {
+        "type": "victory",
+        "winner": "army4"
+      },
+      "alive": [
+        "army4"
+      ],
+      "eliminations": [
+        {
+          "army": "army2",
+          "round": 62
+        },
+        {
+          "army": "army3",
+          "round": 124
+        },
+        {
+          "army": "army1",
+          "round": 183
+        }
+      ],
+      "fallbacks": 70,
+      "resumes": 1,
+      "maxUnits": 44,
+      "traceSha256": "92d033f42e4582d457e08d8f53639acc1b226c89cd00d0bb375a745e827fc82a",
+      "finalStateSha256": "4fb135ccee12b6fac5d0fcca85c10d7d7f65e30789d05534719da885de2c4f99",
+      "cpuMs": {
+        "count": 9339,
+        "p50": 2.986,
+        "p95": 6.147,
+        "max": 8.659
+      },
+      "engineMs": {
+        "count": 9339,
+        "p50": 1.049,
+        "p95": 1.223,
+        "max": 6.321
+      },
+      "peakHeapBytes": 190291760,
+      "elapsedSeconds": 38.514,
+      "stoppedBy": "outcome",
+      "source": "6e52c2da278bb56466e2cb8d1d79b43e6ac14814",
+      "job": 132129186727
+    },
+    {
+      "id": "orders-15141-2",
+      "group": "orders",
+      "seed": 15141,
+      "order": [
+        "army1",
+        "army3",
+        "army2",
+        "army4"
+      ],
+      "settings": {
+        "army1": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army2": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army3": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army4": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        }
+      },
+      "maxRound": 400,
+      "maxCommands": 65536,
+      "count": 7072,
+      "round": 138,
+      "outcome": {
+        "type": "victory",
+        "winner": "army1"
+      },
+      "alive": [
+        "army1"
+      ],
+      "eliminations": [
+        {
+          "army": "army4",
+          "round": 23
+        },
+        {
+          "army": "army3",
+          "round": 106
+        },
+        {
+          "army": "army2",
+          "round": 138
+        }
+      ],
+      "fallbacks": 36,
+      "resumes": 1,
+      "maxUnits": 44,
+      "traceSha256": "e1cf8b3ac1de545a89cc23fa3fb283a2dd268917a4417b907927f72c818308da",
+      "finalStateSha256": "520ef69631594a2046580590512745d7b562c8c1db26bb5507daf3aecf127d74",
+      "cpuMs": {
+        "count": 7072,
+        "p50": 4.313,
+        "p95": 8.884,
+        "max": 38.331
+      },
+      "engineMs": {
+        "count": 7072,
+        "p50": 1.574,
+        "p95": 2.1,
+        "max": 7.764
+      },
+      "peakHeapBytes": 168667096,
+      "elapsedSeconds": 42.887,
+      "stoppedBy": "outcome",
+      "source": "6e52c2da278bb56466e2cb8d1d79b43e6ac14814",
+      "job": 132129186893
+    },
+    {
+      "id": "orders-15141-20",
+      "group": "orders",
+      "seed": 15141,
+      "order": [
+        "army4",
+        "army2",
+        "army1",
+        "army3"
+      ],
+      "settings": {
+        "army1": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army2": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army3": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army4": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        }
+      },
+      "maxRound": 400,
+      "maxCommands": 65536,
+      "count": 9095,
+      "round": 401,
+      "outcome": {
+        "type": "ongoing"
+      },
+      "alive": [
+        "army2",
+        "army3"
+      ],
+      "eliminations": [
+        {
+          "army": "army1",
+          "round": 27
+        },
+        {
+          "army": "army4",
+          "round": 43
+        }
+      ],
+      "fallbacks": 340,
+      "resumes": 3,
+      "maxUnits": 44,
+      "traceSha256": "51ebd9544a63ee0c685da31a2c347ade4578b2738d20fed5da05deb1e1e7b5d5",
+      "finalStateSha256": "c7d7a6b6e3f3fade61766b428074e076bd0aaa63dd11cd2d7a0c443aa030cd23",
+      "cpuMs": {
+        "count": 9095,
+        "p50": 3.585,
+        "p95": 6.078,
+        "max": 12.962
+      },
+      "engineMs": {
+        "count": 9095,
+        "p50": 1.096,
+        "p95": 1.371,
+        "max": 4.221
+      },
+      "peakHeapBytes": 188785424,
+      "elapsedSeconds": 40.914,
+      "stoppedBy": "round-budget",
+      "source": "6e52c2da278bb56466e2cb8d1d79b43e6ac14814",
+      "job": 132129186971
+    },
+    {
+      "id": "orders-15141-21",
+      "group": "orders",
+      "seed": 15141,
+      "order": [
+        "army4",
+        "army2",
+        "army3",
+        "army1"
+      ],
+      "settings": {
+        "army1": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army2": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army3": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army4": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        }
+      },
+      "maxRound": 400,
+      "maxCommands": 65536,
+      "count": 12360,
+      "round": 401,
+      "outcome": {
+        "type": "ongoing"
+      },
+      "alive": [
+        "army1",
+        "army4"
+      ],
+      "eliminations": [
+        {
+          "army": "army2",
+          "round": 51
+        },
+        {
+          "army": "army3",
+          "round": 97
+        }
+      ],
+      "fallbacks": 288,
+      "resumes": 3,
+      "maxUnits": 44,
+      "traceSha256": "ca13a34168a3e5ebe4fd4cc8fee26c6a59fa3f61805451bbcccc86a1fcddf8bc",
+      "finalStateSha256": "2b3e194a1c069afe218e2381da6913b0e6e9d49d9276fd81b8dbb6d48bf35e0c",
+      "cpuMs": {
+        "count": 12360,
+        "p50": 3.033,
+        "p95": 6.508,
+        "max": 23.479
+      },
+      "engineMs": {
+        "count": 12360,
+        "p50": 1.137,
+        "p95": 1.488,
+        "max": 6.999
+      },
+      "peakHeapBytes": 165144904,
+      "elapsedSeconds": 55.969,
+      "stoppedBy": "round-budget",
+      "source": "6e52c2da278bb56466e2cb8d1d79b43e6ac14814",
+      "job": 132129186816
+    },
+    {
+      "id": "orders-15141-22",
+      "group": "orders",
+      "seed": 15141,
+      "order": [
+        "army4",
+        "army3",
+        "army1",
+        "army2"
+      ],
+      "settings": {
+        "army1": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army2": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army3": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army4": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        }
+      },
+      "maxRound": 400,
+      "maxCommands": 65536,
+      "count": 15650,
+      "round": 258,
+      "outcome": {
+        "type": "victory",
+        "winner": "army2"
+      },
+      "alive": [
+        "army2"
+      ],
+      "eliminations": [
+        {
+          "army": "army1",
+          "round": 198
+        },
+        {
+          "army": "army4",
+          "round": 224
+        },
+        {
+          "army": "army3",
+          "round": 258
+        }
+      ],
+      "fallbacks": 139,
+      "resumes": 2,
+      "maxUnits": 44,
+      "traceSha256": "cebd6958cb87e9786006b98fe79526a97768d066f54bc99a2803505764c73e5a",
+      "finalStateSha256": "d2eca5334610626412ac7aec6ee7dfbda654ef662503df0e1774d06e5374767d",
+      "cpuMs": {
+        "count": 15650,
+        "p50": 4.075,
+        "p95": 8.26,
+        "max": 17.979
+      },
+      "engineMs": {
+        "count": 15650,
+        "p50": 1.511,
+        "p95": 1.787,
+        "max": 5.635
+      },
+      "peakHeapBytes": 198896656,
+      "elapsedSeconds": 88.699,
+      "stoppedBy": "outcome",
+      "source": "6e52c2da278bb56466e2cb8d1d79b43e6ac14814",
+      "job": 132129187036
+    },
+    {
+      "id": "orders-15141-23",
+      "group": "orders",
+      "seed": 15141,
+      "order": [
+        "army4",
+        "army3",
+        "army2",
+        "army1"
+      ],
+      "settings": {
+        "army1": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army2": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army3": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army4": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        }
+      },
+      "maxRound": 400,
+      "maxCommands": 65536,
+      "count": 8695,
+      "round": 164,
+      "outcome": {
+        "type": "victory",
+        "winner": "army3"
+      },
+      "alive": [
+        "army3"
+      ],
+      "eliminations": [
+        {
+          "army": "army2",
+          "round": 75
+        },
+        {
+          "army": "army1",
+          "round": 115
+        },
+        {
+          "army": "army4",
+          "round": 164
+        }
+      ],
+      "fallbacks": 72,
+      "resumes": 1,
+      "maxUnits": 44,
+      "traceSha256": "54cf69b56e4a739dc12d2aee9974b19b9b1008bd6c3ad88cd04272e0e1ac1e3e",
+      "finalStateSha256": "a966aa74a62c083d911edf452a0803ab2e298bc411af5f698a3d8861dcbf8402",
+      "cpuMs": {
+        "count": 8695,
+        "p50": 3.153,
+        "p95": 6.233,
+        "max": 12.28
+      },
+      "engineMs": {
+        "count": 8695,
+        "p50": 1.142,
+        "p95": 1.343,
+        "max": 3.036
+      },
+      "peakHeapBytes": 192964824,
+      "elapsedSeconds": 37.553,
+      "stoppedBy": "outcome",
+      "source": "6e52c2da278bb56466e2cb8d1d79b43e6ac14814",
+      "job": 132129186696
+    },
+    {
+      "id": "orders-15141-3",
+      "group": "orders",
+      "seed": 15141,
+      "order": [
+        "army1",
+        "army3",
+        "army4",
+        "army2"
+      ],
+      "settings": {
+        "army1": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army2": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army3": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army4": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        }
+      },
+      "maxRound": 400,
+      "maxCommands": 65536,
+      "count": 5151,
+      "round": 86,
+      "outcome": {
+        "type": "victory",
+        "winner": "army3"
+      },
+      "alive": [
+        "army3"
+      ],
+      "eliminations": [
+        {
+          "army": "army2",
+          "round": 54
+        },
+        {
+          "army": "army1",
+          "round": 65
+        },
+        {
+          "army": "army4",
+          "round": 86
+        }
+      ],
+      "fallbacks": 20,
+      "resumes": 0,
+      "maxUnits": 44,
+      "traceSha256": "43162e28ca22a868e3af58e72824755b9716c67fd9f62aadabc8ebad77e54fa7",
+      "finalStateSha256": "f75546709a6f9cf3edf5cc49e57f3bd6d85735047d61a991c68ca210b5e52199",
+      "cpuMs": {
+        "count": 5151,
+        "p50": 3.127,
+        "p95": 6.454,
+        "max": 27.441
+      },
+      "engineMs": {
+        "count": 5151,
+        "p50": 1.189,
+        "p95": 1.553,
+        "max": 3.925
+      },
+      "peakHeapBytes": 146958264,
+      "elapsedSeconds": 22.926,
+      "stoppedBy": "outcome",
+      "source": "6e52c2da278bb56466e2cb8d1d79b43e6ac14814",
+      "job": 132129186357
+    },
+    {
+      "id": "orders-15141-4",
+      "group": "orders",
+      "seed": 15141,
+      "order": [
+        "army1",
+        "army4",
+        "army2",
+        "army3"
+      ],
+      "settings": {
+        "army1": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army2": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army3": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army4": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        }
+      },
+      "maxRound": 400,
+      "maxCommands": 65536,
+      "count": 8824,
+      "round": 167,
+      "outcome": {
+        "type": "victory",
+        "winner": "army4"
+      },
+      "alive": [
+        "army4"
+      ],
+      "eliminations": [
+        {
+          "army": "army3",
+          "round": 48
+        },
+        {
+          "army": "army2",
+          "round": 114
+        },
+        {
+          "army": "army1",
+          "round": 167
+        }
+      ],
+      "fallbacks": 37,
+      "resumes": 1,
+      "maxUnits": 44,
+      "traceSha256": "209902ab919f5a1b55e273b697484c480aa255df0c8af6eaac0b6ea2c81a5df3",
+      "finalStateSha256": "351cae2acf7d9131bd85264c5cd7528a403588e57c5e64302ea042afd2b01d49",
+      "cpuMs": {
+        "count": 8824,
+        "p50": 3.121,
+        "p95": 6.604,
+        "max": 32.822
+      },
+      "engineMs": {
+        "count": 8824,
+        "p50": 1.174,
+        "p95": 1.576,
+        "max": 6.154
+      },
+      "peakHeapBytes": 175832712,
+      "elapsedSeconds": 39.559,
+      "stoppedBy": "outcome",
+      "source": "6e52c2da278bb56466e2cb8d1d79b43e6ac14814",
+      "job": 132129186757
+    },
+    {
+      "id": "orders-15141-5",
+      "group": "orders",
+      "seed": 15141,
+      "order": [
+        "army1",
+        "army4",
+        "army3",
+        "army2"
+      ],
+      "settings": {
+        "army1": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army2": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army3": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army4": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        }
+      },
+      "maxRound": 400,
+      "maxCommands": 65536,
+      "count": 6293,
+      "round": 128,
+      "outcome": {
+        "type": "victory",
+        "winner": "army1"
+      },
+      "alive": [
+        "army1"
+      ],
+      "eliminations": [
+        {
+          "army": "army3",
+          "round": 37
+        },
+        {
+          "army": "army4",
+          "round": 69
+        },
+        {
+          "army": "army2",
+          "round": 128
+        }
+      ],
+      "fallbacks": 43,
+      "resumes": 1,
+      "maxUnits": 44,
+      "traceSha256": "a2be94ab8df531eaf059ddbf601233fa149332f623165726d4f7f1004503a372",
+      "finalStateSha256": "7c7f2cfe5e3ed772950a5235a1ec94cfedc5380e59c57272077867ecf5c0c9f1",
+      "cpuMs": {
+        "count": 6293,
+        "p50": 2.992,
+        "p95": 6.492,
+        "max": 32.285
+      },
+      "engineMs": {
+        "count": 6293,
+        "p50": 1.163,
+        "p95": 1.579,
+        "max": 4.515
+      },
+      "peakHeapBytes": 154589496,
+      "elapsedSeconds": 27.928,
+      "stoppedBy": "outcome",
+      "source": "6e52c2da278bb56466e2cb8d1d79b43e6ac14814",
+      "job": 132129186770
+    },
+    {
+      "id": "orders-15141-6",
+      "group": "orders",
+      "seed": 15141,
+      "order": [
+        "army2",
+        "army1",
+        "army3",
+        "army4"
+      ],
+      "settings": {
+        "army1": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army2": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army3": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army4": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        }
+      },
+      "maxRound": 400,
+      "maxCommands": 65536,
+      "count": 5752,
+      "round": 104,
+      "outcome": {
+        "type": "victory",
+        "winner": "army2"
+      },
+      "alive": [
+        "army2"
+      ],
+      "eliminations": [
+        {
+          "army": "army4",
+          "round": 26
+        },
+        {
+          "army": "army3",
+          "round": 89
+        },
+        {
+          "army": "army1",
+          "round": 104
+        }
+      ],
+      "fallbacks": 22,
+      "resumes": 1,
+      "maxUnits": 44,
+      "traceSha256": "be047c7150cd5342d6c2fd96ba4f76adb9979e8378e76ffa1a9c169033b3e759",
+      "finalStateSha256": "10ce214b1d81fce624f26c9e2ed2d084eb0a5f08f99318f49bca57e3b70f37b1",
+      "cpuMs": {
+        "count": 5752,
+        "p50": 2.109,
+        "p95": 4.414,
+        "max": 20.151
+      },
+      "engineMs": {
+        "count": 5752,
+        "p50": 0.778,
+        "p95": 1.193,
+        "max": 3.742
+      },
+      "peakHeapBytes": 150209480,
+      "elapsedSeconds": 17.196,
+      "stoppedBy": "outcome",
+      "source": "6e52c2da278bb56466e2cb8d1d79b43e6ac14814",
+      "job": 132129186815
+    },
+    {
+      "id": "orders-15141-7",
+      "group": "orders",
+      "seed": 15141,
+      "order": [
+        "army2",
+        "army1",
+        "army4",
+        "army3"
+      ],
+      "settings": {
+        "army1": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army2": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army3": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army4": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        }
+      },
+      "maxRound": 400,
+      "maxCommands": 65536,
+      "count": 5780,
+      "round": 111,
+      "outcome": {
+        "type": "victory",
+        "winner": "army1"
+      },
+      "alive": [
+        "army1"
+      ],
+      "eliminations": [
+        {
+          "army": "army3",
+          "round": 23
+        },
+        {
+          "army": "army4",
+          "round": 77
+        },
+        {
+          "army": "army2",
+          "round": 111
+        }
+      ],
+      "fallbacks": 29,
+      "resumes": 1,
+      "maxUnits": 44,
+      "traceSha256": "78c44eb3c9ebf2a70563679a6a6d4b4dae27f2afafc5ddf617a06976040da0e3",
+      "finalStateSha256": "2ab7b9d1f5c66b267e7d3e796bfce900c730f85a931e76aed88ca45b5950d025",
+      "cpuMs": {
+        "count": 5780,
+        "p50": 2.93,
+        "p95": 6.073,
+        "max": 23.643
+      },
+      "engineMs": {
+        "count": 5780,
+        "p50": 1.055,
+        "p95": 1.557,
+        "max": 4.576
+      },
+      "peakHeapBytes": 153079192,
+      "elapsedSeconds": 23.753,
+      "stoppedBy": "outcome",
+      "source": "6e52c2da278bb56466e2cb8d1d79b43e6ac14814",
+      "job": 132129186727
+    },
+    {
+      "id": "orders-15141-8",
+      "group": "orders",
+      "seed": 15141,
+      "order": [
+        "army2",
+        "army3",
+        "army1",
+        "army4"
+      ],
+      "settings": {
+        "army1": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army2": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army3": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army4": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        }
+      },
+      "maxRound": 400,
+      "maxCommands": 65536,
+      "count": 8605,
+      "round": 187,
+      "outcome": {
+        "type": "victory",
+        "winner": "army2"
+      },
+      "alive": [
+        "army2"
+      ],
+      "eliminations": [
+        {
+          "army": "army1",
+          "round": 58
+        },
+        {
+          "army": "army4",
+          "round": 96
+        },
+        {
+          "army": "army3",
+          "round": 187
+        }
+      ],
+      "fallbacks": 77,
+      "resumes": 1,
+      "maxUnits": 44,
+      "traceSha256": "a4eb6a8079bb346e46781852f730c0a34b20f0cf9d80a94e8c6c145d67ed84ec",
+      "finalStateSha256": "43a94c12afbfb2b892b23dfcb258a4aec28f6fe392849250b52d5203629777da",
+      "cpuMs": {
+        "count": 8605,
+        "p50": 2.953,
+        "p95": 6.31,
+        "max": 26.675
+      },
+      "engineMs": {
+        "count": 8605,
+        "p50": 1.168,
+        "p95": 1.536,
+        "max": 10.71
+      },
+      "peakHeapBytes": 161309952,
+      "elapsedSeconds": 37.255,
+      "stoppedBy": "outcome",
+      "source": "6e52c2da278bb56466e2cb8d1d79b43e6ac14814",
+      "job": 132129186971
+    },
+    {
+      "id": "orders-15141-9",
+      "group": "orders",
+      "seed": 15141,
+      "order": [
+        "army2",
+        "army3",
+        "army4",
+        "army1"
+      ],
+      "settings": {
+        "army1": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army2": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army3": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army4": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        }
+      },
+      "maxRound": 400,
+      "maxCommands": 65536,
+      "count": 11353,
+      "round": 401,
+      "outcome": {
+        "type": "ongoing"
+      },
+      "alive": [
+        "army3",
+        "army4"
+      ],
+      "eliminations": [
+        {
+          "army": "army1",
+          "round": 24
+        },
+        {
+          "army": "army2",
+          "round": 61
+        }
+      ],
+      "fallbacks": 326,
+      "resumes": 3,
+      "maxUnits": 44,
+      "traceSha256": "04ccd2b9b8bb728229dcd7a6eafe9c8d3634f71ebba103d490a79705ccf9e91a",
+      "finalStateSha256": "a0e03e8f3b4c4dd912a4772c67cb5cc112edefbafd9226a32a6bd113e92e84ae",
+      "cpuMs": {
+        "count": 11353,
+        "p50": 3.154,
+        "p95": 6.536,
+        "max": 24.605
+      },
+      "engineMs": {
+        "count": 11353,
+        "p50": 1.137,
+        "p95": 1.493,
+        "max": 5.405
+      },
+      "peakHeapBytes": 188204208,
+      "elapsedSeconds": 51.097,
+      "stoppedBy": "round-budget",
+      "source": "6e52c2da278bb56466e2cb8d1d79b43e6ac14814",
+      "job": 132129186816
+    },
+    {
+      "id": "orders-15142-0",
+      "group": "orders",
+      "seed": 15142,
+      "order": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "settings": {
+        "army1": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army2": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army3": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army4": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        }
+      },
+      "maxRound": 400,
+      "maxCommands": 65536,
+      "count": 11158,
+      "round": 203,
+      "outcome": {
+        "type": "victory",
+        "winner": "army4"
+      },
+      "alive": [
+        "army4"
+      ],
+      "eliminations": [
+        {
+          "army": "army3",
+          "round": 87
+        },
+        {
+          "army": "army2",
+          "round": 187
+        },
+        {
+          "army": "army1",
+          "round": 203
+        }
+      ],
+      "fallbacks": 107,
+      "resumes": 2,
+      "maxUnits": 44,
+      "traceSha256": "91c6936c0c1a8314ea6966174de7e3cd68f67acb4b651b3c503bdcb711428129",
+      "finalStateSha256": "cdd63e1da3b11418675ad768bacb1c4f7df5313b08d6c5d06da2a0223b82dc53",
+      "cpuMs": {
+        "count": 11158,
+        "p50": 4.044,
+        "p95": 8.03,
+        "max": 17.971
+      },
+      "engineMs": {
+        "count": 11158,
+        "p50": 1.52,
+        "p95": 1.723,
+        "max": 6.325
+      },
+      "peakHeapBytes": 165656640,
+      "elapsedSeconds": 62.771,
+      "stoppedBy": "outcome",
+      "source": "6e52c2da278bb56466e2cb8d1d79b43e6ac14814",
+      "job": 132129186861
+    },
+    {
+      "id": "orders-15142-1",
+      "group": "orders",
+      "seed": 15142,
+      "order": [
+        "army1",
+        "army2",
+        "army4",
+        "army3"
+      ],
+      "settings": {
+        "army1": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army2": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army3": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army4": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        }
+      },
+      "maxRound": 400,
+      "maxCommands": 65536,
+      "count": 12996,
+      "round": 234,
+      "outcome": {
+        "type": "victory",
+        "winner": "army1"
+      },
+      "alive": [
+        "army1"
+      ],
+      "eliminations": [
+        {
+          "army": "army3",
+          "round": 78
+        },
+        {
+          "army": "army4",
+          "round": 197
+        },
+        {
+          "army": "army2",
+          "round": 234
+        }
+      ],
+      "fallbacks": 68,
+      "resumes": 2,
+      "maxUnits": 44,
+      "traceSha256": "03786dd16fb36c4a36442024426219886055ab545857febd2014db375e4c8dbc",
+      "finalStateSha256": "e8693786fb9ffc60d4212907ece63557fbb8e53fc0ae60dfd89bca494ab8f3ec",
+      "cpuMs": {
+        "count": 12996,
+        "p50": 3.207,
+        "p95": 6.661,
+        "max": 13.274
+      },
+      "engineMs": {
+        "count": 12996,
+        "p50": 1.173,
+        "p95": 1.334,
+        "max": 4.309
+      },
+      "peakHeapBytes": 173606384,
+      "elapsedSeconds": 58.942,
+      "stoppedBy": "outcome",
+      "source": "6e52c2da278bb56466e2cb8d1d79b43e6ac14814",
+      "job": 132129186809
+    },
+    {
+      "id": "orders-15142-10",
+      "group": "orders",
+      "seed": 15142,
+      "order": [
+        "army2",
+        "army4",
+        "army1",
+        "army3"
+      ],
+      "settings": {
+        "army1": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army2": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army3": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army4": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        }
+      },
+      "maxRound": 400,
+      "maxCommands": 65536,
+      "count": 11672,
+      "round": 223,
+      "outcome": {
+        "type": "victory",
+        "winner": "army2"
+      },
+      "alive": [
+        "army2"
+      ],
+      "eliminations": [
+        {
+          "army": "army4",
+          "round": 110
+        },
+        {
+          "army": "army3",
+          "round": 113
+        },
+        {
+          "army": "army1",
+          "round": 223
+        }
+      ],
+      "fallbacks": 57,
+      "resumes": 2,
+      "maxUnits": 44,
+      "traceSha256": "0777d3639499bfaab63d8513c908bee5c5ec0a83193072564b556802a192c96a",
+      "finalStateSha256": "835b7cf637bd19024ea22b9c011a7c48ab96a26a9f40767c7a03783afab1a1ed",
+      "cpuMs": {
+        "count": 11672,
+        "p50": 3.91,
+        "p95": 7.836,
+        "max": 20.156
+      },
+      "engineMs": {
+        "count": 11672,
+        "p50": 1.474,
+        "p95": 1.683,
+        "max": 5.117
+      },
+      "peakHeapBytes": 171051992,
+      "elapsedSeconds": 63.607,
+      "stoppedBy": "outcome",
+      "source": "6e52c2da278bb56466e2cb8d1d79b43e6ac14814",
+      "job": 132129187036
+    },
+    {
+      "id": "orders-15142-11",
+      "group": "orders",
+      "seed": 15142,
+      "order": [
+        "army2",
+        "army4",
+        "army3",
+        "army1"
+      ],
+      "settings": {
+        "army1": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army2": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army3": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army4": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        }
+      },
+      "maxRound": 400,
+      "maxCommands": 65536,
+      "count": 21477,
+      "round": 377,
+      "outcome": {
+        "type": "victory",
+        "winner": "army1"
+      },
+      "alive": [
+        "army1"
+      ],
+      "eliminations": [
+        {
+          "army": "army4",
+          "round": 97
+        },
+        {
+          "army": "army3",
+          "round": 367
+        },
+        {
+          "army": "army2",
+          "round": 377
+        }
+      ],
+      "fallbacks": 104,
+      "resumes": 3,
+      "maxUnits": 44,
+      "traceSha256": "70bb3d5827622d388904120c1b2e5eb33bc92561d1b62c159a63aae96f861c34",
+      "finalStateSha256": "2bfabc696e20b48e17b25bfeaafb547358e03a1d83419dd1d46f79813724e88f",
+      "cpuMs": {
+        "count": 21477,
+        "p50": 3.257,
+        "p95": 6.467,
+        "max": 12.689
+      },
+      "engineMs": {
+        "count": 21477,
+        "p50": 1.155,
+        "p95": 1.32,
+        "max": 7.314
+      },
+      "peakHeapBytes": 173076368,
+      "elapsedSeconds": 95.789,
+      "stoppedBy": "outcome",
+      "source": "6e52c2da278bb56466e2cb8d1d79b43e6ac14814",
+      "job": 132129186696
+    },
+    {
+      "id": "orders-15142-12",
+      "group": "orders",
+      "seed": 15142,
+      "order": [
+        "army3",
+        "army1",
+        "army2",
+        "army4"
+      ],
+      "settings": {
+        "army1": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army2": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army3": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army4": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        }
+      },
+      "maxRound": 400,
+      "maxCommands": 65536,
+      "count": 16232,
+      "round": 264,
+      "outcome": {
+        "type": "victory",
+        "winner": "army1"
+      },
+      "alive": [
+        "army1"
+      ],
+      "eliminations": [
+        {
+          "army": "army3",
+          "round": 184
+        },
+        {
+          "army": "army4",
+          "round": 236
+        },
+        {
+          "army": "army2",
+          "round": 264
+        }
+      ],
+      "fallbacks": 99,
+      "resumes": 2,
+      "maxUnits": 44,
+      "traceSha256": "dead4824c64d5ffc8d0c699a0a11aed5886122c3db2710269081fc5b0ed8cbdb",
+      "finalStateSha256": "38e076be0380ff1ef899b2bb172760f5d78c6c1f798fa13f3204b20f60d82374",
+      "cpuMs": {
+        "count": 16232,
+        "p50": 3.867,
+        "p95": 7.7,
+        "max": 17.315
+      },
+      "engineMs": {
+        "count": 16232,
+        "p50": 1.529,
+        "p95": 1.729,
+        "max": 7.419
+      },
+      "peakHeapBytes": 168025304,
+      "elapsedSeconds": 88.547,
+      "stoppedBy": "outcome",
+      "source": "6e52c2da278bb56466e2cb8d1d79b43e6ac14814",
+      "job": 132129186861
+    },
+    {
+      "id": "orders-15142-13",
+      "group": "orders",
+      "seed": 15142,
+      "order": [
+        "army3",
+        "army1",
+        "army4",
+        "army2"
+      ],
+      "settings": {
+        "army1": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army2": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army3": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army4": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        }
+      },
+      "maxRound": 400,
+      "maxCommands": 65536,
+      "count": 17556,
+      "round": 401,
+      "outcome": {
+        "type": "ongoing"
+      },
+      "alive": [
+        "army1",
+        "army2"
+      ],
+      "eliminations": [
+        {
+          "army": "army4",
+          "round": 74
+        },
+        {
+          "army": "army3",
+          "round": 183
+        }
+      ],
+      "fallbacks": 93,
+      "resumes": 3,
+      "maxUnits": 44,
+      "traceSha256": "527f98c91ca7cc452ca08b3f073a9ba4b2c9d05d635c7cef718cea9c02b04c7f",
+      "finalStateSha256": "3937a37c0abc49e2b9364dfb635c24db0acd609e181ff43011b8e59409463fe1",
+      "cpuMs": {
+        "count": 17556,
+        "p50": 3.214,
+        "p95": 6.357,
+        "max": 13.247
+      },
+      "engineMs": {
+        "count": 17556,
+        "p50": 1.144,
+        "p95": 1.327,
+        "max": 5.506
+      },
+      "peakHeapBytes": 170720368,
+      "elapsedSeconds": 77.72,
+      "stoppedBy": "round-budget",
+      "source": "6e52c2da278bb56466e2cb8d1d79b43e6ac14814",
+      "job": 132129186809
+    },
+    {
+      "id": "orders-15142-14",
+      "group": "orders",
+      "seed": 15142,
+      "order": [
+        "army3",
+        "army2",
+        "army1",
+        "army4"
+      ],
+      "settings": {
+        "army1": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army2": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army3": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army4": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        }
+      },
+      "maxRound": 400,
+      "maxCommands": 65536,
+      "count": 20262,
+      "round": 401,
+      "outcome": {
+        "type": "ongoing"
+      },
+      "alive": [
+        "army1",
+        "army4"
+      ],
+      "eliminations": [
+        {
+          "army": "army3",
+          "round": 36
+        },
+        {
+          "army": "army2",
+          "round": 375
+        }
+      ],
+      "fallbacks": 182,
+      "resumes": 3,
+      "maxUnits": 44,
+      "traceSha256": "e575520af23cf7f2c60dfc3f42719965e2132ad56ab4f626d59082e77eb54af2",
+      "finalStateSha256": "208ca86ed40a3a5ad88e8aa5ba0f4587b3efa4ff50a731d22132ea0e5986a7b0",
+      "cpuMs": {
+        "count": 20262,
+        "p50": 4.235,
+        "p95": 8.356,
+        "max": 14.353
+      },
+      "engineMs": {
+        "count": 20262,
+        "p50": 1.448,
+        "p95": 1.677,
+        "max": 5.227
+      },
+      "peakHeapBytes": 169107696,
+      "elapsedSeconds": 116.133,
+      "stoppedBy": "round-budget",
+      "source": "6e52c2da278bb56466e2cb8d1d79b43e6ac14814",
+      "job": 132129186893
+    },
+    {
+      "id": "orders-15142-15",
+      "group": "orders",
+      "seed": 15142,
+      "order": [
+        "army3",
+        "army2",
+        "army4",
+        "army1"
+      ],
+      "settings": {
+        "army1": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army2": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army3": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army4": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        }
+      },
+      "maxRound": 400,
+      "maxCommands": 65536,
+      "count": 3393,
+      "round": 57,
+      "outcome": {
+        "type": "victory",
+        "winner": "army4"
+      },
+      "alive": [
+        "army4"
+      ],
+      "eliminations": [
+        {
+          "army": "army3",
+          "round": 22
+        },
+        {
+          "army": "army2",
+          "round": 47
+        },
+        {
+          "army": "army1",
+          "round": 57
+        }
+      ],
+      "fallbacks": 4,
+      "resumes": 0,
+      "maxUnits": 44,
+      "traceSha256": "914b2b878af20c95cd4b1f62d69e255b078b245abe2d90e40c332edd4f6fcf73",
+      "finalStateSha256": "f3162177e8d018986cdd62a49458ee0379614d2b1318cc660d07b6982813e6db",
+      "cpuMs": {
+        "count": 3393,
+        "p50": 3.028,
+        "p95": 6.316,
+        "max": 15.792
+      },
+      "engineMs": {
+        "count": 3393,
+        "p50": 1.156,
+        "p95": 1.318,
+        "max": 3.567
+      },
+      "peakHeapBytes": 167929248,
+      "elapsedSeconds": 14.452,
+      "stoppedBy": "outcome",
+      "source": "6e52c2da278bb56466e2cb8d1d79b43e6ac14814",
+      "job": 132129186357
+    },
+    {
+      "id": "orders-15142-16",
+      "group": "orders",
+      "seed": 15142,
+      "order": [
+        "army3",
+        "army4",
+        "army1",
+        "army2"
+      ],
+      "settings": {
+        "army1": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army2": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army3": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army4": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        }
+      },
+      "maxRound": 400,
+      "maxCommands": 65536,
+      "count": 5032,
+      "round": 91,
+      "outcome": {
+        "type": "victory",
+        "winner": "army1"
+      },
+      "alive": [
+        "army1"
+      ],
+      "eliminations": [
+        {
+          "army": "army4",
+          "round": 20
+        },
+        {
+          "army": "army3",
+          "round": 79
+        },
+        {
+          "army": "army2",
+          "round": 91
+        }
+      ],
+      "fallbacks": 21,
+      "resumes": 0,
+      "maxUnits": 44,
+      "traceSha256": "003fdb4d6e15cec4fac4dcc9369d16dceb10ffa4fc5442daffbd2827acf255ab",
+      "finalStateSha256": "78c2501cc024f7f81eec48db619c1e1748f332aefe12c901fd2ed500ab224003",
+      "cpuMs": {
+        "count": 5032,
+        "p50": 3.144,
+        "p95": 6.318,
+        "max": 19.922
+      },
+      "engineMs": {
+        "count": 5032,
+        "p50": 1.15,
+        "p95": 1.315,
+        "max": 3.833
+      },
+      "peakHeapBytes": 171378856,
+      "elapsedSeconds": 22.11,
+      "stoppedBy": "outcome",
+      "source": "6e52c2da278bb56466e2cb8d1d79b43e6ac14814",
+      "job": 132129186757
+    },
+    {
+      "id": "orders-15142-17",
+      "group": "orders",
+      "seed": 15142,
+      "order": [
+        "army3",
+        "army4",
+        "army2",
+        "army1"
+      ],
+      "settings": {
+        "army1": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army2": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army3": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army4": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        }
+      },
+      "maxRound": 400,
+      "maxCommands": 65536,
+      "count": 15473,
+      "round": 401,
+      "outcome": {
+        "type": "ongoing"
+      },
+      "alive": [
+        "army1",
+        "army3"
+      ],
+      "eliminations": [
+        {
+          "army": "army2",
+          "round": 138
+        },
+        {
+          "army": "army4",
+          "round": 150
+        }
+      ],
+      "fallbacks": 289,
+      "resumes": 3,
+      "maxUnits": 44,
+      "traceSha256": "25ae950e4ee0dc8b6799c4520295e82870c91422486d592fa51cc164c6884728",
+      "finalStateSha256": "416f84f3c3e3c05bd7fa4914ee83272fff18935dca55fdd8eab3a1caac6ee8a8",
+      "cpuMs": {
+        "count": 15473,
+        "p50": 2.887,
+        "p95": 6.141,
+        "max": 16.008
+      },
+      "engineMs": {
+        "count": 15473,
+        "p50": 1.149,
+        "p95": 1.39,
+        "max": 5.913
+      },
+      "peakHeapBytes": 169475712,
+      "elapsedSeconds": 65.654,
+      "stoppedBy": "round-budget",
+      "source": "6e52c2da278bb56466e2cb8d1d79b43e6ac14814",
+      "job": 132129186770
+    },
+    {
+      "id": "orders-15142-18",
+      "group": "orders",
+      "seed": 15142,
+      "order": [
+        "army4",
+        "army1",
+        "army2",
+        "army3"
+      ],
+      "settings": {
+        "army1": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army2": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army3": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army4": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        }
+      },
+      "maxRound": 400,
+      "maxCommands": 65536,
+      "count": 7193,
+      "round": 168,
+      "outcome": {
+        "type": "victory",
+        "winner": "army1"
+      },
+      "alive": [
+        "army1"
+      ],
+      "eliminations": [
+        {
+          "army": "army4",
+          "round": 21
+        },
+        {
+          "army": "army3",
+          "round": 68
+        },
+        {
+          "army": "army2",
+          "round": 168
+        }
+      ],
+      "fallbacks": 71,
+      "resumes": 1,
+      "maxUnits": 44,
+      "traceSha256": "a72d2d6336b27c963af7c6b3a1f1aef134d5617c74d575002910d301477c3a58",
+      "finalStateSha256": "ada9cd4b994ee28497ff2448d6c4a2cfc50ba55dc816fc75d90cf4961f9384d2",
+      "cpuMs": {
+        "count": 7193,
+        "p50": 2.174,
+        "p95": 4.405,
+        "max": 9.989
+      },
+      "engineMs": {
+        "count": 7193,
+        "p50": 0.756,
+        "p95": 0.895,
+        "max": 2.925
+      },
+      "peakHeapBytes": 163846832,
+      "elapsedSeconds": 21.435,
+      "stoppedBy": "outcome",
+      "source": "6e52c2da278bb56466e2cb8d1d79b43e6ac14814",
+      "job": 132129186815
+    },
+    {
+      "id": "orders-15142-19",
+      "group": "orders",
+      "seed": 15142,
+      "order": [
+        "army4",
+        "army1",
+        "army3",
+        "army2"
+      ],
+      "settings": {
+        "army1": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army2": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army3": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army4": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        }
+      },
+      "maxRound": 400,
+      "maxCommands": 65536,
+      "count": 9695,
+      "round": 401,
+      "outcome": {
+        "type": "ongoing"
+      },
+      "alive": [
+        "army1",
+        "army3"
+      ],
+      "eliminations": [
+        {
+          "army": "army4",
+          "round": 40
+        },
+        {
+          "army": "army2",
+          "round": 52
+        }
+      ],
+      "fallbacks": 308,
+      "resumes": 3,
+      "maxUnits": 44,
+      "traceSha256": "6062769a8778ed29512b8be5f50382cf86c3ad501ec80b85ba084ac38b357f5a",
+      "finalStateSha256": "d53df05df77d38195246af0e41357c14c5c9f8b9be177567af55241ceb370457",
+      "cpuMs": {
+        "count": 9695,
+        "p50": 2.806,
+        "p95": 5.539,
+        "max": 8.331
+      },
+      "engineMs": {
+        "count": 9695,
+        "p50": 0.993,
+        "p95": 1.268,
+        "max": 3.586
+      },
+      "peakHeapBytes": 169099944,
+      "elapsedSeconds": 38.58,
+      "stoppedBy": "round-budget",
+      "source": "6e52c2da278bb56466e2cb8d1d79b43e6ac14814",
+      "job": 132129186727
+    },
+    {
+      "id": "orders-15142-2",
+      "group": "orders",
+      "seed": 15142,
+      "order": [
+        "army1",
+        "army3",
+        "army2",
+        "army4"
+      ],
+      "settings": {
+        "army1": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army2": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army3": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army4": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        }
+      },
+      "maxRound": 400,
+      "maxCommands": 65536,
+      "count": 14049,
+      "round": 225,
+      "outcome": {
+        "type": "victory",
+        "winner": "army2"
+      },
+      "alive": [
+        "army2"
+      ],
+      "eliminations": [
+        {
+          "army": "army1",
+          "round": 155
+        },
+        {
+          "army": "army3",
+          "round": 197
+        },
+        {
+          "army": "army4",
+          "round": 225
+        }
+      ],
+      "fallbacks": 60,
+      "resumes": 2,
+      "maxUnits": 44,
+      "traceSha256": "7c3eba66e433b2caffa444a023b089c87916ec2e3e3198e9fb8327e9124615a7",
+      "finalStateSha256": "75c187a0f60121dfc44903fb99d4518fc202b31030ca2a36833f70a27ce53b52",
+      "cpuMs": {
+        "count": 14049,
+        "p50": 4.195,
+        "p95": 8.313,
+        "max": 15.184
+      },
+      "engineMs": {
+        "count": 14049,
+        "p50": 1.514,
+        "p95": 1.743,
+        "max": 6.708
+      },
+      "peakHeapBytes": 166710296,
+      "elapsedSeconds": 80.613,
+      "stoppedBy": "outcome",
+      "source": "6e52c2da278bb56466e2cb8d1d79b43e6ac14814",
+      "job": 132129186893
+    },
+    {
+      "id": "orders-15142-20",
+      "group": "orders",
+      "seed": 15142,
+      "order": [
+        "army4",
+        "army2",
+        "army1",
+        "army3"
+      ],
+      "settings": {
+        "army1": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army2": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army3": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army4": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        }
+      },
+      "maxRound": 400,
+      "maxCommands": 65536,
+      "count": 17744,
+      "round": 401,
+      "outcome": {
+        "type": "ongoing"
+      },
+      "alive": [
+        "army1",
+        "army2"
+      ],
+      "eliminations": [
+        {
+          "army": "army4",
+          "round": 21
+        },
+        {
+          "army": "army3",
+          "round": 254
+        }
+      ],
+      "fallbacks": 162,
+      "resumes": 3,
+      "maxUnits": 44,
+      "traceSha256": "f8966e11ad093b7a71f65ee612f68efa96a0e8ac7ab5fbfa4ad1f2c88e7e64ab",
+      "finalStateSha256": "3650dbd4d5764bf420010b155171cba2f6368ef8baf3eb618bda4376f7b9bdc3",
+      "cpuMs": {
+        "count": 17744,
+        "p50": 2.764,
+        "p95": 5.926,
+        "max": 14.914
+      },
+      "engineMs": {
+        "count": 17744,
+        "p50": 1.119,
+        "p95": 1.305,
+        "max": 5.021
+      },
+      "peakHeapBytes": 164536504,
+      "elapsedSeconds": 72.332,
+      "stoppedBy": "round-budget",
+      "source": "6e52c2da278bb56466e2cb8d1d79b43e6ac14814",
+      "job": 132129186971
+    },
+    {
+      "id": "orders-15142-21",
+      "group": "orders",
+      "seed": 15142,
+      "order": [
+        "army4",
+        "army2",
+        "army3",
+        "army1"
+      ],
+      "settings": {
+        "army1": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army2": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army3": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army4": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        }
+      },
+      "maxRound": 400,
+      "maxCommands": 65536,
+      "count": 10535,
+      "round": 401,
+      "outcome": {
+        "type": "ongoing"
+      },
+      "alive": [
+        "army1",
+        "army3"
+      ],
+      "eliminations": [
+        {
+          "army": "army4",
+          "round": 72
+        },
+        {
+          "army": "army2",
+          "round": 130
+        }
+      ],
+      "fallbacks": 483,
+      "resumes": 3,
+      "maxUnits": 44,
+      "traceSha256": "dd0c4986a8af4d7a2f5dfe594da43aa9af133f110aa23f0c36fb0e828574338a",
+      "finalStateSha256": "9ac0d4004857183a972612271b72bbf416aa953b8adcdfb8f0c535ff5d08b0b4",
+      "cpuMs": {
+        "count": 10535,
+        "p50": 3.427,
+        "p95": 6.798,
+        "max": 19.338
+      },
+      "engineMs": {
+        "count": 10535,
+        "p50": 1.223,
+        "p95": 1.5,
+        "max": 8.052
+      },
+      "peakHeapBytes": 164759072,
+      "elapsedSeconds": 49.287,
+      "stoppedBy": "round-budget",
+      "source": "6e52c2da278bb56466e2cb8d1d79b43e6ac14814",
+      "job": 132129186816
+    },
+    {
+      "id": "orders-15142-22",
+      "group": "orders",
+      "seed": 15142,
+      "order": [
+        "army4",
+        "army3",
+        "army1",
+        "army2"
+      ],
+      "settings": {
+        "army1": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army2": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army3": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army4": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        }
+      },
+      "maxRound": 400,
+      "maxCommands": 65536,
+      "count": 3618,
+      "round": 63,
+      "outcome": {
+        "type": "victory",
+        "winner": "army1"
+      },
+      "alive": [
+        "army1"
+      ],
+      "eliminations": [
+        {
+          "army": "army3",
+          "round": 30
+        },
+        {
+          "army": "army4",
+          "round": 58
+        },
+        {
+          "army": "army2",
+          "round": 63
+        }
+      ],
+      "fallbacks": 23,
+      "resumes": 0,
+      "maxUnits": 44,
+      "traceSha256": "b97371a4946ca273ae1a95ed6c4f0d472f251e497bf4a49cb69108eca4e0ef70",
+      "finalStateSha256": "ac4f4bd6c8a73aef74d2265f8c6a47c077aa2fd51b892df6012883670f60d0cd",
+      "cpuMs": {
+        "count": 3618,
+        "p50": 4.089,
+        "p95": 8.053,
+        "max": 15.126
+      },
+      "engineMs": {
+        "count": 3618,
+        "p50": 1.492,
+        "p95": 1.711,
+        "max": 3.83
+      },
+      "peakHeapBytes": 161681248,
+      "elapsedSeconds": 20.322,
+      "stoppedBy": "outcome",
+      "source": "6e52c2da278bb56466e2cb8d1d79b43e6ac14814",
+      "job": 132129187036
+    },
+    {
+      "id": "orders-15142-23",
+      "group": "orders",
+      "seed": 15142,
+      "order": [
+        "army4",
+        "army3",
+        "army2",
+        "army1"
+      ],
+      "settings": {
+        "army1": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army2": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army3": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army4": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        }
+      },
+      "maxRound": 400,
+      "maxCommands": 65536,
+      "count": 11992,
+      "round": 401,
+      "outcome": {
+        "type": "ongoing"
+      },
+      "alive": [
+        "army1",
+        "army2"
+      ],
+      "eliminations": [
+        {
+          "army": "army4",
+          "round": 48
+        },
+        {
+          "army": "army3",
+          "round": 146
+        }
+      ],
+      "fallbacks": 413,
+      "resumes": 3,
+      "maxUnits": 44,
+      "traceSha256": "5b8864a8292e71a97e44b9db9b2020198ad6345edc08a30f44e4dcddbae2b35a",
+      "finalStateSha256": "c83d273c7ba8f111453e157fb8babd9b3effffe577f44ed55225f444eaf1fcff",
+      "cpuMs": {
+        "count": 11992,
+        "p50": 3.136,
+        "p95": 6.465,
+        "max": 14.802
+      },
+      "engineMs": {
+        "count": 11992,
+        "p50": 1.127,
+        "p95": 1.417,
+        "max": 6.129
+      },
+      "peakHeapBytes": 167533328,
+      "elapsedSeconds": 52.45,
+      "stoppedBy": "round-budget",
+      "source": "6e52c2da278bb56466e2cb8d1d79b43e6ac14814",
+      "job": 132129186696
+    },
+    {
+      "id": "orders-15142-3",
+      "group": "orders",
+      "seed": 15142,
+      "order": [
+        "army1",
+        "army3",
+        "army4",
+        "army2"
+      ],
+      "settings": {
+        "army1": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army2": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army3": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army4": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        }
+      },
+      "maxRound": 400,
+      "maxCommands": 65536,
+      "count": 8640,
+      "round": 147,
+      "outcome": {
+        "type": "victory",
+        "winner": "army1"
+      },
+      "alive": [
+        "army1"
+      ],
+      "eliminations": [
+        {
+          "army": "army4",
+          "round": 51
+        },
+        {
+          "army": "army3",
+          "round": 141
+        },
+        {
+          "army": "army2",
+          "round": 147
+        }
+      ],
+      "fallbacks": 39,
+      "resumes": 1,
+      "maxUnits": 44,
+      "traceSha256": "76bad33bbe6e3888d80c661ba4b3f4afe24876887b482ff9f6dcaa5aefa73711",
+      "finalStateSha256": "3d51fab9ec83c17889ddd34dd37b52a2dffe28815e8880858c09cb97611bee6b",
+      "cpuMs": {
+        "count": 8640,
+        "p50": 3.236,
+        "p95": 6.287,
+        "max": 11.834
+      },
+      "engineMs": {
+        "count": 8640,
+        "p50": 1.17,
+        "p95": 1.307,
+        "max": 3.377
+      },
+      "peakHeapBytes": 159918888,
+      "elapsedSeconds": 38.266,
+      "stoppedBy": "outcome",
+      "source": "6e52c2da278bb56466e2cb8d1d79b43e6ac14814",
+      "job": 132129186357
+    },
+    {
+      "id": "orders-15142-4",
+      "group": "orders",
+      "seed": 15142,
+      "order": [
+        "army1",
+        "army4",
+        "army2",
+        "army3"
+      ],
+      "settings": {
+        "army1": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army2": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army3": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army4": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        }
+      },
+      "maxRound": 400,
+      "maxCommands": 65536,
+      "count": 2588,
+      "round": 41,
+      "outcome": {
+        "type": "victory",
+        "winner": "army4"
+      },
+      "alive": [
+        "army4"
+      ],
+      "eliminations": [
+        {
+          "army": "army3",
+          "round": 27
+        },
+        {
+          "army": "army2",
+          "round": 39
+        },
+        {
+          "army": "army1",
+          "round": 41
+        }
+      ],
+      "fallbacks": 10,
+      "resumes": 0,
+      "maxUnits": 44,
+      "traceSha256": "1fa0a7e3924d64d9a9c9791efbe52b8c1d14f5f3ecfc0ba170535b54d5c2e008",
+      "finalStateSha256": "56f35ec958b2a8f4434666062ab4a031593de639549440219e19720b88ca5fcd",
+      "cpuMs": {
+        "count": 2588,
+        "p50": 3.075,
+        "p95": 6.418,
+        "max": 8.874
+      },
+      "engineMs": {
+        "count": 2588,
+        "p50": 1.179,
+        "p95": 1.327,
+        "max": 4.207
+      },
+      "peakHeapBytes": 155658824,
+      "elapsedSeconds": 11.412,
+      "stoppedBy": "outcome",
+      "source": "6e52c2da278bb56466e2cb8d1d79b43e6ac14814",
+      "job": 132129186757
+    },
+    {
+      "id": "orders-15142-5",
+      "group": "orders",
+      "seed": 15142,
+      "order": [
+        "army1",
+        "army4",
+        "army3",
+        "army2"
+      ],
+      "settings": {
+        "army1": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army2": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army3": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army4": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        }
+      },
+      "maxRound": 400,
+      "maxCommands": 65536,
+      "count": 8646,
+      "round": 132,
+      "outcome": {
+        "type": "victory",
+        "winner": "army4"
+      },
+      "alive": [
+        "army4"
+      ],
+      "eliminations": [
+        {
+          "army": "army3",
+          "round": 107
+        },
+        {
+          "army": "army2",
+          "round": 130
+        },
+        {
+          "army": "army1",
+          "round": 132
+        }
+      ],
+      "fallbacks": 50,
+      "resumes": 1,
+      "maxUnits": 44,
+      "traceSha256": "1a4cda0278d3331030ded3b82e636e0918cf096d5103f9c4a7dd5626e973a9d5",
+      "finalStateSha256": "92d6c3704f5c4818431ab60ed6e495f976fdc25fd0834ddf25b7dc7cd1036b94",
+      "cpuMs": {
+        "count": 8646,
+        "p50": 3.142,
+        "p95": 6.288,
+        "max": 12.757
+      },
+      "engineMs": {
+        "count": 8646,
+        "p50": 1.192,
+        "p95": 1.361,
+        "max": 4.461
+      },
+      "peakHeapBytes": 149685888,
+      "elapsedSeconds": 37.999,
+      "stoppedBy": "outcome",
+      "source": "6e52c2da278bb56466e2cb8d1d79b43e6ac14814",
+      "job": 132129186770
+    },
+    {
+      "id": "orders-15142-6",
+      "group": "orders",
+      "seed": 15142,
+      "order": [
+        "army2",
+        "army1",
+        "army3",
+        "army4"
+      ],
+      "settings": {
+        "army1": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army2": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army3": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army4": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        }
+      },
+      "maxRound": 400,
+      "maxCommands": 65536,
+      "count": 18838,
+      "round": 401,
+      "outcome": {
+        "type": "ongoing"
+      },
+      "alive": [
+        "army1",
+        "army3"
+      ],
+      "eliminations": [
+        {
+          "army": "army4",
+          "round": 54
+        },
+        {
+          "army": "army2",
+          "round": 258
+        }
+      ],
+      "fallbacks": 131,
+      "resumes": 3,
+      "maxUnits": 44,
+      "traceSha256": "a7e5d5fdd27a7df7a031780ee32f6dd4ebd921c97bdc210b9f91f7bc35eee7fe",
+      "finalStateSha256": "b6f87474d34108046622be3fb6c217f8850a87d2993fd1b3321467fdca2ba5ee",
+      "cpuMs": {
+        "count": 18838,
+        "p50": 2.025,
+        "p95": 4.337,
+        "max": 14.36
+      },
+      "engineMs": {
+        "count": 18838,
+        "p50": 0.755,
+        "p95": 0.893,
+        "max": 5.836
+      },
+      "peakHeapBytes": 194949968,
+      "elapsedSeconds": 55.286,
+      "stoppedBy": "round-budget",
+      "source": "6e52c2da278bb56466e2cb8d1d79b43e6ac14814",
+      "job": 132129186815
+    },
+    {
+      "id": "orders-15142-7",
+      "group": "orders",
+      "seed": 15142,
+      "order": [
+        "army2",
+        "army1",
+        "army4",
+        "army3"
+      ],
+      "settings": {
+        "army1": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army2": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army3": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army4": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        }
+      },
+      "maxRound": 400,
+      "maxCommands": 65536,
+      "count": 7889,
+      "round": 155,
+      "outcome": {
+        "type": "victory",
+        "winner": "army3"
+      },
+      "alive": [
+        "army3"
+      ],
+      "eliminations": [
+        {
+          "army": "army2",
+          "round": 65
+        },
+        {
+          "army": "army4",
+          "round": 67
+        },
+        {
+          "army": "army1",
+          "round": 155
+        }
+      ],
+      "fallbacks": 33,
+      "resumes": 1,
+      "maxUnits": 44,
+      "traceSha256": "4d27d8107675a168fac2999483ac5b8e361ed8a9c1b904d2cb7a8e6d8e210f6f",
+      "finalStateSha256": "cf32ec882ac09160a8a79174c9ed38335fce3f2710f8e6795749ad562bd92b56",
+      "cpuMs": {
+        "count": 7889,
+        "p50": 2.928,
+        "p95": 5.953,
+        "max": 13.557
+      },
+      "engineMs": {
+        "count": 7889,
+        "p50": 1.039,
+        "p95": 1.212,
+        "max": 3.618
+      },
+      "peakHeapBytes": 167941240,
+      "elapsedSeconds": 32.035,
+      "stoppedBy": "outcome",
+      "source": "6e52c2da278bb56466e2cb8d1d79b43e6ac14814",
+      "job": 132129186727
+    },
+    {
+      "id": "orders-15142-8",
+      "group": "orders",
+      "seed": 15142,
+      "order": [
+        "army2",
+        "army3",
+        "army1",
+        "army4"
+      ],
+      "settings": {
+        "army1": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army2": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army3": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army4": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        }
+      },
+      "maxRound": 400,
+      "maxCommands": 65536,
+      "count": 12091,
+      "round": 231,
+      "outcome": {
+        "type": "victory",
+        "winner": "army4"
+      },
+      "alive": [
+        "army4"
+      ],
+      "eliminations": [
+        {
+          "army": "army2",
+          "round": 41
+        },
+        {
+          "army": "army3",
+          "round": 173
+        },
+        {
+          "army": "army1",
+          "round": 231
+        }
+      ],
+      "fallbacks": 65,
+      "resumes": 2,
+      "maxUnits": 44,
+      "traceSha256": "2c068fe48b947de074e7477b221fc5f3c7a733fe875bcc6386740b6aa8e5ae4d",
+      "finalStateSha256": "2d5b22ce976e9eee1fb6d851bb4d395b97ae116845eb78c4258f38a9564f5c4f",
+      "cpuMs": {
+        "count": 12091,
+        "p50": 3.194,
+        "p95": 6.387,
+        "max": 13.448
+      },
+      "engineMs": {
+        "count": 12091,
+        "p50": 1.157,
+        "p95": 1.339,
+        "max": 4.762
+      },
+      "peakHeapBytes": 167229296,
+      "elapsedSeconds": 53.63,
+      "stoppedBy": "outcome",
+      "source": "6e52c2da278bb56466e2cb8d1d79b43e6ac14814",
+      "job": 132129186971
+    },
+    {
+      "id": "orders-15142-9",
+      "group": "orders",
+      "seed": 15142,
+      "order": [
+        "army2",
+        "army3",
+        "army4",
+        "army1"
+      ],
+      "settings": {
+        "army1": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army2": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army3": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army4": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        }
+      },
+      "maxRound": 400,
+      "maxCommands": 65536,
+      "count": 15027,
+      "round": 401,
+      "outcome": {
+        "type": "ongoing"
+      },
+      "alive": [
+        "army2",
+        "army3"
+      ],
+      "eliminations": [
+        {
+          "army": "army1",
+          "round": 20
+        },
+        {
+          "army": "army4",
+          "round": 108
+        }
+      ],
+      "fallbacks": 44,
+      "resumes": 3,
+      "maxUnits": 44,
+      "traceSha256": "509955f503f8b4b2f2a5b19bb46d2c4e4f4f1c2a6dd2050325034151912a384b",
+      "finalStateSha256": "9f1f9ad11bceec11c1f70955e37f427803bd8333f05a1767b7512f549b8bf39f",
+      "cpuMs": {
+        "count": 15027,
+        "p50": 3.04,
+        "p95": 6.104,
+        "max": 17.098
+      },
+      "engineMs": {
+        "count": 15027,
+        "p50": 1.112,
+        "p95": 1.32,
+        "max": 4.41
+      },
+      "peakHeapBytes": 162134568,
+      "elapsedSeconds": 64.835,
+      "stoppedBy": "round-budget",
+      "source": "6e52c2da278bb56466e2cb8d1d79b43e6ac14814",
+      "job": 132129186816
+    },
+    {
+      "id": "orders-15143-0",
+      "group": "orders",
+      "seed": 15143,
+      "order": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "settings": {
+        "army1": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army2": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army3": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army4": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        }
+      },
+      "maxRound": 400,
+      "maxCommands": 65536,
+      "count": 5881,
+      "round": 103,
+      "outcome": {
+        "type": "victory",
+        "winner": "army4"
+      },
+      "alive": [
+        "army4"
+      ],
+      "eliminations": [
+        {
+          "army": "army3",
+          "round": 25
+        },
+        {
+          "army": "army2",
+          "round": 95
+        },
+        {
+          "army": "army1",
+          "round": 103
+        }
+      ],
+      "fallbacks": 18,
+      "resumes": 1,
+      "maxUnits": 44,
+      "traceSha256": "29f90a1b233420ba6837b9f0e347af2232471b25a87c8d452747db08da54faa6",
+      "finalStateSha256": "fc740bceaee54653e2e66abf990a2e1d4bd6dfddde0f5f1ed02520a15805494a",
+      "cpuMs": {
+        "count": 5881,
+        "p50": 3.987,
+        "p95": 8.022,
+        "max": 15.642
+      },
+      "engineMs": {
+        "count": 5881,
+        "p50": 1.508,
+        "p95": 1.689,
+        "max": 6.199
+      },
+      "peakHeapBytes": 161147800,
+      "elapsedSeconds": 32.955,
+      "stoppedBy": "outcome",
+      "source": "6e52c2da278bb56466e2cb8d1d79b43e6ac14814",
+      "job": 132129186861
+    },
+    {
+      "id": "orders-15143-1",
+      "group": "orders",
+      "seed": 15143,
+      "order": [
+        "army1",
+        "army2",
+        "army4",
+        "army3"
+      ],
+      "settings": {
+        "army1": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army2": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army3": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army4": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        }
+      },
+      "maxRound": 400,
+      "maxCommands": 65536,
+      "count": 12867,
+      "round": 401,
+      "outcome": {
+        "type": "ongoing"
+      },
+      "alive": [
+        "army2",
+        "army4"
+      ],
+      "eliminations": [
+        {
+          "army": "army1",
+          "round": 74
+        },
+        {
+          "army": "army3",
+          "round": 111
+        }
+      ],
+      "fallbacks": 288,
+      "resumes": 3,
+      "maxUnits": 44,
+      "traceSha256": "3e591c2829fb78de021f6ecceeccf65dad109354aaffe8bd9fab38568f128222",
+      "finalStateSha256": "4b561b09b9dc34caa74294be13e48a7148990f5dbc2fcc8e871f06cba2ff9fec",
+      "cpuMs": {
+        "count": 12867,
+        "p50": 3.295,
+        "p95": 6.31,
+        "max": 13.202
+      },
+      "engineMs": {
+        "count": 12867,
+        "p50": 1.134,
+        "p95": 1.372,
+        "max": 4.718
+      },
+      "peakHeapBytes": 163586816,
+      "elapsedSeconds": 57.066,
+      "stoppedBy": "round-budget",
+      "source": "6e52c2da278bb56466e2cb8d1d79b43e6ac14814",
+      "job": 132129186809
+    },
+    {
+      "id": "orders-15143-10",
+      "group": "orders",
+      "seed": 15143,
+      "order": [
+        "army2",
+        "army4",
+        "army1",
+        "army3"
+      ],
+      "settings": {
+        "army1": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army2": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army3": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army4": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        }
+      },
+      "maxRound": 400,
+      "maxCommands": 65536,
+      "count": 3902,
+      "round": 60,
+      "outcome": {
+        "type": "victory",
+        "winner": "army4"
+      },
+      "alive": [
+        "army4"
+      ],
+      "eliminations": [
+        {
+          "army": "army3",
+          "round": 43
+        },
+        {
+          "army": "army2",
+          "round": 53
+        },
+        {
+          "army": "army1",
+          "round": 60
+        }
+      ],
+      "fallbacks": 8,
+      "resumes": 0,
+      "maxUnits": 44,
+      "traceSha256": "ccadffe80f09ef030922c9ad2ec9af95dc868b3a0df1b77c97cf207d4786577a",
+      "finalStateSha256": "b0569c508a31a5a9b656de195bbe25b8c3d461f60074890edb136cacdade96fc",
+      "cpuMs": {
+        "count": 3902,
+        "p50": 3.908,
+        "p95": 7.982,
+        "max": 13.221
+      },
+      "engineMs": {
+        "count": 3902,
+        "p50": 1.511,
+        "p95": 1.696,
+        "max": 5.054
+      },
+      "peakHeapBytes": 126247536,
+      "elapsedSeconds": 21.634,
+      "stoppedBy": "outcome",
+      "source": "6e52c2da278bb56466e2cb8d1d79b43e6ac14814",
+      "job": 132129187036
+    },
+    {
+      "id": "orders-15143-11",
+      "group": "orders",
+      "seed": 15143,
+      "order": [
+        "army2",
+        "army4",
+        "army3",
+        "army1"
+      ],
+      "settings": {
+        "army1": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army2": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army3": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army4": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        }
+      },
+      "maxRound": 400,
+      "maxCommands": 65536,
+      "count": 7317,
+      "round": 156,
+      "outcome": {
+        "type": "victory",
+        "winner": "army2"
+      },
+      "alive": [
+        "army2"
+      ],
+      "eliminations": [
+        {
+          "army": "army4",
+          "round": 23
+        },
+        {
+          "army": "army1",
+          "round": 48
+        },
+        {
+          "army": "army3",
+          "round": 156
+        }
+      ],
+      "fallbacks": 13,
+      "resumes": 1,
+      "maxUnits": 44,
+      "traceSha256": "45008bf7ea7fb7ec3d9374381969ea396e7331662e7be081f24a5e0de07448c5",
+      "finalStateSha256": "997b7f771eeccaacaacd8e5ef16c08f60245a72d9de005bc442c3d72de61817d",
+      "cpuMs": {
+        "count": 7317,
+        "p50": 3.252,
+        "p95": 6.463,
+        "max": 14.417
+      },
+      "engineMs": {
+        "count": 7317,
+        "p50": 1.105,
+        "p95": 1.305,
+        "max": 2.988
+      },
+      "peakHeapBytes": 170074600,
+      "elapsedSeconds": 32.419,
+      "stoppedBy": "outcome",
+      "source": "6e52c2da278bb56466e2cb8d1d79b43e6ac14814",
+      "job": 132129186696
+    },
+    {
+      "id": "orders-15143-12",
+      "group": "orders",
+      "seed": 15143,
+      "order": [
+        "army3",
+        "army1",
+        "army2",
+        "army4"
+      ],
+      "settings": {
+        "army1": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army2": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army3": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army4": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        }
+      },
+      "maxRound": 400,
+      "maxCommands": 65536,
+      "count": 11130,
+      "round": 401,
+      "outcome": {
+        "type": "ongoing"
+      },
+      "alive": [
+        "army1",
+        "army2"
+      ],
+      "eliminations": [
+        {
+          "army": "army3",
+          "round": 48
+        },
+        {
+          "army": "army4",
+          "round": 64
+        }
+      ],
+      "fallbacks": 265,
+      "resumes": 3,
+      "maxUnits": 44,
+      "traceSha256": "1712b2a0e8fd76b69521d42c6f25e9917445b392faceffdf9af9b7c03497fad2",
+      "finalStateSha256": "642c132857c7178980b3f88e6c6d8a3a925b0ece837bd06c49398c1139623809",
+      "cpuMs": {
+        "count": 11130,
+        "p50": 3.879,
+        "p95": 7.636,
+        "max": 13.061
+      },
+      "engineMs": {
+        "count": 11130,
+        "p50": 1.448,
+        "p95": 1.793,
+        "max": 4.849
+      },
+      "peakHeapBytes": 161213680,
+      "elapsedSeconds": 61.285,
+      "stoppedBy": "round-budget",
+      "source": "6e52c2da278bb56466e2cb8d1d79b43e6ac14814",
+      "job": 132129186861
+    },
+    {
+      "id": "orders-15143-13",
+      "group": "orders",
+      "seed": 15143,
+      "order": [
+        "army3",
+        "army1",
+        "army4",
+        "army2"
+      ],
+      "settings": {
+        "army1": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army2": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army3": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army4": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        }
+      },
+      "maxRound": 400,
+      "maxCommands": 65536,
+      "count": 13336,
+      "round": 401,
+      "outcome": {
+        "type": "ongoing"
+      },
+      "alive": [
+        "army1",
+        "army2"
+      ],
+      "eliminations": [
+        {
+          "army": "army3",
+          "round": 169
+        },
+        {
+          "army": "army4",
+          "round": 174
+        }
+      ],
+      "fallbacks": 472,
+      "resumes": 3,
+      "maxUnits": 44,
+      "traceSha256": "38d631c64fb9a0c666b2055234da816b899cb83828bcf42e58bc73324a12e7b6",
+      "finalStateSha256": "e0260f2fb000e98e59d60d36deeca81d0160e77d44ade0911a8eebf745e92a0c",
+      "cpuMs": {
+        "count": 13336,
+        "p50": 3.205,
+        "p95": 6.279,
+        "max": 13.187
+      },
+      "engineMs": {
+        "count": 13336,
+        "p50": 1.199,
+        "p95": 1.412,
+        "max": 5.231
+      },
+      "peakHeapBytes": 165724312,
+      "elapsedSeconds": 59.225,
+      "stoppedBy": "round-budget",
+      "source": "6e52c2da278bb56466e2cb8d1d79b43e6ac14814",
+      "job": 132129186809
+    },
+    {
+      "id": "orders-15143-14",
+      "group": "orders",
+      "seed": 15143,
+      "order": [
+        "army3",
+        "army2",
+        "army1",
+        "army4"
+      ],
+      "settings": {
+        "army1": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army2": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army3": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army4": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        }
+      },
+      "maxRound": 400,
+      "maxCommands": 65536,
+      "count": 3578,
+      "round": 68,
+      "outcome": {
+        "type": "victory",
+        "winner": "army3"
+      },
+      "alive": [
+        "army3"
+      ],
+      "eliminations": [
+        {
+          "army": "army2",
+          "round": 24
+        },
+        {
+          "army": "army1",
+          "round": 52
+        },
+        {
+          "army": "army4",
+          "round": 68
+        }
+      ],
+      "fallbacks": 23,
+      "resumes": 0,
+      "maxUnits": 44,
+      "traceSha256": "a0b460c901909da8d9344b65e3c475aed61a297f79c718c71c4497ace2d1eff2",
+      "finalStateSha256": "ae9dce7c6fa87d8239dc36c2169fc59fab6e3eb178f8c5540ddce65b268285e7",
+      "cpuMs": {
+        "count": 3578,
+        "p50": 4.107,
+        "p95": 8.068,
+        "max": 12.713
+      },
+      "engineMs": {
+        "count": 3578,
+        "p50": 1.462,
+        "p95": 1.673,
+        "max": 6.732
+      },
+      "peakHeapBytes": 169186384,
+      "elapsedSeconds": 19.948,
+      "stoppedBy": "outcome",
+      "source": "6e52c2da278bb56466e2cb8d1d79b43e6ac14814",
+      "job": 132129186893
+    },
+    {
+      "id": "orders-15143-15",
+      "group": "orders",
+      "seed": 15143,
+      "order": [
+        "army3",
+        "army2",
+        "army4",
+        "army1"
+      ],
+      "settings": {
+        "army1": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army2": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army3": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army4": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        }
+      },
+      "maxRound": 400,
+      "maxCommands": 65536,
+      "count": 12120,
+      "round": 244,
+      "outcome": {
+        "type": "victory",
+        "winner": "army4"
+      },
+      "alive": [
+        "army4"
+      ],
+      "eliminations": [
+        {
+          "army": "army3",
+          "round": 21
+        },
+        {
+          "army": "army1",
+          "round": 193
+        },
+        {
+          "army": "army2",
+          "round": 244
+        }
+      ],
+      "fallbacks": 54,
+      "resumes": 2,
+      "maxUnits": 44,
+      "traceSha256": "dbb0db6c5ca27a37aa46bfe80a402a932f9c0f1996ca7029394cca318c1bbf7e",
+      "finalStateSha256": "783e0471796df527db56ee4da34ee5f8bc2b11843acc18fd9a67b12c31ea16b4",
+      "cpuMs": {
+        "count": 12120,
+        "p50": 3.067,
+        "p95": 6.217,
+        "max": 12.277
+      },
+      "engineMs": {
+        "count": 12120,
+        "p50": 1.141,
+        "p95": 1.297,
+        "max": 4.015
+      },
+      "peakHeapBytes": 170360608,
+      "elapsedSeconds": 52.324,
+      "stoppedBy": "outcome",
+      "source": "6e52c2da278bb56466e2cb8d1d79b43e6ac14814",
+      "job": 132129186357
+    },
+    {
+      "id": "orders-15143-16",
+      "group": "orders",
+      "seed": 15143,
+      "order": [
+        "army3",
+        "army4",
+        "army1",
+        "army2"
+      ],
+      "settings": {
+        "army1": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army2": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army3": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army4": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        }
+      },
+      "maxRound": 400,
+      "maxCommands": 65536,
+      "count": 6996,
+      "round": 134,
+      "outcome": {
+        "type": "victory",
+        "winner": "army2"
+      },
+      "alive": [
+        "army2"
+      ],
+      "eliminations": [
+        {
+          "army": "army1",
+          "round": 20
+        },
+        {
+          "army": "army3",
+          "round": 105
+        },
+        {
+          "army": "army4",
+          "round": 134
+        }
+      ],
+      "fallbacks": 45,
+      "resumes": 1,
+      "maxUnits": 44,
+      "traceSha256": "acf806822b96e5e7c40cdba59c7460758b9fa14ed94d3741da0e043a2cb8a3a5",
+      "finalStateSha256": "8d48f9430e7101d061838b94a6aee7ae3dcac3ff546246557ca4be8dc3fb7824",
+      "cpuMs": {
+        "count": 6996,
+        "p50": 3.071,
+        "p95": 6.534,
+        "max": 12.606
+      },
+      "engineMs": {
+        "count": 6996,
+        "p50": 1.15,
+        "p95": 1.323,
+        "max": 4.086
+      },
+      "peakHeapBytes": 165513968,
+      "elapsedSeconds": 30.682,
+      "stoppedBy": "outcome",
+      "source": "6e52c2da278bb56466e2cb8d1d79b43e6ac14814",
+      "job": 132129186757
+    },
+    {
+      "id": "orders-15143-17",
+      "group": "orders",
+      "seed": 15143,
+      "order": [
+        "army3",
+        "army4",
+        "army2",
+        "army1"
+      ],
+      "settings": {
+        "army1": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army2": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army3": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army4": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        }
+      },
+      "maxRound": 400,
+      "maxCommands": 65536,
+      "count": 7441,
+      "round": 174,
+      "outcome": {
+        "type": "victory",
+        "winner": "army1"
+      },
+      "alive": [
+        "army1"
+      ],
+      "eliminations": [
+        {
+          "army": "army4",
+          "round": 41
+        },
+        {
+          "army": "army3",
+          "round": 44
+        },
+        {
+          "army": "army2",
+          "round": 174
+        }
+      ],
+      "fallbacks": 62,
+      "resumes": 1,
+      "maxUnits": 44,
+      "traceSha256": "d09af939982996202e9a0deba4a07d573fe3040f0a7457067a27b0e86c8c4059",
+      "finalStateSha256": "a211378ab0c57fb8ca9b5cde3bf71a3a30f68c1b02631b324c84e24eaca75b66",
+      "cpuMs": {
+        "count": 7441,
+        "p50": 3.268,
+        "p95": 6.498,
+        "max": 15.075
+      },
+      "engineMs": {
+        "count": 7441,
+        "p50": 1.135,
+        "p95": 1.362,
+        "max": 4.993
+      },
+      "peakHeapBytes": 139179888,
+      "elapsedSeconds": 33.254,
+      "stoppedBy": "outcome",
+      "source": "6e52c2da278bb56466e2cb8d1d79b43e6ac14814",
+      "job": 132129186770
+    },
+    {
+      "id": "orders-15143-18",
+      "group": "orders",
+      "seed": 15143,
+      "order": [
+        "army4",
+        "army1",
+        "army2",
+        "army3"
+      ],
+      "settings": {
+        "army1": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army2": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army3": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army4": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        }
+      },
+      "maxRound": 400,
+      "maxCommands": 65536,
+      "count": 11118,
+      "round": 401,
+      "outcome": {
+        "type": "ongoing"
+      },
+      "alive": [
+        "army1",
+        "army2"
+      ],
+      "eliminations": [
+        {
+          "army": "army4",
+          "round": 47
+        },
+        {
+          "army": "army3",
+          "round": 65
+        }
+      ],
+      "fallbacks": 299,
+      "resumes": 3,
+      "maxUnits": 44,
+      "traceSha256": "c23c3b01a1b3b4b6e82b0e7fb0283aab8b67765a79ef03ed53ff573d9d58c444",
+      "finalStateSha256": "b11eb79dcf75611ef8356ec07bab2681e96a80aef74ad812b036430dbf786821",
+      "cpuMs": {
+        "count": 11118,
+        "p50": 2.257,
+        "p95": 4.217,
+        "max": 11.121
+      },
+      "engineMs": {
+        "count": 11118,
+        "p50": 0.733,
+        "p95": 0.933,
+        "max": 5.378
+      },
+      "peakHeapBytes": 168052480,
+      "elapsedSeconds": 32.453,
+      "stoppedBy": "round-budget",
+      "source": "6e52c2da278bb56466e2cb8d1d79b43e6ac14814",
+      "job": 132129186815
+    },
+    {
+      "id": "orders-15143-19",
+      "group": "orders",
+      "seed": 15143,
+      "order": [
+        "army4",
+        "army1",
+        "army3",
+        "army2"
+      ],
+      "settings": {
+        "army1": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army2": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army3": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army4": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        }
+      },
+      "maxRound": 400,
+      "maxCommands": 65536,
+      "count": 9127,
+      "round": 171,
+      "outcome": {
+        "type": "victory",
+        "winner": "army3"
+      },
+      "alive": [
+        "army3"
+      ],
+      "eliminations": [
+        {
+          "army": "army2",
+          "round": 87
+        },
+        {
+          "army": "army1",
+          "round": 99
+        },
+        {
+          "army": "army4",
+          "round": 171
+        }
+      ],
+      "fallbacks": 58,
+      "resumes": 1,
+      "maxUnits": 44,
+      "traceSha256": "4db35f84e36f4ec2c0fcacfb3ff4528e399887fa16cd9ab444d1683b5e51fd05",
+      "finalStateSha256": "6a5d3131255ca836d67a14a57a96d85fe819cff1ed4f6c0364fdc33a9bc7b319",
+      "cpuMs": {
+        "count": 9127,
+        "p50": 2.874,
+        "p95": 5.91,
+        "max": 8.908
+      },
+      "engineMs": {
+        "count": 9127,
+        "p50": 1.067,
+        "p95": 1.217,
+        "max": 4.273
+      },
+      "peakHeapBytes": 168123320,
+      "elapsedSeconds": 36.647,
+      "stoppedBy": "outcome",
+      "source": "6e52c2da278bb56466e2cb8d1d79b43e6ac14814",
+      "job": 132129186727
+    },
+    {
+      "id": "orders-15143-2",
+      "group": "orders",
+      "seed": 15143,
+      "order": [
+        "army1",
+        "army3",
+        "army2",
+        "army4"
+      ],
+      "settings": {
+        "army1": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army2": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army3": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army4": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        }
+      },
+      "maxRound": 400,
+      "maxCommands": 65536,
+      "count": 6066,
+      "round": 401,
+      "outcome": {
+        "type": "ongoing"
+      },
+      "alive": [
+        "army2",
+        "army3"
+      ],
+      "eliminations": [
+        {
+          "army": "army1",
+          "round": 37
+        },
+        {
+          "army": "army4",
+          "round": 49
+        }
+      ],
+      "fallbacks": 606,
+      "resumes": 3,
+      "maxUnits": 44,
+      "traceSha256": "1d0de9e7502b33c6f480327413ef65b5e9a7e82863c2891f1bb84ed8ec5990e3",
+      "finalStateSha256": "ea57eade720d6b4c7ee0242dd03e6ee9c4d750884d3f3d1bc728437cc93bce58",
+      "cpuMs": {
+        "count": 6066,
+        "p50": 4.282,
+        "p95": 8.004,
+        "max": 12.972
+      },
+      "engineMs": {
+        "count": 6066,
+        "p50": 1.461,
+        "p95": 1.769,
+        "max": 4.006
+      },
+      "peakHeapBytes": 148722640,
+      "elapsedSeconds": 34.65,
+      "stoppedBy": "round-budget",
+      "source": "6e52c2da278bb56466e2cb8d1d79b43e6ac14814",
+      "job": 132129186893
+    },
+    {
+      "id": "orders-15143-20",
+      "group": "orders",
+      "seed": 15143,
+      "order": [
+        "army4",
+        "army2",
+        "army1",
+        "army3"
+      ],
+      "settings": {
+        "army1": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army2": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army3": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army4": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        }
+      },
+      "maxRound": 400,
+      "maxCommands": 65536,
+      "count": 10052,
+      "round": 156,
+      "outcome": {
+        "type": "victory",
+        "winner": "army4"
+      },
+      "alive": [
+        "army4"
+      ],
+      "eliminations": [
+        {
+          "army": "army3",
+          "round": 137
+        },
+        {
+          "army": "army2",
+          "round": 141
+        },
+        {
+          "army": "army1",
+          "round": 156
+        }
+      ],
+      "fallbacks": 45,
+      "resumes": 1,
+      "maxUnits": 44,
+      "traceSha256": "8b7ec4bb466f0dd4649772ae4c77ca9e60b80466c9fdd14f401433a6bf6908d0",
+      "finalStateSha256": "85135fbed1d7d2348541586fa3b92b37655196da6a7537707d5624300c9e15f1",
+      "cpuMs": {
+        "count": 10052,
+        "p50": 3.108,
+        "p95": 6.189,
+        "max": 10.67
+      },
+      "engineMs": {
+        "count": 10052,
+        "p50": 1.193,
+        "p95": 1.339,
+        "max": 6.375
+      },
+      "peakHeapBytes": 156760216,
+      "elapsedSeconds": 43.617,
+      "stoppedBy": "outcome",
+      "source": "6e52c2da278bb56466e2cb8d1d79b43e6ac14814",
+      "job": 132129186971
+    },
+    {
+      "id": "orders-15143-21",
+      "group": "orders",
+      "seed": 15143,
+      "order": [
+        "army4",
+        "army2",
+        "army3",
+        "army1"
+      ],
+      "settings": {
+        "army1": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army2": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army3": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army4": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        }
+      },
+      "maxRound": 400,
+      "maxCommands": 65536,
+      "count": 6581,
+      "round": 132,
+      "outcome": {
+        "type": "victory",
+        "winner": "army4"
+      },
+      "alive": [
+        "army4"
+      ],
+      "eliminations": [
+        {
+          "army": "army3",
+          "round": 37
+        },
+        {
+          "army": "army1",
+          "round": 79
+        },
+        {
+          "army": "army2",
+          "round": 132
+        }
+      ],
+      "fallbacks": 31,
+      "resumes": 1,
+      "maxUnits": 44,
+      "traceSha256": "1e86c0206b7aa8d471714509e745baefe239b50a72f79b79d9b98b4726a1ecb9",
+      "finalStateSha256": "27401786fb2677b9ef5cf24483e814c18d4337bdfa4e3b50db3a6ac302efcb90",
+      "cpuMs": {
+        "count": 6581,
+        "p50": 3.275,
+        "p95": 6.678,
+        "max": 10.034
+      },
+      "engineMs": {
+        "count": 6581,
+        "p50": 1.193,
+        "p95": 1.376,
+        "max": 4.58
+      },
+      "peakHeapBytes": 163034240,
+      "elapsedSeconds": 30.158,
+      "stoppedBy": "outcome",
+      "source": "6e52c2da278bb56466e2cb8d1d79b43e6ac14814",
+      "job": 132129186816
+    },
+    {
+      "id": "orders-15143-22",
+      "group": "orders",
+      "seed": 15143,
+      "order": [
+        "army4",
+        "army3",
+        "army1",
+        "army2"
+      ],
+      "settings": {
+        "army1": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army2": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army3": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army4": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        }
+      },
+      "maxRound": 400,
+      "maxCommands": 65536,
+      "count": 1718,
+      "round": 25,
+      "outcome": {
+        "type": "victory",
+        "winner": "army2"
+      },
+      "alive": [
+        "army2"
+      ],
+      "eliminations": [
+        {
+          "army": "army1",
+          "round": 21
+        },
+        {
+          "army": "army4",
+          "round": 23
+        },
+        {
+          "army": "army3",
+          "round": 25
+        }
+      ],
+      "fallbacks": 3,
+      "resumes": 0,
+      "maxUnits": 44,
+      "traceSha256": "4b65280707a8d30b279090dfb4d39dfb7359d3600cd3b5d705029d7014a4c4b8",
+      "finalStateSha256": "a8afa2ebd743c634ded8dea0be1d06fd397316ce6858de28d6bdf7b5a2abc04d",
+      "cpuMs": {
+        "count": 1718,
+        "p50": 3.963,
+        "p95": 8.414,
+        "max": 10.944
+      },
+      "engineMs": {
+        "count": 1718,
+        "p50": 1.508,
+        "p95": 1.691,
+        "max": 4.01
+      },
+      "peakHeapBytes": 141708480,
+      "elapsedSeconds": 9.661,
+      "stoppedBy": "outcome",
+      "source": "6e52c2da278bb56466e2cb8d1d79b43e6ac14814",
+      "job": 132129187036
+    },
+    {
+      "id": "orders-15143-23",
+      "group": "orders",
+      "seed": 15143,
+      "order": [
+        "army4",
+        "army3",
+        "army2",
+        "army1"
+      ],
+      "settings": {
+        "army1": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army2": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army3": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army4": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        }
+      },
+      "maxRound": 400,
+      "maxCommands": 65536,
+      "count": 12810,
+      "round": 401,
+      "outcome": {
+        "type": "ongoing"
+      },
+      "alive": [
+        "army1",
+        "army2"
+      ],
+      "eliminations": [
+        {
+          "army": "army4",
+          "round": 92
+        },
+        {
+          "army": "army3",
+          "round": 182
+        }
+      ],
+      "fallbacks": 436,
+      "resumes": 3,
+      "maxUnits": 44,
+      "traceSha256": "c046f3a05699b8bec321541cd22ff93aa4cb6d293688e9c87b2feb8bbe366bf7",
+      "finalStateSha256": "e115574e93ecd5de03a98d3db44bf311387ffe220ab71be8ab6ef8fb1832a79e",
+      "cpuMs": {
+        "count": 12810,
+        "p50": 3.332,
+        "p95": 6.448,
+        "max": 15.925
+      },
+      "engineMs": {
+        "count": 12810,
+        "p50": 1.137,
+        "p95": 1.37,
+        "max": 3.768
+      },
+      "peakHeapBytes": 164862832,
+      "elapsedSeconds": 56.959,
+      "stoppedBy": "round-budget",
+      "source": "6e52c2da278bb56466e2cb8d1d79b43e6ac14814",
+      "job": 132129186696
+    },
+    {
+      "id": "orders-15143-3",
+      "group": "orders",
+      "seed": 15143,
+      "order": [
+        "army1",
+        "army3",
+        "army4",
+        "army2"
+      ],
+      "settings": {
+        "army1": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army2": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army3": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army4": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        }
+      },
+      "maxRound": 400,
+      "maxCommands": 65536,
+      "count": 7849,
+      "round": 401,
+      "outcome": {
+        "type": "ongoing"
+      },
+      "alive": [
+        "army2",
+        "army4"
+      ],
+      "eliminations": [
+        {
+          "army": "army3",
+          "round": 23
+        },
+        {
+          "army": "army1",
+          "round": 91
+        }
+      ],
+      "fallbacks": 535,
+      "resumes": 3,
+      "maxUnits": 44,
+      "traceSha256": "157b8f0fd8b405a4b367bcb203d3772c0562d63a99baa38414c34b37e3b479e9",
+      "finalStateSha256": "9bcb364b716bbe4967bdae862d1cf3e6636a829631509db46eaafe4d55e0bf75",
+      "cpuMs": {
+        "count": 7849,
+        "p50": 3.396,
+        "p95": 6.479,
+        "max": 10.423
+      },
+      "engineMs": {
+        "count": 7849,
+        "p50": 1.143,
+        "p95": 1.357,
+        "max": 3.717
+      },
+      "peakHeapBytes": 159966328,
+      "elapsedSeconds": 35.691,
+      "stoppedBy": "round-budget",
+      "source": "6e52c2da278bb56466e2cb8d1d79b43e6ac14814",
+      "job": 132129186357
+    },
+    {
+      "id": "orders-15143-4",
+      "group": "orders",
+      "seed": 15143,
+      "order": [
+        "army1",
+        "army4",
+        "army2",
+        "army3"
+      ],
+      "settings": {
+        "army1": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army2": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army3": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army4": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        }
+      },
+      "maxRound": 400,
+      "maxCommands": 65536,
+      "count": 22242,
+      "round": 401,
+      "outcome": {
+        "type": "ongoing"
+      },
+      "alive": [
+        "army1",
+        "army2"
+      ],
+      "eliminations": [
+        {
+          "army": "army4",
+          "round": 180
+        },
+        {
+          "army": "army3",
+          "round": 334
+        }
+      ],
+      "fallbacks": 179,
+      "resumes": 3,
+      "maxUnits": 44,
+      "traceSha256": "0d66bdf4d98d69c5a6a86718d3081d23a46b228ad1216760a5c29c2c28a43ad7",
+      "finalStateSha256": "f2ab0351e5b8484954b3b721662fd5eb14b338bcfca1d3224adf6fadb64b71bb",
+      "cpuMs": {
+        "count": 22242,
+        "p50": 3.17,
+        "p95": 6.584,
+        "max": 13.758
+      },
+      "engineMs": {
+        "count": 22242,
+        "p50": 1.162,
+        "p95": 1.364,
+        "max": 5.188
+      },
+      "peakHeapBytes": 168882640,
+      "elapsedSeconds": 99.521,
+      "stoppedBy": "round-budget",
+      "source": "6e52c2da278bb56466e2cb8d1d79b43e6ac14814",
+      "job": 132129186757
+    },
+    {
+      "id": "orders-15143-5",
+      "group": "orders",
+      "seed": 15143,
+      "order": [
+        "army1",
+        "army4",
+        "army3",
+        "army2"
+      ],
+      "settings": {
+        "army1": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army2": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army3": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army4": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        }
+      },
+      "maxRound": 400,
+      "maxCommands": 65536,
+      "count": 8042,
+      "round": 401,
+      "outcome": {
+        "type": "ongoing"
+      },
+      "alive": [
+        "army1",
+        "army4"
+      ],
+      "eliminations": [
+        {
+          "army": "army3",
+          "round": 23
+        },
+        {
+          "army": "army2",
+          "round": 24
+        }
+      ],
+      "fallbacks": 336,
+      "resumes": 3,
+      "maxUnits": 44,
+      "traceSha256": "4f02443921aacb08911cdba8f3e5023df5779c16b702620f2c7bbb9abeb6cbb1",
+      "finalStateSha256": "50777f889d0ebac4d819e92f3ae8ac351a7b75f51db02298df03245b4ca5288f",
+      "cpuMs": {
+        "count": 8042,
+        "p50": 3.639,
+        "p95": 6.411,
+        "max": 19.682
+      },
+      "engineMs": {
+        "count": 8042,
+        "p50": 1.092,
+        "p95": 1.436,
+        "max": 4.343
+      },
+      "peakHeapBytes": 167694472,
+      "elapsedSeconds": 37.903,
+      "stoppedBy": "round-budget",
+      "source": "6e52c2da278bb56466e2cb8d1d79b43e6ac14814",
+      "job": 132129186770
+    },
+    {
+      "id": "orders-15143-6",
+      "group": "orders",
+      "seed": 15143,
+      "order": [
+        "army2",
+        "army1",
+        "army3",
+        "army4"
+      ],
+      "settings": {
+        "army1": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army2": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army3": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army4": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        }
+      },
+      "maxRound": 400,
+      "maxCommands": 65536,
+      "count": 13845,
+      "round": 324,
+      "outcome": {
+        "type": "victory",
+        "winner": "army2"
+      },
+      "alive": [
+        "army2"
+      ],
+      "eliminations": [
+        {
+          "army": "army4",
+          "round": 108
+        },
+        {
+          "army": "army1",
+          "round": 214
+        },
+        {
+          "army": "army3",
+          "round": 324
+        }
+      ],
+      "fallbacks": 221,
+      "resumes": 3,
+      "maxUnits": 44,
+      "traceSha256": "e04a34523d8d248a6cddd5abc9547b96e36c72971ba2c1ccec8784daf6209f28",
+      "finalStateSha256": "62aea2ec161fc8c0d757180a7013d6875b1da264fa831490caecf91e5a6c16c2",
+      "cpuMs": {
+        "count": 13845,
+        "p50": 2.004,
+        "p95": 4.08,
+        "max": 9.213
+      },
+      "engineMs": {
+        "count": 13845,
+        "p50": 0.761,
+        "p95": 0.923,
+        "max": 4.447
+      },
+      "peakHeapBytes": 169746888,
+      "elapsedSeconds": 39.514,
+      "stoppedBy": "outcome",
+      "source": "6e52c2da278bb56466e2cb8d1d79b43e6ac14814",
+      "job": 132129186815
+    },
+    {
+      "id": "orders-15143-7",
+      "group": "orders",
+      "seed": 15143,
+      "order": [
+        "army2",
+        "army1",
+        "army4",
+        "army3"
+      ],
+      "settings": {
+        "army1": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army2": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army3": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army4": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        }
+      },
+      "maxRound": 400,
+      "maxCommands": 65536,
+      "count": 17946,
+      "round": 342,
+      "outcome": {
+        "type": "victory",
+        "winner": "army1"
+      },
+      "alive": [
+        "army1"
+      ],
+      "eliminations": [
+        {
+          "army": "army2",
+          "round": 83
+        },
+        {
+          "army": "army4",
+          "round": 302
+        },
+        {
+          "army": "army3",
+          "round": 342
+        }
+      ],
+      "fallbacks": 162,
+      "resumes": 3,
+      "maxUnits": 44,
+      "traceSha256": "f28fcccb072a4272f6bfec7ace2942bb9b56c071dc18bcbc86b70b69c3130145",
+      "finalStateSha256": "1df50598a43fcf6152b25f7295e00a100c7a7fe7b04b320507ce02017725db7c",
+      "cpuMs": {
+        "count": 17946,
+        "p50": 2.878,
+        "p95": 6.001,
+        "max": 11.751
+      },
+      "engineMs": {
+        "count": 17946,
+        "p50": 1.057,
+        "p95": 1.239,
+        "max": 3.465
+      },
+      "peakHeapBytes": 170051464,
+      "elapsedSeconds": 72.934,
+      "stoppedBy": "outcome",
+      "source": "6e52c2da278bb56466e2cb8d1d79b43e6ac14814",
+      "job": 132129186727
+    },
+    {
+      "id": "orders-15143-8",
+      "group": "orders",
+      "seed": 15143,
+      "order": [
+        "army2",
+        "army3",
+        "army1",
+        "army4"
+      ],
+      "settings": {
+        "army1": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army2": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army3": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army4": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        }
+      },
+      "maxRound": 400,
+      "maxCommands": 65536,
+      "count": 9137,
+      "round": 188,
+      "outcome": {
+        "type": "victory",
+        "winner": "army2"
+      },
+      "alive": [
+        "army2"
+      ],
+      "eliminations": [
+        {
+          "army": "army3",
+          "round": 55
+        },
+        {
+          "army": "army1",
+          "round": 108
+        },
+        {
+          "army": "army4",
+          "round": 188
+        }
+      ],
+      "fallbacks": 79,
+      "resumes": 1,
+      "maxUnits": 44,
+      "traceSha256": "394bb3b045ef66fab428c626140133ad97af58954d6ac7fe42d78d7df8bae480",
+      "finalStateSha256": "7b2140bbeb517b95b8a26f7ba0c5a2ce98f5c35babe65bf372938805b5b6ece6",
+      "cpuMs": {
+        "count": 9137,
+        "p50": 3.211,
+        "p95": 6.277,
+        "max": 15.131
+      },
+      "engineMs": {
+        "count": 9137,
+        "p50": 1.152,
+        "p95": 1.334,
+        "max": 6.233
+      },
+      "peakHeapBytes": 165416184,
+      "elapsedSeconds": 39.925,
+      "stoppedBy": "outcome",
+      "source": "6e52c2da278bb56466e2cb8d1d79b43e6ac14814",
+      "job": 132129186971
+    },
+    {
+      "id": "orders-15143-9",
+      "group": "orders",
+      "seed": 15143,
+      "order": [
+        "army2",
+        "army3",
+        "army4",
+        "army1"
+      ],
+      "settings": {
+        "army1": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army2": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army3": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army4": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        }
+      },
+      "maxRound": 400,
+      "maxCommands": 65536,
+      "count": 9776,
+      "round": 151,
+      "outcome": {
+        "type": "victory",
+        "winner": "army1"
+      },
+      "alive": [
+        "army1"
+      ],
+      "eliminations": [
+        {
+          "army": "army3",
+          "round": 116
+        },
+        {
+          "army": "army4",
+          "round": 137
+        },
+        {
+          "army": "army2",
+          "round": 151
+        }
+      ],
+      "fallbacks": 39,
+      "resumes": 1,
+      "maxUnits": 44,
+      "traceSha256": "94a9e169aef7905705fc8761c226cadacc6e6d02bdf95b8f1e990a33b0b47451",
+      "finalStateSha256": "4ffcf07eaa4814bb376203b7d486d895f01ff40c35c55dde17b1523217e41994",
+      "cpuMs": {
+        "count": 9776,
+        "p50": 3.293,
+        "p95": 6.667,
+        "max": 15.271
+      },
+      "engineMs": {
+        "count": 9776,
+        "p50": 1.241,
+        "p95": 1.451,
+        "max": 8.838
+      },
+      "peakHeapBytes": 167762128,
+      "elapsedSeconds": 44.975,
+      "stoppedBy": "outcome",
+      "source": "6e52c2da278bb56466e2cb8d1d79b43e6ac14814",
+      "job": 132129186816
+    },
+    {
+      "id": "settings-15144-0",
+      "group": "settings",
+      "seed": 15144,
+      "order": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "settings": {
+        "army1": {
+          "difficulty": "easy",
+          "policy": "balanced"
+        },
+        "army2": {
+          "difficulty": "normal",
+          "policy": "offensive"
+        },
+        "army3": {
+          "difficulty": "hard",
+          "policy": "defensive"
+        },
+        "army4": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        }
+      },
+      "maxRound": 400,
+      "maxCommands": 65536,
+      "count": 9220,
+      "round": 182,
+      "outcome": {
+        "type": "victory",
+        "winner": "army4"
+      },
+      "alive": [
+        "army4"
+      ],
+      "eliminations": [
+        {
+          "army": "army3",
+          "round": 47
+        },
+        {
+          "army": "army2",
+          "round": 170
+        },
+        {
+          "army": "army1",
+          "round": 182
+        }
+      ],
+      "fallbacks": 58,
+      "resumes": 1,
+      "maxUnits": 43,
+      "traceSha256": "6e1fac184a4817611905162ef142e02a12d9a86387cc05017825fb8d8d967d23",
+      "finalStateSha256": "34b74e6cd41e116d4107e6a067169d00b2132e23f4a45062d6f8034532aa8934",
+      "cpuMs": {
+        "count": 9220,
+        "p50": 3.773,
+        "p95": 7.9,
+        "max": 16.349
+      },
+      "engineMs": {
+        "count": 9220,
+        "p50": 1.485,
+        "p95": 1.693,
+        "max": 4.416
+      },
+      "peakHeapBytes": 167574512,
+      "elapsedSeconds": 49.739,
+      "stoppedBy": "outcome",
+      "source": "6e52c2da278bb56466e2cb8d1d79b43e6ac14814",
+      "job": 132129186861
+    },
+    {
+      "id": "settings-15144-1",
+      "group": "settings",
+      "seed": 15144,
+      "order": [
+        "army2",
+        "army3",
+        "army4",
+        "army1"
+      ],
+      "settings": {
+        "army1": {
+          "difficulty": "normal",
+          "policy": "offensive"
+        },
+        "army2": {
+          "difficulty": "hard",
+          "policy": "defensive"
+        },
+        "army3": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army4": {
+          "difficulty": "easy",
+          "policy": "balanced"
+        }
+      },
+      "maxRound": 400,
+      "maxCommands": 65536,
+      "count": 4044,
+      "round": 72,
+      "outcome": {
+        "type": "victory",
+        "winner": "army1"
+      },
+      "alive": [
+        "army1"
+      ],
+      "eliminations": [
+        {
+          "army": "army3",
+          "round": 31
+        },
+        {
+          "army": "army4",
+          "round": 45
+        },
+        {
+          "army": "army2",
+          "round": 72
+        }
+      ],
+      "fallbacks": 16,
+      "resumes": 0,
+      "maxUnits": 44,
+      "traceSha256": "300fca615e993c7c4c03ce5f6e9511ff874b5083e98d0da793a3bdb93154f901",
+      "finalStateSha256": "a5465437471f4b04a5b9f72cc602eaeb4697915930ba811979bafbc9ff67b0eb",
+      "cpuMs": {
+        "count": 4044,
+        "p50": 3.092,
+        "p95": 6.261,
+        "max": 9.786
+      },
+      "engineMs": {
+        "count": 4044,
+        "p50": 1.152,
+        "p95": 1.308,
+        "max": 4.137
+      },
+      "peakHeapBytes": 148494176,
+      "elapsedSeconds": 17.414,
+      "stoppedBy": "outcome",
+      "source": "6e52c2da278bb56466e2cb8d1d79b43e6ac14814",
+      "job": 132129186809
+    },
+    {
+      "id": "settings-15144-2",
+      "group": "settings",
+      "seed": 15144,
+      "order": [
+        "army3",
+        "army4",
+        "army1",
+        "army2"
+      ],
+      "settings": {
+        "army1": {
+          "difficulty": "hard",
+          "policy": "defensive"
+        },
+        "army2": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army3": {
+          "difficulty": "easy",
+          "policy": "balanced"
+        },
+        "army4": {
+          "difficulty": "normal",
+          "policy": "offensive"
+        }
+      },
+      "maxRound": 400,
+      "maxCommands": 65536,
+      "count": 13976,
+      "round": 401,
+      "outcome": {
+        "type": "ongoing"
+      },
+      "alive": [
+        "army1",
+        "army2"
+      ],
+      "eliminations": [
+        {
+          "army": "army4",
+          "round": 101
+        },
+        {
+          "army": "army3",
+          "round": 113
+        }
+      ],
+      "fallbacks": 308,
+      "resumes": 3,
+      "maxUnits": 42,
+      "traceSha256": "07640e6596876a6b24d57b4c29e444d17b3ea6f5ea23c757eae3f307d645317b",
+      "finalStateSha256": "1a8fc36895aaaf0fdce327cbffe155c4e756b19be9da41a5ab975b32ee912d1b",
+      "cpuMs": {
+        "count": 13976,
+        "p50": 4.778,
+        "p95": 7.962,
+        "max": 15.297
+      },
+      "engineMs": {
+        "count": 13976,
+        "p50": 1.478,
+        "p95": 1.739,
+        "max": 5.85
+      },
+      "peakHeapBytes": 163473464,
+      "elapsedSeconds": 83.54,
+      "stoppedBy": "round-budget",
+      "source": "6e52c2da278bb56466e2cb8d1d79b43e6ac14814",
+      "job": 132129186893
+    },
+    {
+      "id": "settings-15144-3",
+      "group": "settings",
+      "seed": 15144,
+      "order": [
+        "army4",
+        "army1",
+        "army2",
+        "army3"
+      ],
+      "settings": {
+        "army1": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army2": {
+          "difficulty": "easy",
+          "policy": "balanced"
+        },
+        "army3": {
+          "difficulty": "normal",
+          "policy": "offensive"
+        },
+        "army4": {
+          "difficulty": "hard",
+          "policy": "defensive"
+        }
+      },
+      "maxRound": 400,
+      "maxCommands": 65536,
+      "count": 6266,
+      "round": 133,
+      "outcome": {
+        "type": "victory",
+        "winner": "army4"
+      },
+      "alive": [
+        "army4"
+      ],
+      "eliminations": [
+        {
+          "army": "army2",
+          "round": 22
+        },
+        {
+          "army": "army1",
+          "round": 43
+        },
+        {
+          "army": "army3",
+          "round": 133
+        }
+      ],
+      "fallbacks": 46,
+      "resumes": 1,
+      "maxUnits": 44,
+      "traceSha256": "a080444d5c2dbd82bcb5d8ec017327176c2fdede879b1171afffa705bb7279b7",
+      "finalStateSha256": "361ea9b72d3b0465a2a71b490e64933105749562ede6e78d88493440ace06931",
+      "cpuMs": {
+        "count": 6266,
+        "p50": 3.322,
+        "p95": 6.9,
+        "max": 13.494
+      },
+      "engineMs": {
+        "count": 6266,
+        "p50": 1.134,
+        "p95": 1.29,
+        "max": 3.973
+      },
+      "peakHeapBytes": 146605864,
+      "elapsedSeconds": 29.236,
+      "stoppedBy": "outcome",
+      "source": "6e52c2da278bb56466e2cb8d1d79b43e6ac14814",
+      "job": 132129186357
+    },
+    {
+      "id": "settings-15145-0",
+      "group": "settings",
+      "seed": 15145,
+      "order": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "settings": {
+        "army1": {
+          "difficulty": "easy",
+          "policy": "balanced"
+        },
+        "army2": {
+          "difficulty": "normal",
+          "policy": "offensive"
+        },
+        "army3": {
+          "difficulty": "hard",
+          "policy": "defensive"
+        },
+        "army4": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        }
+      },
+      "maxRound": 400,
+      "maxCommands": 65536,
+      "count": 5708,
+      "round": 111,
+      "outcome": {
+        "type": "victory",
+        "winner": "army3"
+      },
+      "alive": [
+        "army3"
+      ],
+      "eliminations": [
+        {
+          "army": "army1",
+          "round": 22
+        },
+        {
+          "army": "army4",
+          "round": 70
+        },
+        {
+          "army": "army2",
+          "round": 111
+        }
+      ],
+      "fallbacks": 54,
+      "resumes": 1,
+      "maxUnits": 43,
+      "traceSha256": "8b885032b8f67b2a1cbb0140ebda5d2611ad0a887c9c8f29e3a369980c161098",
+      "finalStateSha256": "ff537720951c42f2133b2c7daf3065a00c0143eeb6aeb5f16391ecd4eff17213",
+      "cpuMs": {
+        "count": 5708,
+        "p50": 3.311,
+        "p95": 6.746,
+        "max": 14.823
+      },
+      "engineMs": {
+        "count": 5708,
+        "p50": 1.145,
+        "p95": 1.323,
+        "max": 4.309
+      },
+      "peakHeapBytes": 158819496,
+      "elapsedSeconds": 25.83,
+      "stoppedBy": "outcome",
+      "source": "6e52c2da278bb56466e2cb8d1d79b43e6ac14814",
+      "job": 132129186757
+    },
+    {
+      "id": "settings-15145-1",
+      "group": "settings",
+      "seed": 15145,
+      "order": [
+        "army2",
+        "army3",
+        "army4",
+        "army1"
+      ],
+      "settings": {
+        "army1": {
+          "difficulty": "normal",
+          "policy": "offensive"
+        },
+        "army2": {
+          "difficulty": "hard",
+          "policy": "defensive"
+        },
+        "army3": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army4": {
+          "difficulty": "easy",
+          "policy": "balanced"
+        }
+      },
+      "maxRound": 400,
+      "maxCommands": 65536,
+      "count": 4710,
+      "round": 82,
+      "outcome": {
+        "type": "victory",
+        "winner": "army2"
+      },
+      "alive": [
+        "army2"
+      ],
+      "eliminations": [
+        {
+          "army": "army4",
+          "round": 30
+        },
+        {
+          "army": "army1",
+          "round": 81
+        },
+        {
+          "army": "army3",
+          "round": 82
+        }
+      ],
+      "fallbacks": 32,
+      "resumes": 0,
+      "maxUnits": 42,
+      "traceSha256": "f63722fad644ee3efff75c773cbabee00c8b758435774281e0a64577798fe5fa",
+      "finalStateSha256": "81b786b1b32466d73dc7ec8e1f9fa57def0528508f108a5df67c06edb5f054c6",
+      "cpuMs": {
+        "count": 4710,
+        "p50": 3.228,
+        "p95": 6.577,
+        "max": 17.747
+      },
+      "engineMs": {
+        "count": 4710,
+        "p50": 1.178,
+        "p95": 1.488,
+        "max": 5.185
+      },
+      "peakHeapBytes": 168709424,
+      "elapsedSeconds": 20.99,
+      "stoppedBy": "outcome",
+      "source": "6e52c2da278bb56466e2cb8d1d79b43e6ac14814",
+      "job": 132129186770
+    },
+    {
+      "id": "settings-15145-2",
+      "group": "settings",
+      "seed": 15145,
+      "order": [
+        "army3",
+        "army4",
+        "army1",
+        "army2"
+      ],
+      "settings": {
+        "army1": {
+          "difficulty": "hard",
+          "policy": "defensive"
+        },
+        "army2": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army3": {
+          "difficulty": "easy",
+          "policy": "balanced"
+        },
+        "army4": {
+          "difficulty": "normal",
+          "policy": "offensive"
+        }
+      },
+      "maxRound": 400,
+      "maxCommands": 65536,
+      "count": 15479,
+      "round": 401,
+      "outcome": {
+        "type": "ongoing"
+      },
+      "alive": [
+        "army1",
+        "army3"
+      ],
+      "eliminations": [
+        {
+          "army": "army2",
+          "round": 84
+        },
+        {
+          "army": "army4",
+          "round": 174
+        }
+      ],
+      "fallbacks": 265,
+      "resumes": 3,
+      "maxUnits": 45,
+      "traceSha256": "b0d4c174e4a449187665a6a79542683f361c6cf6c8a5f3aec876b4509ca6a7a0",
+      "finalStateSha256": "40011a210b93998b3727d3544f82ff7b60cf838902167204a5c921f3306b0378",
+      "cpuMs": {
+        "count": 15479,
+        "p50": 2.385,
+        "p95": 4.827,
+        "max": 22.538
+      },
+      "engineMs": {
+        "count": 15479,
+        "p50": 0.757,
+        "p95": 0.947,
+        "max": 9.259
+      },
+      "peakHeapBytes": 165557384,
+      "elapsedSeconds": 50.003,
+      "stoppedBy": "round-budget",
+      "source": "6e52c2da278bb56466e2cb8d1d79b43e6ac14814",
+      "job": 132129186815
+    },
+    {
+      "id": "settings-15145-3",
+      "group": "settings",
+      "seed": 15145,
+      "order": [
+        "army4",
+        "army1",
+        "army2",
+        "army3"
+      ],
+      "settings": {
+        "army1": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army2": {
+          "difficulty": "easy",
+          "policy": "balanced"
+        },
+        "army3": {
+          "difficulty": "normal",
+          "policy": "offensive"
+        },
+        "army4": {
+          "difficulty": "hard",
+          "policy": "defensive"
+        }
+      },
+      "maxRound": 400,
+      "maxCommands": 65536,
+      "count": 4376,
+      "round": 92,
+      "outcome": {
+        "type": "victory",
+        "winner": "army4"
+      },
+      "alive": [
+        "army4"
+      ],
+      "eliminations": [
+        {
+          "army": "army2",
+          "round": 24
+        },
+        {
+          "army": "army3",
+          "round": 57
+        },
+        {
+          "army": "army1",
+          "round": 92
+        }
+      ],
+      "fallbacks": 57,
+      "resumes": 0,
+      "maxUnits": 44,
+      "traceSha256": "db2e62fb06240121e196b020378914853766c146d816f95991db7c1c08c630b6",
+      "finalStateSha256": "7fee2467a8612f6b612dc3aed2af441f97f7baf85a3e47cf77b5e0f9a0ad60f4",
+      "cpuMs": {
+        "count": 4376,
+        "p50": 3.066,
+        "p95": 6.372,
+        "max": 12.005
+      },
+      "engineMs": {
+        "count": 4376,
+        "p50": 1.048,
+        "p95": 1.235,
+        "max": 3.569
+      },
+      "peakHeapBytes": 158115624,
+      "elapsedSeconds": 18.502,
+      "stoppedBy": "outcome",
+      "source": "6e52c2da278bb56466e2cb8d1d79b43e6ac14814",
+      "job": 132129186727
+    },
+    {
+      "id": "settings-15146-0",
+      "group": "settings",
+      "seed": 15146,
+      "order": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "settings": {
+        "army1": {
+          "difficulty": "easy",
+          "policy": "balanced"
+        },
+        "army2": {
+          "difficulty": "normal",
+          "policy": "offensive"
+        },
+        "army3": {
+          "difficulty": "hard",
+          "policy": "defensive"
+        },
+        "army4": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        }
+      },
+      "maxRound": 400,
+      "maxCommands": 65536,
+      "count": 17252,
+      "round": 307,
+      "outcome": {
+        "type": "victory",
+        "winner": "army1"
+      },
+      "alive": [
+        "army1"
+      ],
+      "eliminations": [
+        {
+          "army": "army4",
+          "round": 80
+        },
+        {
+          "army": "army3",
+          "round": 286
+        },
+        {
+          "army": "army2",
+          "round": 307
+        }
+      ],
+      "fallbacks": 92,
+      "resumes": 3,
+      "maxUnits": 45,
+      "traceSha256": "9e8597554e4f8e43d6bd10a1b93964c06a4fa42e4e1b4f49764e6e7b0749a5be",
+      "finalStateSha256": "53cc42eb0e2443f944e047abe9999ce63c4e8c369d40c8a23dc6e4a34d0a1521",
+      "cpuMs": {
+        "count": 17252,
+        "p50": 3.165,
+        "p95": 7.183,
+        "max": 16.921
+      },
+      "engineMs": {
+        "count": 17252,
+        "p50": 1.169,
+        "p95": 1.346,
+        "max": 5.497
+      },
+      "peakHeapBytes": 163527488,
+      "elapsedSeconds": 79.869,
+      "stoppedBy": "outcome",
+      "source": "6e52c2da278bb56466e2cb8d1d79b43e6ac14814",
+      "job": 132129186971
+    },
+    {
+      "id": "settings-15146-1",
+      "group": "settings",
+      "seed": 15146,
+      "order": [
+        "army2",
+        "army3",
+        "army4",
+        "army1"
+      ],
+      "settings": {
+        "army1": {
+          "difficulty": "normal",
+          "policy": "offensive"
+        },
+        "army2": {
+          "difficulty": "hard",
+          "policy": "defensive"
+        },
+        "army3": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army4": {
+          "difficulty": "easy",
+          "policy": "balanced"
+        }
+      },
+      "maxRound": 400,
+      "maxCommands": 65536,
+      "count": 4303,
+      "round": 77,
+      "outcome": {
+        "type": "victory",
+        "winner": "army2"
+      },
+      "alive": [
+        "army2"
+      ],
+      "eliminations": [
+        {
+          "army": "army4",
+          "round": 25
+        },
+        {
+          "army": "army1",
+          "round": 63
+        },
+        {
+          "army": "army3",
+          "round": 77
+        }
+      ],
+      "fallbacks": 34,
+      "resumes": 0,
+      "maxUnits": 42,
+      "traceSha256": "02b011d9ac8290015b47486e19d5107566689f0bd0b8c3a1ad27e3d209514fa3",
+      "finalStateSha256": "6754dbf1c88597d5a3b0c2c919c13a8ec708108a33469e6be2cae8ed1c15c4d4",
+      "cpuMs": {
+        "count": 4303,
+        "p50": 3.565,
+        "p95": 7.325,
+        "max": 15.796
+      },
+      "engineMs": {
+        "count": 4303,
+        "p50": 1.228,
+        "p95": 1.47,
+        "max": 7.895
+      },
+      "peakHeapBytes": 133460744,
+      "elapsedSeconds": 21.3,
+      "stoppedBy": "outcome",
+      "source": "6e52c2da278bb56466e2cb8d1d79b43e6ac14814",
+      "job": 132129186816
+    },
+    {
+      "id": "settings-15146-2",
+      "group": "settings",
+      "seed": 15146,
+      "order": [
+        "army3",
+        "army4",
+        "army1",
+        "army2"
+      ],
+      "settings": {
+        "army1": {
+          "difficulty": "hard",
+          "policy": "defensive"
+        },
+        "army2": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army3": {
+          "difficulty": "easy",
+          "policy": "balanced"
+        },
+        "army4": {
+          "difficulty": "normal",
+          "policy": "offensive"
+        }
+      },
+      "maxRound": 400,
+      "maxCommands": 65536,
+      "count": 6237,
+      "round": 112,
+      "outcome": {
+        "type": "victory",
+        "winner": "army4"
+      },
+      "alive": [
+        "army4"
+      ],
+      "eliminations": [
+        {
+          "army": "army3",
+          "round": 29
+        },
+        {
+          "army": "army2",
+          "round": 94
+        },
+        {
+          "army": "army1",
+          "round": 112
+        }
+      ],
+      "fallbacks": 35,
+      "resumes": 1,
+      "maxUnits": 43,
+      "traceSha256": "f4759bd7d0abe63411516010a13a44f60d3bce981278e652d98a7906490cc81d",
+      "finalStateSha256": "146a2f9db4c1a29e7ccec0f007e1c3ca4b80eccb232ba0dc6a5c6fcc57b828dd",
+      "cpuMs": {
+        "count": 6237,
+        "p50": 3.984,
+        "p95": 7.988,
+        "max": 16.795
+      },
+      "engineMs": {
+        "count": 6237,
+        "p50": 1.467,
+        "p95": 1.661,
+        "max": 4.36
+      },
+      "peakHeapBytes": 167075576,
+      "elapsedSeconds": 34.015,
+      "stoppedBy": "outcome",
+      "source": "6e52c2da278bb56466e2cb8d1d79b43e6ac14814",
+      "job": 132129187036
+    },
+    {
+      "id": "settings-15146-3",
+      "group": "settings",
+      "seed": 15146,
+      "order": [
+        "army4",
+        "army1",
+        "army2",
+        "army3"
+      ],
+      "settings": {
+        "army1": {
+          "difficulty": "normal",
+          "policy": "balanced"
+        },
+        "army2": {
+          "difficulty": "easy",
+          "policy": "balanced"
+        },
+        "army3": {
+          "difficulty": "normal",
+          "policy": "offensive"
+        },
+        "army4": {
+          "difficulty": "hard",
+          "policy": "defensive"
+        }
+      },
+      "maxRound": 400,
+      "maxCommands": 65536,
+      "count": 11176,
+      "round": 224,
+      "outcome": {
+        "type": "victory",
+        "winner": "army4"
+      },
+      "alive": [
+        "army4"
+      ],
+      "eliminations": [
+        {
+          "army": "army2",
+          "round": 46
+        },
+        {
+          "army": "army3",
+          "round": 77
+        },
+        {
+          "army": "army1",
+          "round": 224
+        }
+      ],
+      "fallbacks": 60,
+      "resumes": 2,
+      "maxUnits": 44,
+      "traceSha256": "35df94d6ab8238c89c7ed22338ba409150fbce40ea20802e2471c95c57ad232c",
+      "finalStateSha256": "25ccfde7b8a5ebb9d28b2a5ece676a7c8ec49f50d9703fc45d6f44514f13f8e5",
+      "cpuMs": {
+        "count": 11176,
+        "p50": 3.503,
+        "p95": 7.451,
+        "max": 12.417
+      },
+      "engineMs": {
+        "count": 11176,
+        "p50": 1.123,
+        "p95": 1.294,
+        "max": 3.014
+      },
+      "peakHeapBytes": 164331176,
+      "elapsedSeconds": 53.3,
+      "stoppedBy": "outcome",
+      "source": "6e52c2da278bb56466e2cb8d1d79b43e6ac14814",
+      "job": 132129186696
+    }
+  ]
+}

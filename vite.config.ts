@@ -25,7 +25,7 @@ export default defineConfig({
     middlewareMode: false,
   },
   test: {
-    exclude: [...configDefaults.exclude, 'tests/e2e/**', 'tests/integration/**'],
+    exclude: [...configDefaults.exclude, 'tests/e2e/**', 'tests/integration/**', 'tests/endurance/**'],
     projects: [
       {
         extends: true,

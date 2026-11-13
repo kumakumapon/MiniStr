@@ -9,6 +9,7 @@ import { FOUR_ARMY_SAVE_KEYS } from '../game/fourArmySpectatorSave';
 import * as download from './download';
 
 describe('four-army spectator controller', () => {
+  let codec: FourArmyFileCodec;
   let screen: FourArmyScreen, values: Map<string, string>, writable: boolean, closed: () => void;
   const query = <T extends HTMLElement = HTMLElement>(s: string) => document.querySelector<T>(s)!;
   const click = (s: string) => query<HTMLButtonElement>(s).click();
@@ -27,6 +28,9 @@ describe('four-army spectator controller', () => {
     vi.spyOn(window, 'confirm').mockReturnValue(true);
     vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockReturnValue(null);
     vi.spyOn(download, 'downloadJson').mockImplementation(() => {});
+    codec = new FourArmyFileCodec(() => {
+      throw Error('no worker');
+    });
     screen = new FourArmyScreen({
       storage: {
         get length() {
@@ -50,9 +54,7 @@ describe('four-army spectator controller', () => {
       onClose: closed,
       onLocale: setLocale,
       onGesture: vi.fn(),
-      codec: new FourArmyFileCodec(() => {
-        throw Error('no worker');
-      }),
+      codec,
       createSession: (state, settings) =>
         new FourArmyCpuSession(
           state,
@@ -71,7 +73,7 @@ describe('four-army spectator controller', () => {
     screen.open();
   });
   afterEach(() => {
-    click('#four-close');
+    screen.root.querySelector<HTMLButtonElement>('#four-close')?.click();
     screen.root.remove();
     vi.restoreAllMocks();
   });
@@ -161,7 +163,7 @@ describe('four-army spectator controller', () => {
     click('[data-load-slot="0"]');
     await vi.waitFor(() => expect(query('#four-turn').textContent).toContain('24 commands'));
     click('#four-replay');
-    expect(query('#four-replay-count').textContent).toBe('0/24');
+    await vi.waitFor(() => expect(query('#four-replay-count').textContent).toBe('0/24'));
     click('#four-replay-end');
     await vi.waitFor(() => expect(query('#four-replay-count').textContent).toBe('24/24'));
     click('#four-previous');
@@ -214,5 +216,27 @@ describe('four-army spectator controller', () => {
     await new Promise((resolve) => setTimeout(resolve, 0));
     expect(query('#four-turn').textContent).toContain('0 commands');
     expect(query('#four-notice').textContent).not.toContain('Loaded');
+  });
+
+  it('reuses unchanged verified output and invalidates it on match replacement or rename', async () => {
+    start();
+    const run = vi.spyOn(codec, 'run');
+    click('[data-save-slot="0"]');
+    await vi.waitFor(() => expect(values.has(FOUR_ARMY_SAVE_KEYS[0])).toBe(true));
+    click('#four-export');
+    await vi.waitFor(() => expect(download.downloadJson).toHaveBeenCalled());
+    expect(run).toHaveBeenCalledTimes(1);
+    click('#four-menu');
+    change('#four-seed', '42');
+    query('#four-seed').dispatchEvent(new Event('input', { bubbles: true }));
+    start();
+    click('#four-export');
+    await vi.waitFor(() => expect(run).toHaveBeenCalledTimes(2));
+    await vi.waitFor(() => expect(vi.mocked(download.downloadJson).mock.calls.at(-1)?.[1]).toContain('"seed":42'));
+    change('#four-name', 'Renamed');
+    query('#four-name').dispatchEvent(new Event('input', { bubbles: true }));
+    click('#four-export');
+    await vi.waitFor(() => expect(run).toHaveBeenCalledTimes(3));
+    await vi.waitFor(() => expect(vi.mocked(download.downloadJson).mock.calls.at(-1)?.[1]).toContain('Renamed'));
   });
 });

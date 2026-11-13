@@ -70,7 +70,7 @@ import { forkResearch, createResearchSave, parseResearch, loadResearch, saveRese
 import { parseBoundedJson } from './game/jsonBoundary';
 import { renderResearchFork, renderResearchStatus, renderResearchSaves } from './ui/research';
 import type { ArmyPolicy } from './game/armyPolicy';
-import { exportBackup, previewBackup, restoreBackup, MAX_BACKUP_BYTES } from './game/backup';
+import { exportBackup, previewBackupAsync, restoreBackup, MAX_BACKUP_BYTES } from './game/backup';
 import { downloadJson } from './ui/download';
 import { createBrowserStorage } from './ui/storage';
 import { createStorageWriter, renderStorageWriterNotice } from './ui/storageWriter';
@@ -1768,7 +1768,10 @@ function render(): void {
     let text: string;
     try { text = await file.text(); } catch { if (!isCurrent()) return; message = 'バックアップファイルを読み込めませんでした。'; titleState.setNotice(message); render(); return; }
     if (!isCurrent()) return;
-    const preview = previewBackup(localStorage, text);
+    message = getLocale() === 'en' ? 'Verifying backup history…' : 'バックアップの履歴を検証しています…';
+    titleState.setNotice(message); render();
+    const preview = await previewBackupAsync(localStorage, text, isCurrent);
+    if (!preview || !isCurrent()) return;
     if (!preview.ok) { message = preview.error; titleState.setNotice(message); render(); return; }
     const details = `${preview.value.entryCount}件の項目、${preview.value.saveCount}件のセーブ`
       + `${preview.value.hasScenarios ? '、カスタムシナリオあり' : ''}${preview.value.hasCampaign ? '、キャンペーン記録あり' : ''}${preview.value.hasDaily ? '、日替わりチャレンジ記録あり（旧版では復元できません）' : ''}`
