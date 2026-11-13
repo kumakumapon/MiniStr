@@ -9,7 +9,7 @@ import { FOUR_ARMY_SAVE_KEYS } from '../game/fourArmySpectatorSave';
 import * as download from './download';
 
 describe('four-army spectator controller', () => {
-  let screen: FourArmyScreen, values: Map<string, string>, writable: boolean, closed: ReturnType<typeof vi.fn>;
+  let screen: FourArmyScreen, values: Map<string, string>, writable: boolean, closed: () => void;
   const query = <T extends HTMLElement = HTMLElement>(s: string) => document.querySelector<T>(s)!;
   const click = (s: string) => query<HTMLButtonElement>(s).click();
   const change = (s: string, value: string) => {
