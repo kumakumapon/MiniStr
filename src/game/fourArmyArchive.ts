@@ -5,8 +5,8 @@ import type { GameResult } from './types';
 
 export interface FourArmyArchive {
   format: typeof FOUR_ARMY_ARCHIVES.saveFormat;
-  schemaVersion: 1;
-  ruleset: typeof FOUR_ARMY_ARCHIVES.ruleset;
+  schemaVersion: 1 | 2;
+  ruleset: typeof FOUR_ARMY_ARCHIVES.ruleset | 'four-army-v2';
   payload: { map: FourArmyMap; commands: FourArmyCommand[]; state: FourArmyState };
 }
 const fail = (error: string): GameResult<never> => ({ ok: false, error });
@@ -31,7 +31,12 @@ function canonical(v: unknown): string {
 /** Engine checkpoint codec only. Slot storage, replay UI and backup registration come later. */
 export function serializeFourArmyArchive(map: FourArmyMap, commands: readonly FourArmyCommand[], state: FourArmyState): GameResult<string> {
   try {
-    const text = JSON.stringify({ format: FOUR_ARMY_ARCHIVES.saveFormat, schemaVersion: 1, ruleset: FOUR_ARMY_ARCHIVES.ruleset, payload: { map, commands, state } });
+    const text = JSON.stringify({
+      format: FOUR_ARMY_ARCHIVES.saveFormat,
+      schemaVersion: state.engineVersion,
+      ruleset: state.engineVersion === 1 ? FOUR_ARMY_ARCHIVES.ruleset : 'four-army-v2',
+      payload: { map, commands, state },
+    });
     const checked = parseFourArmyArchive(text);
     return checked.ok ? { ok: true, value: text } : checked;
   } catch {
@@ -48,14 +53,14 @@ export function parseFourArmyArchive(text: string): GameResult<FourArmyArchive> 
     !record(v) ||
     !exact(v, ['format', 'schemaVersion', 'ruleset', 'payload']) ||
     v.format !== FOUR_ARMY_ARCHIVES.saveFormat ||
-    v.schemaVersion !== 1 ||
-    v.ruleset !== FOUR_ARMY_ARCHIVES.ruleset ||
+    !((v.schemaVersion === 1 && v.ruleset === FOUR_ARMY_ARCHIVES.ruleset) || (v.schemaVersion === 2 && v.ruleset === 'four-army-v2')) ||
     !record(v.payload) ||
     !exact(v.payload, ['map', 'commands', 'state'])
   )
     return fail('未対応の4軍保存形式です。');
   const p = v.payload;
-  if (!Array.isArray(p.commands) || p.commands.length > 2048 || !p.commands.every(isFourArmyCommand) || !isFourArmyState(p.state)) return fail('4軍保存の内容が不正です。');
+  if (!Array.isArray(p.commands) || p.commands.length > 2048 || !p.commands.every(isFourArmyCommand) || !isFourArmyState(p.state) || p.state.engineVersion !== v.schemaVersion)
+    return fail('4軍保存の内容が不正です。');
   let replayed = createFourArmyState(p.map);
   if (!replayed.ok) return replayed;
   for (const command of p.commands) {

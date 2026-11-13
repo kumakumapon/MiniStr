@@ -29,6 +29,7 @@ export function isObservedFourArmyCommand(o: FourArmyObservation, command: unkno
   if (o.outcome.type !== 'ongoing' || o.round.phase !== 'active' || o.round.order[o.round.index] !== o.viewer || !o.alive.includes(o.viewer)) return false;
   if (!isFourArmyCommand(command) || command.actor !== o.viewer || command.type === 'resume') return false;
   if (command.type === 'endTurn') return true;
+  if (command.type === 'produce' && o.unitLimitPerArmy !== undefined && o.units.filter((u) => u.owner === o.viewer).length >= o.unitLimitPerArmy) return false;
   if (command.type === 'produce' && !canProduceUnit(o.board.terrain[command.factory.y]?.[command.factory.x]?.kind ?? 'plain', command.kind, 'facility-v2', 12)) return false;
   const { actor, ...c } = command;
   return actor === o.viewer && applyGameCommand(fourArmyPlanningView(o), c).ok;
@@ -162,7 +163,7 @@ export function chooseFourArmyCpuCommand(input: unknown, options: unknown): Four
     }
   }
   const scale = options.difficulty === 'easy' ? 0.45 : options.difficulty === 'normal' ? 0.7 : 1;
-  const limit = Math.max(4, Math.floor(unitLimit(view.board, 12) * scale));
+  const limit = Math.max(4, Math.floor((o.unitLimitPerArmy ?? unitLimit(view.board, 12)) * scale));
   if (own.length < limit && o.units.length < 128)
     for (let y = 0; y < o.board.height; y++)
       for (let x = 0; x < o.board.width; x++) {

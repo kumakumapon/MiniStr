@@ -5,6 +5,7 @@ import { visibleEnemies, visiblePositions, observedEnemy } from './fog';
 import { incomePropertyCount } from './state';
 import { movementCost, positionKey } from './terrain';
 import { unitStats } from './units';
+import { inFourArmyStartZone, isFourArmySetup, type FourArmySetup } from './fourArmySetup';
 import {
   FOUR_ARMY_IDS,
   createFourArmyRound,
@@ -28,10 +29,12 @@ export interface FourArmyMap {
   players: Record<FourArmyId, PlayerState>;
   order: FourArmyId[];
   seed: number;
+  setup?: FourArmySetup;
 }
 export interface FourArmyState {
-  /** Engine v1 freezes the v12 combat/logistics tables and the command subset below. */
-  engineVersion: 1;
+  /** v1 retains legacy checkpoints; v2 adds immutable setup and a per-army ceiling. Combat/logistics remain v12. */
+  engineVersion: 1 | 2;
+  setup?: FourArmySetup;
   board: FourArmyMap['board'];
   capitals: FourArmyMap['capitals'];
   units: FourArmyUnit[];
@@ -45,6 +48,7 @@ export interface FourArmyState {
   paused: boolean;
 }
 export interface FourArmyObservation {
+  unitLimitPerArmy?: number;
   viewer: FourArmyId;
   board: FourArmyMap['board'];
   capitals: FourArmyMap['capitals'];
@@ -181,8 +185,8 @@ function advance(state: FourArmyState): GameResult<FourArmyState> {
 export function isFourArmyState(value: unknown): value is FourArmyState {
   if (
     !record(value) ||
-    !keys(value, ['engineVersion', 'board', 'capitals', 'units', 'players', 'round', 'alive', 'eliminations', 'outcome', 'rngSeed', 'nextUnitId', 'paused']) ||
-    value.engineVersion !== 1
+    !keys(value, ['engineVersion', 'board', 'capitals', 'units', 'players', 'round', 'alive', 'eliminations', 'outcome', 'rngSeed', 'nextUnitId', 'paused'], ['setup']) ||
+    (value.engineVersion !== 1 && value.engineVersion !== 2)
   )
     return false;
   if (
@@ -209,6 +213,12 @@ export function isFourArmyState(value: unknown): value is FourArmyState {
     return false;
   if (!record(capitalData) || !keys(capitalData, [...FOUR_ARMY_IDS]) || !FOUR_ARMY_IDS.every((a) => position(capitalData[a]))) return false;
   if (new Set(Object.values(capitalData).map((p) => positionKey(p as Position))).size !== 4) return false;
+  if (
+    value.engineVersion === 1
+      ? Object.hasOwn(value, 'setup')
+      : !isFourArmySetup(value.setup, value.board as unknown as FourArmyMap['board'], capitalData as FourArmyMap['capitals'])
+  )
+    return false;
   if (
     !isFourArmyRound(roundData) ||
     !integer(roundData.round, 1, 1_000_000) ||
@@ -262,6 +272,7 @@ export function isFourArmyState(value: unknown): value is FourArmyState {
     )
   )
     return false;
+  if (s.setup && FOUR_ARMY_IDS.some((a) => s.units.filter((u) => u.owner === a).length > s.setup!.unitLimitPerArmy)) return false;
   const validationView = project(s, 'army1');
   if (!isGameState(validationView)) return false;
   if (s.units.some((u) => u.fuel !== undefined && u.fuel > unitStats[u.kind].fuel)) return false;
@@ -315,14 +326,15 @@ export function isFourArmyCommand(v: unknown): v is FourArmyCommand {
 }
 
 export function createFourArmyState(input: unknown): GameResult<FourArmyState> {
-  if (!record(input) || !keys(input, ['id', 'board', 'capitals', 'units', 'players', 'order', 'seed']) || !id(input.id)) return fail('4軍マップが不正です。');
+  if (!record(input) || !keys(input, ['id', 'board', 'capitals', 'units', 'players', 'order', 'seed'], ['setup']) || !id(input.id)) return fail('4軍マップが不正です。');
   const map = input as unknown as FourArmyMap;
   if (!Array.isArray(map.units) || map.units.length > 128) return fail('4軍の部隊数が不正です。');
   const round = createFourArmyRound(map.order);
   if (!round.ok) return round;
   const numericIds = Array.isArray(map.units) ? map.units.filter((u) => record(u) && typeof u.id === 'string' && /^u[0-9]+$/.test(u.id)).map((u) => Number(u.id.slice(1))) : [];
   const initial = {
-    engineVersion: 1,
+    engineVersion: Object.hasOwn(input, 'setup') ? 2 : 1,
+    ...(Object.hasOwn(input, 'setup') ? { setup: map.setup } : {}),
     board: map.board,
     capitals: map.capitals,
     units: map.units,
@@ -338,6 +350,8 @@ export function createFourArmyState(input: unknown): GameResult<FourArmyState> {
   if (
     !isFourArmyState(initial) ||
     initial.units.some((u) => u.hasMoved || u.hasActed) ||
+    (initial.setup &&
+      initial.units.some((u) => !inFourArmyStartZone((u.position ?? initial.units.find((c) => c.id === u.embarkedIn)!.position)!, initial.setup!.startZones[u.owner]))) ||
     !FOUR_ARMY_IDS.every((a) => initial.board.terrain[initial.capitals[a].y]![initial.capitals[a].x]!.owner === a)
   )
     return fail('4軍の初期盤面が不正です。');
@@ -359,7 +373,9 @@ export function applyFourArmyCommand(input: unknown, command: unknown): GameResu
   } else {
     if (
       command.type === 'produce' &&
-      (input.units.length >= 128 || !canProduceUnit(input.board.terrain[command.factory.y]?.[command.factory.x]?.kind ?? 'plain', command.kind, 'facility-v2', 12))
+      (input.units.length >= 128 ||
+        (input.setup && input.units.filter((u) => u.owner === command.actor).length >= input.setup.unitLimitPerArmy) ||
+        !canProduceUnit(input.board.terrain[command.factory.y]?.[command.factory.x]?.kind ?? 'plain', command.kind, 'facility-v2', 12))
     )
       return fail('対応する生産施設または部隊枠が必要です。');
     const { actor, ...legacy } = command;
@@ -388,6 +404,7 @@ export function observeFourArmy(input: unknown, viewer: FourArmyId): GameResult<
     ok: true,
     value: clean({
       viewer,
+      ...(input.setup ? { unitLimitPerArmy: input.setup.unitLimitPerArmy } : {}),
       board: {
         ...input.board,
         terrain: input.board.terrain.map((row, y) => row.map((tile, x) => (!seen.has(`${x},${y}`) && tile.capturePoints !== undefined ? { ...tile, capturePoints: 20 } : tile))),
