@@ -195,4 +195,22 @@ describe('four-army spectator controller', () => {
     expect(screen.active).toBe(false);
     expect(closed).toHaveBeenCalledOnce();
   });
+
+  it('discards a slow file read when returning from setup to the current match', async () => {
+    start();
+    click('#four-menu');
+    let finish!: (raw: string) => void;
+    const pending = new Promise<string>((resolve) => {
+      finish = resolve;
+    });
+    const input = query<HTMLInputElement>('#four-file');
+    Object.defineProperty(input, 'files', { value: [{ size: 100, text: () => pending }] });
+    input.dispatchEvent(new Event('change', { bubbles: true }));
+    click('#four-return');
+    finish(JSON.stringify(fourArmySpectatorFixture(24)));
+    await pending;
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(query('#four-turn').textContent).toContain('0 commands');
+    expect(query('#four-notice').textContent).not.toContain('Loaded');
+  });
 });

@@ -396,6 +396,7 @@ export class FourArmyScreen {
       return;
     }
     if (id === 'four-return' && this.session) {
+      this.pause();
       this.phase = 'watch';
       this.shell();
       return;
