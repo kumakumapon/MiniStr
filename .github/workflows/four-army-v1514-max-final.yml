@@ -1,0 +1,55 @@
+name: Four army v1.5.14 maximum record final
+on:
+  push:
+    branches: [diagnostics/v1.5.14-max-final]
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm install --global npm@11.9.0
+      - run: npm ci
+      - run: npm run test:ci
+      - run: npm run lint
+      - run: npm run format:check
+      - run: npm run typecheck:test
+      - run: npm run test:coverage
+      - run: npm run build
+      - run: npm run test:ui
+  endurance:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    strategy:
+      fail-fast: false
+      matrix:
+        browser: [chromium, firefox, webkit]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm install --global npm@11.9.0
+      - run: npm ci
+      - run: npm run build
+      - run: sudo bash scripts/use-ubuntu-https-mirror.sh
+      - run: npx playwright install --with-deps ${{ matrix.browser }}
+      - name: Verify maximum record, exact export and observable cancelled restore
+        run: npm run test:four-army-endurance -- --grep 'maximum record' --project=${{ matrix.browser }}
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        if: always()
+        with:
+          name: four-army-v1514-endurance-${{ matrix.browser }}
+          path: test-results/
+          retention-days: 14
