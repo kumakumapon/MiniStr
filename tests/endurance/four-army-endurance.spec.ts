@@ -1,6 +1,7 @@
 import { expect, type Page } from '@playwright/test';
 import { test } from '../e2e/helpers/engineTest';
 import { build } from 'vite';
+import { readFile } from 'node:fs/promises';
 import { fourArmySpectatorFixture } from '../../src/game/fourArmySpectator.fixture';
 import { encodeFourArmySpectatorSave, FOUR_ARMY_COMMAND_LIMIT } from '../../src/game/fourArmySpectatorSave';
 import type { compareFourArmyCpu } from '../../scripts/fourArmyPerformance';
@@ -71,6 +72,7 @@ test('maximum record: lossless import, checkpoint seeks, persistence, export and
     encoded = encodeFourArmySpectatorSave(source);
   if (!encoded.ok) throw Error(encoded.error);
   const pretty = JSON.stringify(JSON.parse(encoded.value), null, 2);
+  expect(Buffer.byteLength(pretty)).toBeGreaterThan(1_000_000);
   await setup(page);
   await fileTools(page);
   const start = performance.now();
@@ -108,13 +110,14 @@ test('maximum record: lossless import, checkpoint seeks, persistence, export and
   t = performance.now();
   const download = page.waitForEvent('download');
   await page.locator('#four-export').click();
-  await download;
+  const exported = await download;
+  expect(await readFile((await exported.path())!, 'utf8')).toBe(raw);
   const repeatExportMs = performance.now() - t;
   const backup = JSON.stringify({
     schemaVersion: 1,
     entries: [
       ['ministr.fourArmy.save.1', raw],
-      ['ministr.locale', 'en'],
+      ['ministr.locale', 'ja'],
     ],
   });
   const beforeReloadWorkers = await metrics(page);
