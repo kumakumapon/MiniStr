@@ -10,6 +10,8 @@ async function open(page: Page, locale = 'en') {
   await page.goto('/');
   await page.locator('#title-four-army').click();
   await expect(page.locator('#four-heading')).toBeVisible();
+  await expect(page.locator('main')).toHaveCount(1);
+  await expect(page.locator('#four-army-screen')).toHaveAttribute('role', 'main');
 }
 async function tools(page: Page) {
   await page.locator('.four-tools').evaluate((e) => ((e as HTMLDetailsElement).open = true));
