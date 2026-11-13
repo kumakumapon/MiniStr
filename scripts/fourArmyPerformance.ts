@@ -32,14 +32,17 @@ export function compareFourArmyCpu(samples = 20) {
         if (!isGameState(two)) throw Error('Invalid same-population two-army fixture');
         const view = observeLogistics(two, 'red'),
           timings = { two: [] as number[], four: [] as number[] };
-        const four = () => chooseFourArmyCpuCommand(observed.value, { difficulty, policy: 'balanced' }),
-          legacy = () => chooseCpuAction(view, difficulty);
+        const four = (input = structuredClone(observed.value)) => chooseFourArmyCpuCommand(input, { difficulty, policy: 'balanced' }),
+          legacy = (input = structuredClone(view)) => chooseCpuAction(input, difficulty);
         const expectedTwo = JSON.stringify(legacy()),
           expectedFour = JSON.stringify(four());
         for (let i = -5; i < samples; i++) {
           for (const kind of i % 2 === 0 ? (['two', 'four'] as const) : (['four', 'two'] as const)) {
+            // A real Worker receives fresh DTOs. Clone outside timing so both algorithms start without per-state cache reuse.
+            const twoInput = structuredClone(view),
+              fourInput = structuredClone(observed.value);
             const start = performance.now(),
-              chosen = kind === 'two' ? legacy() : four(),
+              chosen = kind === 'two' ? legacy(twoInput) : four(fourInput),
               elapsed = performance.now() - start;
             if (JSON.stringify(chosen) !== (kind === 'two' ? expectedTwo : expectedFour)) throw Error('Non-deterministic CPU fixture');
             if (i >= 0) timings[kind].push(elapsed);
@@ -47,5 +50,9 @@ export function compareFourArmyCpu(samples = 20) {
         }
         rows.push({ totalUnits: perArmy * 4, perFourArmy: perArmy, perTwoArmy: perArmy * 2, crowded, difficulty, twoMs: stats(timings.two), fourMs: stats(timings.four) });
       }
-  return { scope: 'Same total units on synthetic 32x32 fixtures. Different algorithms; not game-equivalent win-rate evidence.', rows };
+  return {
+    inputPolicy: 'fresh structured clone per decision; cloning excluded; five warmups; alternating order',
+    scope: 'Same total units on synthetic 32x32 fixtures. Different algorithms; not game-equivalent win-rate evidence.',
+    rows,
+  };
 }
