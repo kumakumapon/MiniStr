@@ -2,7 +2,7 @@ import { expect, type Page } from '@playwright/test';
 import { readFile } from 'node:fs/promises';
 import { test } from './helpers/engineTest';
 import { fourArmySpectatorFixture } from '../../src/game/fourArmySpectator.fixture';
-import { parseFourArmySpectatorSave } from '../../src/game/fourArmySpectatorSave';
+import { parseFourArmySpectatorSave, serializeFourArmySpectatorSave } from '../../src/game/fourArmySpectatorSave';
 
 async function open(page: Page, locale = 'en') {
   await page.addInitScript((locale) => localStorage.setItem('ministr.locale', locale), locale);
@@ -214,21 +214,49 @@ test('four-army resumes the 100-round boundary explicitly and retains the resume
   await tools(page);
   await page.locator('[data-save-slot="0"]').click();
   await expect(page.locator('#four-notice')).toHaveText('Saved to the four-army slot.');
-  const saved = await page.evaluate(() => JSON.parse(localStorage.getItem('ministr.fourArmy.save.1')!));
-  expect(saved.archive.payload.commands[400].type).toBe('resume');
-  expect(parseFourArmySpectatorSave(JSON.stringify(saved)).ok).toBe(true);
+  const raw = await page.evaluate(() => localStorage.getItem('ministr.fourArmy.save.1')!);
+  const parsed = parseFourArmySpectatorSave(raw);
+  expect(parsed.ok).toBe(true);
+  if (!parsed.ok) throw Error(parsed.error);
+  expect(parsed.value.archive.payload.commands[400]!.type).toBe('resume');
+  expect(parsed.value.schemaVersion).toBe(2);
 });
 
-test('four-army record limit stops new commands while preserving save and export', async ({ page }) => {
+test('four-army resumes a legacy record beyond its old limit and migrates on explicit save', async ({ page }) => {
   const source = fourArmySpectatorFixture(2048);
   await open(page);
   await importMatch(page, JSON.stringify(source));
   await expect(page.locator('#four-notice')).toHaveText('Loaded and paused.');
   expect(await count(page)).toBe(2048);
-  await expect(page.locator('#four-toggle')).toBeDisabled();
-  await expect(page.locator('#four-step')).toBeDisabled();
+  await expect(page.locator('#four-toggle')).toBeEnabled();
+  await page.locator('#four-step').click();
+  await expect.poll(() => count(page)).toBe(2049);
   await tools(page);
   await expect(page.locator('#four-export')).toBeEnabled();
   await page.locator('[data-save-slot="0"]').click();
   await expect(page.locator('#four-notice')).toHaveText('Saved to the four-army slot.');
+});
+
+test('four-army verifies a long JSON and keeps replay navigation and cancellation responsive', async ({ page }) => {
+  const source = { ...fourArmySpectatorFixture(4096), schemaVersion: 2 as const };
+  const encoded = serializeFourArmySpectatorSave(source);
+  if (!encoded.ok) throw Error(encoded.error);
+  await open(page);
+  await importMatch(page, encoded.value);
+  await expect(page.locator('#four-notice')).toHaveText('Loaded and paused.');
+  expect(await count(page)).toBe(4096);
+  await page.locator('#four-replay').click();
+  await expect(page.locator('#four-replay-count')).toHaveText('0/4096');
+  await page.locator('#four-replay-end').click();
+  await expect(page.locator('#four-replay-count')).toHaveText('4096/4096');
+  await page.locator('#four-replay-start').click();
+  await expect(page.locator('#four-replay-count')).toHaveText('0/4096');
+  await page.locator('#four-position').evaluate((e) => {
+    (e as HTMLInputElement).value = '3072';
+  });
+  await page.locator('#four-position').dispatchEvent('change');
+  await page.locator('#four-menu').click();
+  await page.locator('#four-return').click();
+  expect(await count(page)).toBe(4096);
+  await expect(page.locator('#four-toggle')).toHaveAttribute('aria-pressed', 'false');
 });

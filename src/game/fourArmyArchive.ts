@@ -28,7 +28,7 @@ function canonical(v: unknown): string {
   return JSON.stringify(v);
 }
 
-/** Engine checkpoint codec only. Slot storage, replay UI and backup registration come later. */
+/** Legacy engine codec. The public spectator container selects its own bounded history policy. */
 export function serializeFourArmyArchive(map: FourArmyMap, commands: readonly FourArmyCommand[], state: FourArmyState): GameResult<string> {
   try {
     const text = JSON.stringify({
@@ -48,7 +48,18 @@ export function serializeFourArmyArchive(map: FourArmyMap, commands: readonly Fo
 export function parseFourArmyArchive(text: string): GameResult<FourArmyArchive> {
   const parsed = parseBoundedJson(text, 1_000_000);
   if (!parsed.ok) return parsed;
-  const v = parsed.value;
+  const verifier = verifyFourArmyArchive(parsed.value);
+  let next = verifier.next();
+  while (!next.done) next = verifier.next();
+  return next.value;
+}
+
+export interface FourArmyCheckpoint {
+  position: number;
+  state: FourArmyState;
+}
+/** Checkpoints are derived from legal commands, never accepted as authority from a file. */
+export function* verifyFourArmyArchive(v: unknown, limit: 2048 | 65536 = 2048): Generator<FourArmyCheckpoint, GameResult<FourArmyArchive>> {
   if (
     !record(v) ||
     !exact(v, ['format', 'schemaVersion', 'ruleset', 'payload']) ||
@@ -59,13 +70,16 @@ export function parseFourArmyArchive(text: string): GameResult<FourArmyArchive> 
   )
     return fail('未対応の4軍保存形式です。');
   const p = v.payload;
-  if (!Array.isArray(p.commands) || p.commands.length > 2048 || !p.commands.every(isFourArmyCommand) || !isFourArmyState(p.state) || p.state.engineVersion !== v.schemaVersion)
+  if (!Array.isArray(p.commands) || p.commands.length > limit || !p.commands.every(isFourArmyCommand) || !isFourArmyState(p.state) || p.state.engineVersion !== v.schemaVersion)
     return fail('4軍保存の内容が不正です。');
   let replayed = createFourArmyState(p.map);
   if (!replayed.ok) return replayed;
-  for (const command of p.commands) {
+  yield { position: 0, state: replayed.value };
+  for (let i = 0; i < p.commands.length; i++) {
+    const command = p.commands[i];
     replayed = applyFourArmyCommand(replayed.value, command);
     if (!replayed.ok) return fail('4軍保存の命令履歴を再現できません。');
+    if ((i + 1) % 32 === 0) yield { position: i + 1, state: replayed.value };
   }
   if (canonical(replayed.value) !== canonical(p.state)) return fail('4軍保存の状態と命令履歴が一致しません。');
   return { ok: true, value: v as unknown as FourArmyArchive };

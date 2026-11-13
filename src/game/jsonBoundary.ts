@@ -14,11 +14,11 @@ export function hasSafeJsonStructure(value: unknown, maxDepth = 64, maxNodes = 2
   return true;
 }
 
-export function parseBoundedJson(text: string, maxBytes = 1_000_000): GameResult<unknown> {
+export function parseBoundedJson(text: string, maxBytes = 1_000_000, maxNodes = 200_000): GameResult<unknown> {
   if (text.length > maxBytes || new TextEncoder().encode(text).byteLength > maxBytes) return { ok: false, error: 'JSONデータが大きすぎます。' };
   try {
     const value: unknown = JSON.parse(text);
-    return hasSafeJsonStructure(value)
+    return hasSafeJsonStructure(value, 64, maxNodes)
       ? { ok: true, value }
       : {
           ok: false,

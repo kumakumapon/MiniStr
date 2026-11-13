@@ -1,10 +1,12 @@
 import './fourArmyScreen.css';
+import type { FourArmyCheckpoint } from '../game/fourArmyArchive';
 import { FOUR_ARMY_IDS, type FourArmyId } from '../game/fourArmyFoundation';
 import { createFourArmyMap32 } from '../game/fourArmyMap32';
 import { createFourArmyState, type FourArmyMap, type FourArmyCommand, type FourArmyState } from '../game/fourArmyEngine';
 import { defaultFourArmyCpuSettings, isFourArmyCpuSettings, type FourArmyCpuSettings } from '../ai/fourArmyCpu';
 import {
   FOUR_ARMY_COMMAND_LIMIT,
+  FOUR_ARMY_CHECKPOINT_INTERVAL,
   FOUR_ARMY_FILE_BYTES,
   FOUR_ARMY_SAVE_KEYS,
   fourArmySlotName,
@@ -53,6 +55,7 @@ export class FourArmyScreen {
   private map?: FourArmyMap;
   private prefix: FourArmyCommand[] = [];
   private replay?: FourArmyReplay;
+  private checkpoints: FourArmyCheckpoint[] = [];
   private phase: 'menu' | 'watch' = 'menu';
   private settings = defaultFourArmyCpuSettings();
   private order: FourArmyId[] = [...FOUR_ARMY_IDS];
@@ -68,6 +71,7 @@ export class FourArmyScreen {
   private busy = false;
   private notice = '';
   private savedSignature = '';
+  private verifiedRecord?: { signature: string; text: string };
   private scheduler = new CommandScheduler();
   private codec: FourArmyFileCodec;
   private importMode: 'resume' | 'replay' = 'resume';
@@ -121,7 +125,7 @@ export class FourArmyScreen {
     return this.prefix.length + (this.session?.commandCount ?? 0);
   }
   private signature(): string {
-    return [this.count, JSON.stringify(this.settings), this.view, this.speed].join('|');
+    return [this.count, this.name, JSON.stringify(this.settings), this.view, this.speed].join('|');
   }
   private get dirty(): boolean {
     return !!this.session && this.signature() !== this.savedSignature;
@@ -163,6 +167,9 @@ export class FourArmyScreen {
     this.replay = undefined;
     this.map = undefined;
     this.prefix = [];
+    this.checkpoints = [];
+    this.verifiedRecord = undefined;
+    this.root.replaceChildren();
     this.savedSignature = '';
     this.root.hidden = true;
     this.deps.onClose();
@@ -192,11 +199,13 @@ export class FourArmyScreen {
     this.notice = text('停止中です。再生または1手進めるを選んでください。', 'Paused. Choose Play or Step.');
     this.shell();
   }
-  private install(map: FourArmyMap, state: FourArmyState, commands: readonly FourArmyCommand[]): void {
+  private install(map: FourArmyMap, state: FourArmyState, commands: readonly FourArmyCommand[], checkpoints: FourArmyCheckpoint[] = []): void {
     this.pause();
     this.session?.stop();
     this.map = structuredClone(map);
     this.prefix = structuredClone([...commands]);
+    this.checkpoints = checkpoints;
+    this.verifiedRecord = undefined;
     this.replay = undefined;
     this.session = this.deps.createSession?.(state, this.settings) ?? createFourArmyCpuSession(state, this.settings);
     this.phase = 'watch';
@@ -215,7 +224,10 @@ export class FourArmyScreen {
     const generation = this.generation;
     this.running = true;
     this.notice = '';
-    if (!this.replay) this.session.resume();
+    if (!this.replay) {
+      this.session.resume();
+      this.captureCheckpoint();
+    }
     this.scheduler.start({ initialDelayMs: 450 / this.speed, nextDelayMs: () => 450 / this.speed, step: () => this.advance(generation) });
     this.paint();
   }
@@ -228,6 +240,7 @@ export class FourArmyScreen {
         await this.replay.seek(this.replay.position + 1);
       } else if (this.count < FOUR_ARMY_COMMAND_LIMIT) await this.session.step();
       if (generation !== this.generation) return false;
+      if (!this.replay) this.captureCheckpoint();
       this.busy = false;
       const state = this.replay?.state ?? this.session.state;
       if (this.replay && this.replay.position === this.replay.commands.length) this.pause(text('リプレイの終端です。', 'End of replay.'));
@@ -253,6 +266,7 @@ export class FourArmyScreen {
     }
     if (this.count >= FOUR_ARMY_COMMAND_LIMIT || this.session.state.outcome.type !== 'ongoing') return;
     this.session.resume();
+    this.captureCheckpoint();
     const generation = this.generation;
     await this.advance(generation);
     if (generation === this.generation) this.session.pause();
@@ -277,7 +291,7 @@ export class FourArmyScreen {
     if (!this.session || !this.map) throw Error('No four-army match');
     return {
       format: 'ministr-four-army-spectator',
-      schemaVersion: 1,
+      schemaVersion: 2,
       cpuVersion: 'four-army-cpu-v1',
       name: this.name.trim() || text('四方の前線', 'Four Fronts'),
       savedAt: new Date().toISOString(),
@@ -291,6 +305,15 @@ export class FourArmyScreen {
         payload: { map: this.map, commands: [...this.prefix, ...this.session.commands], state: this.session.state },
       },
     };
+  }
+  private captureCheckpoint(): void {
+    if (this.session && this.count > 0 && this.count % FOUR_ARMY_CHECKPOINT_INTERVAL === 0 && this.checkpoints.at(-1)?.position !== this.count)
+      this.checkpoints.push({ position: this.count, state: this.session.state });
+  }
+  private verificationProgress(done: number, total: number): void {
+    this.notice = text('履歴を検証中', 'Verifying history') + ` ${done.toLocaleString()}/${total.toLocaleString()}`;
+    const notice = this.root.querySelector('#four-notice');
+    if (notice) notice.textContent = this.notice;
   }
   private async save(slot?: number): Promise<void> {
     if (!this.session) return;
@@ -313,18 +336,28 @@ export class FourArmyScreen {
     this.busy = true;
     this.notice = text('保存内容を確認しています…', 'Checking the saved record…');
     this.paint();
-    const result = await this.codec.run(this.snapshot());
-    if (generation !== this.generation || !result) return;
-    this.busy = false;
-    if (!result.ok) {
-      this.notice = text('保存できませんでした。記録と既存の保存は保持しています。', 'Could not save. The record and existing saves are unchanged.') + ' ' + result.error;
-      this.paint();
-      return;
+    const signature = this.signature();
+    let encoded: string;
+    if (this.verifiedRecord?.signature === signature) {
+      encoded = this.verifiedRecord.text;
+      this.busy = false;
+    } else {
+      const result = await this.codec.run(this.snapshot(), (done, total) => this.verificationProgress(done, total));
+      if (generation !== this.generation || !result) return;
+      this.busy = false;
+      if (!result.ok) {
+        this.notice = text('保存できませんでした。記録と既存の保存は保持しています。', 'Could not save. The record and existing saves are unchanged.') + ' ' + result.error;
+        this.paint();
+        return;
+      }
+      encoded = result.value.text;
+      this.checkpoints = result.value.checkpoints;
+      this.verifiedRecord = { signature, text: encoded };
     }
     try {
-      if (slot === undefined) downloadJson('ministr-four-army.json', result.value.text);
+      if (slot === undefined) downloadJson('ministr-four-army.json', encoded);
       else {
-        this.deps.storage.setItem(FOUR_ARMY_SAVE_KEYS[slot]!, result.value.text);
+        this.deps.storage.setItem(FOUR_ARMY_SAVE_KEYS[slot]!, encoded);
         this.savedSignature = this.signature();
       }
       this.notice = slot === undefined ? text('JSONを書き出しました。', 'JSON exported.') : text('4軍専用枠へ保存しました。', 'Saved to the four-army slot.');
@@ -340,7 +373,7 @@ export class FourArmyScreen {
     this.busy = true;
     this.notice = text('記録を検証しています…', 'Verifying the record…');
     this.paint();
-    const result = await this.codec.run(textValue);
+    const result = await this.codec.run(textValue, (done, total) => this.verificationProgress(done, total));
     if (generation !== this.generation || !result) return;
     this.busy = false;
     if (!result.ok) {
@@ -359,9 +392,9 @@ export class FourArmyScreen {
     this.name = saved.name;
     this.seed = String(saved.archive.payload.map.seed);
     this.order = [...saved.archive.payload.map.order];
-    this.install(saved.archive.payload.map, saved.archive.payload.state, saved.archive.payload.commands);
+    this.install(saved.archive.payload.map, saved.archive.payload.state, saved.archive.payload.commands, result.value.checkpoints);
     this.savedSignature = this.signature();
-    if (mode === 'replay') this.replay = new FourArmyReplay(this.map!, [...this.prefix]);
+    if (mode === 'replay') this.replay = new FourArmyReplay(this.map!, [...this.prefix], this.checkpoints);
     this.notice = text('停止状態で読み込みました。', 'Loaded and paused.');
     this.shell();
   }
@@ -373,7 +406,7 @@ export class FourArmyScreen {
     const generation = this.generation,
       mode = this.importMode;
     if (file.size > FOUR_ARMY_FILE_BYTES) {
-      this.notice = text('ファイルは1MB以内にしてください。', 'Choose a file no larger than 1MB.');
+      this.notice = text('ファイルは8MB以内にしてください。', 'Choose a file no larger than 8MB.');
       this.paint();
       return;
     }
@@ -420,7 +453,8 @@ export class FourArmyScreen {
     }
     if (id === 'four-replay' && this.session && this.map) {
       this.pause();
-      this.replay = new FourArmyReplay(this.map, [...this.prefix, ...this.session.commands]);
+      // Applied live commands and imported prefixes are already verified. Reuse their snapshots.
+      this.replay = new FourArmyReplay(this.map, [...this.prefix, ...this.session.commands], this.checkpoints);
       this.shell();
       return;
     }
@@ -610,7 +644,7 @@ export class FourArmyScreen {
     ).join('');
   }
   private fileTools(): string {
-    return `<details class="four-tools"><summary>${text('保存・リプレイ', 'Saves & replay')}</summary><label>${text('記録名', 'Record name')}<input id="four-name" maxlength="40" value="${escapeHtml(this.name)}"></label><div class="four-buttons">${FOUR_ARMY_SAVE_KEYS.map((_, i) => `<button data-save-slot="${i}">${text(`保存${i + 1}へ保存`, `Save to slot ${i + 1}`)}</button>`).join('')}<button id="four-export">${text('JSONを書き出す', 'Export JSON')}</button><button id="four-import">${text('JSONから再開', 'Import match')}</button><button id="four-import-replay">${text('JSONをリプレイ', 'Import replay')}</button><button id="four-backup">${text('全データをバックアップ', 'Back up all data')}</button></div><div id="four-slots"></div><p class="four-hint">${text('4軍専用の2枠です。通常の対局・研究保存を上書きしません。記録は2,048命令・1MBまで。', 'Two dedicated four-army slots. Normal and research saves stay separate. Records support up to 2,048 commands and 1MB.')}</p></details><input id="four-file" type="file" accept=".json,application/json" hidden>`;
+    return `<details class="four-tools"><summary>${text('保存・リプレイ', 'Saves & replay')}</summary><label>${text('記録名', 'Record name')}<input id="four-name" maxlength="40" value="${escapeHtml(this.name)}"></label><div class="four-buttons">${FOUR_ARMY_SAVE_KEYS.map((_, i) => `<button data-save-slot="${i}">${text(`保存${i + 1}へ保存`, `Save to slot ${i + 1}`)}</button>`).join('')}<button id="four-export">${text('JSONを書き出す', 'Export JSON')}</button><button id="four-import">${text('JSONから再開', 'Import match')}</button><button id="four-import-replay">${text('JSONをリプレイ', 'Import replay')}</button><button id="four-backup">${text('全データをバックアップ', 'Back up all data')}</button></div><div id="four-slots"></div><p class="four-hint">${text('4軍専用の2枠です。通常の対局・研究保存を上書きしません。記録は65,536命令・8MBまで。ブラウザーの空き容量により保存できない場合はJSONを書き出してください。', 'Two dedicated four-army slots. Normal and research saves stay separate. Records support up to 65,536 commands and 8MB. Export JSON if browser storage is full.')}</p></details><input id="four-file" type="file" accept=".json,application/json" hidden>`;
   }
   private shell(): void {
     const focus = (document.activeElement as HTMLElement | null)?.id;
@@ -682,6 +716,9 @@ export class FourArmyScreen {
     this.root.querySelectorAll<HTMLSelectElement>('[data-setting]').forEach((s) => (s.disabled = !!this.replay));
   }
   private paint(): void {
+    this.root.dataset.recordCount = String(this.count);
+    this.root.dataset.checkpoints = String(this.checkpoints.length);
+    this.root.dataset.replayStates = String(this.replay?.cachedStates ?? 0);
     const notice = this.root.querySelector('#four-notice');
     if (notice) notice.textContent = this.notice;
     const storage = this.root.querySelector('#four-storage');

@@ -3,6 +3,6 @@
   "compilerOptions": {
     "types": ["node", "vitest/globals"]
   },
-  "include": ["src/**/*.ts", "scripts/**/*.ts", "tests/e2e/helpers/**/*.ts"],
+  "include": ["src/**/*.ts", "scripts/**/*.ts", "tests/e2e/helpers/**/*.ts", "tests/endurance/**/*.ts"],
   "exclude": []
 }

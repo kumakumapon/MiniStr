@@ -109,7 +109,7 @@ describe('public four-army saves', () => {
   it('validates file Worker requests and preserves the exact decoded text', () => {
     const s = fourArmySpectatorFixture(),
       text = value(serializeFourArmySpectatorSave(s));
-    expect(handleFourArmyFileRequest({ id: 1, action: 'decode', text })).toEqual({ id: 1, result: { ok: true, value: text } });
+    expect(handleFourArmyFileRequest({ id: 1, action: 'decode', text })).toMatchObject({ id: 1, result: { ok: true, value: { text, save: s } } });
     expect(handleFourArmyFileRequest({ id: 2, action: 'encode', value: s })?.result.ok).toBe(true);
     expect(handleFourArmyFileRequest(null)).toBeUndefined();
     expect(handleFourArmyFileRequest({ id: 0 })).toBeUndefined();
