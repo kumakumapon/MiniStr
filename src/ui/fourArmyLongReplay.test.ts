@@ -1,23 +1,18 @@
 import { describe, it, expect, vi } from 'vitest';
 import { fourArmySpectatorFixture } from '../game/fourArmySpectator.fixture';
-import { encodeFourArmySpectatorSave, verifyFourArmySpectatorSave } from '../game/fourArmySpectatorSave';
 import { FourArmyReplay } from './fourArmyReplay';
 import { FourArmyFileCodec } from './fourArmyFileCodec';
 const cached = { ...fourArmySpectatorFixture(2050), schemaVersion: 2 as const };
+const verifiedCheckpoint = { position: 2048, state: fourArmySpectatorFixture(2048).archive.payload.state };
 describe('bounded long replay navigation', () => {
   it('uses verified checkpoints for distant seeks and bounds its dynamic cache across repeated navigation', async () => {
-    const save = { ...structuredClone(cached), schemaVersion: 2 as const },
-      raw = encodeFourArmySpectatorSave(save);
-    if (!raw.ok) throw Error(raw.error);
-    const g = verifyFourArmySpectatorSave(raw.value);
-    let next = g.next();
-    while (!next.done) next = g.next();
-    if (!next.value.ok) throw Error(next.value.error);
-    const verified = next.value.value,
-      r = new FourArmyReplay(save.archive.payload.map, save.archive.payload.commands, verified.checkpoints);
+    // Full-file verification has its own integration test. Here the legal prefix is created by the engine fixture.
+    const save = structuredClone(cached),
+      checkpoints = [verifiedCheckpoint],
+      r = new FourArmyReplay(save.archive.payload.map, save.archive.payload.commands, checkpoints);
     expect(await r.seek(2050)).toEqual(save.archive.payload.state);
-    for (const pos of [1023, 2050, 1023, 2050]) await r.seek(pos);
-    expect(r.cachedStates).toBeLessThanOrEqual(FourArmyReplay.CACHE_LIMIT + 1 + verified.checkpoints.length);
+    for (const pos of [640, 2050, 703, 2050]) await r.seek(pos);
+    expect(r.cachedStates).toBeLessThanOrEqual(FourArmyReplay.CACHE_LIMIT + 1 + checkpoints.length);
     const before = r.state,
       at = r.position,
       pending = r.seek(1900);

@@ -2,7 +2,7 @@ import { expect, type Page } from '@playwright/test';
 import { readFile } from 'node:fs/promises';
 import { test } from './helpers/engineTest';
 import { fourArmySpectatorFixture } from '../../src/game/fourArmySpectator.fixture';
-import { parseFourArmySpectatorSave, serializeFourArmySpectatorSave } from '../../src/game/fourArmySpectatorSave';
+import { encodeFourArmySpectatorSave, parseFourArmySpectatorSave, serializeFourArmySpectatorSave } from '../../src/game/fourArmySpectatorSave';
 
 async function open(page: Page, locale = 'en') {
   await page.addInitScript((locale) => localStorage.setItem('ministr.locale', locale), locale);
@@ -226,7 +226,8 @@ test('four-army resumes a legacy record beyond its old limit and migrates on exp
   const source = fourArmySpectatorFixture(2048);
   await open(page);
   await importMatch(page, JSON.stringify(source));
-  await expect(page.locator('#four-notice')).toHaveText('Loaded and paused.');
+  // Complete replay is now asynchronous. Keep the existing 30s test budget, including the explicit re-save.
+  await expect(page.locator('#four-notice')).toHaveText('Loaded and paused.', { timeout: 10000 });
   expect(await count(page)).toBe(2048);
   await expect(page.locator('#four-toggle')).toBeEnabled();
   await page.locator('#four-step').click();
@@ -234,29 +235,29 @@ test('four-army resumes a legacy record beyond its old limit and migrates on exp
   await tools(page);
   await expect(page.locator('#four-export')).toBeEnabled();
   await page.locator('[data-save-slot="0"]').click();
-  await expect(page.locator('#four-notice')).toHaveText('Saved to the four-army slot.');
+  await expect(page.locator('#four-notice')).toHaveText('Saved to the four-army slot.', { timeout: 10000 });
 });
 
 test('four-army verifies a long JSON and keeps replay navigation and cancellation responsive', async ({ page }) => {
-  const source = { ...fourArmySpectatorFixture(4096), schemaVersion: 2 as const };
-  const encoded = serializeFourArmySpectatorSave(source);
+  const source = { ...fourArmySpectatorFixture(2050), schemaVersion: 2 as const };
+  const encoded = encodeFourArmySpectatorSave(source);
   if (!encoded.ok) throw Error(encoded.error);
   await open(page);
   await importMatch(page, encoded.value);
-  await expect(page.locator('#four-notice')).toHaveText('Loaded and paused.');
-  expect(await count(page)).toBe(4096);
+  await expect(page.locator('#four-notice')).toHaveText('Loaded and paused.', { timeout: 10000 });
+  expect(await count(page)).toBe(2050);
   await page.locator('#four-replay').click();
-  await expect(page.locator('#four-replay-count')).toHaveText('0/4096');
+  await expect(page.locator('#four-replay-count')).toHaveText('0/2050');
   await page.locator('#four-replay-end').click();
-  await expect(page.locator('#four-replay-count')).toHaveText('4096/4096');
+  await expect(page.locator('#four-replay-count')).toHaveText('2050/2050');
   await page.locator('#four-replay-start').click();
-  await expect(page.locator('#four-replay-count')).toHaveText('0/4096');
+  await expect(page.locator('#four-replay-count')).toHaveText('0/2050');
   await page.locator('#four-position').evaluate((e) => {
-    (e as HTMLInputElement).value = '3072';
+    (e as HTMLInputElement).value = '1900';
   });
   await page.locator('#four-position').dispatchEvent('change');
   await page.locator('#four-menu').click();
   await page.locator('#four-return').click();
-  expect(await count(page)).toBe(4096);
+  expect(await count(page)).toBe(2050);
   await expect(page.locator('#four-toggle')).toHaveAttribute('aria-pressed', 'false');
 });

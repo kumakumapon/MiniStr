@@ -23,7 +23,7 @@ const long = () => structuredClone(cached);
 describe('long four-army save policy', () => {
   it('migrates a legacy record on explicit save and losslessly compresses a history beyond 2048', () => {
     const source = long(),
-      raw = value(serializeFourArmySpectatorSave(source)),
+      raw = value(encodeFourArmySpectatorSave(source)),
       parsed = value(parseFourArmySpectatorSave(raw));
     expect(parsed).toEqual(source);
     expect(JSON.parse(raw).archive.payload.commands.encoding).toBe('four-army-log-v1');
