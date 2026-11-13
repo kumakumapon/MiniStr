@@ -2,7 +2,7 @@ import { expect, type Page } from '@playwright/test';
 import { readFile } from 'node:fs/promises';
 import { test } from './helpers/engineTest';
 import { fourArmySpectatorFixture } from '../../src/game/fourArmySpectator.fixture';
-import { encodeFourArmySpectatorSave, parseFourArmySpectatorSave, serializeFourArmySpectatorSave } from '../../src/game/fourArmySpectatorSave';
+import { encodeFourArmySpectatorSave, parseFourArmySpectatorSave } from '../../src/game/fourArmySpectatorSave';
 
 async function open(page: Page, locale = 'en') {
   await page.addInitScript((locale) => localStorage.setItem('ministr.locale', locale), locale);
