@@ -1,13 +1,13 @@
-name: Four-army v1.5.12 precheck
+name: Four-army v1.5.12 final Worker check
 on:
   push:
     branches: [diagnostics/v1.5.12-precheck]
 permissions:
   contents: read
 jobs:
-  map:
+  worker:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
@@ -17,39 +17,15 @@ jobs:
           node-version: 24
           package-manager-cache: false
       - run: npm ci
-      - run: npm run test:ci
-      - run: npm run lint
-      - run: npm run format:check
-      - run: npm run typecheck:test
-      - run: npm run test:coverage -- --coverage.reporter=text --coverage.reporter=json
-      - name: Report uncovered four-army paths
-        if: always()
-        run: |
-          node --input-type=module <<'NODE'
-          import fs from 'node:fs';
-          if(fs.existsSync('coverage/coverage-final.json')) for(const [path,v] of Object.entries(JSON.parse(fs.readFileSync('coverage/coverage-final.json','utf8')))) {
-            if(!path.includes('fourArmy')) continue;
-            const lines=[...new Set(Object.entries(v.s).filter(([,n])=>n===0).map(([id])=>v.statementMap[id].start.line))];
-            const functions=Object.entries(v.f).filter(([,n])=>n===0).map(([id])=>({name:v.fnMap[id].name,line:v.fnMap[id].loc.start.line}));
-            const branches=Object.entries(v.b).filter(([,a])=>a.some(n=>n===0)).map(([id,paths])=>({line:v.branchMap[id].line,type:v.branchMap[id].type,paths}));
-            console.log(JSON.stringify({file:path.slice(path.indexOf('/src/')+1),lines,functions,branches}));
-          }
-          NODE
       - run: npm run build
-      - name: Record Node capacity comparison
-        env:
-          MINISTR_SOURCE_SHA: 0d0a14e3ade690d2458bb5e210bb812e545b69c6
-        run: npm run four-army:capacity -- test-results/four-army-capacity-node.json
       - run: sudo bash scripts/use-ubuntu-https-mirror.sh
       - run: npx playwright install --with-deps chromium firefox webkit
       - run: npx playwright test tests/e2e/four-army-cpu.spec.ts
-      - name: Preserve evidence
+      - name: Preserve final Worker evidence
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
         with:
-          name: four-army-v1512-precheck-evidence
-          path: |
-            coverage/
-            test-results/
+          name: four-army-v1512-final-worker-evidence
+          path: test-results/
           if-no-files-found: ignore
           retention-days: 14

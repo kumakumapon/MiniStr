@@ -224,6 +224,7 @@ test('real Worker compares 32-board capacity candidates and cancels a crowded 64
         }, 0),
       );
       await planner.plan(stress, { difficulty: 'hard', policy: 'defensive' });
+      const timerBeforeReply = timer;
       await timerDone;
       const pending = planner.plan(stress, { difficulty: 'hard', policy: 'defensive' }),
         started = performance.now();
@@ -231,13 +232,14 @@ test('real Worker compares 32-board capacity candidates and cancels a crowded 64
       const cancelled = await pending,
         cancelMs = performance.now() - started;
       URL.revokeObjectURL(url);
-      return { rows, cancelled, cancelMs, timer, created, terminated };
+      return { rows, cancelled, cancelMs, timerBeforeReply, created, terminated };
     },
     { workerCode },
   );
   expect(result.cancelled).toBeUndefined();
   expect(result.cancelMs).toBeLessThan(250);
-  expect(result.timer).toBe(true);
+  expect(result.timerBeforeReply).toBe(true);
+  expect(result.created).toBe(4);
   expect(result.terminated).toBe(result.created);
   expect(result.rows).toHaveLength(48);
   expect(result.rows.every((r) => r.elapsedMs < 2000)).toBe(true);
@@ -255,7 +257,17 @@ test('real Worker compares 32-board capacity candidates and cancels a crowded 64
       cold: result.rows.find((r) => r.cap === cap && r.cold)!.elapsedMs,
     };
   });
-  const report = { schemaVersion: 1, phase: 'four-army-capacity-worker', browser: browserName, summaries, cancelMs: result.cancelMs, rows: result.rows };
+  const report = {
+    schemaVersion: 1,
+    phase: 'four-army-capacity-worker',
+    browser: browserName,
+    summaries,
+    cancelMs: result.cancelMs,
+    timerBeforeReply: result.timerBeforeReply,
+    created: result.created,
+    terminated: result.terminated,
+    rows: result.rows,
+  };
   await writeFile(testInfo.outputPath('four-army-capacity.json'), JSON.stringify(report, null, 2));
   console.info(JSON.stringify({ ...report, rows: undefined }));
 });
