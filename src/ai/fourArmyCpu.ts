@@ -12,6 +12,8 @@ import { manhattanDistance, positionKey, terrainAt, unitMovementCost } from '../
 import { crossingDistances } from './crossing';
 import { exactKeys, fourArmyPlanningView, isFourArmyObservation, record } from './fourArmyObservation';
 import type { CpuDifficulty } from './rules';
+import { fourArmyCpuOrder } from './fourArmyCpuOrder';
+import { FOUR_ARMY_CPU_VERSION, isFourArmyCpuVersion, type FourArmyCpuVersion } from './fourArmyCpuVersion';
 
 export interface FourArmyCpuOptions {
   difficulty: CpuDifficulty;
@@ -36,8 +38,8 @@ export function isObservedFourArmyCommand(o: FourArmyObservation, command: unkno
 }
 
 /** One deterministic decision; only sanitized observations enter this function or the Worker. */
-export function chooseFourArmyCpuCommand(input: unknown, options: unknown): FourArmyCommand | undefined {
-  if (!isFourArmyObservation(input) || !isFourArmyCpuOptions(options)) throw Error('Invalid four-army CPU input');
+export function chooseFourArmyCpuCommand(input: unknown, options: unknown, cpuVersion: FourArmyCpuVersion = FOUR_ARMY_CPU_VERSION): FourArmyCommand | undefined {
+  if (!isFourArmyObservation(input) || !isFourArmyCpuOptions(options) || !isFourArmyCpuVersion(cpuVersion)) throw Error('Invalid four-army CPU input');
   const o = input;
   if (o.outcome.type !== 'ongoing' || o.round.phase !== 'active' || o.round.order[o.round.index] !== o.viewer || !o.alive.includes(o.viewer)) return undefined;
   const view = fourArmyPlanningView(o),
@@ -45,8 +47,11 @@ export function chooseFourArmyCpuCommand(input: unknown, options: unknown): Four
     enemies = view.units.filter((u) => u.owner === 'blue' && isDeployedUnit(u));
   const ready = own.filter((u) => isDeployedUnit(u) && !u.hasActed).sort((a, b) => a.id.localeCompare(b.id, 'en'));
   const candidates: { command: FourArmyCommand; score: number; key: string }[] = [];
+  const modern = cpuVersion === FOUR_ARMY_CPU_VERSION,
+    order = fourArmyCpuOrder(o),
+    visible = new Set(o.visible.map(positionKey));
   const add = (command: FourArmyCommand, score: number) => {
-    if (Number.isFinite(score)) candidates.push({ command, score, key: JSON.stringify(command) });
+    if (Number.isFinite(score)) candidates.push({ command, score, key: modern ? order.key(command) : JSON.stringify(command) });
   };
   const actor = o.viewer,
     cautious = options.policy === 'defensive' ? 0.65 : options.policy === 'offensive' ? 0.2 : 0.4;
@@ -109,7 +114,7 @@ export function chooseFourArmyCpuCommand(input: unknown, options: unknown): Four
     const currentDistance = distance.get(positionKey(u.position)) ?? Infinity;
     const destinations = reachablePositionsForPlayer(view, u.id, 'red')
       .map((p) => ({ p, d: distance.get(positionKey(p)) ?? Infinity }))
-      .sort((a, b) => a.d - b.d || a.p.y - b.p.y || a.p.x - b.p.x)
+      .sort((a, b) => a.d - b.d || (modern ? order.compare(a.p, b.p) : a.p.y - b.p.y || a.p.x - b.p.x))
       .slice(0, 16);
     for (const { p, d } of destinations) {
       const threats = danger(u, p),
@@ -177,7 +182,9 @@ export function chooseFourArmyCpuCommand(input: unknown, options: unknown): Four
           let score = 80 + (kind === 'infantry' ? (capturers < 2 ? 180 : 10) : kind === 'tank' || kind === 'fighter' || kind === 'destroyer' ? 100 : 0) - stats.cost / 1000;
           if (kind === 'apc' && !own.some((u) => u.kind === 'apc') && own.some((u) => isGroundUnit(u.kind) && (u.fuel ?? unitStats[u.kind].fuel) < 10)) score += 200;
           if (kind === 'antiAir' && enemies.some((e) => e.kind === 'fighter' || e.kind === 'bomber' || e.kind === 'helicopter')) score += 240;
-          add({ actor, type: 'produce', factory: { x, y }, kind }, score);
+          // Unobserved production can be rejected by a hidden occupant. Finish known unit actions first;
+          // retain fog production without probing private occupancy or discarding those actions on rejection.
+          add({ actor, type: 'produce', factory: { x, y }, kind }, modern && !visible.has(`${x},${y}`) ? score - 1000 : score);
         }
       }
   candidates.sort((a, b) => b.score - a.score || a.key.localeCompare(b.key, 'en'));

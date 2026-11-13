@@ -1,0 +1,258 @@
+{
+  "schemaVersion": 1,
+  "candidate": "74eaf26c86dc9642cf031a3f4be757279654f068",
+  "engineBase": "83d8c835c62061a1ac9dc719407f4af28fe39fb3",
+  "environment": "Supplemental Node24.19.0; unchanged engine/CPU candidate; deterministic local reproduction",
+  "unseenProduction": {
+    "case": "orders-15141-14",
+    "legacyCommands": 3773,
+    "legacyRound": 401,
+    "legacyEarlyProductionRejections": 681,
+    "legacyTrace": "138ca0a83130a83ae395c4ee96ce27b570cb2d2a3821a388ac18fe2cecb178bd",
+    "legacyFinalState": "971094ad33c77eb4712ac23bd78beb64df0905959a4f86f96ce0442ddb294c48",
+    "cpuV2": {
+      "count": 15195,
+      "round": 262,
+      "outcome": {
+        "type": "victory",
+        "winner": "army1"
+      },
+      "fallbacks": 31,
+      "earlyProductionRejections": 0,
+      "unseenProductionBeforeActions": 0,
+      "traceSha256": "2154c41933f4c065a2f06938e079e25f12f34da026d5c80af9ad711f90de8ad7",
+      "finalStateSha256": "64e56051622a83a5e71b816d2382fa305e02e185d66f5f3bf98c12c78406a187"
+    }
+  },
+  "legacyRecovery": {
+    "baseTrace": "138ca0a83130a83ae395c4ee96ce27b570cb2d2a3821a388ac18fe2cecb178bd",
+    "baseState": "971094ad33c77eb4712ac23bd78beb64df0905959a4f86f96ce0442ddb294c48",
+    "initialRound": 401,
+    "count": 541,
+    "round": 413,
+    "outcome": {
+      "type": "victory",
+      "winner": "army1"
+    },
+    "fallbacks": 0,
+    "first": [
+      {
+        "actor": "army2",
+        "type": "resume"
+      },
+      {
+        "actor": "army2",
+        "type": "move",
+        "unitId": "u178",
+        "destination": {
+          "x": 11,
+          "y": 28
+        }
+      },
+      {
+        "actor": "army2",
+        "type": "move",
+        "unitId": "u181",
+        "destination": {
+          "x": 21,
+          "y": 18
+        }
+      },
+      {
+        "actor": "army2",
+        "type": "move",
+        "unitId": "u163",
+        "destination": {
+          "x": 21,
+          "y": 11
+        }
+      },
+      {
+        "actor": "army2",
+        "type": "move",
+        "unitId": "u161",
+        "destination": {
+          "x": 20,
+          "y": 12
+        }
+      },
+      {
+        "actor": "army2",
+        "type": "move",
+        "unitId": "u174",
+        "destination": {
+          "x": 21,
+          "y": 10
+        }
+      },
+      {
+        "actor": "army2",
+        "type": "move",
+        "unitId": "u140",
+        "destination": {
+          "x": 3,
+          "y": 24
+        }
+      },
+      {
+        "actor": "army2",
+        "type": "move",
+        "unitId": "u145",
+        "destination": {
+          "x": 5,
+          "y": 27
+        }
+      },
+      {
+        "actor": "army2",
+        "type": "move",
+        "unitId": "u169",
+        "destination": {
+          "x": 22,
+          "y": 12
+        }
+      },
+      {
+        "actor": "army2",
+        "type": "move",
+        "unitId": "u131",
+        "destination": {
+          "x": 7,
+          "y": 27
+        }
+      },
+      {
+        "actor": "army2",
+        "type": "wait",
+        "unitId": "u169"
+      },
+      {
+        "actor": "army2",
+        "type": "wait",
+        "unitId": "u174"
+      }
+    ],
+    "traceSha256": "0e0e22962d2ffa8fe6a4570bd4df45ac2b355a4aae7e5ccf44ec59240494265d",
+    "finalStateSha256": "57fec577d96e1e4b8d68d2d30388ced1a1c41fbaa99c103778a717b75fe4d4a4",
+    "seconds": 2.777
+  },
+  "engineRotationDifference": {
+    "seed": 15141,
+    "orders": [
+      [
+        "army1",
+        "army4",
+        "army3",
+        "army2"
+      ],
+      [
+        "army3",
+        "army2",
+        "army1",
+        "army4"
+      ]
+    ],
+    "rotation": 180,
+    "step": 724,
+    "round": 10,
+    "normalizedCommands": [
+      {
+        "actor": "army4",
+        "type": "move",
+        "unitId": "u29",
+        "destination": {
+          "x": 20,
+          "y": 19
+        }
+      },
+      {
+        "actor": "army4",
+        "type": "move",
+        "unitId": "u29",
+        "destination": {
+          "x": 20,
+          "y": 19
+        }
+      }
+    ],
+    "sameCommand": true,
+    "normalizedBeforeUnit": [
+      {
+        "id": "u29",
+        "owner": "army4",
+        "kind": "tank",
+        "position": {
+          "x": 17,
+          "y": 21
+        },
+        "hp": 100,
+        "fuel": 63,
+        "ammo": 5,
+        "secondaryAmmo": 6,
+        "hasMoved": false,
+        "hasActed": false,
+        "experience": 2
+      },
+      {
+        "id": "u29",
+        "owner": "army4",
+        "kind": "tank",
+        "position": {
+          "x": 17,
+          "y": 21
+        },
+        "hp": 100,
+        "fuel": 63,
+        "ammo": 5,
+        "secondaryAmmo": 6,
+        "hasMoved": false,
+        "hasActed": false,
+        "experience": 2
+      }
+    ],
+    "normalizedAfterUnit": [
+      {
+        "id": "u29",
+        "owner": "army4",
+        "kind": "tank",
+        "position": {
+          "x": 19,
+          "y": 19
+        },
+        "hp": 100,
+        "fuel": 59,
+        "ammo": 5,
+        "secondaryAmmo": 6,
+        "hasMoved": true,
+        "hasActed": false,
+        "experience": 2
+      },
+      {
+        "id": "u29",
+        "owner": "army4",
+        "kind": "tank",
+        "position": {
+          "x": 19,
+          "y": 20
+        },
+        "hp": 100,
+        "fuel": 60,
+        "ammo": 5,
+        "secondaryAmmo": 6,
+        "hasMoved": true,
+        "hasActed": false,
+        "experience": 2
+      }
+    ],
+    "explanation": "pathFromMovementCosts resolves equal paths by absolute y/x; hiddenEnemyEncounter stops at the tile preceding unseen contact. Same normalized inputs and command produce different stop positions/fuel. Engine/save rule change deferred.",
+    "normalizedInputsSha256": [
+      "b2d46f484bdc6a4125c8889b9ce0e0d17009f26776c9a8b305a41f288ba20cea",
+      "b2d46f484bdc6a4125c8889b9ce0e0d17009f26776c9a8b305a41f288ba20cea"
+    ],
+    "normalizedOutputsSha256": [
+      "b3e112bcc0419a75ed86902bd6297e8aa22d747940a0aaab32298a5eee102d98",
+      "d2d9a4b65802b35a0790fe0b3087f1deb8a4fb00267c33acb2621b5050e1ac13"
+    ],
+    "canonicalEncoding": "UTF-8 JSON; recursively sorted object keys; compact separators; board/units/players/round/alive/eliminations/outcome/rngSeed/nextUnitId/paused"
+  }
+}

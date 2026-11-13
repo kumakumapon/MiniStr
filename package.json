@@ -1,7 +1,7 @@
 {
   "name": "ministr",
   "private": true,
-  "version": "1.5.14",
+  "version": "1.5.15",
   "type": "module",
   "license": "MIT",
   "engines": {
@@ -32,6 +32,7 @@
     "profile": "vite-node scripts/profile-boundaries.ts",
     "balance:paired": "vite-node scripts/paired-balance.ts",
     "balance:tactics": "vite-node scripts/tactical-balance.ts",
+    "four-army:cpu-compare": "vite-node scripts/four-army-cpu-comparison.ts",
     "four-army:assessment": "vite-node scripts/four-army-assessment-report.ts",
     "test:four-army-endurance": "playwright test --config playwright.endurance.config.ts",
     "four-army:capacity": "vite-node scripts/four-army-capacity-report.ts"

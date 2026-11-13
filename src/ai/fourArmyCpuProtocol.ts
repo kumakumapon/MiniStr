@@ -2,6 +2,7 @@ import { chooseFourArmyCpuCommand, isFourArmyCpuOptions, type FourArmyCpuOptions
 import { boundedInt, exactKeys, isFourArmyObservation, record } from './fourArmyObservation';
 import type { FourArmyCommand, FourArmyObservation } from '../game/fourArmyEngine';
 import { FOUR_ARMY_IDS, type FourArmyId } from '../game/fourArmyFoundation';
+import { isFourArmyCpuVersion, type FourArmyCpuVersion } from './fourArmyCpuVersion';
 
 export interface FourArmyCpuTicket {
   protocol: 1;
@@ -12,6 +13,7 @@ export interface FourArmyCpuTicket {
 export interface FourArmyCpuRequest extends FourArmyCpuTicket {
   observation: FourArmyObservation;
   options: FourArmyCpuOptions;
+  cpuVersion?: FourArmyCpuVersion;
 }
 export type FourArmyCpuResponse = FourArmyCpuTicket & ({ kind: 'command'; command: FourArmyCommand } | { kind: 'error'; error: 'CPU planning failed' });
 export function isFourArmyCpuTicket(v: unknown): v is FourArmyCpuTicket {
@@ -27,7 +29,8 @@ export function isFourArmyCpuRequest(v: unknown): v is FourArmyCpuRequest {
   if (
     !isFourArmyCpuTicket(v) ||
     !record(v) ||
-    !exactKeys(v, ['protocol', 'id', 'generation', 'turn', 'observation', 'options']) ||
+    !exactKeys(v, ['protocol', 'id', 'generation', 'turn', 'observation', 'options'], ['cpuVersion']) ||
+    (Object.hasOwn(v, 'cpuVersion') && !isFourArmyCpuVersion(v.cpuVersion)) ||
     !isFourArmyObservation(v.observation) ||
     !isFourArmyCpuOptions(v.options)
   )
@@ -48,7 +51,8 @@ export function handleFourArmyCpuRequest(input: unknown): FourArmyCpuResponse | 
   if (!isFourArmyCpuRequest(input)) return undefined;
   const ticket: FourArmyCpuTicket = { protocol: 1, id: input.id, generation: input.generation, turn: { ...input.turn } };
   try {
-    const command = chooseFourArmyCpuCommand(input.observation, input.options);
+    // Unversioned protocol1 clients retain the original deterministic CPU.
+    const command = chooseFourArmyCpuCommand(input.observation, input.options, input.cpuVersion ?? 'four-army-cpu-v1');
     return command ? { ...ticket, kind: 'command', command } : { ...ticket, kind: 'error', error: 'CPU planning failed' };
   } catch {
     return { ...ticket, kind: 'error', error: 'CPU planning failed' };
