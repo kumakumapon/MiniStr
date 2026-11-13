@@ -24,6 +24,9 @@ export class FourArmyCpuSession {
   get commands(): FourArmyCommand[] {
     return structuredClone(this.history);
   }
+  get commandCount(): number {
+    return this.history.length;
+  }
   get paused(): boolean {
     return !this.running;
   }

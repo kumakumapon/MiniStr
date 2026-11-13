@@ -1,4 +1,5 @@
 import { isResearchKey, parseResearch } from './research';
+import { isFourArmySaveKey, parseFourArmySpectatorSave } from './fourArmySpectatorSave';
 import { MUSIC_SETTINGS_KEY, parseMusicSettings } from './musicSettings';
 import { CAMPAIGN_STORAGE_KEY, parseCampaignProgress } from './campaign';
 import { DAILY_RECORDS_KEY, parseDailyRecords } from './dailyChallenge';
@@ -79,7 +80,8 @@ export function previewBackup(storage: StorageLike, text: string): GameResult<Ba
       return { ok: false, error: 'バックアップの項目が不正です。' };
     keys.add(entry[0]);
     entries.set(entry[0], entry[1]);
-    if ((entry[0] === MANUAL_SAVE_KEY || entry[0] === AUTO_SAVE_KEY || entry[0].startsWith(SAVE_SLOT_PREFIX)) && entry[0] !== SAVE_SLOT_INDEX_KEY) saveCount++;
+    if (((entry[0] === MANUAL_SAVE_KEY || entry[0] === AUTO_SAVE_KEY || entry[0].startsWith(SAVE_SLOT_PREFIX)) && entry[0] !== SAVE_SLOT_INDEX_KEY) || isFourArmySaveKey(entry[0]))
+      saveCount++;
   }
   const validated = restoreBackup(previewStorage, text);
   if (!validated.ok) return validated;
@@ -145,6 +147,9 @@ export function restoreBackup(storage: StorageLike, source: string | BackupPrevi
         } else if (isResearchKey(key)) {
           const study = parseResearch(raw);
           if (!study.ok) return { ok: false, error: `${key}: ${study.error}` };
+        } else if (isFourArmySaveKey(key)) {
+          const four = parseFourArmySpectatorSave(raw);
+          if (!four.ok) return { ok: false, error: `${key}: ${four.error}` };
         } else if (key === CAMPAIGN_STORAGE_KEY) {
           const campaign = parseCampaignProgress(raw);
           if (!campaign.ok) return campaign;

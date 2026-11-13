@@ -25,4 +25,14 @@ describe('modal keyboard focus', () => {
     expect(document.activeElement?.id).toBe('last');
     expect(shiftTab.defaultPrevented).toBe(true);
   });
+
+  it('ignores legacy dialogs hidden behind the four-army screen', () => {
+    document.body.innerHTML = '<div hidden inert><div role="dialog" aria-modal="true"><button id="legacy">Legacy</button></div></div><button id="four">Four armies</button>';
+    installModalFocusTrap(document);
+    document.querySelector<HTMLButtonElement>('#four')!.focus();
+    const tab = new KeyboardEvent('keydown', { key: 'Tab', bubbles: true, cancelable: true });
+    document.dispatchEvent(tab);
+    expect(tab.defaultPrevented).toBe(false);
+    expect(document.activeElement?.id).toBe('four');
+  });
 });

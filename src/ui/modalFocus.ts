@@ -2,7 +2,7 @@
 export function installModalFocusTrap(document: Document): void {
   document.addEventListener('keydown', (event) => {
     if (event.key !== 'Tab') return;
-    const dialog = document.querySelector<HTMLElement>('[role="dialog"][aria-modal="true"]');
+    const dialog = [...document.querySelectorAll<HTMLElement>('[role="dialog"][aria-modal="true"]')].find((element) => !element.closest('[hidden], [inert]'));
     if (!dialog) return;
     const focusable = [
       ...dialog.querySelectorAll<HTMLElement>(
