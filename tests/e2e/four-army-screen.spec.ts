@@ -43,8 +43,8 @@ for (const { locale, width } of [
     }
     const raw = JSON.stringify(source);
     await page.setViewportSize({ width, height: 900 });
+    await page.addInitScript((raw) => localStorage.setItem('ministr.fourArmy.save.1', raw), raw);
     await open(page, locale);
-    await page.evaluate((raw) => localStorage.setItem('ministr.fourArmy.save.1', raw), raw);
     await importMatch(page, raw);
     await expect(page.locator('#four-notice')).toHaveText(locale === 'ja' ? '停止状態で読み込みました。' : 'Loaded and paused.');
     const settings = page.locator('details').filter({ has: page.locator('#four-upgrade-cpu') });

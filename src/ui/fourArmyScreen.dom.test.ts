@@ -12,6 +12,7 @@ describe('four-army spectator controller', () => {
   it('preserves a legacy save and prefix until explicitly switching the future CPU and saving again', async () => {
     const old = JSON.stringify(fourArmySpectatorFixture(2));
     values.set(FOUR_ARMY_SAVE_KEYS[0], old);
+    screen.open();
     click('[data-load-slot="0"]');
     await vi.waitFor(() => expect(query('#four-notice').textContent).toBe('Loaded and paused.'));
     click('#four-export');

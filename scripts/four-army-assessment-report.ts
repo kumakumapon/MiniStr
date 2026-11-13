@@ -19,6 +19,8 @@ const stats = (v: number[]) => {
   return { count: a.length, p50: round(a[Math.ceil(a.length * 0.5) - 1] ?? 0), p95: round(a[Math.ceil(a.length * 0.95) - 1] ?? 0), max: round(a.at(-1) ?? 0) };
 };
 const source = process.env.MINISTR_SOURCE_SHA ?? execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim();
+// Keep the published v1 assessment reproducible; the v2 comparison has its own explicit-version protocol.
+const cpuVersion = 'four-army-cpu-v1' as const;
 const shard = Number(process.argv[2] ?? 0),
   shards = Number(process.argv[3] ?? 1),
   output = process.argv[4];
@@ -42,7 +44,7 @@ const run = (spec: AssessmentCase) => {
     if (state.paused) {
       command = { actor, type: 'resume' };
       resumes++;
-    } else command = chooseFourArmyCpuCommand(value(observeFourArmy(state, actor)), spec.settings[actor]);
+    } else command = chooseFourArmyCpuCommand(value(observeFourArmy(state, actor)), spec.settings[actor], cpuVersion);
     if (!command) throw Error('Missing current CPU command');
     const planned = performance.now();
     let next = applyFourArmyCommand(state, command);
@@ -92,6 +94,7 @@ for (const [i, spec] of fourArmyAssessmentCases().entries())
 const report = {
   schemaVersion: 1,
   protocol: 'four-army-assessment-v1',
+  cpuVersion,
   source,
   measuredAt: new Date().toISOString(),
   environment: { node: process.version, cpu: cpus()[0]?.model, platform: platform(), arch: arch() },
