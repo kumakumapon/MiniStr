@@ -587,7 +587,9 @@ export class FourArmyScreen {
     }
   }
   private fit(): void {
-    this.cell = Math.max(10, Math.min(24, Math.floor(((this.root.querySelector<HTMLElement>('.four-map-viewport')?.clientWidth || 680) - 14) / 32)));
+    const viewport = this.root.querySelector<HTMLElement>('.four-map-viewport');
+    const height = (viewport && Number.parseFloat(getComputedStyle(viewport).maxHeight)) || innerHeight * 0.65;
+    this.cell = Math.max(10, Math.min(24, Math.floor(Math.min((viewport?.clientWidth || 680) - 14, height - 14) / 32)));
   }
   private locate(): void {
     const viewport = this.root.querySelector<HTMLElement>('.four-map-viewport');
@@ -656,8 +658,11 @@ export class FourArmyScreen {
   private paintControls(): void {
     const button = this.root.querySelector<HTMLButtonElement>('#four-toggle');
     if (button) {
-      button.textContent = this.running || this.busy ? text('一時停止', 'Pause') : text('再生', 'Play');
-      button.setAttribute('aria-pressed', String(this.running || this.busy));
+      // Keep the native button target stable between pointerdown and click during CPU updates.
+      const label = this.running || this.busy ? text('一時停止', 'Pause') : text('再生', 'Play');
+      if (button.textContent !== label) button.textContent = label;
+      const pressed = String(this.running || this.busy);
+      if (button.getAttribute('aria-pressed') !== pressed) button.setAttribute('aria-pressed', pressed);
       button.disabled = !!this.session && (this.deps.conflicted() || (!this.replay && (this.count >= FOUR_ARMY_COMMAND_LIMIT || this.session.state.outcome.type !== 'ongoing')));
     }
     const step = this.root.querySelector<HTMLButtonElement>('#four-step');
@@ -698,10 +703,11 @@ export class FourArmyScreen {
     this.selection(display);
     const select = this.root.querySelector<HTMLSelectElement>('#four-unit')!,
       previous = select.value;
-    select.innerHTML = display.units
+    const unitOptions = display.units
       .filter((u) => u.position)
       .map((u) => `<option value="${escapeHtml(u.id)}">${escapeHtml(armyName(u.owner) + ' ' + unitNames[u.kind] + ' ' + u.id)}</option>`)
       .join('');
+    if (select.innerHTML !== unitOptions) select.innerHTML = unitOptions;
     if ([...select.options].some((o) => o.value === previous)) select.value = previous;
     const range = this.root.querySelector<HTMLInputElement>('#four-position');
     if (range && this.replay) {

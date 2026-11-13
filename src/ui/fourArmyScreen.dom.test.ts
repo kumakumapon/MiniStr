@@ -88,6 +88,11 @@ describe('four-army spectator controller', () => {
     change('#four-order-1', 'army2');
     start();
     expect(query('#four-turn').textContent).toContain('0 commands');
+    const label = query('#four-toggle').firstChild,
+      unit = query('#four-unit').firstChild;
+    screen.refreshStorage();
+    expect(query('#four-toggle').firstChild).toBe(label);
+    expect(query('#four-unit').firstChild).toBe(unit);
     query('#four-board').dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }));
     expect(query('#four-selection').textContent).toContain('(5, 4)');
     click('#four-zoom-in');
@@ -150,6 +155,7 @@ describe('four-army spectator controller', () => {
   });
   it('leaves the live state unchanged when seeking or closing its replay', async () => {
     values.set(FOUR_ARMY_SAVE_KEYS[0], JSON.stringify(fourArmySpectatorFixture(24)));
+    screen.open();
     click('[data-load-slot="0"]');
     await vi.waitFor(() => expect(query('#four-turn').textContent).toContain('24 commands'));
     click('#four-replay');

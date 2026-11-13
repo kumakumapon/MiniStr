@@ -39,6 +39,7 @@ for (const locale of ['ja', 'en'])
       await expect(page.locator('#four-unit option')).toHaveCount(32);
       await page.locator('#four-zoom-in').click();
       await page.locator('#four-fit').click();
+      expect(await page.locator('.four-map-viewport').evaluate((e) => e.scrollHeight <= e.clientHeight + 1)).toBe(true);
       await page.locator('#four-board').focus();
       await page.keyboard.press('ArrowRight');
       await expect(page.locator('#four-selection')).toContainText('(5, 4)');
@@ -47,7 +48,13 @@ for (const locale of ['ja', 'en'])
       await page.locator('#four-speed').selectOption('4');
       await page.locator('#four-toggle').click();
       await expect.poll(() => count(page)).toBeGreaterThanOrEqual(3);
-      await page.locator('#four-toggle').click();
+      const target = await page.locator('#four-toggle').boundingBox();
+      if (!target) throw Error('Pause control missing');
+      await page.mouse.move(target.x + target.width / 2, target.y + target.height / 2);
+      await page.mouse.down();
+      const pressedAt = await count(page);
+      await expect.poll(() => count(page)).toBeGreaterThan(pressedAt);
+      await page.mouse.up();
       await expect(page.locator('#four-toggle')).toHaveAttribute('aria-pressed', 'false');
       const paused = await count(page);
       await page.waitForTimeout(250);
@@ -117,6 +124,12 @@ test('four-army dedicated saves, JSON and replay preserve current state and lega
   expect(await count(page)).toBe(1);
   await importMatch(page, raw);
   await expect(page.locator('#four-notice')).toHaveText('Loaded and paused.');
+  expect(await count(page)).toBe(1);
+  await tools(page);
+  await page.locator('#four-import-replay').click();
+  await page.locator('#four-file').setInputFiles({ name: 'four.json', mimeType: 'application/json', buffer: Buffer.from(raw) });
+  await expect(page.locator('#four-replay-count')).toHaveText('0/1');
+  await page.locator('#four-replay-close').click();
   expect(await count(page)).toBe(1);
 });
 

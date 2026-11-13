@@ -262,6 +262,7 @@ strong.four-army-label {
 }
 .four-map-viewport canvas {
   display: block;
+  margin: 0 auto;
   max-width: none;
   outline-offset: -2px !important;
 }
