@@ -628,3 +628,44 @@ strong.four-army-label {
   width: auto;
   min-height: 20px;
 }
+.four-screen .four-playback-row {
+  display: flex;
+  align-items: start;
+  gap: 10px;
+}
+.four-screen .four-playback-options {
+  margin: 0;
+  flex: 1;
+  min-width: 0;
+}
+.four-screen .four-playback-options summary {
+  min-height: 24px;
+}
+.four-screen .four-playback-options[open] summary {
+  margin-bottom: 8px;
+}
+.four-screen[data-mode='human'] .four-header > div {
+  min-width: 0;
+  width: auto;
+}
+@media (max-width: 640px) {
+  .four-screen[data-mode='human'] .four-header {
+    flex-wrap: nowrap;
+    gap: 8px;
+  }
+  .four-screen[data-mode='human'] .four-header h1 {
+    font-size: 18px;
+  }
+  .four-screen[data-mode='human'] .four-header > button {
+    flex-shrink: 0;
+  }
+  .four-screen .four-playback-options summary {
+    font-size: 12px;
+  }
+}
+.four-screen #four-board {
+  contain: layout style;
+}
+.four-screen #four-board .tile {
+  contain: layout paint style;
+}
