@@ -442,3 +442,230 @@ strong.four-army-label {
   padding-top: 12px;
   cursor: pointer;
 }
+
+/* Reuse the two-army board, artwork and command cards; keep overrides scoped. */
+.four-screen {
+  --four-bg: #101817;
+  --four-panel: #1b2a26;
+  --four-ink: #f4f0e5;
+  --four-line: #496158;
+  --four-gold: #e8b33b;
+}
+.four-screen .four-header.command-bar {
+  padding: 14px 18px;
+}
+.four-screen .four-layout {
+  grid-template-columns: minmax(0, 1fr) 290px;
+  gap: 20px;
+}
+.four-screen .four-map-panel {
+  padding: 17px;
+  background-color: #182b23;
+}
+.four-screen .four-map-viewport {
+  max-height: 62vh;
+  min-height: 280px;
+}
+.four-screen #four-board {
+  margin: 0;
+}
+.four-screen #four-board .tile {
+  min-height: 0;
+  min-width: 0;
+  max-width: none;
+  padding: 0;
+  border: 1px solid #0e171355;
+  border-radius: 0;
+  touch-action: pan-x pan-y;
+}
+.four-screen #four-board .tile.four-attack-target {
+  outline: 2px solid #f18a73;
+  outline-offset: -3px;
+}
+.four-screen .army1 {
+  --army: #ef8b7b;
+}
+.four-screen .army2 {
+  --army: #83bdf4;
+}
+.four-screen .army3 {
+  --army: #83d6ad;
+}
+.four-screen .army4 {
+  --army: #f0cf79;
+}
+.four-screen .unit {
+  color: var(--army);
+}
+.four-screen .unit-owner-marker {
+  background: #10251f;
+  color: var(--army);
+  border: 1px solid var(--army);
+  font-size: 9px;
+  width: 14px;
+  height: 14px;
+}
+.four-screen .unit.army2 .unit-art {
+  filter: hue-rotate(175deg) drop-shadow(0 1px 1px #16251dcc);
+}
+.four-screen .unit.army3 .unit-art {
+  filter: hue-rotate(95deg) drop-shadow(0 1px 1px #16251dcc);
+}
+.four-screen .unit.army4 .unit-art {
+  filter: hue-rotate(35deg) drop-shadow(0 1px 1px #16251dcc);
+}
+.four-screen .four-unit-done {
+  opacity: 0.6;
+}
+.four-screen .facility:not(.neutral) {
+  background: #192c24ed;
+  color: var(--army);
+  border-color: var(--army);
+}
+.four-screen .four-human {
+  margin: 0;
+  padding: 13px;
+  border-radius: 6px;
+}
+.four-screen .four-human > button {
+  width: 100%;
+  margin-top: 8px;
+}
+.four-screen .four-human .end-turn {
+  background: #c94437;
+  color: #fff6e9;
+}
+.four-screen .four-human .unit-action-cluster {
+  margin-top: 10px;
+}
+.four-screen .four-human .unit-action-cluster .capture {
+  margin: 0;
+}
+.four-screen .four-human .unit-queue-card {
+  margin-top: 14px;
+}
+.four-screen .unit-brief h3 {
+  margin: 2px 0 0;
+}
+.four-screen .four-inspector {
+  display: grid;
+  gap: 12px;
+  align-content: start;
+}
+.four-screen .four-inspector > details {
+  margin: 0;
+}
+.four-screen .four-production-dialog {
+  width: min(600px, calc(100vw - 24px));
+  max-height: calc(100dvh - 32px);
+  overflow: auto;
+  padding: 18px;
+  border: 1px solid var(--four-gold);
+  border-radius: 8px;
+  color: var(--four-ink);
+  background: var(--four-bg);
+}
+.four-screen .four-production-dialog::backdrop {
+  background: #050b10dc;
+}
+.four-screen .four-production-dialog .production-card {
+  margin: 12px 0;
+}
+.four-screen .four-production-dialog .production-option {
+  display: grid;
+  gap: 4px;
+  text-align: left;
+}
+.four-screen .four-production-dialog .production-option strong {
+  color: var(--four-gold);
+}
+.four-screen .four-production-dialog .production-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.four-screen .four-production-dialog > button {
+  width: 100%;
+}
+@media (max-width: 900px) {
+  .four-screen {
+    padding-bottom: max(88px, calc(76px + env(safe-area-inset-bottom)));
+  }
+  .four-screen .four-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .four-screen .four-inspector {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .four-screen .four-map-viewport {
+    max-height: 52vh;
+  }
+  .four-screen .mobile-action-bar button {
+    min-height: 52px;
+    padding: 6px 3px;
+    font-size: 11px;
+  }
+}
+@media (max-width: 640px) {
+  .four-screen .four-inspector {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .four-screen .four-map-panel {
+    padding: 8px;
+  }
+  .four-screen .four-map-heading {
+    flex-wrap: wrap;
+  }
+  .four-screen .four-header.command-bar {
+    padding: 12px;
+  }
+  .four-screen .unit-brief-stats {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+.four-screen #four-brief .unit-brief {
+  border-left-color: var(--army, var(--four-gold));
+}
+.four-screen .turn-setting input {
+  width: auto;
+  min-height: 20px;
+}
+.four-screen .four-playback-row {
+  display: flex;
+  align-items: start;
+  gap: 10px;
+}
+.four-screen .four-playback-options {
+  margin: 0;
+  flex: 1;
+  min-width: 0;
+}
+.four-screen .four-playback-options summary {
+  min-height: 24px;
+}
+.four-screen .four-playback-options[open] summary {
+  margin-bottom: 8px;
+}
+.four-screen[data-mode='human'] .four-header > div {
+  min-width: 0;
+  width: auto;
+}
+@media (max-width: 640px) {
+  .four-screen[data-mode='human'] .four-header {
+    flex-wrap: nowrap;
+    gap: 8px;
+  }
+  .four-screen[data-mode='human'] .four-header h1 {
+    font-size: 18px;
+  }
+  .four-screen[data-mode='human'] .four-header > button {
+    flex-shrink: 0;
+  }
+  .four-screen .four-playback-options summary {
+    font-size: 12px;
+  }
+}
+.four-screen #four-board {
+  contain: layout style;
+}
+.four-screen #four-board .tile {
+  contain: layout paint style;
+}

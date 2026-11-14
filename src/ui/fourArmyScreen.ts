@@ -1,3 +1,15 @@
+import { BoardInput } from './boardInput';
+import { BoardView } from './boardView';
+import { nextBoardPosition } from './boardNavigation';
+import { BOARD_ZOOM_LEVELS, boardTileSize, boardZoomPercent, clampBoardZoomIndex } from './boardZoom';
+import { fourArmyBoardCells } from './fourArmyBattleView';
+import { fourArmyPlanningView } from '../ai/fourArmyObservation';
+import { enemyThreatPreview, type ThreatPreview } from '../game/threat';
+import { forecastCombat } from '../game/combat';
+import { productionKindsForRule } from '../game/facilities';
+import type { WeaponSlot } from '../game/units';
+import { renderUnitBrief } from './unitBrief';
+import { renderProductionCard, renderUnitActionCluster } from './overlays';
 import { fourArmyHumanChoices, type FourArmyHumanChoice, type FourArmyHumanAction } from './fourArmyHuman';
 import { unitStats } from '../game/units';
 import './fourArmyScreen.css';
@@ -25,7 +37,7 @@ import { createFourArmyCpuSession } from './fourArmyCpuBrowser';
 import { FourArmyFileCodec } from './fourArmyFileCodec';
 import { FourArmyReplay } from './fourArmyReplay';
 import { CommandScheduler, COMMAND_SPEEDS, parseCommandSpeed, type CommandSpeed } from './commandScheduler';
-import { fourArmyDisplay, paintFourArmyBoard, type FourArmyDisplay } from './fourArmyBoard';
+import { fourArmyDisplay, type FourArmyDisplay } from './fourArmyBoard';
 import { getLocale } from './locale';
 import { escapeHtml } from './strings';
 import { terrainNames, unitNames } from './labels';
@@ -65,7 +77,15 @@ export class FourArmyScreen {
   private humanArmy?: FourArmyId;
   private humanSource?: Position;
   private humanAction?: FourArmyHumanAction;
-  private humanPending?: FourArmyHumanChoice;
+  private weaponSlot?: WeaponSlot;
+  private production?: Position;
+  private choicesKey = '';
+  private threat?: ThreatPreview;
+  private threatKey = '';
+  private boardPointerPending = false;
+  private boardModelKey = '';
+  private boardView = new BoardView();
+  private boardInput = new BoardInput();
   private humanChoices: FourArmyHumanChoice[] = [];
   private settings = defaultFourArmyCpuSettings();
   private cpuVersion: FourArmyCpuVersion = FOUR_ARMY_CPU_VERSION;
@@ -75,8 +95,14 @@ export class FourArmyScreen {
   private view: FourArmyView = 'all';
   private speed: CommandSpeed = 1;
   private selected: Position = { x: 3, y: 3 };
-  private cell = 20;
-  private zoomAuto = true;
+  private zoomIndex = 2;
+  private cell = boardTileSize(this.zoomIndex);
+  private confirmEndTurn = true;
+  private mobileMarkup = '';
+  private briefMarkup = '';
+  private humanMarkup = '';
+  private saveButtons: HTMLButtonElement[] = [];
+  private settingInputs: HTMLSelectElement[] = [];
   private generation = 0;
   private running = false;
   private busy = false;
@@ -106,21 +132,30 @@ export class FourArmyScreen {
     });
     this.root.addEventListener('input', (e) => {
       const v = e.target as HTMLInputElement;
+      if (v.id === 'four-confirm-end') return;
       if (v.id === 'four-name') this.name = v.value;
       else if (v.id === 'four-seed') this.seed = v.value;
     });
     this.root.addEventListener('keydown', (e) => this.key(e));
+    this.root.addEventListener(
+      'pointerdown',
+      (e) => {
+        this.boardPointerPending = !!(e.target as Element).closest('#four-board > button.tile');
+      },
+      true,
+    );
+    this.root.addEventListener('pointerup', () => {
+      this.boardPointerPending = false;
+    });
+    this.root.addEventListener('pointercancel', () => {
+      this.boardPointerPending = false;
+      this.paint();
+    });
     document.addEventListener('visibilitychange', () => {
       if (document.hidden && this.active) this.pause(text('画面を離れたため一時停止しました。', 'Paused while the page is in the background.'));
     });
     window.addEventListener('pagehide', () => {
       if (this.active) this.pause();
-    });
-    window.addEventListener('resize', () => {
-      if (this.active && this.phase === 'watch' && this.zoomAuto) {
-        this.fit();
-        this.paint();
-      }
     });
     window.addEventListener('beforeunload', (e) => {
       if (this.dirty) {
@@ -128,6 +163,13 @@ export class FourArmyScreen {
         e.returnValue = '';
       }
     });
+  }
+  private query<T extends Element = HTMLElement>(selector: string): T | null {
+    if (/^#[a-zA-Z0-9-]+$/.test(selector)) {
+      const element = document.getElementById(selector.slice(1));
+      if (element && this.root.contains(element)) return element as unknown as T;
+    }
+    return this.root.querySelector<T>(selector);
   }
   get active(): boolean {
     return !this.root.hidden;
@@ -154,20 +196,26 @@ export class FourArmyScreen {
     else this.paint();
   }
   private get humanTurn(): boolean {
+    if (!this.humanArmy || this.replay) return false;
     const state = this.session?.state;
     return !!state && !this.replay && !!this.humanArmy && !state.paused && state.outcome.type === 'ongoing' && state.round.order[state.round.index] === this.humanArmy;
   }
   private get lockedView(): boolean {
+    if (!this.humanArmy) return false;
     const state = this.session?.state;
     return !!state && !!this.humanArmy && state.outcome.type === 'ongoing' && state.alive.includes(this.humanArmy);
   }
   private clearHuman(): void {
     this.humanSource = undefined;
     this.humanAction = undefined;
-    this.humanPending = undefined;
     this.humanChoices = [];
+    this.choicesKey = '';
+    this.threat = undefined;
+    this.threatKey = '';
+    this.weaponSlot = undefined;
+    this.closeProduction(false);
   }
-  private pause(message?: string): void {
+  private pause(message?: string, redraw = true): void {
     this.clearHuman();
     this.generation++;
     this.scheduler.cancel();
@@ -177,7 +225,7 @@ export class FourArmyScreen {
     this.running = false;
     this.busy = false;
     if (message !== undefined) this.notice = message;
-    if (this.active) this.paint();
+    if (this.active && redraw) this.paint();
   }
   private replaceAllowed(): boolean {
     return (
@@ -195,6 +243,8 @@ export class FourArmyScreen {
     this.prefix = [];
     this.checkpoints = [];
     this.verifiedRecord = undefined;
+    this.boardInput.update(null);
+    this.boardView.update(null, [], 'four-army');
     this.root.replaceChildren();
     this.savedSignature = '';
     this.root.hidden = true;
@@ -236,7 +286,8 @@ export class FourArmyScreen {
     cpuVersion: FourArmyCpuVersion = FOUR_ARMY_CPU_VERSION,
     humanArmy?: FourArmyId,
   ): void {
-    this.pause();
+    this.pause(undefined, false);
+    this.boardModelKey = '';
     this.session?.stop();
     this.map = structuredClone(map);
     this.prefix = structuredClone([...commands]);
@@ -247,7 +298,8 @@ export class FourArmyScreen {
     this.humanArmy = humanArmy;
     this.session = this.deps.createSession?.(state, this.settings, cpuVersion, humanArmy) ?? createFourArmyCpuSession(state, this.settings, cpuVersion, humanArmy);
     this.phase = 'watch';
-    this.zoomAuto = true;
+    this.zoomIndex = 2;
+    this.cell = boardTileSize(this.zoomIndex);
     this.selected = { ...map.capitals[humanArmy ?? 'army1'] };
   }
   private async play(): Promise<void> {
@@ -258,7 +310,7 @@ export class FourArmyScreen {
     }
     if (this.replay?.position === this.replay?.commands.length && this.replay) return;
     if (!this.replay && (this.humanTurn || this.count >= FOUR_ARMY_COMMAND_LIMIT || this.session.state.outcome.type !== 'ongoing')) return;
-    this.pause();
+    this.pause(undefined, false);
     const generation = this.generation;
     this.running = true;
     this.notice = '';
@@ -323,7 +375,7 @@ export class FourArmyScreen {
   }
   private async seek(position: number): Promise<void> {
     if (!this.replay) return;
-    this.pause();
+    this.pause(undefined, false);
     const generation = this.generation;
     this.busy = true;
     this.paintControls();
@@ -362,7 +414,7 @@ export class FourArmyScreen {
   }
   private verificationProgress(done: number, total: number): void {
     this.notice = text('履歴を検証中', 'Verifying history') + ` ${done.toLocaleString()}/${total.toLocaleString()}`;
-    const notice = this.root.querySelector('#four-notice');
+    const notice = this.query('#four-notice');
     if (notice) notice.textContent = this.notice;
   }
   private async save(slot?: number): Promise<void> {
@@ -418,7 +470,7 @@ export class FourArmyScreen {
     this.slots();
   }
   private async load(textValue: string, mode: 'resume' | 'replay'): Promise<void> {
-    this.pause();
+    this.pause(undefined, false);
     const generation = this.generation;
     this.busy = true;
     this.notice = text('記録を検証しています…', 'Verifying the record…');
@@ -481,13 +533,50 @@ export class FourArmyScreen {
   }
   private async click(button: HTMLButtonElement): Promise<void> {
     const id = button.id;
+    if (button.dataset.fourUnit && this.humanTurn && this.session) {
+      const unit = this.session.state.units.find((u) => u.id === button.dataset.fourUnit && u.owner === this.humanArmy && u.position);
+      if (unit?.position) {
+        this.clearHuman();
+        this.selected = { ...unit.position };
+        this.humanSource = { ...unit.position };
+        this.paint();
+        this.locate();
+      }
+      return;
+    }
+    if (button.dataset.productionKind && this.production && this.session && this.humanArmy) {
+      const observed = observeFourArmy(this.session.state, this.humanArmy);
+      if (observed.ok) {
+        const choice = fourArmyHumanChoices(observed.value, this.production).find((c) => c.command.type === 'produce' && c.command.kind === button.dataset.productionKind);
+        if (choice) await this.applyHuman(choice);
+      }
+      return;
+    }
+    if (id === 'four-production-close') {
+      this.closeProduction();
+      return;
+    }
+    if (id === 'four-next-unit' || id === 'four-mobile-next') {
+      this.nextUnit();
+      return;
+    }
+    if (id === 'four-mobile-panel') {
+      this.query<HTMLElement>('#four-human-panel')?.scrollIntoView({ block: 'start' });
+      this.query<HTMLElement>('#four-human-panel h2')?.focus({ preventScroll: true });
+      return;
+    }
+    if (id === 'four-open-production' || id === 'four-mobile-production') {
+      this.openProduction();
+      return;
+    }
+    if (button.dataset.quickAction) {
+      const choice = this.humanChoices.find((c) => c.action === button.dataset.quickAction);
+      if (choice) await this.applyHuman(choice);
+      return;
+    }
     if (id === 'four-human-cancel') {
       this.clearHuman();
       this.paint();
-      return;
-    }
-    if (id === 'four-human-confirm') {
-      await this.commitHuman();
       return;
     }
     if (id === 'four-human-watch') {
@@ -500,10 +589,10 @@ export class FourArmyScreen {
       if (!this.humanTurn || this.busy || this.deps.conflicted()) return;
       const choice = this.humanChoices[Number(button.dataset.humanChoice)];
       if (!choice) return;
-      this.humanSource = { ...this.selected };
-      this.humanPending = choice.target ? undefined : choice;
-      this.humanAction = choice.target ? choice.action : undefined;
-      this.paint();
+      if (choice.target) {
+        this.humanAction = choice.action;
+        this.paint();
+      } else await this.applyHuman(choice);
       return;
     }
     if (id === 'four-close') {
@@ -515,19 +604,19 @@ export class FourArmyScreen {
       return;
     }
     if (id === 'four-return' && this.session) {
-      this.pause();
+      this.pause(undefined, false);
       this.phase = 'watch';
       this.shell();
       return;
     }
     if (id === 'four-menu') {
-      this.pause();
+      this.pause(undefined, false);
       this.replay = undefined;
       this.phase = 'menu';
       this.shell();
       return;
     }
-    if (id === 'four-toggle') {
+    if (id === 'four-toggle' || id === 'four-mobile-toggle') {
       await this.play();
       return;
     }
@@ -578,7 +667,7 @@ export class FourArmyScreen {
     if (id === 'four-import' || id === 'four-import-replay') {
       this.pause();
       this.importMode = id === 'four-import' ? 'resume' : 'replay';
-      this.root.querySelector<HTMLInputElement>('#four-file')!.click();
+      this.query<HTMLInputElement>('#four-file')!.click();
       return;
     }
     if (id === 'four-backup') {
@@ -625,19 +714,18 @@ export class FourArmyScreen {
       return;
     }
     if (id === 'four-zoom-in' || id === 'four-zoom-out') {
-      this.zoomAuto = false;
-      this.cell = Math.max(10, Math.min(40, this.cell + (id === 'four-zoom-in' ? 4 : -4)));
+      this.zoomIndex = clampBoardZoomIndex(this.zoomIndex + (id === 'four-zoom-in' ? 1 : -1));
+      this.cell = boardTileSize(this.zoomIndex);
       this.paint();
       return;
     }
     if (id === 'four-fit') {
-      this.zoomAuto = true;
       this.fit();
       this.paint();
       return;
     }
     if (id === 'four-locate') {
-      const select = this.root.querySelector<HTMLSelectElement>('#four-unit');
+      const select = this.query<HTMLSelectElement>('#four-unit');
       const state = this.replay?.state ?? this.session?.state;
       if (state && select) {
         const u = fourArmyDisplay(state, this.view).units.find((u) => u.id === select.value);
@@ -650,12 +738,22 @@ export class FourArmyScreen {
     }
   }
   private async change(input: HTMLInputElement): Promise<void> {
+    if (input.id === 'four-confirm-end') {
+      this.confirmEndTurn = input.checked;
+      return;
+    }
+    if (input.id === 'four-attack-weapon') {
+      this.weaponSlot = input.value === '0' ? 0 : input.value === '1' ? 1 : undefined;
+      this.paint();
+      this.query<HTMLElement>('#four-attack-weapon')?.focus({ preventScroll: true });
+      return;
+    }
     if (input.id === 'four-file') {
       await this.file(input);
       return;
     }
     if (input.id === 'four-locale' && (input.value === 'ja' || input.value === 'en')) {
-      this.pause();
+      this.pause(undefined, false);
       this.deps.onLocale(input.value);
       this.shell();
       return;
@@ -676,13 +774,12 @@ export class FourArmyScreen {
       }
       this.view = input.value;
       this.pause();
-      this.paint();
       return;
     }
     if (input.id === 'four-speed') {
       const speed = parseCommandSpeed(input.value);
       if (speed) {
-        this.pause();
+        this.pause(undefined, false);
         this.speed = speed;
         this.paint();
       }
@@ -703,7 +800,7 @@ export class FourArmyScreen {
       if (input.dataset.setting === 'difficulty') next[key].difficulty = input.value as (typeof next)[typeof key]['difficulty'];
       if (input.dataset.setting === 'policy') next[key].policy = input.value as (typeof next)[typeof key]['policy'];
       if (isFourArmyCpuSettings(next)) {
-        this.pause();
+        this.pause(undefined, false);
         this.settings = next;
         this.session?.configure(next);
         this.notice = text('設定を変更し、一時停止しました。', 'Settings changed. Paused.');
@@ -712,43 +809,61 @@ export class FourArmyScreen {
     }
   }
   private key(e: KeyboardEvent): void {
+    if (e.defaultPrevented) return;
     if (e.key === 'Escape') {
       e.preventDefault();
-      this.pause(text('一時停止しました。', 'Paused.'));
+      if (this.production) this.closeProduction();
+      else if (this.humanTurn) {
+        this.clearHuman();
+        this.paint();
+        this.focusTile();
+      } else this.pause(text('一時停止しました。', 'Paused.'));
       return;
     }
-    if ((e.target as HTMLElement).id !== 'four-board') return;
-    const moves: Record<string, Position> = { ArrowLeft: { x: -1, y: 0 }, ArrowRight: { x: 1, y: 0 }, ArrowUp: { x: 0, y: -1 }, ArrowDown: { x: 0, y: 1 } };
-    if (moves[e.key]) {
+    if (this.production || (e.target as Element).matches('input, select, textarea')) return;
+    if (e.key.toLowerCase() === 'n' && this.humanTurn) {
       e.preventDefault();
-      const d = moves[e.key]!;
-      this.selected = { x: Math.max(0, Math.min(31, this.selected.x + d.x)), y: Math.max(0, Math.min(31, this.selected.y + d.y)) };
+      this.nextUnit();
+      return;
+    }
+    if (!(e.target as Element).closest('#four-board')) return;
+    const next = nextBoardPosition(this.selected, 32, 32, e.key);
+    if (next) {
+      e.preventDefault();
+      this.selected = next;
       this.paint();
       this.locate();
-    }
-    if (e.key === 'Enter') {
+    } else if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault();
-      this.chooseHumanTile();
-      this.paint();
-    }
-    if (e.key === ' ') {
-      e.preventDefault();
-      void this.play();
+      void this.chooseHumanTile();
     }
   }
   private fit(): void {
-    const viewport = this.root.querySelector<HTMLElement>('.four-map-viewport');
-    const height = (viewport && Number.parseFloat(getComputedStyle(viewport).maxHeight)) || innerHeight * 0.65;
-    this.cell = Math.max(10, Math.min(24, Math.floor(Math.min((viewport?.clientWidth || 680) - 14, height - 14) / 32)));
+    this.zoomIndex = 0;
+    this.cell = boardTileSize(this.zoomIndex);
+  }
+  private focusTile(): void {
+    const tile = this.query('#four-board')?.children.item(this.selected.y * 32 + this.selected.x) as HTMLElement | null;
+    tile?.focus({ preventScroll: true });
   }
   private locate(): void {
-    const viewport = this.root.querySelector<HTMLElement>('.four-map-viewport');
+    const viewport = this.query<HTMLElement>('.four-map-viewport');
     if (!viewport) return;
-    const x = (this.selected.x + 0.5) * this.cell,
-      y = (this.selected.y + 0.5) * this.cell;
-    viewport.scrollLeft = Math.max(0, x - viewport.clientWidth / 2);
-    viewport.scrollTop = Math.max(0, y - viewport.clientHeight / 2);
-    this.root.querySelector<HTMLCanvasElement>('#four-board')?.focus({ preventScroll: true });
+    viewport.scrollLeft = Math.max(0, (this.selected.x + 0.5) * this.cell - viewport.clientWidth / 2);
+    viewport.scrollTop = Math.max(0, (this.selected.y + 0.5) * this.cell - viewport.clientHeight / 2);
+    this.focusTile();
+  }
+  private nextUnit(): void {
+    if (!this.humanTurn || !this.session || this.busy || this.deps.conflicted()) return;
+    const units = this.session.state.units.filter((u) => u.owner === this.humanArmy && u.position && !u.hasActed);
+    if (!units.length) return;
+    const current = units.findIndex((u) => u.position?.x === this.humanSource?.x && u.position?.y === this.humanSource?.y);
+    const unit = units[(current + 1) % units.length]!;
+    this.clearHuman();
+    this.selected = { ...unit.position! };
+    this.humanSource = { ...this.selected };
+    this.paint();
+    this.locate();
   }
   private settingsForm(): string {
     return FOUR_ARMY_IDS.map(
@@ -760,8 +875,11 @@ export class FourArmyScreen {
     return `<details class="four-tools"><summary>${text('保存・リプレイ', 'Saves & replay')}</summary><label>${text('記録名', 'Record name')}<input id="four-name" maxlength="40" value="${escapeHtml(this.name)}"></label><div class="four-buttons">${FOUR_ARMY_SAVE_KEYS.map((_, i) => `<button data-save-slot="${i}">${text(`保存${i + 1}へ保存`, `Save to slot ${i + 1}`)}</button>`).join('')}<button id="four-export">${text('JSONを書き出す', 'Export JSON')}</button><button id="four-import">${text('JSONから再開', 'Import match')}</button><button id="four-import-replay">${text('JSONをリプレイ', 'Import replay')}</button><button id="four-backup">${text('全データをバックアップ', 'Back up all data')}</button></div><div id="four-slots"></div><p class="four-hint">${text('4軍専用の2枠です。通常の対局・研究保存を上書きしません。記録は65,536命令・8MBまで。ブラウザーの空き容量により保存できない場合はJSONを書き出してください。', 'Two dedicated four-army slots. Normal and research saves stay separate. Records support up to 65,536 commands and 8MB. Export JSON if browser storage is full.')}</p></details><input id="four-file" type="file" accept=".json,application/json" hidden>`;
   }
   private shell(): void {
+    this.boardModelKey = '';
+    this.briefMarkup = '';
+    this.humanMarkup = '';
     const focus = (document.activeElement as HTMLElement | null)?.id;
-    const head = `<header class="four-header"><div><p class="four-kicker">MINISTR / FOUR FRONTS</p><h1 id="four-heading" tabindex="-1">${text('4軍対局・観戦', 'Four-army play & watch')}</h1></div><label>${text('言語', 'Language')}<select id="four-locale"><option value="ja" ${getLocale() === 'ja' ? 'selected' : ''}>日本語</option><option value="en" ${getLocale() === 'en' ? 'selected' : ''}>English</option></select></label><button id="four-close">${text('タイトルへ', 'Title')}</button></header><div id="four-storage"></div><p id="four-notice" role="status"></p>`;
+    const head = `<header class="four-header command-bar"><div><p class="four-kicker">MINISTR / FOUR FRONTS</p><h1 id="four-heading" tabindex="-1">${text('4軍対局・観戦', 'Four-army play & watch')}</h1></div><label>${text('言語', 'Language')}<select id="four-locale"><option value="ja" ${getLocale() === 'ja' ? 'selected' : ''}>日本語</option><option value="en" ${getLocale() === 'en' ? 'selected' : ''}>English</option></select></label><button id="four-close">${text('タイトルへ', 'Title')}</button></header><div id="four-storage"></div><p id="four-notice" role="status"></p>`;
     if (this.phase === 'menu')
       this.root.innerHTML =
         head +
@@ -769,32 +887,29 @@ export class FourArmyScreen {
     else
       this.root.innerHTML =
         head +
-        `<section class="four-toolbar" aria-label="${text('観戦操作', 'Spectator controls')}"><button id="four-toggle" class="four-primary"></button><button id="four-step">${text('1手進める', 'Step')}</button><label>${text('速度', 'Speed')}<select id="four-speed">${options(
+        `<div class="four-playback-row"><button id="four-toggle" class="four-primary"></button><details class="four-playback-options" ${this.humanArmy ? '' : 'open'}><summary>${text('CPU・視点・記録操作', 'CPU, view & record controls')}</summary><section class="four-toolbar" aria-label="${text('観戦操作', 'Spectator controls')}"><button id="four-step">${text('1手進める', 'Step')}</button><label>${text('速度', 'Speed')}<select id="four-speed">${options(
           COMMAND_SPEEDS.map(String),
           String(this.speed),
           COMMAND_SPEEDS.map((s) => s + '×'),
-        )}</select></label><label>${text('視点', 'View')}<select id="four-view">${options(['all', ...FOUR_ARMY_IDS], this.view, [text('全体表示', 'Whole board'), ...FOUR_ARMY_IDS.map(armyName)])}</select></label><button id="four-menu">${text('開始条件', 'Setup')}</button><button id="four-replay">${text('記録を再生', 'Replay record')}</button></section><p id="four-turn" class="four-turn"></p><section id="four-human-panel" class="four-human" aria-label="${text('自軍操作', 'Your army controls')}" hidden></section><details class="four-armies"><summary>${text('軍別情報', 'Army information')}</summary><div id="four-army-info"></div></details><div class="four-layout"><section class="four-map-panel"><div class="four-map-heading"><h2>${text('四方の前線', 'Four Fronts')}</h2><div class="four-buttons"><button id="four-zoom-out" aria-label="${text('盤面を縮小', 'Zoom out')}">−</button><button id="four-fit">${text('全体', 'Fit')}</button><button id="four-zoom-in" aria-label="${text('盤面を拡大', 'Zoom in')}">＋</button></div></div><div class="four-map-viewport"><canvas id="four-board" role="img" tabindex="0" aria-label="${text('4軍対局盤面。矢印でマスを選択、Enterで操作対象を選択、SpaceでCPU再生・停止。', 'Four-army board. Arrow keys select a tile; Enter chooses an action target; Space plays or pauses CPUs.')}" aria-describedby="four-selection">${text('盤面の詳細は選択情報から確認できます。', 'Use the selection details to inspect the board.')}</canvas></div><p class="four-hint">${text('タッチで移動・マスを選択。＋で拡大。矢印キーで選択、Enterで操作対象を選択、SpaceでCPU再生・停止、Escで取消・停止。', 'Pan and tap to inspect; use + to zoom. Arrows select, Enter chooses a target, Space plays or pauses CPUs, Esc cancels and pauses.')}</p></section><aside class="four-inspector"><section><h2>${text('選択情報', 'Selection')}</h2><output id="four-selection"></output><label>${text('表示中の部隊', 'Visible units')}<select id="four-unit"></select></label><button id="four-locate">${text('部隊へ移動', 'Locate unit')}</button></section><details><summary>${text('軍別CPU設定', 'Army CPU settings')}${this.replay ? text('（保存時）', ' (at save)') : ''}</summary>${this.settingsForm()}${!this.map?.pathVersion ? `<p class="four-hint">${text('この保存の移動・接触規則を維持しています。回転に対応した新規則は新しい対局で使います。', 'This record retains its movement and contact rules. New matches use the rotation-consistent rules.')}</p>` : ''}${this.cpuVersion !== FOUR_ARMY_CPU_VERSION ? `<p class="four-hint">${text('旧保存のCPU判断を維持しています。切り替えると、この先の判断に改善版を使います。元の保存は再保存するまで変わりません。', 'This record retains its original CPU. Switching changes future decisions; the saved original is kept until you save again.')}</p>${!this.replay ? `<button id="four-upgrade-cpu">${text('改善版CPUへ切り替え', 'Use improved CPU')}</button>` : ''}` : ''}</details>${this.fileTools()}</aside></div>${this.replay ? `<section class="four-replay-controls"><strong>${text('リプレイ', 'Replay')}</strong><button id="four-replay-start">|◀</button><button id="four-previous">◀</button><label>${text('命令位置', 'Command position')}<input id="four-position" type="range" min="0" max="${this.replay.commands.length}" value="${this.replay.position}"></label><output id="four-replay-count"></output><button id="four-replay-end">▶|</button><button id="four-replay-close">${text('対局へ戻る', 'Return to match')}</button></section>` : ''}`;
+        )}</select></label><label>${text('視点', 'View')}<select id="four-view">${options(['all', ...FOUR_ARMY_IDS], this.view, [text('全体表示', 'Whole board'), ...FOUR_ARMY_IDS.map(armyName)])}</select></label><button id="four-menu">${text('開始条件', 'Setup')}</button><button id="four-replay">${text('記録を再生', 'Replay record')}</button></section></details></div><p id="four-turn" class="four-turn"></p><details class="four-armies"><summary>${text('軍別情報', 'Army information')}</summary><div id="four-army-info"></div></details><div class="four-layout battle-layout"><section class="four-map-panel battlefield-wrap theme-temperate"><div class="four-map-heading"><h2>${text('四方の前線', 'Four Fronts')}</h2><div class="four-buttons"><button id="four-zoom-out" aria-label="${text('盤面を縮小', 'Zoom out')}">−</button><button id="four-fit">${text('縮小', 'Overview')}</button><span id="four-zoom-label" aria-live="polite"></span><button id="four-zoom-in" aria-label="${text('盤面を拡大', 'Zoom in')}">＋</button></div></div><div id="four-brief"></div><div class="four-map-viewport board-viewport"><div id="four-board" class="board" tabindex="-1" role="group" aria-label="${text('4軍対局盤面', 'Four-army board')}" aria-describedby="four-selection"></div></div><p class="four-hint">${text('部隊→移動先・敵をタップして操作。矢印で移動、Enter／Spaceで操作、Nで次の未行動部隊、Escで選択取消。盤面は縦横にスクロールできます。', 'Select a unit, then tap a destination or enemy. Arrows navigate; Enter/Space act; N selects the next ready unit; Esc clears selection. Scroll to explore the board.')}</p></section><aside class="four-inspector command-panel"><section id="four-human-panel" class="four-human" aria-label="${text('自軍操作', 'Your army controls')}" hidden></section><section><h2>${text('選択情報', 'Selection')}</h2><output id="four-selection"></output><label>${text('表示中の部隊', 'Visible units')}<select id="four-unit"></select></label><button id="four-locate">${text('部隊へ移動', 'Locate unit')}</button></section><details><summary>${text('軍別CPU設定', 'Army CPU settings')}${this.replay ? text('（保存時）', ' (at save)') : ''}</summary>${this.settingsForm()}${!this.map?.pathVersion ? `<p class="four-hint">${text('この保存の移動・接触規則を維持しています。回転に対応した新規則は新しい対局で使います。', 'This record retains its movement and contact rules. New matches use the rotation-consistent rules.')}</p>` : ''}${this.cpuVersion !== FOUR_ARMY_CPU_VERSION ? `<p class="four-hint">${text('旧保存のCPU判断を維持しています。切り替えると、この先の判断に改善版を使います。元の保存は再保存するまで変わりません。', 'This record retains its original CPU. Switching changes future decisions; the saved original is kept until you save again.')}</p>${!this.replay ? `<button id="four-upgrade-cpu">${text('改善版CPUへ切り替え', 'Use improved CPU')}</button>` : ''}` : ''}</details>${this.fileTools()}</aside></div>${this.replay ? `<section class="four-replay-controls"><strong>${text('リプレイ', 'Replay')}</strong><button id="four-replay-start">|◀</button><button id="four-previous">◀</button><label>${text('命令位置', 'Command position')}<input id="four-position" type="range" min="0" max="${this.replay.commands.length}" value="${this.replay.position}"></label><output id="four-replay-count"></output><button id="four-replay-end">▶|</button><button id="four-replay-close">${text('対局へ戻る', 'Return to match')}</button></section>` : ''}`;
     if (this.phase === 'watch') {
-      const canvas = this.root.querySelector<HTMLCanvasElement>('#four-board')!;
-      canvas.addEventListener('click', (e) => {
-        const r = canvas.getBoundingClientRect();
-        this.selected = {
-          x: Math.min(31, Math.max(0, Math.floor(((e.clientX - r.left) / r.width) * 32))),
-          y: Math.min(31, Math.max(0, Math.floor(((e.clientY - r.top) / r.height) * 32))),
-        };
-        this.chooseHumanTile();
-        this.paint();
-        canvas.focus({ preventScroll: true });
-      });
-      if (this.zoomAuto) this.fit();
+      this.mobileMarkup = '';
+      this.root.insertAdjacentHTML('beforeend', '<div id="four-mobile-host"></div><div id="four-production-host"></div>');
+    } else this.boardInput.update(null);
+    if (this.phase === 'watch' && this.humanArmy) {
+      const language = this.query('#four-locale')?.parentElement;
+      if (language) this.query('.four-toolbar')?.append(language);
     }
+    this.saveButtons = [...this.root.querySelectorAll<HTMLButtonElement>('[data-save-slot]')];
+    this.settingInputs = [...this.root.querySelectorAll<HTMLSelectElement>('[data-setting]')];
     this.slots();
     this.paint();
+    if (this.phase === 'watch') this.locate();
     (focus ? document.getElementById(focus) : null)?.focus({ preventScroll: true });
-    if (!this.root.contains(document.activeElement)) this.root.querySelector<HTMLElement>('#four-heading')?.focus({ preventScroll: true });
+    if (!this.root.contains(document.activeElement)) this.query<HTMLElement>('#four-heading')?.focus({ preventScroll: true });
   }
   private slots(): void {
-    const root = this.root.querySelector('#four-slots');
+    const root = this.query('#four-slots');
     if (!root) return;
     root.innerHTML = FOUR_ARMY_SAVE_KEYS.map((key, i) => {
       try {
@@ -807,7 +922,7 @@ export class FourArmyScreen {
     }).join('');
   }
   private paintControls(): void {
-    const button = this.root.querySelector<HTMLButtonElement>('#four-toggle');
+    const button = this.query<HTMLButtonElement>('#four-toggle');
     if (button) {
       // Keep the native button target stable between pointerdown and click during CPU updates.
       const label = this.running || this.busy ? text('一時停止', 'Pause') : text('再生', 'Play');
@@ -817,7 +932,7 @@ export class FourArmyScreen {
       button.disabled =
         !!this.session && (this.deps.conflicted() || (!this.replay && (this.humanTurn || this.count >= FOUR_ARMY_COMMAND_LIMIT || this.session.state.outcome.type !== 'ongoing')));
     }
-    const step = this.root.querySelector<HTMLButtonElement>('#four-step');
+    const step = this.query<HTMLButtonElement>('#four-step');
     if (step)
       step.disabled =
         this.busy ||
@@ -825,23 +940,24 @@ export class FourArmyScreen {
         this.deps.conflicted() ||
         (!this.replay && (this.humanTurn || this.count >= FOUR_ARMY_COMMAND_LIMIT || this.session?.state.outcome.type !== 'ongoing')) ||
         (!!this.replay && this.replay.position >= this.replay.commands.length);
-    this.root.querySelectorAll<HTMLButtonElement>('[data-save-slot]').forEach((b) => (b.disabled = !this.session || this.busy || !this.deps.writable()));
-    const exp = this.root.querySelector<HTMLButtonElement>('#four-export');
+    this.saveButtons.forEach((b) => (b.disabled = !this.session || this.busy || !this.deps.writable()));
+    const exp = this.query<HTMLButtonElement>('#four-export');
     if (exp) exp.disabled = !this.session || this.busy;
-    const view = this.root.querySelector<HTMLSelectElement>('#four-view');
+    const view = this.query<HTMLSelectElement>('#four-view');
     if (view) {
       view.disabled = this.lockedView;
       view.value = this.view;
     }
-    this.root.querySelectorAll<HTMLSelectElement>('[data-setting]').forEach((s) => (s.disabled = !!this.replay));
+    this.settingInputs.forEach((s) => (s.disabled = !!this.replay));
   }
   private paint(): void {
+    this.root.dataset.mode = this.humanArmy ? 'human' : 'spectator';
     this.root.dataset.recordCount = String(this.count);
     this.root.dataset.checkpoints = String(this.checkpoints.length);
     this.root.dataset.replayStates = String(this.replay?.cachedStates ?? 0);
-    const notice = this.root.querySelector('#four-notice');
+    const notice = this.query('#four-notice');
     if (notice) notice.textContent = this.notice;
-    const storage = this.root.querySelector('#four-storage');
+    const storage = this.query('#four-storage');
     if (storage)
       storage.innerHTML = this.deps.persistent()
         ? renderStorageWriterNotice(this.deps.writerState())
@@ -852,7 +968,7 @@ export class FourArmyScreen {
     const state = this.replay?.state ?? this.session.state,
       display = fourArmyDisplay(state, this.view),
       actor = state.round.order[state.round.index]!;
-    const turn = this.root.querySelector('#four-turn')!;
+    const turn = this.query('#four-turn')!;
     turn.textContent = `${text('ラウンド', 'Round')} ${state.round.round} · ${armyName(actor)} · ${this.running ? text('再生中', 'Playing') : this.busy ? text('処理中', 'Working') : text('停止中', 'Paused')} · ${this.replay ? this.replay.position : this.count} ${text('命令', 'commands')}${state.outcome.type === 'victory' ? ' · ' + armyName(state.outcome.winner) + ' ' + text('勝利', 'wins') : state.outcome.type === 'draw' ? ' · ' + text('引き分け', 'Draw') : ''}`;
     if (this.humanArmy)
       turn.textContent +=
@@ -867,21 +983,54 @@ export class FourArmyScreen {
               : text('（あなた）', ' (You)'));
     turn.className = 'four-turn ' + actor;
     this.paintHuman();
-    this.root.querySelector('#four-army-info')!.innerHTML = FOUR_ARMY_IDS.map((a) => {
+    this.query('#four-army-info')!.innerHTML = FOUR_ARMY_IDS.map((a) => {
       const p = display.players[a],
         count = display.units.filter((u) => u.owner === a).length;
       return `<div class="four-army-label ${a}"><strong>${armyName(a)} ${a === actor ? '◀' : ''}</strong><span>${state.alive.includes(a) ? text('生存', 'Active') : text('脱落', 'Eliminated')}</span><span>${this.view === 'all' || this.view === a ? count + '/16' : text('視認 ', 'Seen ') + count}</span><span>${p ? `${p.gold.toLocaleString()} G · +${p.income.toLocaleString()}` : text('資金非公開', 'Funds hidden')}</span></div>`;
     }).join('');
-    paintFourArmyBoard(
-      this.root.querySelector<HTMLCanvasElement>('#four-board')!,
-      display,
-      this.selected,
+    const board = this.query<HTMLElement>('#four-board')!;
+    const boardKey = [
+      this.count,
+      this.replay?.position ?? 'live',
+      this.view,
+      getLocale(),
+      this.selected.x,
+      this.selected.y,
+      this.humanSource?.x,
+      this.humanSource?.y,
+      this.humanAction,
+      this.weaponSlot,
       this.cell,
-      this.humanAction ? this.humanChoices.filter((c) => c.action === this.humanAction).flatMap((c) => (c.target ? [c.target] : [])) : [],
-      !!this.humanArmy,
-    );
+    ].join(':');
+    if (boardKey !== this.boardModelKey) {
+      board.style.gridTemplateColumns = `repeat(${display.board.width}, ${this.cell}px)`;
+      board.style.gridAutoRows = `${this.cell}px`;
+      const choices = this.humanChoices.filter((c) => c.command.type !== 'attack' || this.weaponSlot === undefined || c.command.weaponSlot === this.weaponSlot);
+      this.boardView.update(board, fourArmyBoardCells(display, this.selected, this.humanSource, choices, this.humanAction, this.threat), 'four-army');
+      this.boardModelKey = boardKey;
+    }
+    this.boardInput.update(this.query<HTMLElement>('#four-board'), {
+      click: (p) => {
+        this.selected = p;
+        void this.chooseHumanTile();
+      },
+      key: (e) => {
+        this.key(e);
+        e.stopPropagation();
+      },
+      focus: (p) => {
+        if (this.selected.x === p.x && this.selected.y === p.y) return;
+        this.selected = p;
+        // Opening a taller brief during pointerdown moves the tile before click.
+        if (!this.boardPointerPending) this.paint();
+      },
+    });
+    const zoom = this.query('#four-zoom-label');
+    if (zoom) zoom.textContent = boardZoomPercent(this.zoomIndex) + '%';
+    this.query<HTMLButtonElement>('#four-zoom-out')!.disabled = this.zoomIndex === 0;
+    this.query<HTMLButtonElement>('#four-zoom-in')!.disabled = this.zoomIndex === BOARD_ZOOM_LEVELS.length - 1;
     this.selection(display);
-    const select = this.root.querySelector<HTMLSelectElement>('#four-unit')!,
+    const select = this.query<HTMLSelectElement>('#four-unit')!,
       previous = select.value;
     const unitOptions = display.units
       .filter((u) => u.position)
@@ -889,15 +1038,48 @@ export class FourArmyScreen {
       .join('');
     if (select.innerHTML !== unitOptions) select.innerHTML = unitOptions;
     if ([...select.options].some((o) => o.value === previous)) select.value = previous;
-    const range = this.root.querySelector<HTMLInputElement>('#four-position');
+    const range = this.query<HTMLInputElement>('#four-position');
     if (range && this.replay) {
       range.value = String(this.replay.position);
-      this.root.querySelector('#four-replay-count')!.textContent = `${this.replay.position}/${this.replay.commands.length}`;
+      this.query('#four-replay-count')!.textContent = `${this.replay.position}/${this.replay.commands.length}`;
     }
   }
-  private chooseHumanTile(): void {
-    if (!this.humanTurn || !this.humanAction) return;
-    this.humanPending = this.humanChoices.find((c) => c.action === this.humanAction && c.target?.x === this.selected.x && c.target.y === this.selected.y);
+  private attackChoice(): FourArmyHumanChoice | undefined {
+    if (!this.session || !this.humanArmy || !this.humanSource) return;
+    const observed = observeFourArmy(this.session.state, this.humanArmy);
+    if (!observed.ok) return;
+    const view = fourArmyPlanningView(observed.value);
+    const attacker = view.units.find((u) => u.owner === 'red' && u.position?.x === this.humanSource?.x && u.position?.y === this.humanSource?.y);
+    const target = view.units.find((u) => u.owner === 'blue' && u.position?.x === this.selected.x && u.position.y === this.selected.y);
+    if (!attacker || !target) return;
+    const forecast = forecastCombat(view, attacker, target, this.weaponSlot);
+    if (!forecast.ok) return;
+    return this.humanChoices.find((c) => c.command.type === 'attack' && c.command.targetId === target.id && c.command.weaponSlot === forecast.value.attackWeapon);
+  }
+  private async chooseHumanTile(): Promise<void> {
+    if (!this.humanTurn || !this.session || this.busy || this.count >= FOUR_ARMY_COMMAND_LIMIT || this.deps.conflicted()) {
+      this.paint();
+      return;
+    }
+    const at = (p: Position | undefined) => p?.x === this.selected.x && p.y === this.selected.y;
+    const target = this.session.state.units.find((u) => at(u.position) && u.owner === this.humanArmy);
+    const choice = this.humanAction
+      ? this.humanChoices.find((c) => c.action === this.humanAction && at(c.target))
+      : (this.attackChoice() ?? this.humanChoices.find((c) => c.action === 'move' && at(c.target)));
+    if (choice) {
+      await this.applyHuman(choice);
+      return;
+    }
+    if (this.humanAction) this.notice = text('枠で示した対象マスを選んでください。', 'Choose an outlined target tile.');
+    else if (target) {
+      this.clearHuman();
+      this.humanSource = { ...this.selected };
+      this.notice = text('移動先または敵を選択してください。', 'Choose a destination or enemy.');
+    } else if (!this.humanSource) {
+      this.openProduction(this.selected);
+    } else this.notice = text('このマスには命令できません。選択解除はEscです。', 'No action is available on this tile. Esc clears selection.');
+    this.paint();
+    this.focusTile();
   }
   private actionName(action: FourArmyHumanAction): string {
     const names: Record<FourArmyHumanAction, [string, string]> = {
@@ -920,68 +1102,198 @@ export class FourArmyScreen {
       this.actionName(choice.action) +
       (command.type === 'produce' ? ' ' + unitNames[command.kind] + ' · ' + unitStats[command.kind].cost.toLocaleString() + ' G' : '') +
       (choice.target ? ` (${choice.target.x + 1}, ${choice.target.y + 1})` : '') +
+      (choice.counterDamage ? ' · ' + text('予測反撃 ', 'Estimated counter ') + choice.counterDamage.min + '–' + choice.counterDamage.max : '') +
       (choice.damage ? ' · ' + text('予測ダメージ ', 'Estimated damage ') + choice.damage.min + '–' + choice.damage.max : '')
     );
   }
   private paintHuman(): void {
-    const panel = this.root.querySelector<HTMLElement>('#four-human-panel');
-    if (!panel) return;
+    const panel = this.query<HTMLElement>('#four-human-panel');
+    if (!panel || !this.session) return;
     panel.hidden = !this.humanArmy;
-    if (!this.humanArmy || !this.session) return;
-    const state = this.session.state;
-    let html = `<h2>${escapeHtml(armyName(this.humanArmy))} · ${text('あなた', 'You')}</h2>`;
+    const state = this.replay?.state ?? this.session.state;
+    const viewer = this.view === 'all' ? (this.humanArmy ?? state.round.order[state.round.index]!) : this.view;
+    const observed = observeFourArmy(state, viewer);
+    if (!observed.ok) return;
+    const projection = fourArmyPlanningView(observed.value);
+    if (this.view === 'all') projection.units = state.units.map((u) => ({ ...u, owner: u.owner === viewer ? 'red' : 'blue' }));
+    const source = this.humanSource;
+    const unit = projection.units.find((u) => u.owner === 'red' && u.position?.x === source?.x && u.position?.y === source?.y);
+    const canAct = this.humanTurn && !this.busy && !this.deps.conflicted() && this.count < FOUR_ARMY_COMMAND_LIMIT;
+    const inspected = !source ? projection.units.find((u) => u.owner === 'blue' && u.position?.x === this.selected.x && u.position.y === this.selected.y) : undefined;
+    const threatKey = canAct && inspected ? `${this.count}:${inspected.id}` : '';
+    if (threatKey !== this.threatKey) {
+      this.threatKey = threatKey;
+      this.threat = inspected && canAct ? enemyThreatPreview(projection, inspected.id, 'red') : undefined;
+    }
+    const cacheKey = canAct ? `${this.count}:${source?.x},${source?.y}` : '';
+    if (!cacheKey) {
+      this.humanChoices = [];
+      this.choicesKey = '';
+    } else if (cacheKey !== this.choicesKey) {
+      // No selection means only the turn control is available; facilities have their own menu.
+      this.humanChoices = fourArmyHumanChoices(observed.value, source ?? { x: -1, y: -1 });
+      this.choicesKey = cacheKey;
+    }
+    const displayedUnit =
+      observed.value.units.find((u) => u.id === unit?.id) ?? observed.value.units.find((u) => u.position?.x === this.selected.x && u.position.y === this.selected.y);
+    const brief = renderUnitBrief(
+      projection,
+      'red',
+      this.view === 'all' ? new Set(state.board.terrain.flatMap((row, y) => row.map((_, x) => `${x},${y}`))) : new Set(observed.value.visible.map((p) => `${p.x},${p.y}`)),
+      unit?.id,
+      this.selected,
+      this.weaponSlot,
+      canAct,
+      this.view === 'all',
+    )
+      .replace('<h3>', '<h3>' + (displayedUnit ? escapeHtml(armyName(displayedUnit.owner)) + ' · ' : ''))
+      .replace('id="unit-brief"', 'id="four-unit-brief"')
+      .replace('id="attack-weapon"', 'id="four-attack-weapon"');
+    const briefRoot = this.query('#four-brief')!;
+    briefRoot.className = displayedUnit?.owner ?? '';
+    if (this.briefMarkup !== brief) {
+      briefRoot.innerHTML = brief;
+      this.briefMarkup = brief;
+    }
+    if (!this.humanArmy) {
+      this.query('#four-mobile-host')!.innerHTML = '';
+      return;
+    }
+    let html = `<p class="card-kicker">COMMAND</p><h2 tabindex="-1">${escapeHtml(armyName(this.humanArmy))} · ${text('あなた', 'You')}</h2>`;
     if (this.replay) html += `<p>${text('リプレイ中は命令できません。', 'Commands are disabled during replay.')}</p>`;
     else if (!state.alive.includes(this.humanArmy))
       html += `<p>${text('自軍は脱落しました。記録を保存するか、残りの対局を観戦できます。', 'Your army was eliminated. Save the record or watch the remaining match.')}</p>${state.outcome.type === 'ongoing' ? `<button id="four-human-watch">${text('残りを観戦', 'Watch the remaining match')}</button>` : ''}`;
     else if (state.outcome.type !== 'ongoing') html += `<p>${text('対局は終了しました。', 'The match has ended.')}</p>`;
     else if (state.paused) html += `<p>${text('100ラウンドの区切りです。再生で次の手番を開始します。', 'Paused at a 100-round boundary. Play starts the next turn.')}</p>`;
-    else if (!this.humanTurn)
-      html += `<p>${text('敵CPUの手番です。停止中は再生で続けられます。表示は自軍視界を維持します。', 'Enemy CPU turn. Choose Play when paused. The view stays with your army.')}</p>`;
-    else if (this.count >= FOUR_ARMY_COMMAND_LIMIT || this.deps.conflicted() || this.busy)
-      html += `<p>${text('現在は命令できません。記録を書き出して保持してください。', 'Commands are unavailable. Export to keep the record.')}</p>`;
+    else if (!this.humanTurn) html += `<p>${text('敵CPUの手番です。停止中は再生で続けられます。', 'Enemy CPU turn. Choose Play when paused.')}</p>`;
+    else if (!canAct) html += `<p>${text('現在は命令できません。記録を書き出して保持してください。', 'Commands are unavailable. Export to keep the record.')}</p>`;
     else {
-      const observed = observeFourArmy(state, this.humanArmy);
-      if (!observed.ok) return;
-      this.humanChoices = fourArmyHumanChoices(observed.value, this.humanSource ?? this.selected);
-      const source = this.humanSource ?? this.selected,
-        unit = observed.value.units.find((u) => u.owner === this.humanArmy && u.position?.x === source.x && u.position.y === source.y);
-      html += `<p class="four-human-source">${escapeHtml(unit ? unitNames[unit.kind] + ' ' + unit.id + ' · HP ' + unit.hp : terrainNames[observed.value.board.terrain[source.y]![source.x]!.kind])} (${source.x + 1}, ${source.y + 1})</p>`;
-      html += `<p>${text('自軍の部隊または施設を選択して命令します。命令は確認後に実行します。', 'Select your unit or facility, choose an action, then confirm.')} ${observed.value.player.gold.toLocaleString()} G · ${observed.value.units.filter((u) => u.owner === this.humanArmy).length}/16</p>`;
-      if (this.humanPending)
-        html += `<p id="four-human-preview" role="status">${escapeHtml(this.choiceName(this.humanPending))}${this.humanPending.action === 'move' ? ' · ' + text('未知の敵に接触すると途中で停止します。', 'Contact with an unseen enemy can stop movement early.') : ''}</p><div class="four-buttons"><button id="four-human-confirm" class="four-primary">${text('命令を確定', 'Confirm command')}</button><button id="four-human-cancel">${text('取消', 'Cancel')}</button></div>`;
-      else if (this.humanAction)
-        html += `<p id="four-human-preview" role="status">${escapeHtml(this.actionName(this.humanAction))} · ${text('枠で示した対象マスを選んでください。', 'Choose an outlined target tile.')}</p><button id="four-human-cancel">${text('取消', 'Cancel')}</button>`;
-      else {
-        const shown = new Set<string>();
-        html +=
-          '<div class="four-buttons">' +
-          this.humanChoices
-            .map((choice, i) => {
-              if (choice.action === 'produce' || shown.has(choice.action)) return '';
-              shown.add(choice.action);
-              return `<button data-human-choice="${i}" data-human-action="${choice.action}">${escapeHtml(this.actionName(choice.action))}</button>`;
-            })
-            .join('') +
-          '</div>';
-        const production = this.humanChoices
-          .map((c, i) => (c.action === 'produce' ? `<button data-human-choice="${i}" data-human-action="produce">${escapeHtml(this.choiceName(c))}</button>` : ''))
-          .join('');
-        if (production) html += `<details><summary>${text('この施設で生産', 'Produce at this facility')}</summary><div class="four-buttons">${production}</div></details>`;
-      }
+      html += `<p>${observed.value.player.gold.toLocaleString()} G · ${observed.value.units.filter((u) => u.owner === this.humanArmy).length}/16</p>`;
+      html += `<p class="four-human-source">${unit ? escapeHtml(unitNames[unit.kind] + ' ' + unit.id) : text('部隊を選択してください', 'Select a unit')}</p>`;
+      const actions = this.humanChoices.map((choice, i) => {
+        if (['move', 'attack-primary', 'attack-secondary', 'produce', 'endTurn'].includes(choice.action)) return '';
+        if (this.humanChoices.findIndex((c) => c.action === choice.action) !== i) return '';
+        return `<button class="capture" data-human-choice="${i}" data-human-action="${choice.action}">${escapeHtml(this.actionName(choice.action))}</button>`;
+      });
+      html += renderUnitActionCluster(actions);
+      if (source) html += `<button id="four-human-cancel" class="save-action">${text('選択解除', 'Clear selection')} <kbd>Esc</kbd></button>`;
+      const preview = this.humanAction
+        ? this.actionName(this.humanAction) + ' · ' + text('枠で示した対象を選択', 'Choose an outlined target')
+        : this.attackChoice()
+          ? this.choiceName(this.attackChoice()!)
+          : text('部隊→移動先・敵を選択して操作', 'Select a unit, then a destination or enemy');
+      html += `<p id="four-human-preview" class="four-hint" role="status">${escapeHtml(preview)}</p>`;
+      html += `<button id="four-open-production" class="save-action">${text('生産メニュー', 'Production')}</button>`;
+      const end = this.humanChoices.findIndex((c) => c.action === 'endTurn');
+      html += `<button class="end-turn" data-human-choice="${end}" data-human-action="endTurn">${text('ターン終了', 'End turn')} →</button>`;
     }
-    if (panel.innerHTML !== html) panel.innerHTML = html;
+    const unacted = canAct ? observed.value.units.filter((u) => u.owner === this.humanArmy && u.position && !u.hasActed) : [];
+    if (canAct)
+      html += `<section class="unit-queue-card"><div><p class="card-kicker">UNIT STATUS</p><h2>${text('未行動部隊', 'Ready units')} <strong>${unacted.length}</strong></h2></div><ol>${unacted.map((u) => `<li><button class="unit-queue-item" data-four-unit="${escapeHtml(u.id)}"><span class="${u.owner}" aria-hidden="true">${u.owner.slice(-1)}</span>${escapeHtml(unitNames[u.kind])}<em>${u.hp}</em></button></li>`).join('')}</ol><button id="four-next-unit" class="save-action" ${unacted.length ? '' : 'disabled'}>${text('次の未行動部隊', 'Next ready unit')} <kbd>N</kbd></button></section>`;
+    if (canAct)
+      html += `<section class="turn-setting"><label><input type="checkbox" id="four-confirm-end" ${this.confirmEndTurn ? 'checked' : ''}>${text('未行動部隊がいる時にターン終了を確認する', 'Confirm end turn when ready units remain')}</label></section>`;
+    if (this.humanMarkup !== html) {
+      panel.innerHTML = html;
+      this.humanMarkup = html;
+    }
+    const quick = (action: string, label: string) =>
+      `<button class="mobile-action" data-quick-action="${action}" ${this.humanChoices.some((c) => c.action === action) && canAct ? '' : 'disabled'}>${label}</button>`;
+    const showMobile = !this.replay && state.alive.includes(this.humanArmy) && state.outcome.type === 'ongoing';
+    const mobile = showMobile
+      ? `<nav class="mobile-action-bar" aria-label="${text('クイック操作', 'Quick actions')}"><button id="four-mobile-next" class="mobile-action" ${unacted.length ? '' : 'disabled'}>${text('未行動', 'Ready')} <strong>${unacted.length}</strong></button>${quick('wait', text('行動終了', 'Wait'))}${quick('capture', text('占領', 'Capture'))}<button id="four-mobile-production" class="mobile-action" ${canAct ? '' : 'disabled'}>${text('生産', 'Build')}</button><button id="four-mobile-panel" class="mobile-action">${text('作戦情報', 'Info')}</button>${canAct ? quick('endTurn', text('ターン終了', 'End turn')) : `<button id="four-mobile-toggle" class="mobile-action mobile-action-primary" ${this.deps.conflicted() || this.count >= FOUR_ARMY_COMMAND_LIMIT ? 'disabled' : ''}>${this.running || this.busy ? text('一時停止', 'Pause') : text('再生', 'Play')}</button>`}</nav>`
+      : '';
+    const mobileRoot = this.query('#four-mobile-host')!;
+    if (this.mobileMarkup !== mobile) {
+      mobileRoot.innerHTML = mobile;
+      this.mobileMarkup = mobile;
+    }
   }
-  private async commitHuman(): Promise<void> {
-    const choice = this.humanPending;
+  private openProduction(position?: Position): void {
+    if (!this.humanTurn || !this.session || !this.humanArmy || this.busy || this.count >= FOUR_ARMY_COMMAND_LIMIT || this.deps.conflicted()) return;
+    const o = observeFourArmy(this.session.state, this.humanArmy);
+    if (!o.ok) return;
+    const candidates = o.value.board.terrain.flatMap((row, y) =>
+      row.flatMap((tile, x) =>
+        tile.owner === this.humanArmy &&
+        (productionKindsForRule('facility-v2', 12)[tile.kind]?.length ?? 0) > 0 &&
+        !o.value.units.some((u) => u.position?.x === x && u.position.y === y)
+          ? [{ x, y }]
+          : [],
+      ),
+    );
+    const target = position ? candidates.find((p) => p.x === position.x && p.y === position.y) : candidates[0];
+    if (!target) {
+      if (!position) {
+        this.notice = text('生産可能な空き施設がありません。', 'No idle production facility is available.');
+        this.paint();
+      }
+      return;
+    }
+    this.clearHuman();
+    this.selected = { ...target };
+    this.production = { ...target };
+    this.paint();
+    const choices = fourArmyHumanChoices(o.value, target).filter((c) => c.command.type === 'produce');
+    const tile = o.value.board.terrain[target.y]![target.x]!;
+    const kinds = productionKindsForRule('facility-v2', 12)[tile.kind] ?? [];
+    const buttons = kinds
+      .map(
+        (kind) =>
+          `<button class="production-option" data-production-kind="${kind}" ${choices.some((c) => c.command.type === 'produce' && c.command.kind === kind) ? '' : 'disabled'}>${escapeHtml(unitNames[kind])}<strong>${unitStats[kind].cost.toLocaleString()} G</strong></button>`,
+      )
+      .join('');
+    this.query('#four-production-host')!.innerHTML =
+      `<dialog id="four-production-dialog" class="four-production-dialog" aria-modal="true" aria-labelledby="four-production-title"><h2 id="four-production-title">${text('生産メニュー', 'Production')}</h2>${renderProductionCard(`<p>${terrainNames[tile.kind]} (${target.x + 1}, ${target.y + 1})</p>`, `<p>${o.value.player.gold.toLocaleString()} G · ${o.value.units.filter((u) => u.owner === this.humanArmy).length}/16</p>`, buttons)}<button id="four-production-close">${text('閉じる', 'Close')} <kbd>Esc</kbd></button></dialog>`;
+    const dialog = this.query<HTMLDialogElement>('#four-production-dialog')!;
+    if (typeof dialog.showModal === 'function') dialog.showModal();
+    else dialog.setAttribute('open', '');
+    dialog.addEventListener('cancel', (e) => {
+      e.preventDefault();
+      this.closeProduction();
+    });
+    this.query<HTMLElement>('#four-production-close')?.focus();
+  }
+  private closeProduction(focus = true): void {
+    const position = this.production;
+    this.production = undefined;
+    this.query<HTMLDialogElement>('#four-production-dialog')?.close?.();
+    this.query('#four-production-host')?.replaceChildren();
+    if (focus && position) {
+      this.selected = position;
+      this.paint();
+      this.focusTile();
+    }
+  }
+  private async applyHuman(choice: FourArmyHumanChoice): Promise<void> {
     if (!choice || !this.session || !this.humanTurn || this.busy || this.count >= FOUR_ARMY_COMMAND_LIMIT || this.deps.conflicted()) return;
-    this.pause();
-    if (!this.session.submit(choice.command)) {
+    if (
+      choice.command.type === 'endTurn' &&
+      this.confirmEndTurn &&
+      this.session.state.units.some((u) => u.owner === this.humanArmy && !u.hasActed) &&
+      !window.confirm(text('未行動部隊が残っています。ターンを終了しますか？', 'Ready units remain. End your turn?'))
+    )
+      return;
+    const command = choice.command;
+    const weaponSlot = this.weaponSlot;
+    this.pause(undefined, false);
+    if (!this.session.submit(command)) {
       this.notice = text('この命令は実行できません。盤面を確認してください。', 'This command could not be applied. Check the board.');
       this.paint();
       return;
     }
+    if (command.type === 'move') {
+      const moved = this.session.state.units.find((u) => u.id === command.unitId);
+      if (moved?.position) {
+        this.selected = { ...moved.position };
+        this.humanSource = { ...moved.position };
+        this.weaponSlot = weaponSlot;
+      }
+    }
     this.captureCheckpoint();
-    this.notice = text('命令を実行しました。', 'Command applied.');
+    this.notice =
+      command.type === 'move'
+        ? text('移動しました。未知の敵への接触時は途中で停止します。', 'Moved. Contact with an unseen enemy can stop movement early.')
+        : text('命令を実行しました。', 'Command applied.');
     this.paint();
     const state = this.session.state;
     if (this.humanArmy && !state.alive.includes(this.humanArmy)) {
@@ -1004,6 +1316,6 @@ export class FourArmyScreen {
         info += ` · ${text('燃料', 'Fuel')} ${u.fuel ?? '—'} · ${text('弾薬', 'Ammo')} ${u.ammo ?? '—'}${u.supplyStock !== undefined ? ' · ' + text('物資', 'Stock') + ' ' + u.supplyStock : ''}`;
       else info += ' · ' + text('兵站情報非公開', 'Logistics hidden');
     }
-    this.root.querySelector('#four-selection')!.textContent = info;
+    this.query('#four-selection')!.textContent = info;
   }
 }

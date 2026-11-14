@@ -46,7 +46,6 @@ describe('four-army spectator controller', () => {
     writable = true;
     closed = vi.fn();
     vi.spyOn(window, 'confirm').mockReturnValue(true);
-    vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockReturnValue(null);
     vi.spyOn(download, 'downloadJson').mockImplementation(() => {});
     codec = new FourArmyFileCodec(() => {
       throw Error('no worker');
@@ -152,27 +151,31 @@ describe('four-army spectator controller', () => {
     click('#four-close');
     expect(window.confirm).not.toHaveBeenCalled();
   });
-  it('previews keyboard movement, cancels without applying, then commits exactly once and saves its controller', async () => {
+  it('uses the two-army keyboard flow, cancels selection without a command and retains the moved unit', async () => {
     change('#four-mode', 'human');
     start();
-    const key = (key: string) => query('#four-board').dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true }));
+    const key = (key: string) => query('#four-board').dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true }));
+    expect(query('#four-board').style.gridAutoRows).toBe('44px');
+    expect(query('#four-board').children).toHaveLength(1024);
     key('ArrowRight');
     key('ArrowDown');
-    click('[data-human-action="move"]');
-    key('ArrowLeft');
     key('Enter');
-    expect(query('#four-human-preview').textContent).toContain('Move (4, 5)');
-    expect(query('.four-human-source').textContent).toContain('Infantry u1');
-    click('#four-human-cancel');
+    const original = query('#four-board > [data-x="4"][data-y="4"]');
+    expect(query('#four-unit-brief').dataset.unitId).toBe('u1');
+    key('ArrowLeft');
+    expect(query('#four-unit-brief').dataset.unitId).toBe('u1');
+    key('Escape');
     expect(query('#four-turn').textContent).toContain('0 commands');
+    expect(query('#four-board .selected')).toBeNull();
     key('ArrowRight');
-    click('[data-human-action="move"]');
-    key('ArrowLeft');
     key('Enter');
-    click('#four-human-confirm');
+    key('ArrowLeft');
+    key(' ');
     expect(query('#four-turn').textContent).toContain('1 commands');
+    expect(query('#four-unit-brief').dataset.unitId).toBe('u1');
+    expect(query('#four-board > [data-x="4"][data-y="4"]')).toBe(original);
+    expect(query('#four-board > [data-x="3"][data-y="4"] .unit')).not.toBeNull();
     click('[data-human-action="wait"]');
-    click('#four-human-confirm');
     expect(query('#four-turn').textContent).toContain('2 commands');
     click('[data-save-slot="0"]');
     await vi.waitFor(() => expect(values.has(FOUR_ARMY_SAVE_KEYS[0])).toBe(true));
@@ -181,11 +184,10 @@ describe('four-army spectator controller', () => {
   it('confirms the end of a human turn and preserves an enemy turn when backgrounded and reloaded', async () => {
     change('#four-mode', 'human');
     start();
+    vi.mocked(window.confirm).mockReturnValueOnce(false);
     click('[data-human-action="endTurn"]');
-    click('#four-human-cancel');
     expect(query('#four-turn').textContent).toContain('0 commands');
     click('[data-human-action="endTurn"]');
-    click('#four-human-confirm');
     expect(query('#four-turn').textContent).toContain('Army 2');
     expect(query('#four-turn').textContent).toContain('1 commands');
     expect(query('[data-human-action]')).toBeNull();
@@ -198,17 +200,50 @@ describe('four-army spectator controller', () => {
     expect(query<HTMLSelectElement>('#four-view').value).toBe('army1');
     expect(query('#four-toggle').getAttribute('aria-pressed')).toBe('false');
   });
-  it('previews and confirms factory production without auto-ending the human turn', () => {
+  it('opens facility production, closes without a command and produces directly without ending the turn', () => {
     change('#four-mode', 'human');
     start();
-    const key = (key: string) => query('#four-board').dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true }));
+    const key = (key: string) => query('#four-board').dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true }));
     key('ArrowRight');
     key('ArrowRight');
-    click('[data-human-action="produce"]');
-    expect(query('#four-human-preview').textContent).toContain('Produce');
-    click('#four-human-confirm');
+    key('Enter');
+    expect(query('#four-production-dialog')).not.toBeNull();
+    key('Escape');
+    expect(query('#four-production-dialog')).toBeNull();
+    expect(query('#four-turn').textContent).toContain('0 commands');
+    expect(document.activeElement).toBe(query('#four-board > [data-x="5"][data-y="3"]'));
+    key('Enter');
+    click('[data-production-kind="infantry"]');
+    expect(query('#four-production-dialog')).toBeNull();
     expect(query('#four-unit').children).toHaveLength(9);
+    expect(query('#four-turn').textContent).toContain('1 commands');
     expect(query('#four-turn').textContent).toContain('Your turn');
+  });
+  it('defers pointer focus rendering until click so the target cannot shift under the pointer', () => {
+    change('#four-mode', 'human');
+    start();
+    const tile = query<HTMLButtonElement>('#four-board > [data-x="4"][data-y="4"]');
+    tile.dispatchEvent(new Event('pointerdown', { bubbles: true }));
+    tile.focus();
+    expect(query('#four-unit-brief').dataset.unitId).toBeUndefined();
+    tile.dispatchEvent(new Event('pointerup', { bubbles: true }));
+    tile.click();
+    expect(query('#four-unit-brief').dataset.unitId).toBe('u1');
+    expect(query('#four-board .selected')).toBe(tile);
+    expect(query('#four-board .reachable')).not.toBeNull();
+  });
+  it('cycles ready units with N and ignores invalid destinations without consuming history', () => {
+    change('#four-mode', 'human');
+    start();
+    click('#four-next-unit');
+    expect(query('#four-unit-brief').dataset.unitId).toBe('u1');
+    query('#four-board').dispatchEvent(new KeyboardEvent('keydown', { key: 'n', bubbles: true }));
+    expect(query('#four-unit-brief').dataset.unitId).toBe('u2');
+    click('#four-board > [data-x="31"][data-y="31"]');
+    expect(query('#four-turn').textContent).toContain('0 commands');
+    expect(query('#four-unit-brief').dataset.unitId).toBe('u2');
+    expect(query('#four-board > [data-x="31"][data-y="31"] .unit')).toBeNull();
+    expect(query('#four-board > [data-x="31"][data-y="31"]').classList.contains('fog')).toBe(true);
   });
   it('validates seed and duplicate turn order before starting, and supports keyboard selection and zoom', () => {
     change('#four-seed', 'bad');
