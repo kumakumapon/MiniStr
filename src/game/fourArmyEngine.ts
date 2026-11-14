@@ -3,6 +3,8 @@ import { applyModernUpkeep } from './logistics';
 import { canProduceUnit, isPropertyTerrainKind } from './facilities';
 import { visibleEnemies, visiblePositions, observedEnemy } from './fog';
 import { incomePropertyCount } from './state';
+import { moveUnit } from './commands';
+import { homePositionRank } from './homePositionRank';
 import { movementCost, positionKey } from './terrain';
 import { unitStats } from './units';
 import { inFourArmyStartZone, isFourArmySetup, type FourArmySetup } from './fourArmySetup';
@@ -22,6 +24,7 @@ import type { Board, GameResult, GameState, PlayerState, Position, Terrain, Unit
 export type FourArmyUnit = Omit<Unit, 'owner' | 'logistics' | 'callsign' | 'ambush' | 'submerged' | 'diveTurns'> & { owner: FourArmyId };
 export type FourArmyTerrain = Omit<Terrain, 'owner'> & { owner?: FourArmyId };
 export interface FourArmyMap {
+  pathVersion?: 1;
   id: string;
   board: Omit<Board, 'terrain'> & { terrain: FourArmyTerrain[][] };
   capitals: Record<FourArmyId, Position>;
@@ -32,6 +35,8 @@ export interface FourArmyMap {
   setup?: FourArmySetup;
 }
 export interface FourArmyState {
+  /** Omission preserves the absolute-coordinate path rule of existing recordings. */
+  pathVersion?: 1;
   /** v1 retains legacy checkpoints; v2 adds immutable setup and a per-army ceiling. Combat/logistics remain v12. */
   engineVersion: 1 | 2;
   setup?: FourArmySetup;
@@ -185,7 +190,11 @@ function advance(state: FourArmyState): GameResult<FourArmyState> {
 export function isFourArmyState(value: unknown): value is FourArmyState {
   if (
     !record(value) ||
-    !keys(value, ['engineVersion', 'board', 'capitals', 'units', 'players', 'round', 'alive', 'eliminations', 'outcome', 'rngSeed', 'nextUnitId', 'paused'], ['setup']) ||
+    !keys(
+      value,
+      ['engineVersion', 'board', 'capitals', 'units', 'players', 'round', 'alive', 'eliminations', 'outcome', 'rngSeed', 'nextUnitId', 'paused'],
+      ['setup', 'pathVersion'],
+    ) ||
     (value.engineVersion !== 1 && value.engineVersion !== 2)
   )
     return false;
@@ -198,6 +207,7 @@ export function isFourArmyState(value: unknown): value is FourArmyState {
     value.board.terrain.length !== value.board.height
   )
     return false;
+  if (Object.hasOwn(value, 'pathVersion') && (value.pathVersion !== 1 || value.engineVersion !== 2 || value.board.width !== 32 || value.board.height !== 32)) return false;
   const playerData = value.players;
   const capitalData = value.capitals;
   const roundData = value.round;
@@ -326,13 +336,15 @@ export function isFourArmyCommand(v: unknown): v is FourArmyCommand {
 }
 
 export function createFourArmyState(input: unknown): GameResult<FourArmyState> {
-  if (!record(input) || !keys(input, ['id', 'board', 'capitals', 'units', 'players', 'order', 'seed'], ['setup']) || !id(input.id)) return fail('4軍マップが不正です。');
+  if (!record(input) || !keys(input, ['id', 'board', 'capitals', 'units', 'players', 'order', 'seed'], ['setup', 'pathVersion']) || !id(input.id))
+    return fail('4軍マップが不正です。');
   const map = input as unknown as FourArmyMap;
   if (!Array.isArray(map.units) || map.units.length > 128) return fail('4軍の部隊数が不正です。');
   const round = createFourArmyRound(map.order);
   if (!round.ok) return round;
   const numericIds = Array.isArray(map.units) ? map.units.filter((u) => record(u) && typeof u.id === 'string' && /^u[0-9]+$/.test(u.id)).map((u) => Number(u.id.slice(1))) : [];
   const initial = {
+    ...(Object.hasOwn(input, 'pathVersion') ? { pathVersion: input.pathVersion } : {}),
     engineVersion: Object.hasOwn(input, 'setup') ? 2 : 1,
     ...(Object.hasOwn(input, 'setup') ? { setup: map.setup } : {}),
     board: map.board,
@@ -379,7 +391,11 @@ export function applyFourArmyCommand(input: unknown, command: unknown): GameResu
     )
       return fail('対応する生産施設または部隊枠が必要です。');
     const { actor, ...legacy } = command;
-    const changed = applyGameCommand(project(input, actor), legacy);
+    const view = project(input, actor);
+    const changed =
+      command.type === 'move' && input.pathVersion === 1
+        ? moveUnit(view, command.unitId, command.destination, (a, b) => homePositionRank(input.capitals[actor], a) - homePositionRank(input.capitals[actor], b))
+        : applyGameCommand(view, legacy);
     if (!changed.ok) return changed;
     const settled = settle(restore(input, changed.value, actor));
     next =

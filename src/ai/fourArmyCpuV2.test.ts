@@ -25,7 +25,7 @@ describe('four-army CPU v2 bounded fixes', () => {
     expect(next).toMatchObject({ type: 'move', unitId: 'u4', destination: { x: 12, y: 5 } });
     expect(handleFourArmyCpuRequest(request)).toMatchObject({ kind: 'command', command: old });
     expect(handleFourArmyCpuRequest({ ...request, cpuVersion: 'four-army-cpu-v1' })).toMatchObject({ kind: 'command', command: old });
-    expect(handleFourArmyCpuRequest({ ...request, cpuVersion: FOUR_ARMY_CPU_VERSION })).toMatchObject({ kind: 'command', command: next });
+    expect(handleFourArmyCpuRequest({ ...request, cpuVersion: 'four-army-cpu-v2' })).toMatchObject({ kind: 'command', command: next });
     expect(isFourArmyCpuRequest({ ...request, cpuVersion: 'future' })).toBe(false);
     expect(isFourArmyCpuRequest({ ...request, cpuVersion: undefined })).toBe(false);
   });

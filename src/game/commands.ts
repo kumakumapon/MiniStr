@@ -49,7 +49,7 @@ export function waitUnit(state: GameState, unitId: string): GameResult {
   });
 }
 
-export function moveUnit(state: GameState, unitId: string, destination: Position): GameResult {
+export function moveUnit(state: GameState, unitId: string, destination: Position, comparePath?: (a: Position, b: Position) => number): GameResult {
   if (isGameOver(state)) return fail('Game has finished');
   const unit = state.units.find(candidate => candidate.id === unitId);
   if (!unit) return fail('Unit not found');
@@ -63,7 +63,7 @@ export function moveUnit(state: GameState, unitId: string, destination: Position
   let finalDestination = destination;
   let spent = costs.get(positionKey(destination));
   if (spent === undefined) {
-    const encounter = hiddenEnemyEncounter(state, unit, destination, costs);
+    const encounter = hiddenEnemyEncounter(state, unit, destination, costs, comparePath);
     if (!encounter) return fail(unitAt(state, destination) ? 'Destination is occupied' : 'Destination is out of range');
     finalDestination = encounter.destination;
     spent = encounter.spent;
@@ -74,7 +74,7 @@ export function moveUnit(state: GameState, unitId: string, destination: Position
   const board = samePosition(unit.position, finalDestination)
     ? state.board
     : restoreCaptureProgressAt(releaseCaptureProgress(state.board, unit), finalDestination);
-  return succeed(removeEnteredFortifications({ ...state, board, units: state.units.map(candidate => candidate.id === unitId ? { ...candidate, position: { ...finalDestination }, hasMoved: true, fuel } : candidate) }, unit, pathFromMovementCosts(state, unit, finalDestination, costs) ?? [finalDestination]));
+  return succeed(removeEnteredFortifications({ ...state, board, units: state.units.map(candidate => candidate.id === unitId ? { ...candidate, position: { ...finalDestination }, hasMoved: true, fuel } : candidate) }, unit, pathFromMovementCosts(state, unit, finalDestination, costs, comparePath) ?? [finalDestination]));
 }
 
 /**
@@ -121,6 +121,7 @@ function pathFromMovementCosts(
   unit: Unit & { position: Position },
   destination: Position,
   costs: ReadonlyMap<string, number>,
+  comparePath?: (a: Position, b: Position) => number,
 ): Position[] | undefined {
   const route = [{ ...destination }];
   const zones = tacticalEnabled(state, 'zoc') && groundUnit(unit) ? zocTiles(state, unit, visibleEnemies(state, unit.owner)) : new Set<string>();
@@ -133,7 +134,7 @@ function pathFromMovementCosts(
       { x: current.x - 1, y: current.y }, { x: current.x + 1, y: current.y },
       { x: current.x, y: current.y - 1 }, { x: current.x, y: current.y + 1 },
     ].filter(candidate => costs.get(positionKey(candidate)) === currentCost - step && (samePosition(candidate, unit.position) || !zones.has(positionKey(candidate))))
-      .sort((a, b) => a.y - b.y || a.x - b.x)[0];
+      .sort(comparePath ?? ((a, b) => a.y - b.y || a.x - b.x))[0];
     if (!previous) return undefined;
     route.push(previous);
   }
@@ -150,6 +151,7 @@ function hiddenEnemyEncounter(
   unit: Unit & { position: Position },
   destination: Position,
   actualCosts: ReadonlyMap<string, number>,
+  comparePath?: (a: Position, b: Position) => number,
 ): { destination: Position; spent: number } | undefined {
   const visible = new Set(visiblePositions(state, unit.owner).map(positionKey));
   const preview = {
@@ -158,7 +160,7 @@ function hiddenEnemyEncounter(
   };
   const previewCosts = movementCosts(preview, unit.id);
   if (!previewCosts.has(positionKey(destination))) return undefined;
-  const route = pathFromMovementCosts(preview, unit, destination, previewCosts);
+  const route = pathFromMovementCosts(preview, unit, destination, previewCosts, comparePath);
   if (!route) return undefined;
   const encounterIndex = route.findIndex((position, index) => {
     if (index === 0) return false;
