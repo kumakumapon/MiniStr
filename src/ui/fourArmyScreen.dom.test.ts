@@ -219,6 +219,19 @@ describe('four-army spectator controller', () => {
     expect(query('#four-turn').textContent).toContain('1 commands');
     expect(query('#four-turn').textContent).toContain('Your turn');
   });
+  it('defers pointer focus rendering until click so the target cannot shift under the pointer', () => {
+    change('#four-mode', 'human');
+    start();
+    const tile = query<HTMLButtonElement>('#four-board > [data-x="4"][data-y="4"]');
+    tile.dispatchEvent(new Event('pointerdown', { bubbles: true }));
+    tile.focus();
+    expect(query('#four-unit-brief').dataset.unitId).toBeUndefined();
+    tile.dispatchEvent(new Event('pointerup', { bubbles: true }));
+    tile.click();
+    expect(query('#four-unit-brief').dataset.unitId).toBe('u1');
+    expect(query('#four-board .selected')).toBe(tile);
+    expect(query('#four-board .reachable')).not.toBeNull();
+  });
   it('cycles ready units with N and ignores invalid destinations without consuming history', () => {
     change('#four-mode', 'human');
     start();
