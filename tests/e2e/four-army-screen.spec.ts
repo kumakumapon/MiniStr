@@ -474,7 +474,9 @@ test('human visible combat previews and commits the explicitly chosen weapon', a
   await humanTile(page, 4, 5);
   await humanTile(page, 2, 5);
   await humanTile(page, 5, 5);
+  await page.locator('#four-attack-weapon').selectOption('1');
   await humanTile(page, 3, 4);
+  await expect(page.locator('#four-attack-weapon')).toHaveValue('1');
   await page.locator('#four-attack-weapon').selectOption('0');
   await page.locator('#four-board > [data-x="3"][data-y="3"]').focus();
   await expect(page.locator('#four-human-preview')).toContainText('Estimated damage');

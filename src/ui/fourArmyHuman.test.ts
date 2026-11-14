@@ -49,6 +49,7 @@ describe('human commands from observations', () => {
     expect(listed.map((c) => c.action)).toEqual(['attack-primary', 'attack-secondary']);
     for (const choice of listed) {
       expect(choice.damage!.max).toBeGreaterThanOrEqual(choice.damage!.min);
+      expect(choice.counterDamage!.max).toBeGreaterThanOrEqual(choice.counterDamage!.min);
       const human = session(s);
       expect(human.submit(choice.command)).toBe(true);
       expect(human.state).toEqual(value(applyFourArmyCommand(s, choice.command)));
