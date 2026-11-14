@@ -319,3 +319,192 @@ test('four-army verifies a long JSON and keeps replay navigation and cancellatio
   expect(await count(page)).toBe(2050);
   await expect(page.locator('#four-toggle')).toHaveAttribute('aria-pressed', 'false');
 });
+
+async function humanTile(page: Page, x: number, y: number) {
+  const board = page.locator('#four-board');
+  const box = await board.boundingBox();
+  if (!box) throw Error('Missing board');
+  await board.click({ position: { x: ((x + 0.5) * box.width) / 32, y: ((y + 0.5) * box.height) / 32 } });
+}
+for (const armyIndex of [0, 1, 2, 3]) {
+  for (const width of [1280, 390]) {
+    test(`human four-army control ${armyIndex + 1}/${width}`, async ({ page, browserName }, info) => {
+      const { rotateFourArmy32 } = await import('../../src/game/fourArmyMap32');
+      const locale = width === 390 ? 'en' : 'ja',
+        human = `army${armyIndex + 1}`;
+      await page.setViewportSize({ width, height: 900 });
+      await open(page, locale);
+      await page.locator('#four-mode').selectOption('human');
+      await page.locator('#four-human-army').selectOption(human);
+      if (armyIndex) {
+        await page.locator('#four-order-0').selectOption(human);
+        await page.locator(`#four-order-${armyIndex}`).selectOption('army1');
+      }
+      await page.locator('#four-start').click();
+      await expect(page.locator('#four-turn')).toContainText(locale === 'ja' ? 'あなたの手番' : 'Your turn');
+      await expect(page.locator('#four-view')).toBeDisabled();
+      await expect(page.locator('#four-view')).toHaveValue(human);
+      await expect(page.locator('#four-toggle')).toBeDisabled();
+      await expect(page.locator('#four-unit option')).toHaveCount(8);
+      const source = rotateFourArmy32({ x: 4, y: 4 }, armyIndex),
+        destination = rotateFourArmy32({ x: 3, y: 4 }, armyIndex);
+      await humanTile(page, source.x, source.y);
+      await page.locator('[data-human-action="move"]').click();
+      await humanTile(page, destination.x, destination.y);
+      await expect(page.locator('#four-human-preview')).toContainText(locale === 'ja' ? '移動' : 'Move');
+      await page.locator('#four-human-cancel').click();
+      expect(await count(page)).toBe(0);
+      await humanTile(page, source.x, source.y);
+      await page.locator('[data-human-action="move"]').click();
+      await humanTile(page, destination.x, destination.y);
+      if (armyIndex === 0 && browserName === 'chromium' && process.env.FOUR_UI_REVIEW) {
+        await page.screenshot({ path: info.outputPath(`human-${locale}-${width}.png`), fullPage: true });
+        console.info(
+          JSON.stringify({
+            phase: 'four-ui-shot',
+            name: `human-${locale}-${width}`,
+            base64: (await page.screenshot({ type: 'jpeg', quality: 60, fullPage: true })).toString('base64'),
+          }),
+        );
+      }
+      await page.locator('#four-human-confirm').click();
+      expect(await count(page)).toBe(1);
+      await page.locator('[data-human-action="wait"]').click();
+      await page.locator('#four-human-confirm').click();
+      expect(await count(page)).toBe(2);
+      await page.locator('#four-speed').selectOption('4');
+      await page.locator('[data-human-action="endTurn"]').click();
+      await page.locator('#four-human-confirm').click();
+      await expect(page.locator('[data-human-action]')).toHaveCount(0);
+      await expect(page.locator('#four-turn')).toContainText(locale === 'ja' ? 'あなたの手番' : 'Your turn', { timeout: 20000 });
+      expect(await count(page)).toBeGreaterThan(3);
+      await expect(page.locator('#four-toggle')).toHaveAttribute('aria-pressed', 'false');
+      await tools(page);
+      await page.locator('[data-save-slot="0"]').click();
+      await expect(page.locator('#four-notice')).toHaveText(locale === 'ja' ? '4軍専用枠へ保存しました。' : 'Saved to the four-army slot.');
+      const raw = await page.evaluate(() => localStorage.getItem('ministr.fourArmy.save.1')!);
+      const checked = parseFourArmySpectatorSave(raw);
+      expect(checked.ok).toBe(true);
+      if (!checked.ok) throw Error(checked.error);
+      expect(checked.value).toMatchObject({ format: 'ministr-four-army-match', humanArmy: human, view: human });
+      expect(checked.value.archive.payload.commands[0]).toMatchObject({ actor: human, type: 'move', unitId: `u${armyIndex * 8 + 1}` });
+      expect(new Set(checked.value.archive.payload.commands.map((c) => c.actor)).size).toBe(4);
+      await page.locator('[data-load-slot="0"]').click();
+      await expect(page.locator('#four-notice')).toHaveText(locale === 'ja' ? '停止状態で読み込みました。' : 'Loaded and paused.');
+      await expect(page.locator('#four-view')).toHaveValue(human);
+      await page.locator('#four-replay').click();
+      await expect(page.locator('[data-human-action]')).toHaveCount(0);
+      await expect(page.locator('#four-view')).toBeDisabled();
+      await page.locator('#four-replay-end').click();
+      await page.locator('#four-replay-close').click();
+      expect(await page.evaluate(() => localStorage.getItem('ministr.fourArmy.save.1'))).toBe(raw);
+      expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width + 1);
+    });
+  }
+}
+test('human loss pauses for spectator continuation and a victory record stays read-only', async ({ page }) => {
+  const { fourArmyHumanFinishedFixture } = await import('../../src/game/fourArmyHuman.fixture');
+  const loss = encodeFourArmySpectatorSave(fourArmyHumanFinishedFixture());
+  if (!loss.ok) throw Error(loss.error);
+  await open(page);
+  await importMatch(page, loss.value);
+  await expect(page.locator('#four-turn')).toContainText('You lost');
+  await expect(page.locator('[data-human-action]')).toHaveCount(0);
+  await expect(page.locator('#four-view')).toBeEnabled();
+  await expect(page.locator('#four-human-watch')).toBeVisible();
+  const before = await count(page);
+  await page.locator('#four-human-watch').click();
+  await expect.poll(() => count(page)).toBeGreaterThan(before);
+  await page.locator('#four-toggle').click();
+  const victory = encodeFourArmySpectatorSave(fourArmyHumanFinishedFixture('army4', true));
+  if (!victory.ok) throw Error(victory.error);
+  await importMatch(page, victory.value);
+  await expect(page.locator('#four-turn')).toContainText('You win');
+  await expect(page.locator('#four-toggle')).toBeDisabled();
+  await expect(page.locator('[data-human-action]')).toHaveCount(0);
+});
+
+test('human production, embark and disembark use the public board controls', async ({ page }) => {
+  await open(page);
+  await page.locator('#four-mode').selectOption('human');
+  await page.locator('#four-start').click();
+  await humanTile(page, 5, 3);
+  await page.locator('#four-human-panel details').evaluate((e) => ((e as HTMLDetailsElement).open = true));
+  await page.locator('[data-human-action="produce"]').first().click();
+  await expect(page.locator('#four-human-preview')).toContainText('Produce');
+  await page.locator('#four-human-confirm').click();
+  await expect(page.locator('#four-unit option')).toHaveCount(9);
+  await humanTile(page, 4, 5);
+  await page.locator('[data-human-action="embark"]').click();
+  await humanTile(page, 4, 6);
+  await page.locator('#four-human-confirm').click();
+  await expect(page.locator('#four-unit option')).toHaveCount(8);
+  await page.locator('#four-speed').selectOption('4');
+  await page.locator('[data-human-action="endTurn"]').click();
+  await page.locator('#four-human-confirm').click();
+  await expect(page.locator('#four-turn')).toContainText('Your turn', { timeout: 20000 });
+  await humanTile(page, 4, 6);
+  await page.locator('[data-human-action="disembark"]').click();
+  await humanTile(page, 4, 5);
+  await page.locator('#four-human-confirm').click();
+  await expect(page.locator('#four-selection')).toContainText('u3');
+  await expect(page.locator('#four-unit option')).toHaveCount(9);
+});
+
+test('human visible combat previews and commits the explicitly chosen weapon', async ({ page }) => {
+  const { fourArmyHumanFinishedFixture } = await import('../../src/game/fourArmyHuman.fixture');
+  const { createFourArmyState } = await import('../../src/game/fourArmyEngine');
+  const source = fourArmyHumanFinishedFixture(),
+    history = source.archive.payload.commands;
+  const cut = history.reduce((last, c, i) => (c.actor === 'army1' && c.type === 'endTurn' ? i : last), -1);
+  const made = createFourArmyState(source.archive.payload.map);
+  if (!made.ok) throw Error(made.error);
+  let state = made.value;
+  for (const command of history.slice(0, cut)) {
+    const next = applyFourArmyCommand(state, command);
+    if (!next.ok) throw Error(next.error);
+    state = next.value;
+  }
+  source.archive.payload.commands = history.slice(0, cut);
+  source.archive.payload.state = state;
+  source.view = 'army1';
+  const encoded = encodeFourArmySpectatorSave(source);
+  if (!encoded.ok) throw Error(encoded.error);
+  await open(page);
+  await importMatch(page, encoded.value);
+  await expect(page.locator('#four-turn')).toContainText('Your turn');
+  // Clear the friendly infantry blocking the tank's only exit.
+  await humanTile(page, 4, 5);
+  await page.locator('[data-human-action="move"]').click();
+  await humanTile(page, 2, 5);
+  await page.locator('#four-human-confirm').click();
+  await humanTile(page, 5, 5);
+  await page.locator('[data-human-action="move"]').click();
+  await humanTile(page, 3, 4);
+  await page.locator('#four-human-confirm').click();
+  await page.locator('[data-human-action="attack-primary"]').click();
+  await humanTile(page, 3, 3);
+  await expect(page.locator('#four-human-preview')).toContainText('Estimated damage');
+  await page.locator('#four-human-cancel').click();
+  await humanTile(page, 3, 4);
+  await page.locator('[data-human-action="attack-secondary"]').click();
+  await humanTile(page, 3, 3);
+  await page.locator('#four-human-confirm').click();
+  await tools(page);
+  await page.locator('[data-save-slot="0"]').click();
+  await expect(page.locator('#four-notice')).toHaveText('Saved to the four-army slot.');
+  const saved = parseFourArmySpectatorSave(await page.evaluate(() => localStorage.getItem('ministr.fourArmy.save.1')!));
+  expect(saved.ok).toBe(true);
+  if (!saved.ok) throw Error(saved.error);
+  expect(saved.value.archive.payload.commands.at(-1)).toEqual({ actor: 'army1', type: 'attack', unitId: 'u5', targetId: 'u25', weaponSlot: 1 });
+  const humanRaw = await page.evaluate(() => localStorage.getItem('ministr.fourArmy.save.1')!);
+  const spectator = fourArmySpectatorFixture();
+  spectator.view = 'army3';
+  await importMatch(page, JSON.stringify(spectator));
+  await expect(page.locator('#four-view')).toHaveValue('army3');
+  await expect(page.locator('#four-view')).toBeEnabled();
+  await expect(page.locator('#four-human-panel')).toBeHidden();
+  await importMatch(page, humanRaw);
+  await expect(page.locator('#four-view')).toHaveValue('army1');
+  await expect(page.locator('#four-view')).toBeDisabled();
+});

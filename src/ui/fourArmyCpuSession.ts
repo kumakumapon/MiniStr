@@ -1,5 +1,6 @@
-import { defaultFourArmyCpuSettings, isFourArmyCpuSettings, type FourArmyCpuSettings } from '../ai/fourArmyCpu';
-import { applyFourArmyCommand, isFourArmyState, type FourArmyCommand, type FourArmyState } from '../game/fourArmyEngine';
+import { FOUR_ARMY_IDS, type FourArmyId } from '../game/fourArmyFoundation';
+import { defaultFourArmyCpuSettings, isFourArmyCpuSettings, isObservedFourArmyCommand, type FourArmyCpuSettings } from '../ai/fourArmyCpu';
+import { applyFourArmyCommand, isFourArmyState, observeFourArmy, type FourArmyCommand, type FourArmyState } from '../game/fourArmyEngine';
 import { FourArmyCpuPlanner } from './fourArmyCpuPlanner';
 import { FOUR_ARMY_CPU_VERSION, isFourArmyCpuVersion, type FourArmyCpuVersion } from '../ai/fourArmyCpuVersion';
 
@@ -17,8 +18,10 @@ export class FourArmyCpuSession {
     createWorker: () => Worker,
     settings: FourArmyCpuSettings = defaultFourArmyCpuSettings(),
     readonly cpuVersion: FourArmyCpuVersion = FOUR_ARMY_CPU_VERSION,
+    readonly humanArmy?: FourArmyId,
   ) {
-    if (!isFourArmyState(state) || !isFourArmyCpuSettings(settings) || !isFourArmyCpuVersion(cpuVersion)) throw Error('Invalid four-army CPU session');
+    if (!isFourArmyState(state) || !isFourArmyCpuSettings(settings) || !isFourArmyCpuVersion(cpuVersion) || (humanArmy !== undefined && !FOUR_ARMY_IDS.includes(humanArmy)))
+      throw Error('Invalid four-army CPU session');
     this.current = structuredClone(state);
     this.settings = structuredClone(settings);
     this.planner = new FourArmyCpuPlanner(createWorker);
@@ -69,10 +72,23 @@ export class FourArmyCpuSession {
     this.current = structuredClone(state);
     this.history = [];
   }
+  /** Human commands share the authoritative history; private failures never try another command. */
+  submit(command: FourArmyCommand): boolean {
+    if (this.stopped || !this.humanArmy || this.current.paused || this.current.outcome.type !== 'ongoing' || command.actor !== this.humanArmy) return false;
+    const observed = observeFourArmy(this.current, this.humanArmy);
+    if (!observed.ok || !isObservedFourArmyCommand(observed.value, command)) return false;
+    this.pause();
+    const next = applyFourArmyCommand(this.current, command);
+    if (!next.ok) return false;
+    this.current = next.value;
+    this.history.push(structuredClone(command));
+    return true;
+  }
   async step(): Promise<FourArmyCommand | undefined> {
     if (!this.running || this.stopped || this.current.paused || this.current.outcome.type !== 'ongoing') return undefined;
     const revision = ++this.revision;
     const actor = this.current.round.order[this.current.round.index]!;
+    if (actor === this.humanArmy) return undefined;
     try {
       let command = await this.planner.plan(this.current, this.settings[actor], this.cpuVersion);
       if (!command || this.stopped || !this.running || revision !== this.revision) return undefined;

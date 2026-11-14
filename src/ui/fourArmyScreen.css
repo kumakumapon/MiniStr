@@ -420,3 +420,25 @@ strong.four-army-label {
     transition: none !important;
   }
 }
+
+.four-human {
+  border: 1px solid var(--four-gold);
+  background: var(--four-panel);
+  border-radius: 12px;
+  padding: 12px;
+  margin: 12px 0;
+}
+.four-human[hidden] {
+  display: none;
+}
+.four-human p {
+  margin: 8px 0;
+}
+.four-human .four-buttons {
+  margin-top: 8px;
+}
+.four-human summary {
+  min-height: 44px;
+  padding-top: 12px;
+  cursor: pointer;
+}
