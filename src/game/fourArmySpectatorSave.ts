@@ -98,21 +98,21 @@ export function* verifyFourArmySpectatorSave(text: string): Generator<FourArmyVe
   const bounded = parseBoundedJson(text, FOUR_ARMY_FILE_BYTES, 1_000_000);
   if (!bounded.ok) return bounded;
   let input = bounded.value;
-  if (!record(input)) return fail('4軍観戦の保存形式が不正です。');
+  if (!record(input)) return fail('4軍対局の保存形式が不正です。');
   if (input.schemaVersion === 1) {
     const legacy = parseBoundedJson(text, 1_000_000);
     if (!legacy.ok) return legacy;
   } else if (input.schemaVersion === 2) {
-    if (!record(input.archive) || !record(input.archive.payload)) return fail('4軍観戦の保存形式が不正です。');
+    if (!record(input.archive) || !record(input.archive.payload)) return fail('4軍対局の保存形式が不正です。');
     const commands = unpackFourArmyCommands(input.archive.payload.commands);
     if (!commands.ok) return commands;
     input = { ...input, archive: { ...input.archive, payload: { ...input.archive.payload, commands: commands.value } } };
   }
-  if (!isFourArmySpectatorEnvelope(input)) return fail('4軍観戦の保存形式が不正です。');
+  if (!isFourArmySpectatorEnvelope(input)) return fail('4軍対局の保存形式が不正です。');
   const save = input,
     map = save.archive.payload.map;
   const expected = record(map) ? createFourArmyMap32(map.seed, map.order, map.pathVersion) : undefined;
-  if (!expected?.ok || save.archive.schemaVersion !== 2 || canonical(map) !== canonical(expected.value)) return fail('この4軍観戦では四方の前線の固定初期条件を使用します。');
+  if (!expected?.ok || save.archive.schemaVersion !== 2 || canonical(map) !== canonical(expected.value)) return fail('この4軍対局では四方の前線の固定初期条件を使用します。');
   const verifier = verifyFourArmyArchive(save.archive, save.schemaVersion === 1 ? 2048 : 65536),
     checkpoints: FourArmyCheckpoint[] = [];
   let step = verifier.next();
@@ -149,15 +149,15 @@ export async function verifyFourArmySpectatorSaveAsync(
 /** Encodes only. Every external writer must run the full verifier before persisting the result. */
 export function encodeFourArmySpectatorSave(value: FourArmySpectatorSave): GameResult<string> {
   try {
-    if (!isFourArmySpectatorEnvelope(value)) return fail('4軍観戦の保存形式が不正です。');
+    if (!isFourArmySpectatorEnvelope(value)) return fail('4軍対局の保存形式が不正です。');
     const file =
       value.schemaVersion === 2
         ? { ...value, archive: { ...value.archive, payload: { ...value.archive.payload, commands: packFourArmyCommands(value.archive.payload.commands) } } }
         : value;
     const text = JSON.stringify(file);
-    return new TextEncoder().encode(text).byteLength <= FOUR_ARMY_FILE_BYTES ? { ok: true, value: text } : fail('4軍観戦の保存容量が上限を超えています。');
+    return new TextEncoder().encode(text).byteLength <= FOUR_ARMY_FILE_BYTES ? { ok: true, value: text } : fail('4軍対局の保存容量が上限を超えています。');
   } catch {
-    return fail('4軍観戦の保存データを作成できません。');
+    return fail('4軍対局の保存データを作成できません。');
   }
 }
 export function serializeFourArmySpectatorSave(value: FourArmySpectatorSave): GameResult<string> {
