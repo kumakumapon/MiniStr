@@ -53,5 +53,46 @@
       "sha256": "9a04ffa6939a993cff7424f002cd83d78d0333e34737f9d37ef48dc80e405a10",
       "bytes": 102812
     }
+  },
+  "publicationTestScheduling": {
+    "beforeProjectCounts": {
+      "chromium": 296,
+      "firefox": 214,
+      "webkit": 214
+    },
+    "tests": 724,
+    "unchangedMembership": true,
+    "unchangedProjectMatchers": true,
+    "projectOrderBefore": [
+      "chromium",
+      "firefox",
+      "webkit"
+    ],
+    "projectOrderAfter": [
+      "firefox",
+      "chromium",
+      "webkit"
+    ],
+    "shards": [
+      {
+        "tests": 366,
+        "projects": {
+          "firefox": 214,
+          "chromium": 152
+        }
+      },
+      {
+        "tests": 358,
+        "projects": {
+          "chromium": 144,
+          "webkit": 214
+        }
+      }
+    ],
+    "originalPrRun": 43572492057,
+    "firstShardPassed": 369,
+    "secondShardPassedBeforeTimeout": 320,
+    "workflowTimeoutMinutes": 30,
+    "timeoutsOrRetriesChanged": false
   }
 }
