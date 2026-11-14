@@ -674,8 +674,8 @@ export class FourArmyScreen {
         input.value = this.humanArmy!;
         return;
       }
-      this.pause();
       this.view = input.value;
+      this.pause();
       this.paint();
       return;
     }
@@ -878,6 +878,7 @@ export class FourArmyScreen {
       this.selected,
       this.cell,
       this.humanAction ? this.humanChoices.filter((c) => c.action === this.humanAction).flatMap((c) => (c.target ? [c.target] : [])) : [],
+      !!this.humanArmy,
     );
     this.selection(display);
     const select = this.root.querySelector<HTMLSelectElement>('#four-unit')!,
@@ -942,6 +943,9 @@ export class FourArmyScreen {
       const observed = observeFourArmy(state, this.humanArmy);
       if (!observed.ok) return;
       this.humanChoices = fourArmyHumanChoices(observed.value, this.humanSource ?? this.selected);
+      const source = this.humanSource ?? this.selected,
+        unit = observed.value.units.find((u) => u.owner === this.humanArmy && u.position?.x === source.x && u.position.y === source.y);
+      html += `<p class="four-human-source">${escapeHtml(unit ? unitNames[unit.kind] + ' ' + unit.id + ' · HP ' + unit.hp : terrainNames[observed.value.board.terrain[source.y]![source.x]!.kind])} (${source.x + 1}, ${source.y + 1})</p>`;
       html += `<p>${text('自軍の部隊または施設を選択して命令します。命令は確認後に実行します。', 'Select your unit or facility, choose an action, then confirm.')} ${observed.value.player.gold.toLocaleString()} G · ${observed.value.units.filter((u) => u.owner === this.humanArmy).length}/16</p>`;
       if (this.humanPending)
         html += `<p id="four-human-preview" role="status">${escapeHtml(this.choiceName(this.humanPending))}${this.humanPending.action === 'move' ? ' · ' + text('未知の敵に接触すると途中で停止します。', 'Contact with an unseen enemy can stop movement early.') : ''}</p><div class="four-buttons"><button id="four-human-confirm" class="four-primary">${text('命令を確定', 'Confirm command')}</button><button id="four-human-cancel">${text('取消', 'Cancel')}</button></div>`;

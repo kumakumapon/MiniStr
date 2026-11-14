@@ -139,6 +139,7 @@ describe('four-army spectator controller', () => {
     key('ArrowLeft');
     key('Enter');
     expect(query('#four-human-preview').textContent).toContain('Move (4, 5)');
+    expect(query('.four-human-source').textContent).toContain('Infantry u1');
     click('#four-human-cancel');
     expect(query('#four-turn').textContent).toContain('0 commands');
     key('ArrowRight');

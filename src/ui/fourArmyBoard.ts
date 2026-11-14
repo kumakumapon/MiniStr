@@ -1,3 +1,4 @@
+import { unitTokens } from './labels';
 import { observeFourArmy, type FourArmyMap, type FourArmyState, type FourArmyUnit } from '../game/fourArmyEngine';
 import type { FourArmyView } from '../game/fourArmySpectatorSave';
 import type { Position, PlayerState } from '../game/types';
@@ -31,7 +32,14 @@ const terrainColors: Record<string, string> = {
   supplyDepot: '#89945f',
 };
 /** Canvas is visual only; the adjacent DOM summary and keyboard selection carry the same visible information. */
-export function paintFourArmyBoard(canvas: HTMLCanvasElement, display: FourArmyDisplay, selected: Position, cell: number, targets: readonly Position[] = []): void {
+export function paintFourArmyBoard(
+  canvas: HTMLCanvasElement,
+  display: FourArmyDisplay,
+  selected: Position,
+  cell: number,
+  targets: readonly Position[] = [],
+  showUnitTypes = false,
+): void {
   const size = cell * display.board.width,
     dpr = Math.min(2, globalThis.devicePixelRatio || 1);
   if (canvas.width !== Math.round(size * dpr)) {
@@ -88,7 +96,7 @@ export function paintFourArmyBoard(canvas: HTMLCanvasElement, display: FourArmyD
     c.fillStyle = '#102b20';
     c.font = `bold ${Math.max(8, Math.floor(cell * 0.6))}px sans-serif`;
     c.textAlign = 'center';
-    c.fillText(u.owner.slice(-1), x, y + cell * 0.21);
+    c.fillText(showUnitTypes ? unitTokens[u.kind] : u.owner.slice(-1), x, y + cell * 0.21, cell * 0.76);
     if (cell >= 16) {
       c.fillStyle = '#182c24';
       c.fillRect(x - cell * 0.4, y + cell * 0.36, cell * 0.8, 2);
