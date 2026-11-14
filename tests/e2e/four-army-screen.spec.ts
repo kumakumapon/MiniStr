@@ -473,6 +473,11 @@ test('human visible combat previews and commits the explicitly chosen weapon', a
   await open(page);
   await importMatch(page, encoded.value);
   await expect(page.locator('#four-turn')).toContainText('Your turn');
+  // Clear the friendly infantry blocking the tank's only exit.
+  await humanTile(page, 4, 5);
+  await page.locator('[data-human-action="move"]').click();
+  await humanTile(page, 2, 5);
+  await page.locator('#four-human-confirm').click();
   await humanTile(page, 5, 5);
   await page.locator('[data-human-action="move"]').click();
   await humanTile(page, 3, 4);
