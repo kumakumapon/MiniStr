@@ -12,14 +12,16 @@ export interface FourArmyHumanChoice {
   command: FourArmyCommand;
   target?: Position;
   damage?: { min: number; max: number };
+  counterDamage?: { min: number; max: number };
 }
 /** Every highlight and forecast comes from the same sanitized observation as the CPU. */
 export function fourArmyHumanChoices(o: FourArmyObservation, selected: Position): FourArmyHumanChoice[] {
   const actor = o.viewer,
     view = fourArmyPlanningView(o),
     choices: FourArmyHumanChoice[] = [];
-  const add = (action: FourArmyHumanAction, command: FourArmyCommand, target?: Position, damage?: { min: number; max: number }) => {
-    if (isObservedFourArmyCommand(o, command)) choices.push({ action, command, ...(target ? { target } : {}), ...(damage ? { damage } : {}) });
+  const add = (action: FourArmyHumanAction, command: FourArmyCommand, target?: Position, damage?: { min: number; max: number }, counterDamage?: { min: number; max: number }) => {
+    if (isObservedFourArmyCommand(o, command))
+      choices.push({ action, command, ...(target ? { target } : {}), ...(damage ? { damage } : {}), ...(counterDamage ? { counterDamage } : {}) });
   };
   add('endTurn', { actor, type: 'endTurn' });
   const unit = view.units.find((u) => u.owner === 'red' && u.position?.x === selected.x && u.position.y === selected.y);
@@ -38,6 +40,7 @@ export function fourArmyHumanChoices(o: FourArmyObservation, selected: Position)
               { actor, type: 'attack', unitId: unit.id, targetId: target.id, weaponSlot },
               target.position,
               forecast.value.outgoing,
+              forecast.value.incoming,
             );
         }
       } else {

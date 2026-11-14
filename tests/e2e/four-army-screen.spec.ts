@@ -101,7 +101,13 @@ for (const locale of ['ja', 'en'])
       await expect(page.locator('#four-unit option')).toHaveCount(32);
       await page.locator('#four-zoom-in').click();
       await page.locator('#four-fit').click();
-      expect(await page.locator('.four-map-viewport').evaluate((e) => e.scrollHeight <= e.clientHeight + 1)).toBe(true);
+      await expect(page.locator('#four-zoom-label')).toHaveText('50%');
+      expect(
+        await page
+          .locator('#four-board > .tile')
+          .first()
+          .evaluate((e) => e.getBoundingClientRect().width),
+      ).toBe(22);
       await page.locator('#four-board').focus();
       await page.keyboard.press('ArrowRight');
       await expect(page.locator('#four-selection')).toContainText('(5, 4)');
@@ -324,10 +330,7 @@ test('four-army verifies a long JSON and keeps replay navigation and cancellatio
 });
 
 async function humanTile(page: Page, x: number, y: number) {
-  const board = page.locator('#four-board');
-  const box = await board.boundingBox();
-  if (!box) throw Error('Missing board');
-  await board.click({ position: { x: ((x + 0.5) * box.width) / 32, y: ((y + 0.5) * box.height) / 32 } });
+  await page.locator(`#four-board > [data-x="${x}"][data-y="${y}"]`).click();
 }
 for (const armyIndex of [0, 1, 2, 3]) {
   for (const width of [1280, 390]) {
@@ -352,13 +355,12 @@ for (const armyIndex of [0, 1, 2, 3]) {
       const source = rotateFourArmy32({ x: 4, y: 4 }, armyIndex),
         destination = rotateFourArmy32({ x: 3, y: 4 }, armyIndex);
       await humanTile(page, source.x, source.y);
-      await page.locator('[data-human-action="move"]').click();
-      await humanTile(page, destination.x, destination.y);
-      await expect(page.locator('#four-human-preview')).toContainText(locale === 'ja' ? '移動' : 'Move');
-      await page.locator('#four-human-cancel').click();
+      await expect(page.locator('#four-unit-brief')).toHaveAttribute('data-unit-id', `u${armyIndex * 8 + 1}`);
+      await expect(page.locator('#four-board .reachable').first()).toBeAttached();
+      await page.keyboard.press('Escape');
       expect(await count(page)).toBe(0);
+      await expect(page.locator('#four-board .selected')).toHaveCount(0);
       await humanTile(page, source.x, source.y);
-      await page.locator('[data-human-action="move"]').click();
       await humanTile(page, destination.x, destination.y);
       if (armyIndex === 0 && browserName === 'chromium' && process.env.FOUR_UI_REVIEW) {
         await page.screenshot({ path: info.outputPath(`human-${locale}-${width}.png`), fullPage: true });
@@ -370,14 +372,11 @@ for (const armyIndex of [0, 1, 2, 3]) {
           }),
         );
       }
-      await page.locator('#four-human-confirm').click();
       expect(await count(page)).toBe(1);
-      await page.locator('[data-human-action="wait"]').click();
-      await page.locator('#four-human-confirm').click();
+      await page.locator(width === 390 ? '[data-quick-action="wait"]' : '[data-human-action="wait"]').click();
       expect(await count(page)).toBe(2);
       await page.locator('#four-speed').selectOption('4');
       await page.locator('[data-human-action="endTurn"]').click();
-      await page.locator('#four-human-confirm').click();
       await expect(page.locator('[data-human-action]')).toHaveCount(0);
       await expect(page.locator('#four-turn')).toContainText(locale === 'ja' ? 'あなたの手番' : 'Your turn', { timeout: 20000 });
       expect(await count(page)).toBeGreaterThan(3);
@@ -432,24 +431,19 @@ test('human production, embark and disembark use the public board controls', asy
   await page.locator('#four-mode').selectOption('human');
   await page.locator('#four-start').click();
   await humanTile(page, 5, 3);
-  await page.locator('#four-human-panel details').evaluate((e) => ((e as HTMLDetailsElement).open = true));
-  await page.locator('[data-human-action="produce"]').first().click();
-  await expect(page.locator('#four-human-preview')).toContainText('Produce');
-  await page.locator('#four-human-confirm').click();
+  await expect(page.locator('#four-production-dialog')).toBeVisible();
+  await page.locator('[data-production-kind="infantry"]').click();
   await expect(page.locator('#four-unit option')).toHaveCount(9);
   await humanTile(page, 4, 5);
   await page.locator('[data-human-action="embark"]').click();
   await humanTile(page, 4, 6);
-  await page.locator('#four-human-confirm').click();
   await expect(page.locator('#four-unit option')).toHaveCount(8);
   await page.locator('#four-speed').selectOption('4');
   await page.locator('[data-human-action="endTurn"]').click();
-  await page.locator('#four-human-confirm').click();
   await expect(page.locator('#four-turn')).toContainText('Your turn', { timeout: 20000 });
   await humanTile(page, 4, 6);
   await page.locator('[data-human-action="disembark"]').click();
   await humanTile(page, 4, 5);
-  await page.locator('#four-human-confirm').click();
   await expect(page.locator('#four-selection')).toContainText('u3');
   await expect(page.locator('#four-unit option')).toHaveCount(9);
 });
@@ -478,21 +472,15 @@ test('human visible combat previews and commits the explicitly chosen weapon', a
   await expect(page.locator('#four-turn')).toContainText('Your turn');
   // Clear the friendly infantry blocking the tank's only exit.
   await humanTile(page, 4, 5);
-  await page.locator('[data-human-action="move"]').click();
   await humanTile(page, 2, 5);
-  await page.locator('#four-human-confirm').click();
   await humanTile(page, 5, 5);
-  await page.locator('[data-human-action="move"]').click();
   await humanTile(page, 3, 4);
-  await page.locator('#four-human-confirm').click();
-  await page.locator('[data-human-action="attack-primary"]').click();
-  await humanTile(page, 3, 3);
+  await page.locator('#four-attack-weapon').selectOption('0');
+  await page.locator('#four-board > [data-x="3"][data-y="3"]').focus();
   await expect(page.locator('#four-human-preview')).toContainText('Estimated damage');
-  await page.locator('#four-human-cancel').click();
-  await humanTile(page, 3, 4);
-  await page.locator('[data-human-action="attack-secondary"]').click();
+  expect(await count(page)).toBe(history.slice(0, cut).length + 2);
+  await page.locator('#four-attack-weapon').selectOption('1');
   await humanTile(page, 3, 3);
-  await page.locator('#four-human-confirm').click();
   await tools(page);
   await page.locator('[data-save-slot="0"]').click();
   await expect(page.locator('#four-notice')).toHaveText('Saved to the four-army slot.');
