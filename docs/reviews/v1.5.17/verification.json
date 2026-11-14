@@ -1,0 +1,57 @@
+{
+  "version": "1.5.17",
+  "applicationSource": "239fcd9639dfe3ad4559845cb652dbb48e744cec",
+  "diagnosticSource": "1e617d92860a38047c06b259751bb0739c487c53",
+  "diagnosticRun": 43554437810,
+  "unitJob": 132323978379,
+  "nativeJob": 132323978554,
+  "unitTests": 1846,
+  "unitFiles": 193,
+  "distributionUiTests": 67,
+  "nativeTests": 108,
+  "browsers": [
+    "chromium",
+    "firefox",
+    "webkit"
+  ],
+  "humanArmies": [
+    "army1",
+    "army2",
+    "army3",
+    "army4"
+  ],
+  "humanViews": [
+    {
+      "locale": "ja",
+      "width": 1280
+    },
+    {
+      "locale": "en",
+      "width": 390
+    }
+  ],
+  "spectatorViews": {
+    "locales": [
+      "ja",
+      "en"
+    ],
+    "widths": [
+      1280,
+      390
+    ]
+  },
+  "coverage": {
+    "statements": 74.82,
+    "branches": 74.1,
+    "functions": 80.11,
+    "lines": 78.25
+  },
+  "ciPolicyChanged": false,
+  "gameRulesChanged": false,
+  "cpuLogicChanged": false,
+  "remaining": [
+    "CPU new20 censored conditions and opening-seat fairness",
+    "physical 2h/4h endurance",
+    "human-match difficulty and usability playthroughs"
+  ]
+}
