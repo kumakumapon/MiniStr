@@ -15,13 +15,13 @@ export default defineConfig({
         /(?:four-army-cpu|four-army-screen|tactical-learning|tactical-rules|save-safety|wide-front|board-response|compatibility|english|custom-maps|finite-supplies|army-music|airlift-and-backup|strategy-expansion|terrain-presentation|share-link|research)\.spec\.ts/,
       use: { ...devices['Desktop Firefox'] },
     },
-    { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
     {
       name: 'webkit',
       testMatch:
         /(?:four-army-cpu|four-army-screen|tactical-learning|tactical-rules|save-safety|wide-front|board-response|compatibility|english|custom-maps|finite-supplies|army-music|airlift-and-backup|strategy-expansion|terrain-presentation|share-link|research)\.spec\.ts/,
       use: { ...devices['Desktop Safari'] },
     },
+    { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
   ],
   webServer: {
     command: 'npm run preview -- --host 127.0.0.1 --port 4173',

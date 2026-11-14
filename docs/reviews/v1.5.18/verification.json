@@ -56,43 +56,59 @@
   },
   "publicationTestScheduling": {
     "beforeProjectCounts": {
-      "chromium": 296,
       "firefox": 214,
+      "chromium": 296,
       "webkit": 214
     },
     "tests": 724,
     "unchangedMembership": true,
     "unchangedProjectMatchers": true,
     "projectOrderBefore": [
-      "chromium",
       "firefox",
+      "chromium",
       "webkit"
     ],
     "projectOrderAfter": [
       "firefox",
-      "chromium",
-      "webkit"
+      "webkit",
+      "chromium"
     ],
     "shards": [
       {
-        "tests": 366,
+        "tests": 370,
         "projects": {
           "firefox": 214,
-          "chromium": 152
+          "webkit": 156
         }
       },
       {
-        "tests": 358,
+        "tests": 354,
         "projects": {
-          "chromium": 144,
-          "webkit": 214
+          "webkit": 58,
+          "chromium": 296
         }
       }
     ],
-    "originalPrRun": 43572492057,
-    "firstShardPassed": 369,
-    "secondShardPassedBeforeTimeout": 320,
+    "originalProjectOrder": [
+      "chromium",
+      "firefox",
+      "webkit"
+    ],
+    "matchesOriginal724": true,
     "workflowTimeoutMinutes": 30,
-    "timeoutsOrRetriesChanged": false
+    "timeoutsOrRetriesChanged": false,
+    "observations": [
+      {
+        "run": 43572492057,
+        "firstPassed": 369,
+        "secondPassedBeforeTimeout": 320
+      },
+      {
+        "run": 43575682533,
+        "firstPassed": 366,
+        "firstE2EMinutes": 7.5,
+        "secondPassedBeforeTimeout": 320
+      }
+    ]
   }
 }
