@@ -129,6 +129,29 @@ describe('four-army spectator controller', () => {
     await vi.waitFor(() => expect(query('#four-notice').textContent).toBe('Loaded and paused.'));
     expect(query('#four-turn').textContent).toContain('Your turn');
   });
+  it('restores the saved view when switching between a live human match and an old spectator record', async () => {
+    change('#four-mode', 'human');
+    change('#four-human-army', 'army3');
+    start();
+    click('[data-save-slot="0"]');
+    await vi.waitFor(() => expect(values.has(FOUR_ARMY_SAVE_KEYS[0])).toBe(true));
+    const legacy = fourArmySpectatorFixture();
+    legacy.view = 'army4';
+    values.set(FOUR_ARMY_SAVE_KEYS[1], JSON.stringify(legacy));
+    screen.refreshStorage();
+    screen.open();
+    click('[data-load-slot="1"]');
+    await vi.waitFor(() => expect(query('#four-notice').textContent).toBe('Loaded and paused.'));
+    expect(query<HTMLSelectElement>('#four-view').value).toBe('army4');
+    expect(query<HTMLSelectElement>('#four-view').disabled).toBe(false);
+    expect(query('#four-human-panel').hidden).toBe(true);
+    click('[data-load-slot="0"]');
+    await vi.waitFor(() => expect(query('#four-human-panel').hidden).toBe(false));
+    expect(query<HTMLSelectElement>('#four-view').value).toBe('army3');
+    vi.mocked(window.confirm).mockClear();
+    click('#four-close');
+    expect(window.confirm).not.toHaveBeenCalled();
+  });
   it('previews keyboard movement, cancels without applying, then commits exactly once and saves its controller', async () => {
     change('#four-mode', 'human');
     start();

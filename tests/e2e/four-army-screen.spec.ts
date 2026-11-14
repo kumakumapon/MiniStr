@@ -497,4 +497,14 @@ test('human visible combat previews and commits the explicitly chosen weapon', a
   expect(saved.ok).toBe(true);
   if (!saved.ok) throw Error(saved.error);
   expect(saved.value.archive.payload.commands.at(-1)).toEqual({ actor: 'army1', type: 'attack', unitId: 'u5', targetId: 'u25', weaponSlot: 1 });
+  const humanRaw = await page.evaluate(() => localStorage.getItem('ministr.fourArmy.save.1')!);
+  const spectator = fourArmySpectatorFixture();
+  spectator.view = 'army3';
+  await importMatch(page, JSON.stringify(spectator));
+  await expect(page.locator('#four-view')).toHaveValue('army3');
+  await expect(page.locator('#four-view')).toBeEnabled();
+  await expect(page.locator('#four-human-panel')).toBeHidden();
+  await importMatch(page, humanRaw);
+  await expect(page.locator('#four-view')).toHaveValue('army1');
+  await expect(page.locator('#four-view')).toBeDisabled();
 });

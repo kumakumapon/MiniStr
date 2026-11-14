@@ -437,7 +437,6 @@ export class FourArmyScreen {
     }
     const saved = result.value.save;
     this.settings = structuredClone(saved.settings);
-    this.view = saved.view;
     this.speed = saved.speed;
     this.name = saved.name;
     this.seed = String(saved.archive.payload.map.seed);
@@ -450,6 +449,7 @@ export class FourArmyScreen {
       saved.cpuVersion,
       saved.format === 'ministr-four-army-match' ? saved.humanArmy : undefined,
     );
+    this.view = saved.view;
     this.setupMode = this.humanArmy ? 'human' : 'spectator';
     this.setupHuman = this.humanArmy ?? 'army1';
     this.savedSignature = this.signature();
