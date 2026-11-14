@@ -1,0 +1,57 @@
+{
+  "version": "1.5.18",
+  "applicationSource": "d78a00996947fffe825fdce2f0f0ab5410023bb7",
+  "diagnosticSource": "c6c0bf1bd018ab09d5b3a6834b0b51c6999c432c",
+  "run": 43571614364,
+  "verifyJob": 132377021766,
+  "nativeJob": 132377021945,
+  "unitTests": 1850,
+  "unitFiles": 194,
+  "distributionUiTests": 67,
+  "nativeTests": 111,
+  "coverage": [
+    75.22,
+    74.36,
+    80.28,
+    78.75
+  ],
+  "browsers": [
+    "chromium",
+    "firefox",
+    "webkit"
+  ],
+  "humanArmies": [
+    "army1",
+    "army2",
+    "army3",
+    "army4"
+  ],
+  "humanViews": [
+    {
+      "locale": "ja",
+      "width": 1280
+    },
+    {
+      "locale": "en",
+      "width": 390
+    }
+  ],
+  "browserWorkers": 2,
+  "testTimeoutChanged": false,
+  "productCiChanged": false,
+  "gameRulesChanged": false,
+  "saveSchemaChanged": false,
+  "physicalDeviceTested": false,
+  "screenshots": {
+    "human-ja-1280": {
+      "gitBlob": "f42d96e2ab69723e751645af7629114ab495445e",
+      "sha256": "add3939f0aea733e89e11d2582b941df916ecf8c0bbc8c5a1af41dab17e4abb8",
+      "bytes": 135552
+    },
+    "human-en-390": {
+      "gitBlob": "bf0ac735a1fe9cfa20031d04517405525928329a",
+      "sha256": "9a04ffa6939a993cff7424f002cd83d78d0333e34737f9d37ef48dc80e405a10",
+      "bytes": 102812
+    }
+  }
+}
