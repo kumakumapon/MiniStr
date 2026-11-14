@@ -9,7 +9,7 @@ const value = <T>(r: GameResult<T>): T => {
 };
 it('starts a reachable refuelling return before the last movement budget, without changing CPU v2', () => {
   const m = fourCpuMap();
-  let s = value(createFourArmyState(m));
+  const s = value(createFourArmyState(m));
   s.units[0] = { ...s.units[0]!, kind: 'tank', position: { x: 4, y: 3 }, fuel: 14, ammo: 5 };
   const o = value(observeFourArmy(s, 'army1')),
     options = { difficulty: 'normal', policy: 'balanced' } as const;
