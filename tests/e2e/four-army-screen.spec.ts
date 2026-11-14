@@ -6,6 +6,9 @@ import { applyFourArmyCommand, observeFourArmy } from '../../src/game/fourArmyEn
 import { fourArmySpectatorFixture } from '../../src/game/fourArmySpectator.fixture';
 import { encodeFourArmySpectatorSave, parseFourArmySpectatorSave } from '../../src/game/fourArmySpectatorSave';
 
+// Every case owns a fresh page/context and fixture; keep the existing worker and timeout budgets.
+test.describe.configure({ mode: 'parallel' });
+
 async function open(page: Page, locale = 'en') {
   await page.addInitScript((locale) => localStorage.setItem('ministr.locale', locale), locale);
   page.on('dialog', (dialog) => dialog.accept());
