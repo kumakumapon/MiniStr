@@ -74,7 +74,8 @@ for (const { locale, width } of [
     const checked = parseFourArmySpectatorSave(stored);
     expect(checked.ok).toBe(true);
     if (!checked.ok) throw Error(checked.error);
-    expect(checked.value.cpuVersion).toBe('four-army-cpu-v2');
+    expect(checked.value.cpuVersion).toBe('four-army-cpu-v3');
+    expect(checked.value.archive.payload.map.pathVersion).toBeUndefined();
     expect(checked.value.archive.payload.commands.slice(0, 2)).toEqual(source.archive.payload.commands);
     expect(checked.value.archive.payload.commands[2]).toMatchObject({ type: 'move', unitId: 'u4', destination: { x: 12, y: 5 } });
   });
@@ -163,6 +164,7 @@ test('four-army dedicated saves, JSON and replay preserve current state and lega
   expect(checked.ok).toBe(true);
   if (!checked.ok) throw Error(checked.error);
   expect(checked.value.name).toBe('<record & four>');
+  expect(checked.value.archive.payload.map.pathVersion).toBe(1);
   expect(checked.value.archive.payload.commands).toHaveLength(1);
   await page.locator('#four-replay').click();
   await expect(page.locator('#four-replay-count')).toHaveText('0/1');

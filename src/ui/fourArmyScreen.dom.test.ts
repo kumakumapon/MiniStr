@@ -24,7 +24,7 @@ describe('four-army spectator controller', () => {
     expect(values.get(FOUR_ARMY_SAVE_KEYS[0])).toBe(old);
     expect(document.querySelector('#four-upgrade-cpu')).toBeNull();
     click('[data-save-slot="0"]');
-    await vi.waitFor(() => expect(JSON.parse(values.get(FOUR_ARMY_SAVE_KEYS[0])!).cpuVersion).toBe('four-army-cpu-v2'));
+    await vi.waitFor(() => expect(JSON.parse(values.get(FOUR_ARMY_SAVE_KEYS[0])!).cpuVersion).toBe('four-army-cpu-v3'));
     const saved = JSON.parse(values.get(FOUR_ARMY_SAVE_KEYS[0])!);
     expect(saved.archive.payload.commands.rows).toHaveLength(2);
     expect(saved.archive.payload.state).toEqual(JSON.parse(old).archive.payload.state);

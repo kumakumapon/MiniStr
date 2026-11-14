@@ -16,7 +16,8 @@ export function rotateFourArmy32(p: Position, turns: number): Position {
 }
 
 /** Fixed map snapshot, independent of the first actor and the combat RNG stream. */
-export function createFourArmyMap32(seed = 1512, order: readonly FourArmyId[] = FOUR_ARMY_IDS): GameResult<FourArmyMap> {
+export function createFourArmyMap32(seed = 1512, order: readonly FourArmyId[] = FOUR_ARMY_IDS, pathVersion?: 1): GameResult<FourArmyMap> {
+  if (pathVersion !== undefined && pathVersion !== 1) return { ok: false, error: '未対応の経路規則です。' };
   const round = createFourArmyRound(order);
   if (!round.ok) return round;
   if (!Number.isSafeInteger(seed) || seed < 0 || seed > 0xffff_ffff) return { ok: false, error: '4軍マップのseedが不正です。' };
@@ -77,6 +78,7 @@ export function createFourArmyMap32(seed = 1512, order: readonly FourArmyId[] = 
     ok: true,
     value: {
       id: FOUR_ARMY_MAP32_ID,
+      ...(pathVersion === 1 ? { pathVersion } : {}),
       board,
       capitals,
       units,

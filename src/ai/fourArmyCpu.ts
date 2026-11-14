@@ -47,7 +47,7 @@ export function chooseFourArmyCpuCommand(input: unknown, options: unknown, cpuVe
     enemies = view.units.filter((u) => u.owner === 'blue' && isDeployedUnit(u));
   const ready = own.filter((u) => isDeployedUnit(u) && !u.hasActed).sort((a, b) => a.id.localeCompare(b.id, 'en'));
   const candidates: { command: FourArmyCommand; score: number; key: string }[] = [];
-  const modern = cpuVersion === FOUR_ARMY_CPU_VERSION,
+  const modern = cpuVersion !== 'four-army-cpu-v1',
     order = fourArmyCpuOrder(o),
     visible = new Set(o.visible.map(positionKey));
   const add = (command: FourArmyCommand, score: number) => {
@@ -110,7 +110,14 @@ export function chooseFourArmyCpuCommand(input: unknown, options: unknown, cpuVe
       : unitStats[u.kind].capturePower > 0
         ? goals
         : [...enemies.flatMap((e) => (e.position ? [e.position] : [])), ...goals];
-    const distance = crossingDistances(view, u.kind, targets);
+    const service =
+      cpuVersion === 'four-army-cpu-v3' ? o.board.terrain.flatMap((row, y) => row.flatMap((_tile, x) => (isServiceTile(view, { x, y }, u.kind, 'red') ? [{ x, y }] : []))) : [];
+    const homeDistances = service.length ? crossingDistances(view, u.kind, service) : undefined;
+    const homeDistance = homeDistances?.get(positionKey(u.position)) ?? Infinity;
+    const fuel = u.fuel ?? unitStats[u.kind].fuel;
+    // Begin the return while the observed route is still reachable. No hidden occupancy is consulted.
+    const returning = Number.isFinite(homeDistance) && homeDistance > 0 && fuel <= homeDistance + unitStats[u.kind].movement * 2;
+    const distance = returning ? homeDistances! : crossingDistances(view, u.kind, targets);
     const currentDistance = distance.get(positionKey(u.position)) ?? Infinity;
     const destinations = reachablePositionsForPlayer(view, u.id, 'red')
       .map((p) => ({ p, d: distance.get(positionKey(p)) ?? Infinity }))
@@ -124,6 +131,7 @@ export function chooseFourArmyCpuCommand(input: unknown, options: unknown, cpuVe
       if (options.policy === 'defensive' && enemies.some((e) => e.position && manhattanDistance(e.position, o.capitals[actor]) <= 5))
         score += (manhattanDistance(u.position, o.capitals[actor]) - manhattanDistance(p, o.capitals[actor])) * 25;
       if (retreating && isServiceTile(view, p, u.kind, 'red')) score += 500;
+      if (returning && Number.isFinite(d)) score += 550;
       score -= threats * cautious * (retreating ? 2 : 1);
       if (repairing && !retreating) score -= 300;
       if (options.difficulty !== 'easy') {
