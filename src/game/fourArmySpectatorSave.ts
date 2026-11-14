@@ -13,8 +13,8 @@ export const FOUR_ARMY_FILE_BYTES = 8_000_000;
 export const FOUR_ARMY_CHECKPOINT_INTERVAL = 2048;
 export const FOUR_ARMY_COMMAND_LIMIT = FOUR_ARMY_LONG_COMMANDS;
 export type FourArmyView = 'all' | FourArmyId;
-export interface FourArmySpectatorSave {
-  format: 'ministr-four-army-spectator';
+interface FourArmySaveBase {
+  format: 'ministr-four-army-spectator' | 'ministr-four-army-match';
   schemaVersion: 1 | 2;
   cpuVersion: FourArmyCpuVersion;
   name: string;
@@ -24,6 +24,7 @@ export interface FourArmySpectatorSave {
   speed: 0.5 | 1 | 2 | 4;
   archive: FourArmyArchive;
 }
+export type FourArmySpectatorSave = FourArmySaveBase & ({ format: 'ministr-four-army-spectator' } | { format: 'ministr-four-army-match'; humanArmy: FourArmyId });
 export const isFourArmySaveKey = (key: string): boolean => FOUR_ARMY_SAVE_KEYS.some((k) => k === key);
 export const isFourArmyView = (v: unknown): v is FourArmyView => v === 'all' || FOUR_ARMY_IDS.some((a) => a === v);
 const record = (v: unknown): v is Record<string, unknown> => !!v && typeof v === 'object' && !Array.isArray(v);
@@ -47,8 +48,19 @@ function canonical(v: unknown): string {
 export function isFourArmySpectatorEnvelope(v: unknown): v is FourArmySpectatorSave {
   return (
     record(v) &&
-    keys(v, ['format', 'schemaVersion', 'cpuVersion', 'name', 'savedAt', 'settings', 'view', 'speed', 'archive']) &&
-    v.format === 'ministr-four-army-spectator' &&
+    keys(v, [
+      'format',
+      'schemaVersion',
+      'cpuVersion',
+      'name',
+      'savedAt',
+      'settings',
+      'view',
+      'speed',
+      'archive',
+      ...(v.format === 'ministr-four-army-match' ? ['humanArmy'] : []),
+    ]) &&
+    (v.format === 'ministr-four-army-spectator' || (v.format === 'ministr-four-army-match' && v.schemaVersion === 2 && FOUR_ARMY_IDS.some((a) => a === v.humanArmy))) &&
     (v.schemaVersion === 1 || v.schemaVersion === 2) &&
     isFourArmyCpuVersion(v.cpuVersion) &&
     typeof v.name === 'string' &&
@@ -65,6 +77,10 @@ export function isFourArmySpectatorEnvelope(v: unknown): v is FourArmySpectatorS
     record(v.archive) &&
     record(v.archive.payload) &&
     isFourArmyState(v.archive.payload.state) &&
+    (v.format !== 'ministr-four-army-match' ||
+      v.archive.payload.state.outcome.type !== 'ongoing' ||
+      !v.archive.payload.state.alive.includes(v.humanArmy as FourArmyId) ||
+      v.view === v.humanArmy) &&
     Array.isArray(v.archive.payload.commands) &&
     v.archive.payload.commands.length <= (v.schemaVersion === 1 ? 2048 : FOUR_ARMY_COMMAND_LIMIT)
   );
@@ -155,5 +171,11 @@ export function serializeFourArmySpectatorSave(value: FourArmySpectatorSave): Ga
 export function fourArmySlotName(text: string | null): string | undefined {
   if (text === null) return;
   const v = parseBoundedJson(text, FOUR_ARMY_FILE_BYTES, 1_000_000);
-  return v.ok && record(v.value) && v.value.format === 'ministr-four-army-spectator' && typeof v.value.name === 'string' && v.value.name.length <= 40 ? v.value.name : undefined;
+  return v.ok &&
+    record(v.value) &&
+    (v.value.format === 'ministr-four-army-spectator' || v.value.format === 'ministr-four-army-match') &&
+    typeof v.value.name === 'string' &&
+    v.value.name.length <= 40
+    ? v.value.name
+    : undefined;
 }

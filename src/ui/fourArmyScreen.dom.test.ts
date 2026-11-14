@@ -75,7 +75,7 @@ describe('four-army spectator controller', () => {
       onLocale: setLocale,
       onGesture: vi.fn(),
       codec,
-      createSession: (state, settings, cpuVersion) =>
+      createSession: (state, settings, cpuVersion, humanArmy) =>
         new FourArmyCpuSession(
           state,
           () => {
@@ -89,6 +89,7 @@ describe('four-army spectator controller', () => {
           },
           settings,
           cpuVersion,
+          humanArmy,
         ),
     });
     screen.open();
@@ -97,6 +98,93 @@ describe('four-army spectator controller', () => {
     screen.root.querySelector<HTMLButtonElement>('#four-close')?.click();
     screen.root.remove();
     vi.restoreAllMocks();
+  });
+  it('locks a selected human army across forged view changes, pending setup changes and replay', async () => {
+    change('#four-mode', 'human');
+    change('#four-human-army', 'army3');
+    change('#four-order-0', 'army3');
+    change('#four-order-2', 'army1');
+    start();
+    expect(query('#four-turn').textContent).toContain('Your turn');
+    expect(query<HTMLSelectElement>('#four-view').disabled).toBe(true);
+    expect(query<HTMLSelectElement>('#four-view').value).toBe('army3');
+    expect(query<HTMLButtonElement>('#four-toggle').disabled).toBe(true);
+    expect(query('#four-unit').children).toHaveLength(8);
+    change('#four-view', 'all');
+    expect(query<HTMLSelectElement>('#four-view').value).toBe('army3');
+    click('#four-menu');
+    change('#four-mode', 'spectator');
+    click('#four-return');
+    expect(query('#four-turn').textContent).toContain('Your turn');
+    click('#four-replay');
+    expect(query('#four-human-panel').textContent).toContain('disabled during replay');
+    expect(query('[data-human-action]')).toBeNull();
+    expect(query<HTMLSelectElement>('#four-view').disabled).toBe(true);
+    click('#four-replay-close');
+    click('[data-save-slot="0"]');
+    await vi.waitFor(() => expect(values.has(FOUR_ARMY_SAVE_KEYS[0])).toBe(true));
+    const saved = JSON.parse(values.get(FOUR_ARMY_SAVE_KEYS[0])!);
+    expect(saved).toMatchObject({ format: 'ministr-four-army-match', humanArmy: 'army3', view: 'army3' });
+    click('[data-load-slot="0"]');
+    await vi.waitFor(() => expect(query('#four-notice').textContent).toBe('Loaded and paused.'));
+    expect(query('#four-turn').textContent).toContain('Your turn');
+  });
+  it('previews keyboard movement, cancels without applying, then commits exactly once and saves its controller', async () => {
+    change('#four-mode', 'human');
+    start();
+    const key = (key: string) => query('#four-board').dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true }));
+    key('ArrowRight');
+    key('ArrowDown');
+    click('[data-human-action="move"]');
+    key('ArrowLeft');
+    key('Enter');
+    expect(query('#four-human-preview').textContent).toContain('Move (4, 5)');
+    click('#four-human-cancel');
+    expect(query('#four-turn').textContent).toContain('0 commands');
+    key('ArrowRight');
+    click('[data-human-action="move"]');
+    key('ArrowLeft');
+    key('Enter');
+    click('#four-human-confirm');
+    expect(query('#four-turn').textContent).toContain('1 commands');
+    click('[data-human-action="wait"]');
+    click('#four-human-confirm');
+    expect(query('#four-turn').textContent).toContain('2 commands');
+    click('[data-save-slot="0"]');
+    await vi.waitFor(() => expect(values.has(FOUR_ARMY_SAVE_KEYS[0])).toBe(true));
+    expect(JSON.parse(values.get(FOUR_ARMY_SAVE_KEYS[0])!).archive.payload.commands.rows).toHaveLength(2);
+  });
+  it('confirms the end of a human turn and preserves an enemy turn when backgrounded and reloaded', async () => {
+    change('#four-mode', 'human');
+    start();
+    click('[data-human-action="endTurn"]');
+    click('#four-human-cancel');
+    expect(query('#four-turn').textContent).toContain('0 commands');
+    click('[data-human-action="endTurn"]');
+    click('#four-human-confirm');
+    expect(query('#four-turn').textContent).toContain('Army 2');
+    expect(query('#four-turn').textContent).toContain('1 commands');
+    expect(query('[data-human-action]')).toBeNull();
+    window.dispatchEvent(new Event('pagehide'));
+    click('[data-save-slot="0"]');
+    await vi.waitFor(() => expect(values.has(FOUR_ARMY_SAVE_KEYS[0])).toBe(true));
+    click('[data-load-slot="0"]');
+    await vi.waitFor(() => expect(query('#four-notice').textContent).toBe('Loaded and paused.'));
+    expect(query('#four-turn').textContent).toContain('Army 2');
+    expect(query<HTMLSelectElement>('#four-view').value).toBe('army1');
+    expect(query('#four-toggle').getAttribute('aria-pressed')).toBe('false');
+  });
+  it('previews and confirms factory production without auto-ending the human turn', () => {
+    change('#four-mode', 'human');
+    start();
+    const key = (key: string) => query('#four-board').dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true }));
+    key('ArrowRight');
+    key('ArrowRight');
+    click('[data-human-action="produce"]');
+    expect(query('#four-human-preview').textContent).toContain('Produce');
+    click('#four-human-confirm');
+    expect(query('#four-unit').children).toHaveLength(9);
+    expect(query('#four-turn').textContent).toContain('Your turn');
   });
   it('validates seed and duplicate turn order before starting, and supports keyboard selection and zoom', () => {
     change('#four-seed', 'bad');

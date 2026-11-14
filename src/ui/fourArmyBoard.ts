@@ -31,7 +31,7 @@ const terrainColors: Record<string, string> = {
   supplyDepot: '#89945f',
 };
 /** Canvas is visual only; the adjacent DOM summary and keyboard selection carry the same visible information. */
-export function paintFourArmyBoard(canvas: HTMLCanvasElement, display: FourArmyDisplay, selected: Position, cell: number): void {
+export function paintFourArmyBoard(canvas: HTMLCanvasElement, display: FourArmyDisplay, selected: Position, cell: number, targets: readonly Position[] = []): void {
   const size = cell * display.board.width,
     dpr = Math.min(2, globalThis.devicePixelRatio || 1);
   if (canvas.width !== Math.round(size * dpr)) {
@@ -96,6 +96,9 @@ export function paintFourArmyBoard(canvas: HTMLCanvasElement, display: FourArmyD
       c.fillRect(x - cell * 0.4, y + cell * 0.36, (cell * 0.8 * u.hp) / 100, 2);
     }
   }
+  c.strokeStyle = '#7ee8ff';
+  c.lineWidth = 2;
+  for (const p of targets) c.strokeRect(p.x * cell + 2, p.y * cell + 2, cell - 4, cell - 4);
   c.strokeStyle = '#fff5b7';
   c.lineWidth = 2;
   c.strokeRect(selected.x * cell + 1, selected.y * cell + 1, cell - 2, cell - 2);
