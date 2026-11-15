@@ -5,7 +5,7 @@ import { FourArmyFileCodec } from './fourArmyFileCodec';
 import { setLocale } from './locale';
 import { fourArmySpectatorFixture } from '../game/fourArmySpectator.fixture';
 import { handleFourArmyCpuRequest } from '../ai/fourArmyCpuProtocol';
-import { FOUR_ARMY_SAVE_KEYS } from '../game/fourArmySpectatorSave';
+import { encodeFourArmySpectatorSave, FOUR_ARMY_SAVE_KEYS } from '../game/fourArmySpectatorSave';
 import * as download from './download';
 
 describe('four-army spectator controller', () => {
@@ -432,5 +432,48 @@ describe('four-army spectator controller', () => {
     expect(document.querySelector('.tile')).toBeNull();
     click('#four-handoff-start');
     expect(query('#four-human-panel').textContent).toContain('Army 2');
+  });
+  it('refuses ongoing multiplayer replay imports without replacing the current match or saved original', async () => {
+    start();
+    const incoming = encodeFourArmySpectatorSave({
+      ...fourArmySpectatorFixture(4),
+      format: 'ministr-four-army-configurable',
+      schemaVersion: 3,
+      controllers: { army1: 'human', army2: 'human', army3: 'cpu', army4: 'cpu' },
+      view: 'army1',
+    });
+    if (!incoming.ok) throw Error(incoming.error);
+    values.set(FOUR_ARMY_SAVE_KEYS[0], incoming.value);
+    vi.mocked(window.confirm).mockClear();
+    click('#four-import-replay');
+    const input = query<HTMLInputElement>('#four-file');
+    Object.defineProperty(input, 'files', { value: [{ size: incoming.value.length, text: async () => incoming.value }] });
+    input.dispatchEvent(new Event('change', { bubbles: true }));
+    await vi.waitFor(() => expect(query('#four-notice').textContent).toContain('Import as a match to resume'));
+    expect(screen.root.dataset.recordCount).toBe('0');
+    expect(screen.root.dataset.mode).toBe('spectator');
+    expect(document.querySelector('#four-replay-close')).toBeNull();
+    expect(values.get(FOUR_ARMY_SAVE_KEYS[0])).toBe(incoming.value);
+    expect(window.confirm).not.toHaveBeenCalled();
+  });
+  it('opens a completed multiplayer record as a read-only replay', async () => {
+    const { fourArmyHumanFinishedFixture } = await import('../game/fourArmyHuman.fixture');
+    const encoded = encodeFourArmySpectatorSave(fourArmyHumanFinishedFixture('army4', true));
+    if (!encoded.ok) throw Error(encoded.error);
+    const file = JSON.parse(encoded.value);
+    file.format = 'ministr-four-army-configurable';
+    file.schemaVersion = 3;
+    delete file.humanArmy;
+    file.controllers = { army1: 'human', army2: 'human', army3: 'cpu', army4: 'cpu' };
+    file.view = 'all';
+    start();
+    click('#four-import-replay');
+    const input = query<HTMLInputElement>('#four-file');
+    const raw = JSON.stringify(file);
+    Object.defineProperty(input, 'files', { value: [{ size: raw.length, text: async () => raw }] });
+    input.dispatchEvent(new Event('change', { bubbles: true }));
+    await vi.waitFor(() => expect(document.querySelector('#four-replay-close')).not.toBeNull());
+    expect(document.querySelector('[data-human-action]')).toBeNull();
+    expect(query<HTMLSelectElement>('#four-view').disabled).toBe(false);
   });
 });
