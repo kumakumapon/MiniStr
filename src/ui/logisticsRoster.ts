@@ -10,28 +10,47 @@ import { getLocale } from './locale';
 import { unitNames } from './labels';
 import { escapeHtml } from './strings';
 
-let rosterOpen = false;
-let rosterFilter = 'all';
-let rosterVersion = 0;
-let rosterView: { state: GameState; key: string; version: number; markup: string } | undefined;
+interface RosterView {
+  state: GameState;
+  key: string;
+  version: number;
+  markup: string;
+}
+interface RosterUi {
+  open: boolean;
+  filter: string;
+  version: number;
+  view?: RosterView;
+}
+const rosterUis = new Map<string, RosterUi>();
+function rosterUi(namespace: string): RosterUi {
+  let ui = rosterUis.get(namespace);
+  if (!ui) {
+    ui = { open: false, filter: 'all', version: 0 };
+    rosterUis.set(namespace, ui);
+  }
+  return ui;
+}
 
-export function renderLogisticsRoster(state: GameState, player: PlayerId, canAct: boolean, selected?: string): string {
-  const key = [player, canAct, getLocale(), rosterOpen, rosterFilter].join(':');
-  if (rosterView?.state !== state || rosterView.key !== key) rosterView = { state, key, version: ++rosterVersion, markup: rosterMarkup(state, player, canAct) };
-  const view = rosterView;
+export function renderLogisticsRoster(state: GameState, player: PlayerId, canAct: boolean, selected?: string, namespace = ''): string {
+  const ui = rosterUi(namespace);
+  const key = [player, canAct, getLocale(), ui.open, ui.filter].join(':');
+  if (ui.view?.state !== state || ui.view.key !== key) ui.view = { state, key, version: ++ui.version, markup: rosterMarkup(state, player, canAct, ui) };
+  const view = ui.view;
   const selectedId = escapeHtml(selected ?? '');
   return view.markup
     .replace('<details ', () => '<details data-logistics-view="' + view.version + '" data-logistics-selected="' + selectedId + '" ')
-    .replace('data-logistics-unit="' + selectedId + '" data-selected="false"', () => 'data-logistics-unit="' + selectedId + '" data-selected="true"');
+    .replace('data-logistics-unit="' + selectedId + '" data-selected="false"', () => 'data-logistics-unit="' + selectedId + '" data-selected="true"')
+    .replace(/ id="([^"]+)"/g, (_, id: string) => ` id="${namespace}${id}"`);
 }
 
 /** Selection alone does not change the immutable upkeep projection or row controls. */
-function rosterMarkup(state: GameState, player: PlayerId, canAct: boolean): string {
+function rosterMarkup(state: GameState, player: PlayerId, canAct: boolean, ui: RosterUi): string {
   const en = getLocale() === 'en';
   const t = (ja: string, english: string) => (en ? english : ja);
   const units = state.units.filter((u) => u.owner === player);
   const summary = `${t('部隊・兵站一覧', 'Units and logistics')} (${units.length})`;
-  if (!rosterOpen) return `<details id="logistics-roster" class="logistics-roster"><summary id="logistics-roster-toggle">${summary}</summary></details>`;
+  if (!ui.open) return `<details id="logistics-roster" class="logistics-roster"><summary id="logistics-roster-toggle">${summary}</summary></details>`;
   const projected = usesModernRules(state)
     ? applyModernUpkeep(
         { ...state, players: { ...state.players, [player]: { ...state.players[player], gold: state.players[player].gold + incomePropertyCount(state, player) * 1000 } } },
@@ -54,7 +73,7 @@ function rosterMarkup(state: GameState, player: PlayerId, canAct: boolean): stri
           weaponsForUnit(unit.kind, state).some((_, i) => weaponAmmo(after, i === 0 ? 0 : 1) > weaponAmmo(unit, i === 0 ? 0 : 1)));
       const field = (key: string, label: string, options: string) =>
         `<label>${label}<select id="logistics-${escapeHtml(unit.id)}-${key}" data-logistics-field="${key}" data-unit="${escapeHtml(unit.id)}" ${!canAct ? 'disabled' : ''}>${options}</select></label>`;
-      return `<li ${rosterFilter !== 'all' && !(rosterFilter === 'damaged' ? unit.hp < 100 : rosterFilter === 'ammo' ? lowAmmo : rosterFilter === 'fuel' ? dry : rosterFilter === 'supply' ? receivingSupply : !unit.hasActed) ? 'hidden' : ''} data-logistics-row data-damaged="${unit.hp < 100}" data-ammo="${lowAmmo}" data-fuel="${dry}" data-ready="${!unit.hasActed}" data-supply="${receivingSupply}" data-logistics-unit="${escapeHtml(unit.id)}" data-selected="false"><button class="save-action" data-logistics-select="${escapeHtml(unit.id)}">${escapeHtml(unitNames[unit.kind])} · ${escapeHtml(unit.callsign ?? unit.id)}${!isDeployedUnit(unit) ? ` (${t('搭載中', 'Embarked')})` : ''}</button><p>HP ${unit.hp} · ${t('弾薬', 'Ammo')} ${ammo} · ${t('燃料', 'Fuel')} ${unit.fuel ?? unitStats[unit.kind].fuel}/${unitStats[unit.kind].fuel} · ${unit.hasActed ? t('行動済み', 'Acted') : t('未行動', 'Ready')}</p><p>${escapeHtml(supplyOutlook(state, unit))}</p><p>${t('現配置での次手番見込み', 'Next-turn estimate at current positions')}: HP ${after.hp} · ${t('燃料', 'Fuel')} ${after.fuel ?? unitStats[unit.kind].fuel} · ${t('弾薬', 'Ammo')} ${weaponsForUnit(
+      return `<li ${ui.filter !== 'all' && !(ui.filter === 'damaged' ? unit.hp < 100 : ui.filter === 'ammo' ? lowAmmo : ui.filter === 'fuel' ? dry : ui.filter === 'supply' ? receivingSupply : !unit.hasActed) ? 'hidden' : ''} data-logistics-row data-damaged="${unit.hp < 100}" data-ammo="${lowAmmo}" data-fuel="${dry}" data-ready="${!unit.hasActed}" data-supply="${receivingSupply}" data-logistics-unit="${escapeHtml(unit.id)}" data-selected="false"><button class="save-action" data-logistics-select="${escapeHtml(unit.id)}">${escapeHtml(unitNames[unit.kind])} · ${escapeHtml(unit.callsign ?? unit.id)}${!isDeployedUnit(unit) ? ` (${t('搭載中', 'Embarked')})` : ''}</button><p>HP ${unit.hp} · ${t('弾薬', 'Ammo')} ${ammo} · ${t('燃料', 'Fuel')} ${unit.fuel ?? unitStats[unit.kind].fuel}/${unitStats[unit.kind].fuel} · ${unit.hasActed ? t('行動済み', 'Acted') : t('未行動', 'Ready')}</p><p>${escapeHtml(supplyOutlook(state, unit))}</p><p>${t('現配置での次手番見込み', 'Next-turn estimate at current positions')}: HP ${after.hp} · ${t('燃料', 'Fuel')} ${after.fuel ?? unitStats[unit.kind].fuel} · ${t('弾薬', 'Ammo')} ${weaponsForUnit(
         after.kind,
         state,
       )
@@ -67,8 +86,9 @@ function rosterMarkup(state: GameState, player: PlayerId, canAct: boolean): stri
   return `<details open id="logistics-roster" class="logistics-roster"><summary id="logistics-roster-toggle">${t('部隊・兵站一覧', 'Units and logistics')} (${units.length})</summary><p>${t('敵行動や施設所有の変化で見込みは変わります。留保資金は修理だけを制限します。', 'Enemy actions or ownership changes can alter estimates. Reserved funds limit repairs only.')}</p>${supported ? `<label>${t('修理後に残す資金', 'Funds to reserve after repairs')}<input id="repair-reserve" type="number" min="0" max="1000000" step="1" value="${state.repairReserve?.[player] ?? 0}" ${!canAct ? 'disabled' : ''}></label>` : `<p>${t('この対局は従来の自動補給・修理を使用します。', 'This match uses legacy automatic supply and repairs.')}</p>`}<label>${t('絞り込み', 'Filter')}<select id="logistics-filter"><option value="all">${t('すべて', 'All')}</option><option value="damaged">${t('損傷', 'Damaged')}</option><option value="ammo">${t('弾薬不足', 'Ammo missing')}</option><option value="fuel">${t('燃料不足', 'Low fuel')}</option><option value="supply">${t('補給見込みあり', 'Resupply expected')}</option><option value="ready">${t('未行動', 'Ready')}</option></select></label><ul id="logistics-list">${rows}</ul></details>`;
 }
 
-export function bindLogisticsRoster(root: HTMLElement, refresh: () => void, dispatch: (command: GameCommand) => void, select: (id: string) => void): void {
-  const details = root.querySelector<HTMLDetailsElement>('#logistics-roster');
+export function bindLogisticsRoster(root: HTMLElement, refresh: () => void, dispatch: (command: GameCommand) => void, select: (id: string) => void, namespace = ''): void {
+  const ui = rosterUi(namespace);
+  const details = root.querySelector<HTMLDetailsElement>(`#${namespace}logistics-roster`);
   const selectedId = details?.dataset.logisticsSelected;
   details?.querySelectorAll<HTMLElement>('[data-logistics-unit]').forEach((row) => {
     const selected = String(row.dataset.logisticsUnit === selectedId);
@@ -76,8 +96,8 @@ export function bindLogisticsRoster(root: HTMLElement, refresh: () => void, disp
   });
   if (details)
     details.ontoggle = () => {
-      if (details.open !== rosterOpen) {
-        rosterOpen = details.open;
+      if (details.open !== ui.open) {
+        ui.open = details.open;
         refresh();
       }
     };
@@ -94,17 +114,17 @@ export function bindLogisticsRoster(root: HTMLElement, refresh: () => void, disp
         });
       }),
   );
-  const reserve = root.querySelector<HTMLInputElement>('#repair-reserve');
+  const reserve = root.querySelector<HTMLInputElement>(`#${namespace}repair-reserve`);
   if (reserve)
     reserve.onchange = () => {
       if (reserve.value !== '' && reserve.checkValidity()) dispatch({ type: 'repairReserve', amount: Number(reserve.value) });
     };
-  const filter = root.querySelector<HTMLSelectElement>('#logistics-filter');
+  const filter = root.querySelector<HTMLSelectElement>(`#${namespace}logistics-filter`);
   if (filter) {
-    filter.value = rosterFilter;
+    filter.value = ui.filter;
     filter.onchange = () => {
-      rosterFilter = filter.value;
-      root.querySelectorAll<HTMLElement>('[data-logistics-row]').forEach((row) => (row.hidden = rosterFilter !== 'all' && row.dataset[rosterFilter] !== 'true'));
+      ui.filter = filter.value;
+      root.querySelectorAll<HTMLElement>('[data-logistics-row]').forEach((row) => (row.hidden = ui.filter !== 'all' && row.dataset[ui.filter] !== 'true'));
     };
   }
 }

@@ -58,7 +58,7 @@ export function moveUnit(state: GameState, unitId: string, destination: Position
   if (unit.hasMoved) return fail('Unit has already moved');
   if (unit.hasActed) return fail('Unit has already acted');
   if ((unit.fuel ?? unitStats[unit.kind].fuel) <= 0) return fail('Unit is out of fuel');
-  if (state.tactics) return moveTacticalUnit(state, unit, destination);
+  if (state.tactics) return moveTacticalUnit(state, unit, destination, comparePath);
   const costs = movementCosts(state, unitId);
   let finalDestination = destination;
   let spent = costs.get(positionKey(destination));
@@ -456,13 +456,13 @@ function withoutExhaustedUnits(units: Unit[], player: PlayerId): Unit[] {
 }
 
 /** Fix the observed route first; resolve real occupancy without omniscient rerouting. */
-function moveTacticalUnit(state: GameState, unit: Unit & { position: Position }, destination: Position): GameResult {
+function moveTacticalUnit(state: GameState, unit: Unit & { position: Position }, destination: Position, comparePath?: (a: Position, b: Position) => number): GameResult {
   const enemies = visibleEnemies(state, unit.owner);
   const known = new Set(enemies.map(u => u.id));
   const observed = { ...state, units: state.units.filter(u => u.owner === unit.owner || known.has(u.id)) };
   const costs = movementCosts(observed, unit.id);
   if (!costs.has(positionKey(destination))) return fail('Destination is out of range');
-  const route = pathFromMovementCosts(observed, unit, destination, costs);
+  const route = pathFromMovementCosts(observed, unit, destination, costs, comparePath);
   if (!route) return fail('Destination is out of range');
   let stop = unit.position, spent = 0;
   let contact: Unit | undefined;

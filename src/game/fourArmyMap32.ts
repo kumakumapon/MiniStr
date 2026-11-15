@@ -1,3 +1,4 @@
+import { isFourArmyRules, type FourArmyRules } from './fourArmyRules';
 import { FOUR_ARMY_IDS, createFourArmyRound, type FourArmyId } from './fourArmyFoundation';
 import type { FourArmyMap, FourArmyTerrain, FourArmyUnit } from './fourArmyEngine';
 import type { FourArmySetup } from './fourArmySetup';
@@ -16,7 +17,8 @@ export function rotateFourArmy32(p: Position, turns: number): Position {
 }
 
 /** Fixed map snapshot, independent of the first actor and the combat RNG stream. */
-export function createFourArmyMap32(seed = 1512, order: readonly FourArmyId[] = FOUR_ARMY_IDS, pathVersion?: 1): GameResult<FourArmyMap> {
+export function createFourArmyMap32(seed = 1512, order: readonly FourArmyId[] = FOUR_ARMY_IDS, pathVersion?: 1, rules?: FourArmyRules): GameResult<FourArmyMap> {
+  if (rules !== undefined && !isFourArmyRules(rules)) return { ok: false, error: '4軍の規則が不正です。' };
   if (pathVersion !== undefined && pathVersion !== 1) return { ok: false, error: '未対応の経路規則です。' };
   const round = createFourArmyRound(order);
   if (!round.ok) return round;
@@ -77,7 +79,8 @@ export function createFourArmyMap32(seed = 1512, order: readonly FourArmyId[] = 
   return {
     ok: true,
     value: {
-      id: FOUR_ARMY_MAP32_ID,
+      id: rules ? 'four-fronts-32-v2' : FOUR_ARMY_MAP32_ID,
+      ...(rules ? { rules: { ...rules } } : {}),
       ...(pathVersion === 1 ? { pathVersion } : {}),
       board,
       capitals,

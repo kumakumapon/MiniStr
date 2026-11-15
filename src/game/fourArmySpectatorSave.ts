@@ -1,3 +1,4 @@
+import { isFourArmyControllers, fourArmyControllers, fourArmyHumanArmies, type FourArmyControllers } from './fourArmyControl';
 import { FOUR_ARMY_IDS, type FourArmyId } from './fourArmyFoundation';
 import { createFourArmyMap32 } from './fourArmyMap32';
 import { isFourArmyState } from './fourArmyEngine';
@@ -14,8 +15,8 @@ export const FOUR_ARMY_CHECKPOINT_INTERVAL = 2048;
 export const FOUR_ARMY_COMMAND_LIMIT = FOUR_ARMY_LONG_COMMANDS;
 export type FourArmyView = 'all' | FourArmyId;
 interface FourArmySaveBase {
-  format: 'ministr-four-army-spectator' | 'ministr-four-army-match';
-  schemaVersion: 1 | 2;
+  format: 'ministr-four-army-spectator' | 'ministr-four-army-match' | 'ministr-four-army-configurable';
+  schemaVersion: 1 | 2 | 3;
   cpuVersion: FourArmyCpuVersion;
   name: string;
   savedAt: string;
@@ -24,7 +25,12 @@ interface FourArmySaveBase {
   speed: 0.5 | 1 | 2 | 4;
   archive: FourArmyArchive;
 }
-export type FourArmySpectatorSave = FourArmySaveBase & ({ format: 'ministr-four-army-spectator' } | { format: 'ministr-four-army-match'; humanArmy: FourArmyId });
+export type FourArmySpectatorSave = FourArmySaveBase &
+  (
+    | { format: 'ministr-four-army-spectator' }
+    | { format: 'ministr-four-army-match'; humanArmy: FourArmyId }
+    | { format: 'ministr-four-army-configurable'; schemaVersion: 3; controllers: FourArmyControllers }
+  );
 export const isFourArmySaveKey = (key: string): boolean => FOUR_ARMY_SAVE_KEYS.some((k) => k === key);
 export const isFourArmyView = (v: unknown): v is FourArmyView => v === 'all' || FOUR_ARMY_IDS.some((a) => a === v);
 const record = (v: unknown): v is Record<string, unknown> => !!v && typeof v === 'object' && !Array.isArray(v);
@@ -58,10 +64,12 @@ export function isFourArmySpectatorEnvelope(v: unknown): v is FourArmySpectatorS
       'view',
       'speed',
       'archive',
-      ...(v.format === 'ministr-four-army-match' ? ['humanArmy'] : []),
+      ...(v.format === 'ministr-four-army-match' ? ['humanArmy'] : v.format === 'ministr-four-army-configurable' ? ['controllers'] : []),
     ]) &&
-    (v.format === 'ministr-four-army-spectator' || (v.format === 'ministr-four-army-match' && v.schemaVersion === 2 && FOUR_ARMY_IDS.some((a) => a === v.humanArmy))) &&
-    (v.schemaVersion === 1 || v.schemaVersion === 2) &&
+    ((v.format === 'ministr-four-army-spectator' && v.schemaVersion !== 3) ||
+      (v.format === 'ministr-four-army-match' && v.schemaVersion === 2 && FOUR_ARMY_IDS.some((a) => a === v.humanArmy)) ||
+      (v.format === 'ministr-four-army-configurable' && v.schemaVersion === 3 && isFourArmyControllers(v.controllers))) &&
+    (v.schemaVersion === 1 || v.schemaVersion === 2 || v.schemaVersion === 3) &&
     isFourArmyCpuVersion(v.cpuVersion) &&
     typeof v.name === 'string' &&
     v.name.trim() === v.name &&
@@ -81,6 +89,7 @@ export function isFourArmySpectatorEnvelope(v: unknown): v is FourArmySpectatorS
       v.archive.payload.state.outcome.type !== 'ongoing' ||
       !v.archive.payload.state.alive.includes(v.humanArmy as FourArmyId) ||
       v.view === v.humanArmy) &&
+    (v.format !== 'ministr-four-army-configurable' || allowedConfigurableView(v.controllers as FourArmyControllers, v.archive.payload.state, v.view)) &&
     Array.isArray(v.archive.payload.commands) &&
     v.archive.payload.commands.length <= (v.schemaVersion === 1 ? 2048 : FOUR_ARMY_COMMAND_LIMIT)
   );
@@ -102,7 +111,7 @@ export function* verifyFourArmySpectatorSave(text: string): Generator<FourArmyVe
   if (input.schemaVersion === 1) {
     const legacy = parseBoundedJson(text, 1_000_000);
     if (!legacy.ok) return legacy;
-  } else if (input.schemaVersion === 2) {
+  } else if (input.schemaVersion === 2 || input.schemaVersion === 3) {
     if (!record(input.archive) || !record(input.archive.payload)) return fail('4軍対局の保存形式が不正です。');
     const commands = unpackFourArmyCommands(input.archive.payload.commands);
     if (!commands.ok) return commands;
@@ -111,8 +120,9 @@ export function* verifyFourArmySpectatorSave(text: string): Generator<FourArmyVe
   if (!isFourArmySpectatorEnvelope(input)) return fail('4軍対局の保存形式が不正です。');
   const save = input,
     map = save.archive.payload.map;
-  const expected = record(map) ? createFourArmyMap32(map.seed, map.order, map.pathVersion) : undefined;
-  if (!expected?.ok || save.archive.schemaVersion !== 2 || canonical(map) !== canonical(expected.value)) return fail('この4軍対局では四方の前線の固定初期条件を使用します。');
+  const expected = record(map) ? createFourArmyMap32(map.seed, map.order, map.pathVersion, map.rules) : undefined;
+  if (!expected?.ok || (save.archive.schemaVersion !== 2 && !(save.schemaVersion === 3 && save.archive.schemaVersion === 3)) || canonical(map) !== canonical(expected.value))
+    return fail('この4軍対局では四方の前線の固定初期条件を使用します。');
   const verifier = verifyFourArmyArchive(save.archive, save.schemaVersion === 1 ? 2048 : 65536),
     checkpoints: FourArmyCheckpoint[] = [];
   let step = verifier.next();
@@ -151,7 +161,7 @@ export function encodeFourArmySpectatorSave(value: FourArmySpectatorSave): GameR
   try {
     if (!isFourArmySpectatorEnvelope(value)) return fail('4軍対局の保存形式が不正です。');
     const file =
-      value.schemaVersion === 2
+      value.schemaVersion === 2 || value.schemaVersion === 3
         ? { ...value, archive: { ...value.archive, payload: { ...value.archive.payload, commands: packFourArmyCommands(value.archive.payload.commands) } } }
         : value;
     const text = JSON.stringify(file);
@@ -173,9 +183,24 @@ export function fourArmySlotName(text: string | null): string | undefined {
   const v = parseBoundedJson(text, FOUR_ARMY_FILE_BYTES, 1_000_000);
   return v.ok &&
     record(v.value) &&
-    (v.value.format === 'ministr-four-army-spectator' || v.value.format === 'ministr-four-army-match') &&
+    (v.value.format === 'ministr-four-army-spectator' || v.value.format === 'ministr-four-army-match' || v.value.format === 'ministr-four-army-configurable') &&
     typeof v.value.name === 'string' &&
     v.value.name.length <= 40
     ? v.value.name
     : undefined;
+}
+
+/** Old records keep their original controller allocation; new files must carry all four. */
+export function savedFourArmyControllers(save: FourArmySpectatorSave): FourArmyControllers {
+  return save.format === 'ministr-four-army-configurable'
+    ? structuredClone(save.controllers)
+    : fourArmyControllers(save.format === 'ministr-four-army-match' ? [save.humanArmy] : []);
+}
+function allowedConfigurableView(controllers: FourArmyControllers, state: import('./fourArmyEngine').FourArmyState, view: FourArmyView): boolean {
+  const humans = fourArmyHumanArmies(controllers);
+  if (state.outcome.type !== 'ongoing' || !humans.some((a) => state.alive.includes(a))) return true;
+  if (humans.length === 1) return view === humans[0];
+  const actor = state.round.order[state.round.index]!;
+  // CPU intervals are concealed. Persist a human perspective, never an all-board permission.
+  return controllers[actor] === 'human' ? view === actor : humans.includes(view as FourArmyId);
 }
