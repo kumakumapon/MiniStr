@@ -1,3 +1,4 @@
+import { fourArmyProductionFacilities, fourArmyProductionOptions, fourArmyReadyUnits } from './fourArmyUiModel';
 import { BoardInput } from './boardInput';
 import { BoardView } from './boardView';
 import { nextBoardPosition } from './boardNavigation';
@@ -533,6 +534,16 @@ export class FourArmyScreen {
   }
   private async click(button: HTMLButtonElement): Promise<void> {
     const id = button.id;
+    if (button.dataset.forecastTarget && this.session && this.humanArmy) {
+      const o = observeFourArmy(this.session.state, this.humanArmy);
+      const target = o.ok ? o.value.units.find((u) => u.id === button.dataset.forecastTarget) : undefined;
+      if (target?.position) {
+        this.selected = { ...target.position };
+        this.paint();
+        this.focusTile();
+      }
+      return;
+    }
     if (button.dataset.fourUnit && this.humanTurn && this.session) {
       const unit = this.session.state.units.find((u) => u.id === button.dataset.fourUnit && u.owner === this.humanArmy && u.position);
       if (unit?.position) {
@@ -548,7 +559,11 @@ export class FourArmyScreen {
       const observed = observeFourArmy(this.session.state, this.humanArmy);
       if (observed.ok) {
         const choice = fourArmyHumanChoices(observed.value, this.production).find((c) => c.command.type === 'produce' && c.command.kind === button.dataset.productionKind);
-        if (choice) await this.applyHuman(choice);
+        if (choice) {
+          const before = this.count;
+          await this.applyHuman(choice);
+          if (this.count > before && this.humanTurn) this.openProduction();
+        }
       }
       return;
     }
@@ -738,6 +753,13 @@ export class FourArmyScreen {
     }
   }
   private async change(input: HTMLInputElement): Promise<void> {
+    if (input.id === 'four-production-facility') {
+      const [x, y] = input.value.split(',').map(Number);
+      this.closeProduction(false);
+      if (x !== undefined && y !== undefined) this.openProduction({ x, y });
+      this.query<HTMLElement>('#four-production-facility')?.focus();
+      return;
+    }
     if (input.id === 'four-confirm-end') {
       this.confirmEndTurn = input.checked;
       return;
@@ -1183,11 +1205,23 @@ export class FourArmyScreen {
           ? this.choiceName(this.attackChoice()!)
           : text('部隊→移動先・敵を選択して操作', 'Select a unit, then a destination or enemy');
       html += `<p id="four-human-preview" class="four-hint" role="status">${escapeHtml(preview)}</p>`;
+      const attacks = this.humanChoices.filter((c) => c.command.type === 'attack' && (this.weaponSlot === undefined || c.command.weaponSlot === this.weaponSlot));
+      const targets = [...new Set(attacks.map((c) => (c.command.type === 'attack' ? c.command.targetId : '')))];
+      if (targets.length)
+        html += `<section class="forecast-card"><p class="card-kicker">${text('戦闘予測（確認だけでは攻撃しません）', 'Forecasts (inspect without attacking)')}</p>${targets
+          .map((id) => {
+            const choices = attacks.filter((c) => c.command.type === 'attack' && c.command.targetId === id);
+            const choice = choices.reduce((a, b) => ((a.damage?.max ?? 0) >= (b.damage?.max ?? 0) ? a : b));
+            const target = observed.value.units.find((u) => u.id === id)!;
+            return `<button class="save-action four-forecast" data-forecast-target="${escapeHtml(id)}">${escapeHtml(armyName(target.owner) + ' ' + unitNames[target.kind])} · HP ${target.hp} · ${escapeHtml(this.choiceName(choice))}</button>`;
+          })
+          .join('')}</section>`;
+
       html += `<button id="four-open-production" class="save-action">${text('生産メニュー', 'Production')}</button>`;
       const end = this.humanChoices.findIndex((c) => c.action === 'endTurn');
       html += `<button class="end-turn" data-human-choice="${end}" data-human-action="endTurn">${text('ターン終了', 'End turn')} →</button>`;
     }
-    const unacted = canAct ? observed.value.units.filter((u) => u.owner === this.humanArmy && u.position && !u.hasActed) : [];
+    const unacted = canAct ? fourArmyReadyUnits(observed.value) : [];
     if (canAct)
       html += `<section class="unit-queue-card"><div><p class="card-kicker">UNIT STATUS</p><h2>${text('未行動部隊', 'Ready units')} <strong>${unacted.length}</strong></h2></div><ol>${unacted.map((u) => `<li><button class="unit-queue-item" data-four-unit="${escapeHtml(u.id)}"><span class="${u.owner}" aria-hidden="true">${u.owner.slice(-1)}</span>${escapeHtml(unitNames[u.kind])}<em>${u.hp}</em></button></li>`).join('')}</ol><button id="four-next-unit" class="save-action" ${unacted.length ? '' : 'disabled'}>${text('次の未行動部隊', 'Next ready unit')} <kbd>N</kbd></button></section>`;
     if (canAct)
@@ -1212,15 +1246,7 @@ export class FourArmyScreen {
     if (!this.humanTurn || !this.session || !this.humanArmy || this.busy || this.count >= FOUR_ARMY_COMMAND_LIMIT || this.deps.conflicted()) return;
     const o = observeFourArmy(this.session.state, this.humanArmy);
     if (!o.ok) return;
-    const candidates = o.value.board.terrain.flatMap((row, y) =>
-      row.flatMap((tile, x) =>
-        tile.owner === this.humanArmy &&
-        (productionKindsForRule('facility-v2', 12)[tile.kind]?.length ?? 0) > 0 &&
-        !o.value.units.some((u) => u.position?.x === x && u.position.y === y)
-          ? [{ x, y }]
-          : [],
-      ),
-    );
+    const candidates = fourArmyProductionFacilities(o.value);
     const target = position ? candidates.find((p) => p.x === position.x && p.y === position.y) : candidates[0];
     if (!target) {
       if (!position) {
@@ -1233,17 +1259,22 @@ export class FourArmyScreen {
     this.selected = { ...target };
     this.production = { ...target };
     this.paint();
-    const choices = fourArmyHumanChoices(o.value, target).filter((c) => c.command.type === 'produce');
-    const tile = o.value.board.terrain[target.y]![target.x]!;
-    const kinds = productionKindsForRule('facility-v2', 12)[tile.kind] ?? [];
-    const buttons = kinds
-      .map(
-        (kind) =>
-          `<button class="production-option" data-production-kind="${kind}" ${choices.some((c) => c.command.type === 'produce' && c.command.kind === kind) ? '' : 'disabled'}>${escapeHtml(unitNames[kind])}<strong>${unitStats[kind].cost.toLocaleString()} G</strong></button>`,
-      )
+    const buttons = fourArmyProductionOptions(o.value, target)
+      .map(({ kind, cost, reason }) => {
+        const why =
+          reason === 'limit'
+            ? text('部隊数が上限です', 'Unit limit reached')
+            : reason === 'funds'
+              ? text(`資金不足（あと ${cost - o.value.player.gold}G）`, `Need ${cost - o.value.player.gold} more gold`)
+              : reason
+                ? text('この施設では生産できません', 'Unavailable at this facility')
+                : text('生産可能', 'Available');
+        return `<button class="production-option" data-production-kind="${kind}" ${reason ? 'disabled' : ''}><span>${escapeHtml(unitNames[kind])}</span><strong>${cost.toLocaleString()} G</strong><small>${text('移動', 'Move')} ${unitStats[kind].movement} · ${text('射程', 'Range')} ${unitStats[kind].range.join('–')}</small><small>${escapeHtml(why)}</small></button>`;
+      })
       .join('');
+    const facilities = `<label>${text('生産先', 'Production facility')}<select id="four-production-facility">${candidates.map((p) => `<option value="${p.x},${p.y}" ${p.x === target.x && p.y === target.y ? 'selected' : ''}>${escapeHtml(terrainNames[o.value.board.terrain[p.y]![p.x]!.kind])} (${p.x + 1}, ${p.y + 1})</option>`).join('')}</select></label><p>${text('空き施設', 'Idle facilities')} ${candidates.length} · ${text('生産後は次の空き施設へ進みます', 'Continues at the next idle facility')}</p>`;
     this.query('#four-production-host')!.innerHTML =
-      `<dialog id="four-production-dialog" class="four-production-dialog" aria-modal="true" aria-labelledby="four-production-title"><h2 id="four-production-title">${text('生産メニュー', 'Production')}</h2>${renderProductionCard(`<p>${terrainNames[tile.kind]} (${target.x + 1}, ${target.y + 1})</p>`, `<p>${o.value.player.gold.toLocaleString()} G · ${o.value.units.filter((u) => u.owner === this.humanArmy).length}/16</p>`, buttons)}<button id="four-production-close">${text('閉じる', 'Close')} <kbd>Esc</kbd></button></dialog>`;
+      `<dialog id="four-production-dialog" class="four-production-dialog" aria-modal="true" aria-labelledby="four-production-title"><h2 id="four-production-title">${text('生産メニュー', 'Production')}</h2>${renderProductionCard(facilities, `<p>${o.value.player.gold.toLocaleString()} G · ${o.value.units.filter((u) => u.owner === this.humanArmy).length}/16</p>`, buttons)}<button id="four-production-close">${text('閉じる', 'Close')} <kbd>Esc</kbd></button></dialog>`;
     const dialog = this.query<HTMLDialogElement>('#four-production-dialog')!;
     if (typeof dialog.showModal === 'function') dialog.showModal();
     else dialog.setAttribute('open', '');
@@ -1269,7 +1300,7 @@ export class FourArmyScreen {
     if (
       choice.command.type === 'endTurn' &&
       this.confirmEndTurn &&
-      this.session.state.units.some((u) => u.owner === this.humanArmy && !u.hasActed) &&
+      this.session.state.units.some((u) => u.owner === this.humanArmy && u.position && !u.hasActed) &&
       !window.confirm(text('未行動部隊が残っています。ターンを終了しますか？', 'Ready units remain. End your turn?'))
     )
       return;
