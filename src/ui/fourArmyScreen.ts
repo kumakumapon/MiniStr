@@ -533,11 +533,26 @@ export class FourArmyScreen {
       this.paint();
       return;
     }
+    const saved = result.value.save;
+    const incomingControllers = savedFourArmyControllers(saved);
+    const incomingHumans = fourArmyHumanArmies(incomingControllers);
+    if (
+      mode === 'replay' &&
+      incomingHumans.length > 1 &&
+      saved.archive.payload.state.outcome.type === 'ongoing' &&
+      incomingHumans.some((a) => saved.archive.payload.state.alive.includes(a))
+    ) {
+      this.notice = text(
+        '進行中の複数人対局は再生できません。「対局を読込」で再開してください。現在の対局と保存は保持しています。',
+        'An ongoing local multiplayer match cannot be replayed. Import as a match to resume. The current match and saves are unchanged.',
+      );
+      this.paint();
+      return;
+    }
     if (!this.replaceAllowed()) {
       this.paint();
       return;
     }
-    const saved = result.value.save;
     this.settings = structuredClone(saved.settings);
     this.speed = saved.speed;
     this.name = saved.name;
@@ -545,22 +560,14 @@ export class FourArmyScreen {
     this.order = [...saved.archive.payload.map.order];
     this.expandedRules = !!saved.archive.payload.map.rules;
     this.tacticalRules = saved.archive.payload.map.rules?.tactics ?? false;
-    this.install(
-      saved.archive.payload.map,
-      saved.archive.payload.state,
-      saved.archive.payload.commands,
-      result.value.checkpoints,
-      saved.cpuVersion,
-      savedFourArmyControllers(saved),
-    );
+    this.install(saved.archive.payload.map, saved.archive.payload.state, saved.archive.payload.commands, result.value.checkpoints, saved.cpuVersion, incomingControllers);
     this.view = saved.view;
     this.prepareHandoff();
     this.setupMode = 'custom';
     this.setupControllers = structuredClone(this.controllers);
     this.setupHuman = this.humanArmy ?? 'army1';
     this.savedSignature = this.signature();
-    if (mode === 'replay' && !(fourArmyHumanArmies(this.controllers).length > 1 && this.lockedView))
-      this.replay = new FourArmyReplay(this.map!, [...this.prefix], this.checkpoints);
+    if (mode === 'replay') this.replay = new FourArmyReplay(this.map!, [...this.prefix], this.checkpoints);
     this.notice = text('停止状態で読み込みました。', 'Loaded and paused.');
     this.shell();
   }

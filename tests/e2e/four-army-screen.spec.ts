@@ -614,3 +614,42 @@ for (const width of [1280, 390]) {
     await page.screenshot({ path: info.outputPath(`v1519-rules-${width}.png`), fullPage: true });
   });
 }
+
+test('multiplayer replay import preserves the current match until explicitly resumed and stays read-only after completion', async ({ page }) => {
+  const { fourArmyHumanFinishedFixture } = await import('../../src/game/fourArmyHuman.fixture');
+  const incoming = encodeFourArmySpectatorSave({
+    ...fourArmySpectatorFixture(4),
+    format: 'ministr-four-army-configurable',
+    schemaVersion: 3,
+    controllers: { army1: 'human', army2: 'human', army3: 'cpu', army4: 'cpu' },
+    view: 'army1',
+  });
+  if (!incoming.ok) throw Error(incoming.error);
+  await open(page);
+  await page.locator('#four-start').click();
+  await tools(page);
+  await page.locator('#four-import-replay').click();
+  await page.locator('#four-file').setInputFiles({ name: 'ongoing.json', mimeType: 'application/json', buffer: Buffer.from(incoming.value) });
+  await expect(page.locator('#four-notice')).toContainText('Import as a match to resume');
+  expect(await count(page)).toBe(0);
+  await expect(page.locator('#four-replay-close')).toHaveCount(0);
+  await page.locator('#four-import').click();
+  await page.locator('#four-file').setInputFiles({ name: 'ongoing.json', mimeType: 'application/json', buffer: Buffer.from(incoming.value) });
+  await expect(page.locator('#four-handoff-start')).toBeVisible();
+  await page.locator('#four-handoff-start').click();
+  await expect(page.locator('#four-army-screen')).toHaveAttribute('data-record-count', '4');
+  const completed = encodeFourArmySpectatorSave(fourArmyHumanFinishedFixture('army4', true));
+  if (!completed.ok) throw Error(completed.error);
+  const terminal = JSON.parse(completed.value);
+  terminal.format = 'ministr-four-army-configurable';
+  terminal.schemaVersion = 3;
+  delete terminal.humanArmy;
+  terminal.controllers = { army1: 'human', army2: 'human', army3: 'cpu', army4: 'cpu' };
+  terminal.view = 'all';
+  await tools(page);
+  await page.locator('#four-import-replay').click();
+  await page.locator('#four-file').setInputFiles({ name: 'finished.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(terminal)) });
+  await expect(page.locator('#four-replay-close')).toBeVisible();
+  await expect(page.locator('[data-human-action]')).toHaveCount(0);
+  await expect(page.locator('#four-view')).toBeEnabled();
+});
