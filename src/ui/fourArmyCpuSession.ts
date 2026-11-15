@@ -15,6 +15,7 @@ export class FourArmyCpuSession {
   private running = false;
   private stopped = false;
   private readonly planner: FourArmyCpuPlanner;
+  onCommit?: (before: FourArmyState, command: FourArmyCommand, after: FourArmyState) => void;
   constructor(
     state: FourArmyState,
     createWorker: () => Worker,
@@ -49,15 +50,18 @@ export class FourArmyCpuSession {
   stop(): void {
     this.pause();
     this.stopped = true;
+    this.onCommit = undefined;
   }
   resume(): void {
     if (this.stopped) throw Error('Four-army CPU session stopped');
     if (this.current.paused) {
+      const before = this.current;
       const command: FourArmyCommand = { actor: this.current.round.order[this.current.round.index]!, type: 'resume' };
       const next = applyFourArmyCommand(this.current, command);
       if (!next.ok) throw Error(next.error);
       this.current = next.value;
       this.history.push(command);
+      if (this.onCommit) this.onCommit(structuredClone(before), structuredClone(command), structuredClone(this.current));
       this.revision++;
     }
     this.running = this.current.outcome.type === 'ongoing';
@@ -80,10 +84,12 @@ export class FourArmyCpuSession {
     const observed = observeFourArmy(this.current, command.actor);
     if (!observed.ok || !isObservedFourArmyCommand(observed.value, command)) return false;
     this.pause();
+    const before = this.current;
     const next = applyFourArmyCommand(this.current, command);
     if (!next.ok) return false;
     this.current = next.value;
     this.history.push(structuredClone(command));
+    if (this.onCommit) this.onCommit(structuredClone(before), structuredClone(command), structuredClone(this.current));
     return true;
   }
   async step(): Promise<FourArmyCommand | undefined> {
@@ -103,8 +109,10 @@ export class FourArmyCpuSession {
         command = fallback;
       }
       if (!next.ok) throw Error(next.error);
+      const before = this.current;
       this.current = next.value;
       this.history.push(structuredClone(command));
+      if (this.onCommit) this.onCommit(structuredClone(before), structuredClone(command), structuredClone(this.current));
       this.revision++;
       if (this.current.paused || this.current.outcome.type !== 'ongoing') this.pause();
       return structuredClone(command);

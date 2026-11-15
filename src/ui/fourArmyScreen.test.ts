@@ -6,6 +6,8 @@ import { FourArmyReplay } from './fourArmyReplay';
 import { fourArmyDisplay } from './fourArmyBoard';
 import { applyFourArmyCommand, createFourArmyState } from '../game/fourArmyEngine';
 import type { GameResult } from '../game/types';
+import { fourArmyControllers } from '../game/fourArmyControl';
+import { emptyFourArmyExperience, fourArmyExperienceManifest } from '../game/fourArmyExperience';
 const value = <T>(r: GameResult<T>): T => {
   if (!r.ok) throw Error(r.error);
   return r.value;
@@ -22,6 +24,28 @@ class FakeWorker {
   }
 }
 describe('four-army UI boundaries', () => {
+  it.each(['missing', 'malformed', 'mismatched'])('rejects %s schema4 observation data from the file Worker', async (fault) => {
+    const legacy = fourArmySpectatorFixture(2);
+    const save = {
+      ...legacy,
+      format: 'ministr-four-army-configurable' as const,
+      schemaVersion: 4 as const,
+      controllers: fourArmyControllers(),
+      experience: fourArmyExperienceManifest(emptyFourArmyExperience()),
+    };
+    const w = new FakeWorker(),
+      codec = new FourArmyFileCodec(() => w as unknown as Worker),
+      pending = codec.run(save);
+    const reply = handleFourArmyFileRequest(w.postMessage.mock.calls[0]![0]);
+    if (!reply?.result.ok) throw Error('Expected verified Worker reply');
+    if (fault === 'missing') delete reply.result.value.experience;
+    else {
+      reply.result.value.experience!.events.all = [{ at: 1, actor: 'army1', round: 1, type: 'wait', ...(fault === 'malformed' ? { damage: 101 } : {}) }];
+    }
+    w.reply(reply);
+    expect((await pending)?.ok).toBe(false);
+    expect(w.terminate).toHaveBeenCalledOnce();
+  });
   it('uses only visible contacts and the selected army funds in restricted views', () => {
     const s = fourArmySpectatorFixture().archive.payload.state;
     expect(fourArmyDisplay(s, 'all').units).toHaveLength(32);

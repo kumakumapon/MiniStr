@@ -9,7 +9,7 @@ import { encodeFourArmySpectatorSave, parseFourArmySpectatorSave } from '../../s
 // Every case owns a fresh page/context and fixture; keep the existing worker and timeout budgets.
 test.describe.configure({ mode: 'parallel' });
 
-async function open(page: Page, locale = 'en') {
+async function open(page: Page, locale = 'en', mode: 'spectator' | 'human' = 'spectator') {
   await page.addInitScript((locale) => localStorage.setItem('ministr.locale', locale), locale);
   page.on('dialog', (dialog) => dialog.accept());
   await page.goto('/');
@@ -17,6 +17,8 @@ async function open(page: Page, locale = 'en') {
   await expect(page.locator('#four-heading')).toBeVisible();
   await expect(page.locator('main')).toHaveCount(1);
   await expect(page.locator('#four-army-screen')).toHaveAttribute('role', 'main');
+  await expect(page.locator('#four-mode')).toHaveValue('human');
+  if (mode === 'spectator') await page.locator('#four-mode').selectOption('spectator');
 }
 async function playbackControls(page: Page) {
   await page.locator('.four-playback-options').evaluate((e) => {
@@ -294,7 +296,7 @@ test('four-army resumes the 100-round boundary explicitly and retains the resume
   expect(parsed.ok).toBe(true);
   if (!parsed.ok) throw Error(parsed.error);
   expect(parsed.value.archive.payload.commands[400]!.type).toBe('resume');
-  expect(parsed.value.schemaVersion).toBe(3);
+  expect(parsed.value.schemaVersion).toBe(4);
 });
 
 test('four-army resumes a legacy record beyond its old limit and migrates on explicit save', async ({ page }) => {
@@ -652,4 +654,32 @@ test('multiplayer replay import preserves the current match until explicitly res
   await expect(page.locator('#four-replay-close')).toBeVisible();
   await expect(page.locator('[data-human-action]')).toHaveCount(0);
   await expect(page.locator('#four-view')).toBeEnabled();
+});
+
+test('four-army opens human play by default and clearly separates live CPU progress from replay', async ({ page }) => {
+  await open(page, 'en', 'human');
+  await page.locator('#four-start').click();
+  await expect(page.locator('#four-turn')).toContainText('Your turn');
+  await expect(page.locator('#four-toggle')).toBeHidden();
+  await expect(page.locator('#four-human-panel')).toContainText('Army 1');
+  await playbackControls(page);
+  await page.locator('#four-replay').click();
+  await expect(page.locator('#four-toggle')).toHaveText('Play replay');
+  await expect(page.locator('[data-human-action]')).toHaveCount(0);
+});
+
+test('CPU first starts automatically, respects a speed-change pause, then waits for the selected human', async ({ page }) => {
+  await open(page, 'en', 'human');
+  await page.locator('#four-human-army').selectOption('army2');
+  await page.locator('#four-start').click();
+  await expect(page.locator('#four-toggle')).toHaveAttribute('aria-pressed', 'true');
+  await playbackControls(page);
+  await page.locator('#four-speed').selectOption('4');
+  await expect(page.locator('#four-toggle')).toHaveText('Run CPUs');
+  await expect(page.locator('#four-toggle')).toHaveAttribute('aria-pressed', 'false');
+  await page.locator('#four-toggle').click();
+  await expect(page.locator('#four-turn')).toContainText('Your turn');
+  await expect(page.locator('#four-human-panel')).toContainText('Army 2');
+  await expect(page.locator('#four-toggle')).toBeHidden();
+  await expect(page.locator('#four-view')).toHaveValue('army2');
 });

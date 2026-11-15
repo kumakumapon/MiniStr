@@ -5,7 +5,7 @@ import { FourArmyFileCodec } from './fourArmyFileCodec';
 import { setLocale } from './locale';
 import { fourArmySpectatorFixture } from '../game/fourArmySpectator.fixture';
 import { handleFourArmyCpuRequest } from '../ai/fourArmyCpuProtocol';
-import { encodeFourArmySpectatorSave, FOUR_ARMY_SAVE_KEYS } from '../game/fourArmySpectatorSave';
+import { encodeFourArmySpectatorSave, FOUR_ARMY_SAVE_KEYS, FOUR_ARMY_AUTO_SAVE_KEY } from '../game/fourArmySpectatorSave';
 import * as download from './download';
 
 describe('four-army spectator controller', () => {
@@ -92,11 +92,52 @@ describe('four-army spectator controller', () => {
         ),
     });
     screen.open();
+    expect(query<HTMLSelectElement>('#four-mode').value).toBe('human');
+    change('#four-mode', 'spectator');
   });
   afterEach(() => {
     screen.root.querySelector<HTMLButtonElement>('#four-close')?.click();
     screen.root.remove();
     vi.restoreAllMocks();
+  });
+  it('autosaves the initial human turn separately and rewinds an own wait together with history', async () => {
+    change('#four-mode', 'human');
+    values.set(FOUR_ARMY_SAVE_KEYS[1], 'manual original');
+    start();
+    await vi.waitFor(() => expect(values.has(FOUR_ARMY_AUTO_SAVE_KEY)).toBe(true));
+    const original = values.get(FOUR_ARMY_AUTO_SAVE_KEY)!;
+    expect(JSON.parse(original).archive.payload.commands.rows).toHaveLength(0);
+    click('#four-board > [data-x="4"][data-y="4"]');
+    click('[data-human-action="wait"]');
+    expect(query<HTMLButtonElement>('#four-undo').disabled).toBe(false);
+    expect(query('#four-events').textContent).toContain('waited');
+    click('#four-undo');
+    expect(query('#four-turn').textContent).toContain('0 commands');
+    expect(query('#four-events').textContent).not.toContain('waited');
+    expect(query<HTMLButtonElement>('#four-undo').disabled).toBe(true);
+    click('[data-human-action="wait"]');
+    click('#four-recon');
+    click('#four-board > [data-x="16"][data-y="16"]');
+    expect(query<HTMLButtonElement>('#four-undo').disabled).toBe(true);
+    expect(values.get(FOUR_ARMY_AUTO_SAVE_KEY)).toBe(original);
+    click('#four-auto-load');
+    await vi.waitFor(() => expect(query('#four-notice').textContent).toBe('Loaded and paused.'));
+    expect(query('#four-turn').textContent).toContain('0 commands');
+    expect(values.get(FOUR_ARMY_SAVE_KEYS[1])).toBe('manual original');
+  });
+  it('preserves and exports an unknown autosave and deletes only that slot', async () => {
+    const raw = '{"schemaVersion":999}';
+    values.set(FOUR_ARMY_AUTO_SAVE_KEY, raw);
+    values.set(FOUR_ARMY_SAVE_KEYS[0], 'manual original');
+    change('#four-mode', 'human');
+    start();
+    await vi.waitFor(() => expect(query('#four-auto-status').textContent).toContain('Existing autosave could not be verified'));
+    expect(values.get(FOUR_ARMY_AUTO_SAVE_KEY)).toBe(raw);
+    click('#four-auto-export');
+    expect(download.downloadJson).toHaveBeenCalledWith('ministr-four-army-autosave-original.json', raw);
+    click('#four-auto-delete');
+    expect(values.has(FOUR_ARMY_AUTO_SAVE_KEY)).toBe(false);
+    expect(values.get(FOUR_ARMY_SAVE_KEYS[0])).toBe('manual original');
   });
   it('locks a selected human army across forged view changes, pending setup changes and replay', async () => {
     change('#four-mode', 'human');
