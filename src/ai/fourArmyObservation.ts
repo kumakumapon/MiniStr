@@ -179,5 +179,6 @@ export function isFourArmyObservation(v: unknown): v is FourArmyObservation {
     actual = new Set(o.visible.map(positionKey));
   if (actual.size !== o.visible.length || actual.size !== expected.size || [...actual].some((k) => !expected.has(k))) return false;
   if (o.units.some((u) => u.owner !== o.viewer && (!u.position || !expected.has(positionKey(u.position))))) return false;
+  if (o.extensions?.fortifications.some((site) => site.owner !== o.viewer && !expected.has(positionKey(site.position)))) return false;
   return o.board.terrain.every((row, y) => row.every((t, x) => expected.has(`${x},${y}`) || t.capturePoints === undefined || t.capturePoints === 20));
 }
