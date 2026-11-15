@@ -24,7 +24,7 @@ describe('four-army spectator controller', () => {
     expect(values.get(FOUR_ARMY_SAVE_KEYS[0])).toBe(old);
     expect(document.querySelector('#four-upgrade-cpu')).toBeNull();
     click('[data-save-slot="0"]');
-    await vi.waitFor(() => expect(JSON.parse(values.get(FOUR_ARMY_SAVE_KEYS[0])!).cpuVersion).toBe('four-army-cpu-v3'));
+    await vi.waitFor(() => expect(JSON.parse(values.get(FOUR_ARMY_SAVE_KEYS[0])!).cpuVersion).toBe('four-army-cpu-v4'));
     const saved = JSON.parse(values.get(FOUR_ARMY_SAVE_KEYS[0])!);
     expect(saved.archive.payload.commands.rows).toHaveLength(2);
     expect(saved.archive.payload.state).toEqual(JSON.parse(old).archive.payload.state);
@@ -123,7 +123,7 @@ describe('four-army spectator controller', () => {
     click('[data-save-slot="0"]');
     await vi.waitFor(() => expect(values.has(FOUR_ARMY_SAVE_KEYS[0])).toBe(true));
     const saved = JSON.parse(values.get(FOUR_ARMY_SAVE_KEYS[0])!);
-    expect(saved).toMatchObject({ format: 'ministr-four-army-match', humanArmy: 'army3', view: 'army3' });
+    expect(saved).toMatchObject({ format: 'ministr-four-army-configurable', controllers: { army1: 'cpu', army2: 'cpu', army3: 'human', army4: 'cpu' }, view: 'army3' });
     click('[data-load-slot="0"]');
     await vi.waitFor(() => expect(query('#four-notice').textContent).toBe('Loaded and paused.'));
     expect(query('#four-turn').textContent).toContain('Your turn');

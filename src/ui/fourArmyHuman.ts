@@ -6,7 +6,23 @@ import { productionKindsForRule } from '../game/facilities';
 import type { FourArmyCommand, FourArmyObservation } from '../game/fourArmyEngine';
 import type { Position } from '../game/types';
 
-export type FourArmyHumanAction = 'move' | 'attack-primary' | 'attack-secondary' | 'merge' | 'embark' | 'disembark' | 'wait' | 'capture' | 'produce' | 'endTurn';
+export type FourArmyHumanAction =
+  | 'move'
+  | 'attack-primary'
+  | 'attack-secondary'
+  | 'merge'
+  | 'embark'
+  | 'disembark'
+  | 'wait'
+  | 'capture'
+  | 'produce'
+  | 'endTurn'
+  | 'fortify'
+  | 'recon'
+  | 'ambush-primary'
+  | 'ambush-secondary'
+  | 'logistics'
+  | 'repairReserve';
 export interface FourArmyHumanChoice {
   action: FourArmyHumanAction;
   command: FourArmyCommand;
@@ -29,6 +45,10 @@ export function fourArmyHumanChoices(o: FourArmyObservation, selected: Position)
     for (const destination of reachablePositionsForPlayer(view, unit.id, 'red')) add('move', { actor, type: 'move', unitId: unit.id, destination }, destination);
     add('wait', { actor, type: 'wait', unitId: unit.id });
     add('capture', { actor, type: 'capture', unitId: unit.id });
+    if (o.rules) {
+      add('fortify', { actor, type: 'fortify', unitId: unit.id });
+      for (const weaponSlot of [0, 1] as const) add(weaponSlot === 0 ? 'ambush-primary' : 'ambush-secondary', { actor, type: 'ambush', unitId: unit.id, weaponSlot });
+    }
     for (const target of view.units) {
       if (!target.position || target.id === unit.id) continue;
       if (target.owner === 'blue') {
@@ -59,6 +79,6 @@ export function fourArmyHumanChoices(o: FourArmyObservation, selected: Position)
     }
   }
   const tile = view.board.terrain[selected.y]?.[selected.x];
-  for (const kind of productionKindsForRule('facility-v2', 12)[tile?.kind ?? 'plain'] ?? []) add('produce', { actor, type: 'produce', factory: selected, kind });
+  for (const kind of productionKindsForRule('facility-v2', o.rules ? 14 : 12)[tile?.kind ?? 'plain'] ?? []) add('produce', { actor, type: 'produce', factory: selected, kind });
   return choices;
 }

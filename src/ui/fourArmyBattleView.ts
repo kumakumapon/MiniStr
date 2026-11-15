@@ -1,3 +1,4 @@
+import { experienceRank } from '../game/experience';
 import { defenseStars } from '../game/terrain';
 import type { ThreatPreview } from '../game/threat';
 import type { FourArmyId } from '../game/fourArmyFoundation';
@@ -21,6 +22,7 @@ export function fourArmyBoardCells(
   choices: readonly FourArmyHumanChoice[],
   action?: string,
   threat?: ThreatPreview,
+  supply?: ReadonlySet<string>,
 ): string[] {
   const units = new Map(display.units.filter((u) => u.position).map((u) => [positionKey(u.position!), u]));
   const reachable = new Set(choices.filter((c) => c.action === (action ?? 'move') && c.target).map((c) => positionKey(c.target!)));
@@ -34,6 +36,7 @@ export function fourArmyBoardCells(
       const classes = [
         'tile',
         tile.kind,
+        supply?.has(key) ? 'supply-coverage' : '',
         !seen ? 'fog' : '',
         selected ? 'selected' : '',
         reachable.has(key) ? 'reachable' : '',
@@ -44,9 +47,11 @@ export function fourArmyBoardCells(
         .filter(Boolean)
         .join(' ');
       const label = `(${x + 1}, ${y + 1}) ${terrainNames[tile.kind]}${tile.owner ? ' · ' + fourArmyName(tile.owner) : ''}${!seen ? (getLocale() === 'en' ? ' · Unseen' : ' · 未索敵') : ''}${unit ? ' · ' + fourArmyName(unit.owner) + ' ' + unitNames[unit.kind] + ' HP ' + unit.hp : ''}${seen ? ' · ' + (getLocale() === 'en' ? 'Defense ' : '防御 ') + defenseStars({ kind: tile.kind }) : ''}${seen && tile.capturePoints !== undefined ? ' · ' + (getLocale() === 'en' ? 'Capture remaining ' : '占領残値 ') + tile.capturePoints : ''}${reachable.has(key) ? (getLocale() === 'en' ? ' · Reachable' : ' · 移動可能') : ''}${attacks.has(key) ? (getLocale() === 'en' ? ' · Attack target' : ' · 攻撃対象') : ''}${threat?.attack.has(key) ? (getLocale() === 'en' ? ' · Danger' : ' · 危険域') : ''}${unit?.hasActed ? (getLocale() === 'en' ? ' · Acted' : ' · 行動済み') : ''}`;
+      const fort = seen && display.fortifications?.some((site) => site.position.x === x && site.position.y === y);
+      const rank = unit ? experienceRank(unit.experience) : 0;
       const facility = facilities[tile.kind];
       const cargo = unit && display.units.find((u) => u.embarkedIn === unit.id);
-      return `<button type="button" class="${classes}" data-x="${x}" data-y="${y}" tabindex="${focused.x === x && focused.y === y ? 0 : -1}" aria-label="${escapeHtml(label)}"${selected ? ' aria-pressed="true"' : ''}>${renderTerrainArt(tile.kind, 'temperate')}${facility ? `<span class="facility facility-${tile.kind} ${tile.owner ?? 'neutral'}" aria-hidden="true"><b>${facility}</b>${tile.owner ? `<small>${tile.owner.slice(-1)}</small>` : ''}</span>` : ''}${unit ? `<span class="unit unit-${unit.kind} ${unit.owner}${unit.hasActed ? ' four-unit-done' : ''}" aria-hidden="true"><span class="unit-art"></span><small>${unit.hp}</small><i class="unit-owner-marker">${unit.owner.slice(-1)}</i>${cargo ? `<i class="cargo-marker">${getLocale() === 'en' ? 'C' : '積'}</i>` : ''}</span>` : ''}</button>`;
+      return `<button type="button" class="${classes}" data-x="${x}" data-y="${y}" tabindex="${focused.x === x && focused.y === y ? 0 : -1}" aria-label="${escapeHtml(label)}"${selected ? ' aria-pressed="true"' : ''}>${renderTerrainArt(tile.kind, 'temperate')}${fort ? '<span class="fortification-marker" aria-hidden="true">▣</span>' : ''}${facility ? `<span class="facility facility-${tile.kind} ${tile.owner ?? 'neutral'}" aria-hidden="true"><b>${facility}</b>${tile.owner ? `<small>${tile.owner.slice(-1)}</small>` : ''}</span>` : ''}${unit ? `<span class="unit unit-${unit.kind} ${unit.owner}${unit.hasActed ? ' four-unit-done' : ''}" aria-hidden="true"><span class="unit-art"></span><small>${unit.hp}</small><i class="unit-owner-marker">${unit.owner.slice(-1)}</i>${rank ? `<i class="unit-rank" aria-hidden="true">${'★'.repeat(rank)}</i>` : ''}${cargo ? `<i class="cargo-marker">${getLocale() === 'en' ? 'C' : '積'}</i>` : ''}</span>` : ''}</button>`;
     }),
   );
 }

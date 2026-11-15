@@ -82,7 +82,7 @@ for (const { locale, width } of [
     const checked = parseFourArmySpectatorSave(stored);
     expect(checked.ok).toBe(true);
     if (!checked.ok) throw Error(checked.error);
-    expect(checked.value.cpuVersion).toBe('four-army-cpu-v3');
+    expect(checked.value.cpuVersion).toBe('four-army-cpu-v4');
     expect(checked.value.archive.payload.map.pathVersion).toBeUndefined();
     expect(checked.value.archive.payload.commands.slice(0, 2)).toEqual(source.archive.payload.commands);
     expect(checked.value.archive.payload.commands[2]).toMatchObject({ type: 'move', unitId: 'u4', destination: { x: 12, y: 5 } });
@@ -294,7 +294,7 @@ test('four-army resumes the 100-round boundary explicitly and retains the resume
   expect(parsed.ok).toBe(true);
   if (!parsed.ok) throw Error(parsed.error);
   expect(parsed.value.archive.payload.commands[400]!.type).toBe('resume');
-  expect(parsed.value.schemaVersion).toBe(2);
+  expect(parsed.value.schemaVersion).toBe(3);
 });
 
 test('four-army resumes a legacy record beyond its old limit and migrates on explicit save', async ({ page }) => {
@@ -398,7 +398,7 @@ for (const armyIndex of [0, 1, 2, 3]) {
       const checked = parseFourArmySpectatorSave(raw);
       expect(checked.ok).toBe(true);
       if (!checked.ok) throw Error(checked.error);
-      expect(checked.value).toMatchObject({ format: 'ministr-four-army-match', humanArmy: human, view: human });
+      expect(checked.value).toMatchObject({ format: 'ministr-four-army-configurable', controllers: { [human]: 'human' }, view: human });
       expect(checked.value.archive.payload.commands[0]).toMatchObject({ actor: human, type: 'move', unitId: `u${armyIndex * 8 + 1}` });
       expect(new Set(checked.value.archive.payload.commands.map((c) => c.actor)).size).toBe(4);
       await page.locator('[data-load-slot="0"]').click();
@@ -444,6 +444,7 @@ test('human production, embark and disembark use the public board controls', asy
   await humanTile(page, 5, 3);
   await expect(page.locator('#four-production-dialog')).toBeVisible();
   await page.locator('[data-production-kind="infantry"]').click();
+  await page.keyboard.press('Escape');
   await expect(page.locator('#four-unit option')).toHaveCount(9);
   await humanTile(page, 4, 5);
   await page.locator('[data-human-action="embark"]').click();
@@ -541,3 +542,75 @@ test('four-army keyboard matches unit selection, direct movement, next-unit and 
   await expect(page.locator('#four-turn')).toContainText('Your turn');
   await expect(page.locator('#four-toggle')).toHaveAttribute('aria-pressed', 'false');
 });
+
+for (const width of [1280, 390]) {
+  test(`four-army configurable local handoff protects both players ${width}`, async ({ page }, info) => {
+    await page.setViewportSize({ width, height: 900 });
+    await open(page, width === 390 ? 'en' : 'ja');
+    await page.locator('#four-mode').selectOption('custom');
+    await page.locator('#four-controller-army1').selectOption('human');
+    await page.locator('#four-controller-army2').selectOption('human');
+    await page.locator('#four-start').click();
+    await expect(page.locator('.tile')).toHaveCount(0);
+    await expect(page.locator('#four-handoff-title')).toContainText(width === 390 ? 'Army 1' : '第1軍');
+    await page.locator('#four-handoff-start').click();
+    await expect(page.locator('#four-board > button')).toHaveCount(1024);
+    await page.locator('#four-human-panel [data-human-action="endTurn"]').click();
+    for (const selector of ['.tile', '#four-unit-brief', '#four-human-panel', '.mobile-action-bar', '#four-selection'])
+      await expect(page.locator('#four-army-screen').locator(selector)).toHaveCount(0);
+    await expect(page.locator('#four-handoff-title')).toContainText(width === 390 ? 'Army 2' : '第2軍');
+    await page.screenshot({ path: info.outputPath(`v1519-handoff-${width}.png`), fullPage: true });
+    await page.locator('#four-menu').click();
+    await tools(page);
+    await page.locator('[data-save-slot="0"]').click();
+    await expect.poll(async () => page.evaluate(() => localStorage.getItem('ministr.fourArmy.save.1'))).not.toBeNull();
+    const file = await page.evaluate(() => localStorage.getItem('ministr.fourArmy.save.1')!);
+    const saved = parseFourArmySpectatorSave(file);
+    expect(saved.ok).toBe(true);
+    if (!saved.ok || saved.value.format !== 'ministr-four-army-configurable') throw Error('Missing controller allocation');
+    expect(saved.value.controllers).toEqual({ army1: 'human', army2: 'human', army3: 'cpu', army4: 'cpu' });
+    await page.locator('[data-load-slot="0"]').click();
+    await expect(page.locator('#four-handoff-start')).toBeVisible();
+    await expect(page.locator('.tile')).toHaveCount(0);
+    await page.locator('#four-handoff-start').click();
+    await expect(page.locator('#four-human-panel')).toContainText(width === 390 ? 'Army 2' : '第2軍');
+    await page.locator('#four-human-panel [data-human-action="endTurn"]').click();
+    await expect(page.locator('.tile')).toHaveCount(0);
+    await expect(page.locator('#four-toggle')).toBeVisible();
+    await page.locator('#four-toggle').click();
+  });
+  test(`four-army new rules connect recon, production and logistics ${width}`, async ({ page }, info) => {
+    await page.setViewportSize({ width, height: 900 });
+    await open(page);
+    await page.locator('#four-mode').selectOption('human');
+    await page.locator('#four-start').click();
+    await page.locator('#four-recon').click();
+    await humanTile(page, 16, 16);
+    await expect(page.locator('#four-recon')).toContainText('1/2');
+    await expect(page.locator('#four-board >button[data-x="16"][data-y="16"]')).not.toHaveClass(/fog/);
+    await page.locator('#four-open-production').click();
+    await expect(page.locator('#four-production-facility')).toHaveValue('5,3');
+    await page.locator('[data-production-kind="engineer"]').click();
+    await expect(page.locator('#four-production-facility')).toHaveValue('3,5');
+    await page.keyboard.press('Escape');
+    await humanTile(page, 4, 4);
+    await page.locator('[data-human-action="ambush-primary"]').click();
+    await page.locator('#four-logistics-roster-toggle').click();
+    await page.locator('#four-repair-reserve').fill('1000');
+    await page.locator('#four-repair-reserve').press('Tab');
+    await page.locator('#four-logistics-u2-priority').selectOption('true');
+    await tools(page);
+    await page.locator('[data-save-slot="0"]').click();
+    await expect(page.locator('#four-notice')).toHaveText('Saved to the four-army slot.');
+    const raw = await page.evaluate(() => localStorage.getItem('ministr.fourArmy.save.1')!);
+    const saved = parseFourArmySpectatorSave(raw);
+    expect(saved.ok).toBe(true);
+    if (!saved.ok) throw Error(saved.error);
+    expect(saved.value.archive.payload.state.extensions?.repairReserve.army1).toBe(1000);
+    expect(saved.value.archive.payload.state.units.find((u) => u.id === 'u2')?.logistics?.priority).toBe(true);
+    expect(saved.value.archive.payload.state.units.find((u) => u.id === 'u1')?.ambush).toBe(0);
+    expect(saved.value.archive.payload.commands.map((c) => c.type)).toEqual(['recon', 'produce', 'ambush', 'repairReserve', 'logistics']);
+    await page.locator('#four-logistics-roster-toggle').click();
+    await page.screenshot({ path: info.outputPath(`v1519-rules-${width}.png`), fullPage: true });
+  });
+}

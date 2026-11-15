@@ -30,9 +30,11 @@ export const isFourArmyCpuSettings = (v: unknown): v is FourArmyCpuSettings => r
 export function isObservedFourArmyCommand(o: FourArmyObservation, command: unknown): command is FourArmyCommand {
   if (o.outcome.type !== 'ongoing' || o.round.phase !== 'active' || o.round.order[o.round.index] !== o.viewer || !o.alive.includes(o.viewer)) return false;
   if (!isFourArmyCommand(command) || command.actor !== o.viewer || command.type === 'resume') return false;
+  if (!o.rules && ['fortify', 'recon', 'ambush', 'logistics', 'repairReserve'].includes(command.type)) return false;
   if (command.type === 'endTurn') return true;
   if (command.type === 'produce' && o.unitLimitPerArmy !== undefined && o.units.filter((u) => u.owner === o.viewer).length >= o.unitLimitPerArmy) return false;
-  if (command.type === 'produce' && !canProduceUnit(o.board.terrain[command.factory.y]?.[command.factory.x]?.kind ?? 'plain', command.kind, 'facility-v2', 12)) return false;
+  if (command.type === 'produce' && !canProduceUnit(o.board.terrain[command.factory.y]?.[command.factory.x]?.kind ?? 'plain', command.kind, 'facility-v2', o.rules ? 14 : 12))
+    return false;
   const { actor, ...c } = command;
   return actor === o.viewer && applyGameCommand(fourArmyPlanningView(o), c).ok;
 }
@@ -83,6 +85,18 @@ export function chooseFourArmyCpuCommand(input: unknown, options: unknown, cpuVe
     }
     const repairing = isServiceTile(view, u.position, u.kind, 'red') && u.hp < 85;
     add({ actor, type: 'wait', unitId: u.id }, repairing ? 250 : 1);
+    if (cpuVersion === 'four-army-cpu-v4' && o.rules && !u.hasMoved) {
+      if (u.kind === 'engineer') add({ actor, type: 'fortify', unitId: u.id }, options.policy === 'defensive' ? 260 : 30);
+      const near = enemies.some((e) => e.position && manhattanDistance(e.position, u.position!) <= 4);
+      if (near && options.policy !== 'offensive')
+        for (const weaponSlot of [0, 1] as const) add({ actor, type: 'ambush', unitId: u.id, weaponSlot }, options.policy === 'defensive' ? 220 : 40);
+      if (o.extensions && o.extensions.recon.remaining > 0 && enemies.length > 0) {
+        const goal = hostileHomes.find((p) => !visible.has(positionKey(p)) && manhattanDistance(p, u.position!) <= 7);
+        if (goal) add({ actor, type: 'recon', center: goal }, 1100);
+      }
+      if (u.hp < 70 && !u.logistics?.priority)
+        add({ actor, type: 'logistics', unitId: u.id, order: { priority: true, resource: (u.fuel ?? unitStats[u.kind].fuel) < 10 ? 'fuel' : 'ammo', repair: true } }, 270);
+    }
     if (u.hasMoved) continue;
     const cargo = own.find((c) => c.embarkedIn === u.id);
     const footDistance = cargo ? crossingDistances(view, cargo.kind, goals) : undefined;
@@ -111,7 +125,9 @@ export function chooseFourArmyCpuCommand(input: unknown, options: unknown, cpuVe
         ? goals
         : [...enemies.flatMap((e) => (e.position ? [e.position] : [])), ...goals];
     const service =
-      cpuVersion === 'four-army-cpu-v3' ? o.board.terrain.flatMap((row, y) => row.flatMap((_tile, x) => (isServiceTile(view, { x, y }, u.kind, 'red') ? [{ x, y }] : []))) : [];
+      cpuVersion === 'four-army-cpu-v3' || cpuVersion === 'four-army-cpu-v4'
+        ? o.board.terrain.flatMap((row, y) => row.flatMap((_tile, x) => (isServiceTile(view, { x, y }, u.kind, 'red') ? [{ x, y }] : [])))
+        : [];
     const homeDistances = service.length ? crossingDistances(view, u.kind, service) : undefined;
     const homeDistance = homeDistances?.get(positionKey(u.position)) ?? Infinity;
     const fuel = u.fuel ?? unitStats[u.kind].fuel;

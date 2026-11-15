@@ -146,3 +146,37 @@ it('retains selection-only rows, refreshes orders/locale/permissions/viewer and 
   expect(root.querySelector('[data-logistics-select="r1"]')).toBeNull();
   expect(state.units.find((unit) => unit.id === 'r1')!.hp).toBe(50);
 });
+
+it('isolates roster identifiers and open/filter state between game surfaces', () => {
+  const state = { ...createGameState(createBoard(5, 5)), ruleVersion: 14 as const };
+  state.units = [{ id: 'r1', kind: 'tank', owner: 'red', hp: 60, fuel: 1, position: { x: 2, y: 2 }, hasMoved: false, hasActed: false }];
+  const left = document.createElement('div'),
+    right = document.createElement('div');
+  const commands: GameCommand[] = [];
+  const renderLeft = () => {
+    left.innerHTML = renderLogisticsRoster(state, 'red', true, undefined, 'left-');
+    bindLogisticsRoster(
+      left,
+      renderLeft,
+      (c) => commands.push(c),
+      () => {},
+      'left-',
+    );
+  };
+  const renderRight = () => {
+    right.innerHTML = renderLogisticsRoster(state, 'red', true, undefined, 'right-');
+  };
+  renderLeft();
+  renderRight();
+  const details = left.querySelector<HTMLDetailsElement>('#left-logistics-roster')!;
+  details.open = true;
+  details.dispatchEvent(new Event('toggle'));
+  renderRight();
+  expect(left.querySelectorAll('[data-logistics-row]')).toHaveLength(1);
+  expect(right.querySelectorAll('[data-logistics-row]')).toHaveLength(0);
+  expect(left.querySelector('#repair-reserve')).toBeNull();
+  const reserve = left.querySelector<HTMLInputElement>('#left-repair-reserve')!;
+  reserve.value = '1000';
+  reserve.dispatchEvent(new Event('change'));
+  expect(commands).toEqual([{ type: 'repairReserve', amount: 1000 }]);
+});

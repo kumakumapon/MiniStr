@@ -689,3 +689,7 @@ strong.four-army-label {
   display: block;
   font-size: 12px;
 }
+.four-screen #four-tactics {
+  width: auto;
+  min-height: 20px;
+}

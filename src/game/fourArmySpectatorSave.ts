@@ -120,8 +120,9 @@ export function* verifyFourArmySpectatorSave(text: string): Generator<FourArmyVe
   if (!isFourArmySpectatorEnvelope(input)) return fail('4軍対局の保存形式が不正です。');
   const save = input,
     map = save.archive.payload.map;
-  const expected = record(map) ? createFourArmyMap32(map.seed, map.order, map.pathVersion) : undefined;
-  if (!expected?.ok || save.archive.schemaVersion !== 2 || canonical(map) !== canonical(expected.value)) return fail('この4軍対局では四方の前線の固定初期条件を使用します。');
+  const expected = record(map) ? createFourArmyMap32(map.seed, map.order, map.pathVersion, map.rules) : undefined;
+  if (!expected?.ok || (save.archive.schemaVersion !== 2 && !(save.schemaVersion === 3 && save.archive.schemaVersion === 3)) || canonical(map) !== canonical(expected.value))
+    return fail('この4軍対局では四方の前線の固定初期条件を使用します。');
   const verifier = verifyFourArmyArchive(save.archive, save.schemaVersion === 1 ? 2048 : 65536),
     checkpoints: FourArmyCheckpoint[] = [];
   let step = verifier.next();
