@@ -3,6 +3,9 @@ import { operation, valueOf } from '../../src/game/operations.fixture';
 import { createScenarioInitialState, applyGameCommand, saveGame, type GameCommand } from '../../src/game';
 import { createCampaignProgress, recordCampaignVictory } from '../../src/game/campaign';
 
+// Every case owns its page, clock and saved fixture; distribute independent cases across the existing workers.
+test.describe.configure({ mode: 'parallel' });
+
 for (const width of [1280, 390])
   for (const locale of ['ja', 'en']) {
     test(`selects and restores CPU policy at ${width}/${locale}`, async ({ page }, info) => {

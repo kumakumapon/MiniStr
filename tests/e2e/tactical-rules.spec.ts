@@ -4,6 +4,9 @@ import { createScenarioInitialState, applyGameCommand, saveGame, type GameComman
 import { combinedTactics } from '../../src/game/tactics';
 import { BATTLE_SCENE_DURATION_MS } from '../../src/ui/battleScene';
 
+// Every case owns its page, clock and saved fixture; distribute independent cases across the existing workers.
+test.describe.configure({ mode: 'parallel' });
+
 async function pauseBattleClock(page: Page): Promise<void> {
   const now = new Date('2026-11-01T00:00:00Z');
   await page.clock.install({ time: now });
