@@ -15,7 +15,7 @@ export default defineConfig({
         /(?:four-army-cpu|four-army-screen|four-army-support|tactical-learning|tactical-rules|save-safety|wide-front|board-response|compatibility|english|custom-maps|finite-supplies|army-music|airlift-and-backup|strategy-expansion|terrain-presentation|share-link|research)\.spec\.ts/,
       use: { ...devices['Desktop Firefox'] },
     },
-    // Keep Chromium between the two slower engines so the existing two CI shards share them.
+    // Share Chromium between both existing CI shards while retaining every engine and case.
     { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
     {
       name: 'webkit',

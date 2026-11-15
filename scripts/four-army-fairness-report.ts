@@ -10,6 +10,7 @@ import { FOUR_ARMY_IDS } from '../src/game/fourArmyFoundation';
 import { fourArmyControllers } from '../src/game/fourArmyControl';
 import { serializeFourArmySpectatorSave, parseFourArmySpectatorSave } from '../src/game/fourArmySpectatorSave';
 import type { GameResult } from '../src/game/types';
+import { compareFourArmyContinuation } from './fourArmyContinuation';
 
 const value = <T>(r: GameResult<T>): T => {
   if (!r.ok) throw Error(r.error);
@@ -90,26 +91,8 @@ function run(c: FairnessCase) {
           },
         }),
       );
-      let restored = value(parseFourArmySpectatorSave(encoded)).archive.payload.state,
-        original = state;
-      if (JSON.stringify(restored) !== JSON.stringify(original)) throw Error('Round-trip state drift');
-      const witness = createHash('sha256');
-      let compared = 0;
-      while (compared < 64 && original.outcome.type === 'ongoing') {
-        const a = nextCommand(original, c),
-          b = nextCommand(restored, c);
-        if (JSON.stringify(a) !== JSON.stringify(b)) throw Error('Restored CPU continuation drift');
-        const na = applyFourArmyCommand(original, a),
-          nb = applyFourArmyCommand(restored, b);
-        if (na.ok !== nb.ok) throw Error('Restored command result drift');
-        if (!na.ok || !nb.ok) break;
-        original = na.value;
-        restored = nb.value;
-        witness.update(JSON.stringify(a) + '\n');
-        compared++;
-      }
-      if (JSON.stringify(restored) !== JSON.stringify(original)) throw Error('Restored final state drift');
-      continuation = { position: count, comparedCommands: compared, traceSha256: witness.digest('hex') };
+      const replay = compareFourArmyContinuation(state, value(parseFourArmySpectatorSave(encoded)).archive.payload.state, (s) => nextCommand(s, c));
+      continuation = { position: count, comparedCommands: replay.commands.length, traceSha256: hash(replay.commands.map((a) => JSON.stringify(a) + '\n').join('')) };
     }
   }
   const digest = trace.digest('hex'),
