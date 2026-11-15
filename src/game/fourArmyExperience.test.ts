@@ -104,6 +104,22 @@ describe('army-private observed history', () => {
     expect(event.damage).toBe(before.units[0]!.hp - after.units[0]!.hp);
     expect(event.counterDamage).toBe(before.units[1]!.hp - after.units[1]!.hp);
   });
+  it('describes an unloaded visible arrival as movement when the transport was unseen', () => {
+    const m = map(4);
+    m.units[1] = fourCpuUnit('u2', 'army2', { x: 4, y: 1 }, 'apc');
+    const cargo = fourCpuUnit('u5', 'army2', { x: 4, y: 1 });
+    delete cargo.position;
+    cargo.embarkedIn = 'u2';
+    m.units.push(cargo);
+    const before = value(createFourArmyState(m));
+    const command: FourArmyCommand = { actor: 'army2', type: 'disembark', transportId: 'u2', destination: { x: 3, y: 1 } };
+    const after = value(applyFourArmyCommand(before, command));
+    const visible = observedFourArmyEvent(before, command, after, 'army1', 1)!;
+    expect(visible).toMatchObject({ type: 'move', unitKind: 'infantry', to: { x: 3, y: 1 } });
+    expect(visible.from).toBeUndefined();
+    expect(observedFourArmyEvent(before, command, after, 'army2', 1)?.type).toBe('disembark');
+    expect(observedFourArmyEvent(before, command, after, 'all', 1)?.type).toBe('disembark');
+  });
   it('reports a hidden-contact stop using the mover’s actual position, never the requested enemy destination', () => {
     const m = fourCpuMap();
     m.units[0] = fourCpuUnit('u1', 'army1', { x: 1, y: 1 }, 'tank');

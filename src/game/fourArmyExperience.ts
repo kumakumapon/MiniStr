@@ -208,7 +208,13 @@ export function observedFourArmyEvent(
     );
     if (!cargo) return;
     const transport = a.units.find((u) => u.id === command.transportId);
-    return { ...base, unitKind: cargo.kind, ...(transport?.position ? { from: { ...transport.position } } : {}), to: { ...cargo.position! } };
+    return {
+      ...base,
+      type: transport?.position ? 'disembark' : 'move',
+      unitKind: cargo.kind,
+      ...(transport?.position ? { from: { ...transport.position } } : {}),
+      to: { ...cargo.position! },
+    };
   }
   const sourceId = 'unitId' in command ? command.unitId : 'transportId' in command ? command.transportId : undefined;
   const source = a.units.find((u) => u.id === sourceId);
