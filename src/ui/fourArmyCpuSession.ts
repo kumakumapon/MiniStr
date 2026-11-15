@@ -1,4 +1,5 @@
-import { FOUR_ARMY_IDS, type FourArmyId } from '../game/fourArmyFoundation';
+import { normalizeFourArmyControllers, type FourArmyControllers } from '../game/fourArmyControl';
+import { type FourArmyId } from '../game/fourArmyFoundation';
 import { defaultFourArmyCpuSettings, isFourArmyCpuSettings, isObservedFourArmyCommand, type FourArmyCpuSettings } from '../ai/fourArmyCpu';
 import { applyFourArmyCommand, isFourArmyState, observeFourArmy, type FourArmyCommand, type FourArmyState } from '../game/fourArmyEngine';
 import { FourArmyCpuPlanner } from './fourArmyCpuPlanner';
@@ -7,6 +8,7 @@ import { FOUR_ARMY_CPU_VERSION, isFourArmyCpuVersion, type FourArmyCpuVersion } 
 /** Authoritative UI-thread owner. One step applies at most one current, legal command. */
 export class FourArmyCpuSession {
   private current: FourArmyState;
+  readonly controllers: FourArmyControllers;
   private settings: FourArmyCpuSettings;
   private history: FourArmyCommand[] = [];
   private revision = 0;
@@ -18,10 +20,10 @@ export class FourArmyCpuSession {
     createWorker: () => Worker,
     settings: FourArmyCpuSettings = defaultFourArmyCpuSettings(),
     readonly cpuVersion: FourArmyCpuVersion = FOUR_ARMY_CPU_VERSION,
-    readonly humanArmy?: FourArmyId,
+    readonly humanArmy?: FourArmyId | FourArmyControllers,
   ) {
-    if (!isFourArmyState(state) || !isFourArmyCpuSettings(settings) || !isFourArmyCpuVersion(cpuVersion) || (humanArmy !== undefined && !FOUR_ARMY_IDS.includes(humanArmy)))
-      throw Error('Invalid four-army CPU session');
+    if (!isFourArmyState(state) || !isFourArmyCpuSettings(settings) || !isFourArmyCpuVersion(cpuVersion)) throw Error('Invalid four-army CPU session');
+    this.controllers = Object.freeze(normalizeFourArmyControllers(humanArmy));
     this.current = structuredClone(state);
     this.settings = structuredClone(settings);
     this.planner = new FourArmyCpuPlanner(createWorker);
@@ -74,8 +76,8 @@ export class FourArmyCpuSession {
   }
   /** Human commands share the authoritative history; private failures never try another command. */
   submit(command: FourArmyCommand): boolean {
-    if (this.stopped || !this.humanArmy || this.current.paused || this.current.outcome.type !== 'ongoing' || command.actor !== this.humanArmy) return false;
-    const observed = observeFourArmy(this.current, this.humanArmy);
+    if (this.stopped || this.controllers[command.actor] !== 'human' || this.current.paused || this.current.outcome.type !== 'ongoing') return false;
+    const observed = observeFourArmy(this.current, command.actor);
     if (!observed.ok || !isObservedFourArmyCommand(observed.value, command)) return false;
     this.pause();
     const next = applyFourArmyCommand(this.current, command);
@@ -88,7 +90,7 @@ export class FourArmyCpuSession {
     if (!this.running || this.stopped || this.current.paused || this.current.outcome.type !== 'ongoing') return undefined;
     const revision = ++this.revision;
     const actor = this.current.round.order[this.current.round.index]!;
-    if (actor === this.humanArmy) return undefined;
+    if (this.controllers[actor] === 'human') return undefined;
     try {
       let command = await this.planner.plan(this.current, this.settings[actor], this.cpuVersion);
       if (!command || this.stopped || !this.running || revision !== this.revision) return undefined;

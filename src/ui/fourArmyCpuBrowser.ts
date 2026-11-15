@@ -1,3 +1,4 @@
+import type { FourArmyControllers } from '../game/fourArmyControl';
 import type { FourArmyId } from '../game/fourArmyFoundation';
 import { FourArmyCpuSession } from './fourArmyCpuSession';
 import { defaultFourArmyCpuSettings, type FourArmyCpuSettings } from '../ai/fourArmyCpu';
@@ -9,7 +10,7 @@ export function createFourArmyCpuSession(
   state: FourArmyState,
   settings: FourArmyCpuSettings = defaultFourArmyCpuSettings(),
   cpuVersion: FourArmyCpuVersion = FOUR_ARMY_CPU_VERSION,
-  humanArmy?: FourArmyId,
+  humanArmy?: FourArmyId | FourArmyControllers,
 ): FourArmyCpuSession {
   return new FourArmyCpuSession(state, () => new Worker(new URL('./fourArmyCpuWorker.ts', import.meta.url), { type: 'module' }), settings, cpuVersion, humanArmy);
 }

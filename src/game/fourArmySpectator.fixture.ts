@@ -2,7 +2,7 @@ import { createFourArmyMap32 } from './fourArmyMap32';
 import { createFourArmyState, applyFourArmyCommand, type FourArmyCommand } from './fourArmyEngine';
 import { defaultFourArmyCpuSettings } from '../ai/fourArmyCpu';
 import type { FourArmySpectatorSave } from './fourArmySpectatorSave';
-export function fourArmySpectatorFixture(turns = 0): FourArmySpectatorSave {
+export function fourArmySpectatorFixture(turns = 0): Extract<FourArmySpectatorSave, { format: 'ministr-four-army-spectator' }> {
   const m = createFourArmyMap32();
   if (!m.ok) throw Error(m.error);
   const made = createFourArmyState(m.value);
