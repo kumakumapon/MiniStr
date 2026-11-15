@@ -57,6 +57,27 @@
           "webkit": 225
         }
       }
+    ],
+    "perEngine": [
+      {
+        "shard": 1,
+        "cases": 382,
+        "projects": {
+          "firefox": 113,
+          "chromium": 156,
+          "webkit": 113
+        }
+      },
+      {
+        "shard": 2,
+        "cases": 375,
+        "projects": {
+          "firefox": 112,
+          "chromium": 151,
+          "webkit": 112
+        }
+      }
     ]
-  }
+  },
+  "strategy": "Apply the same current/total shard independently to every discovered browser project. Run every child; any failure fails the job. Preserve each project output directory."
 }
