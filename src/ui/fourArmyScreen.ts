@@ -870,8 +870,14 @@ export class FourArmyScreen {
           this.deps.writable() &&
           !this.deps.conflicted() &&
           window.confirm(text('4軍の自動保存だけを削除しますか？手動保存2枠は保持します。', 'Delete only the four-army autosave? Both manual slots are kept.'))
-        )
-          this.deps.storage.removeItem(FOUR_ARMY_AUTO_SAVE_KEY);
+        ) {
+          if (!this.deps.writable() || this.deps.conflicted() || this.deps.storage.getItem(FOUR_ARMY_AUTO_SAVE_KEY) !== raw)
+            this.notice = text('確認中に自動保存か書込権が変わったため、削除を止めました。', 'Autosave or write access changed during confirmation; deletion was cancelled.');
+          else {
+            this.deps.storage.removeItem(FOUR_ARMY_AUTO_SAVE_KEY);
+            this.autosave.reset();
+          }
+        }
       } catch {
         this.notice = text('自動保存を読み出し・変更できません。原本は保持しています。', 'Autosave could not be read or changed. Its original is kept.');
       }

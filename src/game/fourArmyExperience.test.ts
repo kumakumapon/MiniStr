@@ -104,6 +104,37 @@ describe('army-private observed history', () => {
     expect(event.damage).toBe(before.units[0]!.hp - after.units[0]!.hp);
     expect(event.counterDamage).toBe(before.units[1]!.hp - after.units[1]!.hp);
   });
+  it('reports a hidden-contact stop using the mover’s actual position, never the requested enemy destination', () => {
+    const m = fourCpuMap();
+    m.units[0] = fourCpuUnit('u1', 'army1', { x: 1, y: 1 }, 'tank');
+    m.units[1] = fourCpuUnit('u2', 'army2', { x: 5, y: 1 }, 'tank');
+    const before = value(createFourArmyState(m));
+    const command: FourArmyCommand = { actor: 'army1', type: 'move', unitId: 'u1', destination: { x: 5, y: 1 } };
+    const after = value(applyFourArmyCommand(before, command));
+    const event = observedFourArmyEvent(before, command, after, 'army1', 1)!;
+    expect(event.type).toBe('contact');
+    expect(event.to).toEqual(after.units[0]!.position);
+    expect(event.to).not.toEqual(command.destination);
+    expect(event.targetKind).toBeUndefined();
+  });
+  it('reports damage during a move without exposing an unseen ambush preparation', async () => {
+    const { createFourArmyMap32 } = await import('./fourArmyMap32');
+    const m = value(createFourArmyMap32(42, undefined, 1, { version: 1, tactics: true }));
+    const before = value(createFourArmyState(m));
+    before.units = ['army1', 'army2', 'army3', 'army4'].map((army) => before.units.find((u) => u.owner === army && u.kind === 'tank')!);
+    const mover = before.units[0]!,
+      enemy = before.units[1]!;
+    mover.position = { x: 4, y: 4 };
+    enemy.position = { x: 8, y: 4 };
+    enemy.ambush = 0;
+    enemy.hasActed = enemy.hasMoved = true;
+    const command: FourArmyCommand = { actor: 'army1', type: 'move', unitId: mover.id, destination: { x: 8, y: 4 } };
+    const after = value(applyFourArmyCommand(before, command));
+    const event = observedFourArmyEvent(before, command, after, 'army1', 1)!;
+    expect(event).toMatchObject({ type: 'contact', to: { x: 7, y: 4 }, damage: mover.hp - after.units[0]!.hp });
+    expect(event).not.toHaveProperty('ambush');
+    expect(event.targetKind).toBeUndefined();
+  });
   it('rejects forged runtime facts and private fields in Worker replies', () => {
     const { before } = move(3, 4),
       original = initialFourArmyExperience(before, 0);

@@ -137,7 +137,21 @@ describe('four-army spectator controller', () => {
     expect(download.downloadJson).toHaveBeenCalledWith('ministr-four-army-autosave-original.json', raw);
     click('#four-auto-delete');
     expect(values.has(FOUR_ARMY_AUTO_SAVE_KEY)).toBe(false);
+    expect(query('#four-auto-status').textContent).toBe('No autosave yet.');
     expect(values.get(FOUR_ARMY_SAVE_KEYS[0])).toBe('manual original');
+  });
+  it('rechecks an autosave original after the deletion confirmation', async () => {
+    values.set(FOUR_ARMY_AUTO_SAVE_KEY, '{');
+    change('#four-mode', 'human');
+    start();
+    await vi.waitFor(() => expect(query('#four-auto-status').textContent).toContain('Existing autosave could not be verified'));
+    vi.mocked(window.confirm).mockImplementationOnce(() => {
+      values.set(FOUR_ARMY_AUTO_SAVE_KEY, 'new original');
+      return true;
+    });
+    click('#four-auto-delete');
+    expect(values.get(FOUR_ARMY_AUTO_SAVE_KEY)).toBe('new original');
+    expect(query('#four-notice').textContent).toContain('deletion was cancelled');
   });
   it('locks a selected human army across forged view changes, pending setup changes and replay', async () => {
     change('#four-mode', 'human');

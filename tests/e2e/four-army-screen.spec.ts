@@ -558,9 +558,12 @@ for (const width of [1280, 390]) {
     await page.locator('#four-handoff-start').click();
     await expect(page.locator('#four-board > button')).toHaveCount(1024);
     await page.locator('#four-human-panel [data-human-action="endTurn"]').click();
-    for (const selector of ['.tile', '#four-unit-brief', '#four-human-panel', '.mobile-action-bar', '#four-selection'])
+    for (const selector of ['.tile', '#four-unit-brief', '#four-human-panel', '.mobile-action-bar', '#four-selection', '#four-events', '#four-sightings'])
       await expect(page.locator('#four-army-screen').locator(selector)).toHaveCount(0);
     await expect(page.locator('#four-handoff-title')).toContainText(width === 390 ? 'Army 2' : '第2軍');
+    await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem('ministr.fourArmy.autosave') ?? '{}').view)).toBe('army2');
+    const automatic = parseFourArmySpectatorSave(await page.evaluate(() => localStorage.getItem('ministr.fourArmy.autosave')!));
+    expect(automatic.ok && automatic.value.archive.payload.commands).toEqual([{ actor: 'army1', type: 'endTurn' }]);
     await page.screenshot({ path: info.outputPath(`v1519-handoff-${width}.png`), fullPage: true });
     await page.locator('#four-menu').click();
     await tools(page);

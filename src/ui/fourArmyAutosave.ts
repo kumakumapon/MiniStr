@@ -19,6 +19,13 @@ export class FourArmyAutosave {
     this.codec.cancel();
     if (this.status === 'saving') this.status = 'idle';
   }
+  /** Forget cached verification only after the user has deleted this dedicated slot. */
+  reset(): void {
+    this.cancel();
+    this.known = undefined;
+    this.status = 'idle';
+    this.changed();
+  }
   async write(snapshot: FourArmySpectatorSave): Promise<void> {
     this.cancel();
     const revision = this.revision;

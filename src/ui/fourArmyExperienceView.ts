@@ -27,7 +27,7 @@ export function fourArmyEventText(event: FourArmyObservedEvent): string {
     ambush: text('待伏せ準備', 'prepared ambush'),
     logistics: text('兵站指示', 'logistics order'),
     repairReserve: text('修理予算', 'repair reserve'),
-    contact: text('接触による交戦', 'contact engagement'),
+    contact: text('接触・移動中の交戦', 'contact / engagement'),
   };
   const where =
     event.from && event.to && point(event.from) !== point(event.to)

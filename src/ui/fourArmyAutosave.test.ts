@@ -65,6 +65,11 @@ it('writes only its dedicated slot and preserves corrupt and unknown originals',
     expect(auto.status).toBe('blocked-original');
     expect(values.get(FOUR_ARMY_AUTO_SAVE_KEY)).toBe(raw);
   }
+  values.delete(FOUR_ARMY_AUTO_SAVE_KEY);
+  auto.reset();
+  expect(auto.status).toBe('idle');
+  await auto.write(fourArmySpectatorFixture());
+  expect(auto.status).toBe('saved');
 });
 it('rechecks writer ownership and detects a concurrent slot change before committing', async () => {
   const { values, storage } = store();

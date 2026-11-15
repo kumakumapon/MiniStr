@@ -221,6 +221,20 @@ export function observedFourArmyEvent(
   const transport = command.type === 'embark' ? (a.units.find((u) => u.id === command.transportId) ?? b.units.find((u) => u.id === command.transportId)) : undefined;
   if (command.type === 'embark' && (!source || !transport)) return;
   if (command.type === 'merge' && (!source || !target)) return;
+  if (command.type === 'move' && source) {
+    const loss = next ? source.hp - next.hp : view === 'all' || source.owner === view ? source.hp : 0;
+    // Only the actor knows the requested destination; another army must not infer a hidden route.
+    const stopped = (view === 'all' || view === command.actor) && (next?.position?.x !== command.destination.x || next?.position?.y !== command.destination.y);
+    if (loss > 0 || stopped)
+      return {
+        ...base,
+        type: 'contact',
+        unitKind: source.kind,
+        ...(source.position ? { from: { ...source.position } } : {}),
+        ...(next?.position ? { to: { ...next.position } } : {}),
+        ...(loss > 0 ? { damage: loss } : {}),
+      };
+  }
   if (!source && !next && !target && !targetNext) {
     if (view === 'all' || (command.type !== 'attack' && command.type !== 'move')) return;
     const hurt = a.units.find(

@@ -11,6 +11,27 @@ export interface FairnessCase {
   baselineTrace?: string;
   baselineState?: string;
 }
+export const fourArmyFairnessKey = (c: FairnessCase): string => `${c.spec.id}/${c.rules}/${c.cpuVersion}`;
+/** Reallocate unfinished cases without changing the selected cohort or duplicating completed measurements. */
+export function remainingFourArmyFairnessCases(cases: readonly FairnessCase[], completed: readonly FairnessCase[]): FairnessCase[] {
+  const expected = new Map(cases.map((c) => [fourArmyFairnessKey(c), c]));
+  const keys = new Set<string>();
+  for (const c of completed) {
+    const key = fourArmyFairnessKey(c),
+      original = expected.get(key);
+    if (
+      !original ||
+      keys.has(key) ||
+      c.cohort !== original.cohort ||
+      JSON.stringify(c.spec) !== JSON.stringify(original.spec) ||
+      c.baselineTrace !== original.baselineTrace ||
+      c.baselineState !== original.baselineState
+    )
+      throw Error('Invalid or duplicated completed fairness case: ' + key);
+    keys.add(key);
+  }
+  return cases.filter((c) => !keys.has(fourArmyFairnessKey(c)));
+}
 interface PreviousRow {
   cpuVersion: string;
   outcome: { type: string };

@@ -2,7 +2,7 @@ import { createHash } from 'node:crypto';
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { dirname } from 'node:path';
 import { cpus, platform } from 'node:os';
-import { fourArmyFairnessCases, summarizeFourArmyFairness, type FairnessCase } from './fourArmyFairness';
+import { fourArmyFairnessCases, remainingFourArmyFairnessCases, summarizeFourArmyFairness, type FairnessCase } from './fourArmyFairness';
 import { createFourArmyMap32 } from '../src/game/fourArmyMap32';
 import { applyFourArmyCommand, createFourArmyState, observeFourArmy, type FourArmyCommand, type FourArmyState } from '../src/game/fourArmyEngine';
 import { chooseFourArmyCpuCommand } from '../src/ai/fourArmyCpu';
@@ -23,6 +23,18 @@ if (!Number.isInteger(shard) || !Number.isInteger(shards) || shards < 1 || shard
 const previous = JSON.parse(readFileSync('docs/reviews/v1.5.16/comparison.json', 'utf8')) as { rows: Parameters<typeof fourArmyFairnessCases>[0] };
 const sourceFiles = ['src/ai/fourArmyCpu.ts', 'src/ai/fourArmyObservation.ts', 'src/game/fourArmyEngine.ts', 'src/game/fourArmyMap32.ts', 'src/game/fourArmyRules.ts'];
 const frozenSources = Object.fromEntries(sourceFiles.map((path) => [path, hash(readFileSync(path, 'utf8'))]));
+const resumePath = process.argv[5];
+const resumed = resumePath
+  ? (JSON.parse(readFileSync(resumePath, 'utf8')) as { protocol: string; gameSource: string; frozenSources: Record<string, string>; rows: FairnessCase[] })
+  : undefined;
+if (
+  resumed &&
+  (resumed.protocol !== 'four-army-fairness-v1' ||
+    resumed.gameSource !== '2cc327434042f8f5a35bb44d939fbf399613ef31' ||
+    JSON.stringify(resumed.frozenSources) !== JSON.stringify(frozenSources))
+)
+  throw Error('Resume source or protocol differs');
+const pending = remainingFourArmyFairnessCases(fourArmyFairnessCases(previous.rows), resumed?.rows ?? []);
 const nextCommand = (state: FourArmyState, c: FairnessCase): FourArmyCommand => {
   const actor = state.round.order[state.round.index]!;
   if (state.paused) return { actor, type: 'resume' };
@@ -137,7 +149,7 @@ function run(c: FairnessCase) {
   return { ...c, ...snapshot, ...(continuation ? { continuation } : {}), ...(extension ? { extension } : {}), elapsedSeconds: (performance.now() - began) / 1000 };
 }
 const rows: ReturnType<typeof run>[] = [];
-for (const [i, c] of fourArmyFairnessCases(previous.rows).entries())
+for (const [i, c] of pending.entries())
   if (i % shards === shard) {
     const row = run(c);
     rows.push(row);
@@ -154,6 +166,7 @@ for (const [i, c] of fourArmyFairnessCases(previous.rows).entries())
             environment: { node: process.version, cpu: cpus()[0]?.model, platform: platform() },
             shard,
             shards,
+            ...(resumed ? { previouslyCompleted: resumed.rows.length } : {}),
             rows,
             summary: summarizeFourArmyFairness(rows),
           },

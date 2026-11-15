@@ -1,10 +1,20 @@
 import { expect, it } from 'vitest';
-import { fourArmyFairnessCases, summarizeFourArmyFairness } from './fourArmyFairness';
+import { fourArmyFairnessCases, remainingFourArmyFairnessCases, fourArmyFairnessKey, summarizeFourArmyFairness } from './fourArmyFairness';
 import { fourArmyAssessmentCases } from './fourArmyAssessment';
 
 const previous = fourArmyAssessmentCases()
   .slice(0, 20)
   .map((spec) => ({ cpuVersion: 'four-army-cpu-v3', outcome: { type: 'ongoing' }, spec, traceSha256: 'trace', finalStateSha256: 'state' }));
+it('resumes only unfinished frozen conditions and refuses changed or duplicated observations', () => {
+  const cases = fourArmyFairnessCases(previous),
+    done = cases.slice(0, 125),
+    remaining = remainingFourArmyFairnessCases(cases, done);
+  expect(remaining).toHaveLength(67);
+  expect(new Set([...done, ...remaining].map(fourArmyFairnessKey)).size).toBe(192);
+  expect(() => remainingFourArmyFairnessCases(cases, [done[0]!, done[0]!])).toThrow();
+  expect(() => remainingFourArmyFairnessCases(cases, [{ ...done[0]!, spec: { ...done[0]!.spec, seed: 0 } }])).toThrow();
+  expect(() => remainingFourArmyFairnessCases(cases, [{ ...done[0]!, baselineTrace: 'forged' }])).toThrow();
+});
 it('freezes paired rule/CPU cohorts with all twenty controls and all twenty-four fresh orders', () => {
   const cases = fourArmyFairnessCases(previous);
   expect(cases).toHaveLength(192);

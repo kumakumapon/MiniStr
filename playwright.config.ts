@@ -12,16 +12,17 @@ export default defineConfig({
     {
       name: 'firefox',
       testMatch:
-        /(?:four-army-cpu|four-army-screen|tactical-learning|tactical-rules|save-safety|wide-front|board-response|compatibility|english|custom-maps|finite-supplies|army-music|airlift-and-backup|strategy-expansion|terrain-presentation|share-link|research)\.spec\.ts/,
+        /(?:four-army-cpu|four-army-screen|four-army-support|tactical-learning|tactical-rules|save-safety|wide-front|board-response|compatibility|english|custom-maps|finite-supplies|army-music|airlift-and-backup|strategy-expansion|terrain-presentation|share-link|research)\.spec\.ts/,
       use: { ...devices['Desktop Firefox'] },
     },
+    // Keep Chromium between the two slower engines so the existing two CI shards share them.
+    { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
     {
       name: 'webkit',
       testMatch:
-        /(?:four-army-cpu|four-army-screen|tactical-learning|tactical-rules|save-safety|wide-front|board-response|compatibility|english|custom-maps|finite-supplies|army-music|airlift-and-backup|strategy-expansion|terrain-presentation|share-link|research)\.spec\.ts/,
+        /(?:four-army-cpu|four-army-screen|four-army-support|tactical-learning|tactical-rules|save-safety|wide-front|board-response|compatibility|english|custom-maps|finite-supplies|army-music|airlift-and-backup|strategy-expansion|terrain-presentation|share-link|research)\.spec\.ts/,
       use: { ...devices['Desktop Safari'] },
     },
-    { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
   ],
   webServer: {
     command: 'npm run preview -- --host 127.0.0.1 --port 4173',

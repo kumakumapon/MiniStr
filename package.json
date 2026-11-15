@@ -37,7 +37,8 @@
     "test:four-army-endurance": "playwright test --config playwright.endurance.config.ts",
     "four-army:capacity": "vite-node scripts/four-army-capacity-report.ts",
     "four-army:path-compare": "vite-node scripts/four-army-path-comparison.ts",
-    "four-army:fairness": "vite-node scripts/four-army-fairness-report.ts"
+    "four-army:fairness": "vite-node scripts/four-army-fairness-report.ts",
+    "four-army:fallback-diagnosis": "vite-node scripts/four-army-fallback-diagnosis.ts"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

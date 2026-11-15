@@ -31,10 +31,15 @@ for (const width of [1280, 390]) {
     await expect(page.locator('#four-undo')).toBeEnabled();
     await expect(page.locator('#four-events')).toContainText(locale === 'ja' ? '行動終了' : 'waited');
     expect(await auto(page)).toBe(original);
+    await tools(page);
+    await page.locator('[data-save-slot="0"]').click();
+    await expect(page.locator('#four-notice')).toHaveText(locale === 'ja' ? '4軍専用枠へ保存しました。' : 'Saved to the four-army slot.');
     await page.locator('#four-undo').click();
     await expect(page.locator('#four-army-screen')).toHaveAttribute('data-record-count', '0');
     await expect(page.locator('#four-undo')).toBeDisabled();
     await expect(page.locator('#four-events')).not.toContainText(locale === 'ja' ? '行動終了' : 'waited');
+    await page.keyboard.press('Escape');
+    await page.locator('#four-board > [data-x="5"][data-y="4"]').click();
     await page.locator(width === 390 ? '[data-quick-action="wait"]' : '[data-human-action="wait"]').click();
     await tools(page);
     await page.locator('[data-save-slot="0"]').click();
@@ -43,7 +48,7 @@ for (const width of [1280, 390]) {
     const checked = parseFourArmySpectatorSave(raw);
     expect(checked.ok).toBe(true);
     if (!checked.ok || checked.value.format !== 'ministr-four-army-configurable' || checked.value.schemaVersion !== 4) throw Error('Expected schema4');
-    expect(checked.value.archive.payload.commands).toEqual([{ actor: 'army1', type: 'wait', unitId: 'u1' }]);
+    expect(checked.value.archive.payload.commands).toEqual([{ actor: 'army1', type: 'wait', unitId: 'u2' }]);
     expect(checked.value.experience.events.army1).toEqual([1]);
     await page.locator('#four-recon').click();
     await page.locator('#four-board > [data-x="16"][data-y="16"]').click();
@@ -84,6 +89,7 @@ test('an unknown autosave is preserved, exported as its original, and deleted se
   expect(await readFile((await file.path())!, 'utf8')).toBe(original);
   await page.locator('#four-auto-delete').click();
   expect(await auto(page)).toBeNull();
+  await expect(page.locator('#four-auto-status')).toHaveText('No autosave yet.');
   expect(await page.evaluate(() => localStorage.getItem('ministr.fourArmy.save.1'))).toBe('manual original');
 });
 
