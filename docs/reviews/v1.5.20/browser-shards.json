@@ -1,0 +1,83 @@
+{
+  "protocol": "browser-shard-identity-audit-v1",
+  "caseCount": 757,
+  "projects": {
+    "firefox": 225,
+    "chromium": 307,
+    "webkit": 225
+  },
+  "identitySha256": "1f3451e8787efb23c269844d998531d2cb06fba9861171662e75370cb6ff30e2",
+  "identityFields": [
+    "project",
+    "file",
+    "suite titles and test title"
+  ],
+  "unchanged": [
+    "test identity set",
+    "two CI shards",
+    "existing workers",
+    "30000ms per-test timeout",
+    "CI job timeout",
+    "retries",
+    "quality gates"
+  ],
+  "allocation": {
+    "before": [
+      {
+        "shard": 1,
+        "cases": 381,
+        "projects": {
+          "firefox": 225,
+          "webkit": 156
+        }
+      },
+      {
+        "shard": 2,
+        "cases": 376,
+        "projects": {
+          "webkit": 69,
+          "chromium": 307
+        }
+      }
+    ],
+    "after": [
+      {
+        "shard": 1,
+        "cases": 381,
+        "projects": {
+          "firefox": 225,
+          "chromium": 156
+        }
+      },
+      {
+        "shard": 2,
+        "cases": 376,
+        "projects": {
+          "chromium": 151,
+          "webkit": 225
+        }
+      }
+    ],
+    "perEngine": [
+      {
+        "shard": 1,
+        "cases": 382,
+        "projects": {
+          "firefox": 113,
+          "chromium": 156,
+          "webkit": 113
+        }
+      },
+      {
+        "shard": 2,
+        "cases": 375,
+        "projects": {
+          "firefox": 112,
+          "chromium": 151,
+          "webkit": 112
+        }
+      }
+    ]
+  },
+  "strategy": "Apply the same current/total shard independently to every discovered browser project. Run every child; any failure fails the job. Preserve each project output directory."
+}

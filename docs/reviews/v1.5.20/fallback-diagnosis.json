@@ -1,0 +1,431 @@
+{
+  "protocol": "four-army-fallback-diagnosis-v1",
+  "frozenSources": {
+    "src/ai/fourArmyCpu.ts": "a6399ef36241a6a42674620ad915027f78c449f64353ef7740e04f0a68bfe651",
+    "src/ai/fourArmyObservation.ts": "6abf9426b85ba30b80b5586ca6bfc3d383f959be6e2222e220bec32d9aca0e76",
+    "src/game/fourArmyEngine.ts": "07f98f520a57e17a3e707684a27f4226e412f92449ea6d3ec19b1a4a204d7d67",
+    "src/game/fourArmyMap32.ts": "b1e0cba01bdaa58b25f9f195c7fca5501cedbef10398a96f047a3331b77ba7a6",
+    "src/game/fourArmyRules.ts": "134439239fe704752d6d68809c65a671f74f76087e3f697bc84494aa57a5d530"
+  },
+  "results": [
+    {
+      "id": "orders-152001-0",
+      "rules": "classic",
+      "cpuVersion": "four-army-cpu-v3",
+      "count": 21777,
+      "fallbacks": 27,
+      "traceSha256": "396c9754858cf93cbafe653fb8fca09eee81419204bcea7133d319df753ee3e0",
+      "finalStateSha256": "107e853e284bb49ff0d777705f80a7af81fd398984de8fb009d71736a503b560",
+      "outcome": {
+        "type": "ongoing"
+      },
+      "reasons": {
+        "produce: Production facility is occupied": 27
+      },
+      "examples": [
+        {
+          "at": 1400,
+          "command": {
+            "actor": "army2",
+            "type": "produce",
+            "factory": {
+              "x": 21,
+              "y": 12
+            },
+            "kind": "infantry"
+          },
+          "reason": "produce: Production facility is occupied",
+          "observationAllowed": true,
+          "knownOccupant": false,
+          "actualOccupied": true
+        },
+        {
+          "at": 1475,
+          "command": {
+            "actor": "army2",
+            "type": "produce",
+            "factory": {
+              "x": 21,
+              "y": 12
+            },
+            "kind": "infantry"
+          },
+          "reason": "produce: Production facility is occupied",
+          "observationAllowed": true,
+          "knownOccupant": false,
+          "actualOccupied": true
+        },
+        {
+          "at": 1551,
+          "command": {
+            "actor": "army2",
+            "type": "produce",
+            "factory": {
+              "x": 21,
+              "y": 12
+            },
+            "kind": "infantry"
+          },
+          "reason": "produce: Production facility is occupied",
+          "observationAllowed": true,
+          "knownOccupant": false,
+          "actualOccupied": true
+        },
+        {
+          "at": 1777,
+          "command": {
+            "actor": "army2",
+            "type": "produce",
+            "factory": {
+              "x": 21,
+              "y": 12
+            },
+            "kind": "infantry"
+          },
+          "reason": "produce: Production facility is occupied",
+          "observationAllowed": true,
+          "knownOccupant": false,
+          "actualOccupied": true
+        },
+        {
+          "at": 2435,
+          "command": {
+            "actor": "army2",
+            "type": "produce",
+            "factory": {
+              "x": 21,
+              "y": 12
+            },
+            "kind": "antiAir"
+          },
+          "reason": "produce: Production facility is occupied",
+          "observationAllowed": true,
+          "knownOccupant": false,
+          "actualOccupied": true
+        },
+        {
+          "at": 3231,
+          "command": {
+            "actor": "army4",
+            "type": "produce",
+            "factory": {
+              "x": 19,
+              "y": 21
+            },
+            "kind": "infantry"
+          },
+          "reason": "produce: Production facility is occupied",
+          "observationAllowed": true,
+          "knownOccupant": false,
+          "actualOccupied": true
+        },
+        {
+          "at": 3468,
+          "command": {
+            "actor": "army4",
+            "type": "produce",
+            "factory": {
+              "x": 3,
+              "y": 26
+            },
+            "kind": "infantry"
+          },
+          "reason": "produce: Production facility is occupied",
+          "observationAllowed": true,
+          "knownOccupant": false,
+          "actualOccupied": true
+        },
+        {
+          "at": 4419,
+          "command": {
+            "actor": "army2",
+            "type": "produce",
+            "factory": {
+              "x": 21,
+              "y": 12
+            },
+            "kind": "infantry"
+          },
+          "reason": "produce: Production facility is occupied",
+          "observationAllowed": true,
+          "knownOccupant": false,
+          "actualOccupied": true
+        },
+        {
+          "at": 4620,
+          "command": {
+            "actor": "army1",
+            "type": "produce",
+            "factory": {
+              "x": 3,
+              "y": 5
+            },
+            "kind": "fighter"
+          },
+          "reason": "produce: Production facility is occupied",
+          "observationAllowed": true,
+          "knownOccupant": false,
+          "actualOccupied": true
+        },
+        {
+          "at": 4934,
+          "command": {
+            "actor": "army2",
+            "type": "produce",
+            "factory": {
+              "x": 21,
+              "y": 12
+            },
+            "kind": "infantry"
+          },
+          "reason": "produce: Production facility is occupied",
+          "observationAllowed": true,
+          "knownOccupant": false,
+          "actualOccupied": true
+        },
+        {
+          "at": 4974,
+          "command": {
+            "actor": "army4",
+            "type": "produce",
+            "factory": {
+              "x": 10,
+              "y": 19
+            },
+            "kind": "infantry"
+          },
+          "reason": "produce: Production facility is occupied",
+          "observationAllowed": true,
+          "knownOccupant": false,
+          "actualOccupied": true
+        },
+        {
+          "at": 5446,
+          "command": {
+            "actor": "army4",
+            "type": "produce",
+            "factory": {
+              "x": 10,
+              "y": 19
+            },
+            "kind": "tank"
+          },
+          "reason": "produce: Production facility is occupied",
+          "observationAllowed": true,
+          "knownOccupant": false,
+          "actualOccupied": true
+        }
+      ]
+    },
+    {
+      "id": "orders-152001-0",
+      "rules": "expanded",
+      "cpuVersion": "four-army-cpu-v4",
+      "count": 9501,
+      "fallbacks": 25,
+      "traceSha256": "59e778ad910db71a7b4499d27814cd1d89e0db71be4f28dc54cdd9a8615ba9eb",
+      "finalStateSha256": "8cd037b071384e91e589988ad4c83c609cf68fd8c531a0be2518e1e198be0a52",
+      "outcome": {
+        "type": "victory",
+        "winner": "army2"
+      },
+      "reasons": {
+        "produce: Production facility is occupied": 25
+      },
+      "examples": [
+        {
+          "at": 1354,
+          "command": {
+            "actor": "army4",
+            "type": "produce",
+            "factory": {
+              "x": 10,
+              "y": 19
+            },
+            "kind": "infantry"
+          },
+          "reason": "produce: Production facility is occupied",
+          "observationAllowed": true,
+          "knownOccupant": false,
+          "actualOccupied": true
+        },
+        {
+          "at": 1713,
+          "command": {
+            "actor": "army2",
+            "type": "produce",
+            "factory": {
+              "x": 21,
+              "y": 12
+            },
+            "kind": "infantry"
+          },
+          "reason": "produce: Production facility is occupied",
+          "observationAllowed": true,
+          "knownOccupant": false,
+          "actualOccupied": true
+        },
+        {
+          "at": 1773,
+          "command": {
+            "actor": "army1",
+            "type": "produce",
+            "factory": {
+              "x": 5,
+              "y": 3
+            },
+            "kind": "tank"
+          },
+          "reason": "produce: Production facility is occupied",
+          "observationAllowed": true,
+          "knownOccupant": false,
+          "actualOccupied": true
+        },
+        {
+          "at": 1847,
+          "command": {
+            "actor": "army1",
+            "type": "produce",
+            "factory": {
+              "x": 12,
+              "y": 10
+            },
+            "kind": "tank"
+          },
+          "reason": "produce: Production facility is occupied",
+          "observationAllowed": true,
+          "knownOccupant": false,
+          "actualOccupied": true
+        },
+        {
+          "at": 1933,
+          "command": {
+            "actor": "army2",
+            "type": "produce",
+            "factory": {
+              "x": 21,
+              "y": 12
+            },
+            "kind": "infantry"
+          },
+          "reason": "produce: Production facility is occupied",
+          "observationAllowed": true,
+          "knownOccupant": false,
+          "actualOccupied": true
+        },
+        {
+          "at": 2064,
+          "command": {
+            "actor": "army1",
+            "type": "produce",
+            "factory": {
+              "x": 5,
+              "y": 3
+            },
+            "kind": "antiAir"
+          },
+          "reason": "produce: Production facility is occupied",
+          "observationAllowed": true,
+          "knownOccupant": false,
+          "actualOccupied": true
+        },
+        {
+          "at": 2138,
+          "command": {
+            "actor": "army1",
+            "type": "produce",
+            "factory": {
+              "x": 12,
+              "y": 10
+            },
+            "kind": "antiAir"
+          },
+          "reason": "produce: Production facility is occupied",
+          "observationAllowed": true,
+          "knownOccupant": false,
+          "actualOccupied": true
+        },
+        {
+          "at": 2279,
+          "command": {
+            "actor": "army1",
+            "type": "produce",
+            "factory": {
+              "x": 5,
+              "y": 3
+            },
+            "kind": "infantry"
+          },
+          "reason": "produce: Production facility is occupied",
+          "observationAllowed": true,
+          "knownOccupant": false,
+          "actualOccupied": true
+        },
+        {
+          "at": 2320,
+          "command": {
+            "actor": "army3",
+            "type": "produce",
+            "factory": {
+              "x": 19,
+              "y": 21
+            },
+            "kind": "tank"
+          },
+          "reason": "produce: Production facility is occupied",
+          "observationAllowed": true,
+          "knownOccupant": false,
+          "actualOccupied": true
+        },
+        {
+          "at": 2349,
+          "command": {
+            "actor": "army1",
+            "type": "produce",
+            "factory": {
+              "x": 5,
+              "y": 3
+            },
+            "kind": "infantry"
+          },
+          "reason": "produce: Production facility is occupied",
+          "observationAllowed": true,
+          "knownOccupant": false,
+          "actualOccupied": true
+        },
+        {
+          "at": 2675,
+          "command": {
+            "actor": "army4",
+            "type": "produce",
+            "factory": {
+              "x": 10,
+              "y": 19
+            },
+            "kind": "tank"
+          },
+          "reason": "produce: Production facility is occupied",
+          "observationAllowed": true,
+          "knownOccupant": false,
+          "actualOccupied": true
+        },
+        {
+          "at": 3585,
+          "command": {
+            "actor": "army2",
+            "type": "produce",
+            "factory": {
+              "x": 21,
+              "y": 12
+            },
+            "kind": "infantry"
+          },
+          "reason": "produce: Production facility is occupied",
+          "observationAllowed": true,
+          "knownOccupant": false,
+          "actualOccupied": true
+        }
+      ]
+    }
+  ]
+}

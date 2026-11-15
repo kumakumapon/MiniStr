@@ -304,6 +304,7 @@ const fourArmyScreen = new FourArmyScreen({
     try { localStorage.setItem('ministr.locale', locale); } catch { /* The current locale still applies in memory. */ }
   },
   onGesture: () => unlockAudio(),
+  onSound: sound => soundPlayer.play(sound),
 });
 app.addEventListener('input', event => {
   const input = event.target;

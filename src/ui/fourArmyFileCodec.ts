@@ -8,6 +8,7 @@ import {
 import { isFourArmyState } from '../game/fourArmyEngine';
 import { handleFourArmyFileRequestAsync, type FourArmyFileRequest, type FourArmyFileResult } from '../game/fourArmySpectatorProtocol';
 import type { GameResult } from '../game/types';
+import { isFourArmyExperience, fourArmyExperienceManifest } from '../game/fourArmyExperience';
 
 /** Owns the trusted verifier Worker. Cancellation settles callers and terminates replay validation. */
 export class FourArmyFileCodec {
@@ -91,12 +92,26 @@ export class FourArmyFileCodec {
           return finish({ ok: false, error: '4軍ファイルの応答が不正です。' });
         const checkpoints = v.checkpoints;
         if (
+          v.save.schemaVersion === 4 &&
+          (!isFourArmyExperience(v.experience, v.save.archive.payload.commands.length) ||
+            JSON.stringify(fourArmyExperienceManifest(v.experience)) !== JSON.stringify(v.save.format === 'ministr-four-army-configurable' ? v.save.experience : undefined))
+        )
+          return finish({ ok: false, error: '4軍ファイルの目撃・行動履歴が不正です。' });
+        if (
           checkpoints.length !== Math.floor(v.save.archive.payload.commands.length / FOUR_ARMY_CHECKPOINT_INTERVAL) + 1 ||
           !checkpoints.every((p, i) => p && typeof p === 'object' && p.position === i * FOUR_ARMY_CHECKPOINT_INTERVAL && isFourArmyState(p.state))
         )
           return finish({ ok: false, error: '4軍ファイルのチェックポイントが不正です。' });
         // Only this owned verifier Worker derives checkpoints; files cannot provide them.
-        finish({ ok: true, value: { text: v.text, save: v.save, checkpoints } });
+        finish({
+          ok: true,
+          value: {
+            text: v.text,
+            save: v.save,
+            checkpoints,
+            ...(v.save.schemaVersion === 4 ? { experience: v.experience as import('../game/fourArmyExperience').FourArmyExperience } : {}),
+          },
+        });
       };
       try {
         this.worker = this.createWorker();

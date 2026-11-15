@@ -8,15 +8,23 @@ import { isFourArmyCpuSettings, type FourArmyCpuSettings } from '../ai/fourArmyC
 import { parseBoundedJson } from './jsonBoundary';
 import type { GameResult } from './types';
 import { isFourArmyCpuVersion, type FourArmyCpuVersion } from '../ai/fourArmyCpuVersion';
+import {
+  isFourArmyExperienceManifest,
+  fourArmyExperienceVerifier,
+  fourArmyExperienceManifest,
+  type FourArmyExperienceManifest,
+  type FourArmyExperience,
+} from './fourArmyExperience';
 
 export const FOUR_ARMY_SAVE_KEYS = ['ministr.fourArmy.save.1', 'ministr.fourArmy.save.2'] as const;
+export const FOUR_ARMY_AUTO_SAVE_KEY = 'ministr.fourArmy.autosave';
 export const FOUR_ARMY_FILE_BYTES = 8_000_000;
 export const FOUR_ARMY_CHECKPOINT_INTERVAL = 2048;
 export const FOUR_ARMY_COMMAND_LIMIT = FOUR_ARMY_LONG_COMMANDS;
 export type FourArmyView = 'all' | FourArmyId;
 interface FourArmySaveBase {
   format: 'ministr-four-army-spectator' | 'ministr-four-army-match' | 'ministr-four-army-configurable';
-  schemaVersion: 1 | 2 | 3;
+  schemaVersion: 1 | 2 | 3 | 4;
   cpuVersion: FourArmyCpuVersion;
   name: string;
   savedAt: string;
@@ -30,8 +38,9 @@ export type FourArmySpectatorSave = FourArmySaveBase &
     | { format: 'ministr-four-army-spectator' }
     | { format: 'ministr-four-army-match'; humanArmy: FourArmyId }
     | { format: 'ministr-four-army-configurable'; schemaVersion: 3; controllers: FourArmyControllers }
+    | { format: 'ministr-four-army-configurable'; schemaVersion: 4; controllers: FourArmyControllers; experience: FourArmyExperienceManifest }
   );
-export const isFourArmySaveKey = (key: string): boolean => FOUR_ARMY_SAVE_KEYS.some((k) => k === key);
+export const isFourArmySaveKey = (key: string): boolean => key === FOUR_ARMY_AUTO_SAVE_KEY || FOUR_ARMY_SAVE_KEYS.some((k) => k === key);
 export const isFourArmyView = (v: unknown): v is FourArmyView => v === 'all' || FOUR_ARMY_IDS.some((a) => a === v);
 const record = (v: unknown): v is Record<string, unknown> => !!v && typeof v === 'object' && !Array.isArray(v);
 const keys = (v: Record<string, unknown>, expected: string[]) => Object.keys(v).length === expected.length && expected.every((k) => Object.hasOwn(v, k));
@@ -65,11 +74,12 @@ export function isFourArmySpectatorEnvelope(v: unknown): v is FourArmySpectatorS
       'speed',
       'archive',
       ...(v.format === 'ministr-four-army-match' ? ['humanArmy'] : v.format === 'ministr-four-army-configurable' ? ['controllers'] : []),
+      ...(v.schemaVersion === 4 ? ['experience'] : []),
     ]) &&
-    ((v.format === 'ministr-four-army-spectator' && v.schemaVersion !== 3) ||
+    ((v.format === 'ministr-four-army-spectator' && (v.schemaVersion === 1 || v.schemaVersion === 2)) ||
       (v.format === 'ministr-four-army-match' && v.schemaVersion === 2 && FOUR_ARMY_IDS.some((a) => a === v.humanArmy)) ||
-      (v.format === 'ministr-four-army-configurable' && v.schemaVersion === 3 && isFourArmyControllers(v.controllers))) &&
-    (v.schemaVersion === 1 || v.schemaVersion === 2 || v.schemaVersion === 3) &&
+      (v.format === 'ministr-four-army-configurable' && (v.schemaVersion === 3 || v.schemaVersion === 4) && isFourArmyControllers(v.controllers))) &&
+    (v.schemaVersion === 1 || v.schemaVersion === 2 || v.schemaVersion === 3 || v.schemaVersion === 4) &&
     isFourArmyCpuVersion(v.cpuVersion) &&
     typeof v.name === 'string' &&
     v.name.trim() === v.name &&
@@ -91,13 +101,15 @@ export function isFourArmySpectatorEnvelope(v: unknown): v is FourArmySpectatorS
       v.view === v.humanArmy) &&
     (v.format !== 'ministr-four-army-configurable' || allowedConfigurableView(v.controllers as FourArmyControllers, v.archive.payload.state, v.view)) &&
     Array.isArray(v.archive.payload.commands) &&
-    v.archive.payload.commands.length <= (v.schemaVersion === 1 ? 2048 : FOUR_ARMY_COMMAND_LIMIT)
+    v.archive.payload.commands.length <= (v.schemaVersion === 1 ? 2048 : FOUR_ARMY_COMMAND_LIMIT) &&
+    (v.schemaVersion !== 4 || isFourArmyExperienceManifest(v.experience, v.archive.payload.commands.length))
   );
 }
 
 export interface VerifiedFourArmySave {
   save: FourArmySpectatorSave;
   checkpoints: FourArmyCheckpoint[];
+  experience?: FourArmyExperience;
 }
 export interface FourArmyVerificationProgress extends FourArmyCheckpoint {
   total: number;
@@ -111,7 +123,7 @@ export function* verifyFourArmySpectatorSave(text: string): Generator<FourArmyVe
   if (input.schemaVersion === 1) {
     const legacy = parseBoundedJson(text, 1_000_000);
     if (!legacy.ok) return legacy;
-  } else if (input.schemaVersion === 2 || input.schemaVersion === 3) {
+  } else if (input.schemaVersion === 2 || input.schemaVersion === 3 || input.schemaVersion === 4) {
     if (!record(input.archive) || !record(input.archive.payload)) return fail('4軍対局の保存形式が不正です。');
     const commands = unpackFourArmyCommands(input.archive.payload.commands);
     if (!commands.ok) return commands;
@@ -121,9 +133,15 @@ export function* verifyFourArmySpectatorSave(text: string): Generator<FourArmyVe
   const save = input,
     map = save.archive.payload.map;
   const expected = record(map) ? createFourArmyMap32(map.seed, map.order, map.pathVersion, map.rules) : undefined;
-  if (!expected?.ok || (save.archive.schemaVersion !== 2 && !(save.schemaVersion === 3 && save.archive.schemaVersion === 3)) || canonical(map) !== canonical(expected.value))
+  if (
+    !expected?.ok ||
+    (save.archive.schemaVersion !== 2 && !((save.schemaVersion === 3 || save.schemaVersion === 4) && save.archive.schemaVersion === 3)) ||
+    canonical(map) !== canonical(expected.value)
+  )
     return fail('この4軍対局では四方の前線の固定初期条件を使用します。');
-  const verifier = verifyFourArmyArchive(save.archive, save.schemaVersion === 1 ? 2048 : 65536),
+  const experience =
+    save.schemaVersion === 4 && save.format === 'ministr-four-army-configurable' ? fourArmyExperienceVerifier(save.experience, save.archive.payload.commands) : undefined;
+  const verifier = verifyFourArmyArchive(save.archive, save.schemaVersion === 1 ? 2048 : 65536, experience?.visit),
     checkpoints: FourArmyCheckpoint[] = [];
   let step = verifier.next();
   while (!step.done) {
@@ -131,7 +149,17 @@ export function* verifyFourArmySpectatorSave(text: string): Generator<FourArmyVe
     yield { ...step.value, total: save.archive.payload.commands.length };
     step = verifier.next();
   }
-  return step.value.ok ? { ok: true, value: { save: { ...save, archive: step.value.value }, checkpoints } } : step.value;
+  if (!step.value.ok) return step.value;
+  const history = experience?.finish();
+  if (history && !history.ok) return history;
+  return {
+    ok: true,
+    value: {
+      save: { ...save, archive: step.value.value, ...(history?.ok ? { experience: fourArmyExperienceManifest(history.value) } : {}) } as FourArmySpectatorSave,
+      checkpoints,
+      ...(history?.ok ? { experience: history.value } : {}),
+    },
+  };
 }
 export function parseFourArmySpectatorSave(text: string): GameResult<FourArmySpectatorSave> {
   const verifier = verifyFourArmySpectatorSave(text);
@@ -161,7 +189,7 @@ export function encodeFourArmySpectatorSave(value: FourArmySpectatorSave): GameR
   try {
     if (!isFourArmySpectatorEnvelope(value)) return fail('4軍対局の保存形式が不正です。');
     const file =
-      value.schemaVersion === 2 || value.schemaVersion === 3
+      value.schemaVersion === 2 || value.schemaVersion === 3 || value.schemaVersion === 4
         ? { ...value, archive: { ...value.archive, payload: { ...value.archive.payload, commands: packFourArmyCommands(value.archive.payload.commands) } } }
         : value;
     const text = JSON.stringify(file);

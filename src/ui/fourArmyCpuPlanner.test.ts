@@ -4,7 +4,7 @@ import { FourArmyCpuSession } from './fourArmyCpuSession';
 import { handleFourArmyCpuRequest, type FourArmyCpuRequest } from '../ai/fourArmyCpuProtocol';
 import { defaultFourArmyCpuSettings } from '../ai/fourArmyCpu';
 import { fourCpuMap } from '../ai/fourArmyCpu.fixture';
-import { createFourArmyState, applyFourArmyCommand, type FourArmyState } from '../game/fourArmyEngine';
+import { createFourArmyState, applyFourArmyCommand, type FourArmyState, type FourArmyCommand } from '../game/fourArmyEngine';
 import { serializeFourArmyArchive, parseFourArmyArchive } from '../game/fourArmyArchive';
 
 const initial = () => {
@@ -263,14 +263,21 @@ it('requires explicit resume at the 100-round engine pause and rejects invalid r
   });
   expect(await session.step()).toBeUndefined();
   const before = session.state.players.army1.gold;
+  const committed = vi.fn((_before: FourArmyState, _command: FourArmyCommand, after: FourArmyState) => {
+    after.players.army1.gold = -1;
+  });
+  session.onCommit = committed;
   session.resume();
   expect(session.commands).toEqual([{ actor: 'army1', type: 'resume' }]);
   expect(session.state.players.army1.gold).toBe(before + 1000);
+  expect(committed).toHaveBeenCalledOnce();
+  expect(committed.mock.calls[0]![1]).toEqual({ actor: 'army1', type: 'resume' });
   session.resume();
   expect(session.commands).toHaveLength(1);
   expect(() => session.replaceState({} as FourArmyState)).toThrow('Invalid');
   expect(() => session.configure({} as any)).toThrow('Invalid');
   session.stop();
+  expect(session.onCommit).toBeUndefined();
   expect(() => session.replaceState(initial())).toThrow('Invalid');
   expect(() => session.configure(defaultFourArmyCpuSettings())).toThrow('Invalid');
   expect(() => new FourArmyCpuSession({} as FourArmyState, () => fakeWorker() as unknown as Worker)).toThrow('Invalid');

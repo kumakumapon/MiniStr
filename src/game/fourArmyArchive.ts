@@ -59,7 +59,11 @@ export interface FourArmyCheckpoint {
   state: FourArmyState;
 }
 /** Checkpoints are derived from legal commands, never accepted as authority from a file. */
-export function* verifyFourArmyArchive(v: unknown, limit: 2048 | 65536 = 2048): Generator<FourArmyCheckpoint, GameResult<FourArmyArchive>> {
+export function* verifyFourArmyArchive(
+  v: unknown,
+  limit: 2048 | 65536 = 2048,
+  visit?: (state: FourArmyState, position: number) => void,
+): Generator<FourArmyCheckpoint, GameResult<FourArmyArchive>> {
   if (
     !record(v) ||
     !exact(v, ['format', 'schemaVersion', 'ruleset', 'payload']) ||
@@ -78,11 +82,13 @@ export function* verifyFourArmyArchive(v: unknown, limit: 2048 | 65536 = 2048): 
     return fail('4軍保存の内容が不正です。');
   let replayed = createFourArmyState(p.map);
   if (!replayed.ok) return replayed;
+  visit?.(replayed.value, 0);
   yield { position: 0, state: replayed.value };
   for (let i = 0; i < p.commands.length; i++) {
     const command = p.commands[i];
     replayed = applyFourArmyCommand(replayed.value, command);
     if (!replayed.ok) return fail('4軍保存の命令履歴を再現できません。');
+    visit?.(replayed.value, i + 1);
     if ((i + 1) % 32 === 0) yield { position: i + 1, state: replayed.value };
   }
   if (canonical(replayed.value) !== canonical(p.state)) return fail('4軍保存の状態と命令履歴が一致しません。');

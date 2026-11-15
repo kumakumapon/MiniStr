@@ -1,7 +1,7 @@
 {
   "name": "ministr",
   "private": true,
-  "version": "1.5.19",
+  "version": "1.5.20",
   "type": "module",
   "license": "MIT",
   "engines": {
@@ -20,7 +20,7 @@
     "lint": "eslint .",
     "format:check": "prettier --check \"src/**/*.{ts,css}\" \"scripts/**/*.{ts,mjs}\" \"tests/**/*.ts\" \"*.{mjs,ts,json}\" \".github/**/*.yml\"",
     "test:coverage": "vitest run --coverage",
-    "test:e2e": "playwright test",
+    "test:e2e": "node scripts/playwright-shard.mjs",
     "test:ui": "vitest run --config vitest.ui.config.ts",
     "test:fast": "vitest run --exclude 'src/ai/cpuSimulation*.test.ts'",
     "test:cpu": "vitest run src/ai/cpuSimulation*.test.ts",
@@ -28,7 +28,7 @@
     "balance:compare": "vite-node scripts/balance-compare.ts",
     "balance": "vite-node scripts/balance-report.ts",
     "campaign:playthrough": "vite-node scripts/campaign-playthrough.ts",
-    "test:ci": "node --test scripts/ci-policy.check.mjs",
+    "test:ci": "node --test scripts/ci-policy.check.mjs scripts/playwright-shard.check.mjs",
     "profile": "vite-node scripts/profile-boundaries.ts",
     "balance:paired": "vite-node scripts/paired-balance.ts",
     "balance:tactics": "vite-node scripts/tactical-balance.ts",
@@ -36,7 +36,10 @@
     "four-army:assessment": "vite-node scripts/four-army-assessment-report.ts",
     "test:four-army-endurance": "playwright test --config playwright.endurance.config.ts",
     "four-army:capacity": "vite-node scripts/four-army-capacity-report.ts",
-    "four-army:path-compare": "vite-node scripts/four-army-path-comparison.ts"
+    "four-army:path-compare": "vite-node scripts/four-army-path-comparison.ts",
+    "four-army:fairness": "vite-node scripts/four-army-fairness-report.ts",
+    "four-army:fallback-diagnosis": "vite-node scripts/four-army-fallback-diagnosis.ts",
+    "four-army:save-continuation": "vite-node scripts/four-army-save-continuation.ts"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
