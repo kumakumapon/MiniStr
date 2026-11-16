@@ -36,7 +36,10 @@ for (const count of [3, 4] as const)
       await expect(page.locator('#four-turn')).toContainText('/20');
       await expect.poll(() => page.evaluate(() => localStorage.getItem('ministr.fourArmy.autosave'))).not.toBeNull();
       const original = await page.evaluate(() => localStorage.getItem('ministr.fourArmy.autosave'));
-      await page.locator(count === 3 ? '#four-board > [data-x="8"][data-y="4"]' : '#four-board > [data-x="2"][data-y="4"]').click();
+      await page.locator(count === 3 ? '#four-board > [data-x="7"][data-y="3"]' : '#four-board > [data-x="2"][data-y="4"]').click();
+      await page.locator('#four-board').press('ArrowRight');
+      await expect(page.locator(count === 3 ? '#four-board > [data-x="8"][data-y="3"]' : '#four-board > [data-x="3"][data-y="4"]')).toBeFocused();
+      await page.keyboard.press('ArrowLeft');
       await page.locator(width === 390 ? '[data-quick-action="wait"]' : '[data-human-action="wait"]').click();
       await expect(page.locator('#four-army-screen')).toHaveAttribute('data-record-count', '1');
       await page.locator('#four-undo').click();

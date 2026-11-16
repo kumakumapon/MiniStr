@@ -1,6 +1,6 @@
 import { FOUR_ARMY_IDS, type FourArmyId } from './fourArmyFoundation';
 import { createFourArmyState, type FourArmyMap } from './fourArmyEngine';
-import type { FourArmyRules } from './fourArmyRules';
+import { isFourArmyRules, type FourArmyRules } from './fourArmyRules';
 import { fourArmyRoster, type SmallBattle } from './smallBattle';
 import type { GameResult, Position, UnitKind } from './types';
 import { unitStats } from './units';
@@ -15,6 +15,8 @@ export function createSmallBattleMap(
   rules?: FourArmyRules,
 ): GameResult<FourArmyMap> {
   if ((count !== 3 && count !== 4) || !['short', 'unlimited'].includes(ending)) return { ok: false, error: '小型対局の設定が不正です。' };
+  if (!Number.isSafeInteger(seed) || seed < 0 || seed > 0xffffffff || (order !== undefined && !Array.isArray(order)) || (rules !== undefined && !isFourArmyRules(rules)))
+    return { ok: false, error: '小型対局の初期条件が不正です。' };
   const participants = FOUR_ARMY_IDS.slice(0, count),
     width = 18,
     height = 14;
@@ -88,8 +90,14 @@ export function createSmallBattleMap(
       dx = right ? -1 : 1,
       dy = top ? 1 : -1;
     set(p.x, p.y, 'capital', army);
-    set(p.x + dx, p.y, 'factory', army);
-    set(p.x, p.y + dy, 'city', army);
+    if (count === 3) {
+      const forward = i === 0 ? { x: 0, y: 1 } : i === 1 ? { x: 1, y: 0 } : { x: -1, y: 0 };
+      set(p.x - forward.x * 2, p.y - forward.y * 2, 'factory', army);
+      set(p.x - forward.x, p.y - forward.y, 'city', army);
+    } else {
+      set(p.x + dx, p.y, 'factory', army);
+      set(p.x, p.y + dy, 'city', army);
+    }
     const starts: readonly [UnitKind, number, number][] = [
       ['infantry', 0, 2],
       ['infantry', 1, 1],
@@ -102,7 +110,14 @@ export function createSmallBattleMap(
         id: `u${units.length + 1}`,
         owner: army,
         kind,
-        position: { x: p.x + dx * x, y: p.y + dy * (count === 3 && i === 0 && kind === 'infantry' && x === 1 ? 2 : y) },
+        position:
+          count === 3
+            ? (() => {
+                const side = kind === 'infantry' ? (x === 0 ? -1 : 1) : 0,
+                  front = kind === 'recon' ? 2 : 1;
+                return i === 0 ? { x: p.x + side, y: p.y + front } : i === 1 ? { x: p.x + front, y: p.y - side } : { x: p.x - front, y: p.y + side };
+              })()
+            : { x: p.x + dx * x, y: p.y + dy * y },
         hp: 100,
         fuel: stats.fuel,
         ammo: stats.ammo,
@@ -121,9 +136,9 @@ export function createSmallBattleMap(
           [9, 7],
         ]
       : [
-          [8, 7],
-          [5, 6],
-          [11, 6],
+          [9, 6],
+          [6, 7],
+          [10, 9],
         ];
   const neutralCities =
     count === 4
@@ -134,8 +149,8 @@ export function createSmallBattleMap(
           [11, 7],
         ]
       : [
-          [8, 6],
-          [5, 7],
+          [7, 5],
+          [5, 9],
           [11, 7],
         ];
   for (const [x, y] of neutralFactories) set(x!, y!, 'factory');

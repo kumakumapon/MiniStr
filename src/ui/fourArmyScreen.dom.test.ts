@@ -53,7 +53,7 @@ describe('four-army spectator controller', () => {
     await vi.waitFor(() => expect(values.has(FOUR_ARMY_AUTO_SAVE_KEY)).toBe(true));
     const raw = JSON.parse(values.get(FOUR_ARMY_AUTO_SAVE_KEY)!);
     expect(raw).toMatchObject({ schemaVersion: 5, cpuVersion: 'four-army-cpu-v5', archive: { payload: { map: { match: { ending: 'short' } } } } });
-    click(count === 3 ? '#four-board > [data-x="8"][data-y="4"]' : '#four-board > [data-x="2"][data-y="4"]');
+    click(count === 3 ? '#four-board > [data-x="7"][data-y="3"]' : '#four-board > [data-x="2"][data-y="4"]');
     click('[data-human-action="wait"]');
     expect(query('#four-turn').textContent).toContain('1 commands');
     click('#four-undo');

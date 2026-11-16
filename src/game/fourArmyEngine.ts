@@ -529,7 +529,8 @@ export function applyFourArmyCommand(input: unknown, command: unknown): GameResu
       command.type === 'move' && input.pathVersion !== undefined
         ? moveUnit(view, command.unitId, command.destination, (a, b) =>
             input.pathVersion === 2
-              ? smallBattlePositionRank(input.board, input.capitals[actor], a) - smallBattlePositionRank(input.board, input.capitals[actor], b)
+              ? smallBattlePositionRank(input.board, input.capitals[actor], a, input.match?.participants.length === 3) -
+                smallBattlePositionRank(input.board, input.capitals[actor], b, input.match?.participants.length === 3)
               : homePositionRank(input.capitals[actor], a) - homePositionRank(input.capitals[actor], b),
           )
         : applyGameCommand(view, legacy);

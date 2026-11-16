@@ -20,7 +20,9 @@ function permutations<T>(a: readonly T[]): T[][] {
 const shard = Number(process.argv[2] ?? 0),
   shards = Number(process.argv[3] ?? 4),
   out = process.argv[4] ?? '/tmp/small-battle-report.json',
-  seedCount = Number(process.argv[5] ?? 3);
+  seedCount = Number(process.argv[5] ?? 3),
+  seedStart = Number(process.argv[6] ?? 152101),
+  cohort = Number(process.argv[7] ?? 0);
 if (
   !Number.isInteger(shard) ||
   !Number.isInteger(shards) ||
@@ -43,11 +45,14 @@ const paths = [
   'src/ai/fourArmyObservation.ts',
 ];
 const sources = Object.fromEntries(paths.map((p) => [p, hash(readFileSync(p, 'utf8'))]));
-const cases = ([3, 4] as const).flatMap((n) =>
-  Array.from({ length: seedCount }, (_, i) => 152101 + i).flatMap((seed) =>
-    [true, false].flatMap((tactics) => permutations((['army1', 'army2', 'army3', 'army4'] as const).slice(0, n)).map((order, index) => ({ n, seed, tactics, order, index }))),
-  ),
-);
+if (!Number.isSafeInteger(seedStart) || seedStart < 0 || seedStart + seedCount > 0xffffffff || ![0, 3, 4].includes(cohort)) throw Error('Invalid cohort');
+const cases = ([3, 4] as const)
+  .filter((n) => !cohort || n === cohort)
+  .flatMap((n) =>
+    Array.from({ length: seedCount }, (_, i) => seedStart + i).flatMap((seed) =>
+      [true, false].flatMap((tactics) => permutations((['army1', 'army2', 'army3', 'army4'] as const).slice(0, n)).map((order, index) => ({ n, seed, tactics, order, index }))),
+    ),
+  );
 const rows: unknown[] = [];
 for (const [index, c] of cases.entries()) {
   if (index % shards !== shard) continue;

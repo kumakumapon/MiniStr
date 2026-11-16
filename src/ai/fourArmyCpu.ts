@@ -12,7 +12,7 @@ import { manhattanDistance, positionKey, terrainAt, unitMovementCost } from '../
 import { crossingDistances } from './crossing';
 import { exactKeys, fourArmyPlanningView, isFourArmyObservation, record } from './fourArmyObservation';
 import type { CpuDifficulty } from './rules';
-import { fourArmyCpuOrder } from './fourArmyCpuOrder';
+import { fourArmyCpuOrder, smallBattleFocus } from './fourArmyCpuOrder';
 import { FOUR_ARMY_CPU_VERSION, isFourArmyCpuVersion, type FourArmyCpuVersion } from './fourArmyCpuVersion';
 
 export interface FourArmyCpuOptions {
@@ -59,8 +59,11 @@ export function chooseFourArmyCpuCommand(input: unknown, options: unknown, cpuVe
   };
   const actor = o.viewer,
     cautious = options.policy === 'defensive' ? 0.65 : options.policy === 'offensive' ? 0.2 : 0.4;
-  const properties = o.board.terrain.flatMap((row, y) => row.flatMap((t, x) => (isPropertyTerrainKind(t.kind) && t.owner !== actor ? [{ x, y }] : [])));
-  const hostileHomes = o.alive.filter((a) => a !== actor && o.board.terrain[o.capitals[a].y]![o.capitals[a].x]!.owner === a).map((a) => o.capitals[a]);
+  const focus = cpuVersion === 'four-army-cpu-v5' ? smallBattleFocus(o) : undefined;
+  const properties = o.board.terrain.flatMap((row, y) =>
+    row.flatMap((t, x) => (isPropertyTerrainKind(t.kind) && t.owner !== actor && (!focus || t.owner === undefined || t.owner === focus) ? [{ x, y }] : [])),
+  );
+  const hostileHomes = o.alive.filter((a) => a !== actor && (!focus || a === focus) && o.board.terrain[o.capitals[a].y]![o.capitals[a].x]!.owner === a).map((a) => o.capitals[a]);
   const goals = [...hostileHomes, ...properties];
   const danger = (u: Unit, p: Position): number => {
     const moved = { ...u, position: p };

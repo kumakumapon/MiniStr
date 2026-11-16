@@ -1,0 +1,8278 @@
+{
+  "protocol": "four-army-schema4-continuation-v1",
+  "frozenSources": {
+    "src/ai/fourArmyCpu.ts": "f381ae47b6412bdcc2797a639aa5b1d6f5b28aea65e59bfe6a8b6e4e57719116",
+    "src/ai/fourArmyObservation.ts": "3061ad844a9f0b8e8fd0b3f0f54b939be45f40727c97ddfb8ad247de765220fb",
+    "src/game/fourArmyEngine.ts": "9f902620a738f61956dc9346902bb85e6846f0d8bdbb44b2a8ff36834cf43d28",
+    "src/game/fourArmyMap32.ts": "b1e0cba01bdaa58b25f9f195c7fca5501cedbef10398a96f047a3331b77ba7a6",
+    "src/game/fourArmyRules.ts": "09581ec81648b9f6b155832e870ed03cb659db85325adccea30931a3ef99aeaa"
+  },
+  "rows": [
+    {
+      "id": "settings-152003-0",
+      "rules": "classic",
+      "cpuVersion": "four-army-cpu-v3",
+      "spec": {
+        "id": "settings-152003-0",
+        "group": "settings",
+        "seed": 152003,
+        "order": [
+          "army1",
+          "army2",
+          "army3",
+          "army4"
+        ],
+        "settings": {
+          "army1": {
+            "difficulty": "easy",
+            "policy": "balanced"
+          },
+          "army2": {
+            "difficulty": "normal",
+            "policy": "offensive"
+          },
+          "army3": {
+            "difficulty": "hard",
+            "policy": "defensive"
+          },
+          "army4": {
+            "difficulty": "normal",
+            "policy": "balanced"
+          }
+        },
+        "maxRound": 400,
+        "maxCommands": 65536
+      },
+      "schemaVersion": 4,
+      "position": 512,
+      "prefixTraceSha256": "e07fb19f5276b504fc8ec6e8d138abc5155bbdaef0b62098a42bfbecadcd1968",
+      "savedStateSha256": "14d414bd8ee139756c7eb37f6a6ffcf89aa3eedb8d20c86c3668b0e314a2d959",
+      "encodedBytes": 58750,
+      "fallbacksInPrefix": 0,
+      "retainedEvents": {
+        "all": 128,
+        "army1": 128,
+        "army2": 128,
+        "army3": 128,
+        "army4": 128
+      },
+      "retainedSightings": {
+        "army1": 12,
+        "army2": 10,
+        "army3": 9,
+        "army4": 9
+      },
+      "continuation": {
+        "commands": [
+          {
+            "actor": "army4",
+            "type": "wait",
+            "unitId": "u31"
+          },
+          {
+            "actor": "army4",
+            "type": "wait",
+            "unitId": "u32"
+          },
+          {
+            "actor": "army4",
+            "type": "wait",
+            "unitId": "u29"
+          },
+          {
+            "actor": "army4",
+            "type": "wait",
+            "unitId": "u38"
+          },
+          {
+            "actor": "army4",
+            "type": "wait",
+            "unitId": "u30"
+          },
+          {
+            "actor": "army4",
+            "type": "produce",
+            "factory": {
+              "x": 3,
+              "y": 26
+            },
+            "kind": "tank"
+          },
+          {
+            "actor": "army4",
+            "type": "endTurn"
+          },
+          {
+            "actor": "army1",
+            "type": "move",
+            "unitId": "u3",
+            "destination": {
+              "x": 10,
+              "y": 12
+            }
+          },
+          {
+            "actor": "army1",
+            "type": "capture",
+            "unitId": "u3"
+          },
+          {
+            "actor": "army1",
+            "type": "move",
+            "unitId": "u2",
+            "destination": {
+              "x": 11,
+              "y": 11
+            }
+          },
+          {
+            "actor": "army1",
+            "type": "produce",
+            "factory": {
+              "x": 12,
+              "y": 10
+            },
+            "kind": "tank"
+          },
+          {
+            "actor": "army1",
+            "type": "move",
+            "unitId": "u1",
+            "destination": {
+              "x": 9,
+              "y": 12
+            }
+          },
+          {
+            "actor": "army1",
+            "type": "move",
+            "unitId": "u8",
+            "destination": {
+              "x": 10,
+              "y": 13
+            }
+          },
+          {
+            "actor": "army1",
+            "type": "attack",
+            "unitId": "u8",
+            "targetId": "u41",
+            "weaponSlot": 0
+          },
+          {
+            "actor": "army1",
+            "type": "move",
+            "unitId": "u7",
+            "destination": {
+              "x": 7,
+              "y": 11
+            }
+          },
+          {
+            "actor": "army1",
+            "type": "move",
+            "unitId": "u6",
+            "destination": {
+              "x": 12,
+              "y": 12
+            }
+          },
+          {
+            "actor": "army1",
+            "type": "wait",
+            "unitId": "u7"
+          },
+          {
+            "actor": "army1",
+            "type": "wait",
+            "unitId": "u2"
+          },
+          {
+            "actor": "army1",
+            "type": "wait",
+            "unitId": "u1"
+          },
+          {
+            "actor": "army1",
+            "type": "wait",
+            "unitId": "u6"
+          },
+          {
+            "actor": "army1",
+            "type": "endTurn"
+          },
+          {
+            "actor": "army2",
+            "type": "move",
+            "unitId": "u45",
+            "destination": {
+              "x": 20,
+              "y": 7
+            }
+          },
+          {
+            "actor": "army2",
+            "type": "move",
+            "unitId": "u47",
+            "destination": {
+              "x": 25,
+              "y": 7
+            }
+          },
+          {
+            "actor": "army2",
+            "type": "move",
+            "unitId": "u42",
+            "destination": {
+              "x": 21,
+              "y": 10
+            }
+          },
+          {
+            "actor": "army2",
+            "type": "move",
+            "unitId": "u13",
+            "destination": {
+              "x": 19,
+              "y": 9
+            }
+          },
+          {
+            "actor": "army2",
+            "type": "move",
+            "unitId": "u14",
+            "destination": {
+              "x": 18,
+              "y": 10
+            }
+          },
+          {
+            "actor": "army2",
+            "type": "move",
+            "unitId": "u11",
+            "destination": {
+              "x": 20,
+              "y": 11
+            }
+          },
+          {
+            "actor": "army2",
+            "type": "produce",
+            "factory": {
+              "x": 21,
+              "y": 12
+            },
+            "kind": "tank"
+          },
+          {
+            "actor": "army2",
+            "type": "move",
+            "unitId": "u10",
+            "destination": {
+              "x": 20,
+              "y": 9
+            }
+          },
+          {
+            "actor": "army2",
+            "type": "move",
+            "unitId": "u39",
+            "destination": {
+              "x": 19,
+              "y": 12
+            }
+          },
+          {
+            "actor": "army2",
+            "type": "move",
+            "unitId": "u36",
+            "destination": {
+              "x": 19,
+              "y": 11
+            }
+          },
+          {
+            "actor": "army2",
+            "type": "move",
+            "unitId": "u9",
+            "destination": {
+              "x": 19,
+              "y": 10
+            }
+          },
+          {
+            "actor": "army2",
+            "type": "capture",
+            "unitId": "u9"
+          },
+          {
+            "actor": "army2",
+            "type": "wait",
+            "unitId": "u47"
+          },
+          {
+            "actor": "army2",
+            "type": "wait",
+            "unitId": "u42"
+          },
+          {
+            "actor": "army2",
+            "type": "wait",
+            "unitId": "u45"
+          },
+          {
+            "actor": "army2",
+            "type": "wait",
+            "unitId": "u10"
+          },
+          {
+            "actor": "army2",
+            "type": "wait",
+            "unitId": "u11"
+          },
+          {
+            "actor": "army2",
+            "type": "wait",
+            "unitId": "u13"
+          },
+          {
+            "actor": "army2",
+            "type": "wait",
+            "unitId": "u36"
+          },
+          {
+            "actor": "army2",
+            "type": "wait",
+            "unitId": "u39"
+          },
+          {
+            "actor": "army2",
+            "type": "wait",
+            "unitId": "u14"
+          },
+          {
+            "actor": "army2",
+            "type": "endTurn"
+          },
+          {
+            "actor": "army3",
+            "type": "move",
+            "unitId": "u34",
+            "destination": {
+              "x": 13,
+              "y": 20
+            }
+          },
+          {
+            "actor": "army3",
+            "type": "attack",
+            "unitId": "u34",
+            "targetId": "u30",
+            "weaponSlot": 0
+          },
+          {
+            "actor": "army3",
+            "type": "capture",
+            "unitId": "u19"
+          },
+          {
+            "actor": "army3",
+            "type": "move",
+            "unitId": "u17",
+            "destination": {
+              "x": 19,
+              "y": 21
+            }
+          },
+          {
+            "actor": "army3",
+            "type": "capture",
+            "unitId": "u17"
+          },
+          {
+            "actor": "army3",
+            "type": "move",
+            "unitId": "u48",
+            "destination": {
+              "x": 22,
+              "y": 27
+            }
+          },
+          {
+            "actor": "army3",
+            "type": "move",
+            "unitId": "u46",
+            "destination": {
+              "x": 20,
+              "y": 28
+            }
+          },
+          {
+            "actor": "army3",
+            "type": "move",
+            "unitId": "u44",
+            "destination": {
+              "x": 18,
+              "y": 22
+            }
+          },
+          {
+            "actor": "army3",
+            "type": "move",
+            "unitId": "u43",
+            "destination": {
+              "x": 20,
+              "y": 21
+            }
+          },
+          {
+            "actor": "army3",
+            "type": "move",
+            "unitId": "u21",
+            "destination": {
+              "x": 21,
+              "y": 13
+            }
+          },
+          {
+            "actor": "army3",
+            "type": "attack",
+            "unitId": "u21",
+            "targetId": "u51",
+            "weaponSlot": 0
+          },
+          {
+            "actor": "army3",
+            "type": "move",
+            "unitId": "u22",
+            "destination": {
+              "x": 21,
+              "y": 18
+            }
+          },
+          {
+            "actor": "army3",
+            "type": "move",
+            "unitId": "u37",
+            "destination": {
+              "x": 22,
+              "y": 19
+            }
+          },
+          {
+            "actor": "army3",
+            "type": "move",
+            "unitId": "u24",
+            "destination": {
+              "x": 21,
+              "y": 20
+            }
+          },
+          {
+            "actor": "army3",
+            "type": "move",
+            "unitId": "u18",
+            "destination": {
+              "x": 19,
+              "y": 20
+            }
+          },
+          {
+            "actor": "army3",
+            "type": "move",
+            "unitId": "u23",
+            "destination": {
+              "x": 18,
+              "y": 21
+            }
+          },
+          {
+            "actor": "army3",
+            "type": "move",
+            "unitId": "u40",
+            "destination": {
+              "x": 19,
+              "y": 23
+            }
+          },
+          {
+            "actor": "army3",
+            "type": "wait",
+            "unitId": "u46"
+          },
+          {
+            "actor": "army3",
+            "type": "wait",
+            "unitId": "u48"
+          },
+          {
+            "actor": "army3",
+            "type": "wait",
+            "unitId": "u40"
+          },
+          {
+            "actor": "army3",
+            "type": "wait",
+            "unitId": "u44"
+          }
+        ],
+        "comparedCommands": 64,
+        "fallbacks": 0,
+        "traceSha256": "051fc0d19682a6b0326a3cec6c0fc066cced2b3f3b897a7f634f6ea4ff566e3e",
+        "finalStateSha256": "680114c8cf40f01c62368c255fc3351e3233df6e6a6875f86cb7ffdc976155f6",
+        "outcome": {
+          "type": "ongoing"
+        }
+      }
+    },
+    {
+      "id": "settings-152003-0",
+      "rules": "classic",
+      "cpuVersion": "four-army-cpu-v4",
+      "spec": {
+        "id": "settings-152003-0",
+        "group": "settings",
+        "seed": 152003,
+        "order": [
+          "army1",
+          "army2",
+          "army3",
+          "army4"
+        ],
+        "settings": {
+          "army1": {
+            "difficulty": "easy",
+            "policy": "balanced"
+          },
+          "army2": {
+            "difficulty": "normal",
+            "policy": "offensive"
+          },
+          "army3": {
+            "difficulty": "hard",
+            "policy": "defensive"
+          },
+          "army4": {
+            "difficulty": "normal",
+            "policy": "balanced"
+          }
+        },
+        "maxRound": 400,
+        "maxCommands": 65536
+      },
+      "schemaVersion": 4,
+      "position": 512,
+      "prefixTraceSha256": "e07fb19f5276b504fc8ec6e8d138abc5155bbdaef0b62098a42bfbecadcd1968",
+      "savedStateSha256": "14d414bd8ee139756c7eb37f6a6ffcf89aa3eedb8d20c86c3668b0e314a2d959",
+      "encodedBytes": 58750,
+      "fallbacksInPrefix": 0,
+      "retainedEvents": {
+        "all": 128,
+        "army1": 128,
+        "army2": 128,
+        "army3": 128,
+        "army4": 128
+      },
+      "retainedSightings": {
+        "army1": 12,
+        "army2": 10,
+        "army3": 9,
+        "army4": 9
+      },
+      "continuation": {
+        "commands": [
+          {
+            "actor": "army4",
+            "type": "wait",
+            "unitId": "u31"
+          },
+          {
+            "actor": "army4",
+            "type": "wait",
+            "unitId": "u32"
+          },
+          {
+            "actor": "army4",
+            "type": "wait",
+            "unitId": "u29"
+          },
+          {
+            "actor": "army4",
+            "type": "wait",
+            "unitId": "u38"
+          },
+          {
+            "actor": "army4",
+            "type": "wait",
+            "unitId": "u30"
+          },
+          {
+            "actor": "army4",
+            "type": "produce",
+            "factory": {
+              "x": 3,
+              "y": 26
+            },
+            "kind": "tank"
+          },
+          {
+            "actor": "army4",
+            "type": "endTurn"
+          },
+          {
+            "actor": "army1",
+            "type": "move",
+            "unitId": "u3",
+            "destination": {
+              "x": 10,
+              "y": 12
+            }
+          },
+          {
+            "actor": "army1",
+            "type": "capture",
+            "unitId": "u3"
+          },
+          {
+            "actor": "army1",
+            "type": "move",
+            "unitId": "u2",
+            "destination": {
+              "x": 11,
+              "y": 11
+            }
+          },
+          {
+            "actor": "army1",
+            "type": "produce",
+            "factory": {
+              "x": 12,
+              "y": 10
+            },
+            "kind": "tank"
+          },
+          {
+            "actor": "army1",
+            "type": "move",
+            "unitId": "u1",
+            "destination": {
+              "x": 9,
+              "y": 12
+            }
+          },
+          {
+            "actor": "army1",
+            "type": "move",
+            "unitId": "u8",
+            "destination": {
+              "x": 10,
+              "y": 13
+            }
+          },
+          {
+            "actor": "army1",
+            "type": "attack",
+            "unitId": "u8",
+            "targetId": "u41",
+            "weaponSlot": 0
+          },
+          {
+            "actor": "army1",
+            "type": "move",
+            "unitId": "u7",
+            "destination": {
+              "x": 7,
+              "y": 11
+            }
+          },
+          {
+            "actor": "army1",
+            "type": "move",
+            "unitId": "u6",
+            "destination": {
+              "x": 12,
+              "y": 12
+            }
+          },
+          {
+            "actor": "army1",
+            "type": "wait",
+            "unitId": "u7"
+          },
+          {
+            "actor": "army1",
+            "type": "wait",
+            "unitId": "u2"
+          },
+          {
+            "actor": "army1",
+            "type": "wait",
+            "unitId": "u1"
+          },
+          {
+            "actor": "army1",
+            "type": "wait",
+            "unitId": "u6"
+          },
+          {
+            "actor": "army1",
+            "type": "endTurn"
+          },
+          {
+            "actor": "army2",
+            "type": "move",
+            "unitId": "u45",
+            "destination": {
+              "x": 20,
+              "y": 7
+            }
+          },
+          {
+            "actor": "army2",
+            "type": "move",
+            "unitId": "u47",
+            "destination": {
+              "x": 25,
+              "y": 7
+            }
+          },
+          {
+            "actor": "army2",
+            "type": "move",
+            "unitId": "u42",
+            "destination": {
+              "x": 21,
+              "y": 10
+            }
+          },
+          {
+            "actor": "army2",
+            "type": "move",
+            "unitId": "u13",
+            "destination": {
+              "x": 19,
+              "y": 9
+            }
+          },
+          {
+            "actor": "army2",
+            "type": "move",
+            "unitId": "u14",
+            "destination": {
+              "x": 18,
+              "y": 10
+            }
+          },
+          {
+            "actor": "army2",
+            "type": "move",
+            "unitId": "u11",
+            "destination": {
+              "x": 20,
+              "y": 11
+            }
+          },
+          {
+            "actor": "army2",
+            "type": "produce",
+            "factory": {
+              "x": 21,
+              "y": 12
+            },
+            "kind": "tank"
+          },
+          {
+            "actor": "army2",
+            "type": "move",
+            "unitId": "u10",
+            "destination": {
+              "x": 20,
+              "y": 9
+            }
+          },
+          {
+            "actor": "army2",
+            "type": "move",
+            "unitId": "u39",
+            "destination": {
+              "x": 19,
+              "y": 12
+            }
+          },
+          {
+            "actor": "army2",
+            "type": "move",
+            "unitId": "u36",
+            "destination": {
+              "x": 19,
+              "y": 11
+            }
+          },
+          {
+            "actor": "army2",
+            "type": "move",
+            "unitId": "u9",
+            "destination": {
+              "x": 19,
+              "y": 10
+            }
+          },
+          {
+            "actor": "army2",
+            "type": "capture",
+            "unitId": "u9"
+          },
+          {
+            "actor": "army2",
+            "type": "wait",
+            "unitId": "u47"
+          },
+          {
+            "actor": "army2",
+            "type": "wait",
+            "unitId": "u42"
+          },
+          {
+            "actor": "army2",
+            "type": "wait",
+            "unitId": "u45"
+          },
+          {
+            "actor": "army2",
+            "type": "wait",
+            "unitId": "u10"
+          },
+          {
+            "actor": "army2",
+            "type": "wait",
+            "unitId": "u11"
+          },
+          {
+            "actor": "army2",
+            "type": "wait",
+            "unitId": "u13"
+          },
+          {
+            "actor": "army2",
+            "type": "wait",
+            "unitId": "u36"
+          },
+          {
+            "actor": "army2",
+            "type": "wait",
+            "unitId": "u39"
+          },
+          {
+            "actor": "army2",
+            "type": "wait",
+            "unitId": "u14"
+          },
+          {
+            "actor": "army2",
+            "type": "endTurn"
+          },
+          {
+            "actor": "army3",
+            "type": "move",
+            "unitId": "u34",
+            "destination": {
+              "x": 13,
+              "y": 20
+            }
+          },
+          {
+            "actor": "army3",
+            "type": "attack",
+            "unitId": "u34",
+            "targetId": "u30",
+            "weaponSlot": 0
+          },
+          {
+            "actor": "army3",
+            "type": "capture",
+            "unitId": "u19"
+          },
+          {
+            "actor": "army3",
+            "type": "move",
+            "unitId": "u17",
+            "destination": {
+              "x": 19,
+              "y": 21
+            }
+          },
+          {
+            "actor": "army3",
+            "type": "capture",
+            "unitId": "u17"
+          },
+          {
+            "actor": "army3",
+            "type": "move",
+            "unitId": "u48",
+            "destination": {
+              "x": 22,
+              "y": 27
+            }
+          },
+          {
+            "actor": "army3",
+            "type": "move",
+            "unitId": "u46",
+            "destination": {
+              "x": 20,
+              "y": 28
+            }
+          },
+          {
+            "actor": "army3",
+            "type": "move",
+            "unitId": "u44",
+            "destination": {
+              "x": 18,
+              "y": 22
+            }
+          },
+          {
+            "actor": "army3",
+            "type": "move",
+            "unitId": "u43",
+            "destination": {
+              "x": 20,
+              "y": 21
+            }
+          },
+          {
+            "actor": "army3",
+            "type": "move",
+            "unitId": "u21",
+            "destination": {
+              "x": 21,
+              "y": 13
+            }
+          },
+          {
+            "actor": "army3",
+            "type": "attack",
+            "unitId": "u21",
+            "targetId": "u51",
+            "weaponSlot": 0
+          },
+          {
+            "actor": "army3",
+            "type": "move",
+            "unitId": "u22",
+            "destination": {
+              "x": 21,
+              "y": 18
+            }
+          },
+          {
+            "actor": "army3",
+            "type": "move",
+            "unitId": "u37",
+            "destination": {
+              "x": 22,
+              "y": 19
+            }
+          },
+          {
+            "actor": "army3",
+            "type": "move",
+            "unitId": "u24",
+            "destination": {
+              "x": 21,
+              "y": 20
+            }
+          },
+          {
+            "actor": "army3",
+            "type": "move",
+            "unitId": "u18",
+            "destination": {
+              "x": 19,
+              "y": 20
+            }
+          },
+          {
+            "actor": "army3",
+            "type": "move",
+            "unitId": "u23",
+            "destination": {
+              "x": 18,
+              "y": 21
+            }
+          },
+          {
+            "actor": "army3",
+            "type": "move",
+            "unitId": "u40",
+            "destination": {
+              "x": 19,
+              "y": 23
+            }
+          },
+          {
+            "actor": "army3",
+            "type": "wait",
+            "unitId": "u46"
+          },
+          {
+            "actor": "army3",
+            "type": "wait",
+            "unitId": "u48"
+          },
+          {
+            "actor": "army3",
+            "type": "wait",
+            "unitId": "u40"
+          },
+          {
+            "actor": "army3",
+            "type": "wait",
+            "unitId": "u44"
+          }
+        ],
+        "comparedCommands": 64,
+        "fallbacks": 0,
+        "traceSha256": "051fc0d19682a6b0326a3cec6c0fc066cced2b3f3b897a7f634f6ea4ff566e3e",
+        "finalStateSha256": "680114c8cf40f01c62368c255fc3351e3233df6e6a6875f86cb7ffdc976155f6",
+        "outcome": {
+          "type": "ongoing"
+        }
+      }
+    },
+    {
+      "id": "settings-152003-0",
+      "rules": "expanded",
+      "cpuVersion": "four-army-cpu-v3",
+      "spec": {
+        "id": "settings-152003-0",
+        "group": "settings",
+        "seed": 152003,
+        "order": [
+          "army1",
+          "army2",
+          "army3",
+          "army4"
+        ],
+        "settings": {
+          "army1": {
+            "difficulty": "easy",
+            "policy": "balanced"
+          },
+          "army2": {
+            "difficulty": "normal",
+            "policy": "offensive"
+          },
+          "army3": {
+            "difficulty": "hard",
+            "policy": "defensive"
+          },
+          "army4": {
+            "difficulty": "normal",
+            "policy": "balanced"
+          }
+        },
+        "maxRound": 400,
+        "maxCommands": 65536
+      },
+      "schemaVersion": 4,
+      "position": 512,
+      "prefixTraceSha256": "b0fc4fd751744a82c4ebe8c1c69353c75d3353abb852ef899c4cd41353efb245",
+      "savedStateSha256": "595dbb7d72e7d267b1aa5838ef6992d7381584c129c35ebc6b9f35576ca528dc",
+      "encodedBytes": 58968,
+      "fallbacksInPrefix": 0,
+      "retainedEvents": {
+        "all": 128,
+        "army1": 128,
+        "army2": 128,
+        "army3": 128,
+        "army4": 128
+      },
+      "retainedSightings": {
+        "army1": 12,
+        "army2": 9,
+        "army3": 8,
+        "army4": 8
+      },
+      "continuation": {
+        "commands": [
+          {
+            "actor": "army4",
+            "type": "wait",
+            "unitId": "u25"
+          },
+          {
+            "actor": "army4",
+            "type": "wait",
+            "unitId": "u31"
+          },
+          {
+            "actor": "army4",
+            "type": "wait",
+            "unitId": "u35"
+          },
+          {
+            "actor": "army4",
+            "type": "wait",
+            "unitId": "u29"
+          },
+          {
+            "actor": "army4",
+            "type": "endTurn"
+          },
+          {
+            "actor": "army1",
+            "type": "move",
+            "unitId": "u3",
+            "destination": {
+              "x": 10,
+              "y": 12
+            }
+          },
+          {
+            "actor": "army1",
+            "type": "capture",
+            "unitId": "u3"
+          },
+          {
+            "actor": "army1",
+            "type": "move",
+            "unitId": "u2",
+            "destination": {
+              "x": 11,
+              "y": 11
+            }
+          },
+          {
+            "actor": "army1",
+            "type": "produce",
+            "factory": {
+              "x": 12,
+              "y": 10
+            },
+            "kind": "tank"
+          },
+          {
+            "actor": "army1",
+            "type": "move",
+            "unitId": "u1",
+            "destination": {
+              "x": 9,
+              "y": 12
+            }
+          },
+          {
+            "actor": "army1",
+            "type": "move",
+            "unitId": "u8",
+            "destination": {
+              "x": 10,
+              "y": 13
+            }
+          },
+          {
+            "actor": "army1",
+            "type": "move",
+            "unitId": "u7",
+            "destination": {
+              "x": 10,
+              "y": 10
+            }
+          },
+          {
+            "actor": "army1",
+            "type": "move",
+            "unitId": "u6",
+            "destination": {
+              "x": 12,
+              "y": 12
+            }
+          },
+          {
+            "actor": "army1",
+            "type": "wait",
+            "unitId": "u7"
+          },
+          {
+            "actor": "army1",
+            "type": "wait",
+            "unitId": "u2"
+          },
+          {
+            "actor": "army1",
+            "type": "wait",
+            "unitId": "u1"
+          },
+          {
+            "actor": "army1",
+            "type": "wait",
+            "unitId": "u6"
+          },
+          {
+            "actor": "army1",
+            "type": "wait",
+            "unitId": "u8"
+          },
+          {
+            "actor": "army1",
+            "type": "endTurn"
+          },
+          {
+            "actor": "army2",
+            "type": "move",
+            "unitId": "u47",
+            "destination": {
+              "x": 24,
+              "y": 6
+            }
+          },
+          {
+            "actor": "army2",
+            "type": "move",
+            "unitId": "u45",
+            "destination": {
+              "x": 21,
+              "y": 7
+            }
+          },
+          {
+            "actor": "army2",
+            "type": "move",
+            "unitId": "u11",
+            "destination": {
+              "x": 19,
+              "y": 11
+            }
+          },
+          {
+            "actor": "army2",
+            "type": "move",
+            "unitId": "u43",
+            "destination": {
+              "x": 19,
+              "y": 9
+            }
+          },
+          {
+            "actor": "army2",
+            "type": "move",
+            "unitId": "u36",
+            "destination": {
+              "x": 21,
+              "y": 12
+            }
+          },
+          {
+            "actor": "army2",
+            "type": "wait",
+            "unitId": "u36"
+          },
+          {
+            "actor": "army2",
+            "type": "move",
+            "unitId": "u10",
+            "destination": {
+              "x": 21,
+              "y": 10
+            }
+          },
+          {
+            "actor": "army2",
+            "type": "move",
+            "unitId": "u9",
+            "destination": {
+              "x": 20,
+              "y": 9
+            }
+          },
+          {
+            "actor": "army2",
+            "type": "move",
+            "unitId": "u13",
+            "destination": {
+              "x": 20,
+              "y": 10
+            }
+          },
+          {
+            "actor": "army2",
+            "type": "move",
+            "unitId": "u14",
+            "destination": {
+              "x": 19,
+              "y": 10
+            }
+          },
+          {
+            "actor": "army2",
+            "type": "wait",
+            "unitId": "u47"
+          },
+          {
+            "actor": "army2",
+            "type": "wait",
+            "unitId": "u45"
+          },
+          {
+            "actor": "army2",
+            "type": "wait",
+            "unitId": "u10"
+          },
+          {
+            "actor": "army2",
+            "type": "wait",
+            "unitId": "u9"
+          },
+          {
+            "actor": "army2",
+            "type": "wait",
+            "unitId": "u13"
+          },
+          {
+            "actor": "army2",
+            "type": "wait",
+            "unitId": "u43"
+          },
+          {
+            "actor": "army2",
+            "type": "wait",
+            "unitId": "u14"
+          },
+          {
+            "actor": "army2",
+            "type": "wait",
+            "unitId": "u11"
+          },
+          {
+            "actor": "army2",
+            "type": "produce",
+            "factory": {
+              "x": 28,
+              "y": 5
+            },
+            "kind": "tank"
+          },
+          {
+            "actor": "army2",
+            "type": "endTurn"
+          },
+          {
+            "actor": "army3",
+            "type": "move",
+            "unitId": "u46",
+            "destination": {
+              "x": 21,
+              "y": 27
+            }
+          },
+          {
+            "actor": "army3",
+            "type": "move",
+            "unitId": "u49",
+            "destination": {
+              "x": 23,
+              "y": 28
+            }
+          },
+          {
+            "actor": "army3",
+            "type": "move",
+            "unitId": "u40",
+            "destination": {
+              "x": 21,
+              "y": 13
+            }
+          },
+          {
+            "actor": "army3",
+            "type": "attack",
+            "unitId": "u40",
+            "targetId": "u36",
+            "weaponSlot": 0
+          },
+          {
+            "actor": "army3",
+            "type": "move",
+            "unitId": "u48",
+            "destination": {
+              "x": 14,
+              "y": 21
+            }
+          },
+          {
+            "actor": "army3",
+            "type": "attack",
+            "unitId": "u48",
+            "targetId": "u29",
+            "weaponSlot": 0
+          },
+          {
+            "actor": "army3",
+            "type": "produce",
+            "factory": {
+              "x": 19,
+              "y": 21
+            },
+            "kind": "tank"
+          },
+          {
+            "actor": "army3",
+            "type": "move",
+            "unitId": "u44",
+            "destination": {
+              "x": 23,
+              "y": 19
+            }
+          },
+          {
+            "actor": "army3",
+            "type": "move",
+            "unitId": "u42",
+            "destination": {
+              "x": 21,
+              "y": 22
+            }
+          },
+          {
+            "actor": "army3",
+            "type": "move",
+            "unitId": "u17",
+            "destination": {
+              "x": 20,
+              "y": 20
+            }
+          },
+          {
+            "actor": "army3",
+            "type": "move",
+            "unitId": "u22",
+            "destination": {
+              "x": 21,
+              "y": 21
+            }
+          },
+          {
+            "actor": "army3",
+            "type": "move",
+            "unitId": "u21",
+            "destination": {
+              "x": 20,
+              "y": 18
+            }
+          },
+          {
+            "actor": "army3",
+            "type": "move",
+            "unitId": "u18",
+            "destination": {
+              "x": 22,
+              "y": 20
+            }
+          },
+          {
+            "actor": "army3",
+            "type": "move",
+            "unitId": "u37",
+            "destination": {
+              "x": 21,
+              "y": 20
+            }
+          },
+          {
+            "actor": "army3",
+            "type": "move",
+            "unitId": "u19",
+            "destination": {
+              "x": 21,
+              "y": 19
+            }
+          },
+          {
+            "actor": "army3",
+            "type": "capture",
+            "unitId": "u19"
+          },
+          {
+            "actor": "army3",
+            "type": "move",
+            "unitId": "u34",
+            "destination": {
+              "x": 22,
+              "y": 19
+            }
+          },
+          {
+            "actor": "army3",
+            "type": "move",
+            "unitId": "u24",
+            "destination": {
+              "x": 19,
+              "y": 19
+            }
+          },
+          {
+            "actor": "army3",
+            "type": "wait",
+            "unitId": "u49"
+          },
+          {
+            "actor": "army3",
+            "type": "wait",
+            "unitId": "u46"
+          },
+          {
+            "actor": "army3",
+            "type": "wait",
+            "unitId": "u42"
+          },
+          {
+            "actor": "army3",
+            "type": "wait",
+            "unitId": "u22"
+          },
+          {
+            "actor": "army3",
+            "type": "wait",
+            "unitId": "u18"
+          },
+          {
+            "actor": "army3",
+            "type": "wait",
+            "unitId": "u37"
+          },
+          {
+            "actor": "army3",
+            "type": "wait",
+            "unitId": "u17"
+          }
+        ],
+        "comparedCommands": 64,
+        "fallbacks": 0,
+        "traceSha256": "29a13a8af8f478fbdf687e492629699b27144403e79c3292b1291a50e65827f3",
+        "finalStateSha256": "59ef4b88ff067423851578966fc5968e7ac0f55f0a1cf70f443a9daec8271650",
+        "outcome": {
+          "type": "ongoing"
+        }
+      }
+    },
+    {
+      "id": "settings-152003-0",
+      "rules": "expanded",
+      "cpuVersion": "four-army-cpu-v4",
+      "spec": {
+        "id": "settings-152003-0",
+        "group": "settings",
+        "seed": 152003,
+        "order": [
+          "army1",
+          "army2",
+          "army3",
+          "army4"
+        ],
+        "settings": {
+          "army1": {
+            "difficulty": "easy",
+            "policy": "balanced"
+          },
+          "army2": {
+            "difficulty": "normal",
+            "policy": "offensive"
+          },
+          "army3": {
+            "difficulty": "hard",
+            "policy": "defensive"
+          },
+          "army4": {
+            "difficulty": "normal",
+            "policy": "balanced"
+          }
+        },
+        "maxRound": 400,
+        "maxCommands": 65536
+      },
+      "schemaVersion": 4,
+      "position": 512,
+      "prefixTraceSha256": "a3fb23b249e9d0083475bd6377c633818541b7a51c2af1a8dfdd77cd8488abc1",
+      "savedStateSha256": "2171a9313dcfa8d8e63ad9870ea7a0219382de61a4c92662914eea4aa2a247fc",
+      "encodedBytes": 59192,
+      "fallbacksInPrefix": 0,
+      "retainedEvents": {
+        "all": 128,
+        "army1": 128,
+        "army2": 128,
+        "army3": 128,
+        "army4": 128
+      },
+      "retainedSightings": {
+        "army1": 12,
+        "army2": 9,
+        "army3": 8,
+        "army4": 8
+      },
+      "continuation": {
+        "commands": [
+          {
+            "actor": "army4",
+            "type": "wait",
+            "unitId": "u30"
+          },
+          {
+            "actor": "army4",
+            "type": "wait",
+            "unitId": "u28"
+          },
+          {
+            "actor": "army4",
+            "type": "wait",
+            "unitId": "u38"
+          },
+          {
+            "actor": "army4",
+            "type": "wait",
+            "unitId": "u41"
+          },
+          {
+            "actor": "army4",
+            "type": "wait",
+            "unitId": "u32"
+          },
+          {
+            "actor": "army4",
+            "type": "wait",
+            "unitId": "u25"
+          },
+          {
+            "actor": "army4",
+            "type": "wait",
+            "unitId": "u31"
+          },
+          {
+            "actor": "army4",
+            "type": "wait",
+            "unitId": "u35"
+          },
+          {
+            "actor": "army4",
+            "type": "wait",
+            "unitId": "u29"
+          },
+          {
+            "actor": "army4",
+            "type": "endTurn"
+          },
+          {
+            "actor": "army1",
+            "type": "move",
+            "unitId": "u3",
+            "destination": {
+              "x": 10,
+              "y": 12
+            }
+          },
+          {
+            "actor": "army1",
+            "type": "capture",
+            "unitId": "u3"
+          },
+          {
+            "actor": "army1",
+            "type": "move",
+            "unitId": "u2",
+            "destination": {
+              "x": 11,
+              "y": 11
+            }
+          },
+          {
+            "actor": "army1",
+            "type": "produce",
+            "factory": {
+              "x": 12,
+              "y": 10
+            },
+            "kind": "tank"
+          },
+          {
+            "actor": "army1",
+            "type": "move",
+            "unitId": "u1",
+            "destination": {
+              "x": 9,
+              "y": 12
+            }
+          },
+          {
+            "actor": "army1",
+            "type": "move",
+            "unitId": "u8",
+            "destination": {
+              "x": 10,
+              "y": 13
+            }
+          },
+          {
+            "actor": "army1",
+            "type": "move",
+            "unitId": "u7",
+            "destination": {
+              "x": 10,
+              "y": 10
+            }
+          },
+          {
+            "actor": "army1",
+            "type": "move",
+            "unitId": "u6",
+            "destination": {
+              "x": 12,
+              "y": 12
+            }
+          },
+          {
+            "actor": "army1",
+            "type": "wait",
+            "unitId": "u7"
+          },
+          {
+            "actor": "army1",
+            "type": "wait",
+            "unitId": "u2"
+          },
+          {
+            "actor": "army1",
+            "type": "wait",
+            "unitId": "u1"
+          },
+          {
+            "actor": "army1",
+            "type": "wait",
+            "unitId": "u6"
+          },
+          {
+            "actor": "army1",
+            "type": "wait",
+            "unitId": "u8"
+          },
+          {
+            "actor": "army1",
+            "type": "endTurn"
+          },
+          {
+            "actor": "army2",
+            "type": "logistics",
+            "unitId": "u36",
+            "order": {
+              "priority": true,
+              "resource": "ammo",
+              "repair": true
+            }
+          },
+          {
+            "actor": "army2",
+            "type": "move",
+            "unitId": "u47",
+            "destination": {
+              "x": 24,
+              "y": 6
+            }
+          },
+          {
+            "actor": "army2",
+            "type": "move",
+            "unitId": "u45",
+            "destination": {
+              "x": 21,
+              "y": 7
+            }
+          },
+          {
+            "actor": "army2",
+            "type": "move",
+            "unitId": "u11",
+            "destination": {
+              "x": 19,
+              "y": 11
+            }
+          },
+          {
+            "actor": "army2",
+            "type": "move",
+            "unitId": "u43",
+            "destination": {
+              "x": 19,
+              "y": 9
+            }
+          },
+          {
+            "actor": "army2",
+            "type": "move",
+            "unitId": "u36",
+            "destination": {
+              "x": 21,
+              "y": 12
+            }
+          },
+          {
+            "actor": "army2",
+            "type": "wait",
+            "unitId": "u36"
+          },
+          {
+            "actor": "army2",
+            "type": "move",
+            "unitId": "u10",
+            "destination": {
+              "x": 21,
+              "y": 10
+            }
+          },
+          {
+            "actor": "army2",
+            "type": "move",
+            "unitId": "u9",
+            "destination": {
+              "x": 20,
+              "y": 9
+            }
+          },
+          {
+            "actor": "army2",
+            "type": "move",
+            "unitId": "u13",
+            "destination": {
+              "x": 20,
+              "y": 10
+            }
+          },
+          {
+            "actor": "army2",
+            "type": "move",
+            "unitId": "u14",
+            "destination": {
+              "x": 19,
+              "y": 10
+            }
+          },
+          {
+            "actor": "army2",
+            "type": "wait",
+            "unitId": "u47"
+          },
+          {
+            "actor": "army2",
+            "type": "wait",
+            "unitId": "u45"
+          },
+          {
+            "actor": "army2",
+            "type": "wait",
+            "unitId": "u10"
+          },
+          {
+            "actor": "army2",
+            "type": "wait",
+            "unitId": "u9"
+          },
+          {
+            "actor": "army2",
+            "type": "wait",
+            "unitId": "u13"
+          },
+          {
+            "actor": "army2",
+            "type": "wait",
+            "unitId": "u43"
+          },
+          {
+            "actor": "army2",
+            "type": "wait",
+            "unitId": "u14"
+          },
+          {
+            "actor": "army2",
+            "type": "wait",
+            "unitId": "u11"
+          },
+          {
+            "actor": "army2",
+            "type": "produce",
+            "factory": {
+              "x": 28,
+              "y": 5
+            },
+            "kind": "tank"
+          },
+          {
+            "actor": "army2",
+            "type": "endTurn"
+          },
+          {
+            "actor": "army3",
+            "type": "move",
+            "unitId": "u46",
+            "destination": {
+              "x": 21,
+              "y": 27
+            }
+          },
+          {
+            "actor": "army3",
+            "type": "move",
+            "unitId": "u49",
+            "destination": {
+              "x": 23,
+              "y": 28
+            }
+          },
+          {
+            "actor": "army3",
+            "type": "move",
+            "unitId": "u40",
+            "destination": {
+              "x": 21,
+              "y": 13
+            }
+          },
+          {
+            "actor": "army3",
+            "type": "attack",
+            "unitId": "u40",
+            "targetId": "u36",
+            "weaponSlot": 0
+          },
+          {
+            "actor": "army3",
+            "type": "move",
+            "unitId": "u48",
+            "destination": {
+              "x": 14,
+              "y": 21
+            }
+          },
+          {
+            "actor": "army3",
+            "type": "attack",
+            "unitId": "u48",
+            "targetId": "u29",
+            "weaponSlot": 0
+          },
+          {
+            "actor": "army3",
+            "type": "produce",
+            "factory": {
+              "x": 19,
+              "y": 21
+            },
+            "kind": "tank"
+          },
+          {
+            "actor": "army3",
+            "type": "move",
+            "unitId": "u44",
+            "destination": {
+              "x": 23,
+              "y": 19
+            }
+          },
+          {
+            "actor": "army3",
+            "type": "move",
+            "unitId": "u42",
+            "destination": {
+              "x": 21,
+              "y": 22
+            }
+          },
+          {
+            "actor": "army3",
+            "type": "move",
+            "unitId": "u17",
+            "destination": {
+              "x": 20,
+              "y": 20
+            }
+          },
+          {
+            "actor": "army3",
+            "type": "move",
+            "unitId": "u22",
+            "destination": {
+              "x": 21,
+              "y": 21
+            }
+          },
+          {
+            "actor": "army3",
+            "type": "move",
+            "unitId": "u21",
+            "destination": {
+              "x": 20,
+              "y": 18
+            }
+          },
+          {
+            "actor": "army3",
+            "type": "move",
+            "unitId": "u18",
+            "destination": {
+              "x": 22,
+              "y": 20
+            }
+          },
+          {
+            "actor": "army3",
+            "type": "move",
+            "unitId": "u37",
+            "destination": {
+              "x": 21,
+              "y": 20
+            }
+          },
+          {
+            "actor": "army3",
+            "type": "move",
+            "unitId": "u19",
+            "destination": {
+              "x": 21,
+              "y": 19
+            }
+          },
+          {
+            "actor": "army3",
+            "type": "capture",
+            "unitId": "u19"
+          },
+          {
+            "actor": "army3",
+            "type": "move",
+            "unitId": "u34",
+            "destination": {
+              "x": 22,
+              "y": 19
+            }
+          },
+          {
+            "actor": "army3",
+            "type": "move",
+            "unitId": "u24",
+            "destination": {
+              "x": 19,
+              "y": 19
+            }
+          },
+          {
+            "actor": "army3",
+            "type": "wait",
+            "unitId": "u49"
+          }
+        ],
+        "comparedCommands": 64,
+        "fallbacks": 0,
+        "traceSha256": "e79d04a6e88447e2e398956d866b93ee2017e21e4824107c084fe9d6c620a48b",
+        "finalStateSha256": "f0ff3a5a7e3eeb0010cf42f481cb6d53bb7dde33b24e322e05f70bb703f46ca9",
+        "outcome": {
+          "type": "ongoing"
+        }
+      }
+    },
+    {
+      "id": "settings-152003-1",
+      "rules": "classic",
+      "cpuVersion": "four-army-cpu-v3",
+      "spec": {
+        "id": "settings-152003-1",
+        "group": "settings",
+        "seed": 152003,
+        "order": [
+          "army2",
+          "army3",
+          "army4",
+          "army1"
+        ],
+        "settings": {
+          "army1": {
+            "difficulty": "normal",
+            "policy": "offensive"
+          },
+          "army2": {
+            "difficulty": "hard",
+            "policy": "defensive"
+          },
+          "army3": {
+            "difficulty": "normal",
+            "policy": "balanced"
+          },
+          "army4": {
+            "difficulty": "easy",
+            "policy": "balanced"
+          }
+        },
+        "maxRound": 400,
+        "maxCommands": 65536
+      },
+      "schemaVersion": 4,
+      "position": 512,
+      "prefixTraceSha256": "8d5e6bd9974ee075b8c9e3bd48f2b927706f2aa8500093153a75891c916c9a42",
+      "savedStateSha256": "e49c46264e4e0623b9b17ce570d6e50ff9b823649b1aa10ab6696213dfd30317",
+      "encodedBytes": 59051,
+      "fallbacksInPrefix": 0,
+      "retainedEvents": {
+        "all": 128,
+        "army1": 128,
+        "army2": 128,
+        "army3": 128,
+        "army4": 128
+      },
+      "retainedSightings": {
+        "army1": 9,
+        "army2": 14,
+        "army3": 10,
+        "army4": 13
+      },
+      "continuation": {
+        "commands": [
+          {
+            "actor": "army1",
+            "type": "wait",
+            "unitId": "u41"
+          },
+          {
+            "actor": "army1",
+            "type": "wait",
+            "unitId": "u7"
+          },
+          {
+            "actor": "army1",
+            "type": "endTurn"
+          },
+          {
+            "actor": "army2",
+            "type": "move",
+            "unitId": "u36",
+            "destination": {
+              "x": 17,
+              "y": 11
+            }
+          },
+          {
+            "actor": "army2",
+            "type": "attack",
+            "unitId": "u36",
+            "targetId": "u8",
+            "weaponSlot": 0
+          },
+          {
+            "actor": "army2",
+            "type": "attack",
+            "unitId": "u14",
+            "targetId": "u8",
+            "weaponSlot": 0
+          },
+          {
+            "actor": "army2",
+            "type": "move",
+            "unitId": "u11",
+            "destination": {
+              "x": 19,
+              "y": 10
+            }
+          },
+          {
+            "actor": "army2",
+            "type": "capture",
+            "unitId": "u11"
+          },
+          {
+            "actor": "army2",
+            "type": "move",
+            "unitId": "u47",
+            "destination": {
+              "x": 25,
+              "y": 7
+            }
+          },
+          {
+            "actor": "army2",
+            "type": "move",
+            "unitId": "u9",
+            "destination": {
+              "x": 19,
+              "y": 11
+            }
+          },
+          {
+            "actor": "army2",
+            "type": "produce",
+            "factory": {
+              "x": 21,
+              "y": 12
+            },
+            "kind": "tank"
+          },
+          {
+            "actor": "army2",
+            "type": "move",
+            "unitId": "u42",
+            "destination": {
+              "x": 19,
+              "y": 12
+            }
+          },
+          {
+            "actor": "army2",
+            "type": "move",
+            "unitId": "u45",
+            "destination": {
+              "x": 27,
+              "y": 10
+            }
+          },
+          {
+            "actor": "army2",
+            "type": "move",
+            "unitId": "u44",
+            "destination": {
+              "x": 23,
+              "y": 10
+            }
+          },
+          {
+            "actor": "army2",
+            "type": "move",
+            "unitId": "u10",
+            "destination": {
+              "x": 19,
+              "y": 8
+            }
+          },
+          {
+            "actor": "army2",
+            "type": "move",
+            "unitId": "u39",
+            "destination": {
+              "x": 20,
+              "y": 9
+            }
+          },
+          {
+            "actor": "army2",
+            "type": "move",
+            "unitId": "u16",
+            "destination": {
+              "x": 22,
+              "y": 10
+            }
+          },
+          {
+            "actor": "army2",
+            "type": "move",
+            "unitId": "u13",
+            "destination": {
+              "x": 21,
+              "y": 10
+            }
+          },
+          {
+            "actor": "army2",
+            "type": "move",
+            "unitId": "u15",
+            "destination": {
+              "x": 20,
+              "y": 11
+            }
+          },
+          {
+            "actor": "army2",
+            "type": "wait",
+            "unitId": "u45"
+          },
+          {
+            "actor": "army2",
+            "type": "wait",
+            "unitId": "u47"
+          },
+          {
+            "actor": "army2",
+            "type": "wait",
+            "unitId": "u44"
+          },
+          {
+            "actor": "army2",
+            "type": "wait",
+            "unitId": "u16"
+          },
+          {
+            "actor": "army2",
+            "type": "wait",
+            "unitId": "u13"
+          },
+          {
+            "actor": "army2",
+            "type": "wait",
+            "unitId": "u39"
+          },
+          {
+            "actor": "army2",
+            "type": "wait",
+            "unitId": "u15"
+          },
+          {
+            "actor": "army2",
+            "type": "wait",
+            "unitId": "u10"
+          },
+          {
+            "actor": "army2",
+            "type": "wait",
+            "unitId": "u9"
+          },
+          {
+            "actor": "army2",
+            "type": "wait",
+            "unitId": "u42"
+          },
+          {
+            "actor": "army2",
+            "type": "produce",
+            "factory": {
+              "x": 28,
+              "y": 5
+            },
+            "kind": "infantry"
+          },
+          {
+            "actor": "army2",
+            "type": "endTurn"
+          },
+          {
+            "actor": "army3",
+            "type": "capture",
+            "unitId": "u17"
+          },
+          {
+            "actor": "army3",
+            "type": "move",
+            "unitId": "u40",
+            "destination": {
+              "x": 14,
+              "y": 22
+            }
+          },
+          {
+            "actor": "army3",
+            "type": "move",
+            "unitId": "u23",
+            "destination": {
+              "x": 16,
+              "y": 20
+            }
+          },
+          {
+            "actor": "army3",
+            "type": "move",
+            "unitId": "u48",
+            "destination": {
+              "x": 21,
+              "y": 28
+            }
+          },
+          {
+            "actor": "army3",
+            "type": "move",
+            "unitId": "u22",
+            "destination": {
+              "x": 13,
+              "y": 21
+            }
+          },
+          {
+            "actor": "army3",
+            "type": "move",
+            "unitId": "u21",
+            "destination": {
+              "x": 14,
+              "y": 21
+            }
+          },
+          {
+            "actor": "army3",
+            "type": "move",
+            "unitId": "u19",
+            "destination": {
+              "x": 21,
+              "y": 16
+            }
+          },
+          {
+            "actor": "army3",
+            "type": "move",
+            "unitId": "u37",
+            "destination": {
+              "x": 17,
+              "y": 21
+            }
+          },
+          {
+            "actor": "army3",
+            "type": "move",
+            "unitId": "u18",
+            "destination": {
+              "x": 16,
+              "y": 23
+            }
+          },
+          {
+            "actor": "army3",
+            "type": "move",
+            "unitId": "u34",
+            "destination": {
+              "x": 9,
+              "y": 21
+            }
+          },
+          {
+            "actor": "army3",
+            "type": "attack",
+            "unitId": "u34",
+            "targetId": "u25",
+            "weaponSlot": 0
+          },
+          {
+            "actor": "army3",
+            "type": "move",
+            "unitId": "u20",
+            "destination": {
+              "x": 12,
+              "y": 23
+            }
+          },
+          {
+            "actor": "army3",
+            "type": "wait",
+            "unitId": "u48"
+          },
+          {
+            "actor": "army3",
+            "type": "wait",
+            "unitId": "u18"
+          },
+          {
+            "actor": "army3",
+            "type": "wait",
+            "unitId": "u20"
+          },
+          {
+            "actor": "army3",
+            "type": "wait",
+            "unitId": "u40"
+          },
+          {
+            "actor": "army3",
+            "type": "wait",
+            "unitId": "u37"
+          },
+          {
+            "actor": "army3",
+            "type": "wait",
+            "unitId": "u21"
+          },
+          {
+            "actor": "army3",
+            "type": "wait",
+            "unitId": "u22"
+          },
+          {
+            "actor": "army3",
+            "type": "wait",
+            "unitId": "u23"
+          },
+          {
+            "actor": "army3",
+            "type": "wait",
+            "unitId": "u19"
+          },
+          {
+            "actor": "army3",
+            "type": "endTurn"
+          },
+          {
+            "actor": "army4",
+            "type": "attack",
+            "unitId": "u30",
+            "targetId": "u38",
+            "weaponSlot": 0
+          },
+          {
+            "actor": "army4",
+            "type": "attack",
+            "unitId": "u32",
+            "targetId": "u22",
+            "weaponSlot": 0
+          },
+          {
+            "actor": "army4",
+            "type": "attack",
+            "unitId": "u25",
+            "targetId": "u34",
+            "weaponSlot": 0
+          },
+          {
+            "actor": "army4",
+            "type": "move",
+            "unitId": "u50",
+            "destination": {
+              "x": 8,
+              "y": 23
+            }
+          },
+          {
+            "actor": "army4",
+            "type": "move",
+            "unitId": "u49",
+            "destination": {
+              "x": 6,
+              "y": 24
+            }
+          },
+          {
+            "actor": "army4",
+            "type": "move",
+            "unitId": "u26",
+            "destination": {
+              "x": 11,
+              "y": 21
+            }
+          },
+          {
+            "actor": "army4",
+            "type": "produce",
+            "factory": {
+              "x": 10,
+              "y": 19
+            },
+            "kind": "infantry"
+          },
+          {
+            "actor": "army4",
+            "type": "wait",
+            "unitId": "u49"
+          },
+          {
+            "actor": "army4",
+            "type": "wait",
+            "unitId": "u50"
+          },
+          {
+            "actor": "army4",
+            "type": "wait",
+            "unitId": "u26"
+          },
+          {
+            "actor": "army4",
+            "type": "produce",
+            "factory": {
+              "x": 3,
+              "y": 26
+            },
+            "kind": "tank"
+          }
+        ],
+        "comparedCommands": 64,
+        "fallbacks": 0,
+        "traceSha256": "901265d7e3d3576839d5558f540c324b1bb789dd08572864a99e91638ce1d28d",
+        "finalStateSha256": "391d7a7b2a747bea296be22f7368f1abbb082399d6c7539acdcf4fb865da6723",
+        "outcome": {
+          "type": "ongoing"
+        }
+      }
+    },
+    {
+      "id": "settings-152003-1",
+      "rules": "classic",
+      "cpuVersion": "four-army-cpu-v4",
+      "spec": {
+        "id": "settings-152003-1",
+        "group": "settings",
+        "seed": 152003,
+        "order": [
+          "army2",
+          "army3",
+          "army4",
+          "army1"
+        ],
+        "settings": {
+          "army1": {
+            "difficulty": "normal",
+            "policy": "offensive"
+          },
+          "army2": {
+            "difficulty": "hard",
+            "policy": "defensive"
+          },
+          "army3": {
+            "difficulty": "normal",
+            "policy": "balanced"
+          },
+          "army4": {
+            "difficulty": "easy",
+            "policy": "balanced"
+          }
+        },
+        "maxRound": 400,
+        "maxCommands": 65536
+      },
+      "schemaVersion": 4,
+      "position": 512,
+      "prefixTraceSha256": "8d5e6bd9974ee075b8c9e3bd48f2b927706f2aa8500093153a75891c916c9a42",
+      "savedStateSha256": "e49c46264e4e0623b9b17ce570d6e50ff9b823649b1aa10ab6696213dfd30317",
+      "encodedBytes": 59051,
+      "fallbacksInPrefix": 0,
+      "retainedEvents": {
+        "all": 128,
+        "army1": 128,
+        "army2": 128,
+        "army3": 128,
+        "army4": 128
+      },
+      "retainedSightings": {
+        "army1": 9,
+        "army2": 14,
+        "army3": 10,
+        "army4": 13
+      },
+      "continuation": {
+        "commands": [
+          {
+            "actor": "army1",
+            "type": "wait",
+            "unitId": "u41"
+          },
+          {
+            "actor": "army1",
+            "type": "wait",
+            "unitId": "u7"
+          },
+          {
+            "actor": "army1",
+            "type": "endTurn"
+          },
+          {
+            "actor": "army2",
+            "type": "move",
+            "unitId": "u36",
+            "destination": {
+              "x": 17,
+              "y": 11
+            }
+          },
+          {
+            "actor": "army2",
+            "type": "attack",
+            "unitId": "u36",
+            "targetId": "u8",
+            "weaponSlot": 0
+          },
+          {
+            "actor": "army2",
+            "type": "attack",
+            "unitId": "u14",
+            "targetId": "u8",
+            "weaponSlot": 0
+          },
+          {
+            "actor": "army2",
+            "type": "move",
+            "unitId": "u11",
+            "destination": {
+              "x": 19,
+              "y": 10
+            }
+          },
+          {
+            "actor": "army2",
+            "type": "capture",
+            "unitId": "u11"
+          },
+          {
+            "actor": "army2",
+            "type": "move",
+            "unitId": "u47",
+            "destination": {
+              "x": 25,
+              "y": 7
+            }
+          },
+          {
+            "actor": "army2",
+            "type": "move",
+            "unitId": "u9",
+            "destination": {
+              "x": 19,
+              "y": 11
+            }
+          },
+          {
+            "actor": "army2",
+            "type": "produce",
+            "factory": {
+              "x": 21,
+              "y": 12
+            },
+            "kind": "tank"
+          },
+          {
+            "actor": "army2",
+            "type": "move",
+            "unitId": "u42",
+            "destination": {
+              "x": 19,
+              "y": 12
+            }
+          },
+          {
+            "actor": "army2",
+            "type": "move",
+            "unitId": "u45",
+            "destination": {
+              "x": 27,
+              "y": 10
+            }
+          },
+          {
+            "actor": "army2",
+            "type": "move",
+            "unitId": "u44",
+            "destination": {
+              "x": 23,
+              "y": 10
+            }
+          },
+          {
+            "actor": "army2",
+            "type": "move",
+            "unitId": "u10",
+            "destination": {
+              "x": 19,
+              "y": 8
+            }
+          },
+          {
+            "actor": "army2",
+            "type": "move",
+            "unitId": "u39",
+            "destination": {
+              "x": 20,
+              "y": 9
+            }
+          },
+          {
+            "actor": "army2",
+            "type": "move",
+            "unitId": "u16",
+            "destination": {
+              "x": 22,
+              "y": 10
+            }
+          },
+          {
+            "actor": "army2",
+            "type": "move",
+            "unitId": "u13",
+            "destination": {
+              "x": 21,
+              "y": 10
+            }
+          },
+          {
+            "actor": "army2",
+            "type": "move",
+            "unitId": "u15",
+            "destination": {
+              "x": 20,
+              "y": 11
+            }
+          },
+          {
+            "actor": "army2",
+            "type": "wait",
+            "unitId": "u45"
+          },
+          {
+            "actor": "army2",
+            "type": "wait",
+            "unitId": "u47"
+          },
+          {
+            "actor": "army2",
+            "type": "wait",
+            "unitId": "u44"
+          },
+          {
+            "actor": "army2",
+            "type": "wait",
+            "unitId": "u16"
+          },
+          {
+            "actor": "army2",
+            "type": "wait",
+            "unitId": "u13"
+          },
+          {
+            "actor": "army2",
+            "type": "wait",
+            "unitId": "u39"
+          },
+          {
+            "actor": "army2",
+            "type": "wait",
+            "unitId": "u15"
+          },
+          {
+            "actor": "army2",
+            "type": "wait",
+            "unitId": "u10"
+          },
+          {
+            "actor": "army2",
+            "type": "wait",
+            "unitId": "u9"
+          },
+          {
+            "actor": "army2",
+            "type": "wait",
+            "unitId": "u42"
+          },
+          {
+            "actor": "army2",
+            "type": "produce",
+            "factory": {
+              "x": 28,
+              "y": 5
+            },
+            "kind": "infantry"
+          },
+          {
+            "actor": "army2",
+            "type": "endTurn"
+          },
+          {
+            "actor": "army3",
+            "type": "capture",
+            "unitId": "u17"
+          },
+          {
+            "actor": "army3",
+            "type": "move",
+            "unitId": "u40",
+            "destination": {
+              "x": 14,
+              "y": 22
+            }
+          },
+          {
+            "actor": "army3",
+            "type": "move",
+            "unitId": "u23",
+            "destination": {
+              "x": 16,
+              "y": 20
+            }
+          },
+          {
+            "actor": "army3",
+            "type": "move",
+            "unitId": "u48",
+            "destination": {
+              "x": 21,
+              "y": 28
+            }
+          },
+          {
+            "actor": "army3",
+            "type": "move",
+            "unitId": "u22",
+            "destination": {
+              "x": 13,
+              "y": 21
+            }
+          },
+          {
+            "actor": "army3",
+            "type": "move",
+            "unitId": "u21",
+            "destination": {
+              "x": 14,
+              "y": 21
+            }
+          },
+          {
+            "actor": "army3",
+            "type": "move",
+            "unitId": "u19",
+            "destination": {
+              "x": 21,
+              "y": 16
+            }
+          },
+          {
+            "actor": "army3",
+            "type": "move",
+            "unitId": "u37",
+            "destination": {
+              "x": 17,
+              "y": 21
+            }
+          },
+          {
+            "actor": "army3",
+            "type": "move",
+            "unitId": "u18",
+            "destination": {
+              "x": 16,
+              "y": 23
+            }
+          },
+          {
+            "actor": "army3",
+            "type": "move",
+            "unitId": "u34",
+            "destination": {
+              "x": 9,
+              "y": 21
+            }
+          },
+          {
+            "actor": "army3",
+            "type": "attack",
+            "unitId": "u34",
+            "targetId": "u25",
+            "weaponSlot": 0
+          },
+          {
+            "actor": "army3",
+            "type": "move",
+            "unitId": "u20",
+            "destination": {
+              "x": 12,
+              "y": 23
+            }
+          },
+          {
+            "actor": "army3",
+            "type": "wait",
+            "unitId": "u48"
+          },
+          {
+            "actor": "army3",
+            "type": "wait",
+            "unitId": "u18"
+          },
+          {
+            "actor": "army3",
+            "type": "wait",
+            "unitId": "u20"
+          },
+          {
+            "actor": "army3",
+            "type": "wait",
+            "unitId": "u40"
+          },
+          {
+            "actor": "army3",
+            "type": "wait",
+            "unitId": "u37"
+          },
+          {
+            "actor": "army3",
+            "type": "wait",
+            "unitId": "u21"
+          },
+          {
+            "actor": "army3",
+            "type": "wait",
+            "unitId": "u22"
+          },
+          {
+            "actor": "army3",
+            "type": "wait",
+            "unitId": "u23"
+          },
+          {
+            "actor": "army3",
+            "type": "wait",
+            "unitId": "u19"
+          },
+          {
+            "actor": "army3",
+            "type": "endTurn"
+          },
+          {
+            "actor": "army4",
+            "type": "attack",
+            "unitId": "u30",
+            "targetId": "u38",
+            "weaponSlot": 0
+          },
+          {
+            "actor": "army4",
+            "type": "attack",
+            "unitId": "u32",
+            "targetId": "u22",
+            "weaponSlot": 0
+          },
+          {
+            "actor": "army4",
+            "type": "attack",
+            "unitId": "u25",
+            "targetId": "u34",
+            "weaponSlot": 0
+          },
+          {
+            "actor": "army4",
+            "type": "move",
+            "unitId": "u50",
+            "destination": {
+              "x": 8,
+              "y": 23
+            }
+          },
+          {
+            "actor": "army4",
+            "type": "move",
+            "unitId": "u49",
+            "destination": {
+              "x": 6,
+              "y": 24
+            }
+          },
+          {
+            "actor": "army4",
+            "type": "move",
+            "unitId": "u26",
+            "destination": {
+              "x": 11,
+              "y": 21
+            }
+          },
+          {
+            "actor": "army4",
+            "type": "produce",
+            "factory": {
+              "x": 10,
+              "y": 19
+            },
+            "kind": "infantry"
+          },
+          {
+            "actor": "army4",
+            "type": "wait",
+            "unitId": "u49"
+          },
+          {
+            "actor": "army4",
+            "type": "wait",
+            "unitId": "u50"
+          },
+          {
+            "actor": "army4",
+            "type": "wait",
+            "unitId": "u26"
+          },
+          {
+            "actor": "army4",
+            "type": "produce",
+            "factory": {
+              "x": 3,
+              "y": 26
+            },
+            "kind": "tank"
+          }
+        ],
+        "comparedCommands": 64,
+        "fallbacks": 0,
+        "traceSha256": "901265d7e3d3576839d5558f540c324b1bb789dd08572864a99e91638ce1d28d",
+        "finalStateSha256": "391d7a7b2a747bea296be22f7368f1abbb082399d6c7539acdcf4fb865da6723",
+        "outcome": {
+          "type": "ongoing"
+        }
+      }
+    },
+    {
+      "id": "settings-152003-1",
+      "rules": "expanded",
+      "cpuVersion": "four-army-cpu-v3",
+      "spec": {
+        "id": "settings-152003-1",
+        "group": "settings",
+        "seed": 152003,
+        "order": [
+          "army2",
+          "army3",
+          "army4",
+          "army1"
+        ],
+        "settings": {
+          "army1": {
+            "difficulty": "normal",
+            "policy": "offensive"
+          },
+          "army2": {
+            "difficulty": "hard",
+            "policy": "defensive"
+          },
+          "army3": {
+            "difficulty": "normal",
+            "policy": "balanced"
+          },
+          "army4": {
+            "difficulty": "easy",
+            "policy": "balanced"
+          }
+        },
+        "maxRound": 400,
+        "maxCommands": 65536
+      },
+      "schemaVersion": 4,
+      "position": 512,
+      "prefixTraceSha256": "8b19dcf6e3ca0049b408bb814c3255f4ebde3af3bbcc8e1f7b85a203ffdc9a7c",
+      "savedStateSha256": "2465a8741651f3708f0b4d7afba05f1ad1aab128cbca86dc7450f2d0e996f45f",
+      "encodedBytes": 59354,
+      "fallbacksInPrefix": 0,
+      "retainedEvents": {
+        "all": 128,
+        "army1": 128,
+        "army2": 128,
+        "army3": 128,
+        "army4": 128
+      },
+      "retainedSightings": {
+        "army1": 8,
+        "army2": 14,
+        "army3": 9,
+        "army4": 13
+      },
+      "continuation": {
+        "commands": [
+          {
+            "actor": "army2",
+            "type": "attack",
+            "unitId": "u36",
+            "targetId": "u8",
+            "weaponSlot": 0
+          },
+          {
+            "actor": "army2",
+            "type": "attack",
+            "unitId": "u14",
+            "targetId": "u8",
+            "weaponSlot": 0
+          },
+          {
+            "actor": "army2",
+            "type": "move",
+            "unitId": "u10",
+            "destination": {
+              "x": 18,
+              "y": 8
+            }
+          },
+          {
+            "actor": "army2",
+            "type": "move",
+            "unitId": "u16",
+            "destination": {
+              "x": 20,
+              "y": 9
+            }
+          },
+          {
+            "actor": "army2",
+            "type": "attack",
+            "unitId": "u16",
+            "targetId": "u41",
+            "weaponSlot": 0
+          },
+          {
+            "actor": "army2",
+            "type": "attack",
+            "unitId": "u10",
+            "targetId": "u41",
+            "weaponSlot": 0
+          },
+          {
+            "actor": "army2",
+            "type": "attack",
+            "unitId": "u11",
+            "targetId": "u41",
+            "weaponSlot": 0
+          },
+          {
+            "actor": "army2",
+            "type": "move",
+            "unitId": "u46",
+            "destination": {
+              "x": 25,
+              "y": 7
+            }
+          },
+          {
+            "actor": "army2",
+            "type": "move",
+            "unitId": "u42",
+            "destination": {
+              "x": 19,
+              "y": 11
+            }
+          },
+          {
+            "actor": "army2",
+            "type": "move",
+            "unitId": "u45",
+            "destination": {
+              "x": 27,
+              "y": 10
+            }
+          },
+          {
+            "actor": "army2",
+            "type": "move",
+            "unitId": "u9",
+            "destination": {
+              "x": 21,
+              "y": 10
+            }
+          },
+          {
+            "actor": "army2",
+            "type": "move",
+            "unitId": "u13",
+            "destination": {
+              "x": 21,
+              "y": 12
+            }
+          },
+          {
+            "actor": "army2",
+            "type": "wait",
+            "unitId": "u13"
+          },
+          {
+            "actor": "army2",
+            "type": "move",
+            "unitId": "u44",
+            "destination": {
+              "x": 23,
+              "y": 10
+            }
+          },
+          {
+            "actor": "army2",
+            "type": "move",
+            "unitId": "u15",
+            "destination": {
+              "x": 19,
+              "y": 10
+            }
+          },
+          {
+            "actor": "army2",
+            "type": "move",
+            "unitId": "u39",
+            "destination": {
+              "x": 20,
+              "y": 10
+            }
+          },
+          {
+            "actor": "army2",
+            "type": "wait",
+            "unitId": "u45"
+          },
+          {
+            "actor": "army2",
+            "type": "wait",
+            "unitId": "u46"
+          },
+          {
+            "actor": "army2",
+            "type": "wait",
+            "unitId": "u44"
+          },
+          {
+            "actor": "army2",
+            "type": "wait",
+            "unitId": "u9"
+          },
+          {
+            "actor": "army2",
+            "type": "wait",
+            "unitId": "u39"
+          },
+          {
+            "actor": "army2",
+            "type": "wait",
+            "unitId": "u15"
+          },
+          {
+            "actor": "army2",
+            "type": "wait",
+            "unitId": "u42"
+          },
+          {
+            "actor": "army2",
+            "type": "produce",
+            "factory": {
+              "x": 28,
+              "y": 5
+            },
+            "kind": "tank"
+          },
+          {
+            "actor": "army2",
+            "type": "endTurn"
+          },
+          {
+            "actor": "army3",
+            "type": "attack",
+            "unitId": "u21",
+            "targetId": "u27",
+            "weaponSlot": 0
+          },
+          {
+            "actor": "army3",
+            "type": "move",
+            "unitId": "u48",
+            "destination": {
+              "x": 22,
+              "y": 26
+            }
+          },
+          {
+            "actor": "army3",
+            "type": "move",
+            "unitId": "u47",
+            "destination": {
+              "x": 21,
+              "y": 28
+            }
+          },
+          {
+            "actor": "army3",
+            "type": "move",
+            "unitId": "u19",
+            "destination": {
+              "x": 20,
+              "y": 21
+            }
+          },
+          {
+            "actor": "army3",
+            "type": "move",
+            "unitId": "u23",
+            "destination": {
+              "x": 21,
+              "y": 19
+            }
+          },
+          {
+            "actor": "army3",
+            "type": "wait",
+            "unitId": "u23"
+          },
+          {
+            "actor": "army3",
+            "type": "move",
+            "unitId": "u18",
+            "destination": {
+              "x": 20,
+              "y": 22
+            }
+          },
+          {
+            "actor": "army3",
+            "type": "move",
+            "unitId": "u17",
+            "destination": {
+              "x": 19,
+              "y": 23
+            }
+          },
+          {
+            "actor": "army3",
+            "type": "move",
+            "unitId": "u40",
+            "destination": {
+              "x": 18,
+              "y": 22
+            }
+          },
+          {
+            "actor": "army3",
+            "type": "move",
+            "unitId": "u24",
+            "destination": {
+              "x": 19,
+              "y": 22
+            }
+          },
+          {
+            "actor": "army3",
+            "type": "move",
+            "unitId": "u22",
+            "destination": {
+              "x": 19,
+              "y": 21
+            }
+          },
+          {
+            "actor": "army3",
+            "type": "move",
+            "unitId": "u37",
+            "destination": {
+              "x": 18,
+              "y": 21
+            }
+          },
+          {
+            "actor": "army3",
+            "type": "wait",
+            "unitId": "u47"
+          },
+          {
+            "actor": "army3",
+            "type": "wait",
+            "unitId": "u48"
+          },
+          {
+            "actor": "army3",
+            "type": "wait",
+            "unitId": "u17"
+          },
+          {
+            "actor": "army3",
+            "type": "wait",
+            "unitId": "u18"
+          },
+          {
+            "actor": "army3",
+            "type": "wait",
+            "unitId": "u24"
+          },
+          {
+            "actor": "army3",
+            "type": "wait",
+            "unitId": "u40"
+          },
+          {
+            "actor": "army3",
+            "type": "wait",
+            "unitId": "u19"
+          },
+          {
+            "actor": "army3",
+            "type": "wait",
+            "unitId": "u22"
+          },
+          {
+            "actor": "army3",
+            "type": "wait",
+            "unitId": "u37"
+          },
+          {
+            "actor": "army3",
+            "type": "endTurn"
+          },
+          {
+            "actor": "army4",
+            "type": "capture",
+            "unitId": "u27"
+          },
+          {
+            "actor": "army4",
+            "type": "move",
+            "unitId": "u25",
+            "destination": {
+              "x": 10,
+              "y": 19
+            }
+          },
+          {
+            "actor": "army4",
+            "type": "capture",
+            "unitId": "u25"
+          },
+          {
+            "actor": "army4",
+            "type": "move",
+            "unitId": "u49",
+            "destination": {
+              "x": 3,
+              "y": 21
+            }
+          },
+          {
+            "actor": "army4",
+            "type": "move",
+            "unitId": "u30",
+            "destination": {
+              "x": 9,
+              "y": 19
+            }
+          },
+          {
+            "actor": "army4",
+            "type": "move",
+            "unitId": "u32",
+            "destination": {
+              "x": 11,
+              "y": 19
+            }
+          },
+          {
+            "actor": "army4",
+            "type": "move",
+            "unitId": "u26",
+            "destination": {
+              "x": 10,
+              "y": 20
+            }
+          },
+          {
+            "actor": "army4",
+            "type": "wait",
+            "unitId": "u49"
+          },
+          {
+            "actor": "army4",
+            "type": "wait",
+            "unitId": "u30"
+          },
+          {
+            "actor": "army4",
+            "type": "wait",
+            "unitId": "u26"
+          },
+          {
+            "actor": "army4",
+            "type": "wait",
+            "unitId": "u32"
+          },
+          {
+            "actor": "army4",
+            "type": "produce",
+            "factory": {
+              "x": 3,
+              "y": 26
+            },
+            "kind": "tank"
+          },
+          {
+            "actor": "army4",
+            "type": "endTurn"
+          },
+          {
+            "actor": "army1",
+            "type": "attack",
+            "unitId": "u41",
+            "targetId": "u14",
+            "weaponSlot": 0
+          },
+          {
+            "actor": "army1",
+            "type": "move",
+            "unitId": "u51",
+            "destination": {
+              "x": 9,
+              "y": 5
+            }
+          },
+          {
+            "actor": "army1",
+            "type": "move",
+            "unitId": "u50",
+            "destination": {
+              "x": 7,
+              "y": 6
+            }
+          },
+          {
+            "actor": "army1",
+            "type": "move",
+            "unitId": "u43",
+            "destination": {
+              "x": 11,
+              "y": 12
+            }
+          }
+        ],
+        "comparedCommands": 64,
+        "fallbacks": 0,
+        "traceSha256": "9dd2f7b77b663157c2714e261e087ab96638cc29f7ce3ef55d07a0b590c862b0",
+        "finalStateSha256": "33b1277f10bf82d1c018f172d6bed35dda7eb3e1d5a7e8d64f7cccf1ce13c04c",
+        "outcome": {
+          "type": "ongoing"
+        }
+      }
+    },
+    {
+      "id": "settings-152003-1",
+      "rules": "expanded",
+      "cpuVersion": "four-army-cpu-v4",
+      "spec": {
+        "id": "settings-152003-1",
+        "group": "settings",
+        "seed": 152003,
+        "order": [
+          "army2",
+          "army3",
+          "army4",
+          "army1"
+        ],
+        "settings": {
+          "army1": {
+            "difficulty": "normal",
+            "policy": "offensive"
+          },
+          "army2": {
+            "difficulty": "hard",
+            "policy": "defensive"
+          },
+          "army3": {
+            "difficulty": "normal",
+            "policy": "balanced"
+          },
+          "army4": {
+            "difficulty": "easy",
+            "policy": "balanced"
+          }
+        },
+        "maxRound": 400,
+        "maxCommands": 65536
+      },
+      "schemaVersion": 4,
+      "position": 512,
+      "prefixTraceSha256": "361d6acbf61045b2df45f3b36297723d7e549e5b6356396e742b0c27e4343c58",
+      "savedStateSha256": "7634a1fab3d6a45a27c2886995ee82d1f2c931d220b27fe7c389cd1d18a28658",
+      "encodedBytes": 59119,
+      "fallbacksInPrefix": 0,
+      "retainedEvents": {
+        "all": 128,
+        "army1": 128,
+        "army2": 128,
+        "army3": 128,
+        "army4": 128
+      },
+      "retainedSightings": {
+        "army1": 7,
+        "army2": 15,
+        "army3": 10,
+        "army4": 13
+      },
+      "continuation": {
+        "commands": [
+          {
+            "actor": "army1",
+            "type": "wait",
+            "unitId": "u1"
+          },
+          {
+            "actor": "army1",
+            "type": "wait",
+            "unitId": "u6"
+          },
+          {
+            "actor": "army1",
+            "type": "produce",
+            "factory": {
+              "x": 5,
+              "y": 3
+            },
+            "kind": "tank"
+          },
+          {
+            "actor": "army1",
+            "type": "produce",
+            "factory": {
+              "x": 3,
+              "y": 5
+            },
+            "kind": "helicopter"
+          },
+          {
+            "actor": "army1",
+            "type": "endTurn"
+          },
+          {
+            "actor": "army2",
+            "type": "attack",
+            "unitId": "u14",
+            "targetId": "u41",
+            "weaponSlot": 0
+          },
+          {
+            "actor": "army2",
+            "type": "move",
+            "unitId": "u16",
+            "destination": {
+              "x": 20,
+              "y": 9
+            }
+          },
+          {
+            "actor": "army2",
+            "type": "attack",
+            "unitId": "u16",
+            "targetId": "u41",
+            "weaponSlot": 0
+          },
+          {
+            "actor": "army2",
+            "type": "move",
+            "unitId": "u10",
+            "destination": {
+              "x": 18,
+              "y": 10
+            }
+          },
+          {
+            "actor": "army2",
+            "type": "attack",
+            "unitId": "u10",
+            "targetId": "u41",
+            "weaponSlot": 0
+          },
+          {
+            "actor": "army2",
+            "type": "move",
+            "unitId": "u33",
+            "destination": {
+              "x": 18,
+              "y": 21
+            }
+          },
+          {
+            "actor": "army2",
+            "type": "attack",
+            "unitId": "u33",
+            "targetId": "u40",
+            "weaponSlot": 0
+          },
+          {
+            "actor": "army2",
+            "type": "move",
+            "unitId": "u11",
+            "destination": {
+              "x": 19,
+              "y": 10
+            }
+          },
+          {
+            "actor": "army2",
+            "type": "capture",
+            "unitId": "u11"
+          },
+          {
+            "actor": "army2",
+            "type": "logistics",
+            "unitId": "u13",
+            "order": {
+              "priority": true,
+              "resource": "ammo",
+              "repair": true
+            }
+          },
+          {
+            "actor": "army2",
+            "type": "ambush",
+            "unitId": "u36",
+            "weaponSlot": 0
+          },
+          {
+            "actor": "army2",
+            "type": "ambush",
+            "unitId": "u13",
+            "weaponSlot": 0
+          },
+          {
+            "actor": "army2",
+            "type": "move",
+            "unitId": "u46",
+            "destination": {
+              "x": 25,
+              "y": 7
+            }
+          },
+          {
+            "actor": "army2",
+            "type": "move",
+            "unitId": "u42",
+            "destination": {
+              "x": 19,
+              "y": 11
+            }
+          },
+          {
+            "actor": "army2",
+            "type": "move",
+            "unitId": "u45",
+            "destination": {
+              "x": 27,
+              "y": 10
+            }
+          },
+          {
+            "actor": "army2",
+            "type": "move",
+            "unitId": "u9",
+            "destination": {
+              "x": 21,
+              "y": 10
+            }
+          },
+          {
+            "actor": "army2",
+            "type": "produce",
+            "factory": {
+              "x": 21,
+              "y": 12
+            },
+            "kind": "tank"
+          },
+          {
+            "actor": "army2",
+            "type": "move",
+            "unitId": "u44",
+            "destination": {
+              "x": 23,
+              "y": 10
+            }
+          },
+          {
+            "actor": "army2",
+            "type": "move",
+            "unitId": "u39",
+            "destination": {
+              "x": 20,
+              "y": 11
+            }
+          },
+          {
+            "actor": "army2",
+            "type": "wait",
+            "unitId": "u45"
+          },
+          {
+            "actor": "army2",
+            "type": "wait",
+            "unitId": "u46"
+          },
+          {
+            "actor": "army2",
+            "type": "wait",
+            "unitId": "u44"
+          },
+          {
+            "actor": "army2",
+            "type": "wait",
+            "unitId": "u9"
+          },
+          {
+            "actor": "army2",
+            "type": "wait",
+            "unitId": "u39"
+          },
+          {
+            "actor": "army2",
+            "type": "wait",
+            "unitId": "u42"
+          },
+          {
+            "actor": "army2",
+            "type": "produce",
+            "factory": {
+              "x": 28,
+              "y": 5
+            },
+            "kind": "infantry"
+          },
+          {
+            "actor": "army2",
+            "type": "endTurn"
+          },
+          {
+            "actor": "army3",
+            "type": "logistics",
+            "unitId": "u40",
+            "order": {
+              "priority": true,
+              "resource": "ammo",
+              "repair": true
+            }
+          },
+          {
+            "actor": "army3",
+            "type": "move",
+            "unitId": "u48",
+            "destination": {
+              "x": 22,
+              "y": 26
+            }
+          },
+          {
+            "actor": "army3",
+            "type": "move",
+            "unitId": "u47",
+            "destination": {
+              "x": 21,
+              "y": 28
+            }
+          },
+          {
+            "actor": "army3",
+            "type": "move",
+            "unitId": "u19",
+            "destination": {
+              "x": 19,
+              "y": 20
+            }
+          },
+          {
+            "actor": "army3",
+            "type": "move",
+            "unitId": "u40",
+            "destination": {
+              "x": 18,
+              "y": 21
+            }
+          },
+          {
+            "actor": "army3",
+            "type": "move",
+            "unitId": "u17",
+            "destination": {
+              "x": 12,
+              "y": 22
+            }
+          },
+          {
+            "actor": "army3",
+            "type": "attack",
+            "unitId": "u17",
+            "targetId": "u27",
+            "weaponSlot": 0
+          },
+          {
+            "actor": "army3",
+            "type": "move",
+            "unitId": "u18",
+            "destination": {
+              "x": 18,
+              "y": 22
+            }
+          },
+          {
+            "actor": "army3",
+            "type": "move",
+            "unitId": "u24",
+            "destination": {
+              "x": 19,
+              "y": 23
+            }
+          },
+          {
+            "actor": "army3",
+            "type": "move",
+            "unitId": "u21",
+            "destination": {
+              "x": 20,
+              "y": 22
+            }
+          },
+          {
+            "actor": "army3",
+            "type": "move",
+            "unitId": "u37",
+            "destination": {
+              "x": 19,
+              "y": 22
+            }
+          },
+          {
+            "actor": "army3",
+            "type": "move",
+            "unitId": "u22",
+            "destination": {
+              "x": 19,
+              "y": 21
+            }
+          },
+          {
+            "actor": "army3",
+            "type": "wait",
+            "unitId": "u47"
+          },
+          {
+            "actor": "army3",
+            "type": "wait",
+            "unitId": "u48"
+          },
+          {
+            "actor": "army3",
+            "type": "wait",
+            "unitId": "u24"
+          },
+          {
+            "actor": "army3",
+            "type": "wait",
+            "unitId": "u21"
+          },
+          {
+            "actor": "army3",
+            "type": "wait",
+            "unitId": "u37"
+          },
+          {
+            "actor": "army3",
+            "type": "wait",
+            "unitId": "u18"
+          },
+          {
+            "actor": "army3",
+            "type": "wait",
+            "unitId": "u22"
+          },
+          {
+            "actor": "army3",
+            "type": "wait",
+            "unitId": "u40"
+          },
+          {
+            "actor": "army3",
+            "type": "wait",
+            "unitId": "u19"
+          },
+          {
+            "actor": "army3",
+            "type": "produce",
+            "factory": {
+              "x": 26,
+              "y": 28
+            },
+            "kind": "tank"
+          },
+          {
+            "actor": "army3",
+            "type": "endTurn"
+          },
+          {
+            "actor": "army4",
+            "type": "capture",
+            "unitId": "u27"
+          },
+          {
+            "actor": "army4",
+            "type": "move",
+            "unitId": "u25",
+            "destination": {
+              "x": 10,
+              "y": 19
+            }
+          },
+          {
+            "actor": "army4",
+            "type": "capture",
+            "unitId": "u25"
+          },
+          {
+            "actor": "army4",
+            "type": "move",
+            "unitId": "u49",
+            "destination": {
+              "x": 6,
+              "y": 24
+            }
+          },
+          {
+            "actor": "army4",
+            "type": "move",
+            "unitId": "u30",
+            "destination": {
+              "x": 9,
+              "y": 19
+            }
+          },
+          {
+            "actor": "army4",
+            "type": "move",
+            "unitId": "u32",
+            "destination": {
+              "x": 11,
+              "y": 19
+            }
+          },
+          {
+            "actor": "army4",
+            "type": "move",
+            "unitId": "u26",
+            "destination": {
+              "x": 10,
+              "y": 20
+            }
+          },
+          {
+            "actor": "army4",
+            "type": "wait",
+            "unitId": "u49"
+          },
+          {
+            "actor": "army4",
+            "type": "wait",
+            "unitId": "u30"
+          }
+        ],
+        "comparedCommands": 64,
+        "fallbacks": 0,
+        "traceSha256": "a78a905c8df6e91c6262ffec3f7d881d1b119e8d2ef6a3073015350582edec1a",
+        "finalStateSha256": "de434f11c138b9036afc706829505d75b8a7bf7bfbb49a6ca1c973daa34a5351",
+        "outcome": {
+          "type": "ongoing"
+        }
+      }
+    },
+    {
+      "id": "settings-152003-2",
+      "rules": "classic",
+      "cpuVersion": "four-army-cpu-v3",
+      "spec": {
+        "id": "settings-152003-2",
+        "group": "settings",
+        "seed": 152003,
+        "order": [
+          "army3",
+          "army4",
+          "army1",
+          "army2"
+        ],
+        "settings": {
+          "army1": {
+            "difficulty": "hard",
+            "policy": "defensive"
+          },
+          "army2": {
+            "difficulty": "normal",
+            "policy": "balanced"
+          },
+          "army3": {
+            "difficulty": "easy",
+            "policy": "balanced"
+          },
+          "army4": {
+            "difficulty": "normal",
+            "policy": "offensive"
+          }
+        },
+        "maxRound": 400,
+        "maxCommands": 65536
+      },
+      "schemaVersion": 4,
+      "position": 512,
+      "prefixTraceSha256": "fdc45c763401efd410f8ebf73704db7635a870c358f0eddf21fbfa2717c0d8de",
+      "savedStateSha256": "92f105e9b7321e71093a112cde312358aa8d177afca896ee2921f556de32ce88",
+      "encodedBytes": 58705,
+      "fallbacksInPrefix": 0,
+      "retainedEvents": {
+        "all": 128,
+        "army1": 128,
+        "army2": 128,
+        "army3": 128,
+        "army4": 128
+      },
+      "retainedSightings": {
+        "army1": 9,
+        "army2": 9,
+        "army3": 12,
+        "army4": 10
+      },
+      "continuation": {
+        "commands": [
+          {
+            "actor": "army2",
+            "type": "wait",
+            "unitId": "u15"
+          },
+          {
+            "actor": "army2",
+            "type": "wait",
+            "unitId": "u16"
+          },
+          {
+            "actor": "army2",
+            "type": "wait",
+            "unitId": "u13"
+          },
+          {
+            "actor": "army2",
+            "type": "wait",
+            "unitId": "u38"
+          },
+          {
+            "actor": "army2",
+            "type": "wait",
+            "unitId": "u14"
+          },
+          {
+            "actor": "army2",
+            "type": "produce",
+            "factory": {
+              "x": 28,
+              "y": 5
+            },
+            "kind": "tank"
+          },
+          {
+            "actor": "army2",
+            "type": "endTurn"
+          },
+          {
+            "actor": "army3",
+            "type": "move",
+            "unitId": "u19",
+            "destination": {
+              "x": 21,
+              "y": 19
+            }
+          },
+          {
+            "actor": "army3",
+            "type": "capture",
+            "unitId": "u19"
+          },
+          {
+            "actor": "army3",
+            "type": "move",
+            "unitId": "u18",
+            "destination": {
+              "x": 20,
+              "y": 20
+            }
+          },
+          {
+            "actor": "army3",
+            "type": "produce",
+            "factory": {
+              "x": 19,
+              "y": 21
+            },
+            "kind": "tank"
+          },
+          {
+            "actor": "army3",
+            "type": "move",
+            "unitId": "u17",
+            "destination": {
+              "x": 22,
+              "y": 19
+            }
+          },
+          {
+            "actor": "army3",
+            "type": "move",
+            "unitId": "u24",
+            "destination": {
+              "x": 21,
+              "y": 18
+            }
+          },
+          {
+            "actor": "army3",
+            "type": "attack",
+            "unitId": "u24",
+            "targetId": "u41",
+            "weaponSlot": 0
+          },
+          {
+            "actor": "army3",
+            "type": "move",
+            "unitId": "u23",
+            "destination": {
+              "x": 24,
+              "y": 20
+            }
+          },
+          {
+            "actor": "army3",
+            "type": "move",
+            "unitId": "u22",
+            "destination": {
+              "x": 19,
+              "y": 19
+            }
+          },
+          {
+            "actor": "army3",
+            "type": "wait",
+            "unitId": "u23"
+          },
+          {
+            "actor": "army3",
+            "type": "wait",
+            "unitId": "u18"
+          },
+          {
+            "actor": "army3",
+            "type": "wait",
+            "unitId": "u17"
+          },
+          {
+            "actor": "army3",
+            "type": "wait",
+            "unitId": "u22"
+          },
+          {
+            "actor": "army3",
+            "type": "endTurn"
+          },
+          {
+            "actor": "army4",
+            "type": "move",
+            "unitId": "u45",
+            "destination": {
+              "x": 11,
+              "y": 24
+            }
+          },
+          {
+            "actor": "army4",
+            "type": "move",
+            "unitId": "u47",
+            "destination": {
+              "x": 6,
+              "y": 24
+            }
+          },
+          {
+            "actor": "army4",
+            "type": "move",
+            "unitId": "u42",
+            "destination": {
+              "x": 10,
+              "y": 21
+            }
+          },
+          {
+            "actor": "army4",
+            "type": "move",
+            "unitId": "u29",
+            "destination": {
+              "x": 12,
+              "y": 22
+            }
+          },
+          {
+            "actor": "army4",
+            "type": "move",
+            "unitId": "u30",
+            "destination": {
+              "x": 13,
+              "y": 21
+            }
+          },
+          {
+            "actor": "army4",
+            "type": "move",
+            "unitId": "u27",
+            "destination": {
+              "x": 11,
+              "y": 20
+            }
+          },
+          {
+            "actor": "army4",
+            "type": "produce",
+            "factory": {
+              "x": 10,
+              "y": 19
+            },
+            "kind": "tank"
+          },
+          {
+            "actor": "army4",
+            "type": "move",
+            "unitId": "u26",
+            "destination": {
+              "x": 11,
+              "y": 22
+            }
+          },
+          {
+            "actor": "army4",
+            "type": "move",
+            "unitId": "u39",
+            "destination": {
+              "x": 12,
+              "y": 19
+            }
+          },
+          {
+            "actor": "army4",
+            "type": "move",
+            "unitId": "u36",
+            "destination": {
+              "x": 12,
+              "y": 20
+            }
+          },
+          {
+            "actor": "army4",
+            "type": "move",
+            "unitId": "u25",
+            "destination": {
+              "x": 12,
+              "y": 21
+            }
+          },
+          {
+            "actor": "army4",
+            "type": "capture",
+            "unitId": "u25"
+          },
+          {
+            "actor": "army4",
+            "type": "wait",
+            "unitId": "u47"
+          },
+          {
+            "actor": "army4",
+            "type": "wait",
+            "unitId": "u42"
+          },
+          {
+            "actor": "army4",
+            "type": "wait",
+            "unitId": "u45"
+          },
+          {
+            "actor": "army4",
+            "type": "wait",
+            "unitId": "u26"
+          },
+          {
+            "actor": "army4",
+            "type": "wait",
+            "unitId": "u27"
+          },
+          {
+            "actor": "army4",
+            "type": "wait",
+            "unitId": "u29"
+          },
+          {
+            "actor": "army4",
+            "type": "wait",
+            "unitId": "u36"
+          },
+          {
+            "actor": "army4",
+            "type": "wait",
+            "unitId": "u39"
+          },
+          {
+            "actor": "army4",
+            "type": "wait",
+            "unitId": "u30"
+          },
+          {
+            "actor": "army4",
+            "type": "endTurn"
+          },
+          {
+            "actor": "army1",
+            "type": "move",
+            "unitId": "u34",
+            "destination": {
+              "x": 18,
+              "y": 11
+            }
+          },
+          {
+            "actor": "army1",
+            "type": "attack",
+            "unitId": "u34",
+            "targetId": "u14",
+            "weaponSlot": 0
+          },
+          {
+            "actor": "army1",
+            "type": "capture",
+            "unitId": "u3"
+          },
+          {
+            "actor": "army1",
+            "type": "move",
+            "unitId": "u1",
+            "destination": {
+              "x": 12,
+              "y": 10
+            }
+          },
+          {
+            "actor": "army1",
+            "type": "capture",
+            "unitId": "u1"
+          },
+          {
+            "actor": "army1",
+            "type": "move",
+            "unitId": "u48",
+            "destination": {
+              "x": 9,
+              "y": 4
+            }
+          },
+          {
+            "actor": "army1",
+            "type": "move",
+            "unitId": "u46",
+            "destination": {
+              "x": 11,
+              "y": 3
+            }
+          },
+          {
+            "actor": "army1",
+            "type": "move",
+            "unitId": "u44",
+            "destination": {
+              "x": 13,
+              "y": 9
+            }
+          },
+          {
+            "actor": "army1",
+            "type": "move",
+            "unitId": "u43",
+            "destination": {
+              "x": 11,
+              "y": 10
+            }
+          },
+          {
+            "actor": "army1",
+            "type": "move",
+            "unitId": "u5",
+            "destination": {
+              "x": 10,
+              "y": 18
+            }
+          },
+          {
+            "actor": "army1",
+            "type": "attack",
+            "unitId": "u5",
+            "targetId": "u51",
+            "weaponSlot": 0
+          },
+          {
+            "actor": "army1",
+            "type": "move",
+            "unitId": "u6",
+            "destination": {
+              "x": 10,
+              "y": 13
+            }
+          },
+          {
+            "actor": "army1",
+            "type": "move",
+            "unitId": "u37",
+            "destination": {
+              "x": 9,
+              "y": 12
+            }
+          },
+          {
+            "actor": "army1",
+            "type": "move",
+            "unitId": "u8",
+            "destination": {
+              "x": 10,
+              "y": 11
+            }
+          },
+          {
+            "actor": "army1",
+            "type": "move",
+            "unitId": "u2",
+            "destination": {
+              "x": 12,
+              "y": 11
+            }
+          },
+          {
+            "actor": "army1",
+            "type": "move",
+            "unitId": "u7",
+            "destination": {
+              "x": 13,
+              "y": 10
+            }
+          },
+          {
+            "actor": "army1",
+            "type": "move",
+            "unitId": "u40",
+            "destination": {
+              "x": 12,
+              "y": 8
+            }
+          },
+          {
+            "actor": "army1",
+            "type": "wait",
+            "unitId": "u46"
+          },
+          {
+            "actor": "army1",
+            "type": "wait",
+            "unitId": "u48"
+          },
+          {
+            "actor": "army1",
+            "type": "wait",
+            "unitId": "u40"
+          },
+          {
+            "actor": "army1",
+            "type": "wait",
+            "unitId": "u44"
+          }
+        ],
+        "comparedCommands": 64,
+        "fallbacks": 0,
+        "traceSha256": "6c1b9351184f5d048cd02fa9ae5c714b58d17f616359b02ff765c9a97393adda",
+        "finalStateSha256": "57f73eff8e49993844f7d16831218f6b1301a810fe80d69b31ac94db328060d1",
+        "outcome": {
+          "type": "ongoing"
+        }
+      }
+    },
+    {
+      "id": "settings-152003-2",
+      "rules": "classic",
+      "cpuVersion": "four-army-cpu-v4",
+      "spec": {
+        "id": "settings-152003-2",
+        "group": "settings",
+        "seed": 152003,
+        "order": [
+          "army3",
+          "army4",
+          "army1",
+          "army2"
+        ],
+        "settings": {
+          "army1": {
+            "difficulty": "hard",
+            "policy": "defensive"
+          },
+          "army2": {
+            "difficulty": "normal",
+            "policy": "balanced"
+          },
+          "army3": {
+            "difficulty": "easy",
+            "policy": "balanced"
+          },
+          "army4": {
+            "difficulty": "normal",
+            "policy": "offensive"
+          }
+        },
+        "maxRound": 400,
+        "maxCommands": 65536
+      },
+      "schemaVersion": 4,
+      "position": 512,
+      "prefixTraceSha256": "fdc45c763401efd410f8ebf73704db7635a870c358f0eddf21fbfa2717c0d8de",
+      "savedStateSha256": "92f105e9b7321e71093a112cde312358aa8d177afca896ee2921f556de32ce88",
+      "encodedBytes": 58705,
+      "fallbacksInPrefix": 0,
+      "retainedEvents": {
+        "all": 128,
+        "army1": 128,
+        "army2": 128,
+        "army3": 128,
+        "army4": 128
+      },
+      "retainedSightings": {
+        "army1": 9,
+        "army2": 9,
+        "army3": 12,
+        "army4": 10
+      },
+      "continuation": {
+        "commands": [
+          {
+            "actor": "army2",
+            "type": "wait",
+            "unitId": "u15"
+          },
+          {
+            "actor": "army2",
+            "type": "wait",
+            "unitId": "u16"
+          },
+          {
+            "actor": "army2",
+            "type": "wait",
+            "unitId": "u13"
+          },
+          {
+            "actor": "army2",
+            "type": "wait",
+            "unitId": "u38"
+          },
+          {
+            "actor": "army2",
+            "type": "wait",
+            "unitId": "u14"
+          },
+          {
+            "actor": "army2",
+            "type": "produce",
+            "factory": {
+              "x": 28,
+              "y": 5
+            },
+            "kind": "tank"
+          },
+          {
+            "actor": "army2",
+            "type": "endTurn"
+          },
+          {
+            "actor": "army3",
+            "type": "move",
+            "unitId": "u19",
+            "destination": {
+              "x": 21,
+              "y": 19
+            }
+          },
+          {
+            "actor": "army3",
+            "type": "capture",
+            "unitId": "u19"
+          },
+          {
+            "actor": "army3",
+            "type": "move",
+            "unitId": "u18",
+            "destination": {
+              "x": 20,
+              "y": 20
+            }
+          },
+          {
+            "actor": "army3",
+            "type": "produce",
+            "factory": {
+              "x": 19,
+              "y": 21
+            },
+            "kind": "tank"
+          },
+          {
+            "actor": "army3",
+            "type": "move",
+            "unitId": "u17",
+            "destination": {
+              "x": 22,
+              "y": 19
+            }
+          },
+          {
+            "actor": "army3",
+            "type": "move",
+            "unitId": "u24",
+            "destination": {
+              "x": 21,
+              "y": 18
+            }
+          },
+          {
+            "actor": "army3",
+            "type": "attack",
+            "unitId": "u24",
+            "targetId": "u41",
+            "weaponSlot": 0
+          },
+          {
+            "actor": "army3",
+            "type": "move",
+            "unitId": "u23",
+            "destination": {
+              "x": 24,
+              "y": 20
+            }
+          },
+          {
+            "actor": "army3",
+            "type": "move",
+            "unitId": "u22",
+            "destination": {
+              "x": 19,
+              "y": 19
+            }
+          },
+          {
+            "actor": "army3",
+            "type": "wait",
+            "unitId": "u23"
+          },
+          {
+            "actor": "army3",
+            "type": "wait",
+            "unitId": "u18"
+          },
+          {
+            "actor": "army3",
+            "type": "wait",
+            "unitId": "u17"
+          },
+          {
+            "actor": "army3",
+            "type": "wait",
+            "unitId": "u22"
+          },
+          {
+            "actor": "army3",
+            "type": "endTurn"
+          },
+          {
+            "actor": "army4",
+            "type": "move",
+            "unitId": "u45",
+            "destination": {
+              "x": 11,
+              "y": 24
+            }
+          },
+          {
+            "actor": "army4",
+            "type": "move",
+            "unitId": "u47",
+            "destination": {
+              "x": 6,
+              "y": 24
+            }
+          },
+          {
+            "actor": "army4",
+            "type": "move",
+            "unitId": "u42",
+            "destination": {
+              "x": 10,
+              "y": 21
+            }
+          },
+          {
+            "actor": "army4",
+            "type": "move",
+            "unitId": "u29",
+            "destination": {
+              "x": 12,
+              "y": 22
+            }
+          },
+          {
+            "actor": "army4",
+            "type": "move",
+            "unitId": "u30",
+            "destination": {
+              "x": 13,
+              "y": 21
+            }
+          },
+          {
+            "actor": "army4",
+            "type": "move",
+            "unitId": "u27",
+            "destination": {
+              "x": 11,
+              "y": 20
+            }
+          },
+          {
+            "actor": "army4",
+            "type": "produce",
+            "factory": {
+              "x": 10,
+              "y": 19
+            },
+            "kind": "tank"
+          },
+          {
+            "actor": "army4",
+            "type": "move",
+            "unitId": "u26",
+            "destination": {
+              "x": 11,
+              "y": 22
+            }
+          },
+          {
+            "actor": "army4",
+            "type": "move",
+            "unitId": "u39",
+            "destination": {
+              "x": 12,
+              "y": 19
+            }
+          },
+          {
+            "actor": "army4",
+            "type": "move",
+            "unitId": "u36",
+            "destination": {
+              "x": 12,
+              "y": 20
+            }
+          },
+          {
+            "actor": "army4",
+            "type": "move",
+            "unitId": "u25",
+            "destination": {
+              "x": 12,
+              "y": 21
+            }
+          },
+          {
+            "actor": "army4",
+            "type": "capture",
+            "unitId": "u25"
+          },
+          {
+            "actor": "army4",
+            "type": "wait",
+            "unitId": "u47"
+          },
+          {
+            "actor": "army4",
+            "type": "wait",
+            "unitId": "u42"
+          },
+          {
+            "actor": "army4",
+            "type": "wait",
+            "unitId": "u45"
+          },
+          {
+            "actor": "army4",
+            "type": "wait",
+            "unitId": "u26"
+          },
+          {
+            "actor": "army4",
+            "type": "wait",
+            "unitId": "u27"
+          },
+          {
+            "actor": "army4",
+            "type": "wait",
+            "unitId": "u29"
+          },
+          {
+            "actor": "army4",
+            "type": "wait",
+            "unitId": "u36"
+          },
+          {
+            "actor": "army4",
+            "type": "wait",
+            "unitId": "u39"
+          },
+          {
+            "actor": "army4",
+            "type": "wait",
+            "unitId": "u30"
+          },
+          {
+            "actor": "army4",
+            "type": "endTurn"
+          },
+          {
+            "actor": "army1",
+            "type": "move",
+            "unitId": "u34",
+            "destination": {
+              "x": 18,
+              "y": 11
+            }
+          },
+          {
+            "actor": "army1",
+            "type": "attack",
+            "unitId": "u34",
+            "targetId": "u14",
+            "weaponSlot": 0
+          },
+          {
+            "actor": "army1",
+            "type": "capture",
+            "unitId": "u3"
+          },
+          {
+            "actor": "army1",
+            "type": "move",
+            "unitId": "u1",
+            "destination": {
+              "x": 12,
+              "y": 10
+            }
+          },
+          {
+            "actor": "army1",
+            "type": "capture",
+            "unitId": "u1"
+          },
+          {
+            "actor": "army1",
+            "type": "move",
+            "unitId": "u48",
+            "destination": {
+              "x": 9,
+              "y": 4
+            }
+          },
+          {
+            "actor": "army1",
+            "type": "move",
+            "unitId": "u46",
+            "destination": {
+              "x": 11,
+              "y": 3
+            }
+          },
+          {
+            "actor": "army1",
+            "type": "move",
+            "unitId": "u44",
+            "destination": {
+              "x": 13,
+              "y": 9
+            }
+          },
+          {
+            "actor": "army1",
+            "type": "move",
+            "unitId": "u43",
+            "destination": {
+              "x": 11,
+              "y": 10
+            }
+          },
+          {
+            "actor": "army1",
+            "type": "move",
+            "unitId": "u5",
+            "destination": {
+              "x": 10,
+              "y": 18
+            }
+          },
+          {
+            "actor": "army1",
+            "type": "attack",
+            "unitId": "u5",
+            "targetId": "u51",
+            "weaponSlot": 0
+          },
+          {
+            "actor": "army1",
+            "type": "move",
+            "unitId": "u6",
+            "destination": {
+              "x": 10,
+              "y": 13
+            }
+          },
+          {
+            "actor": "army1",
+            "type": "move",
+            "unitId": "u37",
+            "destination": {
+              "x": 9,
+              "y": 12
+            }
+          },
+          {
+            "actor": "army1",
+            "type": "move",
+            "unitId": "u8",
+            "destination": {
+              "x": 10,
+              "y": 11
+            }
+          },
+          {
+            "actor": "army1",
+            "type": "move",
+            "unitId": "u2",
+            "destination": {
+              "x": 12,
+              "y": 11
+            }
+          },
+          {
+            "actor": "army1",
+            "type": "move",
+            "unitId": "u7",
+            "destination": {
+              "x": 13,
+              "y": 10
+            }
+          },
+          {
+            "actor": "army1",
+            "type": "move",
+            "unitId": "u40",
+            "destination": {
+              "x": 12,
+              "y": 8
+            }
+          },
+          {
+            "actor": "army1",
+            "type": "wait",
+            "unitId": "u46"
+          },
+          {
+            "actor": "army1",
+            "type": "wait",
+            "unitId": "u48"
+          },
+          {
+            "actor": "army1",
+            "type": "wait",
+            "unitId": "u40"
+          },
+          {
+            "actor": "army1",
+            "type": "wait",
+            "unitId": "u44"
+          }
+        ],
+        "comparedCommands": 64,
+        "fallbacks": 0,
+        "traceSha256": "6c1b9351184f5d048cd02fa9ae5c714b58d17f616359b02ff765c9a97393adda",
+        "finalStateSha256": "57f73eff8e49993844f7d16831218f6b1301a810fe80d69b31ac94db328060d1",
+        "outcome": {
+          "type": "ongoing"
+        }
+      }
+    },
+    {
+      "id": "settings-152003-2",
+      "rules": "expanded",
+      "cpuVersion": "four-army-cpu-v3",
+      "spec": {
+        "id": "settings-152003-2",
+        "group": "settings",
+        "seed": 152003,
+        "order": [
+          "army3",
+          "army4",
+          "army1",
+          "army2"
+        ],
+        "settings": {
+          "army1": {
+            "difficulty": "hard",
+            "policy": "defensive"
+          },
+          "army2": {
+            "difficulty": "normal",
+            "policy": "balanced"
+          },
+          "army3": {
+            "difficulty": "easy",
+            "policy": "balanced"
+          },
+          "army4": {
+            "difficulty": "normal",
+            "policy": "offensive"
+          }
+        },
+        "maxRound": 400,
+        "maxCommands": 65536
+      },
+      "schemaVersion": 4,
+      "position": 512,
+      "prefixTraceSha256": "0080a841b6e8f239e71e90acc40a1482c1ee8510f7e311bde89e1792208a0bac",
+      "savedStateSha256": "2fd5aec6521bc4e02a08b97fe2c8a2774f1dfc8cc61d9b3b9045be6140963f36",
+      "encodedBytes": 58933,
+      "fallbacksInPrefix": 0,
+      "retainedEvents": {
+        "all": 128,
+        "army1": 128,
+        "army2": 128,
+        "army3": 128,
+        "army4": 128
+      },
+      "retainedSightings": {
+        "army1": 8,
+        "army2": 8,
+        "army3": 12,
+        "army4": 9
+      },
+      "continuation": {
+        "commands": [
+          {
+            "actor": "army2",
+            "type": "wait",
+            "unitId": "u9"
+          },
+          {
+            "actor": "army2",
+            "type": "wait",
+            "unitId": "u15"
+          },
+          {
+            "actor": "army2",
+            "type": "wait",
+            "unitId": "u35"
+          },
+          {
+            "actor": "army2",
+            "type": "wait",
+            "unitId": "u13"
+          },
+          {
+            "actor": "army2",
+            "type": "endTurn"
+          },
+          {
+            "actor": "army3",
+            "type": "move",
+            "unitId": "u19",
+            "destination": {
+              "x": 21,
+              "y": 19
+            }
+          },
+          {
+            "actor": "army3",
+            "type": "capture",
+            "unitId": "u19"
+          },
+          {
+            "actor": "army3",
+            "type": "move",
+            "unitId": "u18",
+            "destination": {
+              "x": 20,
+              "y": 20
+            }
+          },
+          {
+            "actor": "army3",
+            "type": "produce",
+            "factory": {
+              "x": 19,
+              "y": 21
+            },
+            "kind": "tank"
+          },
+          {
+            "actor": "army3",
+            "type": "move",
+            "unitId": "u17",
+            "destination": {
+              "x": 22,
+              "y": 19
+            }
+          },
+          {
+            "actor": "army3",
+            "type": "move",
+            "unitId": "u24",
+            "destination": {
+              "x": 21,
+              "y": 18
+            }
+          },
+          {
+            "actor": "army3",
+            "type": "move",
+            "unitId": "u23",
+            "destination": {
+              "x": 21,
+              "y": 21
+            }
+          },
+          {
+            "actor": "army3",
+            "type": "move",
+            "unitId": "u22",
+            "destination": {
+              "x": 19,
+              "y": 19
+            }
+          },
+          {
+            "actor": "army3",
+            "type": "wait",
+            "unitId": "u23"
+          },
+          {
+            "actor": "army3",
+            "type": "wait",
+            "unitId": "u18"
+          },
+          {
+            "actor": "army3",
+            "type": "wait",
+            "unitId": "u17"
+          },
+          {
+            "actor": "army3",
+            "type": "wait",
+            "unitId": "u22"
+          },
+          {
+            "actor": "army3",
+            "type": "wait",
+            "unitId": "u24"
+          },
+          {
+            "actor": "army3",
+            "type": "endTurn"
+          },
+          {
+            "actor": "army4",
+            "type": "move",
+            "unitId": "u47",
+            "destination": {
+              "x": 7,
+              "y": 25
+            }
+          },
+          {
+            "actor": "army4",
+            "type": "move",
+            "unitId": "u45",
+            "destination": {
+              "x": 10,
+              "y": 24
+            }
+          },
+          {
+            "actor": "army4",
+            "type": "move",
+            "unitId": "u27",
+            "destination": {
+              "x": 12,
+              "y": 20
+            }
+          },
+          {
+            "actor": "army4",
+            "type": "move",
+            "unitId": "u43",
+            "destination": {
+              "x": 12,
+              "y": 22
+            }
+          },
+          {
+            "actor": "army4",
+            "type": "move",
+            "unitId": "u36",
+            "destination": {
+              "x": 10,
+              "y": 19
+            }
+          },
+          {
+            "actor": "army4",
+            "type": "wait",
+            "unitId": "u36"
+          },
+          {
+            "actor": "army4",
+            "type": "move",
+            "unitId": "u26",
+            "destination": {
+              "x": 10,
+              "y": 21
+            }
+          },
+          {
+            "actor": "army4",
+            "type": "move",
+            "unitId": "u25",
+            "destination": {
+              "x": 11,
+              "y": 22
+            }
+          },
+          {
+            "actor": "army4",
+            "type": "move",
+            "unitId": "u29",
+            "destination": {
+              "x": 11,
+              "y": 21
+            }
+          },
+          {
+            "actor": "army4",
+            "type": "move",
+            "unitId": "u30",
+            "destination": {
+              "x": 12,
+              "y": 21
+            }
+          },
+          {
+            "actor": "army4",
+            "type": "wait",
+            "unitId": "u47"
+          },
+          {
+            "actor": "army4",
+            "type": "wait",
+            "unitId": "u45"
+          },
+          {
+            "actor": "army4",
+            "type": "wait",
+            "unitId": "u26"
+          },
+          {
+            "actor": "army4",
+            "type": "wait",
+            "unitId": "u25"
+          },
+          {
+            "actor": "army4",
+            "type": "wait",
+            "unitId": "u29"
+          },
+          {
+            "actor": "army4",
+            "type": "wait",
+            "unitId": "u43"
+          },
+          {
+            "actor": "army4",
+            "type": "wait",
+            "unitId": "u30"
+          },
+          {
+            "actor": "army4",
+            "type": "wait",
+            "unitId": "u27"
+          },
+          {
+            "actor": "army4",
+            "type": "produce",
+            "factory": {
+              "x": 3,
+              "y": 26
+            },
+            "kind": "tank"
+          },
+          {
+            "actor": "army4",
+            "type": "endTurn"
+          },
+          {
+            "actor": "army1",
+            "type": "move",
+            "unitId": "u46",
+            "destination": {
+              "x": 10,
+              "y": 4
+            }
+          },
+          {
+            "actor": "army1",
+            "type": "move",
+            "unitId": "u49",
+            "destination": {
+              "x": 8,
+              "y": 3
+            }
+          },
+          {
+            "actor": "army1",
+            "type": "move",
+            "unitId": "u40",
+            "destination": {
+              "x": 10,
+              "y": 18
+            }
+          },
+          {
+            "actor": "army1",
+            "type": "attack",
+            "unitId": "u40",
+            "targetId": "u36",
+            "weaponSlot": 0
+          },
+          {
+            "actor": "army1",
+            "type": "move",
+            "unitId": "u48",
+            "destination": {
+              "x": 17,
+              "y": 10
+            }
+          },
+          {
+            "actor": "army1",
+            "type": "attack",
+            "unitId": "u48",
+            "targetId": "u13",
+            "weaponSlot": 0
+          },
+          {
+            "actor": "army1",
+            "type": "produce",
+            "factory": {
+              "x": 12,
+              "y": 10
+            },
+            "kind": "tank"
+          },
+          {
+            "actor": "army1",
+            "type": "move",
+            "unitId": "u44",
+            "destination": {
+              "x": 8,
+              "y": 12
+            }
+          },
+          {
+            "actor": "army1",
+            "type": "move",
+            "unitId": "u42",
+            "destination": {
+              "x": 10,
+              "y": 9
+            }
+          },
+          {
+            "actor": "army1",
+            "type": "move",
+            "unitId": "u1",
+            "destination": {
+              "x": 11,
+              "y": 11
+            }
+          },
+          {
+            "actor": "army1",
+            "type": "move",
+            "unitId": "u6",
+            "destination": {
+              "x": 10,
+              "y": 10
+            }
+          },
+          {
+            "actor": "army1",
+            "type": "move",
+            "unitId": "u5",
+            "destination": {
+              "x": 11,
+              "y": 13
+            }
+          },
+          {
+            "actor": "army1",
+            "type": "move",
+            "unitId": "u2",
+            "destination": {
+              "x": 9,
+              "y": 11
+            }
+          },
+          {
+            "actor": "army1",
+            "type": "move",
+            "unitId": "u37",
+            "destination": {
+              "x": 10,
+              "y": 11
+            }
+          },
+          {
+            "actor": "army1",
+            "type": "move",
+            "unitId": "u3",
+            "destination": {
+              "x": 10,
+              "y": 12
+            }
+          },
+          {
+            "actor": "army1",
+            "type": "capture",
+            "unitId": "u3"
+          },
+          {
+            "actor": "army1",
+            "type": "move",
+            "unitId": "u34",
+            "destination": {
+              "x": 9,
+              "y": 12
+            }
+          },
+          {
+            "actor": "army1",
+            "type": "move",
+            "unitId": "u8",
+            "destination": {
+              "x": 12,
+              "y": 12
+            }
+          },
+          {
+            "actor": "army1",
+            "type": "wait",
+            "unitId": "u49"
+          },
+          {
+            "actor": "army1",
+            "type": "wait",
+            "unitId": "u46"
+          },
+          {
+            "actor": "army1",
+            "type": "wait",
+            "unitId": "u42"
+          },
+          {
+            "actor": "army1",
+            "type": "wait",
+            "unitId": "u6"
+          },
+          {
+            "actor": "army1",
+            "type": "wait",
+            "unitId": "u2"
+          },
+          {
+            "actor": "army1",
+            "type": "wait",
+            "unitId": "u37"
+          },
+          {
+            "actor": "army1",
+            "type": "wait",
+            "unitId": "u1"
+          }
+        ],
+        "comparedCommands": 64,
+        "fallbacks": 0,
+        "traceSha256": "2143d6ca4c934b1a7b36898839168c6f81714810184e125ff1b65f452fe02ff9",
+        "finalStateSha256": "b8b067b42d50d2e052808824a1edd8e40fbed10976a151d25075ccebc2545ab2",
+        "outcome": {
+          "type": "ongoing"
+        }
+      }
+    },
+    {
+      "id": "settings-152003-2",
+      "rules": "expanded",
+      "cpuVersion": "four-army-cpu-v4",
+      "spec": {
+        "id": "settings-152003-2",
+        "group": "settings",
+        "seed": 152003,
+        "order": [
+          "army3",
+          "army4",
+          "army1",
+          "army2"
+        ],
+        "settings": {
+          "army1": {
+            "difficulty": "hard",
+            "policy": "defensive"
+          },
+          "army2": {
+            "difficulty": "normal",
+            "policy": "balanced"
+          },
+          "army3": {
+            "difficulty": "easy",
+            "policy": "balanced"
+          },
+          "army4": {
+            "difficulty": "normal",
+            "policy": "offensive"
+          }
+        },
+        "maxRound": 400,
+        "maxCommands": 65536
+      },
+      "schemaVersion": 4,
+      "position": 512,
+      "prefixTraceSha256": "db47afc5f4f4a0c96999aecf7023d7c4fc93d858d84763ed3bba31ee9b9c27ac",
+      "savedStateSha256": "06b1d98a90fa6910f362e5855056463f5495d2714dc93e5fc1ae19eb50bfe1cc",
+      "encodedBytes": 59157,
+      "fallbacksInPrefix": 0,
+      "retainedEvents": {
+        "all": 128,
+        "army1": 128,
+        "army2": 128,
+        "army3": 128,
+        "army4": 128
+      },
+      "retainedSightings": {
+        "army1": 8,
+        "army2": 8,
+        "army3": 12,
+        "army4": 9
+      },
+      "continuation": {
+        "commands": [
+          {
+            "actor": "army2",
+            "type": "wait",
+            "unitId": "u14"
+          },
+          {
+            "actor": "army2",
+            "type": "wait",
+            "unitId": "u12"
+          },
+          {
+            "actor": "army2",
+            "type": "wait",
+            "unitId": "u38"
+          },
+          {
+            "actor": "army2",
+            "type": "wait",
+            "unitId": "u41"
+          },
+          {
+            "actor": "army2",
+            "type": "wait",
+            "unitId": "u16"
+          },
+          {
+            "actor": "army2",
+            "type": "wait",
+            "unitId": "u9"
+          },
+          {
+            "actor": "army2",
+            "type": "wait",
+            "unitId": "u15"
+          },
+          {
+            "actor": "army2",
+            "type": "wait",
+            "unitId": "u35"
+          },
+          {
+            "actor": "army2",
+            "type": "wait",
+            "unitId": "u13"
+          },
+          {
+            "actor": "army2",
+            "type": "endTurn"
+          },
+          {
+            "actor": "army3",
+            "type": "move",
+            "unitId": "u19",
+            "destination": {
+              "x": 21,
+              "y": 19
+            }
+          },
+          {
+            "actor": "army3",
+            "type": "capture",
+            "unitId": "u19"
+          },
+          {
+            "actor": "army3",
+            "type": "move",
+            "unitId": "u18",
+            "destination": {
+              "x": 20,
+              "y": 20
+            }
+          },
+          {
+            "actor": "army3",
+            "type": "produce",
+            "factory": {
+              "x": 19,
+              "y": 21
+            },
+            "kind": "tank"
+          },
+          {
+            "actor": "army3",
+            "type": "move",
+            "unitId": "u17",
+            "destination": {
+              "x": 22,
+              "y": 19
+            }
+          },
+          {
+            "actor": "army3",
+            "type": "move",
+            "unitId": "u24",
+            "destination": {
+              "x": 21,
+              "y": 18
+            }
+          },
+          {
+            "actor": "army3",
+            "type": "move",
+            "unitId": "u23",
+            "destination": {
+              "x": 21,
+              "y": 21
+            }
+          },
+          {
+            "actor": "army3",
+            "type": "move",
+            "unitId": "u22",
+            "destination": {
+              "x": 19,
+              "y": 19
+            }
+          },
+          {
+            "actor": "army3",
+            "type": "wait",
+            "unitId": "u23"
+          },
+          {
+            "actor": "army3",
+            "type": "wait",
+            "unitId": "u18"
+          },
+          {
+            "actor": "army3",
+            "type": "wait",
+            "unitId": "u17"
+          },
+          {
+            "actor": "army3",
+            "type": "wait",
+            "unitId": "u22"
+          },
+          {
+            "actor": "army3",
+            "type": "wait",
+            "unitId": "u24"
+          },
+          {
+            "actor": "army3",
+            "type": "endTurn"
+          },
+          {
+            "actor": "army4",
+            "type": "logistics",
+            "unitId": "u36",
+            "order": {
+              "priority": true,
+              "resource": "ammo",
+              "repair": true
+            }
+          },
+          {
+            "actor": "army4",
+            "type": "move",
+            "unitId": "u47",
+            "destination": {
+              "x": 7,
+              "y": 25
+            }
+          },
+          {
+            "actor": "army4",
+            "type": "move",
+            "unitId": "u45",
+            "destination": {
+              "x": 10,
+              "y": 24
+            }
+          },
+          {
+            "actor": "army4",
+            "type": "move",
+            "unitId": "u27",
+            "destination": {
+              "x": 12,
+              "y": 20
+            }
+          },
+          {
+            "actor": "army4",
+            "type": "move",
+            "unitId": "u43",
+            "destination": {
+              "x": 12,
+              "y": 22
+            }
+          },
+          {
+            "actor": "army4",
+            "type": "move",
+            "unitId": "u36",
+            "destination": {
+              "x": 10,
+              "y": 19
+            }
+          },
+          {
+            "actor": "army4",
+            "type": "wait",
+            "unitId": "u36"
+          },
+          {
+            "actor": "army4",
+            "type": "move",
+            "unitId": "u26",
+            "destination": {
+              "x": 10,
+              "y": 21
+            }
+          },
+          {
+            "actor": "army4",
+            "type": "move",
+            "unitId": "u25",
+            "destination": {
+              "x": 11,
+              "y": 22
+            }
+          },
+          {
+            "actor": "army4",
+            "type": "move",
+            "unitId": "u29",
+            "destination": {
+              "x": 11,
+              "y": 21
+            }
+          },
+          {
+            "actor": "army4",
+            "type": "move",
+            "unitId": "u30",
+            "destination": {
+              "x": 12,
+              "y": 21
+            }
+          },
+          {
+            "actor": "army4",
+            "type": "wait",
+            "unitId": "u47"
+          },
+          {
+            "actor": "army4",
+            "type": "wait",
+            "unitId": "u45"
+          },
+          {
+            "actor": "army4",
+            "type": "wait",
+            "unitId": "u26"
+          },
+          {
+            "actor": "army4",
+            "type": "wait",
+            "unitId": "u25"
+          },
+          {
+            "actor": "army4",
+            "type": "wait",
+            "unitId": "u29"
+          },
+          {
+            "actor": "army4",
+            "type": "wait",
+            "unitId": "u43"
+          },
+          {
+            "actor": "army4",
+            "type": "wait",
+            "unitId": "u30"
+          },
+          {
+            "actor": "army4",
+            "type": "wait",
+            "unitId": "u27"
+          },
+          {
+            "actor": "army4",
+            "type": "produce",
+            "factory": {
+              "x": 3,
+              "y": 26
+            },
+            "kind": "tank"
+          },
+          {
+            "actor": "army4",
+            "type": "endTurn"
+          },
+          {
+            "actor": "army1",
+            "type": "move",
+            "unitId": "u46",
+            "destination": {
+              "x": 10,
+              "y": 4
+            }
+          },
+          {
+            "actor": "army1",
+            "type": "move",
+            "unitId": "u49",
+            "destination": {
+              "x": 8,
+              "y": 3
+            }
+          },
+          {
+            "actor": "army1",
+            "type": "move",
+            "unitId": "u40",
+            "destination": {
+              "x": 10,
+              "y": 18
+            }
+          },
+          {
+            "actor": "army1",
+            "type": "attack",
+            "unitId": "u40",
+            "targetId": "u36",
+            "weaponSlot": 0
+          },
+          {
+            "actor": "army1",
+            "type": "move",
+            "unitId": "u48",
+            "destination": {
+              "x": 17,
+              "y": 10
+            }
+          },
+          {
+            "actor": "army1",
+            "type": "attack",
+            "unitId": "u48",
+            "targetId": "u13",
+            "weaponSlot": 0
+          },
+          {
+            "actor": "army1",
+            "type": "produce",
+            "factory": {
+              "x": 12,
+              "y": 10
+            },
+            "kind": "tank"
+          },
+          {
+            "actor": "army1",
+            "type": "move",
+            "unitId": "u44",
+            "destination": {
+              "x": 8,
+              "y": 12
+            }
+          },
+          {
+            "actor": "army1",
+            "type": "move",
+            "unitId": "u42",
+            "destination": {
+              "x": 10,
+              "y": 9
+            }
+          },
+          {
+            "actor": "army1",
+            "type": "move",
+            "unitId": "u1",
+            "destination": {
+              "x": 11,
+              "y": 11
+            }
+          },
+          {
+            "actor": "army1",
+            "type": "move",
+            "unitId": "u6",
+            "destination": {
+              "x": 10,
+              "y": 10
+            }
+          },
+          {
+            "actor": "army1",
+            "type": "move",
+            "unitId": "u5",
+            "destination": {
+              "x": 11,
+              "y": 13
+            }
+          },
+          {
+            "actor": "army1",
+            "type": "move",
+            "unitId": "u2",
+            "destination": {
+              "x": 9,
+              "y": 11
+            }
+          },
+          {
+            "actor": "army1",
+            "type": "move",
+            "unitId": "u37",
+            "destination": {
+              "x": 10,
+              "y": 11
+            }
+          },
+          {
+            "actor": "army1",
+            "type": "move",
+            "unitId": "u3",
+            "destination": {
+              "x": 10,
+              "y": 12
+            }
+          },
+          {
+            "actor": "army1",
+            "type": "capture",
+            "unitId": "u3"
+          },
+          {
+            "actor": "army1",
+            "type": "move",
+            "unitId": "u34",
+            "destination": {
+              "x": 9,
+              "y": 12
+            }
+          },
+          {
+            "actor": "army1",
+            "type": "move",
+            "unitId": "u8",
+            "destination": {
+              "x": 12,
+              "y": 12
+            }
+          },
+          {
+            "actor": "army1",
+            "type": "wait",
+            "unitId": "u49"
+          }
+        ],
+        "comparedCommands": 64,
+        "fallbacks": 0,
+        "traceSha256": "b4597d58c535fd941f1c5ea9fb820f431ca0da307b8964343f2bd2eba928f68c",
+        "finalStateSha256": "6682add1eaa6792e0fb25130a97eaf7e8cc306d98ad1c5c91c62180e5cc121e5",
+        "outcome": {
+          "type": "ongoing"
+        }
+      }
+    },
+    {
+      "id": "settings-152003-3",
+      "rules": "classic",
+      "cpuVersion": "four-army-cpu-v3",
+      "spec": {
+        "id": "settings-152003-3",
+        "group": "settings",
+        "seed": 152003,
+        "order": [
+          "army4",
+          "army1",
+          "army2",
+          "army3"
+        ],
+        "settings": {
+          "army1": {
+            "difficulty": "normal",
+            "policy": "balanced"
+          },
+          "army2": {
+            "difficulty": "easy",
+            "policy": "balanced"
+          },
+          "army3": {
+            "difficulty": "normal",
+            "policy": "offensive"
+          },
+          "army4": {
+            "difficulty": "hard",
+            "policy": "defensive"
+          }
+        },
+        "maxRound": 400,
+        "maxCommands": 65536
+      },
+      "schemaVersion": 4,
+      "position": 512,
+      "prefixTraceSha256": "46e7ce4c95979659c4e2637791bb18528c344c256f149fbc1d4c523192913eb0",
+      "savedStateSha256": "6a1fd05aff52180593efa18cd943540673813514b77c0ad55379ab919955f07f",
+      "encodedBytes": 59049,
+      "fallbacksInPrefix": 0,
+      "retainedEvents": {
+        "all": 128,
+        "army1": 128,
+        "army2": 128,
+        "army3": 128,
+        "army4": 128
+      },
+      "retainedSightings": {
+        "army1": 10,
+        "army2": 13,
+        "army3": 9,
+        "army4": 14
+      },
+      "continuation": {
+        "commands": [
+          {
+            "actor": "army3",
+            "type": "wait",
+            "unitId": "u41"
+          },
+          {
+            "actor": "army3",
+            "type": "wait",
+            "unitId": "u23"
+          },
+          {
+            "actor": "army3",
+            "type": "endTurn"
+          },
+          {
+            "actor": "army4",
+            "type": "move",
+            "unitId": "u36",
+            "destination": {
+              "x": 14,
+              "y": 20
+            }
+          },
+          {
+            "actor": "army4",
+            "type": "attack",
+            "unitId": "u36",
+            "targetId": "u24",
+            "weaponSlot": 0
+          },
+          {
+            "actor": "army4",
+            "type": "attack",
+            "unitId": "u30",
+            "targetId": "u24",
+            "weaponSlot": 0
+          },
+          {
+            "actor": "army4",
+            "type": "move",
+            "unitId": "u27",
+            "destination": {
+              "x": 12,
+              "y": 21
+            }
+          },
+          {
+            "actor": "army4",
+            "type": "capture",
+            "unitId": "u27"
+          },
+          {
+            "actor": "army4",
+            "type": "move",
+            "unitId": "u47",
+            "destination": {
+              "x": 6,
+              "y": 24
+            }
+          },
+          {
+            "actor": "army4",
+            "type": "move",
+            "unitId": "u25",
+            "destination": {
+              "x": 12,
+              "y": 20
+            }
+          },
+          {
+            "actor": "army4",
+            "type": "produce",
+            "factory": {
+              "x": 10,
+              "y": 19
+            },
+            "kind": "tank"
+          },
+          {
+            "actor": "army4",
+            "type": "move",
+            "unitId": "u42",
+            "destination": {
+              "x": 12,
+              "y": 19
+            }
+          },
+          {
+            "actor": "army4",
+            "type": "move",
+            "unitId": "u45",
+            "destination": {
+              "x": 4,
+              "y": 21
+            }
+          },
+          {
+            "actor": "army4",
+            "type": "move",
+            "unitId": "u44",
+            "destination": {
+              "x": 8,
+              "y": 21
+            }
+          },
+          {
+            "actor": "army4",
+            "type": "move",
+            "unitId": "u26",
+            "destination": {
+              "x": 12,
+              "y": 23
+            }
+          },
+          {
+            "actor": "army4",
+            "type": "move",
+            "unitId": "u39",
+            "destination": {
+              "x": 11,
+              "y": 22
+            }
+          },
+          {
+            "actor": "army4",
+            "type": "move",
+            "unitId": "u32",
+            "destination": {
+              "x": 9,
+              "y": 21
+            }
+          },
+          {
+            "actor": "army4",
+            "type": "move",
+            "unitId": "u29",
+            "destination": {
+              "x": 10,
+              "y": 21
+            }
+          },
+          {
+            "actor": "army4",
+            "type": "move",
+            "unitId": "u31",
+            "destination": {
+              "x": 11,
+              "y": 20
+            }
+          },
+          {
+            "actor": "army4",
+            "type": "wait",
+            "unitId": "u45"
+          },
+          {
+            "actor": "army4",
+            "type": "wait",
+            "unitId": "u47"
+          },
+          {
+            "actor": "army4",
+            "type": "wait",
+            "unitId": "u44"
+          },
+          {
+            "actor": "army4",
+            "type": "wait",
+            "unitId": "u32"
+          },
+          {
+            "actor": "army4",
+            "type": "wait",
+            "unitId": "u29"
+          },
+          {
+            "actor": "army4",
+            "type": "wait",
+            "unitId": "u39"
+          },
+          {
+            "actor": "army4",
+            "type": "wait",
+            "unitId": "u31"
+          },
+          {
+            "actor": "army4",
+            "type": "wait",
+            "unitId": "u26"
+          },
+          {
+            "actor": "army4",
+            "type": "wait",
+            "unitId": "u25"
+          },
+          {
+            "actor": "army4",
+            "type": "wait",
+            "unitId": "u42"
+          },
+          {
+            "actor": "army4",
+            "type": "produce",
+            "factory": {
+              "x": 3,
+              "y": 26
+            },
+            "kind": "infantry"
+          },
+          {
+            "actor": "army4",
+            "type": "endTurn"
+          },
+          {
+            "actor": "army1",
+            "type": "capture",
+            "unitId": "u1"
+          },
+          {
+            "actor": "army1",
+            "type": "move",
+            "unitId": "u40",
+            "destination": {
+              "x": 17,
+              "y": 9
+            }
+          },
+          {
+            "actor": "army1",
+            "type": "move",
+            "unitId": "u7",
+            "destination": {
+              "x": 15,
+              "y": 11
+            }
+          },
+          {
+            "actor": "army1",
+            "type": "move",
+            "unitId": "u48",
+            "destination": {
+              "x": 10,
+              "y": 3
+            }
+          },
+          {
+            "actor": "army1",
+            "type": "move",
+            "unitId": "u6",
+            "destination": {
+              "x": 18,
+              "y": 10
+            }
+          },
+          {
+            "actor": "army1",
+            "type": "move",
+            "unitId": "u5",
+            "destination": {
+              "x": 17,
+              "y": 10
+            }
+          },
+          {
+            "actor": "army1",
+            "type": "move",
+            "unitId": "u3",
+            "destination": {
+              "x": 10,
+              "y": 15
+            }
+          },
+          {
+            "actor": "army1",
+            "type": "move",
+            "unitId": "u37",
+            "destination": {
+              "x": 14,
+              "y": 10
+            }
+          },
+          {
+            "actor": "army1",
+            "type": "move",
+            "unitId": "u2",
+            "destination": {
+              "x": 15,
+              "y": 8
+            }
+          },
+          {
+            "actor": "army1",
+            "type": "move",
+            "unitId": "u34",
+            "destination": {
+              "x": 22,
+              "y": 10
+            }
+          },
+          {
+            "actor": "army1",
+            "type": "attack",
+            "unitId": "u34",
+            "targetId": "u9",
+            "weaponSlot": 0
+          },
+          {
+            "actor": "army1",
+            "type": "move",
+            "unitId": "u4",
+            "destination": {
+              "x": 19,
+              "y": 8
+            }
+          },
+          {
+            "actor": "army1",
+            "type": "wait",
+            "unitId": "u48"
+          },
+          {
+            "actor": "army1",
+            "type": "wait",
+            "unitId": "u2"
+          },
+          {
+            "actor": "army1",
+            "type": "wait",
+            "unitId": "u4"
+          },
+          {
+            "actor": "army1",
+            "type": "wait",
+            "unitId": "u40"
+          },
+          {
+            "actor": "army1",
+            "type": "wait",
+            "unitId": "u37"
+          },
+          {
+            "actor": "army1",
+            "type": "wait",
+            "unitId": "u5"
+          },
+          {
+            "actor": "army1",
+            "type": "wait",
+            "unitId": "u6"
+          },
+          {
+            "actor": "army1",
+            "type": "wait",
+            "unitId": "u7"
+          },
+          {
+            "actor": "army1",
+            "type": "wait",
+            "unitId": "u3"
+          },
+          {
+            "actor": "army1",
+            "type": "endTurn"
+          },
+          {
+            "actor": "army2",
+            "type": "attack",
+            "unitId": "u14",
+            "targetId": "u38",
+            "weaponSlot": 0
+          },
+          {
+            "actor": "army2",
+            "type": "attack",
+            "unitId": "u16",
+            "targetId": "u6",
+            "weaponSlot": 0
+          },
+          {
+            "actor": "army2",
+            "type": "attack",
+            "unitId": "u9",
+            "targetId": "u34",
+            "weaponSlot": 0
+          },
+          {
+            "actor": "army2",
+            "type": "move",
+            "unitId": "u50",
+            "destination": {
+              "x": 23,
+              "y": 8
+            }
+          },
+          {
+            "actor": "army2",
+            "type": "move",
+            "unitId": "u49",
+            "destination": {
+              "x": 25,
+              "y": 7
+            }
+          },
+          {
+            "actor": "army2",
+            "type": "move",
+            "unitId": "u10",
+            "destination": {
+              "x": 20,
+              "y": 10
+            }
+          },
+          {
+            "actor": "army2",
+            "type": "produce",
+            "factory": {
+              "x": 21,
+              "y": 12
+            },
+            "kind": "infantry"
+          },
+          {
+            "actor": "army2",
+            "type": "wait",
+            "unitId": "u49"
+          },
+          {
+            "actor": "army2",
+            "type": "wait",
+            "unitId": "u50"
+          },
+          {
+            "actor": "army2",
+            "type": "wait",
+            "unitId": "u10"
+          },
+          {
+            "actor": "army2",
+            "type": "produce",
+            "factory": {
+              "x": 28,
+              "y": 5
+            },
+            "kind": "tank"
+          }
+        ],
+        "comparedCommands": 64,
+        "fallbacks": 0,
+        "traceSha256": "487fed1459715edddf0f50ae2830120d38710b9cd348aa806d48c775dbc164fc",
+        "finalStateSha256": "5a4caca1f86422d7732616960be9ad08dae39d687a7e267c4d7f09d56920b36a",
+        "outcome": {
+          "type": "ongoing"
+        }
+      }
+    },
+    {
+      "id": "settings-152003-3",
+      "rules": "classic",
+      "cpuVersion": "four-army-cpu-v4",
+      "spec": {
+        "id": "settings-152003-3",
+        "group": "settings",
+        "seed": 152003,
+        "order": [
+          "army4",
+          "army1",
+          "army2",
+          "army3"
+        ],
+        "settings": {
+          "army1": {
+            "difficulty": "normal",
+            "policy": "balanced"
+          },
+          "army2": {
+            "difficulty": "easy",
+            "policy": "balanced"
+          },
+          "army3": {
+            "difficulty": "normal",
+            "policy": "offensive"
+          },
+          "army4": {
+            "difficulty": "hard",
+            "policy": "defensive"
+          }
+        },
+        "maxRound": 400,
+        "maxCommands": 65536
+      },
+      "schemaVersion": 4,
+      "position": 512,
+      "prefixTraceSha256": "46e7ce4c95979659c4e2637791bb18528c344c256f149fbc1d4c523192913eb0",
+      "savedStateSha256": "6a1fd05aff52180593efa18cd943540673813514b77c0ad55379ab919955f07f",
+      "encodedBytes": 59049,
+      "fallbacksInPrefix": 0,
+      "retainedEvents": {
+        "all": 128,
+        "army1": 128,
+        "army2": 128,
+        "army3": 128,
+        "army4": 128
+      },
+      "retainedSightings": {
+        "army1": 10,
+        "army2": 13,
+        "army3": 9,
+        "army4": 14
+      },
+      "continuation": {
+        "commands": [
+          {
+            "actor": "army3",
+            "type": "wait",
+            "unitId": "u41"
+          },
+          {
+            "actor": "army3",
+            "type": "wait",
+            "unitId": "u23"
+          },
+          {
+            "actor": "army3",
+            "type": "endTurn"
+          },
+          {
+            "actor": "army4",
+            "type": "move",
+            "unitId": "u36",
+            "destination": {
+              "x": 14,
+              "y": 20
+            }
+          },
+          {
+            "actor": "army4",
+            "type": "attack",
+            "unitId": "u36",
+            "targetId": "u24",
+            "weaponSlot": 0
+          },
+          {
+            "actor": "army4",
+            "type": "attack",
+            "unitId": "u30",
+            "targetId": "u24",
+            "weaponSlot": 0
+          },
+          {
+            "actor": "army4",
+            "type": "move",
+            "unitId": "u27",
+            "destination": {
+              "x": 12,
+              "y": 21
+            }
+          },
+          {
+            "actor": "army4",
+            "type": "capture",
+            "unitId": "u27"
+          },
+          {
+            "actor": "army4",
+            "type": "move",
+            "unitId": "u47",
+            "destination": {
+              "x": 6,
+              "y": 24
+            }
+          },
+          {
+            "actor": "army4",
+            "type": "move",
+            "unitId": "u25",
+            "destination": {
+              "x": 12,
+              "y": 20
+            }
+          },
+          {
+            "actor": "army4",
+            "type": "produce",
+            "factory": {
+              "x": 10,
+              "y": 19
+            },
+            "kind": "tank"
+          },
+          {
+            "actor": "army4",
+            "type": "move",
+            "unitId": "u42",
+            "destination": {
+              "x": 12,
+              "y": 19
+            }
+          },
+          {
+            "actor": "army4",
+            "type": "move",
+            "unitId": "u45",
+            "destination": {
+              "x": 4,
+              "y": 21
+            }
+          },
+          {
+            "actor": "army4",
+            "type": "move",
+            "unitId": "u44",
+            "destination": {
+              "x": 8,
+              "y": 21
+            }
+          },
+          {
+            "actor": "army4",
+            "type": "move",
+            "unitId": "u26",
+            "destination": {
+              "x": 12,
+              "y": 23
+            }
+          },
+          {
+            "actor": "army4",
+            "type": "move",
+            "unitId": "u39",
+            "destination": {
+              "x": 11,
+              "y": 22
+            }
+          },
+          {
+            "actor": "army4",
+            "type": "move",
+            "unitId": "u32",
+            "destination": {
+              "x": 9,
+              "y": 21
+            }
+          },
+          {
+            "actor": "army4",
+            "type": "move",
+            "unitId": "u29",
+            "destination": {
+              "x": 10,
+              "y": 21
+            }
+          },
+          {
+            "actor": "army4",
+            "type": "move",
+            "unitId": "u31",
+            "destination": {
+              "x": 11,
+              "y": 20
+            }
+          },
+          {
+            "actor": "army4",
+            "type": "wait",
+            "unitId": "u45"
+          },
+          {
+            "actor": "army4",
+            "type": "wait",
+            "unitId": "u47"
+          },
+          {
+            "actor": "army4",
+            "type": "wait",
+            "unitId": "u44"
+          },
+          {
+            "actor": "army4",
+            "type": "wait",
+            "unitId": "u32"
+          },
+          {
+            "actor": "army4",
+            "type": "wait",
+            "unitId": "u29"
+          },
+          {
+            "actor": "army4",
+            "type": "wait",
+            "unitId": "u39"
+          },
+          {
+            "actor": "army4",
+            "type": "wait",
+            "unitId": "u31"
+          },
+          {
+            "actor": "army4",
+            "type": "wait",
+            "unitId": "u26"
+          },
+          {
+            "actor": "army4",
+            "type": "wait",
+            "unitId": "u25"
+          },
+          {
+            "actor": "army4",
+            "type": "wait",
+            "unitId": "u42"
+          },
+          {
+            "actor": "army4",
+            "type": "produce",
+            "factory": {
+              "x": 3,
+              "y": 26
+            },
+            "kind": "infantry"
+          },
+          {
+            "actor": "army4",
+            "type": "endTurn"
+          },
+          {
+            "actor": "army1",
+            "type": "capture",
+            "unitId": "u1"
+          },
+          {
+            "actor": "army1",
+            "type": "move",
+            "unitId": "u40",
+            "destination": {
+              "x": 17,
+              "y": 9
+            }
+          },
+          {
+            "actor": "army1",
+            "type": "move",
+            "unitId": "u7",
+            "destination": {
+              "x": 15,
+              "y": 11
+            }
+          },
+          {
+            "actor": "army1",
+            "type": "move",
+            "unitId": "u48",
+            "destination": {
+              "x": 10,
+              "y": 3
+            }
+          },
+          {
+            "actor": "army1",
+            "type": "move",
+            "unitId": "u6",
+            "destination": {
+              "x": 18,
+              "y": 10
+            }
+          },
+          {
+            "actor": "army1",
+            "type": "move",
+            "unitId": "u5",
+            "destination": {
+              "x": 17,
+              "y": 10
+            }
+          },
+          {
+            "actor": "army1",
+            "type": "move",
+            "unitId": "u3",
+            "destination": {
+              "x": 10,
+              "y": 15
+            }
+          },
+          {
+            "actor": "army1",
+            "type": "move",
+            "unitId": "u37",
+            "destination": {
+              "x": 14,
+              "y": 10
+            }
+          },
+          {
+            "actor": "army1",
+            "type": "move",
+            "unitId": "u2",
+            "destination": {
+              "x": 15,
+              "y": 8
+            }
+          },
+          {
+            "actor": "army1",
+            "type": "move",
+            "unitId": "u34",
+            "destination": {
+              "x": 22,
+              "y": 10
+            }
+          },
+          {
+            "actor": "army1",
+            "type": "attack",
+            "unitId": "u34",
+            "targetId": "u9",
+            "weaponSlot": 0
+          },
+          {
+            "actor": "army1",
+            "type": "move",
+            "unitId": "u4",
+            "destination": {
+              "x": 19,
+              "y": 8
+            }
+          },
+          {
+            "actor": "army1",
+            "type": "wait",
+            "unitId": "u48"
+          },
+          {
+            "actor": "army1",
+            "type": "wait",
+            "unitId": "u2"
+          },
+          {
+            "actor": "army1",
+            "type": "wait",
+            "unitId": "u4"
+          },
+          {
+            "actor": "army1",
+            "type": "wait",
+            "unitId": "u40"
+          },
+          {
+            "actor": "army1",
+            "type": "wait",
+            "unitId": "u37"
+          },
+          {
+            "actor": "army1",
+            "type": "wait",
+            "unitId": "u5"
+          },
+          {
+            "actor": "army1",
+            "type": "wait",
+            "unitId": "u6"
+          },
+          {
+            "actor": "army1",
+            "type": "wait",
+            "unitId": "u7"
+          },
+          {
+            "actor": "army1",
+            "type": "wait",
+            "unitId": "u3"
+          },
+          {
+            "actor": "army1",
+            "type": "endTurn"
+          },
+          {
+            "actor": "army2",
+            "type": "attack",
+            "unitId": "u14",
+            "targetId": "u38",
+            "weaponSlot": 0
+          },
+          {
+            "actor": "army2",
+            "type": "attack",
+            "unitId": "u16",
+            "targetId": "u6",
+            "weaponSlot": 0
+          },
+          {
+            "actor": "army2",
+            "type": "attack",
+            "unitId": "u9",
+            "targetId": "u34",
+            "weaponSlot": 0
+          },
+          {
+            "actor": "army2",
+            "type": "move",
+            "unitId": "u50",
+            "destination": {
+              "x": 23,
+              "y": 8
+            }
+          },
+          {
+            "actor": "army2",
+            "type": "move",
+            "unitId": "u49",
+            "destination": {
+              "x": 25,
+              "y": 7
+            }
+          },
+          {
+            "actor": "army2",
+            "type": "move",
+            "unitId": "u10",
+            "destination": {
+              "x": 20,
+              "y": 10
+            }
+          },
+          {
+            "actor": "army2",
+            "type": "produce",
+            "factory": {
+              "x": 21,
+              "y": 12
+            },
+            "kind": "infantry"
+          },
+          {
+            "actor": "army2",
+            "type": "wait",
+            "unitId": "u49"
+          },
+          {
+            "actor": "army2",
+            "type": "wait",
+            "unitId": "u50"
+          },
+          {
+            "actor": "army2",
+            "type": "wait",
+            "unitId": "u10"
+          },
+          {
+            "actor": "army2",
+            "type": "produce",
+            "factory": {
+              "x": 28,
+              "y": 5
+            },
+            "kind": "tank"
+          }
+        ],
+        "comparedCommands": 64,
+        "fallbacks": 0,
+        "traceSha256": "487fed1459715edddf0f50ae2830120d38710b9cd348aa806d48c775dbc164fc",
+        "finalStateSha256": "5a4caca1f86422d7732616960be9ad08dae39d687a7e267c4d7f09d56920b36a",
+        "outcome": {
+          "type": "ongoing"
+        }
+      }
+    },
+    {
+      "id": "settings-152003-3",
+      "rules": "expanded",
+      "cpuVersion": "four-army-cpu-v3",
+      "spec": {
+        "id": "settings-152003-3",
+        "group": "settings",
+        "seed": 152003,
+        "order": [
+          "army4",
+          "army1",
+          "army2",
+          "army3"
+        ],
+        "settings": {
+          "army1": {
+            "difficulty": "normal",
+            "policy": "balanced"
+          },
+          "army2": {
+            "difficulty": "easy",
+            "policy": "balanced"
+          },
+          "army3": {
+            "difficulty": "normal",
+            "policy": "offensive"
+          },
+          "army4": {
+            "difficulty": "hard",
+            "policy": "defensive"
+          }
+        },
+        "maxRound": 400,
+        "maxCommands": 65536
+      },
+      "schemaVersion": 4,
+      "position": 512,
+      "prefixTraceSha256": "340c8f997efc83b8c7b13dd5678f44e724df42ca19cd85f00f64833ccf194ee8",
+      "savedStateSha256": "315454d22a03f1df30b23d6af93fba332b01157c3788816f78e1eb7d69728ce6",
+      "encodedBytes": 59352,
+      "fallbacksInPrefix": 0,
+      "retainedEvents": {
+        "all": 128,
+        "army1": 128,
+        "army2": 128,
+        "army3": 128,
+        "army4": 128
+      },
+      "retainedSightings": {
+        "army1": 9,
+        "army2": 13,
+        "army3": 8,
+        "army4": 14
+      },
+      "continuation": {
+        "commands": [
+          {
+            "actor": "army4",
+            "type": "attack",
+            "unitId": "u36",
+            "targetId": "u24",
+            "weaponSlot": 0
+          },
+          {
+            "actor": "army4",
+            "type": "attack",
+            "unitId": "u30",
+            "targetId": "u24",
+            "weaponSlot": 0
+          },
+          {
+            "actor": "army4",
+            "type": "move",
+            "unitId": "u26",
+            "destination": {
+              "x": 13,
+              "y": 23
+            }
+          },
+          {
+            "actor": "army4",
+            "type": "move",
+            "unitId": "u32",
+            "destination": {
+              "x": 11,
+              "y": 22
+            }
+          },
+          {
+            "actor": "army4",
+            "type": "attack",
+            "unitId": "u32",
+            "targetId": "u41",
+            "weaponSlot": 0
+          },
+          {
+            "actor": "army4",
+            "type": "attack",
+            "unitId": "u26",
+            "targetId": "u41",
+            "weaponSlot": 0
+          },
+          {
+            "actor": "army4",
+            "type": "attack",
+            "unitId": "u27",
+            "targetId": "u41",
+            "weaponSlot": 0
+          },
+          {
+            "actor": "army4",
+            "type": "move",
+            "unitId": "u46",
+            "destination": {
+              "x": 6,
+              "y": 24
+            }
+          },
+          {
+            "actor": "army4",
+            "type": "move",
+            "unitId": "u42",
+            "destination": {
+              "x": 12,
+              "y": 20
+            }
+          },
+          {
+            "actor": "army4",
+            "type": "move",
+            "unitId": "u45",
+            "destination": {
+              "x": 4,
+              "y": 21
+            }
+          },
+          {
+            "actor": "army4",
+            "type": "move",
+            "unitId": "u25",
+            "destination": {
+              "x": 10,
+              "y": 21
+            }
+          },
+          {
+            "actor": "army4",
+            "type": "move",
+            "unitId": "u29",
+            "destination": {
+              "x": 10,
+              "y": 19
+            }
+          },
+          {
+            "actor": "army4",
+            "type": "wait",
+            "unitId": "u29"
+          },
+          {
+            "actor": "army4",
+            "type": "move",
+            "unitId": "u44",
+            "destination": {
+              "x": 8,
+              "y": 21
+            }
+          },
+          {
+            "actor": "army4",
+            "type": "move",
+            "unitId": "u31",
+            "destination": {
+              "x": 12,
+              "y": 21
+            }
+          },
+          {
+            "actor": "army4",
+            "type": "move",
+            "unitId": "u39",
+            "destination": {
+              "x": 11,
+              "y": 21
+            }
+          },
+          {
+            "actor": "army4",
+            "type": "wait",
+            "unitId": "u45"
+          },
+          {
+            "actor": "army4",
+            "type": "wait",
+            "unitId": "u46"
+          },
+          {
+            "actor": "army4",
+            "type": "wait",
+            "unitId": "u44"
+          },
+          {
+            "actor": "army4",
+            "type": "wait",
+            "unitId": "u25"
+          },
+          {
+            "actor": "army4",
+            "type": "wait",
+            "unitId": "u39"
+          },
+          {
+            "actor": "army4",
+            "type": "wait",
+            "unitId": "u31"
+          },
+          {
+            "actor": "army4",
+            "type": "wait",
+            "unitId": "u42"
+          },
+          {
+            "actor": "army4",
+            "type": "produce",
+            "factory": {
+              "x": 3,
+              "y": 26
+            },
+            "kind": "tank"
+          },
+          {
+            "actor": "army4",
+            "type": "endTurn"
+          },
+          {
+            "actor": "army1",
+            "type": "attack",
+            "unitId": "u5",
+            "targetId": "u11",
+            "weaponSlot": 0
+          },
+          {
+            "actor": "army1",
+            "type": "move",
+            "unitId": "u48",
+            "destination": {
+              "x": 9,
+              "y": 5
+            }
+          },
+          {
+            "actor": "army1",
+            "type": "move",
+            "unitId": "u47",
+            "destination": {
+              "x": 10,
+              "y": 3
+            }
+          },
+          {
+            "actor": "army1",
+            "type": "move",
+            "unitId": "u3",
+            "destination": {
+              "x": 11,
+              "y": 10
+            }
+          },
+          {
+            "actor": "army1",
+            "type": "move",
+            "unitId": "u7",
+            "destination": {
+              "x": 10,
+              "y": 12
+            }
+          },
+          {
+            "actor": "army1",
+            "type": "wait",
+            "unitId": "u7"
+          },
+          {
+            "actor": "army1",
+            "type": "move",
+            "unitId": "u2",
+            "destination": {
+              "x": 11,
+              "y": 9
+            }
+          },
+          {
+            "actor": "army1",
+            "type": "move",
+            "unitId": "u1",
+            "destination": {
+              "x": 12,
+              "y": 8
+            }
+          },
+          {
+            "actor": "army1",
+            "type": "move",
+            "unitId": "u40",
+            "destination": {
+              "x": 13,
+              "y": 9
+            }
+          },
+          {
+            "actor": "army1",
+            "type": "move",
+            "unitId": "u8",
+            "destination": {
+              "x": 12,
+              "y": 9
+            }
+          },
+          {
+            "actor": "army1",
+            "type": "move",
+            "unitId": "u6",
+            "destination": {
+              "x": 12,
+              "y": 10
+            }
+          },
+          {
+            "actor": "army1",
+            "type": "move",
+            "unitId": "u37",
+            "destination": {
+              "x": 13,
+              "y": 10
+            }
+          },
+          {
+            "actor": "army1",
+            "type": "wait",
+            "unitId": "u47"
+          },
+          {
+            "actor": "army1",
+            "type": "wait",
+            "unitId": "u48"
+          },
+          {
+            "actor": "army1",
+            "type": "wait",
+            "unitId": "u1"
+          },
+          {
+            "actor": "army1",
+            "type": "wait",
+            "unitId": "u2"
+          },
+          {
+            "actor": "army1",
+            "type": "wait",
+            "unitId": "u8"
+          },
+          {
+            "actor": "army1",
+            "type": "wait",
+            "unitId": "u40"
+          },
+          {
+            "actor": "army1",
+            "type": "wait",
+            "unitId": "u3"
+          },
+          {
+            "actor": "army1",
+            "type": "wait",
+            "unitId": "u6"
+          },
+          {
+            "actor": "army1",
+            "type": "wait",
+            "unitId": "u37"
+          },
+          {
+            "actor": "army1",
+            "type": "endTurn"
+          },
+          {
+            "actor": "army2",
+            "type": "capture",
+            "unitId": "u11"
+          },
+          {
+            "actor": "army2",
+            "type": "move",
+            "unitId": "u9",
+            "destination": {
+              "x": 21,
+              "y": 12
+            }
+          },
+          {
+            "actor": "army2",
+            "type": "capture",
+            "unitId": "u9"
+          },
+          {
+            "actor": "army2",
+            "type": "move",
+            "unitId": "u49",
+            "destination": {
+              "x": 28,
+              "y": 10
+            }
+          },
+          {
+            "actor": "army2",
+            "type": "move",
+            "unitId": "u14",
+            "destination": {
+              "x": 22,
+              "y": 12
+            }
+          },
+          {
+            "actor": "army2",
+            "type": "move",
+            "unitId": "u16",
+            "destination": {
+              "x": 20,
+              "y": 12
+            }
+          },
+          {
+            "actor": "army2",
+            "type": "move",
+            "unitId": "u10",
+            "destination": {
+              "x": 21,
+              "y": 11
+            }
+          },
+          {
+            "actor": "army2",
+            "type": "wait",
+            "unitId": "u49"
+          },
+          {
+            "actor": "army2",
+            "type": "wait",
+            "unitId": "u14"
+          },
+          {
+            "actor": "army2",
+            "type": "wait",
+            "unitId": "u10"
+          },
+          {
+            "actor": "army2",
+            "type": "wait",
+            "unitId": "u16"
+          },
+          {
+            "actor": "army2",
+            "type": "produce",
+            "factory": {
+              "x": 28,
+              "y": 5
+            },
+            "kind": "tank"
+          },
+          {
+            "actor": "army2",
+            "type": "endTurn"
+          },
+          {
+            "actor": "army3",
+            "type": "attack",
+            "unitId": "u41",
+            "targetId": "u30",
+            "weaponSlot": 0
+          },
+          {
+            "actor": "army3",
+            "type": "move",
+            "unitId": "u51",
+            "destination": {
+              "x": 22,
+              "y": 26
+            }
+          },
+          {
+            "actor": "army3",
+            "type": "move",
+            "unitId": "u50",
+            "destination": {
+              "x": 24,
+              "y": 25
+            }
+          },
+          {
+            "actor": "army3",
+            "type": "move",
+            "unitId": "u43",
+            "destination": {
+              "x": 20,
+              "y": 19
+            }
+          }
+        ],
+        "comparedCommands": 64,
+        "fallbacks": 0,
+        "traceSha256": "0409c38863349086d3382084c86a9bc95675b4db41b5ecedb2dd0f8c2318db72",
+        "finalStateSha256": "82011ab05924a362646821df6bf15b92728ba8b9e24efd5f12d1678085d58c5e",
+        "outcome": {
+          "type": "ongoing"
+        }
+      }
+    },
+    {
+      "id": "settings-152003-3",
+      "rules": "expanded",
+      "cpuVersion": "four-army-cpu-v4",
+      "spec": {
+        "id": "settings-152003-3",
+        "group": "settings",
+        "seed": 152003,
+        "order": [
+          "army4",
+          "army1",
+          "army2",
+          "army3"
+        ],
+        "settings": {
+          "army1": {
+            "difficulty": "normal",
+            "policy": "balanced"
+          },
+          "army2": {
+            "difficulty": "easy",
+            "policy": "balanced"
+          },
+          "army3": {
+            "difficulty": "normal",
+            "policy": "offensive"
+          },
+          "army4": {
+            "difficulty": "hard",
+            "policy": "defensive"
+          }
+        },
+        "maxRound": 400,
+        "maxCommands": 65536
+      },
+      "schemaVersion": 4,
+      "position": 512,
+      "prefixTraceSha256": "e1a7164c3f85668f0637751fc72b75561ea5d530b27ae55de060c3fed4e019fa",
+      "savedStateSha256": "4d2f937d053f0e17caf14fe17726eaa9eb1e0dc8f0f3e105d42a8aa1f282587f",
+      "encodedBytes": 59104,
+      "fallbacksInPrefix": 0,
+      "retainedEvents": {
+        "all": 128,
+        "army1": 128,
+        "army2": 128,
+        "army3": 128,
+        "army4": 128
+      },
+      "retainedSightings": {
+        "army1": 10,
+        "army2": 13,
+        "army3": 7,
+        "army4": 15
+      },
+      "continuation": {
+        "commands": [
+          {
+            "actor": "army3",
+            "type": "wait",
+            "unitId": "u17"
+          },
+          {
+            "actor": "army3",
+            "type": "wait",
+            "unitId": "u22"
+          },
+          {
+            "actor": "army3",
+            "type": "produce",
+            "factory": {
+              "x": 26,
+              "y": 28
+            },
+            "kind": "tank"
+          },
+          {
+            "actor": "army3",
+            "type": "produce",
+            "factory": {
+              "x": 28,
+              "y": 26
+            },
+            "kind": "helicopter"
+          },
+          {
+            "actor": "army3",
+            "type": "endTurn"
+          },
+          {
+            "actor": "army4",
+            "type": "attack",
+            "unitId": "u30",
+            "targetId": "u41",
+            "weaponSlot": 0
+          },
+          {
+            "actor": "army4",
+            "type": "move",
+            "unitId": "u32",
+            "destination": {
+              "x": 11,
+              "y": 22
+            }
+          },
+          {
+            "actor": "army4",
+            "type": "attack",
+            "unitId": "u32",
+            "targetId": "u41",
+            "weaponSlot": 0
+          },
+          {
+            "actor": "army4",
+            "type": "move",
+            "unitId": "u26",
+            "destination": {
+              "x": 13,
+              "y": 21
+            }
+          },
+          {
+            "actor": "army4",
+            "type": "attack",
+            "unitId": "u26",
+            "targetId": "u41",
+            "weaponSlot": 0
+          },
+          {
+            "actor": "army4",
+            "type": "move",
+            "unitId": "u33",
+            "destination": {
+              "x": 13,
+              "y": 10
+            }
+          },
+          {
+            "actor": "army4",
+            "type": "attack",
+            "unitId": "u33",
+            "targetId": "u40",
+            "weaponSlot": 0
+          },
+          {
+            "actor": "army4",
+            "type": "move",
+            "unitId": "u27",
+            "destination": {
+              "x": 12,
+              "y": 21
+            }
+          },
+          {
+            "actor": "army4",
+            "type": "capture",
+            "unitId": "u27"
+          },
+          {
+            "actor": "army4",
+            "type": "logistics",
+            "unitId": "u29",
+            "order": {
+              "priority": true,
+              "resource": "ammo",
+              "repair": true
+            }
+          },
+          {
+            "actor": "army4",
+            "type": "ambush",
+            "unitId": "u36",
+            "weaponSlot": 0
+          },
+          {
+            "actor": "army4",
+            "type": "ambush",
+            "unitId": "u29",
+            "weaponSlot": 0
+          },
+          {
+            "actor": "army4",
+            "type": "move",
+            "unitId": "u46",
+            "destination": {
+              "x": 6,
+              "y": 24
+            }
+          },
+          {
+            "actor": "army4",
+            "type": "move",
+            "unitId": "u42",
+            "destination": {
+              "x": 12,
+              "y": 20
+            }
+          },
+          {
+            "actor": "army4",
+            "type": "move",
+            "unitId": "u45",
+            "destination": {
+              "x": 4,
+              "y": 21
+            }
+          },
+          {
+            "actor": "army4",
+            "type": "move",
+            "unitId": "u25",
+            "destination": {
+              "x": 10,
+              "y": 21
+            }
+          },
+          {
+            "actor": "army4",
+            "type": "produce",
+            "factory": {
+              "x": 10,
+              "y": 19
+            },
+            "kind": "tank"
+          },
+          {
+            "actor": "army4",
+            "type": "move",
+            "unitId": "u44",
+            "destination": {
+              "x": 8,
+              "y": 21
+            }
+          },
+          {
+            "actor": "army4",
+            "type": "move",
+            "unitId": "u39",
+            "destination": {
+              "x": 11,
+              "y": 20
+            }
+          },
+          {
+            "actor": "army4",
+            "type": "wait",
+            "unitId": "u45"
+          },
+          {
+            "actor": "army4",
+            "type": "wait",
+            "unitId": "u46"
+          },
+          {
+            "actor": "army4",
+            "type": "wait",
+            "unitId": "u44"
+          },
+          {
+            "actor": "army4",
+            "type": "wait",
+            "unitId": "u25"
+          },
+          {
+            "actor": "army4",
+            "type": "wait",
+            "unitId": "u39"
+          },
+          {
+            "actor": "army4",
+            "type": "wait",
+            "unitId": "u42"
+          },
+          {
+            "actor": "army4",
+            "type": "produce",
+            "factory": {
+              "x": 3,
+              "y": 26
+            },
+            "kind": "infantry"
+          },
+          {
+            "actor": "army4",
+            "type": "endTurn"
+          },
+          {
+            "actor": "army1",
+            "type": "logistics",
+            "unitId": "u40",
+            "order": {
+              "priority": true,
+              "resource": "ammo",
+              "repair": true
+            }
+          },
+          {
+            "actor": "army1",
+            "type": "move",
+            "unitId": "u48",
+            "destination": {
+              "x": 9,
+              "y": 5
+            }
+          },
+          {
+            "actor": "army1",
+            "type": "move",
+            "unitId": "u47",
+            "destination": {
+              "x": 10,
+              "y": 3
+            }
+          },
+          {
+            "actor": "army1",
+            "type": "move",
+            "unitId": "u3",
+            "destination": {
+              "x": 12,
+              "y": 11
+            }
+          },
+          {
+            "actor": "army1",
+            "type": "move",
+            "unitId": "u40",
+            "destination": {
+              "x": 13,
+              "y": 10
+            }
+          },
+          {
+            "actor": "army1",
+            "type": "move",
+            "unitId": "u1",
+            "destination": {
+              "x": 19,
+              "y": 9
+            }
+          },
+          {
+            "actor": "army1",
+            "type": "attack",
+            "unitId": "u1",
+            "targetId": "u11",
+            "weaponSlot": 0
+          },
+          {
+            "actor": "army1",
+            "type": "move",
+            "unitId": "u2",
+            "destination": {
+              "x": 13,
+              "y": 9
+            }
+          },
+          {
+            "actor": "army1",
+            "type": "move",
+            "unitId": "u8",
+            "destination": {
+              "x": 12,
+              "y": 8
+            }
+          },
+          {
+            "actor": "army1",
+            "type": "move",
+            "unitId": "u5",
+            "destination": {
+              "x": 11,
+              "y": 9
+            }
+          },
+          {
+            "actor": "army1",
+            "type": "move",
+            "unitId": "u37",
+            "destination": {
+              "x": 12,
+              "y": 9
+            }
+          },
+          {
+            "actor": "army1",
+            "type": "move",
+            "unitId": "u6",
+            "destination": {
+              "x": 12,
+              "y": 10
+            }
+          },
+          {
+            "actor": "army1",
+            "type": "wait",
+            "unitId": "u47"
+          },
+          {
+            "actor": "army1",
+            "type": "wait",
+            "unitId": "u48"
+          },
+          {
+            "actor": "army1",
+            "type": "wait",
+            "unitId": "u8"
+          },
+          {
+            "actor": "army1",
+            "type": "wait",
+            "unitId": "u5"
+          },
+          {
+            "actor": "army1",
+            "type": "wait",
+            "unitId": "u37"
+          },
+          {
+            "actor": "army1",
+            "type": "wait",
+            "unitId": "u2"
+          },
+          {
+            "actor": "army1",
+            "type": "wait",
+            "unitId": "u6"
+          },
+          {
+            "actor": "army1",
+            "type": "wait",
+            "unitId": "u40"
+          },
+          {
+            "actor": "army1",
+            "type": "wait",
+            "unitId": "u3"
+          },
+          {
+            "actor": "army1",
+            "type": "produce",
+            "factory": {
+              "x": 5,
+              "y": 3
+            },
+            "kind": "tank"
+          },
+          {
+            "actor": "army1",
+            "type": "endTurn"
+          },
+          {
+            "actor": "army2",
+            "type": "capture",
+            "unitId": "u11"
+          },
+          {
+            "actor": "army2",
+            "type": "move",
+            "unitId": "u9",
+            "destination": {
+              "x": 21,
+              "y": 12
+            }
+          },
+          {
+            "actor": "army2",
+            "type": "capture",
+            "unitId": "u9"
+          },
+          {
+            "actor": "army2",
+            "type": "move",
+            "unitId": "u49",
+            "destination": {
+              "x": 25,
+              "y": 7
+            }
+          },
+          {
+            "actor": "army2",
+            "type": "move",
+            "unitId": "u14",
+            "destination": {
+              "x": 22,
+              "y": 12
+            }
+          },
+          {
+            "actor": "army2",
+            "type": "move",
+            "unitId": "u16",
+            "destination": {
+              "x": 20,
+              "y": 12
+            }
+          },
+          {
+            "actor": "army2",
+            "type": "move",
+            "unitId": "u10",
+            "destination": {
+              "x": 21,
+              "y": 11
+            }
+          },
+          {
+            "actor": "army2",
+            "type": "wait",
+            "unitId": "u49"
+          },
+          {
+            "actor": "army2",
+            "type": "wait",
+            "unitId": "u14"
+          }
+        ],
+        "comparedCommands": 64,
+        "fallbacks": 0,
+        "traceSha256": "84261b3d64489d32ceee6065ab0773ebc8707ba8f32dfa5944d4fcc2ca785888",
+        "finalStateSha256": "f8c3fbc31f70797f3c3993b157916b5781461158e52ea96232c2488edf72b492",
+        "outcome": {
+          "type": "ongoing"
+        }
+      }
+    }
+  ]
+}

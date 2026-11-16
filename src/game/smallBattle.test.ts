@@ -1,3 +1,4 @@
+import { smallBattleFocus } from '../ai/fourArmyCpuOrder';
 import { describe, expect, it } from 'vitest';
 import { createSmallBattleMap } from './smallBattleMap';
 import { createFourArmyMap32 } from './fourArmyMap32';
@@ -70,7 +71,8 @@ describe('compact multi-army rules and compatibility', () => {
     s.units.find((u) => u.owner === 'army1')!.hp = 98;
     s.units.find((u) => u.owner === 'army2')!.hp = 99;
     expect(smallBattleDecision(s)).toEqual({ type: 'victory', winner: 'army3' });
-    s.board.terrain[7]![8]!.owner = 'army1';
+    const neutral = s.board.terrain.flat().find((t) => t.kind === 'factory' && !t.owner)!;
+    neutral.owner = 'army1';
     expect(smallBattleDecision(s)).toEqual({ type: 'victory', winner: 'army1' });
     expect(smallBattleStandings(s)[0]?.properties).toBe(4);
     const dead = { ...s, alive: [] };
@@ -86,11 +88,25 @@ describe('compact multi-army rules and compatibility', () => {
     expect(old).not.toHaveProperty('match');
     expect(fourArmyParticipants(old)).toHaveLength(4);
   });
+  it('pauses unlimited three-army play at100R and resumes its next income once', () => {
+    let s = make(3, 'unlimited');
+    for (let i = 0; i < 300; i++) s = finish(s);
+    expect(s).toMatchObject({ paused: true, round: { round: 101, index: 0, phase: 'pending' } });
+    const before = s.players.army1.gold;
+    const resumed = value(applyFourArmyCommand(s, { actor: 'army1', type: 'resume' }));
+    expect(resumed.players.army1.gold).toBe(before + 3000);
+    expect(resumed.paused).toBe(false);
+    expect(applyFourArmyCommand(resumed, { actor: 'army1', type: 'resume' }).ok).toBe(false);
+  });
   it('rejects extra armies, altered setup, invalid variants and forged deadline markers', () => {
     expect(createSmallBattleMap(2 as 3).ok).toBe(false);
     expect(createSmallBattleMap(3, 1, undefined, 'other' as 'short').ok).toBe(false);
     expect(createSmallBattleMap(3, 1, ['army1', 'army1', 'army3']).ok).toBe(false);
     expect(createSmallBattleMap(3, -1).ok).toBe(false);
+    expect(createSmallBattleMap(3, Infinity).ok).toBe(false);
+    expect(createSmallBattleMap(3, 0x100000000).ok).toBe(false);
+    expect(createSmallBattleMap(3, 1, {} as any).ok).toBe(false);
+    expect(createSmallBattleMap(3, 1, undefined, 'short', null as any).ok).toBe(false);
     expect(isSmallBattle(null)).toBe(false);
     expect(isSmallBattle({ ...make().match, roundLimit: 30 })).toBe(false);
     const s = make();
@@ -116,7 +132,9 @@ describe('compact multi-army rules and compatibility', () => {
     s.nextUnitId = 94;
     expect(isFourArmyState(s)).toBe(true);
     const original = JSON.stringify(s);
-    expect(applyFourArmyCommand(s, { actor: 'army1', type: 'produce', factory: { x: s.capitals.army1.x + 1, y: s.capitals.army1.y }, kind: 'infantry' }).ok).toBe(false);
+    expect(
+      applyFourArmyCommand(s, { actor: 'army1', type: 'produce', factory: n === 3 ? { x: 8, y: 0 } : { x: s.capitals.army1.x + 1, y: s.capitals.army1.y }, kind: 'infantry' }).ok,
+    ).toBe(false);
     expect(JSON.stringify(s)).toBe(original);
   });
   it('eliminates participating armies only and awards early last-army victory', () => {
@@ -134,13 +152,31 @@ describe('compact multi-army rules and compatibility', () => {
     expect(won.outcome).toEqual({ type: 'victory', winner: 'army1' });
     expect(won).not.toHaveProperty('decision');
   });
+  it('gives all three facing-equivalent starts identical CPU/path priorities', () => {
+    const s = make(),
+      keys = fourArmyParticipants(s).map((a) => s.units.filter((u) => u.owner === a).map((u) => smallBattlePositionRank(s.board, s.capitals[a], u.position!, true)));
+    expect(keys[0]).toEqual(keys[1]);
+    expect(keys[0]).toEqual(keys[2]);
+    const homes = Object.values(s.capitals);
+    expect(homes.map((p, i) => Math.abs(p.x - homes[(i + 1) % 3]!.x) + Math.abs(p.y - homes[(i + 1) % 3]!.y))).toEqual([12, 12, 12]);
+  });
+  it('uses one public cyclic opponent per army without forcing combat or changing four-army CPU goals', () => {
+    const s = make(),
+      choices = fourArmyParticipants(s).map((a) => smallBattleFocus(value(observeFourArmy(s, a))));
+    expect(choices).toEqual(['army3', 'army1', 'army2']);
+    expect(new Set(choices).size).toBe(3);
+    expect(smallBattleFocus(value(observeFourArmy(make(4), 'army1')))).toBeUndefined();
+    const o = value(observeFourArmy(s, 'army1'));
+    o.alive = ['army1', 'army2'];
+    expect(smallBattleFocus(o)).toBeUndefined();
+  });
   it('uses observed captures and healthy defended properties in late CPU play', () => {
     const s = make();
     s.round.round = 19;
-    s.units[0]!.position = { x: 8, y: 6 };
+    s.units[0]!.position = { x: 7, y: 5 };
     let o = value(observeFourArmy(s, 'army1'));
     expect(chooseFourArmyCpuCommand(o, { difficulty: 'hard', policy: 'defensive' }, 'four-army-cpu-v5')).toMatchObject({ type: 'capture', unitId: 'u1' });
-    s.board.terrain[6]![8]!.owner = 'army1';
+    s.board.terrain[5]![7]!.owner = 'army1';
     o = value(observeFourArmy(s, 'army1'));
     expect(applyFourArmyCommand(s, chooseFourArmyCpuCommand(o, { difficulty: 'normal', policy: 'balanced' }, 'four-army-cpu-v5')).ok).toBe(true);
     const unlimited = make(3, 'unlimited');
@@ -166,7 +202,7 @@ describe('compact multi-army rules and compatibility', () => {
     expect(value(parseFourArmySpectatorSave(text))).toMatchObject({ schemaVersion: 5, archive: { payload: { map } } });
     for (const change of [
       (v: any) => (v.archive.payload.map.match.ending = 'unlimited'),
-      (v: any) => (v.archive.payload.map.board.terrain[6][8].kind = 'plain'),
+      (v: any) => (v.archive.payload.map.board.terrain[v.archive.payload.map.capitals.army1.y][v.archive.payload.map.capitals.army1.x].kind = 'plain'),
       (v: any) => (v.cpuVersion = 'four-army-cpu-v4'),
       (v: any) => (v.schemaVersion = 4),
       ...(n === 3 ? [(v: any) => (v.view = 'army4')] : []),

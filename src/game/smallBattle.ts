@@ -30,7 +30,17 @@ export function isSmallBattle(v: unknown): v is SmallBattle {
   );
 }
 /** Mirroring works for rectangles and triangular starts without square-only rotation. */
-export function smallBattlePositionRank(board: { width: number; height: number }, home: Position, p: Position): number {
+export function smallBattlePositionRank(board: { width: number; height: number }, home: Position, p: Position, triangular = false): number {
+  if (triangular) {
+    const left = home.x,
+      right = board.width - 1 - home.x,
+      top = home.y;
+    const local = (v: Position) => (top <= left && top <= right ? v : left < right ? { x: board.height - 1 - v.y, y: v.x } : { x: v.y, y: board.width - 1 - v.x });
+    const q = local(p),
+      h = local(home);
+    // Common origin and fixed-width positive keys: JSON key ordering must not favor an edge's digit count.
+    return (q.y - h.y + 32) * 64 + q.x - h.x + 32;
+  }
   const x = home.x >= board.width / 2 ? board.width - 1 - p.x : p.x;
   const y = home.y >= board.height / 2 ? board.height - 1 - p.y : p.y;
   return y * board.width + x;
