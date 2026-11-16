@@ -1,0 +1,5167 @@
+{
+  "protocol": "small-battle-v1",
+  "sources": {
+    "src/game/smallBattle.ts": "c8ae04eb7a5bd2ef0a721cb5043c9e13606c661c200955ed6a91b59695e55471",
+    "src/game/smallBattleMap.ts": "cca392466d36751c925dbca2d4825d8549859d44bad19f580da2a6f0f47094d5",
+    "src/game/fourArmyFoundation.ts": "aa7b6ea7d9dbc95c8d10b880bb6bbe58a9ee205b68d4c9130e0cc2d9b65a67b3",
+    "src/game/fourArmyEngine.ts": "9f902620a738f61956dc9346902bb85e6846f0d8bdbb44b2a8ff36834cf43d28",
+    "src/ai/fourArmyCpu.ts": "f381ae47b6412bdcc2797a639aa5b1d6f5b28aea65e59bfe6a8b6e4e57719116",
+    "src/ai/fourArmyCpuOrder.ts": "a7e7500f3953e115cbe8de25b7bc95a057ba1bc38d9a9c47342a7028d7ffb45a",
+    "src/ai/fourArmyObservation.ts": "3061ad844a9f0b8e8fd0b3f0f54b939be45f40727c97ddfb8ad247de765220fb"
+  },
+  "summary": {
+    "cases": 180,
+    "commands": 116124,
+    "outcomes": {
+      "victory": 180
+    },
+    "deadline": 179,
+    "continuationCommands": 768,
+    "unchangedFourArmyPairs": 144,
+    "fallbacks": 115,
+    "firstObservedContact": {
+      "1": 180
+    },
+    "3-tactics-True": {
+      "count": 18,
+      "armies": {
+        "army3": 12,
+        "army2": 6
+      },
+      "seats": {
+        "3": 6,
+        "2": 6,
+        "1": 6
+      }
+    },
+    "3-tactics-False": {
+      "count": 18,
+      "armies": {
+        "army3": 7,
+        "army1": 3,
+        "army2": 8
+      },
+      "seats": {
+        "3": 5,
+        "2": 8,
+        "1": 5
+      }
+    },
+    "4-tactics-True": {
+      "count": 72,
+      "armies": {
+        "army3": 22,
+        "army4": 14,
+        "army2": 14,
+        "army1": 22
+      },
+      "seats": {
+        "3": 32,
+        "4": 24,
+        "1": 4,
+        "2": 12
+      }
+    },
+    "4-tactics-False": {
+      "count": 72,
+      "armies": {
+        "army1": 19,
+        "army3": 19,
+        "army2": 17,
+        "army4": 17
+      },
+      "seats": {
+        "1": 8,
+        "4": 30,
+        "3": 16,
+        "2": 18
+      }
+    }
+  },
+  "rows": [
+    {
+      "n": 3,
+      "seed": 152101,
+      "tactics": true,
+      "order": [
+        "army1",
+        "army2",
+        "army3"
+      ],
+      "index": 0,
+      "commands": 551,
+      "outcome": {
+        "type": "victory",
+        "winner": "army3"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [
+        {
+          "army": "army2",
+          "round": 20
+        }
+      ],
+      "fallbacks": 0,
+      "continuation": 64,
+      "seat": 3,
+      "trace": "b9600101f78c0f5c808b5287b03f538f0af8bef28f21b91adcd8f7558e7f5069",
+      "state": "6b322778534ca60282a006db82e1ebc9ae0e5ea9d49de74636f4202e5b7417da",
+      "cpuP95": 3.7586099999998623
+    },
+    {
+      "n": 3,
+      "seed": 152101,
+      "tactics": true,
+      "order": [
+        "army1",
+        "army3",
+        "army2"
+      ],
+      "index": 1,
+      "commands": 478,
+      "outcome": {
+        "type": "victory",
+        "winner": "army3"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [
+        {
+          "army": "army2",
+          "round": 15
+        }
+      ],
+      "fallbacks": 1,
+      "continuation": 0,
+      "seat": 2,
+      "trace": "70db7c0d034f2feb7d176938176a480a2265df16a46dfe0f852b2a2b792edaf8",
+      "state": "b29686150be1c348144c6cf7efb0ae084c7cd0278d609d71220f092cd334d585",
+      "cpuP95": 4.6491309999998975
+    },
+    {
+      "n": 3,
+      "seed": 152101,
+      "tactics": true,
+      "order": [
+        "army2",
+        "army1",
+        "army3"
+      ],
+      "index": 2,
+      "commands": 448,
+      "outcome": {
+        "type": "victory",
+        "winner": "army3"
+      },
+      "round": 17,
+      "deadline": false,
+      "firstContact": 1,
+      "eliminations": [
+        {
+          "army": "army1",
+          "round": 16
+        },
+        {
+          "army": "army2",
+          "round": 17
+        }
+      ],
+      "fallbacks": 1,
+      "continuation": 0,
+      "seat": 3,
+      "trace": "8c060831a9dee4ac6e9b89f4da0e3977d03818907e8796f37ab995423eae1c3a",
+      "state": "39a95ca758e94d64e99e5f6377a435e74013c631caa3175d24fa72eb4b81179f",
+      "cpuP95": 6.344444999999951
+    },
+    {
+      "n": 3,
+      "seed": 152101,
+      "tactics": true,
+      "order": [
+        "army2",
+        "army3",
+        "army1"
+      ],
+      "index": 3,
+      "commands": 520,
+      "outcome": {
+        "type": "victory",
+        "winner": "army2"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [
+        {
+          "army": "army1",
+          "round": 18
+        }
+      ],
+      "fallbacks": 0,
+      "continuation": 0,
+      "seat": 1,
+      "trace": "13e5b83fe2a21a43b3963d6280a978d0c55ec4d0d350da154c516d6758f33d27",
+      "state": "8ada57e02689d9bd22504adb27c7dbe512a0efe5f48bb4930676137b7fabc079",
+      "cpuP95": 10.652433000000201
+    },
+    {
+      "n": 3,
+      "seed": 152101,
+      "tactics": true,
+      "order": [
+        "army3",
+        "army1",
+        "army2"
+      ],
+      "index": 4,
+      "commands": 542,
+      "outcome": {
+        "type": "victory",
+        "winner": "army2"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [],
+      "fallbacks": 0,
+      "continuation": 0,
+      "seat": 3,
+      "trace": "d142c4985a05d1a74488e8babdaf37cfc99074e8af469fbb4ae963de009e01fa",
+      "state": "f44baabb07a4b1b99b3823cd1a7b81c2da08dca1a850bdfdb2208430e586b655",
+      "cpuP95": 2.851043000000118
+    },
+    {
+      "n": 3,
+      "seed": 152101,
+      "tactics": true,
+      "order": [
+        "army3",
+        "army2",
+        "army1"
+      ],
+      "index": 5,
+      "commands": 534,
+      "outcome": {
+        "type": "victory",
+        "winner": "army2"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [],
+      "fallbacks": 0,
+      "continuation": 0,
+      "seat": 2,
+      "trace": "f7cc3a546103d79e6690315c9ba6bec3143f3f3b76366f771d978a965cfc1320",
+      "state": "48c4e4d2e53b6b980faceb3f6a5c9bed9007eb2684f70e1cf0f4989547d47d40",
+      "cpuP95": 3.956959000000097
+    },
+    {
+      "n": 3,
+      "seed": 152101,
+      "tactics": false,
+      "order": [
+        "army1",
+        "army2",
+        "army3"
+      ],
+      "index": 0,
+      "commands": 548,
+      "outcome": {
+        "type": "victory",
+        "winner": "army3"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [],
+      "fallbacks": 0,
+      "continuation": 64,
+      "seat": 3,
+      "trace": "2da1c17cd695e2f161034ef15d846f4139e8507af1483320a2e134ec05fc80cd",
+      "state": "fc4a66bf6fc9cd594d10d08d1e396949c90de38fec252306cf28e03f530e392c",
+      "cpuP95": 4.709552000000258
+    },
+    {
+      "n": 3,
+      "seed": 152101,
+      "tactics": false,
+      "order": [
+        "army1",
+        "army3",
+        "army2"
+      ],
+      "index": 1,
+      "commands": 551,
+      "outcome": {
+        "type": "victory",
+        "winner": "army3"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [],
+      "fallbacks": 0,
+      "continuation": 0,
+      "seat": 2,
+      "trace": "360cd62442423b401fc90b8a19ccb1792d1aa028e5398ca24c2e16cca4990b23",
+      "state": "278295a7a72bbd9ff46bb2b220be3194a0f84d30ee2486681e6212a2e8d0541a",
+      "cpuP95": 8.201071000000411
+    },
+    {
+      "n": 3,
+      "seed": 152101,
+      "tactics": false,
+      "order": [
+        "army2",
+        "army1",
+        "army3"
+      ],
+      "index": 2,
+      "commands": 464,
+      "outcome": {
+        "type": "victory",
+        "winner": "army3"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [
+        {
+          "army": "army1",
+          "round": 12
+        }
+      ],
+      "fallbacks": 0,
+      "continuation": 0,
+      "seat": 3,
+      "trace": "dc0a8cd5f8a8224fb4451e106e9b09c4fdeb5059c98e5c73ced2e37a53aa68bc",
+      "state": "b51b51208533b2873c037aefb7223755572f0a4505bd490f34955068a33b1688",
+      "cpuP95": 3.8566979999995965
+    },
+    {
+      "n": 3,
+      "seed": 152101,
+      "tactics": false,
+      "order": [
+        "army2",
+        "army3",
+        "army1"
+      ],
+      "index": 3,
+      "commands": 543,
+      "outcome": {
+        "type": "victory",
+        "winner": "army3"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [],
+      "fallbacks": 0,
+      "continuation": 0,
+      "seat": 2,
+      "trace": "cda55ea3bccb54ce77d684d5b3af9a133b7c34a311033d302a070352ae8b7fa1",
+      "state": "7bc4e832a203a3a4fd98af3079c68e9285b9e0ff76ae3d41430d6862f928b5ee",
+      "cpuP95": 4.105073000000175
+    },
+    {
+      "n": 3,
+      "seed": 152101,
+      "tactics": false,
+      "order": [
+        "army3",
+        "army1",
+        "army2"
+      ],
+      "index": 4,
+      "commands": 543,
+      "outcome": {
+        "type": "victory",
+        "winner": "army1"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [
+        {
+          "army": "army3",
+          "round": 20
+        }
+      ],
+      "fallbacks": 1,
+      "continuation": 0,
+      "seat": 2,
+      "trace": "5cf7bd8dcd00522a488418ae23cf3c6f17e755888350e67cfdb2f1264161e9fc",
+      "state": "f74e8595a46468c825b620983fe1e87d3d49e90ef9005b92f2c061a23b62cb10",
+      "cpuP95": 4.790895000000091
+    },
+    {
+      "n": 3,
+      "seed": 152101,
+      "tactics": false,
+      "order": [
+        "army3",
+        "army2",
+        "army1"
+      ],
+      "index": 5,
+      "commands": 487,
+      "outcome": {
+        "type": "victory",
+        "winner": "army2"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [
+        {
+          "army": "army1",
+          "round": 12
+        }
+      ],
+      "fallbacks": 0,
+      "continuation": 0,
+      "seat": 2,
+      "trace": "50b882cd5768d5bb478bba470c5ace280149831bd35f0452afaaa5b645c18491",
+      "state": "d3f2bf3758c24056a85ad8b4451de16c42f998b916b68f2c6046ff2bd6416bc9",
+      "cpuP95": 4.114325999999892
+    },
+    {
+      "n": 3,
+      "seed": 152102,
+      "tactics": true,
+      "order": [
+        "army1",
+        "army2",
+        "army3"
+      ],
+      "index": 0,
+      "commands": 558,
+      "outcome": {
+        "type": "victory",
+        "winner": "army3"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [],
+      "fallbacks": 4,
+      "continuation": 64,
+      "seat": 3,
+      "trace": "6c61e674e69f0b0b400f9e313d85665a9c25dbe34523ae14ca2fa8b752ae4af2",
+      "state": "da3a509673a26c33f8841f513b3e9d3d0d8a4182bd405b11f9a8fc1683ed8abb",
+      "cpuP95": 3.8851009999998496
+    },
+    {
+      "n": 3,
+      "seed": 152102,
+      "tactics": true,
+      "order": [
+        "army1",
+        "army3",
+        "army2"
+      ],
+      "index": 1,
+      "commands": 531,
+      "outcome": {
+        "type": "victory",
+        "winner": "army2"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [
+        {
+          "army": "army1",
+          "round": 16
+        }
+      ],
+      "fallbacks": 1,
+      "continuation": 0,
+      "seat": 3,
+      "trace": "51cc66045f35f501c7b4c862eec4ac775f74481fc53df8a43a91eaed0c47bc22",
+      "state": "d89540aead2180696bcc65b57e646ef4af6318eacfe4b34b21bdff37d2169fd5",
+      "cpuP95": 4.392646000000241
+    },
+    {
+      "n": 3,
+      "seed": 152102,
+      "tactics": true,
+      "order": [
+        "army2",
+        "army1",
+        "army3"
+      ],
+      "index": 2,
+      "commands": 555,
+      "outcome": {
+        "type": "victory",
+        "winner": "army2"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [],
+      "fallbacks": 1,
+      "continuation": 0,
+      "seat": 1,
+      "trace": "ef37cbcd9d818a63dbb5cab81ae8ecbe8a392cfb2725046d77439f88a1dfd996",
+      "state": "5ec4213486c570c656a8ee2895aef93b8d9bbfef096b9c7416a0387c09ecc595",
+      "cpuP95": 5.843541000000187
+    },
+    {
+      "n": 3,
+      "seed": 152102,
+      "tactics": true,
+      "order": [
+        "army2",
+        "army3",
+        "army1"
+      ],
+      "index": 3,
+      "commands": 531,
+      "outcome": {
+        "type": "victory",
+        "winner": "army3"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [],
+      "fallbacks": 0,
+      "continuation": 0,
+      "seat": 2,
+      "trace": "107987f80523d3661f5d1f2d16db7a547532d936da4796c08a24dab113195f28",
+      "state": "900938e1b459a82a8ab54053096827aab4f223f15cc98dbdf4c261be445d873c",
+      "cpuP95": 6.696165000001201
+    },
+    {
+      "n": 3,
+      "seed": 152102,
+      "tactics": true,
+      "order": [
+        "army3",
+        "army1",
+        "army2"
+      ],
+      "index": 4,
+      "commands": 547,
+      "outcome": {
+        "type": "victory",
+        "winner": "army3"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [],
+      "fallbacks": 0,
+      "continuation": 0,
+      "seat": 1,
+      "trace": "bba5453eebe99432cb8bbef20bced3be896115f74193c44cbe3f0fd5a45e45b3",
+      "state": "31828a9de6ee7e074993105ade02e23a2da11c1a5860b6fa015663564d2571cb",
+      "cpuP95": 3.5556950000009238
+    },
+    {
+      "n": 3,
+      "seed": 152102,
+      "tactics": true,
+      "order": [
+        "army3",
+        "army2",
+        "army1"
+      ],
+      "index": 5,
+      "commands": 536,
+      "outcome": {
+        "type": "victory",
+        "winner": "army3"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [],
+      "fallbacks": 0,
+      "continuation": 0,
+      "seat": 1,
+      "trace": "8e4c62dea2e647ec8391d2acd15c964014dd5b5d3d82a931f4081f7f918658fc",
+      "state": "f75c22a19341b37aed1d8803e2c185ff011e487992a61ee08d35bc553c24213b",
+      "cpuP95": 4.130860999999641
+    },
+    {
+      "n": 3,
+      "seed": 152102,
+      "tactics": false,
+      "order": [
+        "army1",
+        "army2",
+        "army3"
+      ],
+      "index": 0,
+      "commands": 473,
+      "outcome": {
+        "type": "victory",
+        "winner": "army1"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [
+        {
+          "army": "army2",
+          "round": 15
+        }
+      ],
+      "fallbacks": 1,
+      "continuation": 64,
+      "seat": 1,
+      "trace": "54638c94bd28a2e4351014d1cfc8b9af067abd6fee4795231265bea135867b1e",
+      "state": "4e6d708763fc935eaf4840cbcf509d87138c9e4d89f4cf4826cd211022ad4de4",
+      "cpuP95": 5.129685999998401
+    },
+    {
+      "n": 3,
+      "seed": 152102,
+      "tactics": false,
+      "order": [
+        "army1",
+        "army3",
+        "army2"
+      ],
+      "index": 1,
+      "commands": 543,
+      "outcome": {
+        "type": "victory",
+        "winner": "army2"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [],
+      "fallbacks": 0,
+      "continuation": 0,
+      "seat": 3,
+      "trace": "2c95ac78ae6d5279ce4e2f7bca48a487ab8ed589790629d3488bcefdfadaf80e",
+      "state": "5b5ed7aee4803506d710e6f4baa4db907651aa41f2fbbd590bb111dc5e1d6b93",
+      "cpuP95": 6.428971999999703
+    },
+    {
+      "n": 3,
+      "seed": 152102,
+      "tactics": false,
+      "order": [
+        "army2",
+        "army1",
+        "army3"
+      ],
+      "index": 2,
+      "commands": 482,
+      "outcome": {
+        "type": "victory",
+        "winner": "army2"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [
+        {
+          "army": "army1",
+          "round": 14
+        }
+      ],
+      "fallbacks": 0,
+      "continuation": 0,
+      "seat": 1,
+      "trace": "e4df824d36825f266e9c4449ef4e1a25df3436b6fb523937f8f7abc4f8b90e52",
+      "state": "c6e497a50f1b3c7672829231e08d5fa0074aa55d164d777aba4cd6b64ae2feec",
+      "cpuP95": 3.9611060000006546
+    },
+    {
+      "n": 3,
+      "seed": 152102,
+      "tactics": false,
+      "order": [
+        "army2",
+        "army3",
+        "army1"
+      ],
+      "index": 3,
+      "commands": 552,
+      "outcome": {
+        "type": "victory",
+        "winner": "army2"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [],
+      "fallbacks": 0,
+      "continuation": 0,
+      "seat": 1,
+      "trace": "642e573176ed74c8c8c402582ef83ae30a77e0b4a5c6b8c2bcea9f4bac455c79",
+      "state": "d30d7f8eb149941783c9b4172cfb9632dc2a453360fbe86a1178b51d4c1d4fcb",
+      "cpuP95": 4.037231000000247
+    },
+    {
+      "n": 3,
+      "seed": 152102,
+      "tactics": false,
+      "order": [
+        "army3",
+        "army1",
+        "army2"
+      ],
+      "index": 4,
+      "commands": 544,
+      "outcome": {
+        "type": "victory",
+        "winner": "army1"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [],
+      "fallbacks": 0,
+      "continuation": 0,
+      "seat": 2,
+      "trace": "bc454fc41ad125ca1aef7eb1b9c1bd6edb29afc8105c530f87dabe12187aefa8",
+      "state": "964319b168bb3481d6b78bdd378a29641679e0d0cf2a531691cba8694079c38b",
+      "cpuP95": 4.324082000000999
+    },
+    {
+      "n": 3,
+      "seed": 152102,
+      "tactics": false,
+      "order": [
+        "army3",
+        "army2",
+        "army1"
+      ],
+      "index": 5,
+      "commands": 561,
+      "outcome": {
+        "type": "victory",
+        "winner": "army2"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [],
+      "fallbacks": 1,
+      "continuation": 0,
+      "seat": 2,
+      "trace": "357377a10cb92dc511fec614ec72c7b0f9037d293c1f4e02eb3a2732f9377d0e",
+      "state": "b357b4ac3538923fd50aaace8a93f96b09ba8eb97ba3556050e463ae7be4b02b",
+      "cpuP95": 4.671156000000337
+    },
+    {
+      "n": 3,
+      "seed": 152103,
+      "tactics": true,
+      "order": [
+        "army1",
+        "army2",
+        "army3"
+      ],
+      "index": 0,
+      "commands": 446,
+      "outcome": {
+        "type": "victory",
+        "winner": "army2"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [
+        {
+          "army": "army1",
+          "round": 6
+        }
+      ],
+      "fallbacks": 0,
+      "continuation": 64,
+      "seat": 2,
+      "trace": "4df9e5ee5165d2a2af6eb5547b6e084fa5f138e1adc54be9b5be451dfb65c1ed",
+      "state": "ba89fdd0efc4069292922171a175387754a147979f838b300a2351c83dd0cc84",
+      "cpuP95": 4.13882299999932
+    },
+    {
+      "n": 3,
+      "seed": 152103,
+      "tactics": true,
+      "order": [
+        "army1",
+        "army3",
+        "army2"
+      ],
+      "index": 1,
+      "commands": 531,
+      "outcome": {
+        "type": "victory",
+        "winner": "army3"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [],
+      "fallbacks": 0,
+      "continuation": 0,
+      "seat": 2,
+      "trace": "39dd77cee15e36d5cba6d4284db0822abd6b1d553d98e3719dfc622df21e409c",
+      "state": "ba38e31c5628805079e9d175a1ded7706c94574ffc659de496c9eaf207f81eaa",
+      "cpuP95": 3.928035999999338
+    },
+    {
+      "n": 3,
+      "seed": 152103,
+      "tactics": true,
+      "order": [
+        "army2",
+        "army1",
+        "army3"
+      ],
+      "index": 2,
+      "commands": 543,
+      "outcome": {
+        "type": "victory",
+        "winner": "army3"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [],
+      "fallbacks": 2,
+      "continuation": 0,
+      "seat": 3,
+      "trace": "4976bc45958b6c19e85e65d3d8f525fcfb546254ae3ed8e098d24dc2d8c659c9",
+      "state": "e8fb571002d51dcc4d5ba4473a6b7162fc1eb993d7a36066df336e2d9cd80962",
+      "cpuP95": 5.042374000000564
+    },
+    {
+      "n": 3,
+      "seed": 152103,
+      "tactics": true,
+      "order": [
+        "army2",
+        "army3",
+        "army1"
+      ],
+      "index": 3,
+      "commands": 526,
+      "outcome": {
+        "type": "victory",
+        "winner": "army3"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [],
+      "fallbacks": 0,
+      "continuation": 0,
+      "seat": 2,
+      "trace": "d70dd7d7a7bb9024d1e031beb94aad02a193eebb70eea52856c40c437fd2d02b",
+      "state": "b9edd0dc570b7956907b079e94e2a03b60edf90ec2eb59b47dd0c0a48d3af5b1",
+      "cpuP95": 5.907066999998278
+    },
+    {
+      "n": 3,
+      "seed": 152103,
+      "tactics": true,
+      "order": [
+        "army3",
+        "army1",
+        "army2"
+      ],
+      "index": 4,
+      "commands": 503,
+      "outcome": {
+        "type": "victory",
+        "winner": "army3"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [],
+      "fallbacks": 0,
+      "continuation": 0,
+      "seat": 1,
+      "trace": "b0fbb428b137ba6bbc5314d385d6f90e1fdb134970cce5f71e0aad5e70ba93f9",
+      "state": "35423d542e530a3570569608c0323e6478725ffe1d19903932cfe3c1eb0567ff",
+      "cpuP95": 4.2643129999996745
+    },
+    {
+      "n": 3,
+      "seed": 152103,
+      "tactics": true,
+      "order": [
+        "army3",
+        "army2",
+        "army1"
+      ],
+      "index": 5,
+      "commands": 529,
+      "outcome": {
+        "type": "victory",
+        "winner": "army3"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [],
+      "fallbacks": 0,
+      "continuation": 0,
+      "seat": 1,
+      "trace": "aeee9eb6ad746e6ca459064553226ba1c392b9975ad177ffe7011de24f99d282",
+      "state": "300bf656d15c1963cecfe8061c8c85e43b29c609ae61b9981de0689974da7f1c",
+      "cpuP95": 4.203739999999016
+    },
+    {
+      "n": 3,
+      "seed": 152103,
+      "tactics": false,
+      "order": [
+        "army1",
+        "army2",
+        "army3"
+      ],
+      "index": 0,
+      "commands": 524,
+      "outcome": {
+        "type": "victory",
+        "winner": "army3"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [
+        {
+          "army": "army1",
+          "round": 16
+        }
+      ],
+      "fallbacks": 1,
+      "continuation": 64,
+      "seat": 3,
+      "trace": "ecd9a1f0aac9a7b696e06cc795cd77d1ab02476bb605d43d06a7caf522100a6f",
+      "state": "25e7eaf6c5593c72550ffc7290242aa4bcbdc4538ce09ba4c5667b1ce4d7d9e7",
+      "cpuP95": 7.251702000001387
+    },
+    {
+      "n": 3,
+      "seed": 152103,
+      "tactics": false,
+      "order": [
+        "army1",
+        "army3",
+        "army2"
+      ],
+      "index": 1,
+      "commands": 544,
+      "outcome": {
+        "type": "victory",
+        "winner": "army2"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [],
+      "fallbacks": 1,
+      "continuation": 0,
+      "seat": 3,
+      "trace": "94992b22b8650849d6b963738c5d9ae1e8c447f7e71b8c025168a55858e63c42",
+      "state": "4f8e3ceb46f6141da3211f9c31fc774e98d32d87bc7544e21f4808ac83e712f3",
+      "cpuP95": 6.246138000002247
+    },
+    {
+      "n": 3,
+      "seed": 152103,
+      "tactics": false,
+      "order": [
+        "army2",
+        "army1",
+        "army3"
+      ],
+      "index": 2,
+      "commands": 440,
+      "outcome": {
+        "type": "victory",
+        "winner": "army2"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [
+        {
+          "army": "army1",
+          "round": 9
+        }
+      ],
+      "fallbacks": 0,
+      "continuation": 0,
+      "seat": 1,
+      "trace": "4692d9107800f5ab43f66089d3a8faf0f19a28bcfe26152c3bb6f6e93680b6b0",
+      "state": "cbd0d044b56aa115c220d37528d69352ec573e0ac240a0284fe63c148947c31e",
+      "cpuP95": 4.417833999999857
+    },
+    {
+      "n": 3,
+      "seed": 152103,
+      "tactics": false,
+      "order": [
+        "army2",
+        "army3",
+        "army1"
+      ],
+      "index": 3,
+      "commands": 539,
+      "outcome": {
+        "type": "victory",
+        "winner": "army3"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [],
+      "fallbacks": 0,
+      "continuation": 0,
+      "seat": 2,
+      "trace": "626cd3f56417e4f8ccf76f51a364737580ec643d80dd0dd06484a9b071bb855e",
+      "state": "121cc0ae017d681f624d791c82a85f2f3b2d654ed56122dcb60e071e02775e32",
+      "cpuP95": 5.3072119999997085
+    },
+    {
+      "n": 3,
+      "seed": 152103,
+      "tactics": false,
+      "order": [
+        "army3",
+        "army1",
+        "army2"
+      ],
+      "index": 4,
+      "commands": 542,
+      "outcome": {
+        "type": "victory",
+        "winner": "army3"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [],
+      "fallbacks": 0,
+      "continuation": 0,
+      "seat": 1,
+      "trace": "bd51c786d79f656e7ec961245daa10af6511e3e801e13bf42a1cce2f2f644b82",
+      "state": "4ce215d94f75d913350821e741f45aba92e67ce288f2015c0766d149aefe6661",
+      "cpuP95": 8.558640999999625
+    },
+    {
+      "n": 3,
+      "seed": 152103,
+      "tactics": false,
+      "order": [
+        "army3",
+        "army2",
+        "army1"
+      ],
+      "index": 5,
+      "commands": 471,
+      "outcome": {
+        "type": "victory",
+        "winner": "army2"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [
+        {
+          "army": "army1",
+          "round": 11
+        }
+      ],
+      "fallbacks": 2,
+      "continuation": 0,
+      "seat": 2,
+      "trace": "ee1e589c73382864ea8126cafa04db2d26d7c8804ac542c373da8898c9dbd1ac",
+      "state": "4c7b97292fab3ce955167bffcdb71c81c858f3607791aaa6ee2b3e3d671cad1d",
+      "cpuP95": 5.385821000003489
+    },
+    {
+      "n": 4,
+      "seed": 152101,
+      "tactics": true,
+      "order": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "index": 0,
+      "commands": 644,
+      "outcome": {
+        "type": "victory",
+        "winner": "army3"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [
+        {
+          "army": "army2",
+          "round": 12
+        }
+      ],
+      "fallbacks": 2,
+      "continuation": 64,
+      "seat": 3,
+      "trace": "b3b4713407705f4cdcef3a4b7d372d13d3da0d9d297edaececce0503c8fa4470",
+      "state": "9f7e408aa8f3ed129f479bc4c981894f394cf72a40c815c4e790a94ec88d1ec2",
+      "cpuP95": 4.168116000000737
+    },
+    {
+      "n": 4,
+      "seed": 152101,
+      "tactics": true,
+      "order": [
+        "army1",
+        "army2",
+        "army4",
+        "army3"
+      ],
+      "index": 1,
+      "commands": 683,
+      "outcome": {
+        "type": "victory",
+        "winner": "army4"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [],
+      "fallbacks": 0,
+      "continuation": 0,
+      "seat": 3,
+      "trace": "3f9e7d93f9989d6b27da5aeec48a5a7c480eea4cf21b9e6beec175fc22d4a466",
+      "state": "cf0a525567a850066e4c00dedce671f90028d377f6662fc77843c494f3067367",
+      "cpuP95": 4.752457000000504
+    },
+    {
+      "n": 4,
+      "seed": 152101,
+      "tactics": true,
+      "order": [
+        "army1",
+        "army3",
+        "army2",
+        "army4"
+      ],
+      "index": 2,
+      "commands": 680,
+      "outcome": {
+        "type": "victory",
+        "winner": "army4"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [],
+      "fallbacks": 1,
+      "continuation": 0,
+      "seat": 4,
+      "trace": "e88f765408cc494fcaddb1f4b986ececa61e47c3946624dfdb60a8bbc2c1b158",
+      "state": "b0d06764c8444c939917a270ee2e98eb6832b6eecd82ea23cb28166ca7c760d1",
+      "cpuP95": 6.572249000000738
+    },
+    {
+      "n": 4,
+      "seed": 152101,
+      "tactics": true,
+      "order": [
+        "army1",
+        "army3",
+        "army4",
+        "army2"
+      ],
+      "index": 3,
+      "commands": 654,
+      "outcome": {
+        "type": "victory",
+        "winner": "army4"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [
+        {
+          "army": "army1",
+          "round": 15
+        }
+      ],
+      "fallbacks": 2,
+      "continuation": 0,
+      "seat": 3,
+      "trace": "fd0c7d5eff158de4753eb9a57f7dd9685030f82cee05f94896bdee1d933a5d49",
+      "state": "7de7fe8c52c881d85813785c01cd777db0eaa07ec8704ebd21f97cfa46f2def0",
+      "cpuP95": 8.273890000000392
+    },
+    {
+      "n": 4,
+      "seed": 152101,
+      "tactics": true,
+      "order": [
+        "army1",
+        "army4",
+        "army2",
+        "army3"
+      ],
+      "index": 4,
+      "commands": 713,
+      "outcome": {
+        "type": "victory",
+        "winner": "army3"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [],
+      "fallbacks": 2,
+      "continuation": 0,
+      "seat": 4,
+      "trace": "2a37327da32d8f14d85c0ec61bedc433a3e0dd6979b1d7f953c8f9a9a3f98e7b",
+      "state": "886ad45ba07faf5ac0356c405559222410b457ca572bd5113314d615acb809f0",
+      "cpuP95": 4.400616999999329
+    },
+    {
+      "n": 4,
+      "seed": 152101,
+      "tactics": true,
+      "order": [
+        "army1",
+        "army4",
+        "army3",
+        "army2"
+      ],
+      "index": 5,
+      "commands": 685,
+      "outcome": {
+        "type": "victory",
+        "winner": "army2"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [],
+      "fallbacks": 0,
+      "continuation": 0,
+      "seat": 4,
+      "trace": "2c7865add5b4ddd923d7cd1cf29c81ad298c937334a2803d3daa7b421bb99809",
+      "state": "633542b1439ea30f3c97c4627ce540c5f7c395514c8023a4d2b88cdbb71d4283",
+      "cpuP95": 4.8557829999990645
+    },
+    {
+      "n": 4,
+      "seed": 152101,
+      "tactics": true,
+      "order": [
+        "army2",
+        "army1",
+        "army3",
+        "army4"
+      ],
+      "index": 6,
+      "commands": 683,
+      "outcome": {
+        "type": "victory",
+        "winner": "army3"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [],
+      "fallbacks": 0,
+      "continuation": 0,
+      "seat": 3,
+      "trace": "39ed0ca56c7a25595e048d3bf9c35f6ac3e2367e0753463265fbd98bba8b9b3e",
+      "state": "f3737f83e4a29587fbaf4f909b760c649b6950cc0fd8cd278482978d9ae47f08",
+      "cpuP95": 7.800917999997182
+    },
+    {
+      "n": 4,
+      "seed": 152101,
+      "tactics": true,
+      "order": [
+        "army2",
+        "army1",
+        "army4",
+        "army3"
+      ],
+      "index": 7,
+      "commands": 644,
+      "outcome": {
+        "type": "victory",
+        "winner": "army4"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [
+        {
+          "army": "army1",
+          "round": 12
+        }
+      ],
+      "fallbacks": 2,
+      "continuation": 0,
+      "seat": 3,
+      "trace": "f06df091db6c7b6aa6c15b54122efaa24d22a43deb9fb62c421d0de9a10bca68",
+      "state": "cb294adc65c39049385057c317c9fcc37b88904a00a4837201e984a5d05832da",
+      "cpuP95": 5.441333999999188
+    },
+    {
+      "n": 4,
+      "seed": 152101,
+      "tactics": true,
+      "order": [
+        "army2",
+        "army3",
+        "army1",
+        "army4"
+      ],
+      "index": 8,
+      "commands": 711,
+      "outcome": {
+        "type": "victory",
+        "winner": "army1"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [],
+      "fallbacks": 1,
+      "continuation": 0,
+      "seat": 3,
+      "trace": "1fab171a95d5234936912c2613562fe8f536ab3e838efd71d2b00018189618ad",
+      "state": "b0aee8ab0187cc47fdb4fc2933dc2ead0aa77d0fb874c04a8deac95c0db110ff",
+      "cpuP95": 5.07080599999972
+    },
+    {
+      "n": 4,
+      "seed": 152101,
+      "tactics": true,
+      "order": [
+        "army2",
+        "army3",
+        "army4",
+        "army1"
+      ],
+      "index": 9,
+      "commands": 687,
+      "outcome": {
+        "type": "victory",
+        "winner": "army1"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [],
+      "fallbacks": 1,
+      "continuation": 0,
+      "seat": 4,
+      "trace": "e9ce0aed5ad2b5b5e52cfcbce475737449f6eedc800ba84b2e03793d5a30c0a0",
+      "state": "03f048034622ba5751f77d1869b3cf94224f8560e254ccddd1fb816d8ae0262a",
+      "cpuP95": 4.4015590000017255
+    },
+    {
+      "n": 4,
+      "seed": 152101,
+      "tactics": true,
+      "order": [
+        "army2",
+        "army4",
+        "army1",
+        "army3"
+      ],
+      "index": 10,
+      "commands": 680,
+      "outcome": {
+        "type": "victory",
+        "winner": "army3"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [],
+      "fallbacks": 1,
+      "continuation": 0,
+      "seat": 4,
+      "trace": "419ae4b51e425d02ae33d4afdf337d7440d4dddcb6b8c4bf895c294f8b143013",
+      "state": "d109efebd9608bd816d338288eed836e8ac81556b336accdb3f36836d298a5eb",
+      "cpuP95": 5.373050999998668
+    },
+    {
+      "n": 4,
+      "seed": 152101,
+      "tactics": true,
+      "order": [
+        "army2",
+        "army4",
+        "army3",
+        "army1"
+      ],
+      "index": 11,
+      "commands": 665,
+      "outcome": {
+        "type": "victory",
+        "winner": "army1"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [
+        {
+          "army": "army2",
+          "round": 19
+        }
+      ],
+      "fallbacks": 1,
+      "continuation": 0,
+      "seat": 4,
+      "trace": "937299a0e753fd8ad19bd9fb1bdf1356e1b9421f28ebf93f006e1500c8a866de",
+      "state": "cdd78f9462d634434d7885cd3f2fc613aea9c1f27c34275c011368de5c884dc2",
+      "cpuP95": 4.502008999999816
+    },
+    {
+      "n": 4,
+      "seed": 152101,
+      "tactics": true,
+      "order": [
+        "army3",
+        "army1",
+        "army2",
+        "army4"
+      ],
+      "index": 12,
+      "commands": 654,
+      "outcome": {
+        "type": "victory",
+        "winner": "army2"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [
+        {
+          "army": "army3",
+          "round": 15
+        }
+      ],
+      "fallbacks": 2,
+      "continuation": 0,
+      "seat": 3,
+      "trace": "e8b2563ffca678f6f5f3ad335be4acda798e8d6b81d85c6995cf1a0c3ad779d8",
+      "state": "714c7fd857d884c2cef3c876913bf86ce6c17dbbeec3c47cb6f20de4bc139037",
+      "cpuP95": 5.068373000001884
+    },
+    {
+      "n": 4,
+      "seed": 152101,
+      "tactics": true,
+      "order": [
+        "army3",
+        "army1",
+        "army4",
+        "army2"
+      ],
+      "index": 13,
+      "commands": 680,
+      "outcome": {
+        "type": "victory",
+        "winner": "army2"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [],
+      "fallbacks": 1,
+      "continuation": 0,
+      "seat": 4,
+      "trace": "e5beff63f605d9ec37c28e11a4c57343f0ebb3012e525ee2fdcdea8c95c952d2",
+      "state": "53108b88fafb1a943f39a1456feea9c52e7297c3b684157dc93c547ac1c9a349",
+      "cpuP95": 7.194625000000087
+    },
+    {
+      "n": 4,
+      "seed": 152101,
+      "tactics": true,
+      "order": [
+        "army3",
+        "army2",
+        "army1",
+        "army4"
+      ],
+      "index": 14,
+      "commands": 685,
+      "outcome": {
+        "type": "victory",
+        "winner": "army4"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [],
+      "fallbacks": 0,
+      "continuation": 0,
+      "seat": 4,
+      "trace": "466eafa3e41c563974d7d4a89f7c8699eec6cd24133569c54aa5103dd9a8ddb1",
+      "state": "f8883c7a83a79e67926de54803a6fed99f0e2766e32f1d883d584877fc201609",
+      "cpuP95": 5.372596000001067
+    },
+    {
+      "n": 4,
+      "seed": 152101,
+      "tactics": true,
+      "order": [
+        "army3",
+        "army2",
+        "army4",
+        "army1"
+      ],
+      "index": 15,
+      "commands": 713,
+      "outcome": {
+        "type": "victory",
+        "winner": "army1"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [],
+      "fallbacks": 2,
+      "continuation": 0,
+      "seat": 4,
+      "trace": "797503316c2f5a9cd946ebce7e700d4c9689d13592517139a645f150e80c706d",
+      "state": "0c2c2b37c74608289a8eaf22641da49e44f0b7f3fc8dd166b0080cd7385079ca",
+      "cpuP95": 5.543077000002086
+    },
+    {
+      "n": 4,
+      "seed": 152101,
+      "tactics": true,
+      "order": [
+        "army3",
+        "army4",
+        "army1",
+        "army2"
+      ],
+      "index": 16,
+      "commands": 644,
+      "outcome": {
+        "type": "victory",
+        "winner": "army1"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [
+        {
+          "army": "army4",
+          "round": 12
+        }
+      ],
+      "fallbacks": 2,
+      "continuation": 0,
+      "seat": 3,
+      "trace": "e535a3b6bc447deb923a98fd605501fe32d7143619a667177a6611df7a6e08f2",
+      "state": "4e92eaf63813fdb72211f733f22f6544fe932226444414d3f131ef8e3096ee13",
+      "cpuP95": 4.0618570000006
+    },
+    {
+      "n": 4,
+      "seed": 152101,
+      "tactics": true,
+      "order": [
+        "army3",
+        "army4",
+        "army2",
+        "army1"
+      ],
+      "index": 17,
+      "commands": 683,
+      "outcome": {
+        "type": "victory",
+        "winner": "army2"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [],
+      "fallbacks": 0,
+      "continuation": 0,
+      "seat": 3,
+      "trace": "68ed74ff4ba28f5e36f5dcb8e51e5406d5e6d945429e483fbcd057521d0187c3",
+      "state": "41bdb1ed4750b53ecdbc68276c28d7fc7540c343728cc2a9f76f9185e2be2a06",
+      "cpuP95": 3.7857719999992696
+    },
+    {
+      "n": 4,
+      "seed": 152101,
+      "tactics": true,
+      "order": [
+        "army4",
+        "army1",
+        "army2",
+        "army3"
+      ],
+      "index": 18,
+      "commands": 687,
+      "outcome": {
+        "type": "victory",
+        "winner": "army3"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [],
+      "fallbacks": 1,
+      "continuation": 0,
+      "seat": 4,
+      "trace": "35b1c96820795eea0e268ca0ad073667d771d0a561d1d7ddfe3310a2fba7a4c3",
+      "state": "30b5cad95027546824dcb597474ce5a0315a9fddb33a85b1135006d2e28a1881",
+      "cpuP95": 4.97111600000062
+    },
+    {
+      "n": 4,
+      "seed": 152101,
+      "tactics": true,
+      "order": [
+        "army4",
+        "army1",
+        "army3",
+        "army2"
+      ],
+      "index": 19,
+      "commands": 711,
+      "outcome": {
+        "type": "victory",
+        "winner": "army3"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [],
+      "fallbacks": 1,
+      "continuation": 0,
+      "seat": 3,
+      "trace": "35c8f597396126719a1008756f790e74873c746cf5045001e0f63b77de5489df",
+      "state": "c61d4239c69285befc5c503bc0bb3c3e8e55a54634d1bbf8123452807966c341",
+      "cpuP95": 6.04769700000179
+    },
+    {
+      "n": 4,
+      "seed": 152101,
+      "tactics": true,
+      "order": [
+        "army4",
+        "army2",
+        "army1",
+        "army3"
+      ],
+      "index": 20,
+      "commands": 665,
+      "outcome": {
+        "type": "victory",
+        "winner": "army3"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [
+        {
+          "army": "army4",
+          "round": 19
+        }
+      ],
+      "fallbacks": 1,
+      "continuation": 0,
+      "seat": 4,
+      "trace": "6c4e58ee44e2ec1a68a1930a853c1f9b309c04db5f177b356be005d55cef20f8",
+      "state": "75f9bf3396412054e6e1b3e93edda751494f1d5b9eda0b8dabda36acf89b8360",
+      "cpuP95": 5.9942080000000715
+    },
+    {
+      "n": 4,
+      "seed": 152101,
+      "tactics": true,
+      "order": [
+        "army4",
+        "army2",
+        "army3",
+        "army1"
+      ],
+      "index": 21,
+      "commands": 680,
+      "outcome": {
+        "type": "victory",
+        "winner": "army1"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [],
+      "fallbacks": 1,
+      "continuation": 0,
+      "seat": 4,
+      "trace": "513b5f943b6626892a1a314c842ab5742a9dc3278efde05569242e49b30d3d9e",
+      "state": "dfe7eaceb65f4e1353ec663d87d804bf039c42511fa6f1fba26310627873be07",
+      "cpuP95": 6.0729169999976875
+    },
+    {
+      "n": 4,
+      "seed": 152101,
+      "tactics": true,
+      "order": [
+        "army4",
+        "army3",
+        "army1",
+        "army2"
+      ],
+      "index": 22,
+      "commands": 683,
+      "outcome": {
+        "type": "victory",
+        "winner": "army1"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [],
+      "fallbacks": 0,
+      "continuation": 0,
+      "seat": 3,
+      "trace": "2eeb7b4df5775c66f14fdc2edcd85cb1d58fb2231b28bb55768b3319e7ddd7cd",
+      "state": "0852859c9010f34751a32076ddd80a9cbc3372468a87af4093ff04663bc7deca",
+      "cpuP95": 4.032292000003508
+    },
+    {
+      "n": 4,
+      "seed": 152101,
+      "tactics": true,
+      "order": [
+        "army4",
+        "army3",
+        "army2",
+        "army1"
+      ],
+      "index": 23,
+      "commands": 644,
+      "outcome": {
+        "type": "victory",
+        "winner": "army2"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [
+        {
+          "army": "army3",
+          "round": 12
+        }
+      ],
+      "fallbacks": 2,
+      "continuation": 0,
+      "seat": 3,
+      "trace": "d25b9a0deacada93bc29ba23e84b28ff840ea0ecb4345ecf58c633aed225dc83",
+      "state": "0f3ed887700259a98829da4d1e8d989b466cfd1d83879031ae21bc4b58e1693c",
+      "cpuP95": 5.855287999998836
+    },
+    {
+      "n": 4,
+      "seed": 152101,
+      "tactics": false,
+      "order": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "index": 0,
+      "commands": 713,
+      "outcome": {
+        "type": "victory",
+        "winner": "army1"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [],
+      "fallbacks": 0,
+      "continuation": 64,
+      "seat": 1,
+      "trace": "83f9746bdb1452ac81792f57e6f73e91d922227ae884ee892aded4f098dfb28e",
+      "state": "d7f4ed5021dbcbc9584e47900c55a62ec622c00f475d68706fcb8435ddff1f93",
+      "cpuP95": 6.80561100000341
+    },
+    {
+      "n": 4,
+      "seed": 152101,
+      "tactics": false,
+      "order": [
+        "army1",
+        "army2",
+        "army4",
+        "army3"
+      ],
+      "index": 1,
+      "commands": 723,
+      "outcome": {
+        "type": "victory",
+        "winner": "army3"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [],
+      "fallbacks": 0,
+      "continuation": 0,
+      "seat": 4,
+      "trace": "8c228ab9e44345171e516d3add3d386ff2c0ea22f409a503634bb0ee44bdfa67",
+      "state": "d283903e8c4169c0cf8f53da0e5154fde261a0a453f8b0d94cab3b68d3655dce",
+      "cpuP95": 4.5707040000015695
+    },
+    {
+      "n": 4,
+      "seed": 152101,
+      "tactics": false,
+      "order": [
+        "army1",
+        "army3",
+        "army2",
+        "army4"
+      ],
+      "index": 2,
+      "commands": 689,
+      "outcome": {
+        "type": "victory",
+        "winner": "army2"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [],
+      "fallbacks": 0,
+      "continuation": 0,
+      "seat": 3,
+      "trace": "e44dc52253f5ea489e2ce30585a924de97c09d232d9cb41bd8031d5320f8b70e",
+      "state": "77181d2f8d4bad06f2806b76b6e7715429907200c1a272e2485554ae2c98b093",
+      "cpuP95": 4.417972999995982
+    },
+    {
+      "n": 4,
+      "seed": 152101,
+      "tactics": false,
+      "order": [
+        "army1",
+        "army3",
+        "army4",
+        "army2"
+      ],
+      "index": 3,
+      "commands": 698,
+      "outcome": {
+        "type": "victory",
+        "winner": "army3"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [],
+      "fallbacks": 0,
+      "continuation": 0,
+      "seat": 2,
+      "trace": "559bd7f437b75de50a87d7f5feed242f893976cfce3bac67635d518b4289a236",
+      "state": "91cf96c708a6c9b3fc83d93f554e2a0761a96fbde976a2e34310c9b9090cf4d7",
+      "cpuP95": 5.7548360000000685
+    },
+    {
+      "n": 4,
+      "seed": 152101,
+      "tactics": false,
+      "order": [
+        "army1",
+        "army4",
+        "army2",
+        "army3"
+      ],
+      "index": 4,
+      "commands": 679,
+      "outcome": {
+        "type": "victory",
+        "winner": "army1"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [],
+      "fallbacks": 0,
+      "continuation": 0,
+      "seat": 1,
+      "trace": "6e517d5e05e99b31df9c6f7b8d2b6b7c7acd5cbb3eb135026a543dd9e54d1008",
+      "state": "05bb141a4715aea3b60527dd7473792e52d1645a91baedc189a88bc3307602f6",
+      "cpuP95": 9.482000999996671
+    },
+    {
+      "n": 4,
+      "seed": 152101,
+      "tactics": false,
+      "order": [
+        "army1",
+        "army4",
+        "army3",
+        "army2"
+      ],
+      "index": 5,
+      "commands": 682,
+      "outcome": {
+        "type": "victory",
+        "winner": "army2"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [],
+      "fallbacks": 0,
+      "continuation": 0,
+      "seat": 4,
+      "trace": "7b75583eb57dcdb89dc2bd94e5ee19e6552605a37c381a63f3ad68873429d0e5",
+      "state": "0b5373cfce3b8994e9e3e1213e58079fdd6072ed779fc42063fcc8ba4252c9df",
+      "cpuP95": 4.589251999997941
+    },
+    {
+      "n": 4,
+      "seed": 152101,
+      "tactics": false,
+      "order": [
+        "army2",
+        "army1",
+        "army3",
+        "army4"
+      ],
+      "index": 6,
+      "commands": 723,
+      "outcome": {
+        "type": "victory",
+        "winner": "army4"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [],
+      "fallbacks": 0,
+      "continuation": 0,
+      "seat": 4,
+      "trace": "d4f6fa968fc773a3e1922641e87900028116e16554754aada82759e2e277c66b",
+      "state": "3fc0d529ee2d95024550777024629070597a86ccbbc3c83d01f747e3d71fb521",
+      "cpuP95": 5.3863710000005085
+    },
+    {
+      "n": 4,
+      "seed": 152101,
+      "tactics": false,
+      "order": [
+        "army2",
+        "army1",
+        "army4",
+        "army3"
+      ],
+      "index": 7,
+      "commands": 715,
+      "outcome": {
+        "type": "victory",
+        "winner": "army2"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [],
+      "fallbacks": 0,
+      "continuation": 0,
+      "seat": 1,
+      "trace": "3c156cf216b8859fd0bf7924067da8ba6e3ac976986462e80350ec897396d231",
+      "state": "95d2034271764a617b5bb7a6fdee37d9bae30ec9cf3990842fc68f0214ac8b14",
+      "cpuP95": 5.227222000001348
+    },
+    {
+      "n": 4,
+      "seed": 152101,
+      "tactics": false,
+      "order": [
+        "army2",
+        "army3",
+        "army1",
+        "army4"
+      ],
+      "index": 8,
+      "commands": 679,
+      "outcome": {
+        "type": "victory",
+        "winner": "army2"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [],
+      "fallbacks": 0,
+      "continuation": 0,
+      "seat": 1,
+      "trace": "287f81b5ec57eaaef56b897e4c1107e66f85f04c1db25ce9b11b3a26ec73bdfc",
+      "state": "d2dc56b5104905961d1885193724c2e90ec65e4208651eb51a8c91477e4b1e2f",
+      "cpuP95": 5.466933000003337
+    },
+    {
+      "n": 4,
+      "seed": 152101,
+      "tactics": false,
+      "order": [
+        "army2",
+        "army3",
+        "army4",
+        "army1"
+      ],
+      "index": 9,
+      "commands": 682,
+      "outcome": {
+        "type": "victory",
+        "winner": "army1"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [],
+      "fallbacks": 0,
+      "continuation": 0,
+      "seat": 4,
+      "trace": "3d698244b12a6d90d71bc1ca39ad160a6e602518d6f6fd925b205927753d39d7",
+      "state": "1a2998b8d43661dd5e5d1acdb2d57f37b127d8593f6bf42e3968b056f83deede",
+      "cpuP95": 4.626969000004465
+    },
+    {
+      "n": 4,
+      "seed": 152101,
+      "tactics": false,
+      "order": [
+        "army2",
+        "army4",
+        "army1",
+        "army3"
+      ],
+      "index": 10,
+      "commands": 690,
+      "outcome": {
+        "type": "victory",
+        "winner": "army3"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [],
+      "fallbacks": 1,
+      "continuation": 0,
+      "seat": 4,
+      "trace": "ee9e540d9a75875b136baba82d9de5685434fcc5e20862cc4c0f6a52abca38b9",
+      "state": "c14e673be66eaa11bea3aa6711d24815e0b98a4529ca23b4114244a02ce8eb28",
+      "cpuP95": 5.41881000000285
+    },
+    {
+      "n": 4,
+      "seed": 152101,
+      "tactics": false,
+      "order": [
+        "army2",
+        "army4",
+        "army3",
+        "army1"
+      ],
+      "index": 11,
+      "commands": 698,
+      "outcome": {
+        "type": "victory",
+        "winner": "army3"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [],
+      "fallbacks": 0,
+      "continuation": 0,
+      "seat": 3,
+      "trace": "0a71d2fba741d21b190f9f3d97b85e40332dcd54317f4f555de834db429a69b2",
+      "state": "582a56d605a9f06eab6a5df5f629732535e59d3409698ff1da132d35b7b4d047",
+      "cpuP95": 6.102038999997603
+    },
+    {
+      "n": 4,
+      "seed": 152101,
+      "tactics": false,
+      "order": [
+        "army3",
+        "army1",
+        "army2",
+        "army4"
+      ],
+      "index": 12,
+      "commands": 698,
+      "outcome": {
+        "type": "victory",
+        "winner": "army1"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [],
+      "fallbacks": 0,
+      "continuation": 0,
+      "seat": 2,
+      "trace": "d210d53545cbe782658e06d58bedd6bd51e7723903c615f7e7b289fefa6ec8fd",
+      "state": "e9937f7ea03be05d36414c94b62ab92ea5dc5452de377950af77b32dbb77de08",
+      "cpuP95": 6.386268000002019
+    },
+    {
+      "n": 4,
+      "seed": 152101,
+      "tactics": false,
+      "order": [
+        "army3",
+        "army1",
+        "army4",
+        "army2"
+      ],
+      "index": 13,
+      "commands": 689,
+      "outcome": {
+        "type": "victory",
+        "winner": "army4"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [],
+      "fallbacks": 0,
+      "continuation": 0,
+      "seat": 3,
+      "trace": "ec89fa95832105353e8e146e0027f1343a9dbfa25779af936bce2e873cdfb2b8",
+      "state": "c87cfcded30cfd8aeec5e0bc4b5c91f0e40ea001d0ac5d864b3f0f3a9132105a",
+      "cpuP95": 5.220031999997445
+    },
+    {
+      "n": 4,
+      "seed": 152101,
+      "tactics": false,
+      "order": [
+        "army3",
+        "army2",
+        "army1",
+        "army4"
+      ],
+      "index": 14,
+      "commands": 682,
+      "outcome": {
+        "type": "victory",
+        "winner": "army4"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [],
+      "fallbacks": 0,
+      "continuation": 0,
+      "seat": 4,
+      "trace": "103f0155a8fffae58e39cc333da2ebabebad97ec56bbdb9af69db1d7ae1a873f",
+      "state": "d7729e906552831b4f0a842381d3cf54c67275a8fc7e6852aab20ff7062f0175",
+      "cpuP95": 7.713616000000911
+    },
+    {
+      "n": 4,
+      "seed": 152101,
+      "tactics": false,
+      "order": [
+        "army3",
+        "army2",
+        "army4",
+        "army1"
+      ],
+      "index": 15,
+      "commands": 679,
+      "outcome": {
+        "type": "victory",
+        "winner": "army3"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [],
+      "fallbacks": 0,
+      "continuation": 0,
+      "seat": 1,
+      "trace": "6eb06338a6e65fe1299e65a6727621f1a40aa18f5bb39798890477133df6881d",
+      "state": "090f17a6741298b71089bec06e0d9d3012b20dc97fdc6fd72bce5c0475b0889e",
+      "cpuP95": 7.242685999997775
+    },
+    {
+      "n": 4,
+      "seed": 152101,
+      "tactics": false,
+      "order": [
+        "army3",
+        "army4",
+        "army1",
+        "army2"
+      ],
+      "index": 16,
+      "commands": 713,
+      "outcome": {
+        "type": "victory",
+        "winner": "army3"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [],
+      "fallbacks": 0,
+      "continuation": 0,
+      "seat": 1,
+      "trace": "2f51f54e2386307d15fb58649ebb0e2612a64175ff9e53e4223b2cfe6a09a1f0",
+      "state": "379d0ea0387c901f89ceb9c13e86c2994c575219b3bcfa426ad382cd465dfc99",
+      "cpuP95": 5.292180000004009
+    },
+    {
+      "n": 4,
+      "seed": 152101,
+      "tactics": false,
+      "order": [
+        "army3",
+        "army4",
+        "army2",
+        "army1"
+      ],
+      "index": 17,
+      "commands": 723,
+      "outcome": {
+        "type": "victory",
+        "winner": "army1"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [],
+      "fallbacks": 0,
+      "continuation": 0,
+      "seat": 4,
+      "trace": "6cd1ecf662447c36e980bf77a1262f7276c4c68351372a1b3591ec77bb2f10fe",
+      "state": "27b94726290ebe1fbf0e4d31479acc42bf38fa56dd4f2f1ba1a7ebf6fddc2868",
+      "cpuP95": 4.02440999999817
+    },
+    {
+      "n": 4,
+      "seed": 152101,
+      "tactics": false,
+      "order": [
+        "army4",
+        "army1",
+        "army2",
+        "army3"
+      ],
+      "index": 18,
+      "commands": 682,
+      "outcome": {
+        "type": "victory",
+        "winner": "army3"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [],
+      "fallbacks": 0,
+      "continuation": 0,
+      "seat": 4,
+      "trace": "3bb5c0b0e27ffff3d0cb7d9a98c1b81971f1d04dc215e343798fe5294d989be9",
+      "state": "74df7455eeb86b4eedc4eb1ad1741a033251cf2279a5e1cfba8cb06a68202bc5",
+      "cpuP95": 6.31770300000062
+    },
+    {
+      "n": 4,
+      "seed": 152101,
+      "tactics": false,
+      "order": [
+        "army4",
+        "army1",
+        "army3",
+        "army2"
+      ],
+      "index": 19,
+      "commands": 679,
+      "outcome": {
+        "type": "victory",
+        "winner": "army4"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [],
+      "fallbacks": 0,
+      "continuation": 0,
+      "seat": 1,
+      "trace": "4a6bd129febaa151011244fefd472d6c67cdca70d0f4ce38bc8c2d21f9c8ac7f",
+      "state": "b784426068b5e95cc5491c86d8fd8bdb5349b8bb1b727c23bc93730e3d6e9075",
+      "cpuP95": 6.29142700000375
+    },
+    {
+      "n": 4,
+      "seed": 152101,
+      "tactics": false,
+      "order": [
+        "army4",
+        "army2",
+        "army1",
+        "army3"
+      ],
+      "index": 20,
+      "commands": 698,
+      "outcome": {
+        "type": "victory",
+        "winner": "army1"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [],
+      "fallbacks": 0,
+      "continuation": 0,
+      "seat": 3,
+      "trace": "0f6fb5af9c8787864d918441999b0fe33a462acb70fa72c4c5839dacaef8bbde",
+      "state": "0f0957f16d40cb635511ba0f766f7bc2f3f701510a58cc2424a3e01a7105492f",
+      "cpuP95": 5.3390199999994365
+    },
+    {
+      "n": 4,
+      "seed": 152101,
+      "tactics": false,
+      "order": [
+        "army4",
+        "army2",
+        "army3",
+        "army1"
+      ],
+      "index": 21,
+      "commands": 690,
+      "outcome": {
+        "type": "victory",
+        "winner": "army1"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [],
+      "fallbacks": 1,
+      "continuation": 0,
+      "seat": 4,
+      "trace": "7b7b142360fac7951dd602c9c54e7ea115806ab9f355dfd12084e7f56d251e9c",
+      "state": "8ab991b21c3b186b151170a0e7bfab7eeecd4975082d2bdc047093bedcbd25fa",
+      "cpuP95": 4.335549000003084
+    },
+    {
+      "n": 4,
+      "seed": 152101,
+      "tactics": false,
+      "order": [
+        "army4",
+        "army3",
+        "army1",
+        "army2"
+      ],
+      "index": 22,
+      "commands": 723,
+      "outcome": {
+        "type": "victory",
+        "winner": "army2"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [],
+      "fallbacks": 0,
+      "continuation": 0,
+      "seat": 4,
+      "trace": "d74268a7752c80dc08871d5f166098700e825a78908bd38c7e243a10a9b7eacc",
+      "state": "cb1c9dc9c0e895fbb9533768ebb6a56f7dcf6806bc38a41d75f8302bd862ba4e",
+      "cpuP95": 5.118140999999014
+    },
+    {
+      "n": 4,
+      "seed": 152101,
+      "tactics": false,
+      "order": [
+        "army4",
+        "army3",
+        "army2",
+        "army1"
+      ],
+      "index": 23,
+      "commands": 715,
+      "outcome": {
+        "type": "victory",
+        "winner": "army4"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [],
+      "fallbacks": 0,
+      "continuation": 0,
+      "seat": 1,
+      "trace": "bd82cab9c493bf64cf31e5899fec3b16116ebc1c00ac84569c9170ee54490d88",
+      "state": "3d069d7911178fdfddb65b458ccff8603f0e0fca770478ea4c43f089937d17cc",
+      "cpuP95": 6.011712999999872
+    },
+    {
+      "n": 4,
+      "seed": 152102,
+      "tactics": true,
+      "order": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "index": 0,
+      "commands": 658,
+      "outcome": {
+        "type": "victory",
+        "winner": "army3"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [],
+      "fallbacks": 0,
+      "continuation": 64,
+      "seat": 3,
+      "trace": "69bd3ae48e75234364488c199844b897599e44838c26de842d83650ab767dd90",
+      "state": "337b2ac88034750c357dc1f36d080824aabb0f56b5777920e52b7ca72f4922a2",
+      "cpuP95": 5.528204999995069
+    },
+    {
+      "n": 4,
+      "seed": 152102,
+      "tactics": true,
+      "order": [
+        "army1",
+        "army2",
+        "army4",
+        "army3"
+      ],
+      "index": 1,
+      "commands": 691,
+      "outcome": {
+        "type": "victory",
+        "winner": "army1"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [],
+      "fallbacks": 0,
+      "continuation": 0,
+      "seat": 1,
+      "trace": "9a36509ea9d7cc7f7b64de336052d994043ac76038a56b6b58ea87ab31e89fe9",
+      "state": "bd9d7aa9c83e9af47708daebc2ca1a9a5b8302b8e8e51bdbbb114e96533f85df",
+      "cpuP95": 4.385795000001963
+    },
+    {
+      "n": 4,
+      "seed": 152102,
+      "tactics": true,
+      "order": [
+        "army1",
+        "army3",
+        "army2",
+        "army4"
+      ],
+      "index": 2,
+      "commands": 643,
+      "outcome": {
+        "type": "victory",
+        "winner": "army2"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [
+        {
+          "army": "army3",
+          "round": 12
+        }
+      ],
+      "fallbacks": 1,
+      "continuation": 0,
+      "seat": 3,
+      "trace": "9c11954be6944b9ed34b22941d679558e23634c1366807a4f2a58719e655c7b0",
+      "state": "4f07cae99c8a319244d3d7a8cb4814a5e367ac20e1a02fb9f961c7bdd6d6cee7",
+      "cpuP95": 5.61271200000192
+    },
+    {
+      "n": 4,
+      "seed": 152102,
+      "tactics": true,
+      "order": [
+        "army1",
+        "army3",
+        "army4",
+        "army2"
+      ],
+      "index": 3,
+      "commands": 670,
+      "outcome": {
+        "type": "victory",
+        "winner": "army2"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [],
+      "fallbacks": 0,
+      "continuation": 0,
+      "seat": 4,
+      "trace": "8de20b623ad8856a034540fcad0d9fd116496b42fccd4c0ca4f0b770a0b9bb3d",
+      "state": "9b926847ce2cf3dedf5d9c8eb4e754035ad080c9d2b41134e042d8882d134022",
+      "cpuP95": 5.114312000005157
+    },
+    {
+      "n": 4,
+      "seed": 152102,
+      "tactics": true,
+      "order": [
+        "army1",
+        "army4",
+        "army2",
+        "army3"
+      ],
+      "index": 4,
+      "commands": 720,
+      "outcome": {
+        "type": "victory",
+        "winner": "army2"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [],
+      "fallbacks": 2,
+      "continuation": 0,
+      "seat": 3,
+      "trace": "3aef0d8b10ba3bb89d5acc9ba1ccfd56fdbd0e6d58cb98e738fff9091267e4e9",
+      "state": "b2ca1ab776800d73304690c58b2faad482faf9552ef5dc22aa0fbef124e6a479",
+      "cpuP95": 4.884124999996857
+    },
+    {
+      "n": 4,
+      "seed": 152102,
+      "tactics": true,
+      "order": [
+        "army1",
+        "army4",
+        "army3",
+        "army2"
+      ],
+      "index": 5,
+      "commands": 706,
+      "outcome": {
+        "type": "victory",
+        "winner": "army2"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [],
+      "fallbacks": 1,
+      "continuation": 0,
+      "seat": 4,
+      "trace": "4e14ea61571247e2f579d1160eda3354c56dc7c2ff4f96eece52374ad4b50362",
+      "state": "5258f9df9b14e6299d1bb02118f3d87a6321890e61ac217bd7876a8ee7edc416",
+      "cpuP95": 4.158472000002803
+    },
+    {
+      "n": 4,
+      "seed": 152102,
+      "tactics": true,
+      "order": [
+        "army2",
+        "army1",
+        "army3",
+        "army4"
+      ],
+      "index": 6,
+      "commands": 699,
+      "outcome": {
+        "type": "victory",
+        "winner": "army3"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [],
+      "fallbacks": 0,
+      "continuation": 0,
+      "seat": 3,
+      "trace": "ecef089b0fd846921ecdefe7d8004e4f6ff8c170954205beb5a8e86e7909f0ac",
+      "state": "93e3e61018a63e5826b66f27dfd90f9be29fbf5cbd6835e62af8386522560b33",
+      "cpuP95": 5.102915000003122
+    },
+    {
+      "n": 4,
+      "seed": 152102,
+      "tactics": true,
+      "order": [
+        "army2",
+        "army1",
+        "army4",
+        "army3"
+      ],
+      "index": 7,
+      "commands": 655,
+      "outcome": {
+        "type": "victory",
+        "winner": "army4"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [],
+      "fallbacks": 2,
+      "continuation": 0,
+      "seat": 3,
+      "trace": "f43ce50fe42e7f919505362ad5ccce8fb0dd9d425fe213a9734bd3c07334df41",
+      "state": "537e0bf812c8e5ae0902e02995822a97c8124063b2b8af9d1a0d122f6d0e2c27",
+      "cpuP95": 5.218466999998782
+    },
+    {
+      "n": 4,
+      "seed": 152102,
+      "tactics": true,
+      "order": [
+        "army2",
+        "army3",
+        "army1",
+        "army4"
+      ],
+      "index": 8,
+      "commands": 713,
+      "outcome": {
+        "type": "victory",
+        "winner": "army1"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [],
+      "fallbacks": 1,
+      "continuation": 0,
+      "seat": 3,
+      "trace": "02c4cb357ffef9f73e0b90c6aaa3ec2a8f69dd28f933aa0a2ac443d3b5f10d9d",
+      "state": "012c1de87e434c3acd042a82c41ebd7fb9ed67dd29ef6e0a0bb4505d665a03fd",
+      "cpuP95": 4.869251999996777
+    },
+    {
+      "n": 4,
+      "seed": 152102,
+      "tactics": true,
+      "order": [
+        "army2",
+        "army3",
+        "army4",
+        "army1"
+      ],
+      "index": 9,
+      "commands": 706,
+      "outcome": {
+        "type": "victory",
+        "winner": "army1"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [],
+      "fallbacks": 1,
+      "continuation": 0,
+      "seat": 4,
+      "trace": "88fa8fc04f0a316efff32f38b8fb04f9c6be429d85428bb00b0a99dd97b9621b",
+      "state": "b8c28b31ba4601effec13a55a8f5c0d20e39848eefa11a9245432b9ba82ad617",
+      "cpuP95": 4.412535000003118
+    },
+    {
+      "n": 4,
+      "seed": 152102,
+      "tactics": true,
+      "order": [
+        "army2",
+        "army4",
+        "army1",
+        "army3"
+      ],
+      "index": 10,
+      "commands": 645,
+      "outcome": {
+        "type": "victory",
+        "winner": "army1"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [
+        {
+          "army": "army4",
+          "round": 12
+        }
+      ],
+      "fallbacks": 1,
+      "continuation": 0,
+      "seat": 3,
+      "trace": "16414693cf6140939908ba161879f2bf94bddbcad60e7e83c865d6cc7fac597c",
+      "state": "9bd40d594bd0f7d72c66f8baa438114216e679856a16f38c38ca2725b653ebcc",
+      "cpuP95": 5.1118270000006305
+    },
+    {
+      "n": 4,
+      "seed": 152102,
+      "tactics": true,
+      "order": [
+        "army2",
+        "army4",
+        "army3",
+        "army1"
+      ],
+      "index": 11,
+      "commands": 671,
+      "outcome": {
+        "type": "victory",
+        "winner": "army1"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [],
+      "fallbacks": 0,
+      "continuation": 0,
+      "seat": 4,
+      "trace": "a2f8e363509e505c22d5a6370bac1cd02ec8d8fea115b8fbf88faf8fae79e71d",
+      "state": "bc7212a8c0657b5ad4de757e9a41b0664b609f49c193e877ae699abe2ddd728f",
+      "cpuP95": 4.507787000002281
+    },
+    {
+      "n": 4,
+      "seed": 152102,
+      "tactics": true,
+      "order": [
+        "army3",
+        "army1",
+        "army2",
+        "army4"
+      ],
+      "index": 12,
+      "commands": 670,
+      "outcome": {
+        "type": "victory",
+        "winner": "army4"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [],
+      "fallbacks": 0,
+      "continuation": 0,
+      "seat": 4,
+      "trace": "9710686e38482d62467cbb15014abda3d3b0b1573b7a824a5478128b8c534e08",
+      "state": "ef2666024f519c6f562dedf915c176d46667d3a93ad4e7931f07b630ff39e64f",
+      "cpuP95": 5.707365000002028
+    },
+    {
+      "n": 4,
+      "seed": 152102,
+      "tactics": true,
+      "order": [
+        "army3",
+        "army1",
+        "army4",
+        "army2"
+      ],
+      "index": 13,
+      "commands": 643,
+      "outcome": {
+        "type": "victory",
+        "winner": "army4"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [
+        {
+          "army": "army1",
+          "round": 12
+        }
+      ],
+      "fallbacks": 1,
+      "continuation": 0,
+      "seat": 3,
+      "trace": "a70a011518e1f19b26f22bdeb962e021c9db5a6605c721b6481d51afdbbb80ee",
+      "state": "5045e2304141a01a8bd67cf03ddcd4c424828ec5d318c222c0330a7a7fa7999d",
+      "cpuP95": 4.826709000000847
+    },
+    {
+      "n": 4,
+      "seed": 152102,
+      "tactics": true,
+      "order": [
+        "army3",
+        "army2",
+        "army1",
+        "army4"
+      ],
+      "index": 14,
+      "commands": 706,
+      "outcome": {
+        "type": "victory",
+        "winner": "army4"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [],
+      "fallbacks": 1,
+      "continuation": 0,
+      "seat": 4,
+      "trace": "e331383e5d32d5ec11be23ed6c986040945df843fdeb36b01f72037d6151997c",
+      "state": "d36bea222469c66ebc4d86174d42a5fd180595ab7c1feba5e3cf547e64184846",
+      "cpuP95": 6.727159000001848
+    },
+    {
+      "n": 4,
+      "seed": 152102,
+      "tactics": true,
+      "order": [
+        "army3",
+        "army2",
+        "army4",
+        "army1"
+      ],
+      "index": 15,
+      "commands": 720,
+      "outcome": {
+        "type": "victory",
+        "winner": "army4"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [],
+      "fallbacks": 2,
+      "continuation": 0,
+      "seat": 3,
+      "trace": "6a860823764340238c8b2365f6b320e4722b123dc1855d427a2dd28741c1e89a",
+      "state": "e483c51c165b4035881b96b48d6f31b1c388721ac419a0bf9faa1b51422ec369",
+      "cpuP95": 5.232368000004499
+    },
+    {
+      "n": 4,
+      "seed": 152102,
+      "tactics": true,
+      "order": [
+        "army3",
+        "army4",
+        "army1",
+        "army2"
+      ],
+      "index": 16,
+      "commands": 658,
+      "outcome": {
+        "type": "victory",
+        "winner": "army1"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [],
+      "fallbacks": 0,
+      "continuation": 0,
+      "seat": 3,
+      "trace": "75c89cf4c94e78922a81d7e1c2a31f0908dc66e3de56f62a2f010db60cf1269c",
+      "state": "4f6b7c1cd0226c300865371262651a81c3a674de6d12b3f60c45635eba1d0e03",
+      "cpuP95": 4.979348000000755
+    },
+    {
+      "n": 4,
+      "seed": 152102,
+      "tactics": true,
+      "order": [
+        "army3",
+        "army4",
+        "army2",
+        "army1"
+      ],
+      "index": 17,
+      "commands": 691,
+      "outcome": {
+        "type": "victory",
+        "winner": "army3"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [],
+      "fallbacks": 0,
+      "continuation": 0,
+      "seat": 1,
+      "trace": "16a799c1c2e36a5a47c8fdf696fc73f655bb6763fe5c024761b6f1776a926a2e",
+      "state": "80c5e6597392564ef6f8932a154cf545f383db4fe985d86e8590c6c66cc798b9",
+      "cpuP95": 5.3482440000007045
+    },
+    {
+      "n": 4,
+      "seed": 152102,
+      "tactics": true,
+      "order": [
+        "army4",
+        "army1",
+        "army2",
+        "army3"
+      ],
+      "index": 18,
+      "commands": 706,
+      "outcome": {
+        "type": "victory",
+        "winner": "army3"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [],
+      "fallbacks": 1,
+      "continuation": 0,
+      "seat": 4,
+      "trace": "6300b19e66badd86de3a3462262715e56fb32786f059e38f825dc8f5bae6bf59",
+      "state": "60593d8c421dde5b4cde3ba714a60a3c1710e91de3283c2e8009ad0c065ee0d2",
+      "cpuP95": 5.328363000000536
+    },
+    {
+      "n": 4,
+      "seed": 152102,
+      "tactics": true,
+      "order": [
+        "army4",
+        "army1",
+        "army3",
+        "army2"
+      ],
+      "index": 19,
+      "commands": 713,
+      "outcome": {
+        "type": "victory",
+        "winner": "army3"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [],
+      "fallbacks": 1,
+      "continuation": 0,
+      "seat": 3,
+      "trace": "df342d23c80e76489e2623fe26d4751bb649b9340930804942b5b6fc27f24bcc",
+      "state": "67538a51759e042ce4d292756fd5abda01f8e981a63b2472d96361207f988b1f",
+      "cpuP95": 5.419512000000395
+    },
+    {
+      "n": 4,
+      "seed": 152102,
+      "tactics": true,
+      "order": [
+        "army4",
+        "army2",
+        "army1",
+        "army3"
+      ],
+      "index": 20,
+      "commands": 671,
+      "outcome": {
+        "type": "victory",
+        "winner": "army3"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [],
+      "fallbacks": 0,
+      "continuation": 0,
+      "seat": 4,
+      "trace": "a757dbed9cf839a8ce44cda81ce50a185effd563f69cbe50bb74041edd9eb294",
+      "state": "64830f4217a82a46a6e64e4900ea040b5722ffc61605c20adbc04e28084c2a03",
+      "cpuP95": 7.0255120000001625
+    },
+    {
+      "n": 4,
+      "seed": 152102,
+      "tactics": true,
+      "order": [
+        "army4",
+        "army2",
+        "army3",
+        "army1"
+      ],
+      "index": 21,
+      "commands": 645,
+      "outcome": {
+        "type": "victory",
+        "winner": "army3"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [
+        {
+          "army": "army2",
+          "round": 12
+        }
+      ],
+      "fallbacks": 1,
+      "continuation": 0,
+      "seat": 3,
+      "trace": "a991f41a9ab90815a8358419ad56fcafcd373942698cf641b6e1a3773e06f54a",
+      "state": "64e3286e07b0aea40a5c001fbb104cb6cbc77e7b385a8bfb30be7d8d36ab410e",
+      "cpuP95": 4.842442000001029
+    },
+    {
+      "n": 4,
+      "seed": 152102,
+      "tactics": true,
+      "order": [
+        "army4",
+        "army3",
+        "army1",
+        "army2"
+      ],
+      "index": 22,
+      "commands": 699,
+      "outcome": {
+        "type": "victory",
+        "winner": "army1"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [],
+      "fallbacks": 0,
+      "continuation": 0,
+      "seat": 3,
+      "trace": "638998f1e4b6a83553514a7c3ad49a711c39533960317332e09b217d44702433",
+      "state": "39180d069027f621fa1c8e7506f6cbd42e6a471e2a5a5e793dcab52a6678042c",
+      "cpuP95": 5.776528000002145
+    },
+    {
+      "n": 4,
+      "seed": 152102,
+      "tactics": true,
+      "order": [
+        "army4",
+        "army3",
+        "army2",
+        "army1"
+      ],
+      "index": 23,
+      "commands": 655,
+      "outcome": {
+        "type": "victory",
+        "winner": "army2"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [],
+      "fallbacks": 2,
+      "continuation": 0,
+      "seat": 3,
+      "trace": "460832075fa85208cba53ebce30d3e03682c3f3b9c7ca5653030d14258cb9a91",
+      "state": "af1aeb3aa18c4326af461455456b2e0bb5a7d62d550898cd52711148f4b739e6",
+      "cpuP95": 4.134625999999116
+    },
+    {
+      "n": 4,
+      "seed": 152102,
+      "tactics": false,
+      "order": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "index": 0,
+      "commands": 652,
+      "outcome": {
+        "type": "victory",
+        "winner": "army2"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [],
+      "fallbacks": 1,
+      "continuation": 64,
+      "seat": 2,
+      "trace": "41769abe6be81518e2bfbefb508a83aa00ecc7db1a452914f84bd79381c7a88b",
+      "state": "7a632da3758b684fd2fafa63d8f10348c316d29260844fafe7f1d099dff9c945",
+      "cpuP95": 6.268188999994891
+    },
+    {
+      "n": 4,
+      "seed": 152102,
+      "tactics": false,
+      "order": [
+        "army1",
+        "army2",
+        "army4",
+        "army3"
+      ],
+      "index": 1,
+      "commands": 624,
+      "outcome": {
+        "type": "victory",
+        "winner": "army4"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [
+        {
+          "army": "army1",
+          "round": 13
+        }
+      ],
+      "fallbacks": 1,
+      "continuation": 0,
+      "seat": 3,
+      "trace": "4a8fa4b90c1bacecb174d4d88287248b2af2a23c0c4702f85c35c2ca835bf2e7",
+      "state": "8729840d4cd1b05b96d1214b2e426bd2a4e5067ea2626a5bc7743e9bcf4d685d",
+      "cpuP95": 6.507861999998568
+    },
+    {
+      "n": 4,
+      "seed": 152102,
+      "tactics": false,
+      "order": [
+        "army1",
+        "army3",
+        "army2",
+        "army4"
+      ],
+      "index": 2,
+      "commands": 693,
+      "outcome": {
+        "type": "victory",
+        "winner": "army4"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [],
+      "fallbacks": 1,
+      "continuation": 0,
+      "seat": 4,
+      "trace": "664854e708aec92613710e6880bafebbac0537745812dc71f73c13cd7efe1741",
+      "state": "7cdf97ed5b670073ee8553bef8a77e06b658fb12299ffdad34675f72e8c30a73",
+      "cpuP95": 4.881480999989435
+    },
+    {
+      "n": 4,
+      "seed": 152102,
+      "tactics": false,
+      "order": [
+        "army1",
+        "army3",
+        "army4",
+        "army2"
+      ],
+      "index": 3,
+      "commands": 663,
+      "outcome": {
+        "type": "victory",
+        "winner": "army4"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [
+        {
+          "army": "army1",
+          "round": 15
+        }
+      ],
+      "fallbacks": 0,
+      "continuation": 0,
+      "seat": 3,
+      "trace": "b71798d7ace41899469348003cca8faab76803c0b391e2016c409147490b25bd",
+      "state": "e5ed2a4f17799bc1f88b12891d7d342adbca436491fa7e91ca9e2300eeadbac1",
+      "cpuP95": 6.038633000003756
+    },
+    {
+      "n": 4,
+      "seed": 152102,
+      "tactics": false,
+      "order": [
+        "army1",
+        "army4",
+        "army2",
+        "army3"
+      ],
+      "index": 4,
+      "commands": 657,
+      "outcome": {
+        "type": "victory",
+        "winner": "army3"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [],
+      "fallbacks": 0,
+      "continuation": 0,
+      "seat": 4,
+      "trace": "0bcef40d27834f514070d09a3fd77103c34ce45037bfb4122aaf142778df4a3f",
+      "state": "feddc5ec1a85fb4bbc2e8e702a9d1996bb39eb973540c6f4105f0c8953730e09",
+      "cpuP95": 4.310860999990837
+    },
+    {
+      "n": 4,
+      "seed": 152102,
+      "tactics": false,
+      "order": [
+        "army1",
+        "army4",
+        "army3",
+        "army2"
+      ],
+      "index": 5,
+      "commands": 687,
+      "outcome": {
+        "type": "victory",
+        "winner": "army4"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [],
+      "fallbacks": 0,
+      "continuation": 0,
+      "seat": 2,
+      "trace": "2df8596c37fd021fdaa9e19b8b160bd5d8ecf2bdb3975d2bf25877777e980b86",
+      "state": "fbbd5f13a538d8422cf9b7d4660e63f5ba9e016f99efdbaf46d58efb512000f1",
+      "cpuP95": 7.263949000000139
+    },
+    {
+      "n": 4,
+      "seed": 152102,
+      "tactics": false,
+      "order": [
+        "army2",
+        "army1",
+        "army3",
+        "army4"
+      ],
+      "index": 6,
+      "commands": 653,
+      "outcome": {
+        "type": "victory",
+        "winner": "army3"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [
+        {
+          "army": "army2",
+          "round": 13
+        }
+      ],
+      "fallbacks": 0,
+      "continuation": 0,
+      "seat": 3,
+      "trace": "18a2896749fddd8ed80dad5508308457a1ba9de1b4736f10a97af417456d8ca9",
+      "state": "de841947569e388761ed9b059536b491f3f6dd279064a9a2dc38c3a20b47bd39",
+      "cpuP95": 4.194676999992225
+    },
+    {
+      "n": 4,
+      "seed": 152102,
+      "tactics": false,
+      "order": [
+        "army2",
+        "army1",
+        "army4",
+        "army3"
+      ],
+      "index": 7,
+      "commands": 652,
+      "outcome": {
+        "type": "victory",
+        "winner": "army1"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [],
+      "fallbacks": 1,
+      "continuation": 0,
+      "seat": 2,
+      "trace": "1fcb18f8c3fdcf5111a9a3a8fcf507fb3e174ee5473b69f5c3180b4658542f98",
+      "state": "244924820a0f1257160611b8d926ee0df9ad2425ed0ad823ce1a7b7f47ca8ba8",
+      "cpuP95": 4.398362000007182
+    },
+    {
+      "n": 4,
+      "seed": 152102,
+      "tactics": false,
+      "order": [
+        "army2",
+        "army3",
+        "army1",
+        "army4"
+      ],
+      "index": 8,
+      "commands": 652,
+      "outcome": {
+        "type": "victory",
+        "winner": "army4"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [],
+      "fallbacks": 0,
+      "continuation": 0,
+      "seat": 4,
+      "trace": "0477954e1129d3ab0248d71a3cba2e470d9ce3434958fde2475e781ff2db556c",
+      "state": "bcf27e1f6dff92e829d18552c5d95d8d20782c7489a33a62375e98f6eef549a5",
+      "cpuP95": 4.824102999991737
+    },
+    {
+      "n": 4,
+      "seed": 152102,
+      "tactics": false,
+      "order": [
+        "army2",
+        "army3",
+        "army4",
+        "army1"
+      ],
+      "index": 9,
+      "commands": 687,
+      "outcome": {
+        "type": "victory",
+        "winner": "army3"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [],
+      "fallbacks": 0,
+      "continuation": 0,
+      "seat": 2,
+      "trace": "5f8a05d5a051f13cf25f17da35ff31717364632f6070500ff3a9809afb4c7ea7",
+      "state": "3501a68ed6866d6d5ed16b76e65441a5387e87fc5883a9cb16bb5b6cd8779f53",
+      "cpuP95": 4.088646999996854
+    },
+    {
+      "n": 4,
+      "seed": 152102,
+      "tactics": false,
+      "order": [
+        "army2",
+        "army4",
+        "army1",
+        "army3"
+      ],
+      "index": 10,
+      "commands": 693,
+      "outcome": {
+        "type": "victory",
+        "winner": "army3"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [],
+      "fallbacks": 1,
+      "continuation": 0,
+      "seat": 4,
+      "trace": "e61144184e25bca0596807989c6af38f337a43486e32551cd049378fa7a5943b",
+      "state": "e6d6c06a0a9734ee02c711b7ec5d815ca95c5da78a61dfd4be33a39925a57c5a",
+      "cpuP95": 5.616328000003705
+    },
+    {
+      "n": 4,
+      "seed": 152102,
+      "tactics": false,
+      "order": [
+        "army2",
+        "army4",
+        "army3",
+        "army1"
+      ],
+      "index": 11,
+      "commands": 663,
+      "outcome": {
+        "type": "victory",
+        "winner": "army3"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [
+        {
+          "army": "army2",
+          "round": 15
+        }
+      ],
+      "fallbacks": 0,
+      "continuation": 0,
+      "seat": 3,
+      "trace": "e434815b90db7a4a6d666a519a1e73915724a2c70818394b6a4129bcf4873de0",
+      "state": "eadfc6060052065f5e20a6815d4c3adacc8020e1e6461e52a6796280b25acd8d",
+      "cpuP95": 5.551998000009917
+    },
+    {
+      "n": 4,
+      "seed": 152102,
+      "tactics": false,
+      "order": [
+        "army3",
+        "army1",
+        "army2",
+        "army4"
+      ],
+      "index": 12,
+      "commands": 663,
+      "outcome": {
+        "type": "victory",
+        "winner": "army2"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [
+        {
+          "army": "army3",
+          "round": 15
+        }
+      ],
+      "fallbacks": 0,
+      "continuation": 0,
+      "seat": 3,
+      "trace": "c45c93305dc8c0feef76d6d12ddce018a9b8895fb399be9d4f8f9b3cd226e0e6",
+      "state": "4f8961172f083a2644351de3f2d34dff08e6d81ddaea8ca987716afed11f3139",
+      "cpuP95": 5.405389000006835
+    },
+    {
+      "n": 4,
+      "seed": 152102,
+      "tactics": false,
+      "order": [
+        "army3",
+        "army1",
+        "army4",
+        "army2"
+      ],
+      "index": 13,
+      "commands": 693,
+      "outcome": {
+        "type": "victory",
+        "winner": "army2"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [],
+      "fallbacks": 1,
+      "continuation": 0,
+      "seat": 4,
+      "trace": "073d5f5088cb0f0369fe3b984fc2291f4b996083dee4df88593d27d4dd1531ed",
+      "state": "983ba6f3cb05ef24fd7bd3e3ccd05aec43d49e6bc0c3844ec50cbc2c103915e7",
+      "cpuP95": 4.887079000000085
+    },
+    {
+      "n": 4,
+      "seed": 152102,
+      "tactics": false,
+      "order": [
+        "army3",
+        "army2",
+        "army1",
+        "army4"
+      ],
+      "index": 14,
+      "commands": 687,
+      "outcome": {
+        "type": "victory",
+        "winner": "army2"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [],
+      "fallbacks": 0,
+      "continuation": 0,
+      "seat": 2,
+      "trace": "990fd07d9f194ed5163cad411194a62f104f0ac27961b10f80e331077937dc38",
+      "state": "9b0303cfe1142fcc3b0c4a93383a81b2d543b7411568d60ffed237e082ca25c2",
+      "cpuP95": 3.890197000000626
+    },
+    {
+      "n": 4,
+      "seed": 152102,
+      "tactics": false,
+      "order": [
+        "army3",
+        "army2",
+        "army4",
+        "army1"
+      ],
+      "index": 15,
+      "commands": 657,
+      "outcome": {
+        "type": "victory",
+        "winner": "army1"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [],
+      "fallbacks": 0,
+      "continuation": 0,
+      "seat": 4,
+      "trace": "2477dc3b45c935dc5f34eebdd04bb1aa24204136b4854fabe341b3bd1a1b33bc",
+      "state": "b2dfcadf8f89e731255032a1a81a419269fedf0a26641b5280dcb1ae710b1d3e",
+      "cpuP95": 3.8279730000067502
+    },
+    {
+      "n": 4,
+      "seed": 152102,
+      "tactics": false,
+      "order": [
+        "army3",
+        "army4",
+        "army1",
+        "army2"
+      ],
+      "index": 16,
+      "commands": 652,
+      "outcome": {
+        "type": "victory",
+        "winner": "army4"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [],
+      "fallbacks": 1,
+      "continuation": 0,
+      "seat": 2,
+      "trace": "77a1d1f675bf147530ed4693be2a89e53e00ff98d7ce36dce1bc415b57d59f84",
+      "state": "4ac9928239036c4acc9db519fe4974202bf414be7c862fe49cbcc6c7af7063a1",
+      "cpuP95": 5.077175000013085
+    },
+    {
+      "n": 4,
+      "seed": 152102,
+      "tactics": false,
+      "order": [
+        "army3",
+        "army4",
+        "army2",
+        "army1"
+      ],
+      "index": 17,
+      "commands": 624,
+      "outcome": {
+        "type": "victory",
+        "winner": "army2"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [
+        {
+          "army": "army3",
+          "round": 13
+        }
+      ],
+      "fallbacks": 1,
+      "continuation": 0,
+      "seat": 3,
+      "trace": "4ac13d77bdf5a4f7e23ab50a2167af04c9ecdc494cb744fe46b61e6ef6b7f1a5",
+      "state": "bf0f50f0229022a3332fe0419d76e64dfa4cdb84b09d5dd3dc883b7c4004031d",
+      "cpuP95": 5.26007999999274
+    },
+    {
+      "n": 4,
+      "seed": 152102,
+      "tactics": false,
+      "order": [
+        "army4",
+        "army1",
+        "army2",
+        "army3"
+      ],
+      "index": 18,
+      "commands": 687,
+      "outcome": {
+        "type": "victory",
+        "winner": "army1"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [],
+      "fallbacks": 0,
+      "continuation": 0,
+      "seat": 2,
+      "trace": "95d3a20f8a88db62075cb1fc291cefe00dea09f9d327f8d9dfe713be63895c42",
+      "state": "0910ea19cb179fadc463fbd55352b0ca0547817a9f9a70816080166202376e41",
+      "cpuP95": 3.973483000008855
+    },
+    {
+      "n": 4,
+      "seed": 152102,
+      "tactics": false,
+      "order": [
+        "army4",
+        "army1",
+        "army3",
+        "army2"
+      ],
+      "index": 19,
+      "commands": 652,
+      "outcome": {
+        "type": "victory",
+        "winner": "army2"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [],
+      "fallbacks": 0,
+      "continuation": 0,
+      "seat": 4,
+      "trace": "cd39769d64f42e8c5b51e42aef6c3806a6e2b4418f03afd2a2441a9182d46350",
+      "state": "21301aae9f42d48f2eeb2c0d1bbc766b66a73e7052f1701023cf37d9af668ae8",
+      "cpuP95": 4.515408000006573
+    },
+    {
+      "n": 4,
+      "seed": 152102,
+      "tactics": false,
+      "order": [
+        "army4",
+        "army2",
+        "army1",
+        "army3"
+      ],
+      "index": 20,
+      "commands": 663,
+      "outcome": {
+        "type": "victory",
+        "winner": "army1"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [
+        {
+          "army": "army4",
+          "round": 15
+        }
+      ],
+      "fallbacks": 0,
+      "continuation": 0,
+      "seat": 3,
+      "trace": "f7bd557cf456f7205e17d417966b7af4dd3db9ab18d02b0b690e891f5a5a9e11",
+      "state": "9349a286694435c5be031de580ad26409bfa7c27d607260f3f51efade42e86f1",
+      "cpuP95": 5.473291999995126
+    },
+    {
+      "n": 4,
+      "seed": 152102,
+      "tactics": false,
+      "order": [
+        "army4",
+        "army2",
+        "army3",
+        "army1"
+      ],
+      "index": 21,
+      "commands": 693,
+      "outcome": {
+        "type": "victory",
+        "winner": "army1"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [],
+      "fallbacks": 1,
+      "continuation": 0,
+      "seat": 4,
+      "trace": "9e73e0459fce9024cb432c40ac337c57d25754a6e88cfa35add786527c103bcd",
+      "state": "bc2bd3ec240ca4243b667c377725bedcf90fc7d7914c96143ebc0841a473b1b1",
+      "cpuP95": 4.926219000000856
+    },
+    {
+      "n": 4,
+      "seed": 152102,
+      "tactics": false,
+      "order": [
+        "army4",
+        "army3",
+        "army1",
+        "army2"
+      ],
+      "index": 22,
+      "commands": 653,
+      "outcome": {
+        "type": "victory",
+        "winner": "army1"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [
+        {
+          "army": "army4",
+          "round": 13
+        }
+      ],
+      "fallbacks": 0,
+      "continuation": 0,
+      "seat": 3,
+      "trace": "e6db37c38c4e9205da175460854111896fd5a10ad0a34b1e071ccb3d37d8e321",
+      "state": "c89d7add62b59b6d8403b887541827b565ffffa7be10739aa1b2453fc4da7015",
+      "cpuP95": 4.678985000005923
+    },
+    {
+      "n": 4,
+      "seed": 152102,
+      "tactics": false,
+      "order": [
+        "army4",
+        "army3",
+        "army2",
+        "army1"
+      ],
+      "index": 23,
+      "commands": 652,
+      "outcome": {
+        "type": "victory",
+        "winner": "army3"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [],
+      "fallbacks": 1,
+      "continuation": 0,
+      "seat": 2,
+      "trace": "9b34c46437df341dbf46d3373ed9c6987f2a376bb4432ccdf1844262b08a4781",
+      "state": "ca214307e8e7fe46c32d5b5e1ecd611f91da18ef80325597192c523e287b4673",
+      "cpuP95": 4.236927999998443
+    },
+    {
+      "n": 4,
+      "seed": 152103,
+      "tactics": true,
+      "order": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "index": 0,
+      "commands": 705,
+      "outcome": {
+        "type": "victory",
+        "winner": "army3"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [],
+      "fallbacks": 2,
+      "continuation": 64,
+      "seat": 3,
+      "trace": "63cd3558d6dedbc1e3fa0a857399f39b285c463e3f1a0eff88dccf5d77d38db5",
+      "state": "b110f4e8cb067b94075da53cd0ad63971c7dc278809e799d156bbf9a05957faf",
+      "cpuP95": 5.4565070000098785
+    },
+    {
+      "n": 4,
+      "seed": 152103,
+      "tactics": true,
+      "order": [
+        "army1",
+        "army2",
+        "army4",
+        "army3"
+      ],
+      "index": 1,
+      "commands": 643,
+      "outcome": {
+        "type": "victory",
+        "winner": "army1"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [
+        {
+          "army": "army3",
+          "round": 13
+        }
+      ],
+      "fallbacks": 0,
+      "continuation": 0,
+      "seat": 1,
+      "trace": "4d355bb27415ea8b5509c6a39b3ff2d0bbdc05e972eaa5b2657b1f4857a72fd9",
+      "state": "629338250bada90674fa9a633ea50372c8c32c166fc618537247d14dc2a7df51",
+      "cpuP95": 5.2646679999888875
+    },
+    {
+      "n": 4,
+      "seed": 152103,
+      "tactics": true,
+      "order": [
+        "army1",
+        "army3",
+        "army2",
+        "army4"
+      ],
+      "index": 2,
+      "commands": 702,
+      "outcome": {
+        "type": "victory",
+        "winner": "army3"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [],
+      "fallbacks": 0,
+      "continuation": 0,
+      "seat": 2,
+      "trace": "21fcfe7b9c1b7b06cc245f5e3b9ea279937b12a84aa519e74bd7eb1af42529eb",
+      "state": "9e09873dc3f54542fbb90764959d279650095d32ace8c8eeff9d188678e0cefa",
+      "cpuP95": 4.235186000005342
+    },
+    {
+      "n": 4,
+      "seed": 152103,
+      "tactics": true,
+      "order": [
+        "army1",
+        "army3",
+        "army4",
+        "army2"
+      ],
+      "index": 3,
+      "commands": 721,
+      "outcome": {
+        "type": "victory",
+        "winner": "army3"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [],
+      "fallbacks": 1,
+      "continuation": 0,
+      "seat": 2,
+      "trace": "6b486c2d03e1f67ca9c46afc73273e612c781bcd32231db0429acb3d7166ff72",
+      "state": "59aad0815fa1bb5e9f0e916ff5e9c35ebcf18ef8fc3a903c461bc4c1e780b32b",
+      "cpuP95": 3.9795610000001034
+    },
+    {
+      "n": 4,
+      "seed": 152103,
+      "tactics": true,
+      "order": [
+        "army1",
+        "army4",
+        "army2",
+        "army3"
+      ],
+      "index": 4,
+      "commands": 621,
+      "outcome": {
+        "type": "victory",
+        "winner": "army3"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [
+        {
+          "army": "army1",
+          "round": 15
+        },
+        {
+          "army": "army2",
+          "round": 18
+        }
+      ],
+      "fallbacks": 4,
+      "continuation": 0,
+      "seat": 4,
+      "trace": "59daf2630cd08091b6995bd5f416a37ad298b799a6d53ba1186b483a0231cf9f",
+      "state": "67f9c1898f21f0cf36248c06bc76b0fbde544b6bc897673a1492f80951799993",
+      "cpuP95": 6.648610000003828
+    },
+    {
+      "n": 4,
+      "seed": 152103,
+      "tactics": true,
+      "order": [
+        "army1",
+        "army4",
+        "army3",
+        "army2"
+      ],
+      "index": 5,
+      "commands": 707,
+      "outcome": {
+        "type": "victory",
+        "winner": "army4"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [],
+      "fallbacks": 0,
+      "continuation": 0,
+      "seat": 2,
+      "trace": "8f7a9e9460bbd97f2705243a84b83676e98cd0698dfd0acafa00e54d6e0f474a",
+      "state": "1d486b07e64243207d1f1bd6d20b17239c83b3996431ef4a2d0f194442bd0e2d",
+      "cpuP95": 5.13804700000037
+    },
+    {
+      "n": 4,
+      "seed": 152103,
+      "tactics": true,
+      "order": [
+        "army2",
+        "army1",
+        "army3",
+        "army4"
+      ],
+      "index": 6,
+      "commands": 638,
+      "outcome": {
+        "type": "victory",
+        "winner": "army1"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [
+        {
+          "army": "army4",
+          "round": 13
+        }
+      ],
+      "fallbacks": 0,
+      "continuation": 0,
+      "seat": 2,
+      "trace": "1acdcdf6a50e382ddcac3009e5c93dc17a60f628e141cc25c498a489ee94fae9",
+      "state": "de710c5b3c9d93ee73acb6097eb438ebd2227348210a5447566a4df606be1a0f",
+      "cpuP95": 4.1553750000020955
+    },
+    {
+      "n": 4,
+      "seed": 152103,
+      "tactics": true,
+      "order": [
+        "army2",
+        "army1",
+        "army4",
+        "army3"
+      ],
+      "index": 7,
+      "commands": 704,
+      "outcome": {
+        "type": "victory",
+        "winner": "army4"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [],
+      "fallbacks": 2,
+      "continuation": 0,
+      "seat": 3,
+      "trace": "6c8bb88a93c0f9467689953ec0f14741c898c46db73012c99916c6b309c841cc",
+      "state": "9b03a7b6e3675e14c0d35be695f69c4b144dcd5cefdbd9b8fd265989308aac9e",
+      "cpuP95": 5.015400000003865
+    },
+    {
+      "n": 4,
+      "seed": 152103,
+      "tactics": true,
+      "order": [
+        "army2",
+        "army3",
+        "army1",
+        "army4"
+      ],
+      "index": 8,
+      "commands": 618,
+      "outcome": {
+        "type": "victory",
+        "winner": "army4"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [
+        {
+          "army": "army2",
+          "round": 15
+        },
+        {
+          "army": "army1",
+          "round": 17
+        }
+      ],
+      "fallbacks": 4,
+      "continuation": 0,
+      "seat": 4,
+      "trace": "008f547f0c7d54bd59ab445b267ea264cb2d2c9afa7b44c30cf24eef4e4d9370",
+      "state": "8ceaeb10e9cf3f39b42d0b8ef5f5688277a3b765e7fc6a71159ba8fdbaf61a1a",
+      "cpuP95": 6.899156999992556
+    },
+    {
+      "n": 4,
+      "seed": 152103,
+      "tactics": true,
+      "order": [
+        "army2",
+        "army3",
+        "army4",
+        "army1"
+      ],
+      "index": 9,
+      "commands": 705,
+      "outcome": {
+        "type": "victory",
+        "winner": "army3"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [],
+      "fallbacks": 0,
+      "continuation": 0,
+      "seat": 2,
+      "trace": "1e80f8665d63c96ebef299cf652928430b52b0382a628ad3ae3cb2008df98e9c",
+      "state": "25edb377ee1e91be0dd0aa95cda78e2a59c0fd4a2dc8c49e713285ae2593d8c7",
+      "cpuP95": 3.983648000008543
+    },
+    {
+      "n": 4,
+      "seed": 152103,
+      "tactics": true,
+      "order": [
+        "army2",
+        "army4",
+        "army1",
+        "army3"
+      ],
+      "index": 10,
+      "commands": 715,
+      "outcome": {
+        "type": "victory",
+        "winner": "army1"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [],
+      "fallbacks": 1,
+      "continuation": 0,
+      "seat": 3,
+      "trace": "1bc284ea792ec540169cffdf8ca61b49b978c09d10af91add20d848f4270b923",
+      "state": "49313d7eac98e341b8e8d7f2e3b223e65380b46c4a2e7e9f08b111d213e80ce1",
+      "cpuP95": 4.185820999991847
+    },
+    {
+      "n": 4,
+      "seed": 152103,
+      "tactics": true,
+      "order": [
+        "army2",
+        "army4",
+        "army3",
+        "army1"
+      ],
+      "index": 11,
+      "commands": 721,
+      "outcome": {
+        "type": "victory",
+        "winner": "army4"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [],
+      "fallbacks": 1,
+      "continuation": 0,
+      "seat": 2,
+      "trace": "2128a373e8eded7329d34be6ac5a65b431feb5d099475f9a9ded681023c1d459",
+      "state": "4f0aaf36e6e422583116052185c1afe5d96afe5cc2af5241aa5f7e0a6874cfb3",
+      "cpuP95": 5.608702999990783
+    },
+    {
+      "n": 4,
+      "seed": 152103,
+      "tactics": true,
+      "order": [
+        "army3",
+        "army1",
+        "army2",
+        "army4"
+      ],
+      "index": 12,
+      "commands": 721,
+      "outcome": {
+        "type": "victory",
+        "winner": "army1"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [],
+      "fallbacks": 1,
+      "continuation": 0,
+      "seat": 2,
+      "trace": "6521d256679709c64b2588199d705cdba556ad000f4149eb610998396799e199",
+      "state": "3f37071b556759b4eb1b8a25d17182fead823203c36605609d04d088117dc18f",
+      "cpuP95": 5.3464249999960884
+    },
+    {
+      "n": 4,
+      "seed": 152103,
+      "tactics": true,
+      "order": [
+        "army3",
+        "army1",
+        "army4",
+        "army2"
+      ],
+      "index": 13,
+      "commands": 702,
+      "outcome": {
+        "type": "victory",
+        "winner": "army1"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [],
+      "fallbacks": 0,
+      "continuation": 0,
+      "seat": 2,
+      "trace": "72124ef35c112b5d083400b6f34bc42ed45d7765b5fad723de93e24f83c9226c",
+      "state": "7aabf79a39392fe6a484182fee59c2945b4d8254277b1b8f465b039dee76e489",
+      "cpuP95": 4.393444000001182
+    },
+    {
+      "n": 4,
+      "seed": 152103,
+      "tactics": true,
+      "order": [
+        "army3",
+        "army2",
+        "army1",
+        "army4"
+      ],
+      "index": 14,
+      "commands": 707,
+      "outcome": {
+        "type": "victory",
+        "winner": "army2"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [],
+      "fallbacks": 0,
+      "continuation": 0,
+      "seat": 2,
+      "trace": "ba760e5eee61b775c0a14343bfede94cdf42a8db5d40c9b6ac91c75532bf1106",
+      "state": "b1745d2c3145704dcfcc2f5ea42eae34e3fb1f78748efaa1fb359394b6384c3e",
+      "cpuP95": 4.588948000004166
+    },
+    {
+      "n": 4,
+      "seed": 152103,
+      "tactics": true,
+      "order": [
+        "army3",
+        "army2",
+        "army4",
+        "army1"
+      ],
+      "index": 15,
+      "commands": 621,
+      "outcome": {
+        "type": "victory",
+        "winner": "army1"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [
+        {
+          "army": "army3",
+          "round": 15
+        },
+        {
+          "army": "army4",
+          "round": 18
+        }
+      ],
+      "fallbacks": 4,
+      "continuation": 0,
+      "seat": 4,
+      "trace": "7c3e191505b21d40bcea62f042414f355597c41aac429d6923bc1a9f5f220141",
+      "state": "c1b52b0e4e3d294083dc734df485d680a090f7af5010f317979c1636ac003f0c",
+      "cpuP95": 5.441682999997283
+    },
+    {
+      "n": 4,
+      "seed": 152103,
+      "tactics": true,
+      "order": [
+        "army3",
+        "army4",
+        "army1",
+        "army2"
+      ],
+      "index": 16,
+      "commands": 705,
+      "outcome": {
+        "type": "victory",
+        "winner": "army1"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [],
+      "fallbacks": 2,
+      "continuation": 0,
+      "seat": 3,
+      "trace": "e8b704b7147bd26ba0d3836732198961d464af17798991ed7d2065d55ce5bc9d",
+      "state": "02c44f0a99859d0d4280af6dd0dbf00c42ab0efbbbc41cf1c298b030dd52d8ea",
+      "cpuP95": 3.9216529999976046
+    },
+    {
+      "n": 4,
+      "seed": 152103,
+      "tactics": true,
+      "order": [
+        "army3",
+        "army4",
+        "army2",
+        "army1"
+      ],
+      "index": 17,
+      "commands": 643,
+      "outcome": {
+        "type": "victory",
+        "winner": "army3"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [
+        {
+          "army": "army1",
+          "round": 13
+        }
+      ],
+      "fallbacks": 0,
+      "continuation": 0,
+      "seat": 1,
+      "trace": "6ff81e55cd7130d5f30717aff9a314c7aa450c8b51c9a477789ac8807576533c",
+      "state": "205e5d85ee28d090037177a13c93d07cda87c51450628af24a5aa011c069f26b",
+      "cpuP95": 4.182226999997511
+    },
+    {
+      "n": 4,
+      "seed": 152103,
+      "tactics": true,
+      "order": [
+        "army4",
+        "army1",
+        "army2",
+        "army3"
+      ],
+      "index": 18,
+      "commands": 705,
+      "outcome": {
+        "type": "victory",
+        "winner": "army1"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [],
+      "fallbacks": 0,
+      "continuation": 0,
+      "seat": 2,
+      "trace": "cc2c07d7ba39e53149b6d8d73ffa2251ef2b04d8f0e48c997270921f479527da",
+      "state": "bf2bb1274fad2be36cd4e4e8a08cc2a981fc5abdc90328ca4a9508b4b7de7225",
+      "cpuP95": 5.434511999992537
+    },
+    {
+      "n": 4,
+      "seed": 152103,
+      "tactics": true,
+      "order": [
+        "army4",
+        "army1",
+        "army3",
+        "army2"
+      ],
+      "index": 19,
+      "commands": 618,
+      "outcome": {
+        "type": "victory",
+        "winner": "army2"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [
+        {
+          "army": "army4",
+          "round": 15
+        },
+        {
+          "army": "army3",
+          "round": 17
+        }
+      ],
+      "fallbacks": 4,
+      "continuation": 0,
+      "seat": 4,
+      "trace": "d824671747fdfb722956d066d93a8b588f1f38fa20a74660b4e98596c6f56412",
+      "state": "bf18b58b4ae37c0e441fd56840a2b95d8ba6395fcc34c3d7f4c5b657cb9e7e2a",
+      "cpuP95": 4.185281999991275
+    },
+    {
+      "n": 4,
+      "seed": 152103,
+      "tactics": true,
+      "order": [
+        "army4",
+        "army2",
+        "army1",
+        "army3"
+      ],
+      "index": 20,
+      "commands": 721,
+      "outcome": {
+        "type": "victory",
+        "winner": "army2"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [],
+      "fallbacks": 1,
+      "continuation": 0,
+      "seat": 2,
+      "trace": "8b6fd67337c408b8394a90c48d7193aa847b92f3725d2cf513be8785c96f41d7",
+      "state": "be8a1eefe94e9b2e5c14cac814532eae3d6bcdbea312c9124665c7d10d1728bb",
+      "cpuP95": 5.268621000010171
+    },
+    {
+      "n": 4,
+      "seed": 152103,
+      "tactics": true,
+      "order": [
+        "army4",
+        "army2",
+        "army3",
+        "army1"
+      ],
+      "index": 21,
+      "commands": 715,
+      "outcome": {
+        "type": "victory",
+        "winner": "army3"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [],
+      "fallbacks": 1,
+      "continuation": 0,
+      "seat": 3,
+      "trace": "60f43396ecbb3044f704c1cd4e38de9a9339302145bb82ff11229b19816aab89",
+      "state": "53ee8a97a7cf3754ff1b4c156f9116b9f7b5dc1b5135668102a90ed9b699c1ae",
+      "cpuP95": 4.100384000004851
+    },
+    {
+      "n": 4,
+      "seed": 152103,
+      "tactics": true,
+      "order": [
+        "army4",
+        "army3",
+        "army1",
+        "army2"
+      ],
+      "index": 22,
+      "commands": 638,
+      "outcome": {
+        "type": "victory",
+        "winner": "army3"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [
+        {
+          "army": "army2",
+          "round": 13
+        }
+      ],
+      "fallbacks": 0,
+      "continuation": 0,
+      "seat": 2,
+      "trace": "f785f0b14b47c9f5a9b4f559332bbd5c5bbc542b22f8ac780ea873dcf847f9ed",
+      "state": "b47058ae31414294dc02942076ee5062216c8540045490a9dc5f1f889c701568",
+      "cpuP95": 4.120624000002863
+    },
+    {
+      "n": 4,
+      "seed": 152103,
+      "tactics": true,
+      "order": [
+        "army4",
+        "army3",
+        "army2",
+        "army1"
+      ],
+      "index": 23,
+      "commands": 704,
+      "outcome": {
+        "type": "victory",
+        "winner": "army2"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [],
+      "fallbacks": 2,
+      "continuation": 0,
+      "seat": 3,
+      "trace": "8466d1e49528b9f239439d37cd7078059c7e78ca9cdf2d0dc16a3d763d4fe702",
+      "state": "827453d094d425b4f99bd50277bd38b7afa642fae5799c59bc6a8f497afdc68e",
+      "cpuP95": 3.746431000006851
+    },
+    {
+      "n": 4,
+      "seed": 152103,
+      "tactics": false,
+      "order": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "index": 0,
+      "commands": 689,
+      "outcome": {
+        "type": "victory",
+        "winner": "army4"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [],
+      "fallbacks": 0,
+      "continuation": 64,
+      "seat": 4,
+      "trace": "b2f1ee1b2c33f22386ae7059db27376dc2b444280e1d232a091e0357680c1582",
+      "state": "a5326ea3902adc78864450792c787a660cb6297949e968b7f11cecc1704cd612",
+      "cpuP95": 4.981949000008171
+    },
+    {
+      "n": 4,
+      "seed": 152103,
+      "tactics": false,
+      "order": [
+        "army1",
+        "army2",
+        "army4",
+        "army3"
+      ],
+      "index": 1,
+      "commands": 668,
+      "outcome": {
+        "type": "victory",
+        "winner": "army2"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [],
+      "fallbacks": 0,
+      "continuation": 0,
+      "seat": 2,
+      "trace": "c8e2fed6aedd848bc31aca9d7f48196c30c14361a2b919231a9a5981691e3c7f",
+      "state": "443bd03af060186ce04c3feb003c81e53a3dc8842e865bff4d3e356f16cda63d",
+      "cpuP95": 4.40983899999992
+    },
+    {
+      "n": 4,
+      "seed": 152103,
+      "tactics": false,
+      "order": [
+        "army1",
+        "army3",
+        "army2",
+        "army4"
+      ],
+      "index": 2,
+      "commands": 661,
+      "outcome": {
+        "type": "victory",
+        "winner": "army2"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [],
+      "fallbacks": 3,
+      "continuation": 0,
+      "seat": 3,
+      "trace": "c122c2a6c3a57fba74ee6916efc89bebdec6330d5c47831bbfe1e628a1aab378",
+      "state": "dd1fb7fb5caa4fb73e78c97940631dd075304645102f1af86169089423e78a65",
+      "cpuP95": 4.025931999989552
+    },
+    {
+      "n": 4,
+      "seed": 152103,
+      "tactics": false,
+      "order": [
+        "army1",
+        "army3",
+        "army4",
+        "army2"
+      ],
+      "index": 3,
+      "commands": 591,
+      "outcome": {
+        "type": "victory",
+        "winner": "army2"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [
+        {
+          "army": "army1",
+          "round": 10
+        }
+      ],
+      "fallbacks": 0,
+      "continuation": 0,
+      "seat": 4,
+      "trace": "9e28a24e14628ccd89db2263bd18704d2657eb61e2cc3043ee5df1b1d7517496",
+      "state": "8adc2fafd1de49fdf5bbf32b4e09714cc3fc81e7e5078a3c5692c28073dcbcc7",
+      "cpuP95": 3.873743000003742
+    },
+    {
+      "n": 4,
+      "seed": 152103,
+      "tactics": false,
+      "order": [
+        "army1",
+        "army4",
+        "army2",
+        "army3"
+      ],
+      "index": 4,
+      "commands": 668,
+      "outcome": {
+        "type": "victory",
+        "winner": "army3"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [],
+      "fallbacks": 0,
+      "continuation": 0,
+      "seat": 4,
+      "trace": "28ee5f50ea28f2649599902c8e81c42034e9e0b9aecaeeaabce53a29d48951b0",
+      "state": "81e9cf2ae39731cee721aa98b78b9b8f3e10d8227bede7a93cc153cb5818454b",
+      "cpuP95": 6.039122999995016
+    },
+    {
+      "n": 4,
+      "seed": 152103,
+      "tactics": false,
+      "order": [
+        "army1",
+        "army4",
+        "army3",
+        "army2"
+      ],
+      "index": 5,
+      "commands": 627,
+      "outcome": {
+        "type": "victory",
+        "winner": "army4"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [
+        {
+          "army": "army2",
+          "round": 14
+        }
+      ],
+      "fallbacks": 0,
+      "continuation": 0,
+      "seat": 2,
+      "trace": "2f23b7edceea0a9f09812ddb15b6ee859e906929bfeaaf2636fc58af3ba9a660",
+      "state": "33116e2cbcfe360f6b952b606bfef342389da7f4c34eb22b5f83bed58725de34",
+      "cpuP95": 4.185600999990129
+    },
+    {
+      "n": 4,
+      "seed": 152103,
+      "tactics": false,
+      "order": [
+        "army2",
+        "army1",
+        "army3",
+        "army4"
+      ],
+      "index": 6,
+      "commands": 669,
+      "outcome": {
+        "type": "victory",
+        "winner": "army1"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [],
+      "fallbacks": 0,
+      "continuation": 0,
+      "seat": 2,
+      "trace": "b5408a2d0ca04e96a70f2246d889367901a2d491a99bf63ac37ee3b8119f6783",
+      "state": "9643ed08a2cd9271f31789e2b502c4a64d0f40c340b0439b619c6cbf52a4b368",
+      "cpuP95": 4.206143000003067
+    },
+    {
+      "n": 4,
+      "seed": 152103,
+      "tactics": false,
+      "order": [
+        "army2",
+        "army1",
+        "army4",
+        "army3"
+      ],
+      "index": 7,
+      "commands": 689,
+      "outcome": {
+        "type": "victory",
+        "winner": "army3"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [],
+      "fallbacks": 0,
+      "continuation": 0,
+      "seat": 4,
+      "trace": "31caed957cc8c4177cdc034e69160547e5d2da0bb10648bb2b468ae6d6619b31",
+      "state": "222e9771bf1369f47b2bf1db5e874d30767b4f47a09ead5b3440ce9abeb281cc",
+      "cpuP95": 4.15190199999779
+    },
+    {
+      "n": 4,
+      "seed": 152103,
+      "tactics": false,
+      "order": [
+        "army2",
+        "army3",
+        "army1",
+        "army4"
+      ],
+      "index": 8,
+      "commands": 670,
+      "outcome": {
+        "type": "victory",
+        "winner": "army4"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [],
+      "fallbacks": 0,
+      "continuation": 0,
+      "seat": 4,
+      "trace": "73ed315f171f3731e1af45652a983a151b0b0fa5945a35ed7d15c35ac3d401c2",
+      "state": "7ba4dea97529e4c6f325cb961949f467cdf81b3bca413bd75713acb2dbeaee3a",
+      "cpuP95": 4.570991999993566
+    },
+    {
+      "n": 4,
+      "seed": 152103,
+      "tactics": false,
+      "order": [
+        "army2",
+        "army3",
+        "army4",
+        "army1"
+      ],
+      "index": 9,
+      "commands": 645,
+      "outcome": {
+        "type": "victory",
+        "winner": "army3"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [],
+      "fallbacks": 0,
+      "continuation": 0,
+      "seat": 2,
+      "trace": "39f38ef5e1a5ec8617175b8adf294b277504d6d025994937168c23fdedf01d4d",
+      "state": "fe8ce984b05cfd6fec8a7615250f5fdcb826930e64475f27647a3fa0769b8b57",
+      "cpuP95": 4.70789700000023
+    },
+    {
+      "n": 4,
+      "seed": 152103,
+      "tactics": false,
+      "order": [
+        "army2",
+        "army4",
+        "army1",
+        "army3"
+      ],
+      "index": 10,
+      "commands": 661,
+      "outcome": {
+        "type": "victory",
+        "winner": "army1"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [],
+      "fallbacks": 3,
+      "continuation": 0,
+      "seat": 3,
+      "trace": "4b2c898abb083f6414eaaface24ccf6abee650f61013255b652f7c5ca908b756",
+      "state": "bc1b831fafb8ad2940579934e786e6f39de244a846f8c9d4e604049b8b6e7dac",
+      "cpuP95": 4.399284000013722
+    },
+    {
+      "n": 4,
+      "seed": 152103,
+      "tactics": false,
+      "order": [
+        "army2",
+        "army4",
+        "army3",
+        "army1"
+      ],
+      "index": 11,
+      "commands": 591,
+      "outcome": {
+        "type": "victory",
+        "winner": "army1"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [
+        {
+          "army": "army2",
+          "round": 10
+        }
+      ],
+      "fallbacks": 0,
+      "continuation": 0,
+      "seat": 4,
+      "trace": "55d195c709e854c719aa2d10d05c816c03d4834ad107421d8c092ead7b580747",
+      "state": "10f1b77cda9d32696fafbed0ffba2d089d18050ecfdc8261d18363f6b3f255ea",
+      "cpuP95": 4.1078509999933885
+    },
+    {
+      "n": 4,
+      "seed": 152103,
+      "tactics": false,
+      "order": [
+        "army3",
+        "army1",
+        "army2",
+        "army4"
+      ],
+      "index": 12,
+      "commands": 591,
+      "outcome": {
+        "type": "victory",
+        "winner": "army4"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [
+        {
+          "army": "army3",
+          "round": 10
+        }
+      ],
+      "fallbacks": 0,
+      "continuation": 0,
+      "seat": 4,
+      "trace": "c6b3a81dfd8d9d40cf547d6ea695315f569f48944edf92ccf42334e10909809c",
+      "state": "3b21804ee018acbf8f84d8a607da431a92fc263277d69c3e45bb8faafacc1f5e",
+      "cpuP95": 4.093913999997312
+    },
+    {
+      "n": 4,
+      "seed": 152103,
+      "tactics": false,
+      "order": [
+        "army3",
+        "army1",
+        "army4",
+        "army2"
+      ],
+      "index": 13,
+      "commands": 661,
+      "outcome": {
+        "type": "victory",
+        "winner": "army4"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [],
+      "fallbacks": 3,
+      "continuation": 0,
+      "seat": 3,
+      "trace": "d13ac93a8d318271c543b41239ebc59ab154191229a0046136842906388db810",
+      "state": "8f65572df584e571a82bd03cfdf5534624322e4c8b125278aab5455c21e88e0b",
+      "cpuP95": 4.921898999993573
+    },
+    {
+      "n": 4,
+      "seed": 152103,
+      "tactics": false,
+      "order": [
+        "army3",
+        "army2",
+        "army1",
+        "army4"
+      ],
+      "index": 14,
+      "commands": 627,
+      "outcome": {
+        "type": "victory",
+        "winner": "army2"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [
+        {
+          "army": "army4",
+          "round": 14
+        }
+      ],
+      "fallbacks": 0,
+      "continuation": 0,
+      "seat": 2,
+      "trace": "3b45bb03db88c7b1874aa6bdf745bd99bc5bb98f7fb45bc009e836ec20e455cb",
+      "state": "5ab732467faced46430b7e5cdf23964b87bb848dd893cf10e0b95e05b72036cb",
+      "cpuP95": 4.63810400001239
+    },
+    {
+      "n": 4,
+      "seed": 152103,
+      "tactics": false,
+      "order": [
+        "army3",
+        "army2",
+        "army4",
+        "army1"
+      ],
+      "index": 15,
+      "commands": 668,
+      "outcome": {
+        "type": "victory",
+        "winner": "army1"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [],
+      "fallbacks": 0,
+      "continuation": 0,
+      "seat": 4,
+      "trace": "a8509a38f5d1d1a592a5a06020dd269424a05a2bf3edde16c790f86bc1abd4b0",
+      "state": "11a3eba27c0aca8e77b5a253cac4c8c3b85703c2cb815e0922c3a55585de890c",
+      "cpuP95": 4.206063000005088
+    },
+    {
+      "n": 4,
+      "seed": 152103,
+      "tactics": false,
+      "order": [
+        "army3",
+        "army4",
+        "army1",
+        "army2"
+      ],
+      "index": 16,
+      "commands": 689,
+      "outcome": {
+        "type": "victory",
+        "winner": "army2"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [],
+      "fallbacks": 0,
+      "continuation": 0,
+      "seat": 4,
+      "trace": "6dc84f32c48521d8002381c6e6efcc8facee4b6023a0d0067af8850308c727ff",
+      "state": "4cdd3f72ecf7e42d17dddadbc7764612a5a318468e3474eaec7b18704d1fddc0",
+      "cpuP95": 4.485232999999425
+    },
+    {
+      "n": 4,
+      "seed": 152103,
+      "tactics": false,
+      "order": [
+        "army3",
+        "army4",
+        "army2",
+        "army1"
+      ],
+      "index": 17,
+      "commands": 668,
+      "outcome": {
+        "type": "victory",
+        "winner": "army4"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [],
+      "fallbacks": 0,
+      "continuation": 0,
+      "seat": 2,
+      "trace": "ffa2088bfa2be0bee6558e28795048fd6689120d47d1e8692c34f48d7d6e2189",
+      "state": "b1a8c8abb3a2949a0bd23d91a30922f11d1948b0f428d7d4738127c09df3e7f1",
+      "cpuP95": 5.474270999999135
+    },
+    {
+      "n": 4,
+      "seed": 152103,
+      "tactics": false,
+      "order": [
+        "army4",
+        "army1",
+        "army2",
+        "army3"
+      ],
+      "index": 18,
+      "commands": 645,
+      "outcome": {
+        "type": "victory",
+        "winner": "army1"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [],
+      "fallbacks": 0,
+      "continuation": 0,
+      "seat": 2,
+      "trace": "449a0eee55ae0d78c07fdb2920c997e2e3a2665008714ab2d0790b57d9de3a28",
+      "state": "7bfdb93f803444b293ea130c59491e91ff8e425659694a3019f8521c6c0187ac",
+      "cpuP95": 3.7731110000022454
+    },
+    {
+      "n": 4,
+      "seed": 152103,
+      "tactics": false,
+      "order": [
+        "army4",
+        "army1",
+        "army3",
+        "army2"
+      ],
+      "index": 19,
+      "commands": 670,
+      "outcome": {
+        "type": "victory",
+        "winner": "army2"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [],
+      "fallbacks": 0,
+      "continuation": 0,
+      "seat": 4,
+      "trace": "f8a752472f4d57f14bf1b60dfe8f2efdcce14b3a30232a4f491d0656eefc7bf2",
+      "state": "18f89d2ecc7b0b59c1aceba5e86896923693b75834abb84937ff37a32b6cc09b",
+      "cpuP95": 3.3964539999869885
+    },
+    {
+      "n": 4,
+      "seed": 152103,
+      "tactics": false,
+      "order": [
+        "army4",
+        "army2",
+        "army1",
+        "army3"
+      ],
+      "index": 20,
+      "commands": 591,
+      "outcome": {
+        "type": "victory",
+        "winner": "army3"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [
+        {
+          "army": "army4",
+          "round": 10
+        }
+      ],
+      "fallbacks": 0,
+      "continuation": 0,
+      "seat": 4,
+      "trace": "9e364b16bc4f018acd43e39859a79a217a5a4a92f891c85a97998fd8bac58785",
+      "state": "4d2c79e30dbc09a4a16bdfa3786e8ed321bf265414f0af46cea77014c17f5cbc",
+      "cpuP95": 4.92926200000511
+    },
+    {
+      "n": 4,
+      "seed": 152103,
+      "tactics": false,
+      "order": [
+        "army4",
+        "army2",
+        "army3",
+        "army1"
+      ],
+      "index": 21,
+      "commands": 661,
+      "outcome": {
+        "type": "victory",
+        "winner": "army3"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [],
+      "fallbacks": 3,
+      "continuation": 0,
+      "seat": 3,
+      "trace": "758f0f7649f5fa46cbff3df4d79437de1cad455c15bcfbcac1b2a8a3efa6cf5a",
+      "state": "4120dcdee2f24ee939b1fc92b185e5759ad04428d77e20b0154dd4c664cdc179",
+      "cpuP95": 5.232978999993065
+    },
+    {
+      "n": 4,
+      "seed": 152103,
+      "tactics": false,
+      "order": [
+        "army4",
+        "army3",
+        "army1",
+        "army2"
+      ],
+      "index": 22,
+      "commands": 669,
+      "outcome": {
+        "type": "victory",
+        "winner": "army3"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [],
+      "fallbacks": 0,
+      "continuation": 0,
+      "seat": 2,
+      "trace": "de098b03f5a37868db8997dc523eb8fe540096c8241a2f0151844dcd7af2dba6",
+      "state": "2de54480572a1da3e1d2db389e525b5b633c8ac40c2c0669161c15afd4c1e07e",
+      "cpuP95": 4.091480999995838
+    },
+    {
+      "n": 4,
+      "seed": 152103,
+      "tactics": false,
+      "order": [
+        "army4",
+        "army3",
+        "army2",
+        "army1"
+      ],
+      "index": 23,
+      "commands": 689,
+      "outcome": {
+        "type": "victory",
+        "winner": "army1"
+      },
+      "round": 20,
+      "deadline": true,
+      "firstContact": 1,
+      "eliminations": [],
+      "fallbacks": 0,
+      "continuation": 0,
+      "seat": 4,
+      "trace": "5d2f2881b37ba192f654543397d30000a5d8d9c7759351419e8a625afe44b075",
+      "state": "4225905dbd850ac9fedcd4bc7142dcba9330f77985a0d0830694afce9cffc4b2",
+      "cpuP95": 4.180565000002389
+    }
+  ]
+}

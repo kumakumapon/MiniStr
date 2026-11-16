@@ -1,0 +1,314 @@
+{
+  "baseline": "5706fff2754a4eae5efc5972a809c47deb91ffa3",
+  "productionFiles": [
+    {
+      "path": "src/ai/airlift.ts",
+      "blob": "5df091d782741e7bcfbd846b0fc65f0cbff023fe"
+    },
+    {
+      "path": "src/ai/armyPolicy.ts",
+      "blob": "284691c240b5dac778d586a433c000bf2b2606fe"
+    },
+    {
+      "path": "src/ai/balance.ts",
+      "blob": "7696069d4a3dedf34b364f6599c8381a484bdc77"
+    },
+    {
+      "path": "src/ai/coordination.ts",
+      "blob": "8996fe9dfdbc172478b328d28f62184bab4b469f"
+    },
+    {
+      "path": "src/ai/crossing.ts",
+      "blob": "88687e2a3413e8c40a4385962db5ef181c3965e7"
+    },
+    {
+      "path": "src/ai/demolition.ts",
+      "blob": "1e9c844ad5c5327aa0219e7489b3af8a44909f6d"
+    },
+    {
+      "path": "src/ai/holdRelief.ts",
+      "blob": "3f1b4c61abb406baaece6b1fa6ae6cc6d2652eb2"
+    },
+    {
+      "path": "src/ai/index.ts",
+      "blob": "30f82a8ba0a62be9b90b2320f5cea767cc927ac4"
+    },
+    {
+      "path": "src/ai/missionLane.ts",
+      "blob": "ae1fb811c65a5533d4be6921c4f7e2392662edd6"
+    },
+    {
+      "path": "src/ai/missionSafety.ts",
+      "blob": "e1b46293bef38c5450fef819bbd545a9456e913f"
+    },
+    {
+      "path": "src/ai/perspective.ts",
+      "blob": "92b33e98ac6288b468e9b3138fbb9163925ae053"
+    },
+    {
+      "path": "src/ai/recon.ts",
+      "blob": "b68685110f47101241f5d585cb47827ca8b09d68"
+    },
+    {
+      "path": "src/ai/recovery.ts",
+      "blob": "9df4f5e6b843d566c34bc18b3fb7e9d0121c4659"
+    },
+    {
+      "path": "src/ai/rules.ts",
+      "blob": "5dc702cd14a36bc5134a6dfab888ccde4d5deb49"
+    },
+    {
+      "path": "src/ai/supplyRendezvous.ts",
+      "blob": "b0f6d24173928349d5b16a6cce0f4801453cc555"
+    },
+    {
+      "path": "src/ai/supportAttack.ts",
+      "blob": "45d52d656c5d63c1efb9696baa0909a6f7f29873"
+    },
+    {
+      "path": "src/ai/tactics.ts",
+      "blob": "83d9d1d061ccd78c45d5a2c4314efa50fe586131"
+    },
+    {
+      "path": "src/game/armyPolicy.ts",
+      "blob": "0f5d758e1851de8e9b9f3c28984bf422d7fbb97d"
+    },
+    {
+      "path": "src/game/backup.ts",
+      "blob": "992a0d870141d41d947ed77dfa1442dc91b96b6e"
+    },
+    {
+      "path": "src/game/battleHistory.ts",
+      "blob": "c040c82b9912c001330e3f19d5a6bb5399d6e13a"
+    },
+    {
+      "path": "src/game/bridges.ts",
+      "blob": "1fd26c267fe46feedc69315be55fe52f8b1267ba"
+    },
+    {
+      "path": "src/game/campaign.ts",
+      "blob": "8157d62c8c5b401529e97b9461c1c59d3e421677"
+    },
+    {
+      "path": "src/game/campaignOperations.ts",
+      "blob": "d7ba77c5201eb51276724466ef5ffa707f399eca"
+    },
+    {
+      "path": "src/game/combat.ts",
+      "blob": "472dad41a13079911831a9f98c48cdffd074c7f2"
+    },
+    {
+      "path": "src/game/commands.ts",
+      "blob": "bc50d4c448bb4f90a63e3fc10a86d73fde16098c"
+    },
+    {
+      "path": "src/game/control.ts",
+      "blob": "f6f8b2b7b07201978e4613c9177ce5f4522d6dda"
+    },
+    {
+      "path": "src/game/controlOperations.ts",
+      "blob": "a577217e3e4cbf6f6ae1f413848eba3de8f5ca4f"
+    },
+    {
+      "path": "src/game/crossingOperations.ts",
+      "blob": "dd1fcbac776ebad827bf3ced540caab71d487e6b"
+    },
+    {
+      "path": "src/game/dailyChallenge.ts",
+      "blob": "c32e93ac8ef839447691b5e84e2c6de36687f15d"
+    },
+    {
+      "path": "src/game/deployment.ts",
+      "blob": "a6c378cfb0f54617bf70b10a269fa2cd0d231909"
+    },
+    {
+      "path": "src/game/deploymentPositions.ts",
+      "blob": "31d28b8bea1e039729ea2e64b01eb88849e748ba"
+    },
+    {
+      "path": "src/game/deploymentPresets.ts",
+      "blob": "8c7a005cba7acc6a5e20fa71c53075f92b2b6697"
+    },
+    {
+      "path": "src/game/editor.ts",
+      "blob": "3afb0b5a9af763f99a5124d73acfdefd652013f4"
+    },
+    {
+      "path": "src/game/editorTools.ts",
+      "blob": "fe9401559256563e7506ff3a0014daef231ed5f0"
+    },
+    {
+      "path": "src/game/engineering.ts",
+      "blob": "fa6a22d8cced178c31efe1e9abe97faa0c54d2c9"
+    },
+    {
+      "path": "src/game/evacuation.ts",
+      "blob": "f37b01cfdab7a78bbe3ac54c4514f06c69030d71"
+    },
+    {
+      "path": "src/game/expandedMaps.ts",
+      "blob": "9b56d0c790438d4294b714c45afae463066e9238"
+    },
+    {
+      "path": "src/game/experience.ts",
+      "blob": "6f1d07fb7b2c2520ffff7901a2422c2a847cfea8"
+    },
+    {
+      "path": "src/game/facilities.ts",
+      "blob": "98fed532c6d46ec177b166fb135785d523f793e9"
+    },
+    {
+      "path": "src/game/fog.ts",
+      "blob": "bbb43a51d3becdf2192263bfe841e342b3e152b0"
+    },
+    {
+      "path": "src/game/frontlineOperations.ts",
+      "blob": "613827e7ad990edf8f54604c5bcf4ff144c12046"
+    },
+    {
+      "path": "src/game/homePositionRank.ts",
+      "blob": "62a02ba674a381a9398f6e72618045739e35f769"
+    },
+    {
+      "path": "src/game/index.ts",
+      "blob": "bc194c7ef4ddfb844e43d6b59a6b3e2644eb2d89"
+    },
+    {
+      "path": "src/game/jsonBoundary.ts",
+      "blob": "98e4c9599b43402c1a447800ac53927f1c99d485"
+    },
+    {
+      "path": "src/game/learningLog.ts",
+      "blob": "0ec86efd44f6f56893835987ab0ea07ebe79a67c"
+    },
+    {
+      "path": "src/game/learningOperations.ts",
+      "blob": "f7253b91968659c0ec41d58492ea58a178cb7bf0"
+    },
+    {
+      "path": "src/game/logistics.ts",
+      "blob": "e48199361f2bdcf48748b5ea6f758ad54fa5eca8"
+    },
+    {
+      "path": "src/game/logisticsOrders.ts",
+      "blob": "a9f682f4f1dfab399cbd86a4ee592cfa2dffdc55"
+    },
+    {
+      "path": "src/game/mapGenerator.ts",
+      "blob": "d964254b0fd2293a1eba761c0e02b5d83f65e643"
+    },
+    {
+      "path": "src/game/maps.ts",
+      "blob": "700e56077a73eebc2dec6d85cc1fde00c930b102"
+    },
+    {
+      "path": "src/game/musicSettings.ts",
+      "blob": "cd2a5873e064da80f12f5e0e73b232f8d0dc2f66"
+    },
+    {
+      "path": "src/game/operationRecords.ts",
+      "blob": "f424c5709ad243d125c7fa0f168ef5e899170ddf"
+    },
+    {
+      "path": "src/game/recon.ts",
+      "blob": "4c5afcc83bcf56c98c1496a274af2ecbee53da95"
+    },
+    {
+      "path": "src/game/replay.ts",
+      "blob": "c3b3b2ee15d0b8016c07f477cf6e592f34b1b954"
+    },
+    {
+      "path": "src/game/replayTimeline.ts",
+      "blob": "a78ff9c81b8c86027dda31236db257d28d116368"
+    },
+    {
+      "path": "src/game/research.ts",
+      "blob": "1d80e20ecbca9d93d39927fba1d84795650578b2"
+    },
+    {
+      "path": "src/game/rng.ts",
+      "blob": "fb35e4ff15febadf644b51a31336991c07894646"
+    },
+    {
+      "path": "src/game/saveRecovery.ts",
+      "blob": "586e29be377c9416547baaee941e44525c0f5d04"
+    },
+    {
+      "path": "src/game/session.ts",
+      "blob": "147acf897f342ead359d23fbf65d820ee46018f8"
+    },
+    {
+      "path": "src/game/shareLink.ts",
+      "blob": "6d39a3a2799ab783c21c6c71737ab7c44e8b18cd"
+    },
+    {
+      "path": "src/game/specialOperations.ts",
+      "blob": "730d55f09823b92ce28b7f0fc0da024cfbf9089d"
+    },
+    {
+      "path": "src/game/standaloneOperations.ts",
+      "blob": "72b87e3eab810d72223f474799220008757dd761"
+    },
+    {
+      "path": "src/game/state.ts",
+      "blob": "2607da0ad68b454ce2c505120196836fdab00bde"
+    },
+    {
+      "path": "src/game/supplyStock.ts",
+      "blob": "8def57314c3569629ad68b42393ac8cf9724ab4a"
+    },
+    {
+      "path": "src/game/tacticalActions.ts",
+      "blob": "f0320d29170771388c47ab10d5617374c0f43f55"
+    },
+    {
+      "path": "src/game/tacticalMaps.ts",
+      "blob": "a87ce731a4628eeac5089315b6c31b71a52c6fcd"
+    },
+    {
+      "path": "src/game/tactics.ts",
+      "blob": "7f824a72ab0b48e466b5b85f06c37109ddfc2109"
+    },
+    {
+      "path": "src/game/terrain.ts",
+      "blob": "d79d015c630a30d5958f61548acc636cf501080f"
+    },
+    {
+      "path": "src/game/threat.ts",
+      "blob": "f64013eb68ba78fb0d10a23aab9e031a89839b43"
+    },
+    {
+      "path": "src/game/training.ts",
+      "blob": "1d2a0568473d9f0e8bfbd54b9ad1d1e3b4c1faf1"
+    },
+    {
+      "path": "src/game/types.ts",
+      "blob": "a59bf276462ae50a9f4dc1392edb36133e2524b5"
+    },
+    {
+      "path": "src/game/units.ts",
+      "blob": "f94f202ebbf29c25affa459204b239d3a2fc36eb"
+    },
+    {
+      "path": "src/game/veteranIdentity.ts",
+      "blob": "41f2f6e1b4bc0d2084cab30d2b64a27028a4f98b"
+    },
+    {
+      "path": "src/game/victory.ts",
+      "blob": "e51f143c279bc25f589e055ec5070f42e9f771d8"
+    },
+    {
+      "path": "src/game/weapons.ts",
+      "blob": "8e2279fe588d2de03683feab4699d0a596bd8f6c"
+    },
+    {
+      "path": "src/game/wideOperations.ts",
+      "blob": "87ca9e884ae9d31ac526373e970023a8bf2ee982"
+    },
+    {
+      "path": "src/main.ts",
+      "blob": "e3a920559b11df4aba5834d835bb54ce0cc81908"
+    }
+  ],
+  "scope": "Existing game/AI and main source unchanged; only the separate multi-army entry label in overlays changed."
+}

@@ -1,3 +1,4 @@
+import { fourArmyParticipants, isSmallBattle, smallBattleDecision, smallBattleMapShape, smallBattlePositionRank, type SmallBattle } from './smallBattle';
 import { fourArmyRuleProjection, initialFourArmyExtensions, isFourArmyRules, type FourArmyRules, type FourArmyExtensions, type FourArmyRuleObservation } from './fourArmyRules';
 import { isGroundUnit } from './logistics';
 import { validRepairReserve } from './logisticsOrders';
@@ -27,8 +28,9 @@ import type { Board, GameResult, GameState, PlayerState, Position, Terrain, Unit
 export type FourArmyUnit = Omit<Unit, 'owner' | 'callsign' | 'submerged' | 'diveTurns'> & { owner: FourArmyId };
 export type FourArmyTerrain = Omit<Terrain, 'owner'> & { owner?: FourArmyId };
 export interface FourArmyMap {
+  match?: SmallBattle;
   rules?: FourArmyRules;
-  pathVersion?: 1;
+  pathVersion?: 1 | 2;
   id: string;
   board: Omit<Board, 'terrain'> & { terrain: FourArmyTerrain[][] };
   capitals: Record<FourArmyId, Position>;
@@ -39,10 +41,12 @@ export interface FourArmyMap {
   setup?: FourArmySetup;
 }
 export interface FourArmyState {
+  match?: SmallBattle;
+  decision?: { round: 20 };
   /** Omission preserves the absolute-coordinate path rule of existing recordings. */
-  pathVersion?: 1;
+  pathVersion?: 1 | 2;
   /** v1 retains legacy checkpoints; v2 adds immutable setup and a per-army ceiling. Combat/logistics remain v12. */
-  engineVersion: 1 | 2 | 3;
+  engineVersion: 1 | 2 | 3 | 4;
   rules?: FourArmyRules;
   extensions?: FourArmyExtensions;
   setup?: FourArmySetup;
@@ -59,6 +63,8 @@ export interface FourArmyState {
   paused: boolean;
 }
 export interface FourArmyObservation {
+  match?: SmallBattle;
+  decision?: { round: 20 };
   rules?: FourArmyRules;
   extensions?: FourArmyRuleObservation;
   unitLimitPerArmy?: number;
@@ -167,23 +173,30 @@ function restore(before: FourArmyState, next: GameState, actor: FourArmyId): Fou
 }
 
 function settle(state: FourArmyState): FourArmyState {
-  const result = resolveFourArmyEliminations({
-    alive: state.alive,
-    units: state.units.map((u) => ({ id: u.id, army: u.owner, ...(u.embarkedIn ? { carrierId: u.embarkedIn } : {}) })),
-    facilities: state.board.terrain.flatMap((row, y) =>
-      row.flatMap((tile, x) =>
-        isPropertyTerrainKind(tile.kind)
-          ? [
-              {
-                id: `p${x}_${y}`,
-                ...(tile.owner ? { owner: tile.owner } : {}),
-                ...Object.fromEntries(FOUR_ARMY_IDS.filter((a) => positionKey(state.capitals[a]) === `${x},${y}`).map((a) => ['capitalOf', a])),
-              },
-            ]
-          : [],
+  const result = resolveFourArmyEliminations(
+    {
+      alive: state.alive,
+      units: state.units.map((u) => ({ id: u.id, army: u.owner, ...(u.embarkedIn ? { carrierId: u.embarkedIn } : {}) })),
+      facilities: state.board.terrain.flatMap((row, y) =>
+        row.flatMap((tile, x) =>
+          isPropertyTerrainKind(tile.kind)
+            ? [
+                {
+                  id: `p${x}_${y}`,
+                  ...(tile.owner ? { owner: tile.owner } : {}),
+                  ...Object.fromEntries(
+                    fourArmyParticipants(state)
+                      .filter((a) => positionKey(state.capitals[a]) === `${x},${y}`)
+                      .map((a) => ['capitalOf', a]),
+                  ),
+                },
+              ]
+            : [],
+        ),
       ),
-    ),
-  });
+    },
+    fourArmyParticipants(state),
+  );
   if (!result.ok) throw new Error(result.error); // Internal invariant; public entrypoints validate first.
   const { battlefield, outcome } = result.value;
   const kept = new Set(battlefield.units.map((u) => u.id));
@@ -212,7 +225,7 @@ function startNext(state: FourArmyState): GameResult<FourArmyState> {
   let next = state;
   for (let n = 0; n < 4; n++) {
     if (next.outcome.type !== 'ongoing') return { ok: true, value: next };
-    const start = startFourArmyTurn(next.round, next.alive);
+    const start = startFourArmyTurn(next.round, next.alive, fourArmyParticipants(next));
     if (!start.ok) return start;
     if (!start.value.applyStart) return { ok: true, value: next };
     const actor = start.value.army;
@@ -246,8 +259,12 @@ function advance(state: FourArmyState): GameResult<FourArmyState> {
     const actor = state.round.order[state.round.index]!;
     state = { ...state, extensions: { ...state.extensions, recon: { ...state.extensions.recon, [actor]: { ...state.extensions.recon[actor], centers: [] } } } };
   }
-  const finished = finishFourArmyTurn(state.round, state.alive);
+  const finished = finishFourArmyTurn(state.round, state.alive, fourArmyParticipants(state));
   if (!finished.ok) return finished;
+  if (state.match?.ending === 'short' && finished.value.completedRound === state.match.roundLimit) {
+    const decided = { ...state, round: finished.value.round, paused: false, decision: { round: 20 as const } };
+    return { ok: true, value: { ...decided, outcome: smallBattleDecision(decided) } };
+  }
   return { ok: true, value: { ...state, round: finished.value.round, paused: finished.value.completedRound !== undefined && finished.value.completedRound % 100 === 0 } };
 }
 
@@ -257,11 +274,13 @@ export function isFourArmyState(value: unknown): value is FourArmyState {
     !keys(
       value,
       ['engineVersion', 'board', 'capitals', 'units', 'players', 'round', 'alive', 'eliminations', 'outcome', 'rngSeed', 'nextUnitId', 'paused'],
-      ['setup', 'pathVersion', 'rules', 'extensions'],
+      ['setup', 'pathVersion', 'rules', 'extensions', 'match', 'decision'],
     ) ||
-    (value.engineVersion !== 1 && value.engineVersion !== 2 && value.engineVersion !== 3)
+    (value.engineVersion !== 1 && value.engineVersion !== 2 && value.engineVersion !== 3 && value.engineVersion !== 4)
   )
     return false;
+  if (value.engineVersion === 4 ? !isSmallBattle(value.match) : Object.hasOwn(value, 'match') || Object.hasOwn(value, 'decision')) return false;
+  const participants = value.engineVersion === 4 && isSmallBattle(value.match) ? value.match.participants : FOUR_ARMY_IDS;
   if (
     !record(value.board) ||
     !keys(value.board, ['width', 'height', 'terrain']) ||
@@ -273,7 +292,9 @@ export function isFourArmyState(value: unknown): value is FourArmyState {
     return false;
   if (
     Object.hasOwn(value, 'pathVersion') &&
-    (value.pathVersion !== 1 || (value.engineVersion !== 2 && value.engineVersion !== 3) || value.board.width !== 32 || value.board.height !== 32)
+    (value.engineVersion === 4
+      ? value.pathVersion !== 2
+      : value.pathVersion !== 1 || (value.engineVersion !== 2 && value.engineVersion !== 3) || value.board.width !== 32 || value.board.height !== 32)
   )
     return false;
   const playerData = value.players;
@@ -282,38 +303,42 @@ export function isFourArmyState(value: unknown): value is FourArmyState {
   const aliveData = value.alive;
   if (
     !record(playerData) ||
-    !keys(playerData, [...FOUR_ARMY_IDS]) ||
-    !FOUR_ARMY_IDS.every((a) => {
+    !keys(playerData, [...participants]) ||
+    !participants.every((a) => {
       const p = playerData[a];
       return record(p) && keys(p, ['gold', 'income']) && integer(p.gold, 0, 1e12) && integer(p.income, 0, 1_024_000);
     })
   )
     return false;
-  if (!record(capitalData) || !keys(capitalData, [...FOUR_ARMY_IDS]) || !FOUR_ARMY_IDS.every((a) => position(capitalData[a]))) return false;
-  if (new Set(Object.values(capitalData).map((p) => positionKey(p as Position))).size !== 4) return false;
+  if (!record(capitalData) || !keys(capitalData, [...participants]) || !participants.every((a) => position(capitalData[a]))) return false;
+  if (new Set(Object.values(capitalData).map((p) => positionKey(p as Position))).size !== participants.length) return false;
   if (
     value.engineVersion === 1
       ? Object.hasOwn(value, 'setup')
-      : !isFourArmySetup(value.setup, value.board as unknown as FourArmyMap['board'], capitalData as FourArmyMap['capitals'])
+      : !isFourArmySetup(value.setup, value.board as unknown as FourArmyMap['board'], capitalData as FourArmyMap['capitals'], participants)
   )
     return false;
   if (
-    !isFourArmyRound(roundData) ||
+    !isFourArmyRound(roundData, participants) ||
     !integer(roundData.round, 1, 1_000_000) ||
     typeof value.paused !== 'boolean' ||
     !integer(value.rngSeed, 0, 0xffff_ffff) ||
     !integer(value.nextUnitId, 1, 1e9)
   )
     return false;
-  if (!Array.isArray(aliveData) || aliveData.length > 4 || !aliveData.every(army) || new Set(aliveData).size !== aliveData.length) return false;
+  if (!Array.isArray(aliveData) || aliveData.length > 4 || !aliveData.every((a) => army(a) && participants.includes(a)) || new Set(aliveData).size !== aliveData.length)
+    return false;
   if (
     !Array.isArray(value.eliminations) ||
-    value.eliminations.length !== 4 - aliveData.length ||
-    !value.eliminations.every((e) => record(e) && keys(e, ['army', 'round']) && army(e.army) && !aliveData.includes(e.army) && integer(e.round, 1, roundData.round)) ||
+    value.eliminations.length !== participants.length - aliveData.length ||
+    !value.eliminations.every(
+      (e) => record(e) && keys(e, ['army', 'round']) && army(e.army) && participants.includes(e.army) && !aliveData.includes(e.army) && integer(e.round, 1, roundData.round),
+    ) ||
     new Set(value.eliminations.map((e) => e.army)).size !== value.eliminations.length
   )
     return false;
   const s = value as unknown as FourArmyState;
+  if (s.engineVersion === 4 && (!s.match || s.pathVersion !== 2 || s.board.width !== 18 || s.board.height !== 14)) return false;
   if (
     !s.board.terrain.every(
       (row) =>
@@ -327,8 +352,8 @@ export function isFourArmyState(value: unknown): value is FourArmyState {
   )
     return false;
   if (
-    s.board.terrain.flat().filter((t) => t.kind === 'capital').length !== 4 ||
-    !FOUR_ARMY_IDS.every((a) => s.board.terrain[s.capitals[a].y]?.[s.capitals[a].x]?.kind === 'capital')
+    s.board.terrain.flat().filter((t) => t.kind === 'capital').length !== participants.length ||
+    !participants.every((a) => s.board.terrain[s.capitals[a].y]?.[s.capitals[a].x]?.kind === 'capital')
   )
     return false;
   if (
@@ -341,7 +366,16 @@ export function isFourArmyState(value: unknown): value is FourArmyState {
         keys(
           u,
           ['id', 'kind', 'owner', 'hp', 'hasMoved', 'hasActed'],
-          ['position', 'embarkedIn', 'fuel', 'ammo', 'secondaryAmmo', 'supplyStock', 'experience', ...(value.engineVersion === 3 ? ['ambush', 'logistics'] : [])],
+          [
+            'position',
+            'embarkedIn',
+            'fuel',
+            'ammo',
+            'secondaryAmmo',
+            'supplyStock',
+            'experience',
+            ...(value.engineVersion === 3 || (value.engineVersion === 4 && value.rules) ? ['ambush', 'logistics'] : []),
+          ],
         ) &&
         id(u.id) &&
         integer(u.hp, 1, 100) &&
@@ -355,28 +389,42 @@ export function isFourArmyState(value: unknown): value is FourArmyState {
   )
     return false;
   if (s.setup && FOUR_ARMY_IDS.some((a) => s.units.filter((u) => u.owner === a).length > s.setup!.unitLimitPerArmy)) return false;
-  if (s.engineVersion === 3 ? !validFourArmyExtensions(s) : Object.hasOwn(s, 'rules') || Object.hasOwn(s, 'extensions')) return false;
+  if (s.engineVersion === 3 || (s.engineVersion === 4 && s.rules) ? !validFourArmyExtensions(s) : Object.hasOwn(s, 'rules') || Object.hasOwn(s, 'extensions')) return false;
   const validationView = project(s, 'army1');
   // The legacy validator caps two armies' fortifications; the real four-army bounds are checked above.
   if (!isGameState({ ...validationView, fortifications: undefined })) return false;
   if (s.units.some((u) => u.fuel !== undefined && u.fuel > unitStats[u.kind].fuel)) return false;
   if (s.units.some((u) => u.position && !Number.isFinite(movementCost(validationView.board, u.position, u.kind)))) return false;
-  const resolved = resolveFourArmyEliminations({
-    alive: s.alive,
-    units: s.units.map((u) => ({ id: u.id, army: u.owner, ...(u.embarkedIn ? { carrierId: u.embarkedIn } : {}) })),
-    facilities: FOUR_ARMY_IDS.map((a) => ({
-      id: a,
-      capitalOf: a,
-      ...(s.board.terrain[s.capitals[a].y]![s.capitals[a].x]!.owner ? { owner: s.board.terrain[s.capitals[a].y]![s.capitals[a].x]!.owner } : {}),
-    })),
-  });
+  const resolved = resolveFourArmyEliminations(
+    {
+      alive: s.alive,
+      units: s.units.map((u) => ({ id: u.id, army: u.owner, ...(u.embarkedIn ? { carrierId: u.embarkedIn } : {}) })),
+      facilities: participants.map((a) => ({
+        id: a,
+        capitalOf: a,
+        ...(s.board.terrain[s.capitals[a].y]![s.capitals[a].x]!.owner ? { owner: s.board.terrain[s.capitals[a].y]![s.capitals[a].x]!.owner } : {}),
+      })),
+    },
+    participants,
+  );
+  const deadline =
+    s.match?.ending === 'short' &&
+    s.round.round === 21 &&
+    s.round.phase === 'pending' &&
+    !s.paused &&
+    s.alive.length >= 2 &&
+    s.decision?.round === 20 &&
+    Object.keys(s.decision).join() === 'round';
+  if (s.decision && !deadline) return false;
+  if (s.match?.ending === 'short' && (s.round.round > 21 || (s.round.round === 21 && !deadline))) return false;
+  const expectedOutcome = deadline ? smallBattleDecision(s) : resolved.ok ? resolved.value.outcome : undefined;
   if (
     !resolved.ok ||
     resolved.value.battlefield.alive.length !== s.alive.length ||
     !record(s.outcome) ||
     !keys(s.outcome, s.outcome.type === 'victory' ? ['type', 'winner'] : ['type']) ||
-    resolved.value.outcome.type !== s.outcome.type ||
-    (resolved.value.outcome.type === 'victory' && (s.outcome.type !== 'victory' || resolved.value.outcome.winner !== s.outcome.winner))
+    expectedOutcome?.type !== s.outcome.type ||
+    (expectedOutcome?.type === 'victory' && (s.outcome.type !== 'victory' || expectedOutcome.winner !== s.outcome.winner))
   )
     return false;
   return (
@@ -415,25 +463,28 @@ export function isFourArmyCommand(v: unknown): v is FourArmyCommand {
 }
 
 export function createFourArmyState(input: unknown): GameResult<FourArmyState> {
-  if (!record(input) || !keys(input, ['id', 'board', 'capitals', 'units', 'players', 'order', 'seed'], ['setup', 'pathVersion', 'rules']) || !id(input.id))
+  if (!record(input) || !keys(input, ['id', 'board', 'capitals', 'units', 'players', 'order', 'seed'], ['setup', 'pathVersion', 'rules', 'match']) || !id(input.id))
     return fail('4軍マップが不正です。');
   if (Object.hasOwn(input, 'rules') && (!isFourArmyRules(input.rules) || !Object.hasOwn(input, 'setup'))) return fail('4軍の規則が不正です。');
   const map = input as unknown as FourArmyMap;
   if (!Array.isArray(map.units) || map.units.length > 128) return fail('4軍の部隊数が不正です。');
-  const round = createFourArmyRound(map.order);
+  if (Object.hasOwn(input, 'match') && !smallBattleMapShape(map)) return fail('小型マップの契約が不正です。');
+  const participants = fourArmyParticipants(map);
+  const round = createFourArmyRound(map.order, participants);
   if (!round.ok) return round;
   const numericIds = Array.isArray(map.units) ? map.units.filter((u) => record(u) && typeof u.id === 'string' && /^u[0-9]+$/.test(u.id)).map((u) => Number(u.id.slice(1))) : [];
   const initial = {
     ...(Object.hasOwn(input, 'pathVersion') ? { pathVersion: input.pathVersion } : {}),
-    engineVersion: map.rules ? 3 : Object.hasOwn(input, 'setup') ? 2 : 1,
-    ...(map.rules ? { rules: map.rules, extensions: initialFourArmyExtensions(map.seed) } : {}),
+    ...(map.match ? { match: map.match } : {}),
+    engineVersion: map.match ? 4 : map.rules ? 3 : Object.hasOwn(input, 'setup') ? 2 : 1,
+    ...(map.rules ? { rules: map.rules, extensions: initialFourArmyExtensions(map.seed, participants) } : {}),
     ...(Object.hasOwn(input, 'setup') ? { setup: map.setup } : {}),
     board: map.board,
     capitals: map.capitals,
     units: map.units,
     players: map.players,
     round: { ...round.value, phase: 'active', startedArmies: [round.value.order[0]!] },
-    alive: [...FOUR_ARMY_IDS],
+    alive: [...participants],
     eliminations: [],
     outcome: { type: 'ongoing' },
     rngSeed: map.seed,
@@ -445,7 +496,7 @@ export function createFourArmyState(input: unknown): GameResult<FourArmyState> {
     initial.units.some((u) => u.hasMoved || u.hasActed) ||
     (initial.setup &&
       initial.units.some((u) => !inFourArmyStartZone((u.position ?? initial.units.find((c) => c.id === u.embarkedIn)!.position)!, initial.setup!.startZones[u.owner]))) ||
-    !FOUR_ARMY_IDS.every((a) => initial.board.terrain[initial.capitals[a].y]![initial.capitals[a].x]!.owner === a)
+    !participants.every((a) => initial.board.terrain[initial.capitals[a].y]![initial.capitals[a].x]!.owner === a)
   )
     return fail('4軍の初期盤面が不正です。');
   const started = startNext({ ...clean(initial as FourArmyState), round: round.value });
@@ -455,7 +506,7 @@ export function createFourArmyState(input: unknown): GameResult<FourArmyState> {
 /** Runtime boundary for actor-tagged commands. Failed commands leave the original state untouched. */
 export function applyFourArmyCommand(input: unknown, command: unknown): GameResult<FourArmyState> {
   if (!isFourArmyState(input) || !isFourArmyCommand(command)) return fail('4軍の状態または命令が不正です。');
-  if (input.engineVersion !== 3 && ['fortify', 'recon', 'ambush', 'logistics', 'repairReserve'].includes(command.type)) return fail('この対局の規則では使えない命令です。');
+  if (!input.rules && ['fortify', 'recon', 'ambush', 'logistics', 'repairReserve'].includes(command.type)) return fail('この対局の規則では使えない命令です。');
   if (input.outcome.type !== 'ongoing') return fail('対局は終了しています。');
   if (command.actor !== input.round.order[input.round.index]) return fail('行動中の軍ではありません。');
   if (command.type === 'resume') return input.paused ? startNext({ ...structuredClone(input), paused: false }) : fail('一時停止していません。');
@@ -475,8 +526,13 @@ export function applyFourArmyCommand(input: unknown, command: unknown): GameResu
     const { actor, ...legacy } = command;
     const view = project(input, actor);
     const changed =
-      command.type === 'move' && input.pathVersion === 1
-        ? moveUnit(view, command.unitId, command.destination, (a, b) => homePositionRank(input.capitals[actor], a) - homePositionRank(input.capitals[actor], b))
+      command.type === 'move' && input.pathVersion !== undefined
+        ? moveUnit(view, command.unitId, command.destination, (a, b) =>
+            input.pathVersion === 2
+              ? smallBattlePositionRank(input.board, input.capitals[actor], a, input.match?.participants.length === 3) -
+                smallBattlePositionRank(input.board, input.capitals[actor], b, input.match?.participants.length === 3)
+              : homePositionRank(input.capitals[actor], a) - homePositionRank(input.capitals[actor], b),
+          )
         : applyGameCommand(view, legacy);
     if (!changed.ok) return changed;
     const settled = settle(restore(input, changed.value, actor));
@@ -493,7 +549,7 @@ export function applyFourArmyCommand(input: unknown, command: unknown): GameResu
 
 /** Observations omit hidden contacts, enemy funds/cargo/logistics, and the combat RNG stream. */
 export function observeFourArmy(input: unknown, viewer: FourArmyId): GameResult<FourArmyObservation> {
-  if (!isFourArmyState(input) || !army(viewer)) return fail('4軍の視点が不正です。');
+  if (!isFourArmyState(input) || !fourArmyParticipants(input).includes(viewer)) return fail('4軍の視点が不正です。');
   const view = project(input, viewer);
   const contacts = new Set(visibleEnemies(view, 'red').map((u) => u.id));
   const visible = visiblePositions(view, 'red');
@@ -502,6 +558,8 @@ export function observeFourArmy(input: unknown, viewer: FourArmyId): GameResult<
     ok: true,
     value: clean({
       viewer,
+      ...(input.match ? { match: input.match } : {}),
+      ...(input.decision ? { decision: input.decision } : {}),
       ...(input.rules && input.extensions
         ? {
             rules: input.rules,
@@ -537,17 +595,18 @@ export function observeFourArmy(input: unknown, viewer: FourArmyId): GameResult<
 function validFourArmyExtensions(s: FourArmyState): boolean {
   if (!isFourArmyRules(s.rules) || !record(s.extensions) || !keys(s.extensions, ['recon', 'fortifications', 'repairReserve', 'weatherSeed'])) return false;
   const e = s.extensions;
+  const participants = fourArmyParticipants(s);
   if (
     !integer(e.weatherSeed, 0, 0xffffffff) ||
     !record(e.recon) ||
-    !keys(e.recon, [...FOUR_ARMY_IDS]) ||
+    !keys(e.recon, [...participants]) ||
     !record(e.repairReserve) ||
-    !keys(e.repairReserve, [...FOUR_ARMY_IDS]) ||
-    !FOUR_ARMY_IDS.every((a) => validRepairReserve(e.repairReserve[a]))
+    !keys(e.repairReserve, [...participants]) ||
+    !participants.every((a) => validRepairReserve(e.repairReserve[a]))
   )
     return false;
   if (
-    !FOUR_ARMY_IDS.every((a) => {
+    !participants.every((a) => {
       const r = e.recon[a];
       return (
         record(r) &&

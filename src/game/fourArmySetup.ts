@@ -16,12 +16,17 @@ const integer = (v: unknown, min: number, max: number): v is number => Number.is
 export const inFourArmyStartZone = (p: Position, z: FourArmyStartZone): boolean => p.x >= z.x && p.y >= z.y && p.x < z.x + z.width && p.y < z.y + z.height;
 
 /** Public immutable setup for engine v2. Cargo counts as a unit, never as a spare slot. */
-export function isFourArmySetup(v: unknown, board: { width: number; height: number }, capitals: Record<FourArmyId, Position>): v is FourArmySetup {
+export function isFourArmySetup(
+  v: unknown,
+  board: { width: number; height: number },
+  capitals: Record<FourArmyId, Position>,
+  participants: readonly FourArmyId[] = FOUR_ARMY_IDS,
+): v is FourArmySetup {
   if (!record(v) || !keys(v, ['version', 'unitLimitPerArmy', 'startZones']) || v.version !== 1 || !integer(v.unitLimitPerArmy, 4, 32)) return false;
   const zones = v.startZones;
-  if (!record(zones) || !keys(zones, FOUR_ARMY_IDS)) return false;
+  if (!record(zones) || !keys(zones, participants)) return false;
   if (
-    !FOUR_ARMY_IDS.every((a) => {
+    !participants.every((a) => {
       const z = zones[a];
       return (
         record(z) &&
@@ -37,6 +42,6 @@ export function isFourArmySetup(v: unknown, board: { width: number; height: numb
     })
   )
     return false;
-  const rectangles = FOUR_ARMY_IDS.map((a) => zones[a] as unknown as FourArmyStartZone);
+  const rectangles = participants.map((a) => zones[a] as unknown as FourArmyStartZone);
   return rectangles.every((a, i) => rectangles.slice(i + 1).every((b) => a.x + a.width <= b.x || b.x + b.width <= a.x || a.y + a.height <= b.y || b.y + b.height <= a.y));
 }

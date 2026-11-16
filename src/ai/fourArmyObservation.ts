@@ -1,3 +1,4 @@
+import { isSmallBattle } from '../game/smallBattle';
 import { fourArmyRuleProjection, isFourArmyRules } from '../game/fourArmyRules';
 import { isGameState } from '../game/session';
 import { visiblePositions } from '../game/fog';
@@ -32,10 +33,23 @@ export function fourArmyPlanningView(o: FourArmyObservation): GameState {
 export function isFourArmyObservation(v: unknown): v is FourArmyObservation {
   if (
     !record(v) ||
-    !exactKeys(v, ['viewer', 'board', 'capitals', 'units', 'player', 'visible', 'round', 'alive', 'outcome'], ['unitLimitPerArmy', 'rules', 'extensions']) ||
+    !exactKeys(v, ['viewer', 'board', 'capitals', 'units', 'player', 'visible', 'round', 'alive', 'outcome'], ['unitLimitPerArmy', 'rules', 'extensions', 'match', 'decision']) ||
     !isArmy(v.viewer)
   )
     return false;
+  if (Object.hasOwn(v, 'match') && !isSmallBattle(v.match)) return false;
+  const participants = isSmallBattle(v.match) ? v.match.participants : FOUR_ARMY_IDS;
+  if (!participants.includes(v.viewer) || (!v.match && Object.hasOwn(v, 'decision'))) return false;
+  const deadline =
+    isSmallBattle(v.match) &&
+    v.match.ending === 'short' &&
+    record(v.decision) &&
+    exactKeys(v.decision, ['round']) &&
+    v.decision.round === 20 &&
+    record(v.round) &&
+    v.round.round === 21 &&
+    v.round.phase === 'pending';
+  if (Object.hasOwn(v, 'decision') && !deadline) return false;
   if (Object.hasOwn(v, 'rules') !== Object.hasOwn(v, 'extensions') || (Object.hasOwn(v, 'rules') && !isFourArmyRules(v.rules))) return false;
   if (Object.hasOwn(v, 'unitLimitPerArmy') && !boundedInt(v.unitLimitPerArmy, 4, 32)) return false;
   const b = v.board,
@@ -51,15 +65,15 @@ export function isFourArmyObservation(v: unknown): v is FourArmyObservation {
     b.terrain.length !== b.height
   )
     return false;
-  if (!Array.isArray(alive) || alive.length > 4 || !alive.every(isArmy) || new Set(alive).size !== alive.length) return false;
-  if (!record(caps) || !exactKeys(caps, FOUR_ARMY_IDS) || !FOUR_ARMY_IDS.every((a) => position(caps[a]))) return false;
-  if (new Set(Object.values(caps).map((p) => positionKey(p as Position))).size !== 4) return false;
+  if (!Array.isArray(alive) || alive.length > 4 || !alive.every((a) => isArmy(a) && participants.includes(a)) || new Set(alive).size !== alive.length) return false;
+  if (!record(caps) || !exactKeys(caps, participants) || !participants.every((a) => position(caps[a]))) return false;
+  if (new Set(Object.values(caps).map((p) => positionKey(p as Position))).size !== participants.length) return false;
   if (
     !record(p) ||
     !exactKeys(p, ['gold', 'income']) ||
     !boundedInt(p.gold, 0, 1e12) ||
     !boundedInt(p.income, 0, 1_024_000) ||
-    !isFourArmyRound(v.round) ||
+    !isFourArmyRound(v.round, participants) ||
     !boundedInt(v.round.round, 1, 1_000_000)
   )
     return false;
@@ -70,12 +84,14 @@ export function isFourArmyObservation(v: unknown): v is FourArmyObservation {
   )
     return false;
   if (
-    (v.outcome.type === 'victory' && (!isArmy(v.outcome.winner) || alive.length !== 1 || alive[0] !== v.outcome.winner)) ||
-    (v.outcome.type === 'draw' && alive.length !== 0) ||
+    (v.outcome.type === 'victory' && (!isArmy(v.outcome.winner) || !alive.includes(v.outcome.winner) || (!deadline && (alive.length !== 1 || alive[0] !== v.outcome.winner)))) ||
+    (v.outcome.type === 'draw' && !deadline && alive.length !== 0) ||
     (v.outcome.type === 'ongoing' && alive.length < 2)
   )
     return false;
+  if (deadline && v.outcome.type === 'ongoing') return false;
   const o = v as unknown as FourArmyObservation;
+  if (o.match && (o.board.width !== 18 || o.board.height !== 14)) return false;
   if (
     !o.board.terrain.every(
       (row) =>
@@ -91,8 +107,8 @@ export function isFourArmyObservation(v: unknown): v is FourArmyObservation {
   )
     return false;
   if (
-    o.board.terrain.flat().filter((t) => t.kind === 'capital').length !== 4 ||
-    !FOUR_ARMY_IDS.every((a) => o.board.terrain[o.capitals[a].y]?.[o.capitals[a].x]?.kind === 'capital')
+    o.board.terrain.flat().filter((t) => t.kind === 'capital').length !== participants.length ||
+    !participants.every((a) => o.board.terrain[o.capitals[a].y]?.[o.capitals[a].x]?.kind === 'capital')
   )
     return false;
   if (!Array.isArray(o.units) || o.units.length > 128 || !o.units.every(record)) return false;
