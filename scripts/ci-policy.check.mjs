@@ -135,6 +135,26 @@ test('both complete quality shards are required by the stable test-and-build gat
   assert.doesNotMatch(gate + quality, /permissions:|secrets:|continue-on-error:|--retries|--workers|--grep-invert/);
 });
 
+test('complete Node 24 suites stay mandatory on the first required shard while browsers run on both', () => {
+  const quality = ci.split('  quality-shard:\n')[1]?.split('  runtime-compatibility:\n')[0];
+  const steps = quality.split(/^ {6}- /m).slice(1);
+  for (const command of ['npm run test:coverage', 'npm run test:ui']) {
+    const matching = steps.filter((step) => step.includes(`run: ${command}\n`));
+    assert.equal(matching.length, 1, command);
+    assert.match(matching[0], /\n {8}if: matrix\.browser-shard == 1\n/);
+    assert.doesNotMatch(matching[0], /continue-on-error:|always\(\)|failure\(\)|success\(\)/);
+  }
+  for (const command of ['npm run build', 'npm run test:e2e -- --shard=${{ matrix.browser-shard }}/2']) {
+    const matching = steps.filter((step) => step.includes(`run: ${command}\n`));
+    assert.equal(matching.length, 1, command);
+    assert.doesNotMatch(matching[0], /(?:^|\n)\s*if:/);
+  }
+  const runtime = ci.split('  runtime-compatibility:\n')[1]?.split('  terrain-stability:\n')[0];
+  assert.match(runtime, /node-version: 22\.13\.0/);
+  assert.match(runtime, /- run: npm test\n/);
+  assert.doesNotMatch(runtime, /(?:^|\n)\s*if:|continue-on-error:/);
+});
+
 test('WebKit pause regressions run before, and remain in, the complete browser shards', () => {
   const pause = ci.indexOf("run: npx playwright test tests/e2e/save-safety.spec.ts --project=webkit --grep 'pauses inside combat.*1280/en|ignores a cancelled fallback'");
   const full = ci.indexOf('run: npm run test:e2e -- --shard=');
