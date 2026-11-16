@@ -1,3 +1,4 @@
+import { fourArmyRoster } from './smallBattle';
 import { FOUR_ARMY_IDS, type FourArmyId } from './fourArmyFoundation';
 import { combinedTactics } from './tactics';
 import type { GameState, Position } from './types';
@@ -34,11 +35,11 @@ export const isFourArmyRules = (v: unknown): v is FourArmyRules =>
   Object.keys(v).sort().join() === 'tactics,version' &&
   (v as FourArmyRules).version === 1 &&
   typeof (v as FourArmyRules).tactics === 'boolean';
-export function initialFourArmyExtensions(seed: number): FourArmyExtensions {
+export function initialFourArmyExtensions(seed: number, participants: readonly FourArmyId[] = FOUR_ARMY_IDS): FourArmyExtensions {
   return {
-    recon: { army1: { remaining: 2, centers: [] }, army2: { remaining: 2, centers: [] }, army3: { remaining: 2, centers: [] }, army4: { remaining: 2, centers: [] } },
+    recon: fourArmyRoster(participants, () => ({ remaining: 2, centers: [] })),
     fortifications: [],
-    repairReserve: Object.fromEntries(FOUR_ARMY_IDS.map((a) => [a, 0])) as FourArmyExtensions['repairReserve'],
+    repairReserve: Object.fromEntries(participants.map((a) => [a, 0])) as FourArmyExtensions['repairReserve'],
     weatherSeed: (seed ^ 0x57454154) >>> 0,
   };
 }

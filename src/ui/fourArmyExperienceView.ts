@@ -1,6 +1,6 @@
 import type { FourArmyExperience, FourArmyExperienceView, FourArmyObservedEvent } from '../game/fourArmyExperience';
 import type { FourArmyState } from '../game/fourArmyEngine';
-import { FOUR_ARMY_IDS } from '../game/fourArmyFoundation';
+import { fourArmyParticipants } from '../game/smallBattle';
 import { fourArmyHumanArmies, type FourArmyControllers } from '../game/fourArmyControl';
 import type { SoundEvent } from './presentationEffects';
 import { fourArmyName } from './fourArmyBattleView';
@@ -90,19 +90,23 @@ export function renderFourArmyResult(state: FourArmyState, controllers: FourArmy
         ? text('あなたの勝利です。', 'You win.')
         : text('あなたの軍は敗北しました。', 'Your army lost.')
       : '';
-  return `<section class="four-result" aria-labelledby="four-result-title"><h2 id="four-result-title" tabindex="-1">${escapeHtml(title)}</h2><p>${personal} ${text('ラウンド', 'Round')} ${state.round.round} · ${count.toLocaleString()} ${text('命令', 'commands')}</p><div class="four-result-table"><table><thead><tr><th>${text('軍', 'Army')}</th><th>${text('結果', 'Result')}</th><th>${text('残部隊', 'Units left')}</th><th>${text('施設', 'Properties')}</th></tr></thead><tbody>${FOUR_ARMY_IDS.map(
-    (army) => {
+  return `<section class="four-result" aria-labelledby="four-result-title"><h2 id="four-result-title" tabindex="-1">${escapeHtml(title)}</h2><p>${personal} ${text('ラウンド', 'Round')} ${state.decision?.round ?? state.round.round} · ${count.toLocaleString()} ${text('命令', 'commands')}</p>${state.decision ? `<p>${text('20ラウンド判定：拠点数 → 合計HP → 同点は引分', '20-round decision: properties → total HP → tied draw')}</p>` : ''}<div class="four-result-table"><table><thead><tr><th>${text('軍', 'Army')}</th><th>${text('結果', 'Result')}</th><th>${text('残部隊', 'Units left')}</th><th>${text('施設', 'Properties')}</th><th>HP</th></tr></thead><tbody>${fourArmyParticipants(
+    state,
+  )
+    .map((army) => {
       const eliminated = state.eliminations.find((e) => e.army === army);
       const result =
         state.outcome.type === 'victory' && state.outcome.winner === army
           ? text('勝利', 'Winner')
           : eliminated
             ? `R${eliminated.round} ${text('脱落', 'eliminated')}`
-            : text('引分', 'Draw');
+            : state.outcome.type === 'victory'
+              ? text('判定敗北', 'Lost on points')
+              : text('引分', 'Draw');
       const properties = state.board.terrain.flat().filter((tile) => tile.owner === army).length;
-      return `<tr><th>${escapeHtml(fourArmyName(army))}<small>${controllers[army] === 'human' ? text('人間', 'Human') : 'CPU'}</small></th><td>${result}</td><td>${state.units.filter((u) => u.owner === army).length}</td><td>${properties}</td></tr>`;
-    },
-  ).join(
-    '',
-  )}</tbody></table></div><p class="four-hint">${text('通常2軍の戦績・キャンペーンには反映しません。', 'Four-army results do not affect normal two-army or campaign records.')}</p><div class="four-buttons">${readonly ? '' : `<button id="four-rematch" class="four-primary" ${conflicted ? 'disabled' : ''}>${text('同条件で再戦', 'Rematch same conditions')}</button>`}<button id="four-result-export">${text('記録を書き出す', 'Export record')}</button></div><p class="four-hint">${text('再戦はseed・手番順・人間／CPU割当・規則・CPU版・現在のCPU設定を引き継ぎます。', 'Rematches retain the seed, turn order, controllers, rules, CPU version and current CPU settings.')}</p></section>`;
+      return `<tr><th>${escapeHtml(fourArmyName(army))}<small>${controllers[army] === 'human' ? text('人間', 'Human') : 'CPU'}</small></th><td>${result}</td><td>${state.units.filter((u) => u.owner === army).length}</td><td>${properties}</td><td>${state.units.filter((u) => u.owner === army).reduce((sum, u) => sum + u.hp, 0)}</td></tr>`;
+    })
+    .join(
+      '',
+    )}</tbody></table></div><p class="four-hint">${text('通常2軍の戦績・キャンペーンには反映しません。', 'Four-army results do not affect normal two-army or campaign records.')}</p><div class="four-buttons">${readonly ? '' : `<button id="four-rematch" class="four-primary" ${conflicted ? 'disabled' : ''}>${text('同条件で再戦', 'Rematch same conditions')}</button>`}<button id="four-result-export">${text('記録を書き出す', 'Export record')}</button></div><p class="four-hint">${text('再戦はseed・手番順・人間／CPU割当・規則・CPU版・現在のCPU設定を引き継ぎます。', 'Rematches retain the seed, turn order, controllers, rules, CPU version and current CPU settings.')}</p></section>`;
 }

@@ -1,3 +1,4 @@
+import { smallBattlePositionRank } from '../game/smallBattle';
 import type { FourArmyCommand, FourArmyObservation } from '../game/fourArmyEngine';
 import type { Position } from '../game/types';
 
@@ -10,6 +11,7 @@ export function fourArmyCpuOrder(o: FourArmyObservation) {
   const local = (p: Position): Position =>
     right ? (bottom ? { x: width - 1 - p.x, y: height - 1 - p.y } : { x: p.y, y: width - 1 - p.x }) : bottom ? { x: height - 1 - p.y, y: p.x } : p;
   const point = (p: Position) => {
+    if (o.match) return smallBattlePositionRank(o.board, home, p);
     const q = local(p);
     return q.y * 32 + q.x;
   };

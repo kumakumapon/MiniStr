@@ -14,6 +14,7 @@ async function open(page: Page, locale = 'en', mode: 'spectator' | 'human' = 'sp
   page.on('dialog', (dialog) => dialog.accept());
   await page.goto('/');
   await page.locator('#title-four-army').click();
+  await page.locator('#four-map').selectOption('wide');
   await expect(page.locator('#four-heading')).toBeVisible();
   await expect(page.locator('main')).toHaveCount(1);
   await expect(page.locator('#four-army-screen')).toHaveAttribute('role', 'main');
@@ -195,6 +196,7 @@ test('four-army dedicated saves, JSON and replay preserve current state and lega
   expect(await count(page)).toBe(1);
   await page.reload();
   await page.locator('#title-four-army').click();
+  await page.locator('#four-map').selectOption('wide');
   await tools(page);
   await page.locator('[data-load-slot="0"]').click();
   await expect(page.locator('#four-notice')).toHaveText('Loaded and paused.');

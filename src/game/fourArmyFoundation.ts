@@ -54,15 +54,29 @@ const isArmy = (v: unknown): v is FourArmyId => FOUR_ARMY_IDS.some((id) => id ==
 const isArmyList = (v: unknown): v is FourArmyId[] => Array.isArray(v) && v.length <= 4 && v.every(isArmy) && new Set(v).size === v.length;
 const isId = (v: unknown): v is string => typeof v === 'string' && /^[A-Za-z0-9_-]{1,80}$/.test(v);
 
-export function isFourArmyRound(value: unknown): value is FourArmyRound {
+export function isFourArmyRound(value: unknown, participants: readonly FourArmyId[] = FOUR_ARMY_IDS): value is FourArmyRound {
   if (!isRecord(value) || !hasKeys(value, ['round', 'order', 'index', 'phase', 'startedArmies'])) return false;
-  if (!Number.isSafeInteger(value.round) || (value.round as number) < 1 || !isArmyList(value.order) || value.order.length !== 4) return false;
-  if (!Number.isSafeInteger(value.index) || (value.index as number) < 0 || (value.index as number) > 3 || !isArmyList(value.startedArmies)) return false;
+  if (
+    !Number.isSafeInteger(value.round) ||
+    (value.round as number) < 1 ||
+    !isArmyList(value.order) ||
+    value.order.length !== participants.length ||
+    !participants.every((a) => (value.order as FourArmyId[]).includes(a))
+  )
+    return false;
+  if (
+    !Number.isSafeInteger(value.index) ||
+    (value.index as number) < 0 ||
+    (value.index as number) >= participants.length ||
+    !isArmyList(value.startedArmies) ||
+    !value.startedArmies.every((a) => participants.includes(a))
+  )
+    return false;
   return value.phase === 'pending' || (value.phase === 'active' && value.startedArmies.includes(value.order[value.index as number]!));
 }
 
-export function createFourArmyRound(order: readonly FourArmyId[] = FOUR_ARMY_IDS): GameResult<FourArmyRound> {
-  if (!isArmyList(order) || order.length !== 4) return fail('4軍の手番順は各軍を1回ずつ指定してください。');
+export function createFourArmyRound(order: readonly FourArmyId[] = FOUR_ARMY_IDS, participants: readonly FourArmyId[] = FOUR_ARMY_IDS): GameResult<FourArmyRound> {
+  if (!isArmyList(order) || order.length !== participants.length || !participants.every((a) => order.includes(a))) return fail('4軍の手番順は各軍を1回ずつ指定してください。');
   return { ok: true, value: { round: 1, order: [...order], index: 0, phase: 'pending', startedArmies: [] } };
 }
 
@@ -70,8 +84,10 @@ export function createFourArmyRound(order: readonly FourArmyId[] = FOUR_ARMY_IDS
 export function startFourArmyTurn(
   round: FourArmyRound,
   alive: readonly FourArmyId[],
+  participants: readonly FourArmyId[] = FOUR_ARMY_IDS,
 ): GameResult<{ round: FourArmyRound; army: FourArmyId; applyStart: boolean; firstTurn: boolean; consumeStandingFuel: boolean }> {
-  if (!isFourArmyRound(round) || !isArmyList(alive) || alive.length < 2 || !alive.includes(round.order[round.index]!)) return fail('開始できる4軍手番ではありません。');
+  if (!isFourArmyRound(round, participants) || !isArmyList(alive) || alive.length < 2 || !alive.includes(round.order[round.index]!))
+    return fail('開始できる4軍手番ではありません。');
   const army = round.order[round.index]!;
   const applyStart = round.phase === 'pending';
   const firstTurn = applyStart && !round.startedArmies.includes(army);
@@ -88,12 +104,16 @@ export function startFourArmyTurn(
 }
 
 /** Fixed order/cursor, not a surviving colour, determines the round boundary. */
-export function finishFourArmyTurn(round: FourArmyRound, alive: readonly FourArmyId[]): GameResult<{ round: FourArmyRound; completedRound?: number }> {
-  if (!isFourArmyRound(round) || round.phase !== 'active' || !isArmyList(alive) || alive.length < 2) return fail('終了できる4軍手番ではありません。');
+export function finishFourArmyTurn(
+  round: FourArmyRound,
+  alive: readonly FourArmyId[],
+  participants: readonly FourArmyId[] = FOUR_ARMY_IDS,
+): GameResult<{ round: FourArmyRound; completedRound?: number }> {
+  if (!isFourArmyRound(round, participants) || round.phase !== 'active' || !isArmyList(alive) || alive.length < 2) return fail('終了できる4軍手番ではありません。');
   let index = round.index;
   let wrapped = false;
-  for (let steps = 0; steps < 4; steps++) {
-    index = (index + 1) % 4;
+  for (let steps = 0; steps < participants.length; steps++) {
+    index = (index + 1) % participants.length;
     if (index === 0) wrapped = true;
     if (!alive.includes(round.order[index]!)) continue;
     if (wrapped && round.round === Number.MAX_SAFE_INTEGER) return fail('ラウンド番号の上限に達しました。');
@@ -109,8 +129,8 @@ export function finishFourArmyTurn(round: FourArmyRound, alive: readonly FourArm
 }
 
 /** Reference-only aftermath model: combat, movement and rendering remain the next implementation stage. */
-export function isFourArmyBattlefield(value: unknown): value is FourArmyBattlefield {
-  if (!isRecord(value) || !hasKeys(value, ['alive', 'units', 'facilities']) || !isArmyList(value.alive)) return false;
+export function isFourArmyBattlefield(value: unknown, participants: readonly FourArmyId[] = FOUR_ARMY_IDS): value is FourArmyBattlefield {
+  if (!isRecord(value) || !hasKeys(value, ['alive', 'units', 'facilities']) || !isArmyList(value.alive) || !value.alive.every((a) => participants.includes(a))) return false;
   if (!Array.isArray(value.units) || value.units.length > 128 || !Array.isArray(value.facilities) || value.facilities.length > 1024) return false;
   const units: FourArmyUnitRef[] = [];
   for (const unit of value.units) {
@@ -136,13 +156,21 @@ export function isFourArmyBattlefield(value: unknown): value is FourArmyBattlefi
     }
     facilityIds.push(facility.id);
   }
-  return capitals.length === 4 && new Set(capitals).size === 4 && new Set(facilityIds).size === facilityIds.length;
+  return (
+    capitals.length === participants.length &&
+    participants.every((a) => capitals.includes(a)) &&
+    new Set(capitals).size === participants.length &&
+    new Set(facilityIds).size === facilityIds.length
+  );
 }
 
 /** Decide all losses on the same snapshot, then remove armies and decide the result. */
-export function resolveFourArmyEliminations(input: unknown): GameResult<{ battlefield: FourArmyBattlefield; outcome: FourArmyOutcome }> {
-  if (!isFourArmyBattlefield(input)) return fail('4軍の脱落判定用データが不正です。');
-  const alive = FOUR_ARMY_IDS.filter(
+export function resolveFourArmyEliminations(
+  input: unknown,
+  participants: readonly FourArmyId[] = FOUR_ARMY_IDS,
+): GameResult<{ battlefield: FourArmyBattlefield; outcome: FourArmyOutcome }> {
+  if (!isFourArmyBattlefield(input, participants)) return fail('4軍の脱落判定用データが不正です。');
+  const alive = participants.filter(
     (army) => input.alive.includes(army) && input.units.some((u) => u.army === army) && input.facilities.some((f) => f.capitalOf === army && f.owner === army),
   );
   const battlefield: FourArmyBattlefield = {

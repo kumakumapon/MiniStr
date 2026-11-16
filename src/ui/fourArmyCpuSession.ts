@@ -1,3 +1,4 @@
+import { fourArmyParticipants } from '../game/smallBattle';
 import { normalizeFourArmyControllers, type FourArmyControllers } from '../game/fourArmyControl';
 import { type FourArmyId } from '../game/fourArmyFoundation';
 import { defaultFourArmyCpuSettings, isFourArmyCpuSettings, isObservedFourArmyCommand, type FourArmyCpuSettings } from '../ai/fourArmyCpu';
@@ -24,7 +25,10 @@ export class FourArmyCpuSession {
     readonly humanArmy?: FourArmyId | FourArmyControllers,
   ) {
     if (!isFourArmyState(state) || !isFourArmyCpuSettings(settings) || !isFourArmyCpuVersion(cpuVersion)) throw Error('Invalid four-army CPU session');
-    this.controllers = Object.freeze(normalizeFourArmyControllers(humanArmy));
+    const controls = normalizeFourArmyControllers(humanArmy);
+    if (state.match && cpuVersion !== 'four-army-cpu-v5') throw Error('Compact games require CPU v5');
+    if (Object.entries(controls).some(([a, c]) => c === 'human' && !fourArmyParticipants(state).includes(a as FourArmyId))) throw Error('Inactive human army');
+    this.controllers = Object.freeze(controls);
     this.current = structuredClone(state);
     this.settings = structuredClone(settings);
     this.planner = new FourArmyCpuPlanner(createWorker);

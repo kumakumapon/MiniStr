@@ -43,6 +43,8 @@ export function isObservedFourArmyCommand(o: FourArmyObservation, command: unkno
 export function chooseFourArmyCpuCommand(input: unknown, options: unknown, cpuVersion: FourArmyCpuVersion = FOUR_ARMY_CPU_VERSION): FourArmyCommand | undefined {
   if (!isFourArmyObservation(input) || !isFourArmyCpuOptions(options) || !isFourArmyCpuVersion(cpuVersion)) throw Error('Invalid four-army CPU input');
   const o = input;
+  if (o.match && cpuVersion !== 'four-army-cpu-v5') throw Error('Compact games require CPU v5');
+  const late = cpuVersion === 'four-army-cpu-v5' && o.match?.ending === 'short' && o.round.round >= 16;
   if (o.outcome.type !== 'ongoing' || o.round.phase !== 'active' || o.round.order[o.round.index] !== o.viewer || !o.alive.includes(o.viewer)) return undefined;
   const view = fourArmyPlanningView(o),
     own = view.units.filter((u) => u.owner === 'red'),
@@ -72,7 +74,7 @@ export function chooseFourArmyCpuCommand(input: unknown, options: unknown, cpuVe
     if (!u.position) continue;
     const tile = terrainAt(view.board, u.position)!;
     if (unitStats[u.kind].capturePower > 0 && isPropertyTerrainKind(tile.kind) && tile.owner !== 'red')
-      add({ actor, type: 'capture', unitId: u.id }, 1000 + (tile.kind === 'capital' ? 1000 : 0));
+      add({ actor, type: 'capture', unitId: u.id }, 1000 + (tile.kind === 'capital' ? 1000 : late ? 600 : 0));
     for (const target of enemies) {
       const shot = forecastCombat(view, u, target);
       if (!shot.ok || shot.value.damageToDefender <= 0) continue;
@@ -84,8 +86,8 @@ export function chooseFourArmyCpuCommand(input: unknown, options: unknown, cpuVe
       add({ actor, type: 'attack', unitId: u.id, targetId: target.id, weaponSlot: shot.value.attackWeapon }, score);
     }
     const repairing = isServiceTile(view, u.position, u.kind, 'red') && u.hp < 85;
-    add({ actor, type: 'wait', unitId: u.id }, repairing ? 250 : 1);
-    if (cpuVersion === 'four-army-cpu-v4' && o.rules && !u.hasMoved) {
+    add({ actor, type: 'wait', unitId: u.id }, repairing ? 250 : late && tile.owner === 'red' && isPropertyTerrainKind(tile.kind) ? 80 : 1);
+    if ((cpuVersion === 'four-army-cpu-v4' || cpuVersion === 'four-army-cpu-v5') && o.rules && !u.hasMoved) {
       if (u.kind === 'engineer') add({ actor, type: 'fortify', unitId: u.id }, options.policy === 'defensive' ? 260 : 30);
       const near = enemies.some((e) => e.position && manhattanDistance(e.position, u.position!) <= 4);
       if (near && options.policy !== 'offensive')
@@ -125,7 +127,7 @@ export function chooseFourArmyCpuCommand(input: unknown, options: unknown, cpuVe
         ? goals
         : [...enemies.flatMap((e) => (e.position ? [e.position] : [])), ...goals];
     const service =
-      cpuVersion === 'four-army-cpu-v3' || cpuVersion === 'four-army-cpu-v4'
+      cpuVersion === 'four-army-cpu-v3' || cpuVersion === 'four-army-cpu-v4' || cpuVersion === 'four-army-cpu-v5'
         ? o.board.terrain.flatMap((row, y) => row.flatMap((_tile, x) => (isServiceTile(view, { x, y }, u.kind, 'red') ? [{ x, y }] : [])))
         : [];
     const homeDistances = service.length ? crossingDistances(view, u.kind, service) : undefined;
@@ -143,7 +145,7 @@ export function chooseFourArmyCpuCommand(input: unknown, options: unknown, cpuVe
       const threats = danger(u, p),
         retreating = u.hp < 45 || (u.fuel ?? unitStats[u.kind].fuel) < unitStats[u.kind].movement;
       let score = Number.isFinite(currentDistance) && Number.isFinite(d) ? 60 + (currentDistance - d) * 15 - d : -20;
-      if (unitStats[u.kind].capturePower > 0 && isPropertyTerrainKind(terrainAt(view.board, p)!.kind) && terrainAt(view.board, p)!.owner !== 'red') score += 240;
+      if (unitStats[u.kind].capturePower > 0 && isPropertyTerrainKind(terrainAt(view.board, p)!.kind) && terrainAt(view.board, p)!.owner !== 'red') score += late ? 500 : 240;
       if (options.policy === 'defensive' && enemies.some((e) => e.position && manhattanDistance(e.position, o.capitals[actor]) <= 5))
         score += (manhattanDistance(u.position, o.capitals[actor]) - manhattanDistance(p, o.capitals[actor])) * 25;
       if (retreating && isServiceTile(view, p, u.kind, 'red')) score += 500;
@@ -205,7 +207,7 @@ export function chooseFourArmyCpuCommand(input: unknown, options: unknown, cpuVe
           const capturers = own.filter((u) => unitStats[u.kind].capturePower > 0).length;
           let score = 80 + (kind === 'infantry' ? (capturers < 2 ? 180 : 10) : kind === 'tank' || kind === 'fighter' || kind === 'destroyer' ? 100 : 0) - stats.cost / 1000;
           if (kind === 'apc' && !own.some((u) => u.kind === 'apc') && own.some((u) => isGroundUnit(u.kind) && (u.fuel ?? unitStats[u.kind].fuel) < 10)) score += 200;
-          if (kind === 'antiAir' && enemies.some((e) => e.kind === 'fighter' || e.kind === 'bomber' || e.kind === 'helicopter')) score += 240;
+          if (kind === 'antiAir' && enemies.some((e) => e.kind === 'fighter' || e.kind === 'bomber' || e.kind === 'helicopter')) score += late ? 500 : 240;
           // Unobserved production can be rejected by a hidden occupant. Finish known unit actions first;
           // retain fog production without probing private occupancy or discarding those actions on rejection.
           add({ actor, type: 'produce', factory: { x, y }, kind }, modern && !visible.has(`${x},${y}`) ? score - 1000 : score);

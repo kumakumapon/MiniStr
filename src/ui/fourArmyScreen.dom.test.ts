@@ -38,6 +38,50 @@ describe('four-army spectator controller', () => {
     e.value = value;
     e.dispatchEvent(new Event('change', { bubbles: true }));
   };
+  it.each([3, 4] as const)('starts compact %i-army play with a real roster and schema5 autosave', async (count) => {
+    change('#four-map', 'compact');
+    change('#four-count', String(count));
+    change('#four-mode', 'human');
+    expect(query('#four-heading').textContent).toContain(`${count}-army`);
+    expect(query('#four-count').closest('label')?.textContent).toContain('Armies');
+    start();
+    expect(query('#four-board').children).toHaveLength(252);
+    expect(query('#four-turn').textContent).toContain('/20');
+    expect(query('#four-army-info').children).toHaveLength(count);
+    expect(query('#four-army-info').textContent).toContain('4/8');
+    if (count === 3) expect(query('#four-army-info').textContent).not.toContain('Army 4');
+    await vi.waitFor(() => expect(values.has(FOUR_ARMY_AUTO_SAVE_KEY)).toBe(true));
+    const raw = JSON.parse(values.get(FOUR_ARMY_AUTO_SAVE_KEY)!);
+    expect(raw).toMatchObject({ schemaVersion: 5, cpuVersion: 'four-army-cpu-v5', archive: { payload: { map: { match: { ending: 'short' } } } } });
+    click(count === 3 ? '#four-board > [data-x="8"][data-y="4"]' : '#four-board > [data-x="2"][data-y="4"]');
+    click('[data-human-action="wait"]');
+    expect(query('#four-turn').textContent).toContain('1 commands');
+    click('#four-undo');
+    expect(query('#four-turn').textContent).toContain('0 commands');
+    click('[data-save-slot="0"]');
+    await vi.waitFor(() => expect(values.has(FOUR_ARMY_SAVE_KEYS[0])).toBe(true));
+    expect(JSON.parse(values.get(FOUR_ARMY_SAVE_KEYS[0])!).schemaVersion).toBe(5);
+    click('#four-menu');
+    change('#four-map', 'wide');
+    click('[data-load-slot="0"]');
+    await vi.waitFor(() => expect(query('#four-notice').textContent).toBe('Loaded and paused.'));
+    expect(query('#four-board').children).toHaveLength(252);
+    expect(query('#four-toggle').hidden).toBe(true);
+  });
+  it('keeps unlimited small settings separate from the wide four-army map', () => {
+    change('#four-map', 'compact');
+    change('#four-count', '3');
+    change('#four-ending', 'unlimited');
+    expect(query('.four-brief').textContent).toContain('No round-limit decision');
+    start();
+    expect(query('#four-turn').textContent).not.toContain('/20');
+    click('#four-menu');
+    change('#four-map', 'wide');
+    expect(query<HTMLSelectElement>('#four-count').disabled).toBe(true);
+    expect(query<HTMLSelectElement>('#four-count').value).toBe('4');
+    start();
+    expect(query('#four-board').children).toHaveLength(1024);
+  });
   const start = () => click('#four-start');
   beforeEach(() => {
     document.body.innerHTML = '';
@@ -93,6 +137,7 @@ describe('four-army spectator controller', () => {
     });
     screen.open();
     expect(query<HTMLSelectElement>('#four-mode').value).toBe('human');
+    change('#four-map', 'wide');
     change('#four-mode', 'spectator');
   });
   afterEach(() => {

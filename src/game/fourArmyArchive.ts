@@ -5,8 +5,8 @@ import type { GameResult } from './types';
 
 export interface FourArmyArchive {
   format: typeof FOUR_ARMY_ARCHIVES.saveFormat;
-  schemaVersion: 1 | 2 | 3;
-  ruleset: typeof FOUR_ARMY_ARCHIVES.ruleset | 'four-army-v2' | 'four-army-v3';
+  schemaVersion: 1 | 2 | 3 | 4;
+  ruleset: typeof FOUR_ARMY_ARCHIVES.ruleset | 'four-army-v2' | 'four-army-v3' | 'four-army-v4';
   payload: { map: FourArmyMap; commands: FourArmyCommand[]; state: FourArmyState };
 }
 const fail = (error: string): GameResult<never> => ({ ok: false, error });
@@ -34,7 +34,7 @@ export function serializeFourArmyArchive(map: FourArmyMap, commands: readonly Fo
     const text = JSON.stringify({
       format: FOUR_ARMY_ARCHIVES.saveFormat,
       schemaVersion: state.engineVersion,
-      ruleset: state.engineVersion === 1 ? FOUR_ARMY_ARCHIVES.ruleset : state.engineVersion === 2 ? 'four-army-v2' : 'four-army-v3',
+      ruleset: state.engineVersion === 1 ? FOUR_ARMY_ARCHIVES.ruleset : state.engineVersion === 2 ? 'four-army-v2' : state.engineVersion === 3 ? 'four-army-v3' : 'four-army-v4',
       payload: { map, commands, state },
     });
     const checked = parseFourArmyArchive(text);
@@ -71,7 +71,8 @@ export function* verifyFourArmyArchive(
     !(
       (v.schemaVersion === 1 && v.ruleset === FOUR_ARMY_ARCHIVES.ruleset) ||
       (v.schemaVersion === 2 && v.ruleset === 'four-army-v2') ||
-      (v.schemaVersion === 3 && v.ruleset === 'four-army-v3')
+      (v.schemaVersion === 3 && v.ruleset === 'four-army-v3') ||
+      (v.schemaVersion === 4 && v.ruleset === 'four-army-v4')
     ) ||
     !record(v.payload) ||
     !exact(v.payload, ['map', 'commands', 'state'])

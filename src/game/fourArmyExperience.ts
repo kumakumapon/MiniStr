@@ -1,3 +1,4 @@
+import { fourArmyParticipants } from './smallBattle';
 import { FOUR_ARMY_IDS, type FourArmyId } from './fourArmyFoundation';
 import { observeFourArmy, type FourArmyState, type FourArmyUnit, type FourArmyCommand } from './fourArmyEngine';
 import { unitStats } from './units';
@@ -159,6 +160,7 @@ function seen(state: FourArmyState, view: FourArmyExperienceView): Seen {
   let value = cache.get(view);
   if (!value) {
     if (view === 'all') value = { units: state.units };
+    else if (!fourArmyParticipants(state).includes(view)) value = { units: [], visible: new Set() };
     else {
       const o = observeFourArmy(state, view);
       if (!o.ok) throw Error(o.error);
@@ -174,7 +176,7 @@ const sighting = (u: FourArmyUnit, state: FourArmyState, at: number): FourArmySi
   kind: u.kind,
   hp: u.hp,
   position: { ...u.position! },
-  round: state.round.round,
+  round: state.decision?.round ?? state.round.round,
   at,
 });
 export function initialFourArmyExperience(state: FourArmyState, at: number): FourArmyExperience {
@@ -195,6 +197,7 @@ export function observedFourArmyEvent(
   view: FourArmyExperienceView,
   at: number,
 ): FourArmyObservedEvent | undefined {
+  if (view !== 'all' && !fourArmyParticipants(before).includes(view)) return;
   const base = { at, round: before.round.round, actor: command.actor, type: command.type };
   if (command.type === 'endTurn' || command.type === 'resume') return base;
   if (['recon', 'ambush', 'logistics', 'repairReserve'].includes(command.type) && view !== command.actor) return;
