@@ -78,9 +78,14 @@ jobs:
       - run: npm run lint
       - run: npm run format:check
       - run: npm run typecheck:test
-      - run: npm run test:coverage
+      # Both shards are required; run the identical Node 24 suites once on shard 1.
+      - name: Check full unit coverage
+        if: matrix.browser-shard == 1
+        run: npm run test:coverage
       - run: npm run build
-      - run: npm run test:ui
+      - name: Check the distributed UI
+        if: matrix.browser-shard == 1
+        run: npm run test:ui
       - name: Use Ubuntu HTTPS mirror for browser dependencies
         run: sudo bash scripts/use-ubuntu-https-mirror.sh
       - name: Install Playwright browsers
