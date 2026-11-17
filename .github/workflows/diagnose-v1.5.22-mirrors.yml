@@ -1,0 +1,26 @@
+name: Diagnose v1.5.22 Ubuntu mirrors
+on:
+  push:
+    branches: [diagnose/v1.5.22-mirrors]
+    paths: [.github/workflows/diagnose-v1.5.22-mirrors.yml]
+permissions: {}
+jobs:
+  probe:
+    if: github.repository == 'kumakumapon/MiniStr' && github.event_name == 'push' && github.ref == 'refs/heads/diagnose/v1.5.22-mirrors'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Probe signed Ubuntu index and a browser dependency
+        shell: bash
+        run: |
+          set -u
+          for base in https://mirrors.edge.kernel.org/ubuntu https://ubuntu.osuosl.org/ubuntu https://mirror.math.princeton.edu/pub/ubuntu https://archive.ubuntu.com/ubuntu https://security.ubuntu.com/ubuntu; do
+            for path in dists/resolute/InRelease pool/universe/f/fonts-ipafont/fonts-ipafont-gothic_00303-23ubuntu1_all.deb; do
+              echo "Probe ${base}/${path}"
+              if curl -4 -fsSLI --connect-timeout 5 --max-time 10 "${base}/${path}" -o /dev/null -w 'HTTP %{http_code} %{remote_ip}\n'; then
+                echo REACHABLE
+              else
+                echo UNREACHABLE
+              fi
+            done
+          done
