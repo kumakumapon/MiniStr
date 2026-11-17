@@ -1,0 +1,18 @@
+--- a/src/game/fourArmyEngine.ts
++++ b/src/game/fourArmyEngine.ts
+@@ -287,6 +287,15 @@
+     const income = incomePropertyCount(view, 'red') * 1000;
+     view = {
+       ...view,
++      board: {
++        ...view.board,
++        terrain: view.board.terrain.map((row, y) =>
++          row.map((t, x) => ({ ...t, owner: next.board.terrain[y]![x]!.owner && alliedArmies(next.match, actor, next.board.terrain[y]![x]!.owner!) ? 'red' : t.owner })),
++        ),
++      },
++    };
++    view = {
++      ...view,
+       units: view.units.map((u) => {
+         if (u.owner !== 'red') return u;
+         const next = { ...u, hasMoved: false, hasActed: false };

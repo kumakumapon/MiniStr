@@ -1,0 +1,16 @@
+{
+  "measurementEngineSha256": "0f6a6ea09863bc8f58e13a948cbb38cbcad0f2f0cfde6f6972c6b7ca1043cc9d",
+  "shippingEngineSha256": "6cf35dd13b578126481ed258d82bf08c31dd04f206146956861f0f2baccc81c4",
+  "reproductionPatch": "measurement-engine.patch",
+  "scope": "compact/holdout individual games and classic26 were measured before the allied-only upkeep correction. Applying the patch to the shipping engine reconstructs the measured engine byte-for-byte. The changed board mapping is the identity for all individual games.",
+  "finalEngineVerification": "First classic case: all16,895 commands and final state hash match. Team/water12, schema6 continuation16, legacy continuation16 and the baseline continuation use the shipping engine.",
+  "currentSourceHashes": {
+    "src/game/expandedBattleMap.ts": "9f9c1c831ae5d9454a2476e963b68a13609ce8fbe5c576b997fcbfcb22fa7f5d",
+    "src/game/smallBattle.ts": "a7a1dc7dab88b0c74d7ccf8703f3027186b2ab73f409bff2cff5835d70b103be",
+    "src/game/fourArmyEngine.ts": "6cf35dd13b578126481ed258d82bf08c31dd04f206146956861f0f2baccc81c4",
+    "src/game/fourArmyFoundation.ts": "7525e4df3fbcd47fb520d6d06ce2186b7ab70f38cbb0db64a7c853d0578a626a",
+    "src/ai/fourArmyCpu.ts": "bda095440414df4db56861bbaa54a12462a3e6c2c4d9b043633c3aed9635f137",
+    "src/ai/fourArmyObservation.ts": "7fcb8f402fb05f1d3062c00bb8e0ee281bb7979d9c6329cdb9bc6e521fe4b996",
+    "src/ai/fourArmyCpuOrder.ts": "a7e7500f3953e115cbe8de25b7bc95a057ba1bc38d9a9c47342a7028d7ffb45a"
+  }
+}

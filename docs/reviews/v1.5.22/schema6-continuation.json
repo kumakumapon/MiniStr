@@ -1,0 +1,347 @@
+{
+  "protocol": "multifaction-schema6-continuation-v1",
+  "sourceHashes": {
+    "src/game/fourArmyEngine.ts": "6cf35dd13b578126481ed258d82bf08c31dd04f206146956861f0f2baccc81c4",
+    "src/game/expandedBattleMap.ts": "9f9c1c831ae5d9454a2476e963b68a13609ce8fbe5c576b997fcbfcb22fa7f5d",
+    "src/game/smallBattle.ts": "a7a1dc7dab88b0c74d7ccf8703f3027186b2ab73f409bff2cff5835d70b103be",
+    "src/game/fourArmySpectatorSave.ts": "0d06d74312912c3a99bac12ae46f065e403cedac6431d07af1f27c912abf4378",
+    "src/game/fourArmyControlHistory.ts": "3585bf1f98d14fdfdb632107b694d5ed2f4956de9d3eb5ee0e7bda68fdc26475",
+    "src/game/fourArmyExperience.ts": "94d827399c78bce915b7ffa302fc331d7ce476966c64e993f928d561a17abc64",
+    "src/game/fourArmyCommandLog.ts": "581a6d9c30ac9d17dfd436058f4b0ee499e6f9db7ddeae117300715c389fe28c",
+    "src/ai/fourArmyCpu.ts": "bda095440414df4db56861bbaa54a12462a3e6c2c4d9b043633c3aed9635f137",
+    "src/ai/fourArmyObservation.ts": "7fcb8f402fb05f1d3062c00bb8e0ee281bb7979d9c6329cdb9bc6e521fe4b996"
+  },
+  "rows": [
+    {
+      "index": 0,
+      "map": "skirmish-multi-army3-army4-v2",
+      "participants": [
+        "army3",
+        "army4"
+      ],
+      "teams": false,
+      "prefix": 64,
+      "controlEvents": 1,
+      "bytes": 15691,
+      "savedStateSha256": "2a86aad1b06a3cbe36d4bda297d2ae3da7bf604368ed69e5fb238b6f93b15ad8",
+      "compared": 128,
+      "traceSha256": "52e5d77bb5b7ee65bca37ae614fa55be520d2a36f88112c5e7e930eca304a47a",
+      "finalStateSha256": "b06bcb3a1b38298301816c5422112a312342cb977bd1a2efab8c1d62e4b4cb09",
+      "outcome": {
+        "type": "ongoing"
+      }
+    },
+    {
+      "index": 1,
+      "map": "skirmish-multi-army2-army3-army4-v2",
+      "participants": [
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "teams": false,
+      "prefix": 64,
+      "controlEvents": 1,
+      "bytes": 18053,
+      "savedStateSha256": "71efca47f87c87df9c1e19dda258ed80c0a37c949d4a2171705ce809321d832c",
+      "compared": 128,
+      "traceSha256": "bf35fe5025da2f77e64e8dd8833f1fbab2abdb0ae7b09b8ab0b748eb391ca5eb",
+      "finalStateSha256": "1c32452ce188895f41088c12e1ee1a1d124639a310563cba2cae1d5abf0cbf17",
+      "outcome": {
+        "type": "ongoing"
+      }
+    },
+    {
+      "index": 2,
+      "map": "skirmish-multi-army1-army2-army3-army4-v2",
+      "participants": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "teams": false,
+      "prefix": 64,
+      "controlEvents": 1,
+      "bytes": 19907,
+      "savedStateSha256": "e2f600a5a4e013f9d9c659af1fe04e8d2122cd77ed9f97828b395f630f1275c7",
+      "compared": 128,
+      "traceSha256": "872e4d3430d839f51c8a3ba6121df737f1e21b94f2bf50868ae2333ec4f6381b",
+      "finalStateSha256": "4b0a1a84e47d199f11addde66b9e238143c94630b3e0b9dd7bfdeeb06d43ec89",
+      "outcome": {
+        "type": "ongoing"
+      }
+    },
+    {
+      "index": 3,
+      "map": "outpost-multi-army3-army4-v2",
+      "participants": [
+        "army3",
+        "army4"
+      ],
+      "teams": false,
+      "prefix": 64,
+      "controlEvents": 1,
+      "bytes": 15988,
+      "savedStateSha256": "faad83fe91309d7c62c1150ea797e07cbb13706a6a5fcae8325f5fa5dbcc3b49",
+      "compared": 128,
+      "traceSha256": "bee6a21702cb95c9d95bde618f962b3c4b184c6367dbe24ba5e64746eceb8459",
+      "finalStateSha256": "f1387e5b8dd00081094d3c2ba74920210b34e2f78bf151a3e5a5bfea067f6cd1",
+      "outcome": {
+        "type": "ongoing"
+      }
+    },
+    {
+      "index": 4,
+      "map": "outpost-multi-army2-army3-army4-v2",
+      "participants": [
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "teams": false,
+      "prefix": 64,
+      "controlEvents": 1,
+      "bytes": 18055,
+      "savedStateSha256": "4f78f6da29d33c0b9973187383bd11bf12e1183855418ee911ecff17bb6dfe7d",
+      "compared": 128,
+      "traceSha256": "bdcc5d7a24d040afcaa51812bf8f5ede97c88025e3ef4db0438c29295dc88b11",
+      "finalStateSha256": "3754d5c4d85edb7a75c5605db06d53b34f2636278acefcfae9fee6bdc8e5edb2",
+      "outcome": {
+        "type": "ongoing"
+      }
+    },
+    {
+      "index": 5,
+      "map": "outpost-multi-army1-army2-army3-army4-v2",
+      "participants": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "teams": false,
+      "prefix": 64,
+      "controlEvents": 1,
+      "bytes": 20160,
+      "savedStateSha256": "11e97414766e15919d6238ba8e5bb44340a23525fb05b0eff40ebd123ecf625d",
+      "compared": 128,
+      "traceSha256": "396f4cf003273af2685fffb7274a801b81374ac9f6bf4d3693c6b21b1f4876be",
+      "finalStateSha256": "3c159102121b6e5790dd0caf3008748753c8ccf48bbce6b4ac1cb71a59e732d8",
+      "outcome": {
+        "type": "ongoing"
+      }
+    },
+    {
+      "index": 6,
+      "map": "strait-multi-army3-army4-v2",
+      "participants": [
+        "army3",
+        "army4"
+      ],
+      "teams": false,
+      "prefix": 64,
+      "controlEvents": 1,
+      "bytes": 16091,
+      "savedStateSha256": "c7752b2b25845c75c3798998884735990877947fe2b2b34bd017ede25feef0d6",
+      "compared": 128,
+      "traceSha256": "ed436d8d197c94d017debad5c4cf7314c71b57bbbacd0d2476fced05cc2a2ef6",
+      "finalStateSha256": "aeb0afa058677734c62f970ca58dd5790b84c82fc66262266212eb8205bc6001",
+      "outcome": {
+        "type": "ongoing"
+      }
+    },
+    {
+      "index": 7,
+      "map": "strait-multi-army2-army3-army4-v2",
+      "participants": [
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "teams": false,
+      "prefix": 64,
+      "controlEvents": 1,
+      "bytes": 18088,
+      "savedStateSha256": "d48917d9fa78eaad3228a398fd81d6707334b646883e8594a4ecb4c1a2dd9c9f",
+      "compared": 128,
+      "traceSha256": "11c9a9b4024bb6e0a17b5e7ae6003a6f5aa9fdc87989ca20ff3a232ee9b07b36",
+      "finalStateSha256": "99aa1347893cb6faf1e20ccf9edb75bcf445d09c81d7bf538f19fdd6defec98a",
+      "outcome": {
+        "type": "ongoing"
+      }
+    },
+    {
+      "index": 8,
+      "map": "strait-multi-army1-army2-army3-army4-v2",
+      "participants": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "teams": false,
+      "prefix": 64,
+      "controlEvents": 1,
+      "bytes": 20234,
+      "savedStateSha256": "5ac1ba22ecc619c7ae2d51deeb63986cb0d1ef7366f5908bbfd0ff9ad0aa3229",
+      "compared": 128,
+      "traceSha256": "63e5aceeacc1846a06f0cca5fc12b6af841438e3e3c6565b578ed37758600a5f",
+      "finalStateSha256": "9993ad7e1cf73676c683a81db1693f1d6bb0d3d6887fdaa0d34d7bbf48bbabb9",
+      "outcome": {
+        "type": "ongoing"
+      }
+    },
+    {
+      "index": 9,
+      "map": "frontier-multi-army3-army4-v2",
+      "participants": [
+        "army3",
+        "army4"
+      ],
+      "teams": false,
+      "prefix": 64,
+      "controlEvents": 1,
+      "bytes": 44893,
+      "savedStateSha256": "9f04363ee79077abbd50f1e01478d1382908363bf38b31a91c6a3abc73cf99d9",
+      "compared": 128,
+      "traceSha256": "63e80cc5ebf1371887edf832fb58a892cbf19f9758fc71d8df1f0e13f57b0acb",
+      "finalStateSha256": "7f9e0baec0c95b9b2597aba797bb934d53982b3aafa904f86e569678c2dbd3b6",
+      "outcome": {
+        "type": "ongoing"
+      }
+    },
+    {
+      "index": 10,
+      "map": "frontier-multi-army2-army3-army4-v2",
+      "participants": [
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "teams": false,
+      "prefix": 64,
+      "controlEvents": 1,
+      "bytes": 47833,
+      "savedStateSha256": "edc2cf66b91131b03215f4684f73e1e640e6be827f5424e976f32a9d8c742273",
+      "compared": 128,
+      "traceSha256": "b3e6df71f28f974dfa560b549a7381b604b2efd1ff725d88ed1cf5def728ad9f",
+      "finalStateSha256": "b4712a9b8c608156f3d9fad1eb41afd023d3f39a60706ebd5315c69ca1645496",
+      "outcome": {
+        "type": "ongoing"
+      }
+    },
+    {
+      "index": 11,
+      "map": "frontier-multi-army1-army2-army3-army4-v2",
+      "participants": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "teams": false,
+      "prefix": 64,
+      "controlEvents": 1,
+      "bytes": 51024,
+      "savedStateSha256": "e118c2781c74cbf63c67e17529c73e1335911d0557042e8ad0de7404987a828b",
+      "compared": 128,
+      "traceSha256": "af9e75666ae4a6c9160180d4354672e36fa93abed4e5f376db73d81b078c670c",
+      "finalStateSha256": "6286c42a59ed7491e4370206e02cde305b75e73e968f4f87c5c7a22e6715566a",
+      "outcome": {
+        "type": "ongoing"
+      }
+    },
+    {
+      "index": 12,
+      "map": "skirmish-multi-army2-army3-army4-v2",
+      "participants": [
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "teams": true,
+      "prefix": 64,
+      "controlEvents": 1,
+      "bytes": 18233,
+      "savedStateSha256": "55725a87144768ed59b2c721136ac18d9d62e85dcd7cd3a1a74aaaa357026b10",
+      "compared": 128,
+      "traceSha256": "7965b393e785c018e2481fd84b68beb0ca3ab28b14b0fd23877c0232662a02ec",
+      "finalStateSha256": "c59d550a5ace75d1f64e38a9430c41da4d3e4d9001df261d8bc6dd78dee2c470",
+      "outcome": {
+        "type": "ongoing"
+      }
+    },
+    {
+      "index": 13,
+      "map": "skirmish-multi-army1-army2-army3-army4-v2",
+      "participants": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "teams": true,
+      "prefix": 64,
+      "controlEvents": 1,
+      "bytes": 20941,
+      "savedStateSha256": "ddde50f94eb30f2b215a65a42c3ebaf9ee7ca2c398a0b68dd90565eb34d0b568",
+      "compared": 128,
+      "traceSha256": "477a494a6942f9ea2c7d5af598829337516a57fd178a8ea2b6f3300ffc664245",
+      "finalStateSha256": "051a029375cc100d4cec2c0b6dc2a5fe3ead0d3c99b66790c2e952fa40ced4c9",
+      "outcome": {
+        "type": "ongoing"
+      }
+    },
+    {
+      "index": 14,
+      "map": "strait-multi-army2-army3-army4-v2",
+      "participants": [
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "teams": true,
+      "prefix": 64,
+      "controlEvents": 1,
+      "bytes": 18187,
+      "savedStateSha256": "919565fcdab79cedea395e7696e2882fc94dda1a9c723e3d4a514903ad24c543",
+      "compared": 128,
+      "traceSha256": "cb62b0ae666eacbba3f051b84ada70109a6c059a9b54c8277097e5babf3c7b30",
+      "finalStateSha256": "20b4919b654939d5790d17f38edfca63db72c25e568ae096ebc3e6209012e428",
+      "outcome": {
+        "type": "ongoing"
+      }
+    },
+    {
+      "index": 15,
+      "map": "strait-multi-army1-army2-army3-army4-v2",
+      "participants": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "teams": true,
+      "prefix": 64,
+      "controlEvents": 1,
+      "bytes": 21238,
+      "savedStateSha256": "52036d96e0175e58d0a850006fc5cb00d8343e76d4cc840ad9eab92c9e9e0ad3",
+      "compared": 128,
+      "traceSha256": "7c3313599c5f86e76c98a42097b5b9af1ede26ad2b43ad8e50a599ee60063c0c",
+      "finalStateSha256": "34cd4fc9ab9eb5dc85fd9395828af63e509ad240ab8a88e802de13d38d003d65",
+      "outcome": {
+        "type": "ongoing"
+      }
+    }
+  ],
+  "environment": {
+    "node": "24.19.0",
+    "vite": "7.3.6",
+    "vitest": "3.2.7",
+    "typescript": "5.9.3",
+    "playwright": "1.63.0",
+    "cpuQuota": 5,
+    "concurrency": "Shared host; 2–8 evaluation/test processes at different times. CPU timing is diagnostic, not physical-device response time."
+  }
+}

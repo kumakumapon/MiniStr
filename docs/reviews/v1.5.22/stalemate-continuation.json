@@ -1,0 +1,90 @@
+{
+  "protocol": "multifaction-stalemate-continuation-v1",
+  "inputStateSha256": "107e853e284bb49ff0d777705f80a7af81fd398984de8fb009d71736a503b560",
+  "maxAdditionalRounds": 100,
+  "sourceHashes": {
+    "src/game/fourArmyEngine.ts": "6cf35dd13b578126481ed258d82bf08c31dd04f206146956861f0f2baccc81c4",
+    "src/ai/fourArmyCpu.ts": "bda095440414df4db56861bbaa54a12462a3e6c2c4d9b043633c3aed9635f137",
+    "src/ai/fourArmyObservation.ts": "7fcb8f402fb05f1d3062c00bb8e0ee281bb7979d9c6329cdb9bc6e521fe4b996"
+  },
+  "initialBlockers": [
+    {
+      "id": "u814",
+      "kind": "tank",
+      "owner": "army4",
+      "position": {
+        "x": 12,
+        "y": 10
+      },
+      "hp": 82,
+      "fuel": 67,
+      "ammo": 6,
+      "hasMoved": true,
+      "hasActed": true,
+      "secondaryAmmo": 6,
+      "experience": 1
+    },
+    {
+      "id": "u833",
+      "kind": "tank",
+      "owner": "army4",
+      "position": {
+        "x": 3,
+        "y": 7
+      },
+      "hp": 100,
+      "fuel": 43,
+      "ammo": 6,
+      "hasMoved": true,
+      "hasActed": true,
+      "secondaryAmmo": 6
+    },
+    {
+      "id": "u837",
+      "kind": "apc",
+      "owner": "army2",
+      "position": {
+        "x": 21,
+        "y": 19
+      },
+      "hp": 100,
+      "fuel": 61,
+      "ammo": 6,
+      "hasMoved": true,
+      "hasActed": true,
+      "supplyStock": 54
+    }
+  ],
+  "rows": [
+    {
+      "cpuVersion": "four-army-cpu-v3",
+      "count": 4284,
+      "round": 501,
+      "outcome": {
+        "type": "ongoing"
+      },
+      "traceSha256": "2d6001c6f4dee33b9603307b5710111ff960ebb7ac16c819566303c845c53d92",
+      "finalStateSha256": "9724125b23eb7abd9ec6b4ada94106cc387effdb7cf44a7afd683719417e6bc9"
+    },
+    {
+      "cpuVersion": "four-army-cpu-v6",
+      "count": 930,
+      "round": 423,
+      "outcome": {
+        "type": "victory",
+        "winner": "army2"
+      },
+      "traceSha256": "e40a0a4dd12501a56f6f4831bd944640d46f340be3e1f29cfdb3ffd44839fca0",
+      "finalStateSha256": "4bf5b91b1757a63e8dd889872956aeac260900b3febfed238f2072ea584e8eb1"
+    }
+  ],
+  "environment": {
+    "node": "24.19.0",
+    "vite": "7.3.6",
+    "vitest": "3.2.7",
+    "typescript": "5.9.3",
+    "playwright": "1.63.0",
+    "cpuQuota": 5,
+    "concurrency": "Shared host; 2–8 evaluation/test processes at different times. CPU timing is diagnostic, not physical-device response time."
+  }
+}

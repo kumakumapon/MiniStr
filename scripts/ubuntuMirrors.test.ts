@@ -36,10 +36,8 @@ describe('Ubuntu HTTPS mirrors', () => {
       'apt-mirrors-security.txt': 'https://azure.archive.ubuntu.com/ubuntu\nhttp://security.ubuntu.com/ubuntu\n',
     });
     configure(directory);
-    expect(readFileSync(join(directory, 'apt-mirrors.txt'), 'utf8')).toBe(
-      'https://mirrors.edge.kernel.org/ubuntu\tpriority:1\nhttps://mirrors.edge.kernel.org/ubuntu\tpriority:2\n',
-    );
-    expect(readFileSync(join(directory, 'apt-mirrors-security.txt'), 'utf8')).toBe('https://mirrors.edge.kernel.org/ubuntu\nhttps://mirrors.edge.kernel.org/ubuntu\n');
+    expect(readFileSync(join(directory, 'apt-mirrors.txt'), 'utf8')).toBe('https://ubuntu.osuosl.org/ubuntu\tpriority:1\nhttps://ubuntu.osuosl.org/ubuntu\tpriority:2\n');
+    expect(readFileSync(join(directory, 'apt-mirrors-security.txt'), 'utf8')).toBe('https://ubuntu.osuosl.org/ubuntu\nhttps://ubuntu.osuosl.org/ubuntu\n');
     expect(readFileSync(join(directory, 'sources.list.d/ubuntu.sources'), 'utf8')).toBe(sources);
   });
 
@@ -51,10 +49,10 @@ describe('Ubuntu HTTPS mirrors', () => {
       'sources.list.d/other.list': 'deb https://packages.microsoft.com/repos/edge stable main\n',
     });
     configure(directory);
-    expect(readFileSync(join(directory, 'sources.list'), 'utf8')).toBe('deb https://mirrors.edge.kernel.org/ubuntu noble main\n');
-    expect(readFileSync(join(directory, 'sources.list.d/ubuntu.list'), 'utf8')).toBe('deb https://mirrors.edge.kernel.org/ubuntu noble-updates main\n');
+    expect(readFileSync(join(directory, 'sources.list'), 'utf8')).toBe('deb https://ubuntu.osuosl.org/ubuntu noble main\n');
+    expect(readFileSync(join(directory, 'sources.list.d/ubuntu.list'), 'utf8')).toBe('deb https://ubuntu.osuosl.org/ubuntu noble-updates main\n');
     expect(readFileSync(join(directory, 'sources.list.d/ubuntu.sources'), 'utf8')).toBe(
-      'URIs: https://mirrors.edge.kernel.org/ubuntu/\nSigned-By: /usr/share/keyrings/ubuntu-archive-keyring.gpg\n',
+      'URIs: https://ubuntu.osuosl.org/ubuntu/\nSigned-By: /usr/share/keyrings/ubuntu-archive-keyring.gpg\n',
     );
     expect(readFileSync(join(directory, 'sources.list.d/other.list'), 'utf8')).toBe('deb https://packages.microsoft.com/repos/edge stable main\n');
   });
@@ -67,7 +65,7 @@ describe('Ubuntu HTTPS mirrors', () => {
     });
     configure(directory);
     expect(readFileSync(join(directory, 'sources.list.d/security.sources'), 'utf8')).toBe(
-      'Types: deb\nURIs: https://mirrors.edge.kernel.org/ubuntu/\nSuites: resolute-security\nComponents: main universe\nSigned-By: /usr/share/keyrings/ubuntu-archive-keyring.gpg\n',
+      'Types: deb\nURIs: https://ubuntu.osuosl.org/ubuntu/\nSuites: resolute-security\nComponents: main universe\nSigned-By: /usr/share/keyrings/ubuntu-archive-keyring.gpg\n',
     );
     expect(readFileSync(join(directory, 'sources.list.d/other.list'), 'utf8')).toBe('deb https://archive.ubuntu.com/ubuntu-extra noble main\n');
   });
@@ -76,10 +74,24 @@ describe('Ubuntu HTTPS mirrors', () => {
     const directory = fixture({ 'apt-mirrors.txt': 'http://azure.archive.ubuntu.com/ubuntu\n' });
     configure(directory);
     configure(directory);
-    expect(readFileSync(join(directory, 'apt-mirrors.txt'), 'utf8')).toBe('https://mirrors.edge.kernel.org/ubuntu\n');
+    expect(readFileSync(join(directory, 'apt-mirrors.txt'), 'utf8')).toBe('https://ubuntu.osuosl.org/ubuntu\n');
     expect(() => configure(fixture({}))).not.toThrow();
   });
 
+  it('migrates the unreachable previous mirror without changing unrelated paths or signature keys', () => {
+    const directory = fixture({
+      'apt-mirrors.txt': 'https://mirrors.edge.kernel.org/ubuntu\tpriority:1\n',
+      'sources.list.d/ubuntu.sources': 'URIs: https://mirrors.edge.kernel.org/ubuntu/\nSigned-By: /usr/share/keyrings/ubuntu-archive-keyring.gpg\n',
+      'sources.list.d/other.list': 'deb https://mirrors.edge.kernel.org/ubuntu-extra noble main\n',
+    });
+    configure(directory);
+    configure(directory);
+    expect(readFileSync(join(directory, 'apt-mirrors.txt'), 'utf8')).toBe('https://ubuntu.osuosl.org/ubuntu\tpriority:1\n');
+    expect(readFileSync(join(directory, 'sources.list.d/ubuntu.sources'), 'utf8')).toBe(
+      'URIs: https://ubuntu.osuosl.org/ubuntu/\nSigned-By: /usr/share/keyrings/ubuntu-archive-keyring.gpg\n',
+    );
+    expect(readFileSync(join(directory, 'sources.list.d/other.list'), 'utf8')).toBe('deb https://mirrors.edge.kernel.org/ubuntu-extra noble main\n');
+  });
   it('runs the shared configuration before browser installation in the reusable CI', () => {
     const content = readFileSync(new URL('../.github/workflows/ci.yml', import.meta.url), 'utf8');
     const setup = content.indexOf('run: sudo bash scripts/use-ubuntu-https-mirror.sh');

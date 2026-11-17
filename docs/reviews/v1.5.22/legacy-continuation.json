@@ -1,0 +1,177 @@
+{
+  "protocol": "legacy-continuation-row-equivalence-v1",
+  "baseline": "../v1.5.21/legacy-continuation.json",
+  "matchedRows": 16,
+  "commandsPerPrefix": 512,
+  "commandsPerContinuation": 64,
+  "canonicalRowsSha256": "71fa7ed8c4fdc9572b573de9262ee8be98f889536dea57becef46968a4767d9c",
+  "sourceHashes": {
+    "src/ai/fourArmyCpu.ts": "bda095440414df4db56861bbaa54a12462a3e6c2c4d9b043633c3aed9635f137",
+    "src/ai/fourArmyObservation.ts": "7fcb8f402fb05f1d3062c00bb8e0ee281bb7979d9c6329cdb9bc6e521fe4b996",
+    "src/game/fourArmyEngine.ts": "6cf35dd13b578126481ed258d82bf08c31dd04f206146956861f0f2baccc81c4",
+    "src/game/fourArmyMap32.ts": "b1e0cba01bdaa58b25f9f195c7fca5501cedbef10398a96f047a3331b77ba7a6",
+    "src/game/fourArmyRules.ts": "09581ec81648b9f6b155832e870ed03cb659db85325adccea30931a3ef99aeaa"
+  },
+  "rows": [
+    {
+      "id": "settings-152003-0",
+      "rules": "classic",
+      "cpuVersion": "four-army-cpu-v3",
+      "prefixTraceSha256": "e07fb19f5276b504fc8ec6e8d138abc5155bbdaef0b62098a42bfbecadcd1968",
+      "savedStateSha256": "14d414bd8ee139756c7eb37f6a6ffcf89aa3eedb8d20c86c3668b0e314a2d959",
+      "continuationTraceSha256": "051fc0d19682a6b0326a3cec6c0fc066cced2b3f3b897a7f634f6ea4ff566e3e",
+      "finalStateSha256": "680114c8cf40f01c62368c255fc3351e3233df6e6a6875f86cb7ffdc976155f6",
+      "completeRowMatched": true
+    },
+    {
+      "id": "settings-152003-0",
+      "rules": "classic",
+      "cpuVersion": "four-army-cpu-v4",
+      "prefixTraceSha256": "e07fb19f5276b504fc8ec6e8d138abc5155bbdaef0b62098a42bfbecadcd1968",
+      "savedStateSha256": "14d414bd8ee139756c7eb37f6a6ffcf89aa3eedb8d20c86c3668b0e314a2d959",
+      "continuationTraceSha256": "051fc0d19682a6b0326a3cec6c0fc066cced2b3f3b897a7f634f6ea4ff566e3e",
+      "finalStateSha256": "680114c8cf40f01c62368c255fc3351e3233df6e6a6875f86cb7ffdc976155f6",
+      "completeRowMatched": true
+    },
+    {
+      "id": "settings-152003-0",
+      "rules": "expanded",
+      "cpuVersion": "four-army-cpu-v3",
+      "prefixTraceSha256": "b0fc4fd751744a82c4ebe8c1c69353c75d3353abb852ef899c4cd41353efb245",
+      "savedStateSha256": "595dbb7d72e7d267b1aa5838ef6992d7381584c129c35ebc6b9f35576ca528dc",
+      "continuationTraceSha256": "29a13a8af8f478fbdf687e492629699b27144403e79c3292b1291a50e65827f3",
+      "finalStateSha256": "59ef4b88ff067423851578966fc5968e7ac0f55f0a1cf70f443a9daec8271650",
+      "completeRowMatched": true
+    },
+    {
+      "id": "settings-152003-0",
+      "rules": "expanded",
+      "cpuVersion": "four-army-cpu-v4",
+      "prefixTraceSha256": "a3fb23b249e9d0083475bd6377c633818541b7a51c2af1a8dfdd77cd8488abc1",
+      "savedStateSha256": "2171a9313dcfa8d8e63ad9870ea7a0219382de61a4c92662914eea4aa2a247fc",
+      "continuationTraceSha256": "e79d04a6e88447e2e398956d866b93ee2017e21e4824107c084fe9d6c620a48b",
+      "finalStateSha256": "f0ff3a5a7e3eeb0010cf42f481cb6d53bb7dde33b24e322e05f70bb703f46ca9",
+      "completeRowMatched": true
+    },
+    {
+      "id": "settings-152003-1",
+      "rules": "classic",
+      "cpuVersion": "four-army-cpu-v3",
+      "prefixTraceSha256": "8d5e6bd9974ee075b8c9e3bd48f2b927706f2aa8500093153a75891c916c9a42",
+      "savedStateSha256": "e49c46264e4e0623b9b17ce570d6e50ff9b823649b1aa10ab6696213dfd30317",
+      "continuationTraceSha256": "901265d7e3d3576839d5558f540c324b1bb789dd08572864a99e91638ce1d28d",
+      "finalStateSha256": "391d7a7b2a747bea296be22f7368f1abbb082399d6c7539acdcf4fb865da6723",
+      "completeRowMatched": true
+    },
+    {
+      "id": "settings-152003-1",
+      "rules": "classic",
+      "cpuVersion": "four-army-cpu-v4",
+      "prefixTraceSha256": "8d5e6bd9974ee075b8c9e3bd48f2b927706f2aa8500093153a75891c916c9a42",
+      "savedStateSha256": "e49c46264e4e0623b9b17ce570d6e50ff9b823649b1aa10ab6696213dfd30317",
+      "continuationTraceSha256": "901265d7e3d3576839d5558f540c324b1bb789dd08572864a99e91638ce1d28d",
+      "finalStateSha256": "391d7a7b2a747bea296be22f7368f1abbb082399d6c7539acdcf4fb865da6723",
+      "completeRowMatched": true
+    },
+    {
+      "id": "settings-152003-1",
+      "rules": "expanded",
+      "cpuVersion": "four-army-cpu-v3",
+      "prefixTraceSha256": "8b19dcf6e3ca0049b408bb814c3255f4ebde3af3bbcc8e1f7b85a203ffdc9a7c",
+      "savedStateSha256": "2465a8741651f3708f0b4d7afba05f1ad1aab128cbca86dc7450f2d0e996f45f",
+      "continuationTraceSha256": "9dd2f7b77b663157c2714e261e087ab96638cc29f7ce3ef55d07a0b590c862b0",
+      "finalStateSha256": "33b1277f10bf82d1c018f172d6bed35dda7eb3e1d5a7e8d64f7cccf1ce13c04c",
+      "completeRowMatched": true
+    },
+    {
+      "id": "settings-152003-1",
+      "rules": "expanded",
+      "cpuVersion": "four-army-cpu-v4",
+      "prefixTraceSha256": "361d6acbf61045b2df45f3b36297723d7e549e5b6356396e742b0c27e4343c58",
+      "savedStateSha256": "7634a1fab3d6a45a27c2886995ee82d1f2c931d220b27fe7c389cd1d18a28658",
+      "continuationTraceSha256": "a78a905c8df6e91c6262ffec3f7d881d1b119e8d2ef6a3073015350582edec1a",
+      "finalStateSha256": "de434f11c138b9036afc706829505d75b8a7bf7bfbb49a6ca1c973daa34a5351",
+      "completeRowMatched": true
+    },
+    {
+      "id": "settings-152003-2",
+      "rules": "classic",
+      "cpuVersion": "four-army-cpu-v3",
+      "prefixTraceSha256": "fdc45c763401efd410f8ebf73704db7635a870c358f0eddf21fbfa2717c0d8de",
+      "savedStateSha256": "92f105e9b7321e71093a112cde312358aa8d177afca896ee2921f556de32ce88",
+      "continuationTraceSha256": "6c1b9351184f5d048cd02fa9ae5c714b58d17f616359b02ff765c9a97393adda",
+      "finalStateSha256": "57f73eff8e49993844f7d16831218f6b1301a810fe80d69b31ac94db328060d1",
+      "completeRowMatched": true
+    },
+    {
+      "id": "settings-152003-2",
+      "rules": "classic",
+      "cpuVersion": "four-army-cpu-v4",
+      "prefixTraceSha256": "fdc45c763401efd410f8ebf73704db7635a870c358f0eddf21fbfa2717c0d8de",
+      "savedStateSha256": "92f105e9b7321e71093a112cde312358aa8d177afca896ee2921f556de32ce88",
+      "continuationTraceSha256": "6c1b9351184f5d048cd02fa9ae5c714b58d17f616359b02ff765c9a97393adda",
+      "finalStateSha256": "57f73eff8e49993844f7d16831218f6b1301a810fe80d69b31ac94db328060d1",
+      "completeRowMatched": true
+    },
+    {
+      "id": "settings-152003-2",
+      "rules": "expanded",
+      "cpuVersion": "four-army-cpu-v3",
+      "prefixTraceSha256": "0080a841b6e8f239e71e90acc40a1482c1ee8510f7e311bde89e1792208a0bac",
+      "savedStateSha256": "2fd5aec6521bc4e02a08b97fe2c8a2774f1dfc8cc61d9b3b9045be6140963f36",
+      "continuationTraceSha256": "2143d6ca4c934b1a7b36898839168c6f81714810184e125ff1b65f452fe02ff9",
+      "finalStateSha256": "b8b067b42d50d2e052808824a1edd8e40fbed10976a151d25075ccebc2545ab2",
+      "completeRowMatched": true
+    },
+    {
+      "id": "settings-152003-2",
+      "rules": "expanded",
+      "cpuVersion": "four-army-cpu-v4",
+      "prefixTraceSha256": "db47afc5f4f4a0c96999aecf7023d7c4fc93d858d84763ed3bba31ee9b9c27ac",
+      "savedStateSha256": "06b1d98a90fa6910f362e5855056463f5495d2714dc93e5fc1ae19eb50bfe1cc",
+      "continuationTraceSha256": "b4597d58c535fd941f1c5ea9fb820f431ca0da307b8964343f2bd2eba928f68c",
+      "finalStateSha256": "6682add1eaa6792e0fb25130a97eaf7e8cc306d98ad1c5c91c62180e5cc121e5",
+      "completeRowMatched": true
+    },
+    {
+      "id": "settings-152003-3",
+      "rules": "classic",
+      "cpuVersion": "four-army-cpu-v3",
+      "prefixTraceSha256": "46e7ce4c95979659c4e2637791bb18528c344c256f149fbc1d4c523192913eb0",
+      "savedStateSha256": "6a1fd05aff52180593efa18cd943540673813514b77c0ad55379ab919955f07f",
+      "continuationTraceSha256": "487fed1459715edddf0f50ae2830120d38710b9cd348aa806d48c775dbc164fc",
+      "finalStateSha256": "5a4caca1f86422d7732616960be9ad08dae39d687a7e267c4d7f09d56920b36a",
+      "completeRowMatched": true
+    },
+    {
+      "id": "settings-152003-3",
+      "rules": "classic",
+      "cpuVersion": "four-army-cpu-v4",
+      "prefixTraceSha256": "46e7ce4c95979659c4e2637791bb18528c344c256f149fbc1d4c523192913eb0",
+      "savedStateSha256": "6a1fd05aff52180593efa18cd943540673813514b77c0ad55379ab919955f07f",
+      "continuationTraceSha256": "487fed1459715edddf0f50ae2830120d38710b9cd348aa806d48c775dbc164fc",
+      "finalStateSha256": "5a4caca1f86422d7732616960be9ad08dae39d687a7e267c4d7f09d56920b36a",
+      "completeRowMatched": true
+    },
+    {
+      "id": "settings-152003-3",
+      "rules": "expanded",
+      "cpuVersion": "four-army-cpu-v3",
+      "prefixTraceSha256": "340c8f997efc83b8c7b13dd5678f44e724df42ca19cd85f00f64833ccf194ee8",
+      "savedStateSha256": "315454d22a03f1df30b23d6af93fba332b01157c3788816f78e1eb7d69728ce6",
+      "continuationTraceSha256": "0409c38863349086d3382084c86a9bc95675b4db41b5ecedb2dd0f8c2318db72",
+      "finalStateSha256": "82011ab05924a362646821df6bf15b92728ba8b9e24efd5f12d1678085d58c5e",
+      "completeRowMatched": true
+    },
+    {
+      "id": "settings-152003-3",
+      "rules": "expanded",
+      "cpuVersion": "four-army-cpu-v4",
+      "prefixTraceSha256": "e1a7164c3f85668f0637751fc72b75561ea5d530b27ae55de060c3fed4e019fa",
+      "savedStateSha256": "4d2f937d053f0e17caf14fe17726eaa9eb1e0dc8f0f3e105d42a8aa1f282587f",
+      "continuationTraceSha256": "84261b3d64489d32ceee6065ab0773ebc8707ba8f32dfa5944d4fcc2ca785888",
+      "finalStateSha256": "f8c3fbc31f70797f3c3993b157916b5781461158e52ea96232c2488edf72b492",
+      "completeRowMatched": true
+    }
+  ]
+}

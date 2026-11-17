@@ -49,3 +49,31 @@ it('retains a defeated controller when importing and replaying a verified record
     expect(parseFourArmySpectatorSave(encoded.value)).toEqual({ ok: true, value: source });
   }
 });
+
+it('records an explicit controller change without changing a legacy CPU or command prefix', async () => {
+  const { fourArmyControllers } = await import('./fourArmyControl');
+  const { fourArmyExperienceManifest, emptyFourArmyExperience } = await import('./fourArmyExperience');
+  const old = fourArmySpectatorFixture(2),
+    controllers = fourArmyControllers(['army1']);
+  const save: FourArmySpectatorSave = {
+    ...old,
+    format: 'ministr-four-army-configurable',
+    schemaVersion: 6,
+    controllers,
+    experience: fourArmyExperienceManifest(emptyFourArmyExperience()),
+    view: 'army1',
+    controlHistory: { initial: fourArmyControllers(), events: [{ at: 2, army: 'army1', from: 'cpu', to: 'human' }] },
+  };
+  const loaded = parseFourArmySpectatorSave(
+    (() => {
+      const v = serializeFourArmySpectatorSave(save);
+      if (!v.ok) throw Error(v.error);
+      return v.value;
+    })(),
+  );
+  expect(loaded.ok).toBe(true);
+  if (loaded.ok) {
+    expect(loaded.value.cpuVersion).toBe(old.cpuVersion);
+    expect(loaded.value.archive).toEqual(old.archive);
+  }
+});

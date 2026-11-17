@@ -1,0 +1,7760 @@
+{
+  "protocol": "multifaction-v1522-v1",
+  "mode": "holdout",
+  "shard": 0,
+  "shards": 1,
+  "seeds": [
+    152204,
+    152205
+  ],
+  "sourceHashes": {
+    "src/game/expandedBattleMap.ts": "9f9c1c831ae5d9454a2476e963b68a13609ce8fbe5c576b997fcbfcb22fa7f5d",
+    "src/game/smallBattle.ts": "a7a1dc7dab88b0c74d7ccf8703f3027186b2ab73f409bff2cff5835d70b103be",
+    "src/game/fourArmyEngine.ts": "0f6a6ea09863bc8f58e13a948cbb38cbcad0f2f0cfde6f6972c6b7ca1043cc9d",
+    "src/game/fourArmyFoundation.ts": "7525e4df3fbcd47fb520d6d06ce2186b7ab70f38cbb0db64a7c853d0578a626a",
+    "src/ai/fourArmyCpu.ts": "bda095440414df4db56861bbaa54a12462a3e6c2c4d9b043633c3aed9635f137",
+    "src/ai/fourArmyObservation.ts": "7fcb8f402fb05f1d3062c00bb8e0ee281bb7979d9c6329cdb9bc6e521fe4b996",
+    "src/ai/fourArmyCpuOrder.ts": "a7e7500f3953e115cbe8de25b7bc95a057ba1bc38d9a9c47342a7028d7ffb45a"
+  },
+  "rows": [
+    {
+      "id": "green-3-152204-army1army2army3-false",
+      "seed": 152204,
+      "order": [
+        "army1",
+        "army2",
+        "army3"
+      ],
+      "match": {
+        "version": 2,
+        "sourceMapId": "skirmish",
+        "layoutVersion": 2,
+        "participants": [
+          "army1",
+          "army2",
+          "army3"
+        ],
+        "initialOrder": [
+          "army1",
+          "army2",
+          "army3"
+        ],
+        "initiative": "rotating",
+        "ending": "short",
+        "roundLimit": 21,
+        "teams": {
+          "army1": "army1",
+          "army2": "army2",
+          "army3": "army3"
+        },
+        "sharedVision": false
+      },
+      "rules": {
+        "version": 1,
+        "tactics": false
+      },
+      "cpuVersion": "four-army-cpu-v6",
+      "count": 560,
+      "round": 22,
+      "outcome": {
+        "type": "victory",
+        "winner": "army2"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army3"
+      ],
+      "eliminations": [],
+      "fallbacks": 1,
+      "traceSha256": "e2d6e4521993648106afc99e3a99b82332f1054d0214c0a1f5a3ad5961889cd2",
+      "stateSha256": "14c6980f957b1a5698767f1218f8ded0d525659beedd4a50727ee53a18da7652",
+      "seconds": 3.2507768200000005,
+      "cpuMs": {
+        "p95": 10.709214999999858,
+        "max": 63.354011999999784
+      }
+    },
+    {
+      "id": "green-3-152204-army1army2army3-true",
+      "seed": 152204,
+      "order": [
+        "army1",
+        "army2",
+        "army3"
+      ],
+      "match": {
+        "version": 2,
+        "sourceMapId": "skirmish",
+        "layoutVersion": 2,
+        "participants": [
+          "army1",
+          "army2",
+          "army3"
+        ],
+        "initialOrder": [
+          "army1",
+          "army2",
+          "army3"
+        ],
+        "initiative": "rotating",
+        "ending": "short",
+        "roundLimit": 21,
+        "teams": {
+          "army1": "army1",
+          "army2": "army2",
+          "army3": "army3"
+        },
+        "sharedVision": false
+      },
+      "rules": {
+        "version": 1,
+        "tactics": true
+      },
+      "cpuVersion": "four-army-cpu-v6",
+      "count": 493,
+      "round": 22,
+      "outcome": {
+        "type": "victory",
+        "winner": "army2"
+      },
+      "alive": [
+        "army2",
+        "army3"
+      ],
+      "eliminations": [
+        {
+          "army": "army1",
+          "round": 12
+        }
+      ],
+      "fallbacks": 0,
+      "traceSha256": "b6a7ed13c40f3abce9fcdc1cf39fa0b11c3601f421289d1d1251df1c1fc2c385",
+      "stateSha256": "e3b70cc56bff2d416d591bf6ba5afe69ee3b862451f7917746ba1cd69a21fb7e",
+      "seconds": 2.6459634199999993,
+      "cpuMs": {
+        "p95": 15.021877000000131,
+        "max": 65.06966900000043
+      }
+    },
+    {
+      "id": "green-3-152205-army1army2army3-false",
+      "seed": 152205,
+      "order": [
+        "army1",
+        "army2",
+        "army3"
+      ],
+      "match": {
+        "version": 2,
+        "sourceMapId": "skirmish",
+        "layoutVersion": 2,
+        "participants": [
+          "army1",
+          "army2",
+          "army3"
+        ],
+        "initialOrder": [
+          "army1",
+          "army2",
+          "army3"
+        ],
+        "initiative": "rotating",
+        "ending": "short",
+        "roundLimit": 21,
+        "teams": {
+          "army1": "army1",
+          "army2": "army2",
+          "army3": "army3"
+        },
+        "sharedVision": false
+      },
+      "rules": {
+        "version": 1,
+        "tactics": false
+      },
+      "cpuVersion": "four-army-cpu-v6",
+      "count": 539,
+      "round": 22,
+      "outcome": {
+        "type": "victory",
+        "winner": "army2"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army3"
+      ],
+      "eliminations": [],
+      "fallbacks": 4,
+      "traceSha256": "978421e107dc17ddad73af316c9857a48a31d6ed4f33cbdbbcf3b24c0d6c18f4",
+      "stateSha256": "3880973b33b0f7d3727c0f33d7872871ad558f052d4b3a5c4ff93f1329c1e454",
+      "seconds": 2.404154283,
+      "cpuMs": {
+        "p95": 7.754805999999007,
+        "max": 36.455691000001025
+      }
+    },
+    {
+      "id": "green-3-152205-army1army2army3-true",
+      "seed": 152205,
+      "order": [
+        "army1",
+        "army2",
+        "army3"
+      ],
+      "match": {
+        "version": 2,
+        "sourceMapId": "skirmish",
+        "layoutVersion": 2,
+        "participants": [
+          "army1",
+          "army2",
+          "army3"
+        ],
+        "initialOrder": [
+          "army1",
+          "army2",
+          "army3"
+        ],
+        "initiative": "rotating",
+        "ending": "short",
+        "roundLimit": 21,
+        "teams": {
+          "army1": "army1",
+          "army2": "army2",
+          "army3": "army3"
+        },
+        "sharedVision": false
+      },
+      "rules": {
+        "version": 1,
+        "tactics": true
+      },
+      "cpuVersion": "four-army-cpu-v6",
+      "count": 571,
+      "round": 22,
+      "outcome": {
+        "type": "victory",
+        "winner": "army3"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army3"
+      ],
+      "eliminations": [],
+      "fallbacks": 1,
+      "traceSha256": "c1294f35179a2141618955a048afd1818360008bedf9645c1f2ea5feb159540a",
+      "stateSha256": "28b130d3976288981d79c753fb8e534e22918373ecfdbe6354d63f331938f8e0",
+      "seconds": 2.2472645350000002,
+      "cpuMs": {
+        "p95": 6.168857999999091,
+        "max": 32.57435700000133
+      }
+    },
+    {
+      "id": "green-3-152204-army1army3army2-false",
+      "seed": 152204,
+      "order": [
+        "army1",
+        "army3",
+        "army2"
+      ],
+      "match": {
+        "version": 2,
+        "sourceMapId": "skirmish",
+        "layoutVersion": 2,
+        "participants": [
+          "army1",
+          "army2",
+          "army3"
+        ],
+        "initialOrder": [
+          "army1",
+          "army3",
+          "army2"
+        ],
+        "initiative": "rotating",
+        "ending": "short",
+        "roundLimit": 21,
+        "teams": {
+          "army1": "army1",
+          "army2": "army2",
+          "army3": "army3"
+        },
+        "sharedVision": false
+      },
+      "rules": {
+        "version": 1,
+        "tactics": false
+      },
+      "cpuVersion": "four-army-cpu-v6",
+      "count": 587,
+      "round": 22,
+      "outcome": {
+        "type": "victory",
+        "winner": "army2"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army3"
+      ],
+      "eliminations": [],
+      "fallbacks": 1,
+      "traceSha256": "70966b1cc13627481efe0d1e0ab20554c3bf31241d29b57d1a680e2e5b23bf50",
+      "stateSha256": "4dbd7f0c1a17e0ebe5dfaef3b4a45f5d2e56fad1fb1bfcb91085a2f67c4f8481",
+      "seconds": 3.0637922610000006,
+      "cpuMs": {
+        "p95": 11.570953999998892,
+        "max": 34.42155199999979
+      }
+    },
+    {
+      "id": "green-3-152204-army1army3army2-true",
+      "seed": 152204,
+      "order": [
+        "army1",
+        "army3",
+        "army2"
+      ],
+      "match": {
+        "version": 2,
+        "sourceMapId": "skirmish",
+        "layoutVersion": 2,
+        "participants": [
+          "army1",
+          "army2",
+          "army3"
+        ],
+        "initialOrder": [
+          "army1",
+          "army3",
+          "army2"
+        ],
+        "initiative": "rotating",
+        "ending": "short",
+        "roundLimit": 21,
+        "teams": {
+          "army1": "army1",
+          "army2": "army2",
+          "army3": "army3"
+        },
+        "sharedVision": false
+      },
+      "rules": {
+        "version": 1,
+        "tactics": true
+      },
+      "cpuVersion": "four-army-cpu-v6",
+      "count": 494,
+      "round": 22,
+      "outcome": {
+        "type": "victory",
+        "winner": "army2"
+      },
+      "alive": [
+        "army1",
+        "army2"
+      ],
+      "eliminations": [
+        {
+          "army": "army3",
+          "round": 12
+        }
+      ],
+      "fallbacks": 3,
+      "traceSha256": "11d0a6d2e5727c7b3e8fc707101d08b7e5d87993108b90893ee499b691422427",
+      "stateSha256": "ea3c51f79c78f8eb731dd222d960fce2ba5a1f01087922f9f30a6bc22581900c",
+      "seconds": 2.2052875620000014,
+      "cpuMs": {
+        "p95": 7.425601999999344,
+        "max": 32.939009999998234
+      }
+    },
+    {
+      "id": "green-3-152205-army1army3army2-false",
+      "seed": 152205,
+      "order": [
+        "army1",
+        "army3",
+        "army2"
+      ],
+      "match": {
+        "version": 2,
+        "sourceMapId": "skirmish",
+        "layoutVersion": 2,
+        "participants": [
+          "army1",
+          "army2",
+          "army3"
+        ],
+        "initialOrder": [
+          "army1",
+          "army3",
+          "army2"
+        ],
+        "initiative": "rotating",
+        "ending": "short",
+        "roundLimit": 21,
+        "teams": {
+          "army1": "army1",
+          "army2": "army2",
+          "army3": "army3"
+        },
+        "sharedVision": false
+      },
+      "rules": {
+        "version": 1,
+        "tactics": false
+      },
+      "cpuVersion": "four-army-cpu-v6",
+      "count": 478,
+      "round": 22,
+      "outcome": {
+        "type": "victory",
+        "winner": "army2"
+      },
+      "alive": [
+        "army2",
+        "army3"
+      ],
+      "eliminations": [
+        {
+          "army": "army1",
+          "round": 11
+        }
+      ],
+      "fallbacks": 1,
+      "traceSha256": "0230a401991e534343252cfe9817b08756a244db6d5f1fae3a87e7b41850de5f",
+      "stateSha256": "670d01da74a222c8f4f29ab4293c5da25aa07f5378c78d9ce50f67f7e45f7c21",
+      "seconds": 3.5167923850000005,
+      "cpuMs": {
+        "p95": 20.756657000001724,
+        "max": 39.64464299999963
+      }
+    },
+    {
+      "id": "green-3-152205-army1army3army2-true",
+      "seed": 152205,
+      "order": [
+        "army1",
+        "army3",
+        "army2"
+      ],
+      "match": {
+        "version": 2,
+        "sourceMapId": "skirmish",
+        "layoutVersion": 2,
+        "participants": [
+          "army1",
+          "army2",
+          "army3"
+        ],
+        "initialOrder": [
+          "army1",
+          "army3",
+          "army2"
+        ],
+        "initiative": "rotating",
+        "ending": "short",
+        "roundLimit": 21,
+        "teams": {
+          "army1": "army1",
+          "army2": "army2",
+          "army3": "army3"
+        },
+        "sharedVision": false
+      },
+      "rules": {
+        "version": 1,
+        "tactics": true
+      },
+      "cpuVersion": "four-army-cpu-v6",
+      "count": 571,
+      "round": 22,
+      "outcome": {
+        "type": "victory",
+        "winner": "army3"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army3"
+      ],
+      "eliminations": [],
+      "fallbacks": 4,
+      "traceSha256": "095e068e66e71bb382c08afbcbea7899e71577e2154dd92f174a66c9f1f3ccd9",
+      "stateSha256": "f8c2265285a85f09e1464eef7fafb8659a8c715cee5371df6b231cae07957017",
+      "seconds": 4.576800836999999,
+      "cpuMs": {
+        "p95": 13.987944000000425,
+        "max": 45.22647499999948
+      }
+    },
+    {
+      "id": "green-3-152204-army2army1army3-false",
+      "seed": 152204,
+      "order": [
+        "army2",
+        "army1",
+        "army3"
+      ],
+      "match": {
+        "version": 2,
+        "sourceMapId": "skirmish",
+        "layoutVersion": 2,
+        "participants": [
+          "army1",
+          "army2",
+          "army3"
+        ],
+        "initialOrder": [
+          "army2",
+          "army1",
+          "army3"
+        ],
+        "initiative": "rotating",
+        "ending": "short",
+        "roundLimit": 21,
+        "teams": {
+          "army1": "army1",
+          "army2": "army2",
+          "army3": "army3"
+        },
+        "sharedVision": false
+      },
+      "rules": {
+        "version": 1,
+        "tactics": false
+      },
+      "cpuVersion": "four-army-cpu-v6",
+      "count": 567,
+      "round": 22,
+      "outcome": {
+        "type": "victory",
+        "winner": "army2"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army3"
+      ],
+      "eliminations": [],
+      "fallbacks": 7,
+      "traceSha256": "70c7ca178c4ffff6a59e7cb01ca9461000b387e0c067ce8a6f5542ee95d4149f",
+      "stateSha256": "aede363f459adf96571cb3ad487095a02247cee4637f47df208ab4396e5c87a9",
+      "seconds": 4.287098901000001,
+      "cpuMs": {
+        "p95": 21.350651000000653,
+        "max": 34.30903899999976
+      }
+    },
+    {
+      "id": "green-3-152204-army2army1army3-true",
+      "seed": 152204,
+      "order": [
+        "army2",
+        "army1",
+        "army3"
+      ],
+      "match": {
+        "version": 2,
+        "sourceMapId": "skirmish",
+        "layoutVersion": 2,
+        "participants": [
+          "army1",
+          "army2",
+          "army3"
+        ],
+        "initialOrder": [
+          "army2",
+          "army1",
+          "army3"
+        ],
+        "initiative": "rotating",
+        "ending": "short",
+        "roundLimit": 21,
+        "teams": {
+          "army1": "army1",
+          "army2": "army2",
+          "army3": "army3"
+        },
+        "sharedVision": false
+      },
+      "rules": {
+        "version": 1,
+        "tactics": true
+      },
+      "cpuVersion": "four-army-cpu-v6",
+      "count": 567,
+      "round": 22,
+      "outcome": {
+        "type": "victory",
+        "winner": "army2"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army3"
+      ],
+      "eliminations": [],
+      "fallbacks": 2,
+      "traceSha256": "d1354f7e29d869443b66092b37191624530e5fb2e3dd86534150c4aab72a82e6",
+      "stateSha256": "a24c93ebff442747904d22172dacfd4896d7a52e3d2d98257ae6d73673fb67bc",
+      "seconds": 4.801240226000002,
+      "cpuMs": {
+        "p95": 22.20361600000615,
+        "max": 46.853909999997995
+      }
+    },
+    {
+      "id": "green-3-152205-army2army1army3-false",
+      "seed": 152205,
+      "order": [
+        "army2",
+        "army1",
+        "army3"
+      ],
+      "match": {
+        "version": 2,
+        "sourceMapId": "skirmish",
+        "layoutVersion": 2,
+        "participants": [
+          "army1",
+          "army2",
+          "army3"
+        ],
+        "initialOrder": [
+          "army2",
+          "army1",
+          "army3"
+        ],
+        "initiative": "rotating",
+        "ending": "short",
+        "roundLimit": 21,
+        "teams": {
+          "army1": "army1",
+          "army2": "army2",
+          "army3": "army3"
+        },
+        "sharedVision": false
+      },
+      "rules": {
+        "version": 1,
+        "tactics": false
+      },
+      "cpuVersion": "four-army-cpu-v6",
+      "count": 568,
+      "round": 22,
+      "outcome": {
+        "type": "victory",
+        "winner": "army2"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army3"
+      ],
+      "eliminations": [],
+      "fallbacks": 4,
+      "traceSha256": "83accb8573c3c885d3965dbd0926f4ac1d8b54ae0f7de775c8a8ca3a54d5b718",
+      "stateSha256": "f2e772c5d62c75251402b8746c31beee36edf43c3ed892a77b8e91ec616744c6",
+      "seconds": 5.272082268999998,
+      "cpuMs": {
+        "p95": 16.29866200000106,
+        "max": 37.771796000000904
+      }
+    },
+    {
+      "id": "green-3-152205-army2army1army3-true",
+      "seed": 152205,
+      "order": [
+        "army2",
+        "army1",
+        "army3"
+      ],
+      "match": {
+        "version": 2,
+        "sourceMapId": "skirmish",
+        "layoutVersion": 2,
+        "participants": [
+          "army1",
+          "army2",
+          "army3"
+        ],
+        "initialOrder": [
+          "army2",
+          "army1",
+          "army3"
+        ],
+        "initiative": "rotating",
+        "ending": "short",
+        "roundLimit": 21,
+        "teams": {
+          "army1": "army1",
+          "army2": "army2",
+          "army3": "army3"
+        },
+        "sharedVision": false
+      },
+      "rules": {
+        "version": 1,
+        "tactics": true
+      },
+      "cpuVersion": "four-army-cpu-v6",
+      "count": 545,
+      "round": 22,
+      "outcome": {
+        "type": "victory",
+        "winner": "army3"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army3"
+      ],
+      "eliminations": [],
+      "fallbacks": 0,
+      "traceSha256": "563bd31c738cc8d3f1586154e66a0a8c0dd1bcbeb9c09bd0bda0c59b4397122a",
+      "stateSha256": "7d6762aff35268d0d29f743bd8421de31e71b6d86d474b5ab8be36f730290944",
+      "seconds": 4.556481086000007,
+      "cpuMs": {
+        "p95": 21.3968789999999,
+        "max": 34.04457299999922
+      }
+    },
+    {
+      "id": "green-3-152204-army2army3army1-false",
+      "seed": 152204,
+      "order": [
+        "army2",
+        "army3",
+        "army1"
+      ],
+      "match": {
+        "version": 2,
+        "sourceMapId": "skirmish",
+        "layoutVersion": 2,
+        "participants": [
+          "army1",
+          "army2",
+          "army3"
+        ],
+        "initialOrder": [
+          "army2",
+          "army3",
+          "army1"
+        ],
+        "initiative": "rotating",
+        "ending": "short",
+        "roundLimit": 21,
+        "teams": {
+          "army1": "army1",
+          "army2": "army2",
+          "army3": "army3"
+        },
+        "sharedVision": false
+      },
+      "rules": {
+        "version": 1,
+        "tactics": false
+      },
+      "cpuVersion": "four-army-cpu-v6",
+      "count": 551,
+      "round": 22,
+      "outcome": {
+        "type": "victory",
+        "winner": "army2"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army3"
+      ],
+      "eliminations": [],
+      "fallbacks": 6,
+      "traceSha256": "2c2b3d44298c38d3ade18c5770e96998788406ed55ee31f4c41a6f458a73d486",
+      "stateSha256": "8c958db3887c20c1fdb6ec291990def504bd8302964d4fc256a1dd927a3a02a2",
+      "seconds": 4.915002246999997,
+      "cpuMs": {
+        "p95": 24.355963999994856,
+        "max": 47.08214399999997
+      }
+    },
+    {
+      "id": "green-3-152204-army2army3army1-true",
+      "seed": 152204,
+      "order": [
+        "army2",
+        "army3",
+        "army1"
+      ],
+      "match": {
+        "version": 2,
+        "sourceMapId": "skirmish",
+        "layoutVersion": 2,
+        "participants": [
+          "army1",
+          "army2",
+          "army3"
+        ],
+        "initialOrder": [
+          "army2",
+          "army3",
+          "army1"
+        ],
+        "initiative": "rotating",
+        "ending": "short",
+        "roundLimit": 21,
+        "teams": {
+          "army1": "army1",
+          "army2": "army2",
+          "army3": "army3"
+        },
+        "sharedVision": false
+      },
+      "rules": {
+        "version": 1,
+        "tactics": true
+      },
+      "cpuVersion": "four-army-cpu-v6",
+      "count": 588,
+      "round": 22,
+      "outcome": {
+        "type": "victory",
+        "winner": "army2"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army3"
+      ],
+      "eliminations": [],
+      "fallbacks": 3,
+      "traceSha256": "22c6775ee03e58e3b6d10f1913ee35a3685e0af39dd94ab89f7c205ff7113d7b",
+      "stateSha256": "2d7022a04c6d475a30118973debf8acebeaf172dfd3f1112adabc3cdae6d5318",
+      "seconds": 4.488053499000001,
+      "cpuMs": {
+        "p95": 22.11838500000158,
+        "max": 49.24306900000374
+      }
+    },
+    {
+      "id": "green-3-152205-army2army3army1-false",
+      "seed": 152205,
+      "order": [
+        "army2",
+        "army3",
+        "army1"
+      ],
+      "match": {
+        "version": 2,
+        "sourceMapId": "skirmish",
+        "layoutVersion": 2,
+        "participants": [
+          "army1",
+          "army2",
+          "army3"
+        ],
+        "initialOrder": [
+          "army2",
+          "army3",
+          "army1"
+        ],
+        "initiative": "rotating",
+        "ending": "short",
+        "roundLimit": 21,
+        "teams": {
+          "army1": "army1",
+          "army2": "army2",
+          "army3": "army3"
+        },
+        "sharedVision": false
+      },
+      "rules": {
+        "version": 1,
+        "tactics": false
+      },
+      "cpuVersion": "four-army-cpu-v6",
+      "count": 556,
+      "round": 22,
+      "outcome": {
+        "type": "victory",
+        "winner": "army2"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army3"
+      ],
+      "eliminations": [],
+      "fallbacks": 2,
+      "traceSha256": "c963d18c4881e406a3f83e39da306affeca7be43172868c54e5fe82116c20ccc",
+      "stateSha256": "4e48c2083231510ec2231b001c36a91ee32962613875e0bcdff278e2320500b1",
+      "seconds": 4.709035325999998,
+      "cpuMs": {
+        "p95": 20.543384000004153,
+        "max": 38.50094800000079
+      }
+    },
+    {
+      "id": "green-3-152205-army2army3army1-true",
+      "seed": 152205,
+      "order": [
+        "army2",
+        "army3",
+        "army1"
+      ],
+      "match": {
+        "version": 2,
+        "sourceMapId": "skirmish",
+        "layoutVersion": 2,
+        "participants": [
+          "army1",
+          "army2",
+          "army3"
+        ],
+        "initialOrder": [
+          "army2",
+          "army3",
+          "army1"
+        ],
+        "initiative": "rotating",
+        "ending": "short",
+        "roundLimit": 21,
+        "teams": {
+          "army1": "army1",
+          "army2": "army2",
+          "army3": "army3"
+        },
+        "sharedVision": false
+      },
+      "rules": {
+        "version": 1,
+        "tactics": true
+      },
+      "cpuVersion": "four-army-cpu-v6",
+      "count": 574,
+      "round": 22,
+      "outcome": {
+        "type": "victory",
+        "winner": "army2"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army3"
+      ],
+      "eliminations": [],
+      "fallbacks": 0,
+      "traceSha256": "587907c72b4f41b63a557b2a079aea71a72527c7f46083c300fecb0f666aaa57",
+      "stateSha256": "e1b3319d7e4ecad9a2cce3f2b76f08978a7debaedf0e87fa5d2279119e67e677",
+      "seconds": 4.328060428999997,
+      "cpuMs": {
+        "p95": 12.219379000001936,
+        "max": 48.26219100000162
+      }
+    },
+    {
+      "id": "green-3-152204-army3army1army2-false",
+      "seed": 152204,
+      "order": [
+        "army3",
+        "army1",
+        "army2"
+      ],
+      "match": {
+        "version": 2,
+        "sourceMapId": "skirmish",
+        "layoutVersion": 2,
+        "participants": [
+          "army1",
+          "army2",
+          "army3"
+        ],
+        "initialOrder": [
+          "army3",
+          "army1",
+          "army2"
+        ],
+        "initiative": "rotating",
+        "ending": "short",
+        "roundLimit": 21,
+        "teams": {
+          "army1": "army1",
+          "army2": "army2",
+          "army3": "army3"
+        },
+        "sharedVision": false
+      },
+      "rules": {
+        "version": 1,
+        "tactics": false
+      },
+      "cpuVersion": "four-army-cpu-v6",
+      "count": 570,
+      "round": 22,
+      "outcome": {
+        "type": "victory",
+        "winner": "army1"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army3"
+      ],
+      "eliminations": [],
+      "fallbacks": 3,
+      "traceSha256": "79537363f7e15c6e1d5eecee0982ac8663388f4fb40a6ef9ff83edfeaf7c444a",
+      "stateSha256": "8cee0a1fbbc918601eb73b34b14c76f1f53a9fa28ecebd01e8d4cc8865a93401",
+      "seconds": 4.387805083999992,
+      "cpuMs": {
+        "p95": 23.70734699998866,
+        "max": 36.774354000008316
+      }
+    },
+    {
+      "id": "green-3-152204-army3army1army2-true",
+      "seed": 152204,
+      "order": [
+        "army3",
+        "army1",
+        "army2"
+      ],
+      "match": {
+        "version": 2,
+        "sourceMapId": "skirmish",
+        "layoutVersion": 2,
+        "participants": [
+          "army1",
+          "army2",
+          "army3"
+        ],
+        "initialOrder": [
+          "army3",
+          "army1",
+          "army2"
+        ],
+        "initiative": "rotating",
+        "ending": "short",
+        "roundLimit": 21,
+        "teams": {
+          "army1": "army1",
+          "army2": "army2",
+          "army3": "army3"
+        },
+        "sharedVision": false
+      },
+      "rules": {
+        "version": 1,
+        "tactics": true
+      },
+      "cpuVersion": "four-army-cpu-v6",
+      "count": 570,
+      "round": 22,
+      "outcome": {
+        "type": "victory",
+        "winner": "army2"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army3"
+      ],
+      "eliminations": [],
+      "fallbacks": 3,
+      "traceSha256": "4781b604f0980bc8b3d034fde9ddd22bb4f13e96a4a9f5afb0c7363dcb304b4d",
+      "stateSha256": "31d9d8fc9e938a34643e3ed3f91819fb72106f85b6661767070e5bb860dc4135",
+      "seconds": 3.801674436000001,
+      "cpuMs": {
+        "p95": 10.665268999990076,
+        "max": 38.53976200000034
+      }
+    },
+    {
+      "id": "green-3-152205-army3army1army2-false",
+      "seed": 152205,
+      "order": [
+        "army3",
+        "army1",
+        "army2"
+      ],
+      "match": {
+        "version": 2,
+        "sourceMapId": "skirmish",
+        "layoutVersion": 2,
+        "participants": [
+          "army1",
+          "army2",
+          "army3"
+        ],
+        "initialOrder": [
+          "army3",
+          "army1",
+          "army2"
+        ],
+        "initiative": "rotating",
+        "ending": "short",
+        "roundLimit": 21,
+        "teams": {
+          "army1": "army1",
+          "army2": "army2",
+          "army3": "army3"
+        },
+        "sharedVision": false
+      },
+      "rules": {
+        "version": 1,
+        "tactics": false
+      },
+      "cpuVersion": "four-army-cpu-v6",
+      "count": 591,
+      "round": 22,
+      "outcome": {
+        "type": "victory",
+        "winner": "army2"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army3"
+      ],
+      "eliminations": [],
+      "fallbacks": 0,
+      "traceSha256": "668dd4144ac6a9e972768768e9609346306bb0f479d85250d39c3821c7a89c93",
+      "stateSha256": "cb1c10a8491bf39652c341cb075709ca7674dd63d81e4a7cb78f3a4698cd71aa",
+      "seconds": 4.723986128999997,
+      "cpuMs": {
+        "p95": 16.260533999986365,
+        "max": 36.603696000005584
+      }
+    },
+    {
+      "id": "green-3-152205-army3army1army2-true",
+      "seed": 152205,
+      "order": [
+        "army3",
+        "army1",
+        "army2"
+      ],
+      "match": {
+        "version": 2,
+        "sourceMapId": "skirmish",
+        "layoutVersion": 2,
+        "participants": [
+          "army1",
+          "army2",
+          "army3"
+        ],
+        "initialOrder": [
+          "army3",
+          "army1",
+          "army2"
+        ],
+        "initiative": "rotating",
+        "ending": "short",
+        "roundLimit": 21,
+        "teams": {
+          "army1": "army1",
+          "army2": "army2",
+          "army3": "army3"
+        },
+        "sharedVision": false
+      },
+      "rules": {
+        "version": 1,
+        "tactics": true
+      },
+      "cpuVersion": "four-army-cpu-v6",
+      "count": 602,
+      "round": 22,
+      "outcome": {
+        "type": "victory",
+        "winner": "army3"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army3"
+      ],
+      "eliminations": [],
+      "fallbacks": 2,
+      "traceSha256": "f8ae4fc2c0bbcd60a6be01bcbd6b1017435b270cfde10f1c9bb98e52ed5f8a2c",
+      "stateSha256": "d642826c45f7051bedb3f80eb691d579d3e5d006d64bf068d10abce83d98fb1d",
+      "seconds": 4.888270154999991,
+      "cpuMs": {
+        "p95": 23.986767999987933,
+        "max": 51.01858199998969
+      }
+    },
+    {
+      "id": "green-3-152204-army3army2army1-false",
+      "seed": 152204,
+      "order": [
+        "army3",
+        "army2",
+        "army1"
+      ],
+      "match": {
+        "version": 2,
+        "sourceMapId": "skirmish",
+        "layoutVersion": 2,
+        "participants": [
+          "army1",
+          "army2",
+          "army3"
+        ],
+        "initialOrder": [
+          "army3",
+          "army2",
+          "army1"
+        ],
+        "initiative": "rotating",
+        "ending": "short",
+        "roundLimit": 21,
+        "teams": {
+          "army1": "army1",
+          "army2": "army2",
+          "army3": "army3"
+        },
+        "sharedVision": false
+      },
+      "rules": {
+        "version": 1,
+        "tactics": false
+      },
+      "cpuVersion": "four-army-cpu-v6",
+      "count": 568,
+      "round": 22,
+      "outcome": {
+        "type": "victory",
+        "winner": "army2"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army3"
+      ],
+      "eliminations": [],
+      "fallbacks": 2,
+      "traceSha256": "b5ee0bdd32c5087a4faa1eb933a5c63e31e39dc155dbf7d30c60911b98db9208",
+      "stateSha256": "00a17373eba77d89041317e5966da93d68f3467e7a28a48a318ce9646fa3d444",
+      "seconds": 4.523369077999988,
+      "cpuMs": {
+        "p95": 19.050084999995306,
+        "max": 47.94460400000389
+      }
+    },
+    {
+      "id": "green-3-152204-army3army2army1-true",
+      "seed": 152204,
+      "order": [
+        "army3",
+        "army2",
+        "army1"
+      ],
+      "match": {
+        "version": 2,
+        "sourceMapId": "skirmish",
+        "layoutVersion": 2,
+        "participants": [
+          "army1",
+          "army2",
+          "army3"
+        ],
+        "initialOrder": [
+          "army3",
+          "army2",
+          "army1"
+        ],
+        "initiative": "rotating",
+        "ending": "short",
+        "roundLimit": 21,
+        "teams": {
+          "army1": "army1",
+          "army2": "army2",
+          "army3": "army3"
+        },
+        "sharedVision": false
+      },
+      "rules": {
+        "version": 1,
+        "tactics": true
+      },
+      "cpuVersion": "four-army-cpu-v6",
+      "count": 590,
+      "round": 22,
+      "outcome": {
+        "type": "victory",
+        "winner": "army3"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army3"
+      ],
+      "eliminations": [],
+      "fallbacks": 1,
+      "traceSha256": "806c1b9da6a9813988545d2e437290ae6a94532d715e27f5a758382b7d0ab3bd",
+      "stateSha256": "41f29492b52bae90a2122e3a3c3096d9d1e6cbaeee3a7facb91402a3cba5f0a5",
+      "seconds": 4.793542074999991,
+      "cpuMs": {
+        "p95": 19.218087999994168,
+        "max": 47.054793999996036
+      }
+    },
+    {
+      "id": "green-3-152205-army3army2army1-false",
+      "seed": 152205,
+      "order": [
+        "army3",
+        "army2",
+        "army1"
+      ],
+      "match": {
+        "version": 2,
+        "sourceMapId": "skirmish",
+        "layoutVersion": 2,
+        "participants": [
+          "army1",
+          "army2",
+          "army3"
+        ],
+        "initialOrder": [
+          "army3",
+          "army2",
+          "army1"
+        ],
+        "initiative": "rotating",
+        "ending": "short",
+        "roundLimit": 21,
+        "teams": {
+          "army1": "army1",
+          "army2": "army2",
+          "army3": "army3"
+        },
+        "sharedVision": false
+      },
+      "rules": {
+        "version": 1,
+        "tactics": false
+      },
+      "cpuVersion": "four-army-cpu-v6",
+      "count": 588,
+      "round": 22,
+      "outcome": {
+        "type": "victory",
+        "winner": "army2"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army3"
+      ],
+      "eliminations": [],
+      "fallbacks": 7,
+      "traceSha256": "c1ec3fe5ccf6801e74d5328e27aa05a09392f9301a9937818d588e402cc8eab3",
+      "stateSha256": "49a0f5807a35f0515899633610248be3c8901294c4c935333884ce6bed4f2a9a",
+      "seconds": 4.252288969000001,
+      "cpuMs": {
+        "p95": 14.34290200000396,
+        "max": 38.01958399999421
+      }
+    },
+    {
+      "id": "green-3-152205-army3army2army1-true",
+      "seed": 152205,
+      "order": [
+        "army3",
+        "army2",
+        "army1"
+      ],
+      "match": {
+        "version": 2,
+        "sourceMapId": "skirmish",
+        "layoutVersion": 2,
+        "participants": [
+          "army1",
+          "army2",
+          "army3"
+        ],
+        "initialOrder": [
+          "army3",
+          "army2",
+          "army1"
+        ],
+        "initiative": "rotating",
+        "ending": "short",
+        "roundLimit": 21,
+        "teams": {
+          "army1": "army1",
+          "army2": "army2",
+          "army3": "army3"
+        },
+        "sharedVision": false
+      },
+      "rules": {
+        "version": 1,
+        "tactics": true
+      },
+      "cpuVersion": "four-army-cpu-v6",
+      "count": 585,
+      "round": 22,
+      "outcome": {
+        "type": "victory",
+        "winner": "army3"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army3"
+      ],
+      "eliminations": [],
+      "fallbacks": 3,
+      "traceSha256": "f863b93cc3ed581bc366108fc1f427047b82f4a3776b9e37f7682c05e6c593e1",
+      "stateSha256": "4056dd76964b07b8f3896d4bbe6f35d6f9580765f52b8af348f833f76cab52b4",
+      "seconds": 2.3074240949999947,
+      "cpuMs": {
+        "p95": 6.834873999992851,
+        "max": 29.132958999995026
+      }
+    },
+    {
+      "id": "green-4-152204-army1army2army3army4-false",
+      "seed": 152204,
+      "order": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "match": {
+        "version": 2,
+        "sourceMapId": "skirmish",
+        "layoutVersion": 2,
+        "participants": [
+          "army1",
+          "army2",
+          "army3",
+          "army4"
+        ],
+        "initialOrder": [
+          "army1",
+          "army2",
+          "army3",
+          "army4"
+        ],
+        "initiative": "rotating",
+        "ending": "short",
+        "roundLimit": 20,
+        "teams": {
+          "army1": "army1",
+          "army2": "army2",
+          "army3": "army3",
+          "army4": "army4"
+        },
+        "sharedVision": false
+      },
+      "rules": {
+        "version": 1,
+        "tactics": false
+      },
+      "cpuVersion": "four-army-cpu-v6",
+      "count": 688,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army1"
+      },
+      "alive": [
+        "army1",
+        "army3",
+        "army4"
+      ],
+      "eliminations": [
+        {
+          "army": "army2",
+          "round": 17
+        }
+      ],
+      "fallbacks": 0,
+      "traceSha256": "c3533797a808ee11ae8e79d40f64dc126032b13d32c5433e4c341c1096304014",
+      "stateSha256": "4a9bbf81ffc40262329ab42296fddf1eb90c8a01428d32bd4c29938ef4c14eb1",
+      "seconds": 2.501939771999998,
+      "cpuMs": {
+        "p95": 6.179684999995516,
+        "max": 29.671327000003657
+      }
+    },
+    {
+      "id": "green-4-152204-army1army2army3army4-true",
+      "seed": 152204,
+      "order": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "match": {
+        "version": 2,
+        "sourceMapId": "skirmish",
+        "layoutVersion": 2,
+        "participants": [
+          "army1",
+          "army2",
+          "army3",
+          "army4"
+        ],
+        "initialOrder": [
+          "army1",
+          "army2",
+          "army3",
+          "army4"
+        ],
+        "initiative": "rotating",
+        "ending": "short",
+        "roundLimit": 20,
+        "teams": {
+          "army1": "army1",
+          "army2": "army2",
+          "army3": "army3",
+          "army4": "army4"
+        },
+        "sharedVision": false
+      },
+      "rules": {
+        "version": 1,
+        "tactics": true
+      },
+      "cpuVersion": "four-army-cpu-v6",
+      "count": 618,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army1"
+      },
+      "alive": [
+        "army1",
+        "army4"
+      ],
+      "eliminations": [
+        {
+          "army": "army2",
+          "round": 12
+        },
+        {
+          "army": "army3",
+          "round": 18
+        }
+      ],
+      "fallbacks": 8,
+      "traceSha256": "69080505832414e1767d65632e42a146eff3b7556af902bf5628c114edd80c95",
+      "stateSha256": "30fa1c3688034fbc9366b18eea0aa5d4c874194fc34bf4f84d26137b457c05d0",
+      "seconds": 2.4702895309999877,
+      "cpuMs": {
+        "p95": 5.304768000001786,
+        "max": 31.149909999992815
+      }
+    },
+    {
+      "id": "green-4-152205-army1army2army3army4-false",
+      "seed": 152205,
+      "order": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "match": {
+        "version": 2,
+        "sourceMapId": "skirmish",
+        "layoutVersion": 2,
+        "participants": [
+          "army1",
+          "army2",
+          "army3",
+          "army4"
+        ],
+        "initialOrder": [
+          "army1",
+          "army2",
+          "army3",
+          "army4"
+        ],
+        "initiative": "rotating",
+        "ending": "short",
+        "roundLimit": 20,
+        "teams": {
+          "army1": "army1",
+          "army2": "army2",
+          "army3": "army3",
+          "army4": "army4"
+        },
+        "sharedVision": false
+      },
+      "rules": {
+        "version": 1,
+        "tactics": false
+      },
+      "cpuVersion": "four-army-cpu-v6",
+      "count": 693,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army3"
+      },
+      "alive": [
+        "army1",
+        "army3",
+        "army4"
+      ],
+      "eliminations": [
+        {
+          "army": "army2",
+          "round": 18
+        }
+      ],
+      "fallbacks": 4,
+      "traceSha256": "69ca3a72aa50999ffabfcb422739dcb5ceb9cf543706354f9b7a179b42be4cfc",
+      "stateSha256": "ed5552f1a176c8b724043d830924c433ed1de3c624251ffc3232ce8ccde2c58d",
+      "seconds": 4.699762222000005,
+      "cpuMs": {
+        "p95": 19.65700300000026,
+        "max": 34.93129300000146
+      }
+    },
+    {
+      "id": "green-4-152205-army1army2army3army4-true",
+      "seed": 152205,
+      "order": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "match": {
+        "version": 2,
+        "sourceMapId": "skirmish",
+        "layoutVersion": 2,
+        "participants": [
+          "army1",
+          "army2",
+          "army3",
+          "army4"
+        ],
+        "initialOrder": [
+          "army1",
+          "army2",
+          "army3",
+          "army4"
+        ],
+        "initiative": "rotating",
+        "ending": "short",
+        "roundLimit": 20,
+        "teams": {
+          "army1": "army1",
+          "army2": "army2",
+          "army3": "army3",
+          "army4": "army4"
+        },
+        "sharedVision": false
+      },
+      "rules": {
+        "version": 1,
+        "tactics": true
+      },
+      "cpuVersion": "four-army-cpu-v6",
+      "count": 640,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army1"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army3"
+      ],
+      "eliminations": [
+        {
+          "army": "army4",
+          "round": 12
+        }
+      ],
+      "fallbacks": 1,
+      "traceSha256": "2b739932bbe0f4cb8112cb69654094a9d24d92f95f5c55aa352baff068f801c9",
+      "stateSha256": "905f8b4b0767d3eac8eb639d01ec9f25bd775dee6b4e986b22caa184c0ea4c79",
+      "seconds": 4.8941240509999915,
+      "cpuMs": {
+        "p95": 11.367228000002797,
+        "max": 37.36013600000297
+      }
+    },
+    {
+      "id": "green-4-152204-army1army2army4army3-false",
+      "seed": 152204,
+      "order": [
+        "army1",
+        "army2",
+        "army4",
+        "army3"
+      ],
+      "match": {
+        "version": 2,
+        "sourceMapId": "skirmish",
+        "layoutVersion": 2,
+        "participants": [
+          "army1",
+          "army2",
+          "army3",
+          "army4"
+        ],
+        "initialOrder": [
+          "army1",
+          "army2",
+          "army4",
+          "army3"
+        ],
+        "initiative": "rotating",
+        "ending": "short",
+        "roundLimit": 20,
+        "teams": {
+          "army1": "army1",
+          "army2": "army2",
+          "army3": "army3",
+          "army4": "army4"
+        },
+        "sharedVision": false
+      },
+      "rules": {
+        "version": 1,
+        "tactics": false
+      },
+      "cpuVersion": "four-army-cpu-v6",
+      "count": 673,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army3"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army3"
+      ],
+      "eliminations": [
+        {
+          "army": "army4",
+          "round": 16
+        }
+      ],
+      "fallbacks": 5,
+      "traceSha256": "5fbb4e2ea769c8b4eeebacb465d448d3f8d2c3fa70e41fc2fd89144b5b473f3f",
+      "stateSha256": "99aa372edb8146befa59959150b3486ae1f4e14cd735b6421f1c41ebebaffeb1",
+      "seconds": 5.253506901999994,
+      "cpuMs": {
+        "p95": 17.72770400000445,
+        "max": 51.08297099999618
+      }
+    },
+    {
+      "id": "green-4-152204-army1army2army4army3-true",
+      "seed": 152204,
+      "order": [
+        "army1",
+        "army2",
+        "army4",
+        "army3"
+      ],
+      "match": {
+        "version": 2,
+        "sourceMapId": "skirmish",
+        "layoutVersion": 2,
+        "participants": [
+          "army1",
+          "army2",
+          "army3",
+          "army4"
+        ],
+        "initialOrder": [
+          "army1",
+          "army2",
+          "army4",
+          "army3"
+        ],
+        "initiative": "rotating",
+        "ending": "short",
+        "roundLimit": 20,
+        "teams": {
+          "army1": "army1",
+          "army2": "army2",
+          "army3": "army3",
+          "army4": "army4"
+        },
+        "sharedVision": false
+      },
+      "rules": {
+        "version": 1,
+        "tactics": true
+      },
+      "cpuVersion": "four-army-cpu-v6",
+      "count": 741,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army1"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "eliminations": [],
+      "fallbacks": 2,
+      "traceSha256": "f034c717d4a4bbdfe154f65772421196c7eaac6730f55a24078823c05210d923",
+      "stateSha256": "e0190b15b53fd22f408894b854e549e75384ecb4c62fd51c8163c11e9469f351",
+      "seconds": 4.075356338000012,
+      "cpuMs": {
+        "p95": 10.043232000010903,
+        "max": 34.48323399999936
+      }
+    },
+    {
+      "id": "green-4-152205-army1army2army4army3-false",
+      "seed": 152205,
+      "order": [
+        "army1",
+        "army2",
+        "army4",
+        "army3"
+      ],
+      "match": {
+        "version": 2,
+        "sourceMapId": "skirmish",
+        "layoutVersion": 2,
+        "participants": [
+          "army1",
+          "army2",
+          "army3",
+          "army4"
+        ],
+        "initialOrder": [
+          "army1",
+          "army2",
+          "army4",
+          "army3"
+        ],
+        "initiative": "rotating",
+        "ending": "short",
+        "roundLimit": 20,
+        "teams": {
+          "army1": "army1",
+          "army2": "army2",
+          "army3": "army3",
+          "army4": "army4"
+        },
+        "sharedVision": false
+      },
+      "rules": {
+        "version": 1,
+        "tactics": false
+      },
+      "cpuVersion": "four-army-cpu-v6",
+      "count": 643,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army1"
+      },
+      "alive": [
+        "army1",
+        "army4"
+      ],
+      "eliminations": [
+        {
+          "army": "army2",
+          "round": 11
+        },
+        {
+          "army": "army3",
+          "round": 16
+        }
+      ],
+      "fallbacks": 1,
+      "traceSha256": "5731946c741d7ca14ec1c2cf3aa9c3840bdad28a85dfd4768e64b08ae99d8cf5",
+      "stateSha256": "5a5f99ec9dde8930590a184325ba3a37009067e777c35467a39a4e4b5a45bd02",
+      "seconds": 2.3158127879999957,
+      "cpuMs": {
+        "p95": 4.38980000000447,
+        "max": 28.100603999992018
+      }
+    },
+    {
+      "id": "green-4-152205-army1army2army4army3-true",
+      "seed": 152205,
+      "order": [
+        "army1",
+        "army2",
+        "army4",
+        "army3"
+      ],
+      "match": {
+        "version": 2,
+        "sourceMapId": "skirmish",
+        "layoutVersion": 2,
+        "participants": [
+          "army1",
+          "army2",
+          "army3",
+          "army4"
+        ],
+        "initialOrder": [
+          "army1",
+          "army2",
+          "army4",
+          "army3"
+        ],
+        "initiative": "rotating",
+        "ending": "short",
+        "roundLimit": 20,
+        "teams": {
+          "army1": "army1",
+          "army2": "army2",
+          "army3": "army3",
+          "army4": "army4"
+        },
+        "sharedVision": false
+      },
+      "rules": {
+        "version": 1,
+        "tactics": true
+      },
+      "cpuVersion": "four-army-cpu-v6",
+      "count": 742,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army3"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "eliminations": [],
+      "fallbacks": 7,
+      "traceSha256": "123b3ece87c299ac94ec3525fadccc856736ec417e91d1b795797e9771e8b007",
+      "stateSha256": "927e5395e06b5970ac03a4548c1088dcc0f91d05e689f7dc837486a76e26f7af",
+      "seconds": 3.4817820479999937,
+      "cpuMs": {
+        "p95": 6.89863699999114,
+        "max": 39.018132999990485
+      }
+    },
+    {
+      "id": "green-4-152204-army1army3army2army4-false",
+      "seed": 152204,
+      "order": [
+        "army1",
+        "army3",
+        "army2",
+        "army4"
+      ],
+      "match": {
+        "version": 2,
+        "sourceMapId": "skirmish",
+        "layoutVersion": 2,
+        "participants": [
+          "army1",
+          "army2",
+          "army3",
+          "army4"
+        ],
+        "initialOrder": [
+          "army1",
+          "army3",
+          "army2",
+          "army4"
+        ],
+        "initiative": "rotating",
+        "ending": "short",
+        "roundLimit": 20,
+        "teams": {
+          "army1": "army1",
+          "army2": "army2",
+          "army3": "army3",
+          "army4": "army4"
+        },
+        "sharedVision": false
+      },
+      "rules": {
+        "version": 1,
+        "tactics": false
+      },
+      "cpuVersion": "four-army-cpu-v6",
+      "count": 708,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army3"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "eliminations": [],
+      "fallbacks": 5,
+      "traceSha256": "fe58a7aa136b51e00cbed42bc199af4873b3b86cbe2863c90048a5b5cd6efe6a",
+      "stateSha256": "9ce0b1e872691722902d4ee083d529db0e35b8b0c41fd7034fbc1a90453f1b00",
+      "seconds": 2.9928548810000066,
+      "cpuMs": {
+        "p95": 5.734304999990854,
+        "max": 29.516433999990113
+      }
+    },
+    {
+      "id": "green-4-152204-army1army3army2army4-true",
+      "seed": 152204,
+      "order": [
+        "army1",
+        "army3",
+        "army2",
+        "army4"
+      ],
+      "match": {
+        "version": 2,
+        "sourceMapId": "skirmish",
+        "layoutVersion": 2,
+        "participants": [
+          "army1",
+          "army2",
+          "army3",
+          "army4"
+        ],
+        "initialOrder": [
+          "army1",
+          "army3",
+          "army2",
+          "army4"
+        ],
+        "initiative": "rotating",
+        "ending": "short",
+        "roundLimit": 20,
+        "teams": {
+          "army1": "army1",
+          "army2": "army2",
+          "army3": "army3",
+          "army4": "army4"
+        },
+        "sharedVision": false
+      },
+      "rules": {
+        "version": 1,
+        "tactics": true
+      },
+      "cpuVersion": "four-army-cpu-v6",
+      "count": 653,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army2"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "eliminations": [],
+      "fallbacks": 17,
+      "traceSha256": "6bebf487d62864e46677b9f6b4e9c25a467f545003bb71aaa699fc864ecfdb65",
+      "stateSha256": "2a06836561b49e070ebda3e90db8aa20d625635421ef7a2f45e60faeda763dec",
+      "seconds": 3.028379633000004,
+      "cpuMs": {
+        "p95": 7.093721999990521,
+        "max": 73.27470300000277
+      }
+    },
+    {
+      "id": "green-4-152205-army1army3army2army4-false",
+      "seed": 152205,
+      "order": [
+        "army1",
+        "army3",
+        "army2",
+        "army4"
+      ],
+      "match": {
+        "version": 2,
+        "sourceMapId": "skirmish",
+        "layoutVersion": 2,
+        "participants": [
+          "army1",
+          "army2",
+          "army3",
+          "army4"
+        ],
+        "initialOrder": [
+          "army1",
+          "army3",
+          "army2",
+          "army4"
+        ],
+        "initiative": "rotating",
+        "ending": "short",
+        "roundLimit": 20,
+        "teams": {
+          "army1": "army1",
+          "army2": "army2",
+          "army3": "army3",
+          "army4": "army4"
+        },
+        "sharedVision": false
+      },
+      "rules": {
+        "version": 1,
+        "tactics": false
+      },
+      "cpuVersion": "four-army-cpu-v6",
+      "count": 706,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army2"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army4"
+      ],
+      "eliminations": [
+        {
+          "army": "army3",
+          "round": 18
+        }
+      ],
+      "fallbacks": 6,
+      "traceSha256": "0f6269eac83a041738ca15cb5340b51b5238e44ee2a81f68607d6e4556b42490",
+      "stateSha256": "3202a59772b310e1bd68f5507c1b283b91432a184cabc3faa1154c39af9c31b0",
+      "seconds": 2.659799278999999,
+      "cpuMs": {
+        "p95": 4.5733560000080615,
+        "max": 27.334679999999935
+      }
+    },
+    {
+      "id": "green-4-152205-army1army3army2army4-true",
+      "seed": 152205,
+      "order": [
+        "army1",
+        "army3",
+        "army2",
+        "army4"
+      ],
+      "match": {
+        "version": 2,
+        "sourceMapId": "skirmish",
+        "layoutVersion": 2,
+        "participants": [
+          "army1",
+          "army2",
+          "army3",
+          "army4"
+        ],
+        "initialOrder": [
+          "army1",
+          "army3",
+          "army2",
+          "army4"
+        ],
+        "initiative": "rotating",
+        "ending": "short",
+        "roundLimit": 20,
+        "teams": {
+          "army1": "army1",
+          "army2": "army2",
+          "army3": "army3",
+          "army4": "army4"
+        },
+        "sharedVision": false
+      },
+      "rules": {
+        "version": 1,
+        "tactics": true
+      },
+      "cpuVersion": "four-army-cpu-v6",
+      "count": 722,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army4"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "eliminations": [],
+      "fallbacks": 7,
+      "traceSha256": "ecc6db207c152a9ff6432d01c8954aa266603254a9a3a6353275de1bc15089c7",
+      "stateSha256": "200e181448c6d33908c013815e064ec90a5b344e24003e06761f48d0a39de8e6",
+      "seconds": 2.7265069519999963,
+      "cpuMs": {
+        "p95": 5.0608809999830555,
+        "max": 31.64452900001197
+      }
+    },
+    {
+      "id": "green-4-152204-army1army3army4army2-false",
+      "seed": 152204,
+      "order": [
+        "army1",
+        "army3",
+        "army4",
+        "army2"
+      ],
+      "match": {
+        "version": 2,
+        "sourceMapId": "skirmish",
+        "layoutVersion": 2,
+        "participants": [
+          "army1",
+          "army2",
+          "army3",
+          "army4"
+        ],
+        "initialOrder": [
+          "army1",
+          "army3",
+          "army4",
+          "army2"
+        ],
+        "initiative": "rotating",
+        "ending": "short",
+        "roundLimit": 20,
+        "teams": {
+          "army1": "army1",
+          "army2": "army2",
+          "army3": "army3",
+          "army4": "army4"
+        },
+        "sharedVision": false
+      },
+      "rules": {
+        "version": 1,
+        "tactics": false
+      },
+      "cpuVersion": "four-army-cpu-v6",
+      "count": 652,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army4"
+      },
+      "alive": [
+        "army1",
+        "army3",
+        "army4"
+      ],
+      "eliminations": [
+        {
+          "army": "army2",
+          "round": 17
+        }
+      ],
+      "fallbacks": 5,
+      "traceSha256": "52f69ead9ae8d8323be47c5a3e11d9d50813255324058c677eb64c080f49d8ae",
+      "stateSha256": "870062d873b19c1b835f8e52a0a53d105ade659b1466700b925f1db794aa00a3",
+      "seconds": 2.497404012000014,
+      "cpuMs": {
+        "p95": 4.433745999995153,
+        "max": 29.490896000002977
+      }
+    },
+    {
+      "id": "green-4-152204-army1army3army4army2-true",
+      "seed": 152204,
+      "order": [
+        "army1",
+        "army3",
+        "army4",
+        "army2"
+      ],
+      "match": {
+        "version": 2,
+        "sourceMapId": "skirmish",
+        "layoutVersion": 2,
+        "participants": [
+          "army1",
+          "army2",
+          "army3",
+          "army4"
+        ],
+        "initialOrder": [
+          "army1",
+          "army3",
+          "army4",
+          "army2"
+        ],
+        "initiative": "rotating",
+        "ending": "short",
+        "roundLimit": 20,
+        "teams": {
+          "army1": "army1",
+          "army2": "army2",
+          "army3": "army3",
+          "army4": "army4"
+        },
+        "sharedVision": false
+      },
+      "rules": {
+        "version": 1,
+        "tactics": true
+      },
+      "cpuVersion": "four-army-cpu-v6",
+      "count": 727,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army3"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "eliminations": [],
+      "fallbacks": 2,
+      "traceSha256": "66fd5e7d7caa5fb6972fc1cbc5506da491a3d179b3b8c9bb5a46a8367c73a43b",
+      "stateSha256": "f782179b7e86a8a6d96889a0d0389de0576c8c8f53a12d52436efe42113acaff",
+      "seconds": 3.475596171000012,
+      "cpuMs": {
+        "p95": 7.982560000004014,
+        "max": 32.396231999999145
+      }
+    },
+    {
+      "id": "green-4-152205-army1army3army4army2-false",
+      "seed": 152205,
+      "order": [
+        "army1",
+        "army3",
+        "army4",
+        "army2"
+      ],
+      "match": {
+        "version": 2,
+        "sourceMapId": "skirmish",
+        "layoutVersion": 2,
+        "participants": [
+          "army1",
+          "army2",
+          "army3",
+          "army4"
+        ],
+        "initialOrder": [
+          "army1",
+          "army3",
+          "army4",
+          "army2"
+        ],
+        "initiative": "rotating",
+        "ending": "short",
+        "roundLimit": 20,
+        "teams": {
+          "army1": "army1",
+          "army2": "army2",
+          "army3": "army3",
+          "army4": "army4"
+        },
+        "sharedVision": false
+      },
+      "rules": {
+        "version": 1,
+        "tactics": false
+      },
+      "cpuVersion": "four-army-cpu-v6",
+      "count": 701,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army2"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "eliminations": [],
+      "fallbacks": 4,
+      "traceSha256": "d463f554a09dc467cee85f7b24461d0929464c72bdccac6b03cb2318ab145614",
+      "stateSha256": "cf9a06b3e0e915acd67a58214a9bfdb7bc697617a3faa02c31bcc785f5249b7f",
+      "seconds": 5.51029130099999,
+      "cpuMs": {
+        "p95": 23.609109999990324,
+        "max": 46.24934199999552
+      }
+    },
+    {
+      "id": "green-4-152205-army1army3army4army2-true",
+      "seed": 152205,
+      "order": [
+        "army1",
+        "army3",
+        "army4",
+        "army2"
+      ],
+      "match": {
+        "version": 2,
+        "sourceMapId": "skirmish",
+        "layoutVersion": 2,
+        "participants": [
+          "army1",
+          "army2",
+          "army3",
+          "army4"
+        ],
+        "initialOrder": [
+          "army1",
+          "army3",
+          "army4",
+          "army2"
+        ],
+        "initiative": "rotating",
+        "ending": "short",
+        "roundLimit": 20,
+        "teams": {
+          "army1": "army1",
+          "army2": "army2",
+          "army3": "army3",
+          "army4": "army4"
+        },
+        "sharedVision": false
+      },
+      "rules": {
+        "version": 1,
+        "tactics": true
+      },
+      "cpuVersion": "four-army-cpu-v6",
+      "count": 691,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army2"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army4"
+      ],
+      "eliminations": [
+        {
+          "army": "army3",
+          "round": 13
+        }
+      ],
+      "fallbacks": 4,
+      "traceSha256": "43b369fc88b69f5e647dcd5b59fca217bacb2c19b8ec6c24292fef11e24f3690",
+      "stateSha256": "98a04f4a35d3746f459d5d73d7a6ae106eb27f5c6df23a26f477c81017ce1aa2",
+      "seconds": 5.781309653999982,
+      "cpuMs": {
+        "p95": 13.178994999994757,
+        "max": 51.03828999999678
+      }
+    },
+    {
+      "id": "green-4-152204-army1army4army2army3-false",
+      "seed": 152204,
+      "order": [
+        "army1",
+        "army4",
+        "army2",
+        "army3"
+      ],
+      "match": {
+        "version": 2,
+        "sourceMapId": "skirmish",
+        "layoutVersion": 2,
+        "participants": [
+          "army1",
+          "army2",
+          "army3",
+          "army4"
+        ],
+        "initialOrder": [
+          "army1",
+          "army4",
+          "army2",
+          "army3"
+        ],
+        "initiative": "rotating",
+        "ending": "short",
+        "roundLimit": 20,
+        "teams": {
+          "army1": "army1",
+          "army2": "army2",
+          "army3": "army3",
+          "army4": "army4"
+        },
+        "sharedVision": false
+      },
+      "rules": {
+        "version": 1,
+        "tactics": false
+      },
+      "cpuVersion": "four-army-cpu-v6",
+      "count": 677,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army4"
+      },
+      "alive": [
+        "army3",
+        "army4"
+      ],
+      "eliminations": [
+        {
+          "army": "army2",
+          "round": 17
+        },
+        {
+          "army": "army1",
+          "round": 20
+        }
+      ],
+      "fallbacks": 4,
+      "traceSha256": "d046936c7f87d1c4099e36e4ac69a2800be6fb79b864672d3a668e5ffb311206",
+      "stateSha256": "8bba4081e4fe1f40e7418ed18f8bbb9edf7cae11d02686d637c183d3bb196ebc",
+      "seconds": 5.002873843999987,
+      "cpuMs": {
+        "p95": 10.902667999995174,
+        "max": 32.466382000013255
+      }
+    },
+    {
+      "id": "green-4-152204-army1army4army2army3-true",
+      "seed": 152204,
+      "order": [
+        "army1",
+        "army4",
+        "army2",
+        "army3"
+      ],
+      "match": {
+        "version": 2,
+        "sourceMapId": "skirmish",
+        "layoutVersion": 2,
+        "participants": [
+          "army1",
+          "army2",
+          "army3",
+          "army4"
+        ],
+        "initialOrder": [
+          "army1",
+          "army4",
+          "army2",
+          "army3"
+        ],
+        "initiative": "rotating",
+        "ending": "short",
+        "roundLimit": 20,
+        "teams": {
+          "army1": "army1",
+          "army2": "army2",
+          "army3": "army3",
+          "army4": "army4"
+        },
+        "sharedVision": false
+      },
+      "rules": {
+        "version": 1,
+        "tactics": true
+      },
+      "cpuVersion": "four-army-cpu-v6",
+      "count": 683,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army2"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "eliminations": [],
+      "fallbacks": 2,
+      "traceSha256": "6668e47bd7736b25d167d31172d8d1ae08dcfe3fa2eccc904bf920fc25edbb63",
+      "stateSha256": "07f60a33f2f563c188f6bf0d0cce990b5b903c7581508992507d43a1e1b841cc",
+      "seconds": 5.618031690000003,
+      "cpuMs": {
+        "p95": 13.409271999989869,
+        "max": 58.30591700001969
+      }
+    },
+    {
+      "id": "green-4-152205-army1army4army2army3-false",
+      "seed": 152205,
+      "order": [
+        "army1",
+        "army4",
+        "army2",
+        "army3"
+      ],
+      "match": {
+        "version": 2,
+        "sourceMapId": "skirmish",
+        "layoutVersion": 2,
+        "participants": [
+          "army1",
+          "army2",
+          "army3",
+          "army4"
+        ],
+        "initialOrder": [
+          "army1",
+          "army4",
+          "army2",
+          "army3"
+        ],
+        "initiative": "rotating",
+        "ending": "short",
+        "roundLimit": 20,
+        "teams": {
+          "army1": "army1",
+          "army2": "army2",
+          "army3": "army3",
+          "army4": "army4"
+        },
+        "sharedVision": false
+      },
+      "rules": {
+        "version": 1,
+        "tactics": false
+      },
+      "cpuVersion": "four-army-cpu-v6",
+      "count": 710,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army4"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army4"
+      ],
+      "eliminations": [
+        {
+          "army": "army3",
+          "round": 19
+        }
+      ],
+      "fallbacks": 7,
+      "traceSha256": "f2be38f32f9822c8f347b03c124a4403b6fc8610be18a8627f18ef6362ffc9a3",
+      "stateSha256": "90211c13aae125b3711c572b5890adee664a907670f379f28991a5ad06d6a7a2",
+      "seconds": 5.447893959000008,
+      "cpuMs": {
+        "p95": 15.920866000000387,
+        "max": 36.755432000005385
+      }
+    },
+    {
+      "id": "green-4-152205-army1army4army2army3-true",
+      "seed": 152205,
+      "order": [
+        "army1",
+        "army4",
+        "army2",
+        "army3"
+      ],
+      "match": {
+        "version": 2,
+        "sourceMapId": "skirmish",
+        "layoutVersion": 2,
+        "participants": [
+          "army1",
+          "army2",
+          "army3",
+          "army4"
+        ],
+        "initialOrder": [
+          "army1",
+          "army4",
+          "army2",
+          "army3"
+        ],
+        "initiative": "rotating",
+        "ending": "short",
+        "roundLimit": 20,
+        "teams": {
+          "army1": "army1",
+          "army2": "army2",
+          "army3": "army3",
+          "army4": "army4"
+        },
+        "sharedVision": false
+      },
+      "rules": {
+        "version": 1,
+        "tactics": true
+      },
+      "cpuVersion": "four-army-cpu-v6",
+      "count": 697,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army1"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army3"
+      ],
+      "eliminations": [
+        {
+          "army": "army4",
+          "round": 17
+        }
+      ],
+      "fallbacks": 1,
+      "traceSha256": "179594199616b8fb9bf947b27cc8766ac70ea6887576a63455164dcfe2dcc4d2",
+      "stateSha256": "d9a5f2d9d3bcef6a2159509e6b4e496f91f78a611c8e2f8f4849d4855bf0ca2f",
+      "seconds": 4.9026521969999886,
+      "cpuMs": {
+        "p95": 9.413738000002922,
+        "max": 39.235768999991706
+      }
+    },
+    {
+      "id": "green-4-152204-army1army4army3army2-false",
+      "seed": 152204,
+      "order": [
+        "army1",
+        "army4",
+        "army3",
+        "army2"
+      ],
+      "match": {
+        "version": 2,
+        "sourceMapId": "skirmish",
+        "layoutVersion": 2,
+        "participants": [
+          "army1",
+          "army2",
+          "army3",
+          "army4"
+        ],
+        "initialOrder": [
+          "army1",
+          "army4",
+          "army3",
+          "army2"
+        ],
+        "initiative": "rotating",
+        "ending": "short",
+        "roundLimit": 20,
+        "teams": {
+          "army1": "army1",
+          "army2": "army2",
+          "army3": "army3",
+          "army4": "army4"
+        },
+        "sharedVision": false
+      },
+      "rules": {
+        "version": 1,
+        "tactics": false
+      },
+      "cpuVersion": "four-army-cpu-v6",
+      "count": 656,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army4"
+      },
+      "alive": [
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "eliminations": [
+        {
+          "army": "army1",
+          "round": 9
+        }
+      ],
+      "fallbacks": 0,
+      "traceSha256": "8a6b52dcc75dec847e535865f8fd0f0cb9f77bb1b8ea0db1456702fcab03254b",
+      "stateSha256": "9b1394b4edf97e951aa5dc83be4760849cd28cfa8b0ac2b3f3a6762ab32cdf92",
+      "seconds": 5.002523383000022,
+      "cpuMs": {
+        "p95": 15.647284000006039,
+        "max": 43.44235800000024
+      }
+    },
+    {
+      "id": "green-4-152204-army1army4army3army2-true",
+      "seed": 152204,
+      "order": [
+        "army1",
+        "army4",
+        "army3",
+        "army2"
+      ],
+      "match": {
+        "version": 2,
+        "sourceMapId": "skirmish",
+        "layoutVersion": 2,
+        "participants": [
+          "army1",
+          "army2",
+          "army3",
+          "army4"
+        ],
+        "initialOrder": [
+          "army1",
+          "army4",
+          "army3",
+          "army2"
+        ],
+        "initiative": "rotating",
+        "ending": "short",
+        "roundLimit": 20,
+        "teams": {
+          "army1": "army1",
+          "army2": "army2",
+          "army3": "army3",
+          "army4": "army4"
+        },
+        "sharedVision": false
+      },
+      "rules": {
+        "version": 1,
+        "tactics": true
+      },
+      "cpuVersion": "four-army-cpu-v6",
+      "count": 682,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army3"
+      },
+      "alive": [
+        "army1",
+        "army3",
+        "army4"
+      ],
+      "eliminations": [
+        {
+          "army": "army2",
+          "round": 16
+        }
+      ],
+      "fallbacks": 7,
+      "traceSha256": "c83f08bce2b1f930f790b441565e7a10aa9225788e73042f0199c38096421713",
+      "stateSha256": "48a9577abe6160011465fd321d437ff9ad1bc0016271f578364420e62e49d880",
+      "seconds": 5.238376008000021,
+      "cpuMs": {
+        "p95": 13.2635050000099,
+        "max": 32.73378400001093
+      }
+    },
+    {
+      "id": "green-4-152205-army1army4army3army2-false",
+      "seed": 152205,
+      "order": [
+        "army1",
+        "army4",
+        "army3",
+        "army2"
+      ],
+      "match": {
+        "version": 2,
+        "sourceMapId": "skirmish",
+        "layoutVersion": 2,
+        "participants": [
+          "army1",
+          "army2",
+          "army3",
+          "army4"
+        ],
+        "initialOrder": [
+          "army1",
+          "army4",
+          "army3",
+          "army2"
+        ],
+        "initiative": "rotating",
+        "ending": "short",
+        "roundLimit": 20,
+        "teams": {
+          "army1": "army1",
+          "army2": "army2",
+          "army3": "army3",
+          "army4": "army4"
+        },
+        "sharedVision": false
+      },
+      "rules": {
+        "version": 1,
+        "tactics": false
+      },
+      "cpuVersion": "four-army-cpu-v6",
+      "count": 652,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army4"
+      },
+      "alive": [
+        "army3",
+        "army4"
+      ],
+      "eliminations": [
+        {
+          "army": "army1",
+          "round": 10
+        },
+        {
+          "army": "army2",
+          "round": 19
+        }
+      ],
+      "fallbacks": 2,
+      "traceSha256": "db941c434bc9c0a36747d720a9adf05f12a27980e136c8e7e356102d59d15556",
+      "stateSha256": "6f489af422b12d83a19aa7e8ab4d58666ca354cd7d332715b80c1463dd7eaba7",
+      "seconds": 3.558298296999972,
+      "cpuMs": {
+        "p95": 10.094037999981083,
+        "max": 35.50153099998715
+      }
+    },
+    {
+      "id": "green-4-152205-army1army4army3army2-true",
+      "seed": 152205,
+      "order": [
+        "army1",
+        "army4",
+        "army3",
+        "army2"
+      ],
+      "match": {
+        "version": 2,
+        "sourceMapId": "skirmish",
+        "layoutVersion": 2,
+        "participants": [
+          "army1",
+          "army2",
+          "army3",
+          "army4"
+        ],
+        "initialOrder": [
+          "army1",
+          "army4",
+          "army3",
+          "army2"
+        ],
+        "initiative": "rotating",
+        "ending": "short",
+        "roundLimit": 20,
+        "teams": {
+          "army1": "army1",
+          "army2": "army2",
+          "army3": "army3",
+          "army4": "army4"
+        },
+        "sharedVision": false
+      },
+      "rules": {
+        "version": 1,
+        "tactics": true
+      },
+      "cpuVersion": "four-army-cpu-v6",
+      "count": 719,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army1"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "eliminations": [],
+      "fallbacks": 9,
+      "traceSha256": "f8441b6dcd538052c264c2d6eff55a15ea9681b71e0e31a1549d1ddb123c71c5",
+      "stateSha256": "61cf0c193edfa91afdb3791bc6f61968de1be9b83c57e3e11091bbea7d8f93e0",
+      "seconds": 2.91466851399999,
+      "cpuMs": {
+        "p95": 4.513242999993963,
+        "max": 71.60490299999947
+      }
+    },
+    {
+      "id": "green-4-152204-army2army1army3army4-false",
+      "seed": 152204,
+      "order": [
+        "army2",
+        "army1",
+        "army3",
+        "army4"
+      ],
+      "match": {
+        "version": 2,
+        "sourceMapId": "skirmish",
+        "layoutVersion": 2,
+        "participants": [
+          "army1",
+          "army2",
+          "army3",
+          "army4"
+        ],
+        "initialOrder": [
+          "army2",
+          "army1",
+          "army3",
+          "army4"
+        ],
+        "initiative": "rotating",
+        "ending": "short",
+        "roundLimit": 20,
+        "teams": {
+          "army1": "army1",
+          "army2": "army2",
+          "army3": "army3",
+          "army4": "army4"
+        },
+        "sharedVision": false
+      },
+      "rules": {
+        "version": 1,
+        "tactics": false
+      },
+      "cpuVersion": "four-army-cpu-v6",
+      "count": 673,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army4"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army4"
+      ],
+      "eliminations": [
+        {
+          "army": "army3",
+          "round": 16
+        }
+      ],
+      "fallbacks": 5,
+      "traceSha256": "830a34982666ee7222bad12479a12597c395c5638bd66f7e2f3bd42663730ae1",
+      "stateSha256": "02b5be88127a60c417136aaf5dac522566b0623a5d5acdf7e13955709cc325d0",
+      "seconds": 2.9584070720000017,
+      "cpuMs": {
+        "p95": 5.400076999998419,
+        "max": 27.965594000008423
+      }
+    },
+    {
+      "id": "green-4-152204-army2army1army3army4-true",
+      "seed": 152204,
+      "order": [
+        "army2",
+        "army1",
+        "army3",
+        "army4"
+      ],
+      "match": {
+        "version": 2,
+        "sourceMapId": "skirmish",
+        "layoutVersion": 2,
+        "participants": [
+          "army1",
+          "army2",
+          "army3",
+          "army4"
+        ],
+        "initialOrder": [
+          "army2",
+          "army1",
+          "army3",
+          "army4"
+        ],
+        "initiative": "rotating",
+        "ending": "short",
+        "roundLimit": 20,
+        "teams": {
+          "army1": "army1",
+          "army2": "army2",
+          "army3": "army3",
+          "army4": "army4"
+        },
+        "sharedVision": false
+      },
+      "rules": {
+        "version": 1,
+        "tactics": true
+      },
+      "cpuVersion": "four-army-cpu-v6",
+      "count": 741,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army2"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "eliminations": [],
+      "fallbacks": 2,
+      "traceSha256": "be51dc5d57ebf88fff69ee460008058b75da55708dcb259cbbfe56a020e98861",
+      "stateSha256": "6ca5e90cd652c9b8db0541d243120b8ac8ae13b89a967104ed77355eb2ca7d9e",
+      "seconds": 2.6423261389999824,
+      "cpuMs": {
+        "p95": 4.367469999997411,
+        "max": 28.12644699998782
+      }
+    },
+    {
+      "id": "green-4-152205-army2army1army3army4-false",
+      "seed": 152205,
+      "order": [
+        "army2",
+        "army1",
+        "army3",
+        "army4"
+      ],
+      "match": {
+        "version": 2,
+        "sourceMapId": "skirmish",
+        "layoutVersion": 2,
+        "participants": [
+          "army1",
+          "army2",
+          "army3",
+          "army4"
+        ],
+        "initialOrder": [
+          "army2",
+          "army1",
+          "army3",
+          "army4"
+        ],
+        "initiative": "rotating",
+        "ending": "short",
+        "roundLimit": 20,
+        "teams": {
+          "army1": "army1",
+          "army2": "army2",
+          "army3": "army3",
+          "army4": "army4"
+        },
+        "sharedVision": false
+      },
+      "rules": {
+        "version": 1,
+        "tactics": false
+      },
+      "cpuVersion": "four-army-cpu-v6",
+      "count": 643,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army2"
+      },
+      "alive": [
+        "army2",
+        "army3"
+      ],
+      "eliminations": [
+        {
+          "army": "army1",
+          "round": 11
+        },
+        {
+          "army": "army4",
+          "round": 16
+        }
+      ],
+      "fallbacks": 1,
+      "traceSha256": "dc8323379d17afc82b980bf06ae687d18cfaad1e8b92fd74f153aa7db107866c",
+      "stateSha256": "b4a57cc20aa31b922c9bfb80405661bba06b7c288f461c1249fd84962e0b43e9",
+      "seconds": 2.7667180280000028,
+      "cpuMs": {
+        "p95": 5.421639999985928,
+        "max": 31.32431200001156
+      }
+    },
+    {
+      "id": "green-4-152205-army2army1army3army4-true",
+      "seed": 152205,
+      "order": [
+        "army2",
+        "army1",
+        "army3",
+        "army4"
+      ],
+      "match": {
+        "version": 2,
+        "sourceMapId": "skirmish",
+        "layoutVersion": 2,
+        "participants": [
+          "army1",
+          "army2",
+          "army3",
+          "army4"
+        ],
+        "initialOrder": [
+          "army2",
+          "army1",
+          "army3",
+          "army4"
+        ],
+        "initiative": "rotating",
+        "ending": "short",
+        "roundLimit": 20,
+        "teams": {
+          "army1": "army1",
+          "army2": "army2",
+          "army3": "army3",
+          "army4": "army4"
+        },
+        "sharedVision": false
+      },
+      "rules": {
+        "version": 1,
+        "tactics": true
+      },
+      "cpuVersion": "four-army-cpu-v6",
+      "count": 742,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army4"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "eliminations": [],
+      "fallbacks": 7,
+      "traceSha256": "5723288085dfe0a1c284c4dbdf615679a5e518ccfd21b89217298774c6fc5653",
+      "stateSha256": "fd30478f67576251b8497b670dbb1903fa837e553b8305d6ed3bc461c63e431b",
+      "seconds": 3.291046980999992,
+      "cpuMs": {
+        "p95": 6.416530999995302,
+        "max": 47.54909799998859
+      }
+    },
+    {
+      "id": "green-4-152204-army2army1army4army3-false",
+      "seed": 152204,
+      "order": [
+        "army2",
+        "army1",
+        "army4",
+        "army3"
+      ],
+      "match": {
+        "version": 2,
+        "sourceMapId": "skirmish",
+        "layoutVersion": 2,
+        "participants": [
+          "army1",
+          "army2",
+          "army3",
+          "army4"
+        ],
+        "initialOrder": [
+          "army2",
+          "army1",
+          "army4",
+          "army3"
+        ],
+        "initiative": "rotating",
+        "ending": "short",
+        "roundLimit": 20,
+        "teams": {
+          "army1": "army1",
+          "army2": "army2",
+          "army3": "army3",
+          "army4": "army4"
+        },
+        "sharedVision": false
+      },
+      "rules": {
+        "version": 1,
+        "tactics": false
+      },
+      "cpuVersion": "four-army-cpu-v6",
+      "count": 688,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army2"
+      },
+      "alive": [
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "eliminations": [
+        {
+          "army": "army1",
+          "round": 17
+        }
+      ],
+      "fallbacks": 0,
+      "traceSha256": "49be6dd2e88b9f7cf4746b05f660dae620c5d3004090b4cc5b0c6851ba2de1a2",
+      "stateSha256": "e058efce40591ccb57365e987759ac5813dcc736645cd45545951c43c76f6e6a",
+      "seconds": 3.1942567039999994,
+      "cpuMs": {
+        "p95": 6.083275999990292,
+        "max": 29.24683700001333
+      }
+    },
+    {
+      "id": "green-4-152204-army2army1army4army3-true",
+      "seed": 152204,
+      "order": [
+        "army2",
+        "army1",
+        "army4",
+        "army3"
+      ],
+      "match": {
+        "version": 2,
+        "sourceMapId": "skirmish",
+        "layoutVersion": 2,
+        "participants": [
+          "army1",
+          "army2",
+          "army3",
+          "army4"
+        ],
+        "initialOrder": [
+          "army2",
+          "army1",
+          "army4",
+          "army3"
+        ],
+        "initiative": "rotating",
+        "ending": "short",
+        "roundLimit": 20,
+        "teams": {
+          "army1": "army1",
+          "army2": "army2",
+          "army3": "army3",
+          "army4": "army4"
+        },
+        "sharedVision": false
+      },
+      "rules": {
+        "version": 1,
+        "tactics": true
+      },
+      "cpuVersion": "four-army-cpu-v6",
+      "count": 618,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army2"
+      },
+      "alive": [
+        "army2",
+        "army3"
+      ],
+      "eliminations": [
+        {
+          "army": "army1",
+          "round": 12
+        },
+        {
+          "army": "army4",
+          "round": 18
+        }
+      ],
+      "fallbacks": 8,
+      "traceSha256": "e04de8932061e400f3a8907aa1742d5ec534248ab4bdd7779a11d8db1d760f78",
+      "stateSha256": "6ea3ff8de85d1dd3681f956f815727203741c32a33b52602b16a2940b04c507c",
+      "seconds": 3.1504209469999767,
+      "cpuMs": {
+        "p95": 7.694587000005413,
+        "max": 33.76003400000627
+      }
+    },
+    {
+      "id": "green-4-152205-army2army1army4army3-false",
+      "seed": 152205,
+      "order": [
+        "army2",
+        "army1",
+        "army4",
+        "army3"
+      ],
+      "match": {
+        "version": 2,
+        "sourceMapId": "skirmish",
+        "layoutVersion": 2,
+        "participants": [
+          "army1",
+          "army2",
+          "army3",
+          "army4"
+        ],
+        "initialOrder": [
+          "army2",
+          "army1",
+          "army4",
+          "army3"
+        ],
+        "initiative": "rotating",
+        "ending": "short",
+        "roundLimit": 20,
+        "teams": {
+          "army1": "army1",
+          "army2": "army2",
+          "army3": "army3",
+          "army4": "army4"
+        },
+        "sharedVision": false
+      },
+      "rules": {
+        "version": 1,
+        "tactics": false
+      },
+      "cpuVersion": "four-army-cpu-v6",
+      "count": 693,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army4"
+      },
+      "alive": [
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "eliminations": [
+        {
+          "army": "army1",
+          "round": 18
+        }
+      ],
+      "fallbacks": 4,
+      "traceSha256": "34c3f67935cdf0a732f593aefc4c17c76792965d285c43163f60b7bf3c5a318a",
+      "stateSha256": "92fa415310234d6d156c4fdf5d7e1c0a99627243f9f40b2db2c9c81bc43ed652",
+      "seconds": 3.487355915000022,
+      "cpuMs": {
+        "p95": 8.274132999998983,
+        "max": 33.581021999998484
+      }
+    },
+    {
+      "id": "green-4-152205-army2army1army4army3-true",
+      "seed": 152205,
+      "order": [
+        "army2",
+        "army1",
+        "army4",
+        "army3"
+      ],
+      "match": {
+        "version": 2,
+        "sourceMapId": "skirmish",
+        "layoutVersion": 2,
+        "participants": [
+          "army1",
+          "army2",
+          "army3",
+          "army4"
+        ],
+        "initialOrder": [
+          "army2",
+          "army1",
+          "army4",
+          "army3"
+        ],
+        "initiative": "rotating",
+        "ending": "short",
+        "roundLimit": 20,
+        "teams": {
+          "army1": "army1",
+          "army2": "army2",
+          "army3": "army3",
+          "army4": "army4"
+        },
+        "sharedVision": false
+      },
+      "rules": {
+        "version": 1,
+        "tactics": true
+      },
+      "cpuVersion": "four-army-cpu-v6",
+      "count": 640,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army2"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army4"
+      ],
+      "eliminations": [
+        {
+          "army": "army3",
+          "round": 12
+        }
+      ],
+      "fallbacks": 1,
+      "traceSha256": "572c8452df4249ebfb028e62297c1f7dff78973c3da69f32f0bd9c0305489473",
+      "stateSha256": "89087c5b452ebab401a1822199b9e2a42eaed313744c32c110172bfbbfdea5bf",
+      "seconds": 4.592030904999993,
+      "cpuMs": {
+        "p95": 10.850230000010924,
+        "max": 32.593404000013834
+      }
+    },
+    {
+      "id": "green-4-152204-army2army3army1army4-false",
+      "seed": 152204,
+      "order": [
+        "army2",
+        "army3",
+        "army1",
+        "army4"
+      ],
+      "match": {
+        "version": 2,
+        "sourceMapId": "skirmish",
+        "layoutVersion": 2,
+        "participants": [
+          "army1",
+          "army2",
+          "army3",
+          "army4"
+        ],
+        "initialOrder": [
+          "army2",
+          "army3",
+          "army1",
+          "army4"
+        ],
+        "initiative": "rotating",
+        "ending": "short",
+        "roundLimit": 20,
+        "teams": {
+          "army1": "army1",
+          "army2": "army2",
+          "army3": "army3",
+          "army4": "army4"
+        },
+        "sharedVision": false
+      },
+      "rules": {
+        "version": 1,
+        "tactics": false
+      },
+      "cpuVersion": "four-army-cpu-v6",
+      "count": 677,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army3"
+      },
+      "alive": [
+        "army3",
+        "army4"
+      ],
+      "eliminations": [
+        {
+          "army": "army1",
+          "round": 17
+        },
+        {
+          "army": "army2",
+          "round": 20
+        }
+      ],
+      "fallbacks": 4,
+      "traceSha256": "83001541763c5dcb470c0214415792f7694dacd288ebb8c36d6036f6723929aa",
+      "stateSha256": "daccee1e5c321b5dcd9bc1a134bf5a95d60b87b99c8567b3596dafb9b476a92a",
+      "seconds": 2.9532781919999977,
+      "cpuMs": {
+        "p95": 5.962456999986898,
+        "max": 32.95792499999516
+      }
+    },
+    {
+      "id": "green-4-152204-army2army3army1army4-true",
+      "seed": 152204,
+      "order": [
+        "army2",
+        "army3",
+        "army1",
+        "army4"
+      ],
+      "match": {
+        "version": 2,
+        "sourceMapId": "skirmish",
+        "layoutVersion": 2,
+        "participants": [
+          "army1",
+          "army2",
+          "army3",
+          "army4"
+        ],
+        "initialOrder": [
+          "army2",
+          "army3",
+          "army1",
+          "army4"
+        ],
+        "initiative": "rotating",
+        "ending": "short",
+        "roundLimit": 20,
+        "teams": {
+          "army1": "army1",
+          "army2": "army2",
+          "army3": "army3",
+          "army4": "army4"
+        },
+        "sharedVision": false
+      },
+      "rules": {
+        "version": 1,
+        "tactics": true
+      },
+      "cpuVersion": "four-army-cpu-v6",
+      "count": 683,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army1"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "eliminations": [],
+      "fallbacks": 2,
+      "traceSha256": "fb4702b9b166b70ca10e03c07ec370d876b8d0f36693090ae653f0fd8e16166a",
+      "stateSha256": "abd8451982e96b949ed01c4be513bd00f9d2add1f4ea28eaaecbed233ad79444",
+      "seconds": 4.901126015999995,
+      "cpuMs": {
+        "p95": 19.178367999993498,
+        "max": 62.415901000000304
+      }
+    },
+    {
+      "id": "green-4-152205-army2army3army1army4-false",
+      "seed": 152205,
+      "order": [
+        "army2",
+        "army3",
+        "army1",
+        "army4"
+      ],
+      "match": {
+        "version": 2,
+        "sourceMapId": "skirmish",
+        "layoutVersion": 2,
+        "participants": [
+          "army1",
+          "army2",
+          "army3",
+          "army4"
+        ],
+        "initialOrder": [
+          "army2",
+          "army3",
+          "army1",
+          "army4"
+        ],
+        "initiative": "rotating",
+        "ending": "short",
+        "roundLimit": 20,
+        "teams": {
+          "army1": "army1",
+          "army2": "army2",
+          "army3": "army3",
+          "army4": "army4"
+        },
+        "sharedVision": false
+      },
+      "rules": {
+        "version": 1,
+        "tactics": false
+      },
+      "cpuVersion": "four-army-cpu-v6",
+      "count": 710,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army3"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army3"
+      ],
+      "eliminations": [
+        {
+          "army": "army4",
+          "round": 19
+        }
+      ],
+      "fallbacks": 7,
+      "traceSha256": "fc5f21f487dc93e78a11560fd81366b385ba0c4ac5a1cb46b461a72f6d90c286",
+      "stateSha256": "9d06652b03c1c3f6a754c5c0a24701f6715b7441a231d7e0d41cddeedb4df1bd",
+      "seconds": 5.028909022000007,
+      "cpuMs": {
+        "p95": 13.852689999999711,
+        "max": 50.425709999981336
+      }
+    },
+    {
+      "id": "green-4-152205-army2army3army1army4-true",
+      "seed": 152205,
+      "order": [
+        "army2",
+        "army3",
+        "army1",
+        "army4"
+      ],
+      "match": {
+        "version": 2,
+        "sourceMapId": "skirmish",
+        "layoutVersion": 2,
+        "participants": [
+          "army1",
+          "army2",
+          "army3",
+          "army4"
+        ],
+        "initialOrder": [
+          "army2",
+          "army3",
+          "army1",
+          "army4"
+        ],
+        "initiative": "rotating",
+        "ending": "short",
+        "roundLimit": 20,
+        "teams": {
+          "army1": "army1",
+          "army2": "army2",
+          "army3": "army3",
+          "army4": "army4"
+        },
+        "sharedVision": false
+      },
+      "rules": {
+        "version": 1,
+        "tactics": true
+      },
+      "cpuVersion": "four-army-cpu-v6",
+      "count": 697,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army2"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army4"
+      ],
+      "eliminations": [
+        {
+          "army": "army3",
+          "round": 17
+        }
+      ],
+      "fallbacks": 1,
+      "traceSha256": "d043ac75af7d047c6cccce171444c8eb70a38271e270404ae178d069fc45838a",
+      "stateSha256": "b0c99455c3840cbd97dddd41ee195870fdebcade229466d6ba5078378a02877a",
+      "seconds": 3.1837554119999987,
+      "cpuMs": {
+        "p95": 7.266953999991529,
+        "max": 31.447936999989906
+      }
+    },
+    {
+      "id": "green-4-152204-army2army3army4army1-false",
+      "seed": 152204,
+      "order": [
+        "army2",
+        "army3",
+        "army4",
+        "army1"
+      ],
+      "match": {
+        "version": 2,
+        "sourceMapId": "skirmish",
+        "layoutVersion": 2,
+        "participants": [
+          "army1",
+          "army2",
+          "army3",
+          "army4"
+        ],
+        "initialOrder": [
+          "army2",
+          "army3",
+          "army4",
+          "army1"
+        ],
+        "initiative": "rotating",
+        "ending": "short",
+        "roundLimit": 20,
+        "teams": {
+          "army1": "army1",
+          "army2": "army2",
+          "army3": "army3",
+          "army4": "army4"
+        },
+        "sharedVision": false
+      },
+      "rules": {
+        "version": 1,
+        "tactics": false
+      },
+      "cpuVersion": "four-army-cpu-v6",
+      "count": 656,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army3"
+      },
+      "alive": [
+        "army1",
+        "army3",
+        "army4"
+      ],
+      "eliminations": [
+        {
+          "army": "army2",
+          "round": 9
+        }
+      ],
+      "fallbacks": 0,
+      "traceSha256": "6fcb096c54ef855572de131f857105d1cac55a3a3a3cc7605c970538f1bab9c4",
+      "stateSha256": "84cc704fdfafc52af6b95efb59e03a8f44e6bd0620d28dd991c75a2464420a52",
+      "seconds": 2.6224513160000207,
+      "cpuMs": {
+        "p95": 5.339092000009259,
+        "max": 31.65660200000275
+      }
+    },
+    {
+      "id": "green-4-152204-army2army3army4army1-true",
+      "seed": 152204,
+      "order": [
+        "army2",
+        "army3",
+        "army4",
+        "army1"
+      ],
+      "match": {
+        "version": 2,
+        "sourceMapId": "skirmish",
+        "layoutVersion": 2,
+        "participants": [
+          "army1",
+          "army2",
+          "army3",
+          "army4"
+        ],
+        "initialOrder": [
+          "army2",
+          "army3",
+          "army4",
+          "army1"
+        ],
+        "initiative": "rotating",
+        "ending": "short",
+        "roundLimit": 20,
+        "teams": {
+          "army1": "army1",
+          "army2": "army2",
+          "army3": "army3",
+          "army4": "army4"
+        },
+        "sharedVision": false
+      },
+      "rules": {
+        "version": 1,
+        "tactics": true
+      },
+      "cpuVersion": "four-army-cpu-v6",
+      "count": 682,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army4"
+      },
+      "alive": [
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "eliminations": [
+        {
+          "army": "army1",
+          "round": 16
+        }
+      ],
+      "fallbacks": 7,
+      "traceSha256": "17df7c15b264798c6995c986b7d054d5aff6c0a023eefef4402c6e42801dfcb9",
+      "stateSha256": "5e43ccff45754a8c1d3d5afab00099aa66da4710932efa8e8bbdb166245c3fcb",
+      "seconds": 2.283087249000004,
+      "cpuMs": {
+        "p95": 4.184642999985954,
+        "max": 41.79658500000369
+      }
+    },
+    {
+      "id": "green-4-152205-army2army3army4army1-false",
+      "seed": 152205,
+      "order": [
+        "army2",
+        "army3",
+        "army4",
+        "army1"
+      ],
+      "match": {
+        "version": 2,
+        "sourceMapId": "skirmish",
+        "layoutVersion": 2,
+        "participants": [
+          "army1",
+          "army2",
+          "army3",
+          "army4"
+        ],
+        "initialOrder": [
+          "army2",
+          "army3",
+          "army4",
+          "army1"
+        ],
+        "initiative": "rotating",
+        "ending": "short",
+        "roundLimit": 20,
+        "teams": {
+          "army1": "army1",
+          "army2": "army2",
+          "army3": "army3",
+          "army4": "army4"
+        },
+        "sharedVision": false
+      },
+      "rules": {
+        "version": 1,
+        "tactics": false
+      },
+      "cpuVersion": "four-army-cpu-v6",
+      "count": 652,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army3"
+      },
+      "alive": [
+        "army3",
+        "army4"
+      ],
+      "eliminations": [
+        {
+          "army": "army2",
+          "round": 10
+        },
+        {
+          "army": "army1",
+          "round": 19
+        }
+      ],
+      "fallbacks": 2,
+      "traceSha256": "69b4d9fd0df48c274474beb695e10d2586f07afb9bd2839e3b28c7fa811a9220",
+      "stateSha256": "9cba71ab2b31d182883c0d57bf1c956387c4fae5180fdcd85a32aee193ed6487",
+      "seconds": 2.2408600480000023,
+      "cpuMs": {
+        "p95": 4.233777999994345,
+        "max": 52.08283600001596
+      }
+    },
+    {
+      "id": "green-4-152205-army2army3army4army1-true",
+      "seed": 152205,
+      "order": [
+        "army2",
+        "army3",
+        "army4",
+        "army1"
+      ],
+      "match": {
+        "version": 2,
+        "sourceMapId": "skirmish",
+        "layoutVersion": 2,
+        "participants": [
+          "army1",
+          "army2",
+          "army3",
+          "army4"
+        ],
+        "initialOrder": [
+          "army2",
+          "army3",
+          "army4",
+          "army1"
+        ],
+        "initiative": "rotating",
+        "ending": "short",
+        "roundLimit": 20,
+        "teams": {
+          "army1": "army1",
+          "army2": "army2",
+          "army3": "army3",
+          "army4": "army4"
+        },
+        "sharedVision": false
+      },
+      "rules": {
+        "version": 1,
+        "tactics": true
+      },
+      "cpuVersion": "four-army-cpu-v6",
+      "count": 719,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army2"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "eliminations": [],
+      "fallbacks": 9,
+      "traceSha256": "607d876696f1b2271d6074710dd9f5bc129cb4712834c400e6ac6121f2167416",
+      "stateSha256": "45f07b89c38acb8fd6df34fbca51f0437dc088bbed0573a7ea2fca1280b2823c",
+      "seconds": 2.7404919999999984,
+      "cpuMs": {
+        "p95": 5.154894000006607,
+        "max": 27.366182999976445
+      }
+    },
+    {
+      "id": "green-4-152204-army2army4army1army3-false",
+      "seed": 152204,
+      "order": [
+        "army2",
+        "army4",
+        "army1",
+        "army3"
+      ],
+      "match": {
+        "version": 2,
+        "sourceMapId": "skirmish",
+        "layoutVersion": 2,
+        "participants": [
+          "army1",
+          "army2",
+          "army3",
+          "army4"
+        ],
+        "initialOrder": [
+          "army2",
+          "army4",
+          "army1",
+          "army3"
+        ],
+        "initiative": "rotating",
+        "ending": "short",
+        "roundLimit": 20,
+        "teams": {
+          "army1": "army1",
+          "army2": "army2",
+          "army3": "army3",
+          "army4": "army4"
+        },
+        "sharedVision": false
+      },
+      "rules": {
+        "version": 1,
+        "tactics": false
+      },
+      "cpuVersion": "four-army-cpu-v6",
+      "count": 708,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army4"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "eliminations": [],
+      "fallbacks": 5,
+      "traceSha256": "8e97c1cfbb6fbde2f727d151f7dfbe6565c9c50b5212c2ee469f513f2c4fd041",
+      "stateSha256": "5b97de7c00b9b83fd611a686d282a7fa4c519177ebb4f6cbdf37131cce7956d1",
+      "seconds": 2.58305141700001,
+      "cpuMs": {
+        "p95": 5.1179079999856185,
+        "max": 40.438921000022674
+      }
+    },
+    {
+      "id": "green-4-152204-army2army4army1army3-true",
+      "seed": 152204,
+      "order": [
+        "army2",
+        "army4",
+        "army1",
+        "army3"
+      ],
+      "match": {
+        "version": 2,
+        "sourceMapId": "skirmish",
+        "layoutVersion": 2,
+        "participants": [
+          "army1",
+          "army2",
+          "army3",
+          "army4"
+        ],
+        "initialOrder": [
+          "army2",
+          "army4",
+          "army1",
+          "army3"
+        ],
+        "initiative": "rotating",
+        "ending": "short",
+        "roundLimit": 20,
+        "teams": {
+          "army1": "army1",
+          "army2": "army2",
+          "army3": "army3",
+          "army4": "army4"
+        },
+        "sharedVision": false
+      },
+      "rules": {
+        "version": 1,
+        "tactics": true
+      },
+      "cpuVersion": "four-army-cpu-v6",
+      "count": 653,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army1"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "eliminations": [],
+      "fallbacks": 17,
+      "traceSha256": "51bcbed19f75384b93bf1269d9c3410e9dbbcbc65fe484ccdf521e2702c40727",
+      "stateSha256": "72d5dba6df231ddf5fe6859144392698e2c5e1baf5ff014bf94932cf9b55fa11",
+      "seconds": 1.858156296000001,
+      "cpuMs": {
+        "p95": 3.6656439999933355,
+        "max": 55.00502199999755
+      }
+    },
+    {
+      "id": "green-4-152205-army2army4army1army3-false",
+      "seed": 152205,
+      "order": [
+        "army2",
+        "army4",
+        "army1",
+        "army3"
+      ],
+      "match": {
+        "version": 2,
+        "sourceMapId": "skirmish",
+        "layoutVersion": 2,
+        "participants": [
+          "army1",
+          "army2",
+          "army3",
+          "army4"
+        ],
+        "initialOrder": [
+          "army2",
+          "army4",
+          "army1",
+          "army3"
+        ],
+        "initiative": "rotating",
+        "ending": "short",
+        "roundLimit": 20,
+        "teams": {
+          "army1": "army1",
+          "army2": "army2",
+          "army3": "army3",
+          "army4": "army4"
+        },
+        "sharedVision": false
+      },
+      "rules": {
+        "version": 1,
+        "tactics": false
+      },
+      "cpuVersion": "four-army-cpu-v6",
+      "count": 706,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army1"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army3"
+      ],
+      "eliminations": [
+        {
+          "army": "army4",
+          "round": 18
+        }
+      ],
+      "fallbacks": 6,
+      "traceSha256": "e0e2455e0d7dcda4ea25098ee01be633cd02c946394637cdef08ffbaf897235b",
+      "stateSha256": "ded8e915f66b0326bbd0123aad4865fea77269a3526e8678d20621e07913547e",
+      "seconds": 2.4355853479999934,
+      "cpuMs": {
+        "p95": 4.161984000005759,
+        "max": 26.453599000000395
+      }
+    },
+    {
+      "id": "green-4-152205-army2army4army1army3-true",
+      "seed": 152205,
+      "order": [
+        "army2",
+        "army4",
+        "army1",
+        "army3"
+      ],
+      "match": {
+        "version": 2,
+        "sourceMapId": "skirmish",
+        "layoutVersion": 2,
+        "participants": [
+          "army1",
+          "army2",
+          "army3",
+          "army4"
+        ],
+        "initialOrder": [
+          "army2",
+          "army4",
+          "army1",
+          "army3"
+        ],
+        "initiative": "rotating",
+        "ending": "short",
+        "roundLimit": 20,
+        "teams": {
+          "army1": "army1",
+          "army2": "army2",
+          "army3": "army3",
+          "army4": "army4"
+        },
+        "sharedVision": false
+      },
+      "rules": {
+        "version": 1,
+        "tactics": true
+      },
+      "cpuVersion": "four-army-cpu-v6",
+      "count": 722,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army3"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "eliminations": [],
+      "fallbacks": 7,
+      "traceSha256": "838856983940fde776f201290bf6e91a2c91d968277d9d57875ec6120b303cc9",
+      "stateSha256": "5ad924c8954f198b56671fdbedba00588ee2a0873906c31f8ebfc2a74e494ce8",
+      "seconds": 2.604487892999983,
+      "cpuMs": {
+        "p95": 4.429470999981277,
+        "max": 34.22839499998372
+      }
+    },
+    {
+      "id": "green-4-152204-army2army4army3army1-false",
+      "seed": 152204,
+      "order": [
+        "army2",
+        "army4",
+        "army3",
+        "army1"
+      ],
+      "match": {
+        "version": 2,
+        "sourceMapId": "skirmish",
+        "layoutVersion": 2,
+        "participants": [
+          "army1",
+          "army2",
+          "army3",
+          "army4"
+        ],
+        "initialOrder": [
+          "army2",
+          "army4",
+          "army3",
+          "army1"
+        ],
+        "initiative": "rotating",
+        "ending": "short",
+        "roundLimit": 20,
+        "teams": {
+          "army1": "army1",
+          "army2": "army2",
+          "army3": "army3",
+          "army4": "army4"
+        },
+        "sharedVision": false
+      },
+      "rules": {
+        "version": 1,
+        "tactics": false
+      },
+      "cpuVersion": "four-army-cpu-v6",
+      "count": 652,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army3"
+      },
+      "alive": [
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "eliminations": [
+        {
+          "army": "army1",
+          "round": 17
+        }
+      ],
+      "fallbacks": 5,
+      "traceSha256": "dacc3be12a2d035524531ee35250e269a5205756a5a26a2349f0bed956912b4f",
+      "stateSha256": "7a561400fe22fecd4cd2dc5b407e7a024423c6a34db8a63b32588efc3a30b96c",
+      "seconds": 2.1652491539999903,
+      "cpuMs": {
+        "p95": 4.165012999990722,
+        "max": 29.634090000006836
+      }
+    },
+    {
+      "id": "green-4-152204-army2army4army3army1-true",
+      "seed": 152204,
+      "order": [
+        "army2",
+        "army4",
+        "army3",
+        "army1"
+      ],
+      "match": {
+        "version": 2,
+        "sourceMapId": "skirmish",
+        "layoutVersion": 2,
+        "participants": [
+          "army1",
+          "army2",
+          "army3",
+          "army4"
+        ],
+        "initialOrder": [
+          "army2",
+          "army4",
+          "army3",
+          "army1"
+        ],
+        "initiative": "rotating",
+        "ending": "short",
+        "roundLimit": 20,
+        "teams": {
+          "army1": "army1",
+          "army2": "army2",
+          "army3": "army3",
+          "army4": "army4"
+        },
+        "sharedVision": false
+      },
+      "rules": {
+        "version": 1,
+        "tactics": true
+      },
+      "cpuVersion": "four-army-cpu-v6",
+      "count": 727,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army4"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "eliminations": [],
+      "fallbacks": 2,
+      "traceSha256": "818012dfd5594d776fcce2ab9369c4d06ee95a84780845f685ad0e5dfcbdab87",
+      "stateSha256": "fac41ea716447442561a4443d8c4a8933617f8a91c5cc76c9d06fe48b2dd43eb",
+      "seconds": 2.2815389599999762,
+      "cpuMs": {
+        "p95": 3.543165000010049,
+        "max": 28.110382000013487
+      }
+    },
+    {
+      "id": "green-4-152205-army2army4army3army1-false",
+      "seed": 152205,
+      "order": [
+        "army2",
+        "army4",
+        "army3",
+        "army1"
+      ],
+      "match": {
+        "version": 2,
+        "sourceMapId": "skirmish",
+        "layoutVersion": 2,
+        "participants": [
+          "army1",
+          "army2",
+          "army3",
+          "army4"
+        ],
+        "initialOrder": [
+          "army2",
+          "army4",
+          "army3",
+          "army1"
+        ],
+        "initiative": "rotating",
+        "ending": "short",
+        "roundLimit": 20,
+        "teams": {
+          "army1": "army1",
+          "army2": "army2",
+          "army3": "army3",
+          "army4": "army4"
+        },
+        "sharedVision": false
+      },
+      "rules": {
+        "version": 1,
+        "tactics": false
+      },
+      "cpuVersion": "four-army-cpu-v6",
+      "count": 701,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army1"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "eliminations": [],
+      "fallbacks": 4,
+      "traceSha256": "43edbd3988f610bfc8e33f6cecc5bd145bd614b578027dd95feed27397f8b7f2",
+      "stateSha256": "3e6bb5dd74ab88bb7513bbd2ab8f1023dd93264ab987dab0176c1da33e7072c2",
+      "seconds": 2.642140824000002,
+      "cpuMs": {
+        "p95": 4.390979000017978,
+        "max": 37.50962999998592
+      }
+    },
+    {
+      "id": "green-4-152205-army2army4army3army1-true",
+      "seed": 152205,
+      "order": [
+        "army2",
+        "army4",
+        "army3",
+        "army1"
+      ],
+      "match": {
+        "version": 2,
+        "sourceMapId": "skirmish",
+        "layoutVersion": 2,
+        "participants": [
+          "army1",
+          "army2",
+          "army3",
+          "army4"
+        ],
+        "initialOrder": [
+          "army2",
+          "army4",
+          "army3",
+          "army1"
+        ],
+        "initiative": "rotating",
+        "ending": "short",
+        "roundLimit": 20,
+        "teams": {
+          "army1": "army1",
+          "army2": "army2",
+          "army3": "army3",
+          "army4": "army4"
+        },
+        "sharedVision": false
+      },
+      "rules": {
+        "version": 1,
+        "tactics": true
+      },
+      "cpuVersion": "four-army-cpu-v6",
+      "count": 691,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army1"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army3"
+      ],
+      "eliminations": [
+        {
+          "army": "army4",
+          "round": 13
+        }
+      ],
+      "fallbacks": 4,
+      "traceSha256": "f5ebe2bb077d3a435198bd1c28b346a80411a662feb2e0f6278ca1adb75c1543",
+      "stateSha256": "2f77f6f37a8bdec4108c202ca45f177c9b34369ea47ac2aabf7bd3ed24eb07b9",
+      "seconds": 2.2217286810000076,
+      "cpuMs": {
+        "p95": 4.369009000016376,
+        "max": 26.600480999972206
+      }
+    },
+    {
+      "id": "green-4-152204-army3army1army2army4-false",
+      "seed": 152204,
+      "order": [
+        "army3",
+        "army1",
+        "army2",
+        "army4"
+      ],
+      "match": {
+        "version": 2,
+        "sourceMapId": "skirmish",
+        "layoutVersion": 2,
+        "participants": [
+          "army1",
+          "army2",
+          "army3",
+          "army4"
+        ],
+        "initialOrder": [
+          "army3",
+          "army1",
+          "army2",
+          "army4"
+        ],
+        "initiative": "rotating",
+        "ending": "short",
+        "roundLimit": 20,
+        "teams": {
+          "army1": "army1",
+          "army2": "army2",
+          "army3": "army3",
+          "army4": "army4"
+        },
+        "sharedVision": false
+      },
+      "rules": {
+        "version": 1,
+        "tactics": false
+      },
+      "cpuVersion": "four-army-cpu-v6",
+      "count": 652,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army2"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army3"
+      ],
+      "eliminations": [
+        {
+          "army": "army4",
+          "round": 17
+        }
+      ],
+      "fallbacks": 5,
+      "traceSha256": "06857ca0988c8917c15e9442bb9b8f23ff4fe57e6176a93a28af67a438bace5f",
+      "stateSha256": "c1ab228b7bb87ee7bf535e5c657b5c127062cd1be82dc6ad291982ce3a74a164",
+      "seconds": 2.083279136999976,
+      "cpuMs": {
+        "p95": 3.8217789999907836,
+        "max": 23.29798999999184
+      }
+    },
+    {
+      "id": "green-4-152204-army3army1army2army4-true",
+      "seed": 152204,
+      "order": [
+        "army3",
+        "army1",
+        "army2",
+        "army4"
+      ],
+      "match": {
+        "version": 2,
+        "sourceMapId": "skirmish",
+        "layoutVersion": 2,
+        "participants": [
+          "army1",
+          "army2",
+          "army3",
+          "army4"
+        ],
+        "initialOrder": [
+          "army3",
+          "army1",
+          "army2",
+          "army4"
+        ],
+        "initiative": "rotating",
+        "ending": "short",
+        "roundLimit": 20,
+        "teams": {
+          "army1": "army1",
+          "army2": "army2",
+          "army3": "army3",
+          "army4": "army4"
+        },
+        "sharedVision": false
+      },
+      "rules": {
+        "version": 1,
+        "tactics": true
+      },
+      "cpuVersion": "four-army-cpu-v6",
+      "count": 727,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army1"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "eliminations": [],
+      "fallbacks": 2,
+      "traceSha256": "31860886991e7477bf02315d3136ae067b8f531cf3eaf85004c5dd7c18ea33f4",
+      "stateSha256": "8512e533dc897b0a9eac6784bb37dc9be8af7bfd68b4eb654dc16870947ecde9",
+      "seconds": 2.690904563999968,
+      "cpuMs": {
+        "p95": 4.902895000006538,
+        "max": 37.116113999974914
+      }
+    },
+    {
+      "id": "green-4-152205-army3army1army2army4-false",
+      "seed": 152205,
+      "order": [
+        "army3",
+        "army1",
+        "army2",
+        "army4"
+      ],
+      "match": {
+        "version": 2,
+        "sourceMapId": "skirmish",
+        "layoutVersion": 2,
+        "participants": [
+          "army1",
+          "army2",
+          "army3",
+          "army4"
+        ],
+        "initialOrder": [
+          "army3",
+          "army1",
+          "army2",
+          "army4"
+        ],
+        "initiative": "rotating",
+        "ending": "short",
+        "roundLimit": 20,
+        "teams": {
+          "army1": "army1",
+          "army2": "army2",
+          "army3": "army3",
+          "army4": "army4"
+        },
+        "sharedVision": false
+      },
+      "rules": {
+        "version": 1,
+        "tactics": false
+      },
+      "cpuVersion": "four-army-cpu-v6",
+      "count": 701,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army4"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "eliminations": [],
+      "fallbacks": 4,
+      "traceSha256": "1fa312e5dccd9f57259373fc709913466ec1503a5de4ebd64b06fb6e9a268a62",
+      "stateSha256": "762478554999b1159f5d420f2b59be350698a14ebaecd53e6704962b8dda8ddb",
+      "seconds": 2.5591784190000033,
+      "cpuMs": {
+        "p95": 4.5318500000284985,
+        "max": 30.001379999972414
+      }
+    },
+    {
+      "id": "green-4-152205-army3army1army2army4-true",
+      "seed": 152205,
+      "order": [
+        "army3",
+        "army1",
+        "army2",
+        "army4"
+      ],
+      "match": {
+        "version": 2,
+        "sourceMapId": "skirmish",
+        "layoutVersion": 2,
+        "participants": [
+          "army1",
+          "army2",
+          "army3",
+          "army4"
+        ],
+        "initialOrder": [
+          "army3",
+          "army1",
+          "army2",
+          "army4"
+        ],
+        "initiative": "rotating",
+        "ending": "short",
+        "roundLimit": 20,
+        "teams": {
+          "army1": "army1",
+          "army2": "army2",
+          "army3": "army3",
+          "army4": "army4"
+        },
+        "sharedVision": false
+      },
+      "rules": {
+        "version": 1,
+        "tactics": true
+      },
+      "cpuVersion": "four-army-cpu-v6",
+      "count": 691,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army4"
+      },
+      "alive": [
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "eliminations": [
+        {
+          "army": "army1",
+          "round": 13
+        }
+      ],
+      "fallbacks": 4,
+      "traceSha256": "57c6b373f9938fa02ed6831f9d37be51a19d85306b6d6ffbb7b86aeb7e837e3f",
+      "stateSha256": "d1cdfe43704b7bd544ddc04449b3fbc85750a176225cd911f6837e64e2a16375",
+      "seconds": 2.4065950719999964,
+      "cpuMs": {
+        "p95": 4.465559000032954,
+        "max": 48.65689799998654
+      }
+    },
+    {
+      "id": "green-4-152204-army3army1army4army2-false",
+      "seed": 152204,
+      "order": [
+        "army3",
+        "army1",
+        "army4",
+        "army2"
+      ],
+      "match": {
+        "version": 2,
+        "sourceMapId": "skirmish",
+        "layoutVersion": 2,
+        "participants": [
+          "army1",
+          "army2",
+          "army3",
+          "army4"
+        ],
+        "initialOrder": [
+          "army3",
+          "army1",
+          "army4",
+          "army2"
+        ],
+        "initiative": "rotating",
+        "ending": "short",
+        "roundLimit": 20,
+        "teams": {
+          "army1": "army1",
+          "army2": "army2",
+          "army3": "army3",
+          "army4": "army4"
+        },
+        "sharedVision": false
+      },
+      "rules": {
+        "version": 1,
+        "tactics": false
+      },
+      "cpuVersion": "four-army-cpu-v6",
+      "count": 708,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army1"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "eliminations": [],
+      "fallbacks": 5,
+      "traceSha256": "a6c333d78a94ce635c71604ab9224db31d877187c12fed368e08d474849770ba",
+      "stateSha256": "c1c23dd3e4359496000ce44fdbaafb140c91a1a57ce57946e80a5bf65627de18",
+      "seconds": 2.4317316820000414,
+      "cpuMs": {
+        "p95": 4.0778730000020005,
+        "max": 32.652811000007205
+      }
+    },
+    {
+      "id": "green-4-152204-army3army1army4army2-true",
+      "seed": 152204,
+      "order": [
+        "army3",
+        "army1",
+        "army4",
+        "army2"
+      ],
+      "match": {
+        "version": 2,
+        "sourceMapId": "skirmish",
+        "layoutVersion": 2,
+        "participants": [
+          "army1",
+          "army2",
+          "army3",
+          "army4"
+        ],
+        "initialOrder": [
+          "army3",
+          "army1",
+          "army4",
+          "army2"
+        ],
+        "initiative": "rotating",
+        "ending": "short",
+        "roundLimit": 20,
+        "teams": {
+          "army1": "army1",
+          "army2": "army2",
+          "army3": "army3",
+          "army4": "army4"
+        },
+        "sharedVision": false
+      },
+      "rules": {
+        "version": 1,
+        "tactics": true
+      },
+      "cpuVersion": "four-army-cpu-v6",
+      "count": 653,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army4"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "eliminations": [],
+      "fallbacks": 17,
+      "traceSha256": "09124f206b95fde2aa7ea72de00383ac9a88faf75598491002af86d2c618d031",
+      "stateSha256": "309bf3621354e76578f1b6701b5d94ed60a17a2f59a1085631e5c356358b2b46",
+      "seconds": 2.3379622710000256,
+      "cpuMs": {
+        "p95": 4.6848079999908805,
+        "max": 30.50864899996668
+      }
+    },
+    {
+      "id": "green-4-152205-army3army1army4army2-false",
+      "seed": 152205,
+      "order": [
+        "army3",
+        "army1",
+        "army4",
+        "army2"
+      ],
+      "match": {
+        "version": 2,
+        "sourceMapId": "skirmish",
+        "layoutVersion": 2,
+        "participants": [
+          "army1",
+          "army2",
+          "army3",
+          "army4"
+        ],
+        "initialOrder": [
+          "army3",
+          "army1",
+          "army4",
+          "army2"
+        ],
+        "initiative": "rotating",
+        "ending": "short",
+        "roundLimit": 20,
+        "teams": {
+          "army1": "army1",
+          "army2": "army2",
+          "army3": "army3",
+          "army4": "army4"
+        },
+        "sharedVision": false
+      },
+      "rules": {
+        "version": 1,
+        "tactics": false
+      },
+      "cpuVersion": "four-army-cpu-v6",
+      "count": 706,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army4"
+      },
+      "alive": [
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "eliminations": [
+        {
+          "army": "army1",
+          "round": 18
+        }
+      ],
+      "fallbacks": 6,
+      "traceSha256": "2207e1eefd7a0d2abb274d630fb4a40178841fb01dea3bd4c4aff960b268ae0a",
+      "stateSha256": "320e8caee1eb873e03e281a469f3f7e98d5d510c3211dd9a6f2bc067753d28ee",
+      "seconds": 3.0889775789999985,
+      "cpuMs": {
+        "p95": 5.476936999999452,
+        "max": 27.510307000018656
+      }
+    },
+    {
+      "id": "green-4-152205-army3army1army4army2-true",
+      "seed": 152205,
+      "order": [
+        "army3",
+        "army1",
+        "army4",
+        "army2"
+      ],
+      "match": {
+        "version": 2,
+        "sourceMapId": "skirmish",
+        "layoutVersion": 2,
+        "participants": [
+          "army1",
+          "army2",
+          "army3",
+          "army4"
+        ],
+        "initialOrder": [
+          "army3",
+          "army1",
+          "army4",
+          "army2"
+        ],
+        "initiative": "rotating",
+        "ending": "short",
+        "roundLimit": 20,
+        "teams": {
+          "army1": "army1",
+          "army2": "army2",
+          "army3": "army3",
+          "army4": "army4"
+        },
+        "sharedVision": false
+      },
+      "rules": {
+        "version": 1,
+        "tactics": true
+      },
+      "cpuVersion": "four-army-cpu-v6",
+      "count": 722,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army2"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "eliminations": [],
+      "fallbacks": 7,
+      "traceSha256": "5bf837ce1dc1f13cafa254b873c3aa9d9d513b450b4565cac268f5bc0a985ced",
+      "stateSha256": "c23895817bd7edd9192fd1f93b238dbbc0c8ec31d6bb8dfe84e4d64debe0bfee",
+      "seconds": 2.9662531130000134,
+      "cpuMs": {
+        "p95": 4.524341000011191,
+        "max": 27.061751000001095
+      }
+    },
+    {
+      "id": "green-4-152204-army3army2army1army4-false",
+      "seed": 152204,
+      "order": [
+        "army3",
+        "army2",
+        "army1",
+        "army4"
+      ],
+      "match": {
+        "version": 2,
+        "sourceMapId": "skirmish",
+        "layoutVersion": 2,
+        "participants": [
+          "army1",
+          "army2",
+          "army3",
+          "army4"
+        ],
+        "initialOrder": [
+          "army3",
+          "army2",
+          "army1",
+          "army4"
+        ],
+        "initiative": "rotating",
+        "ending": "short",
+        "roundLimit": 20,
+        "teams": {
+          "army1": "army1",
+          "army2": "army2",
+          "army3": "army3",
+          "army4": "army4"
+        },
+        "sharedVision": false
+      },
+      "rules": {
+        "version": 1,
+        "tactics": false
+      },
+      "cpuVersion": "four-army-cpu-v6",
+      "count": 656,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army2"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army4"
+      ],
+      "eliminations": [
+        {
+          "army": "army3",
+          "round": 9
+        }
+      ],
+      "fallbacks": 0,
+      "traceSha256": "7e8a07c5acf6ff4c6953d4443f8f6f9c362db7a5b700888b322b83b81121fcab",
+      "stateSha256": "71fdfeed45e8ac41e5d83e2363b3e0553ef532d46a46735dfa6558b776fe403e",
+      "seconds": 3.1372973390000407,
+      "cpuMs": {
+        "p95": 7.577781999949366,
+        "max": 26.898958000005223
+      }
+    },
+    {
+      "id": "green-4-152204-army3army2army1army4-true",
+      "seed": 152204,
+      "order": [
+        "army3",
+        "army2",
+        "army1",
+        "army4"
+      ],
+      "match": {
+        "version": 2,
+        "sourceMapId": "skirmish",
+        "layoutVersion": 2,
+        "participants": [
+          "army1",
+          "army2",
+          "army3",
+          "army4"
+        ],
+        "initialOrder": [
+          "army3",
+          "army2",
+          "army1",
+          "army4"
+        ],
+        "initiative": "rotating",
+        "ending": "short",
+        "roundLimit": 20,
+        "teams": {
+          "army1": "army1",
+          "army2": "army2",
+          "army3": "army3",
+          "army4": "army4"
+        },
+        "sharedVision": false
+      },
+      "rules": {
+        "version": 1,
+        "tactics": true
+      },
+      "cpuVersion": "four-army-cpu-v6",
+      "count": 740,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army1"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "eliminations": [],
+      "fallbacks": 2,
+      "traceSha256": "14c372eefcb26931c6cf643bacb0d2bb269bc0470c5a1480818ca112b7d7b637",
+      "stateSha256": "69f1309f7bd023f4f00bfe70fdd78a210e8dea98866acb104059fd45656e9a48",
+      "seconds": 3.0776908110000076,
+      "cpuMs": {
+        "p95": 5.6545570000307634,
+        "max": 26.97737999999663
+      }
+    },
+    {
+      "id": "green-4-152205-army3army2army1army4-false",
+      "seed": 152205,
+      "order": [
+        "army3",
+        "army2",
+        "army1",
+        "army4"
+      ],
+      "match": {
+        "version": 2,
+        "sourceMapId": "skirmish",
+        "layoutVersion": 2,
+        "participants": [
+          "army1",
+          "army2",
+          "army3",
+          "army4"
+        ],
+        "initialOrder": [
+          "army3",
+          "army2",
+          "army1",
+          "army4"
+        ],
+        "initiative": "rotating",
+        "ending": "short",
+        "roundLimit": 20,
+        "teams": {
+          "army1": "army1",
+          "army2": "army2",
+          "army3": "army3",
+          "army4": "army4"
+        },
+        "sharedVision": false
+      },
+      "rules": {
+        "version": 1,
+        "tactics": false
+      },
+      "cpuVersion": "four-army-cpu-v6",
+      "count": 652,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army2"
+      },
+      "alive": [
+        "army1",
+        "army2"
+      ],
+      "eliminations": [
+        {
+          "army": "army3",
+          "round": 10
+        },
+        {
+          "army": "army4",
+          "round": 19
+        }
+      ],
+      "fallbacks": 2,
+      "traceSha256": "56be7dcc1c7990e08edf1f997772586710185e779887c71c3a4381b41f1ab87c",
+      "stateSha256": "96600745cc493b65a2f23634fc08875d0cae37e4f680790d0cae5a238e20730a",
+      "seconds": 2.3242437930000013,
+      "cpuMs": {
+        "p95": 4.213756999990437,
+        "max": 27.600819999992382
+      }
+    },
+    {
+      "id": "green-4-152205-army3army2army1army4-true",
+      "seed": 152205,
+      "order": [
+        "army3",
+        "army2",
+        "army1",
+        "army4"
+      ],
+      "match": {
+        "version": 2,
+        "sourceMapId": "skirmish",
+        "layoutVersion": 2,
+        "participants": [
+          "army1",
+          "army2",
+          "army3",
+          "army4"
+        ],
+        "initialOrder": [
+          "army3",
+          "army2",
+          "army1",
+          "army4"
+        ],
+        "initiative": "rotating",
+        "ending": "short",
+        "roundLimit": 20,
+        "teams": {
+          "army1": "army1",
+          "army2": "army2",
+          "army3": "army3",
+          "army4": "army4"
+        },
+        "sharedVision": false
+      },
+      "rules": {
+        "version": 1,
+        "tactics": true
+      },
+      "cpuVersion": "four-army-cpu-v6",
+      "count": 719,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army3"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "eliminations": [],
+      "fallbacks": 9,
+      "traceSha256": "91db656ec8867b05a29e4d2eec457a9cda55bb86d2188de52742a7923cc165b6",
+      "stateSha256": "662b41c215ab5598281f4805f48c6494fa07a7333780526be7745458005ca3b8",
+      "seconds": 2.7619055470000022,
+      "cpuMs": {
+        "p95": 5.44941000000108,
+        "max": 29.60839800001122
+      }
+    },
+    {
+      "id": "green-4-152204-army3army2army4army1-false",
+      "seed": 152204,
+      "order": [
+        "army3",
+        "army2",
+        "army4",
+        "army1"
+      ],
+      "match": {
+        "version": 2,
+        "sourceMapId": "skirmish",
+        "layoutVersion": 2,
+        "participants": [
+          "army1",
+          "army2",
+          "army3",
+          "army4"
+        ],
+        "initialOrder": [
+          "army3",
+          "army2",
+          "army4",
+          "army1"
+        ],
+        "initiative": "rotating",
+        "ending": "short",
+        "roundLimit": 20,
+        "teams": {
+          "army1": "army1",
+          "army2": "army2",
+          "army3": "army3",
+          "army4": "army4"
+        },
+        "sharedVision": false
+      },
+      "rules": {
+        "version": 1,
+        "tactics": false
+      },
+      "cpuVersion": "four-army-cpu-v6",
+      "count": 677,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army2"
+      },
+      "alive": [
+        "army1",
+        "army2"
+      ],
+      "eliminations": [
+        {
+          "army": "army4",
+          "round": 17
+        },
+        {
+          "army": "army3",
+          "round": 20
+        }
+      ],
+      "fallbacks": 4,
+      "traceSha256": "8c0b9567abd69aeb1118319cb8a6f612e2b901a827b63d8dbef477c1b220f1a3",
+      "stateSha256": "8f2cd81b58dbf5960e7f8a7a01f0876dffda73d47a1b058377f12b40b545f038",
+      "seconds": 1.8964757179999725,
+      "cpuMs": {
+        "p95": 3.3875650000409223,
+        "max": 25.70611500000814
+      }
+    },
+    {
+      "id": "green-4-152204-army3army2army4army1-true",
+      "seed": 152204,
+      "order": [
+        "army3",
+        "army2",
+        "army4",
+        "army1"
+      ],
+      "match": {
+        "version": 2,
+        "sourceMapId": "skirmish",
+        "layoutVersion": 2,
+        "participants": [
+          "army1",
+          "army2",
+          "army3",
+          "army4"
+        ],
+        "initialOrder": [
+          "army3",
+          "army2",
+          "army4",
+          "army1"
+        ],
+        "initiative": "rotating",
+        "ending": "short",
+        "roundLimit": 20,
+        "teams": {
+          "army1": "army1",
+          "army2": "army2",
+          "army3": "army3",
+          "army4": "army4"
+        },
+        "sharedVision": false
+      },
+      "rules": {
+        "version": 1,
+        "tactics": true
+      },
+      "cpuVersion": "four-army-cpu-v6",
+      "count": 742,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army2"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "eliminations": [],
+      "fallbacks": 5,
+      "traceSha256": "d509cbed3f79717339bdf292197dc9249884361c2c68b9b398696545f79e528c",
+      "stateSha256": "b16ea7cf5abbd27483c664233143b498ac2053ad70ca8bdedd792c1679bc0bac",
+      "seconds": 2.5855226509999483,
+      "cpuMs": {
+        "p95": 4.46511999994982,
+        "max": 29.206858000019565
+      }
+    },
+    {
+      "id": "green-4-152205-army3army2army4army1-false",
+      "seed": 152205,
+      "order": [
+        "army3",
+        "army2",
+        "army4",
+        "army1"
+      ],
+      "match": {
+        "version": 2,
+        "sourceMapId": "skirmish",
+        "layoutVersion": 2,
+        "participants": [
+          "army1",
+          "army2",
+          "army3",
+          "army4"
+        ],
+        "initialOrder": [
+          "army3",
+          "army2",
+          "army4",
+          "army1"
+        ],
+        "initiative": "rotating",
+        "ending": "short",
+        "roundLimit": 20,
+        "teams": {
+          "army1": "army1",
+          "army2": "army2",
+          "army3": "army3",
+          "army4": "army4"
+        },
+        "sharedVision": false
+      },
+      "rules": {
+        "version": 1,
+        "tactics": false
+      },
+      "cpuVersion": "four-army-cpu-v6",
+      "count": 710,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army2"
+      },
+      "alive": [
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "eliminations": [
+        {
+          "army": "army1",
+          "round": 19
+        }
+      ],
+      "fallbacks": 7,
+      "traceSha256": "1b0d37b5076df42205ac8244af26749e1511510ce5e3029b4550cdb981a9ae30",
+      "stateSha256": "94988bee6a1125fa8590c284bbbea6b7c58ae7eed18319e1c2ea22b9fb1d656f",
+      "seconds": 2.7336074490000026,
+      "cpuMs": {
+        "p95": 5.22279199998593,
+        "max": 32.035160000028554
+      }
+    },
+    {
+      "id": "green-4-152205-army3army2army4army1-true",
+      "seed": 152205,
+      "order": [
+        "army3",
+        "army2",
+        "army4",
+        "army1"
+      ],
+      "match": {
+        "version": 2,
+        "sourceMapId": "skirmish",
+        "layoutVersion": 2,
+        "participants": [
+          "army1",
+          "army2",
+          "army3",
+          "army4"
+        ],
+        "initialOrder": [
+          "army3",
+          "army2",
+          "army4",
+          "army1"
+        ],
+        "initiative": "rotating",
+        "ending": "short",
+        "roundLimit": 20,
+        "teams": {
+          "army1": "army1",
+          "army2": "army2",
+          "army3": "army3",
+          "army4": "army4"
+        },
+        "sharedVision": false
+      },
+      "rules": {
+        "version": 1,
+        "tactics": true
+      },
+      "cpuVersion": "four-army-cpu-v6",
+      "count": 697,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army3"
+      },
+      "alive": [
+        "army1",
+        "army3",
+        "army4"
+      ],
+      "eliminations": [
+        {
+          "army": "army2",
+          "round": 17
+        }
+      ],
+      "fallbacks": 1,
+      "traceSha256": "f7cc21c8b338c4f752591bfcb1f532595bbbbcaada091e164b575729c67cc7db",
+      "stateSha256": "e95006a08dc4bcd8784672671ff13062d1d63d2987cfa96c4c8817084800e0da",
+      "seconds": 3.7305735679999925,
+      "cpuMs": {
+        "p95": 8.360505999997258,
+        "max": 30.553650000016205
+      }
+    },
+    {
+      "id": "green-4-152204-army3army4army1army2-false",
+      "seed": 152204,
+      "order": [
+        "army3",
+        "army4",
+        "army1",
+        "army2"
+      ],
+      "match": {
+        "version": 2,
+        "sourceMapId": "skirmish",
+        "layoutVersion": 2,
+        "participants": [
+          "army1",
+          "army2",
+          "army3",
+          "army4"
+        ],
+        "initialOrder": [
+          "army3",
+          "army4",
+          "army1",
+          "army2"
+        ],
+        "initiative": "rotating",
+        "ending": "short",
+        "roundLimit": 20,
+        "teams": {
+          "army1": "army1",
+          "army2": "army2",
+          "army3": "army3",
+          "army4": "army4"
+        },
+        "sharedVision": false
+      },
+      "rules": {
+        "version": 1,
+        "tactics": false
+      },
+      "cpuVersion": "four-army-cpu-v6",
+      "count": 688,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army3"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army3"
+      ],
+      "eliminations": [
+        {
+          "army": "army4",
+          "round": 17
+        }
+      ],
+      "fallbacks": 0,
+      "traceSha256": "5eb2ce6fc59c7668174f221a5f089903bd732068d34c7039436ce8ef4cb36e33",
+      "stateSha256": "5ac2ab8084de519bc443c96dacccf02282c3729df3a7d2af93373c102a9ed18f",
+      "seconds": 2.6049365200000465,
+      "cpuMs": {
+        "p95": 4.960504000016954,
+        "max": 30.728704000008292
+      }
+    },
+    {
+      "id": "green-4-152204-army3army4army1army2-true",
+      "seed": 152204,
+      "order": [
+        "army3",
+        "army4",
+        "army1",
+        "army2"
+      ],
+      "match": {
+        "version": 2,
+        "sourceMapId": "skirmish",
+        "layoutVersion": 2,
+        "participants": [
+          "army1",
+          "army2",
+          "army3",
+          "army4"
+        ],
+        "initialOrder": [
+          "army3",
+          "army4",
+          "army1",
+          "army2"
+        ],
+        "initiative": "rotating",
+        "ending": "short",
+        "roundLimit": 20,
+        "teams": {
+          "army1": "army1",
+          "army2": "army2",
+          "army3": "army3",
+          "army4": "army4"
+        },
+        "sharedVision": false
+      },
+      "rules": {
+        "version": 1,
+        "tactics": true
+      },
+      "cpuVersion": "four-army-cpu-v6",
+      "count": 618,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army3"
+      },
+      "alive": [
+        "army2",
+        "army3"
+      ],
+      "eliminations": [
+        {
+          "army": "army4",
+          "round": 12
+        },
+        {
+          "army": "army1",
+          "round": 18
+        }
+      ],
+      "fallbacks": 8,
+      "traceSha256": "6395411e4bf2798111cbb496bf6ce96a699e5ac8d453457cf2b2c2f4afdd3a3a",
+      "stateSha256": "c46fa089e2f71f4f0ae3994478ceb107a6944dd8e288b150329d477dc5954bb3",
+      "seconds": 2.679182621000044,
+      "cpuMs": {
+        "p95": 5.736031999986153,
+        "max": 33.7161559999804
+      }
+    },
+    {
+      "id": "green-4-152205-army3army4army1army2-false",
+      "seed": 152205,
+      "order": [
+        "army3",
+        "army4",
+        "army1",
+        "army2"
+      ],
+      "match": {
+        "version": 2,
+        "sourceMapId": "skirmish",
+        "layoutVersion": 2,
+        "participants": [
+          "army1",
+          "army2",
+          "army3",
+          "army4"
+        ],
+        "initialOrder": [
+          "army3",
+          "army4",
+          "army1",
+          "army2"
+        ],
+        "initiative": "rotating",
+        "ending": "short",
+        "roundLimit": 20,
+        "teams": {
+          "army1": "army1",
+          "army2": "army2",
+          "army3": "army3",
+          "army4": "army4"
+        },
+        "sharedVision": false
+      },
+      "rules": {
+        "version": 1,
+        "tactics": false
+      },
+      "cpuVersion": "four-army-cpu-v6",
+      "count": 693,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army1"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army3"
+      ],
+      "eliminations": [
+        {
+          "army": "army4",
+          "round": 18
+        }
+      ],
+      "fallbacks": 4,
+      "traceSha256": "97ef3925aa3db3263fd98354548575502b4c4ac762e9e0321422f462736e352c",
+      "stateSha256": "528b73d17be4781d51f1f04b9bb0079af7b60f8b79ac4714334ad08f11ccca14",
+      "seconds": 2.769924700000032,
+      "cpuMs": {
+        "p95": 6.4204330000211485,
+        "max": 32.93536400003359
+      }
+    },
+    {
+      "id": "green-4-152205-army3army4army1army2-true",
+      "seed": 152205,
+      "order": [
+        "army3",
+        "army4",
+        "army1",
+        "army2"
+      ],
+      "match": {
+        "version": 2,
+        "sourceMapId": "skirmish",
+        "layoutVersion": 2,
+        "participants": [
+          "army1",
+          "army2",
+          "army3",
+          "army4"
+        ],
+        "initialOrder": [
+          "army3",
+          "army4",
+          "army1",
+          "army2"
+        ],
+        "initiative": "rotating",
+        "ending": "short",
+        "roundLimit": 20,
+        "teams": {
+          "army1": "army1",
+          "army2": "army2",
+          "army3": "army3",
+          "army4": "army4"
+        },
+        "sharedVision": false
+      },
+      "rules": {
+        "version": 1,
+        "tactics": true
+      },
+      "cpuVersion": "four-army-cpu-v6",
+      "count": 640,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army3"
+      },
+      "alive": [
+        "army1",
+        "army3",
+        "army4"
+      ],
+      "eliminations": [
+        {
+          "army": "army2",
+          "round": 12
+        }
+      ],
+      "fallbacks": 1,
+      "traceSha256": "de0796c9c582c5129f98fcec68c812b43a24047d8e0791aedf1156536eb5cfaa",
+      "stateSha256": "635f5b1d2c448d1fbf4362c68b9d6305f3a54f153bde9e7b05a812fa719e3b9f",
+      "seconds": 2.3152576680000054,
+      "cpuMs": {
+        "p95": 5.203509000013582,
+        "max": 28.455779999960214
+      }
+    },
+    {
+      "id": "green-4-152204-army3army4army2army1-false",
+      "seed": 152204,
+      "order": [
+        "army3",
+        "army4",
+        "army2",
+        "army1"
+      ],
+      "match": {
+        "version": 2,
+        "sourceMapId": "skirmish",
+        "layoutVersion": 2,
+        "participants": [
+          "army1",
+          "army2",
+          "army3",
+          "army4"
+        ],
+        "initialOrder": [
+          "army3",
+          "army4",
+          "army2",
+          "army1"
+        ],
+        "initiative": "rotating",
+        "ending": "short",
+        "roundLimit": 20,
+        "teams": {
+          "army1": "army1",
+          "army2": "army2",
+          "army3": "army3",
+          "army4": "army4"
+        },
+        "sharedVision": false
+      },
+      "rules": {
+        "version": 1,
+        "tactics": false
+      },
+      "cpuVersion": "four-army-cpu-v6",
+      "count": 673,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army1"
+      },
+      "alive": [
+        "army1",
+        "army3",
+        "army4"
+      ],
+      "eliminations": [
+        {
+          "army": "army2",
+          "round": 16
+        }
+      ],
+      "fallbacks": 5,
+      "traceSha256": "ef5bd17c7811f213bd94cbd1a42a1d09543a776718d9188cce4023844283f712",
+      "stateSha256": "ad57a2f8baadfef4bd32b9ade84af3e0ec32e1776610bff63621b18f7bb27d1c",
+      "seconds": 2.312325099999958,
+      "cpuMs": {
+        "p95": 4.588864999997895,
+        "max": 28.84737099998165
+      }
+    },
+    {
+      "id": "green-4-152204-army3army4army2army1-true",
+      "seed": 152204,
+      "order": [
+        "army3",
+        "army4",
+        "army2",
+        "army1"
+      ],
+      "match": {
+        "version": 2,
+        "sourceMapId": "skirmish",
+        "layoutVersion": 2,
+        "participants": [
+          "army1",
+          "army2",
+          "army3",
+          "army4"
+        ],
+        "initialOrder": [
+          "army3",
+          "army4",
+          "army2",
+          "army1"
+        ],
+        "initiative": "rotating",
+        "ending": "short",
+        "roundLimit": 20,
+        "teams": {
+          "army1": "army1",
+          "army2": "army2",
+          "army3": "army3",
+          "army4": "army4"
+        },
+        "sharedVision": false
+      },
+      "rules": {
+        "version": 1,
+        "tactics": true
+      },
+      "cpuVersion": "four-army-cpu-v6",
+      "count": 741,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army3"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "eliminations": [],
+      "fallbacks": 2,
+      "traceSha256": "a16b3c96ddf35a0dc2449fc8e1519e3576752d8b0a10da14885c84a5887138ab",
+      "stateSha256": "4570635fb3abdcaca4f635f8ba2194e16834fea7219e2df00d461f208e51af75",
+      "seconds": 2.996830696000019,
+      "cpuMs": {
+        "p95": 7.187740000023041,
+        "max": 31.998099000018556
+      }
+    },
+    {
+      "id": "green-4-152205-army3army4army2army1-false",
+      "seed": 152205,
+      "order": [
+        "army3",
+        "army4",
+        "army2",
+        "army1"
+      ],
+      "match": {
+        "version": 2,
+        "sourceMapId": "skirmish",
+        "layoutVersion": 2,
+        "participants": [
+          "army1",
+          "army2",
+          "army3",
+          "army4"
+        ],
+        "initialOrder": [
+          "army3",
+          "army4",
+          "army2",
+          "army1"
+        ],
+        "initiative": "rotating",
+        "ending": "short",
+        "roundLimit": 20,
+        "teams": {
+          "army1": "army1",
+          "army2": "army2",
+          "army3": "army3",
+          "army4": "army4"
+        },
+        "sharedVision": false
+      },
+      "rules": {
+        "version": 1,
+        "tactics": false
+      },
+      "cpuVersion": "four-army-cpu-v6",
+      "count": 643,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army3"
+      },
+      "alive": [
+        "army2",
+        "army3"
+      ],
+      "eliminations": [
+        {
+          "army": "army4",
+          "round": 11
+        },
+        {
+          "army": "army1",
+          "round": 16
+        }
+      ],
+      "fallbacks": 1,
+      "traceSha256": "082b25b6bca266c7bd34ec468a29038635894fb2d36ab7b2f1fd4ec2216b6dfe",
+      "stateSha256": "2bf9d9f51873f0cd09057b34661512aa33ea79639640d84300355b9d087bfce8",
+      "seconds": 3.6933001379999912,
+      "cpuMs": {
+        "p95": 12.388565999979619,
+        "max": 34.60735200002091
+      }
+    },
+    {
+      "id": "green-4-152205-army3army4army2army1-true",
+      "seed": 152205,
+      "order": [
+        "army3",
+        "army4",
+        "army2",
+        "army1"
+      ],
+      "match": {
+        "version": 2,
+        "sourceMapId": "skirmish",
+        "layoutVersion": 2,
+        "participants": [
+          "army1",
+          "army2",
+          "army3",
+          "army4"
+        ],
+        "initialOrder": [
+          "army3",
+          "army4",
+          "army2",
+          "army1"
+        ],
+        "initiative": "rotating",
+        "ending": "short",
+        "roundLimit": 20,
+        "teams": {
+          "army1": "army1",
+          "army2": "army2",
+          "army3": "army3",
+          "army4": "army4"
+        },
+        "sharedVision": false
+      },
+      "rules": {
+        "version": 1,
+        "tactics": true
+      },
+      "cpuVersion": "four-army-cpu-v6",
+      "count": 742,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army1"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "eliminations": [],
+      "fallbacks": 7,
+      "traceSha256": "31c933366ae25c14a6b804db5defc1252fbaf406bf5f6dd5b3c4e2222e1683c1",
+      "stateSha256": "cbe902bed478a7142150bd4931651779fa18ace1e740ead8393948cbfc1ff5d8",
+      "seconds": 2.6974372970000258,
+      "cpuMs": {
+        "p95": 5.183439999993425,
+        "max": 29.413577000028454
+      }
+    },
+    {
+      "id": "green-4-152204-army4army1army2army3-false",
+      "seed": 152204,
+      "order": [
+        "army4",
+        "army1",
+        "army2",
+        "army3"
+      ],
+      "match": {
+        "version": 2,
+        "sourceMapId": "skirmish",
+        "layoutVersion": 2,
+        "participants": [
+          "army1",
+          "army2",
+          "army3",
+          "army4"
+        ],
+        "initialOrder": [
+          "army4",
+          "army1",
+          "army2",
+          "army3"
+        ],
+        "initiative": "rotating",
+        "ending": "short",
+        "roundLimit": 20,
+        "teams": {
+          "army1": "army1",
+          "army2": "army2",
+          "army3": "army3",
+          "army4": "army4"
+        },
+        "sharedVision": false
+      },
+      "rules": {
+        "version": 1,
+        "tactics": false
+      },
+      "cpuVersion": "four-army-cpu-v6",
+      "count": 656,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army1"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army3"
+      ],
+      "eliminations": [
+        {
+          "army": "army4",
+          "round": 9
+        }
+      ],
+      "fallbacks": 0,
+      "traceSha256": "d56c4067617ff6da4107217e862a67a56e4296a60f59c61c0d71ced3c27534c8",
+      "stateSha256": "72a6225d0e3e11adf5596068219851b43c2b730f8f3dc3907fdad80646eda9fb",
+      "seconds": 2.7368861959999777,
+      "cpuMs": {
+        "p95": 5.580347999988589,
+        "max": 26.75210900005186
+      }
+    },
+    {
+      "id": "green-4-152204-army4army1army2army3-true",
+      "seed": 152204,
+      "order": [
+        "army4",
+        "army1",
+        "army2",
+        "army3"
+      ],
+      "match": {
+        "version": 2,
+        "sourceMapId": "skirmish",
+        "layoutVersion": 2,
+        "participants": [
+          "army1",
+          "army2",
+          "army3",
+          "army4"
+        ],
+        "initialOrder": [
+          "army4",
+          "army1",
+          "army2",
+          "army3"
+        ],
+        "initiative": "rotating",
+        "ending": "short",
+        "roundLimit": 20,
+        "teams": {
+          "army1": "army1",
+          "army2": "army2",
+          "army3": "army3",
+          "army4": "army4"
+        },
+        "sharedVision": false
+      },
+      "rules": {
+        "version": 1,
+        "tactics": true
+      },
+      "cpuVersion": "four-army-cpu-v6",
+      "count": 740,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army2"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "eliminations": [],
+      "fallbacks": 2,
+      "traceSha256": "b056436fc73d5af19f85ba48886f037ceedc90da966712e23e1f3dadceeba565",
+      "stateSha256": "e093b6b0a496f96c80840c2f42c548538b6112d5a141749cfb4c213b6f8d3ae5",
+      "seconds": 3.364777296999993,
+      "cpuMs": {
+        "p95": 6.933195999998134,
+        "max": 31.17363499995554
+      }
+    },
+    {
+      "id": "green-4-152205-army4army1army2army3-false",
+      "seed": 152205,
+      "order": [
+        "army4",
+        "army1",
+        "army2",
+        "army3"
+      ],
+      "match": {
+        "version": 2,
+        "sourceMapId": "skirmish",
+        "layoutVersion": 2,
+        "participants": [
+          "army1",
+          "army2",
+          "army3",
+          "army4"
+        ],
+        "initialOrder": [
+          "army4",
+          "army1",
+          "army2",
+          "army3"
+        ],
+        "initiative": "rotating",
+        "ending": "short",
+        "roundLimit": 20,
+        "teams": {
+          "army1": "army1",
+          "army2": "army2",
+          "army3": "army3",
+          "army4": "army4"
+        },
+        "sharedVision": false
+      },
+      "rules": {
+        "version": 1,
+        "tactics": false
+      },
+      "cpuVersion": "four-army-cpu-v6",
+      "count": 652,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army1"
+      },
+      "alive": [
+        "army1",
+        "army2"
+      ],
+      "eliminations": [
+        {
+          "army": "army4",
+          "round": 10
+        },
+        {
+          "army": "army3",
+          "round": 19
+        }
+      ],
+      "fallbacks": 2,
+      "traceSha256": "6e07f7adaed6019941a9063b0f68c6ac278290e3a9969b9e9cd5c2d4186d631f",
+      "stateSha256": "e9acdb788d87884d2364f1324b255bcce2344bba6bfb9cefcb6316cf761f3fff",
+      "seconds": 2.8438135579999653,
+      "cpuMs": {
+        "p95": 8.265735999972094,
+        "max": 29.190063999965787
+      }
+    },
+    {
+      "id": "green-4-152205-army4army1army2army3-true",
+      "seed": 152205,
+      "order": [
+        "army4",
+        "army1",
+        "army2",
+        "army3"
+      ],
+      "match": {
+        "version": 2,
+        "sourceMapId": "skirmish",
+        "layoutVersion": 2,
+        "participants": [
+          "army1",
+          "army2",
+          "army3",
+          "army4"
+        ],
+        "initialOrder": [
+          "army4",
+          "army1",
+          "army2",
+          "army3"
+        ],
+        "initiative": "rotating",
+        "ending": "short",
+        "roundLimit": 20,
+        "teams": {
+          "army1": "army1",
+          "army2": "army2",
+          "army3": "army3",
+          "army4": "army4"
+        },
+        "sharedVision": false
+      },
+      "rules": {
+        "version": 1,
+        "tactics": true
+      },
+      "cpuVersion": "four-army-cpu-v6",
+      "count": 719,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army4"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "eliminations": [],
+      "fallbacks": 9,
+      "traceSha256": "8d80d499182a039c6037ccc0b13f53bf0cd2e9cae9dad78abcf11878c0f7871d",
+      "stateSha256": "b590fb4b787ca80099105ab3fa11f50f6037e95158f96a25de7ffdb2477c054e",
+      "seconds": 2.6344014409999947,
+      "cpuMs": {
+        "p95": 5.049799000029452,
+        "max": 35.35150900000008
+      }
+    },
+    {
+      "id": "green-4-152204-army4army1army3army2-false",
+      "seed": 152204,
+      "order": [
+        "army4",
+        "army1",
+        "army3",
+        "army2"
+      ],
+      "match": {
+        "version": 2,
+        "sourceMapId": "skirmish",
+        "layoutVersion": 2,
+        "participants": [
+          "army1",
+          "army2",
+          "army3",
+          "army4"
+        ],
+        "initialOrder": [
+          "army4",
+          "army1",
+          "army3",
+          "army2"
+        ],
+        "initiative": "rotating",
+        "ending": "short",
+        "roundLimit": 20,
+        "teams": {
+          "army1": "army1",
+          "army2": "army2",
+          "army3": "army3",
+          "army4": "army4"
+        },
+        "sharedVision": false
+      },
+      "rules": {
+        "version": 1,
+        "tactics": false
+      },
+      "cpuVersion": "four-army-cpu-v6",
+      "count": 677,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army1"
+      },
+      "alive": [
+        "army1",
+        "army2"
+      ],
+      "eliminations": [
+        {
+          "army": "army3",
+          "round": 17
+        },
+        {
+          "army": "army4",
+          "round": 20
+        }
+      ],
+      "fallbacks": 4,
+      "traceSha256": "a767aa9d00ff459cecd9e05650cdd9b69aa01ed1edff700d4aa3d74888bf3da3",
+      "stateSha256": "1ed7a3093584d829612a0c65028661ef9c148c700f42f31ea4806039730b6cd1",
+      "seconds": 2.4885175709999747,
+      "cpuMs": {
+        "p95": 4.532732000050601,
+        "max": 25.672221999964677
+      }
+    },
+    {
+      "id": "green-4-152204-army4army1army3army2-true",
+      "seed": 152204,
+      "order": [
+        "army4",
+        "army1",
+        "army3",
+        "army2"
+      ],
+      "match": {
+        "version": 2,
+        "sourceMapId": "skirmish",
+        "layoutVersion": 2,
+        "participants": [
+          "army1",
+          "army2",
+          "army3",
+          "army4"
+        ],
+        "initialOrder": [
+          "army4",
+          "army1",
+          "army3",
+          "army2"
+        ],
+        "initiative": "rotating",
+        "ending": "short",
+        "roundLimit": 20,
+        "teams": {
+          "army1": "army1",
+          "army2": "army2",
+          "army3": "army3",
+          "army4": "army4"
+        },
+        "sharedVision": false
+      },
+      "rules": {
+        "version": 1,
+        "tactics": true
+      },
+      "cpuVersion": "four-army-cpu-v6",
+      "count": 742,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army1"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "eliminations": [],
+      "fallbacks": 5,
+      "traceSha256": "0af5520342ebb9db7737d72f2fd61caea106b6db7ee1d33bbdbff9a8793b1d14",
+      "stateSha256": "f7fa6be93badedaa19ab465420321b1af2f5a34b43a3bbed486bde9ede1bc441",
+      "seconds": 3.5305217679999767,
+      "cpuMs": {
+        "p95": 7.478431000025012,
+        "max": 33.28348399995593
+      }
+    },
+    {
+      "id": "green-4-152205-army4army1army3army2-false",
+      "seed": 152205,
+      "order": [
+        "army4",
+        "army1",
+        "army3",
+        "army2"
+      ],
+      "match": {
+        "version": 2,
+        "sourceMapId": "skirmish",
+        "layoutVersion": 2,
+        "participants": [
+          "army1",
+          "army2",
+          "army3",
+          "army4"
+        ],
+        "initialOrder": [
+          "army4",
+          "army1",
+          "army3",
+          "army2"
+        ],
+        "initiative": "rotating",
+        "ending": "short",
+        "roundLimit": 20,
+        "teams": {
+          "army1": "army1",
+          "army2": "army2",
+          "army3": "army3",
+          "army4": "army4"
+        },
+        "sharedVision": false
+      },
+      "rules": {
+        "version": 1,
+        "tactics": false
+      },
+      "cpuVersion": "four-army-cpu-v6",
+      "count": 710,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army1"
+      },
+      "alive": [
+        "army1",
+        "army3",
+        "army4"
+      ],
+      "eliminations": [
+        {
+          "army": "army2",
+          "round": 19
+        }
+      ],
+      "fallbacks": 7,
+      "traceSha256": "ba939dab1a13340d4ace84f605cb331a6a0f45be6a8f912390b90f54964b501c",
+      "stateSha256": "2cc5192a1d0716365bec22845b1db2c7f9a33035c5403ed42015cc19fc59bb68",
+      "seconds": 3.2310341079999927,
+      "cpuMs": {
+        "p95": 8.912092000013217,
+        "max": 28.87976699997671
+      }
+    },
+    {
+      "id": "green-4-152205-army4army1army3army2-true",
+      "seed": 152205,
+      "order": [
+        "army4",
+        "army1",
+        "army3",
+        "army2"
+      ],
+      "match": {
+        "version": 2,
+        "sourceMapId": "skirmish",
+        "layoutVersion": 2,
+        "participants": [
+          "army1",
+          "army2",
+          "army3",
+          "army4"
+        ],
+        "initialOrder": [
+          "army4",
+          "army1",
+          "army3",
+          "army2"
+        ],
+        "initiative": "rotating",
+        "ending": "short",
+        "roundLimit": 20,
+        "teams": {
+          "army1": "army1",
+          "army2": "army2",
+          "army3": "army3",
+          "army4": "army4"
+        },
+        "sharedVision": false
+      },
+      "rules": {
+        "version": 1,
+        "tactics": true
+      },
+      "cpuVersion": "four-army-cpu-v6",
+      "count": 697,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army4"
+      },
+      "alive": [
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "eliminations": [
+        {
+          "army": "army1",
+          "round": 17
+        }
+      ],
+      "fallbacks": 1,
+      "traceSha256": "cfb967ba7716398c9d030a88bf3f5958ca1a9134121fedcc7bd804086151984e",
+      "stateSha256": "da4e52b4f10327e5574808abbbeb8c1cd9561e6de54a1f0dab5f13c6afaed99d",
+      "seconds": 3.570292122999963,
+      "cpuMs": {
+        "p95": 8.891278000024613,
+        "max": 28.212115000002086
+      }
+    },
+    {
+      "id": "green-4-152204-army4army2army1army3-false",
+      "seed": 152204,
+      "order": [
+        "army4",
+        "army2",
+        "army1",
+        "army3"
+      ],
+      "match": {
+        "version": 2,
+        "sourceMapId": "skirmish",
+        "layoutVersion": 2,
+        "participants": [
+          "army1",
+          "army2",
+          "army3",
+          "army4"
+        ],
+        "initialOrder": [
+          "army4",
+          "army2",
+          "army1",
+          "army3"
+        ],
+        "initiative": "rotating",
+        "ending": "short",
+        "roundLimit": 20,
+        "teams": {
+          "army1": "army1",
+          "army2": "army2",
+          "army3": "army3",
+          "army4": "army4"
+        },
+        "sharedVision": false
+      },
+      "rules": {
+        "version": 1,
+        "tactics": false
+      },
+      "cpuVersion": "four-army-cpu-v6",
+      "count": 652,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army1"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army4"
+      ],
+      "eliminations": [
+        {
+          "army": "army3",
+          "round": 17
+        }
+      ],
+      "fallbacks": 5,
+      "traceSha256": "3912c27422eb8064908ebe300d6ec77259a6d2b988026c0779a2c35b3a0500c1",
+      "stateSha256": "141e64c074ef8572d3623d105adc9033b1a2b4f16b36b147b63ad3253fa91352",
+      "seconds": 3.422213320000039,
+      "cpuMs": {
+        "p95": 8.937029000022449,
+        "max": 33.153412999992725
+      }
+    },
+    {
+      "id": "green-4-152204-army4army2army1army3-true",
+      "seed": 152204,
+      "order": [
+        "army4",
+        "army2",
+        "army1",
+        "army3"
+      ],
+      "match": {
+        "version": 2,
+        "sourceMapId": "skirmish",
+        "layoutVersion": 2,
+        "participants": [
+          "army1",
+          "army2",
+          "army3",
+          "army4"
+        ],
+        "initialOrder": [
+          "army4",
+          "army2",
+          "army1",
+          "army3"
+        ],
+        "initiative": "rotating",
+        "ending": "short",
+        "roundLimit": 20,
+        "teams": {
+          "army1": "army1",
+          "army2": "army2",
+          "army3": "army3",
+          "army4": "army4"
+        },
+        "sharedVision": false
+      },
+      "rules": {
+        "version": 1,
+        "tactics": true
+      },
+      "cpuVersion": "four-army-cpu-v6",
+      "count": 727,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army2"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "eliminations": [],
+      "fallbacks": 2,
+      "traceSha256": "e8c286cd7008b897d5d2c614e454e0dfc8e8607a674da5f526f83ac388b5f516",
+      "stateSha256": "b5dd5ca31593ddfc0861db97eeffb0cb3914ec16513a73cced633959fac9d8bd",
+      "seconds": 4.291866197000025,
+      "cpuMs": {
+        "p95": 11.794064000016078,
+        "max": 33.01289099996211
+      }
+    },
+    {
+      "id": "green-4-152205-army4army2army1army3-false",
+      "seed": 152205,
+      "order": [
+        "army4",
+        "army2",
+        "army1",
+        "army3"
+      ],
+      "match": {
+        "version": 2,
+        "sourceMapId": "skirmish",
+        "layoutVersion": 2,
+        "participants": [
+          "army1",
+          "army2",
+          "army3",
+          "army4"
+        ],
+        "initialOrder": [
+          "army4",
+          "army2",
+          "army1",
+          "army3"
+        ],
+        "initiative": "rotating",
+        "ending": "short",
+        "roundLimit": 20,
+        "teams": {
+          "army1": "army1",
+          "army2": "army2",
+          "army3": "army3",
+          "army4": "army4"
+        },
+        "sharedVision": false
+      },
+      "rules": {
+        "version": 1,
+        "tactics": false
+      },
+      "cpuVersion": "four-army-cpu-v6",
+      "count": 701,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army3"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "eliminations": [],
+      "fallbacks": 4,
+      "traceSha256": "f92ca4a99213effe53670b1c2a2298b7df908f6d8b23ae9c27dcc12dbe10024d",
+      "stateSha256": "608a5fc27e732b2db911bee82b8379d9b3e103aaa260f1f09fa3786242f768a7",
+      "seconds": 4.876999555999995,
+      "cpuMs": {
+        "p95": 14.238838999997824,
+        "max": 63.19758199999342
+      }
+    },
+    {
+      "id": "green-4-152205-army4army2army1army3-true",
+      "seed": 152205,
+      "order": [
+        "army4",
+        "army2",
+        "army1",
+        "army3"
+      ],
+      "match": {
+        "version": 2,
+        "sourceMapId": "skirmish",
+        "layoutVersion": 2,
+        "participants": [
+          "army1",
+          "army2",
+          "army3",
+          "army4"
+        ],
+        "initialOrder": [
+          "army4",
+          "army2",
+          "army1",
+          "army3"
+        ],
+        "initiative": "rotating",
+        "ending": "short",
+        "roundLimit": 20,
+        "teams": {
+          "army1": "army1",
+          "army2": "army2",
+          "army3": "army3",
+          "army4": "army4"
+        },
+        "sharedVision": false
+      },
+      "rules": {
+        "version": 1,
+        "tactics": true
+      },
+      "cpuVersion": "four-army-cpu-v6",
+      "count": 691,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army3"
+      },
+      "alive": [
+        "army1",
+        "army3",
+        "army4"
+      ],
+      "eliminations": [
+        {
+          "army": "army2",
+          "round": 13
+        }
+      ],
+      "fallbacks": 4,
+      "traceSha256": "7b8c89734d17c354ddc8cbc21df9dd0dad03f939cb7e993a51c45075724d8d46",
+      "stateSha256": "aedc49ee141fe792fedf4edeade561ad8455e7c32ad08d242ae381be6f4923a8",
+      "seconds": 4.461387234000023,
+      "cpuMs": {
+        "p95": 11.386206999944989,
+        "max": 54.3255009999848
+      }
+    },
+    {
+      "id": "green-4-152204-army4army2army3army1-false",
+      "seed": 152204,
+      "order": [
+        "army4",
+        "army2",
+        "army3",
+        "army1"
+      ],
+      "match": {
+        "version": 2,
+        "sourceMapId": "skirmish",
+        "layoutVersion": 2,
+        "participants": [
+          "army1",
+          "army2",
+          "army3",
+          "army4"
+        ],
+        "initialOrder": [
+          "army4",
+          "army2",
+          "army3",
+          "army1"
+        ],
+        "initiative": "rotating",
+        "ending": "short",
+        "roundLimit": 20,
+        "teams": {
+          "army1": "army1",
+          "army2": "army2",
+          "army3": "army3",
+          "army4": "army4"
+        },
+        "sharedVision": false
+      },
+      "rules": {
+        "version": 1,
+        "tactics": false
+      },
+      "cpuVersion": "four-army-cpu-v6",
+      "count": 708,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army2"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "eliminations": [],
+      "fallbacks": 5,
+      "traceSha256": "32f7a7d22696c8a0deb7a4d8b1d12feeb9c0b67c4c3bd35d718d746c874c8921",
+      "stateSha256": "004a8196979b2f760ca18af5ac6e80fd779bbb8a0fa8e888d967f4d4bcf85eba",
+      "seconds": 4.067996836000006,
+      "cpuMs": {
+        "p95": 10.643289000028744,
+        "max": 34.95579900004668
+      }
+    },
+    {
+      "id": "green-4-152204-army4army2army3army1-true",
+      "seed": 152204,
+      "order": [
+        "army4",
+        "army2",
+        "army3",
+        "army1"
+      ],
+      "match": {
+        "version": 2,
+        "sourceMapId": "skirmish",
+        "layoutVersion": 2,
+        "participants": [
+          "army1",
+          "army2",
+          "army3",
+          "army4"
+        ],
+        "initialOrder": [
+          "army4",
+          "army2",
+          "army3",
+          "army1"
+        ],
+        "initiative": "rotating",
+        "ending": "short",
+        "roundLimit": 20,
+        "teams": {
+          "army1": "army1",
+          "army2": "army2",
+          "army3": "army3",
+          "army4": "army4"
+        },
+        "sharedVision": false
+      },
+      "rules": {
+        "version": 1,
+        "tactics": true
+      },
+      "cpuVersion": "four-army-cpu-v6",
+      "count": 653,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army3"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "eliminations": [],
+      "fallbacks": 17,
+      "traceSha256": "c266a505798020d2c82747111310b4c4b13e3c1b9c2029f58ef0aec61fe50712",
+      "stateSha256": "bc946f693b1897c4c496ed915ea9346cddf8d9d376e0506969d2bd443e428201",
+      "seconds": 4.830566293000011,
+      "cpuMs": {
+        "p95": 12.477131000021473,
+        "max": 51.742347999999765
+      }
+    },
+    {
+      "id": "green-4-152205-army4army2army3army1-false",
+      "seed": 152205,
+      "order": [
+        "army4",
+        "army2",
+        "army3",
+        "army1"
+      ],
+      "match": {
+        "version": 2,
+        "sourceMapId": "skirmish",
+        "layoutVersion": 2,
+        "participants": [
+          "army1",
+          "army2",
+          "army3",
+          "army4"
+        ],
+        "initialOrder": [
+          "army4",
+          "army2",
+          "army3",
+          "army1"
+        ],
+        "initiative": "rotating",
+        "ending": "short",
+        "roundLimit": 20,
+        "teams": {
+          "army1": "army1",
+          "army2": "army2",
+          "army3": "army3",
+          "army4": "army4"
+        },
+        "sharedVision": false
+      },
+      "rules": {
+        "version": 1,
+        "tactics": false
+      },
+      "cpuVersion": "four-army-cpu-v6",
+      "count": 706,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army3"
+      },
+      "alive": [
+        "army1",
+        "army3",
+        "army4"
+      ],
+      "eliminations": [
+        {
+          "army": "army2",
+          "round": 18
+        }
+      ],
+      "fallbacks": 6,
+      "traceSha256": "d6b3cd6733623d62eb976220751c2c45550e0acda9ea0e4dde95ee1a3e5d3c92",
+      "stateSha256": "8eee62c65ce0f47b9297fef0154b19765f8a24888afb47e73ab0965f9436eabe",
+      "seconds": 2.671866788000043,
+      "cpuMs": {
+        "p95": 4.977540000050794,
+        "max": 31.039520999998786
+      }
+    },
+    {
+      "id": "green-4-152205-army4army2army3army1-true",
+      "seed": 152205,
+      "order": [
+        "army4",
+        "army2",
+        "army3",
+        "army1"
+      ],
+      "match": {
+        "version": 2,
+        "sourceMapId": "skirmish",
+        "layoutVersion": 2,
+        "participants": [
+          "army1",
+          "army2",
+          "army3",
+          "army4"
+        ],
+        "initialOrder": [
+          "army4",
+          "army2",
+          "army3",
+          "army1"
+        ],
+        "initiative": "rotating",
+        "ending": "short",
+        "roundLimit": 20,
+        "teams": {
+          "army1": "army1",
+          "army2": "army2",
+          "army3": "army3",
+          "army4": "army4"
+        },
+        "sharedVision": false
+      },
+      "rules": {
+        "version": 1,
+        "tactics": true
+      },
+      "cpuVersion": "four-army-cpu-v6",
+      "count": 722,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army1"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "eliminations": [],
+      "fallbacks": 7,
+      "traceSha256": "0144015e29bd649be08557e549f84abfc6bd61977f2d3be3284f7e68a80368cf",
+      "stateSha256": "270e40ebc06d525f6dd7916eab4c2e228f3c4faca0fbcd7f8c990bca93314871",
+      "seconds": 3.9225100509999904,
+      "cpuMs": {
+        "p95": 9.991106000030413,
+        "max": 92.14217199996347
+      }
+    },
+    {
+      "id": "green-4-152204-army4army3army1army2-false",
+      "seed": 152204,
+      "order": [
+        "army4",
+        "army3",
+        "army1",
+        "army2"
+      ],
+      "match": {
+        "version": 2,
+        "sourceMapId": "skirmish",
+        "layoutVersion": 2,
+        "participants": [
+          "army1",
+          "army2",
+          "army3",
+          "army4"
+        ],
+        "initialOrder": [
+          "army4",
+          "army3",
+          "army1",
+          "army2"
+        ],
+        "initiative": "rotating",
+        "ending": "short",
+        "roundLimit": 20,
+        "teams": {
+          "army1": "army1",
+          "army2": "army2",
+          "army3": "army3",
+          "army4": "army4"
+        },
+        "sharedVision": false
+      },
+      "rules": {
+        "version": 1,
+        "tactics": false
+      },
+      "cpuVersion": "four-army-cpu-v6",
+      "count": 673,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army2"
+      },
+      "alive": [
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "eliminations": [
+        {
+          "army": "army1",
+          "round": 16
+        }
+      ],
+      "fallbacks": 5,
+      "traceSha256": "3eeb7370f5b22cb93e28fda5f41c2ae33f02b549b6b771301ddb530440d24107",
+      "stateSha256": "e572ad22d98e48837d466375bed0c68a8de37b5bee19a76ddf6ab9548c8c1832",
+      "seconds": 3.44132879400003,
+      "cpuMs": {
+        "p95": 9.422108000027947,
+        "max": 41.63181599997915
+      }
+    },
+    {
+      "id": "green-4-152204-army4army3army1army2-true",
+      "seed": 152204,
+      "order": [
+        "army4",
+        "army3",
+        "army1",
+        "army2"
+      ],
+      "match": {
+        "version": 2,
+        "sourceMapId": "skirmish",
+        "layoutVersion": 2,
+        "participants": [
+          "army1",
+          "army2",
+          "army3",
+          "army4"
+        ],
+        "initialOrder": [
+          "army4",
+          "army3",
+          "army1",
+          "army2"
+        ],
+        "initiative": "rotating",
+        "ending": "short",
+        "roundLimit": 20,
+        "teams": {
+          "army1": "army1",
+          "army2": "army2",
+          "army3": "army3",
+          "army4": "army4"
+        },
+        "sharedVision": false
+      },
+      "rules": {
+        "version": 1,
+        "tactics": true
+      },
+      "cpuVersion": "four-army-cpu-v6",
+      "count": 741,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army4"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "eliminations": [],
+      "fallbacks": 2,
+      "traceSha256": "d29c10c616631b6721f683bc10ac0ea9f48b4fbb0663ae37daed41f4154244f8",
+      "stateSha256": "5ec9682cf0a23d2e9290be6f42a47cb4b32effda70e8a6898701f2f373e37aa9",
+      "seconds": 3.6439553970000125,
+      "cpuMs": {
+        "p95": 9.247314999985974,
+        "max": 99.2907899999991
+      }
+    },
+    {
+      "id": "green-4-152205-army4army3army1army2-false",
+      "seed": 152205,
+      "order": [
+        "army4",
+        "army3",
+        "army1",
+        "army2"
+      ],
+      "match": {
+        "version": 2,
+        "sourceMapId": "skirmish",
+        "layoutVersion": 2,
+        "participants": [
+          "army1",
+          "army2",
+          "army3",
+          "army4"
+        ],
+        "initialOrder": [
+          "army4",
+          "army3",
+          "army1",
+          "army2"
+        ],
+        "initiative": "rotating",
+        "ending": "short",
+        "roundLimit": 20,
+        "teams": {
+          "army1": "army1",
+          "army2": "army2",
+          "army3": "army3",
+          "army4": "army4"
+        },
+        "sharedVision": false
+      },
+      "rules": {
+        "version": 1,
+        "tactics": false
+      },
+      "cpuVersion": "four-army-cpu-v6",
+      "count": 649,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army2"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army4"
+      ],
+      "eliminations": [
+        {
+          "army": "army3",
+          "round": 11
+        }
+      ],
+      "fallbacks": 1,
+      "traceSha256": "de65361291bc9986c46d0d6439163391491d101c2560e04207d3823772e21701",
+      "stateSha256": "39993bac3187c7d80bbd740d5ee75abee4a914cd29e49dc93ac2542533671a8d",
+      "seconds": 2.4780112540000117,
+      "cpuMs": {
+        "p95": 5.357633000006899,
+        "max": 27.96706200001063
+      }
+    },
+    {
+      "id": "green-4-152205-army4army3army1army2-true",
+      "seed": 152205,
+      "order": [
+        "army4",
+        "army3",
+        "army1",
+        "army2"
+      ],
+      "match": {
+        "version": 2,
+        "sourceMapId": "skirmish",
+        "layoutVersion": 2,
+        "participants": [
+          "army1",
+          "army2",
+          "army3",
+          "army4"
+        ],
+        "initialOrder": [
+          "army4",
+          "army3",
+          "army1",
+          "army2"
+        ],
+        "initiative": "rotating",
+        "ending": "short",
+        "roundLimit": 20,
+        "teams": {
+          "army1": "army1",
+          "army2": "army2",
+          "army3": "army3",
+          "army4": "army4"
+        },
+        "sharedVision": false
+      },
+      "rules": {
+        "version": 1,
+        "tactics": true
+      },
+      "cpuVersion": "four-army-cpu-v6",
+      "count": 742,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army2"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "eliminations": [],
+      "fallbacks": 7,
+      "traceSha256": "efefea140f87be4862546e9dbb5896986324a2164b6d032e3dc897546b347759",
+      "stateSha256": "73c0f0befe20218f3ff5231d2f7f863e68e2570556e4cc91e8b736c3eed6709b",
+      "seconds": 3.842393829999957,
+      "cpuMs": {
+        "p95": 8.802644999988843,
+        "max": 31.933210999995936
+      }
+    },
+    {
+      "id": "green-4-152204-army4army3army2army1-false",
+      "seed": 152204,
+      "order": [
+        "army4",
+        "army3",
+        "army2",
+        "army1"
+      ],
+      "match": {
+        "version": 2,
+        "sourceMapId": "skirmish",
+        "layoutVersion": 2,
+        "participants": [
+          "army1",
+          "army2",
+          "army3",
+          "army4"
+        ],
+        "initialOrder": [
+          "army4",
+          "army3",
+          "army2",
+          "army1"
+        ],
+        "initiative": "rotating",
+        "ending": "short",
+        "roundLimit": 20,
+        "teams": {
+          "army1": "army1",
+          "army2": "army2",
+          "army3": "army3",
+          "army4": "army4"
+        },
+        "sharedVision": false
+      },
+      "rules": {
+        "version": 1,
+        "tactics": false
+      },
+      "cpuVersion": "four-army-cpu-v6",
+      "count": 688,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army4"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army4"
+      ],
+      "eliminations": [
+        {
+          "army": "army3",
+          "round": 17
+        }
+      ],
+      "fallbacks": 0,
+      "traceSha256": "d10c8ca57dbf29c91fe6d82b449a93500daeb1b047a7a7e570e73d043e77e3a8",
+      "stateSha256": "72d1e2bc60f83367f3aa3df07381c500344f98928a43494b2c2b4e3f1d030c00",
+      "seconds": 4.057407866999973,
+      "cpuMs": {
+        "p95": 10.578049000003375,
+        "max": 31.98481699998956
+      }
+    },
+    {
+      "id": "green-4-152204-army4army3army2army1-true",
+      "seed": 152204,
+      "order": [
+        "army4",
+        "army3",
+        "army2",
+        "army1"
+      ],
+      "match": {
+        "version": 2,
+        "sourceMapId": "skirmish",
+        "layoutVersion": 2,
+        "participants": [
+          "army1",
+          "army2",
+          "army3",
+          "army4"
+        ],
+        "initialOrder": [
+          "army4",
+          "army3",
+          "army2",
+          "army1"
+        ],
+        "initiative": "rotating",
+        "ending": "short",
+        "roundLimit": 20,
+        "teams": {
+          "army1": "army1",
+          "army2": "army2",
+          "army3": "army3",
+          "army4": "army4"
+        },
+        "sharedVision": false
+      },
+      "rules": {
+        "version": 1,
+        "tactics": true
+      },
+      "cpuVersion": "four-army-cpu-v6",
+      "count": 618,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army4"
+      },
+      "alive": [
+        "army1",
+        "army4"
+      ],
+      "eliminations": [
+        {
+          "army": "army3",
+          "round": 12
+        },
+        {
+          "army": "army2",
+          "round": 18
+        }
+      ],
+      "fallbacks": 8,
+      "traceSha256": "88998051ffeea4a6e504342d99e7e3c5ec4e179a8b90f398fa98ec79985fc28b",
+      "stateSha256": "ce5c0b7b3696c0e05b2664e25a050541f36d2a35b06482bce2da6ca3f96aa84f",
+      "seconds": 3.6198287610000115,
+      "cpuMs": {
+        "p95": 16.29494499997236,
+        "max": 50.04826700000558
+      }
+    },
+    {
+      "id": "green-4-152205-army4army3army2army1-false",
+      "seed": 152205,
+      "order": [
+        "army4",
+        "army3",
+        "army2",
+        "army1"
+      ],
+      "match": {
+        "version": 2,
+        "sourceMapId": "skirmish",
+        "layoutVersion": 2,
+        "participants": [
+          "army1",
+          "army2",
+          "army3",
+          "army4"
+        ],
+        "initialOrder": [
+          "army4",
+          "army3",
+          "army2",
+          "army1"
+        ],
+        "initiative": "rotating",
+        "ending": "short",
+        "roundLimit": 20,
+        "teams": {
+          "army1": "army1",
+          "army2": "army2",
+          "army3": "army3",
+          "army4": "army4"
+        },
+        "sharedVision": false
+      },
+      "rules": {
+        "version": 1,
+        "tactics": false
+      },
+      "cpuVersion": "four-army-cpu-v6",
+      "count": 693,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army2"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army4"
+      ],
+      "eliminations": [
+        {
+          "army": "army3",
+          "round": 18
+        }
+      ],
+      "fallbacks": 4,
+      "traceSha256": "76a31d003631660f737245894fde0363539ae6e51a6d1d5d1cc2fdd907d96704",
+      "stateSha256": "68c777f57d56939625688739188603aed4840d0ee8bbe54c8685ae3dc41371c8",
+      "seconds": 3.8559954290000023,
+      "cpuMs": {
+        "p95": 12.039367999997921,
+        "max": 39.37453100003768
+      }
+    },
+    {
+      "id": "green-4-152205-army4army3army2army1-true",
+      "seed": 152205,
+      "order": [
+        "army4",
+        "army3",
+        "army2",
+        "army1"
+      ],
+      "match": {
+        "version": 2,
+        "sourceMapId": "skirmish",
+        "layoutVersion": 2,
+        "participants": [
+          "army1",
+          "army2",
+          "army3",
+          "army4"
+        ],
+        "initialOrder": [
+          "army4",
+          "army3",
+          "army2",
+          "army1"
+        ],
+        "initiative": "rotating",
+        "ending": "short",
+        "roundLimit": 20,
+        "teams": {
+          "army1": "army1",
+          "army2": "army2",
+          "army3": "army3",
+          "army4": "army4"
+        },
+        "sharedVision": false
+      },
+      "rules": {
+        "version": 1,
+        "tactics": true
+      },
+      "cpuVersion": "four-army-cpu-v6",
+      "count": 640,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army4"
+      },
+      "alive": [
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "eliminations": [
+        {
+          "army": "army1",
+          "round": 12
+        }
+      ],
+      "fallbacks": 1,
+      "traceSha256": "586527842095f761c02ad63c7e8d6df83a7b489410245967d92b263382fba52e",
+      "stateSha256": "de2a4af51d113a2251e957813242875c11d4065ff2dcbc250d04041d2fc997cc",
+      "seconds": 5.12217960600002,
+      "cpuMs": {
+        "p95": 23.016024000011384,
+        "max": 145.16957100003492
+      }
+    }
+  ],
+  "environment": {
+    "node": "24.19.0",
+    "vite": "7.3.6",
+    "vitest": "3.2.7",
+    "typescript": "5.9.3",
+    "playwright": "1.63.0",
+    "cpuQuota": 5,
+    "concurrency": "Shared host; 2–8 evaluation/test processes at different times. CPU timing is diagnostic, not physical-device response time."
+  },
+  "measurementEnginePatch": "measurement-engine.patch"
+}

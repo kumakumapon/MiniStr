@@ -1,5 +1,5 @@
 import { experienceRank } from '../game/experience';
-import { defenseStars } from '../game/terrain';
+import { defenseStars, terrainRules } from '../game/terrain';
 import type { ThreatPreview } from '../game/threat';
 import type { FourArmyId } from '../game/fourArmyFoundation';
 import type { Position } from '../game/types';
@@ -46,12 +46,19 @@ export function fourArmyBoardCells(
       ]
         .filter(Boolean)
         .join(' ');
-      const label = `(${x + 1}, ${y + 1}) ${terrainNames[tile.kind]}${tile.owner ? ' · ' + fourArmyName(tile.owner) : ''}${!seen ? (getLocale() === 'en' ? ' · Unseen' : ' · 未索敵') : ''}${unit ? ' · ' + fourArmyName(unit.owner) + ' ' + unitNames[unit.kind] + ' HP ' + unit.hp : ''}${seen ? ' · ' + (getLocale() === 'en' ? 'Defense ' : '防御 ') + defenseStars({ kind: tile.kind }) : ''}${seen && tile.capturePoints !== undefined ? ' · ' + (getLocale() === 'en' ? 'Capture remaining ' : '占領残値 ') + tile.capturePoints : ''}${reachable.has(key) ? (getLocale() === 'en' ? ' · Reachable' : ' · 移動可能') : ''}${attacks.has(key) ? (getLocale() === 'en' ? ' · Attack target' : ' · 攻撃対象') : ''}${threat?.attack.has(key) ? (getLocale() === 'en' ? ' · Danger' : ' · 危険域') : ''}${unit?.hasActed ? (getLocale() === 'en' ? ' · Acted' : ' · 行動済み') : ''}`;
+      const bridge = display.bridges?.some((b) => b.position.x === x && b.position.y === y);
+      const vertical =
+        bridge &&
+        [-1, 1].every((d) => {
+          const bank = display.board.terrain[y + d]?.[x];
+          return !!bank && Number.isFinite(terrainRules[bank.kind].movement.tank);
+        });
+      const label = `(${x + 1}, ${y + 1}) ${terrainNames[tile.kind]}${bridge ? (getLocale() === 'en' ? ' · Bridge' : ' · 橋') : ''}${tile.owner ? ' · ' + fourArmyName(tile.owner) : ''}${!seen ? (getLocale() === 'en' ? ' · Unseen' : ' · 未索敵') : ''}${unit ? ' · ' + fourArmyName(unit.owner) + ' ' + unitNames[unit.kind] + ' HP ' + unit.hp : ''}${seen ? ' · ' + (getLocale() === 'en' ? 'Defense ' : '防御 ') + defenseStars({ kind: tile.kind }) : ''}${seen && tile.capturePoints !== undefined ? ' · ' + (getLocale() === 'en' ? 'Capture remaining ' : '占領残値 ') + tile.capturePoints : ''}${reachable.has(key) ? (getLocale() === 'en' ? ' · Reachable' : ' · 移動可能') : ''}${attacks.has(key) ? (getLocale() === 'en' ? ' · Attack target' : ' · 攻撃対象') : ''}${threat?.attack.has(key) ? (getLocale() === 'en' ? ' · Danger' : ' · 危険域') : ''}${unit?.hasActed ? (getLocale() === 'en' ? ' · Acted' : ' · 行動済み') : ''}`;
       const fort = seen && display.fortifications?.some((site) => site.position.x === x && site.position.y === y);
       const rank = unit ? experienceRank(unit.experience) : 0;
       const facility = facilities[tile.kind];
       const cargo = unit && display.units.find((u) => u.embarkedIn === unit.id);
-      return `<button type="button" class="${classes}" data-x="${x}" data-y="${y}" tabindex="${focused.x === x && focused.y === y ? 0 : -1}" aria-label="${escapeHtml(label)}"${selected ? ' aria-pressed="true"' : ''}>${renderTerrainArt(tile.kind, 'temperate')}${fort ? '<span class="fortification-marker" aria-hidden="true">▣</span>' : ''}${facility ? `<span class="facility facility-${tile.kind} ${tile.owner ?? 'neutral'}" aria-hidden="true"><b>${facility}</b>${tile.owner ? `<small>${tile.owner.slice(-1)}</small>` : ''}</span>` : ''}${unit ? `<span class="unit unit-${unit.kind} ${unit.owner}${unit.hasActed ? ' four-unit-done' : ''}" aria-hidden="true"><span class="unit-art"></span><small>${unit.hp}</small><i class="unit-owner-marker">${unit.owner.slice(-1)}</i>${rank ? `<i class="unit-rank" aria-hidden="true">${'★'.repeat(rank)}</i>` : ''}${cargo ? `<i class="cargo-marker">${getLocale() === 'en' ? 'C' : '積'}</i>` : ''}</span>` : ''}</button>`;
+      return `<button type="button" class="${classes}" data-x="${x}" data-y="${y}" tabindex="${focused.x === x && focused.y === y ? 0 : -1}" aria-label="${escapeHtml(label)}"${selected ? ' aria-pressed="true"' : ''}>${renderTerrainArt(tile.kind, 'temperate')}${bridge ? `<span class="bridge-marker${vertical ? ' vertical' : ''}" aria-hidden="true">═</span>` : ''}${fort ? '<span class="fortification-marker" aria-hidden="true">▣</span>' : ''}${facility ? `<span class="facility facility-${tile.kind} ${tile.owner ?? 'neutral'}" aria-hidden="true"><b>${facility}</b>${tile.owner ? `<small>${tile.owner.slice(-1)}</small>` : ''}</span>` : ''}${unit ? `<span class="unit unit-${unit.kind} ${unit.owner}${unit.hasActed ? ' four-unit-done' : ''}" aria-hidden="true"><span class="unit-art"></span><small>${unit.hp}</small><i class="unit-owner-marker">${unit.owner.slice(-1)}</i>${rank ? `<i class="unit-rank" aria-hidden="true">${'★'.repeat(rank)}</i>` : ''}${cargo ? `<i class="cargo-marker">${getLocale() === 'en' ? 'C' : '積'}</i>` : ''}</span>` : ''}</button>`;
     }),
   );
 }

@@ -1,6 +1,6 @@
 import type { FourArmyExperience, FourArmyExperienceView, FourArmyObservedEvent } from '../game/fourArmyExperience';
 import type { FourArmyState } from '../game/fourArmyEngine';
-import { fourArmyParticipants } from '../game/smallBattle';
+import { battleWinners, fourArmyParticipants } from '../game/smallBattle';
 import { fourArmyHumanArmies, type FourArmyControllers } from '../game/fourArmyControl';
 import type { SoundEvent } from './presentationEffects';
 import { fourArmyName } from './fourArmyBattleView';
@@ -26,6 +26,8 @@ export function fourArmyEventText(event: FourArmyObservedEvent): string {
     recon: text('広域偵察', 'reconnaissance'),
     ambush: text('待伏せ準備', 'prepared ambush'),
     logistics: text('兵站指示', 'logistics order'),
+    bridge: text('架橋', 'Build bridge'),
+    destroyBridge: text('橋を破壊', 'Demolish bridge'),
     repairReserve: text('修理予算', 'repair reserve'),
     contact: text('接触・移動中の交戦', 'contact / engagement'),
   };
@@ -83,20 +85,20 @@ export function renderFourArmyHistory(experience: FourArmyExperience, view: Four
 export function renderFourArmyResult(state: FourArmyState, controllers: FourArmyControllers, count: number, readonly: boolean, conflicted: boolean): string {
   if (state.outcome.type === 'ongoing') return '';
   const humans = fourArmyHumanArmies(controllers);
-  const title = state.outcome.type === 'draw' ? text('引き分け', 'Draw') : fourArmyName(state.outcome.winner) + text('の勝利', ' wins');
+  const title = state.outcome.type === 'draw' ? text('引き分け', 'Draw') : battleWinners(state).map(fourArmyName).join(' / ') + text('の勝利', ' wins');
   const personal =
     humans.length === 1 && state.outcome.type === 'victory'
-      ? state.outcome.winner === humans[0]
+      ? battleWinners(state).includes(humans[0]!)
         ? text('あなたの勝利です。', 'You win.')
         : text('あなたの軍は敗北しました。', 'Your army lost.')
       : '';
-  return `<section class="four-result" aria-labelledby="four-result-title"><h2 id="four-result-title" tabindex="-1">${escapeHtml(title)}</h2><p>${personal} ${text('ラウンド', 'Round')} ${state.decision?.round ?? state.round.round} · ${count.toLocaleString()} ${text('命令', 'commands')}</p>${state.decision ? `<p>${text('20ラウンド判定：拠点数 → 合計HP → 同点は引分', '20-round decision: properties → total HP → tied draw')}</p>` : ''}<div class="four-result-table"><table><thead><tr><th>${text('軍', 'Army')}</th><th>${text('結果', 'Result')}</th><th>${text('残部隊', 'Units left')}</th><th>${text('施設', 'Properties')}</th><th>HP</th></tr></thead><tbody>${fourArmyParticipants(
+  return `<section class="four-result" aria-labelledby="four-result-title"><h2 id="four-result-title" tabindex="-1">${escapeHtml(title)}</h2><p>${personal} ${text('ラウンド', 'Round')} ${state.decision?.round ?? state.round.round} · ${count.toLocaleString()} ${text('命令', 'commands')}</p>${state.decision ? `<p>${text(`${state.decision.round}ラウンド判定：チーム拠点数 → 合計HP → 同点は引分`, `${state.decision.round}-round decision: team properties → HP → tied draw`)}</p>` : ''}<div class="four-result-table"><table><thead><tr><th>${text('軍', 'Army')}</th><th>${text('結果', 'Result')}</th><th>${text('残部隊', 'Units left')}</th><th>${text('施設', 'Properties')}</th><th>HP</th></tr></thead><tbody>${fourArmyParticipants(
     state,
   )
     .map((army) => {
       const eliminated = state.eliminations.find((e) => e.army === army);
       const result =
-        state.outcome.type === 'victory' && state.outcome.winner === army
+        state.outcome.type === 'victory' && battleWinners(state).includes(army)
           ? text('勝利', 'Winner')
           : eliminated
             ? `R${eliminated.round} ${text('脱落', 'eliminated')}`

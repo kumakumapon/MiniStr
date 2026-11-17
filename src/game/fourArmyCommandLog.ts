@@ -4,7 +4,7 @@ import type { GameResult } from './types';
 
 export const FOUR_ARMY_LONG_COMMANDS = 65536;
 export interface FourArmyCommandLog {
-  encoding: 'four-army-log-v1' | 'four-army-log-v2';
+  encoding: 'four-army-log-v1' | 'four-army-log-v2' | 'four-army-log-v3';
   ids: string[];
   rows: (string | number)[][];
 }
@@ -54,16 +54,19 @@ export function packFourArmyCommands(commands: readonly FourArmyCommand[]): Four
         return [13, a, id(c.unitId), Number(c.order.priority), c.order.resource === 'ammo' ? 0 : 1, Number(c.order.repair)];
       case 'repairReserve':
         return [14, a, c.amount];
+      case 'bridge':
+      case 'destroyBridge':
+        return [c.type === 'bridge' ? 15 : 16, a, id(c.unitId), c.destination.x, c.destination.y];
     }
   });
-  return { encoding: rows.some((r) => Number(r[0]) >= 10) ? 'four-army-log-v2' : 'four-army-log-v1', ids, rows };
+  return { encoding: rows.some((r) => Number(r[0]) >= 15) ? 'four-army-log-v3' : rows.some((r) => Number(r[0]) >= 10) ? 'four-army-log-v2' : 'four-army-log-v1', ids, rows };
 }
 export function unpackFourArmyCommands(input: unknown): GameResult<FourArmyCommand[]> {
   const fail = (): GameResult<never> => ({ ok: false, error: '4軍の圧縮命令列が不正です。' });
   if (!input || typeof input !== 'object' || Array.isArray(input) || Object.keys(input).sort().join() !== 'encoding,ids,rows') return fail();
   const v = input as Record<string, unknown>;
   if (
-    (v.encoding !== 'four-army-log-v1' && v.encoding !== 'four-army-log-v2') ||
+    (v.encoding !== 'four-army-log-v1' && v.encoding !== 'four-army-log-v2' && v.encoding !== 'four-army-log-v3') ||
     !Array.isArray(v.ids) ||
     v.ids.length > FOUR_ARMY_LONG_COMMANDS * 2 ||
     !v.ids.every((s) => typeof s === 'string' && /^[A-Za-z0-9_-]{1,80}$/.test(s)) ||
@@ -82,7 +85,7 @@ export function unpackFourArmyCommands(input: unknown): GameResult<FourArmyComma
   const commands: FourArmyCommand[] = [];
   for (const row of v.rows) {
     if (!Array.isArray(row) || !Number.isInteger(row[1]) || row[1] < 0 || row[1] > 3) return fail();
-    if (Number(row[0]) >= 10 && v.encoding !== 'four-army-log-v2') return fail();
+    if (Number(row[0]) >= 15 ? v.encoding !== 'four-army-log-v3' : Number(row[0]) >= 10 && v.encoding === 'four-army-log-v1') return fail();
     const actor = FOUR_ARMY_IDS[row[1]];
     let command: unknown;
     switch (row[0]) {
@@ -145,6 +148,11 @@ export function unpackFourArmyCommands(input: unknown): GameResult<FourArmyComma
       case 14:
         if (row.length !== 3) return fail();
         command = { type: 'repairReserve', actor, amount: row[2] };
+        break;
+      case 15:
+      case 16:
+        if (row.length !== 5) return fail();
+        command = { type: row[0] === 15 ? 'bridge' : 'destroyBridge', actor, unitId: id(row[2]), destination: { x: row[3], y: row[4] } };
         break;
       default:
         return fail();
