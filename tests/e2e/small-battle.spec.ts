@@ -33,12 +33,12 @@ for (const count of [3, 4] as const)
       await page.locator('#four-start').click();
       await expect(page.locator('#four-board > button')).toHaveCount(252);
       await expect(page.locator('#four-army-info > div')).toHaveCount(count);
-      await expect(page.locator('#four-turn')).toContainText('/20');
+      await expect(page.locator('#four-turn')).toContainText(count === 3 ? '/21' : '/20');
       await expect.poll(() => page.evaluate(() => localStorage.getItem('ministr.fourArmy.autosave'))).not.toBeNull();
       const original = await page.evaluate(() => localStorage.getItem('ministr.fourArmy.autosave'));
-      await page.locator(count === 3 ? '#four-board > [data-x="7"][data-y="3"]' : '#four-board > [data-x="2"][data-y="4"]').click();
+      await page.locator(count === 3 ? '#four-board > [data-x="7"][data-y="2"]' : '#four-board > [data-x="2"][data-y="4"]').click();
       await page.locator('#four-board').press('ArrowRight');
-      await expect(page.locator(count === 3 ? '#four-board > [data-x="8"][data-y="3"]' : '#four-board > [data-x="3"][data-y="4"]')).toBeFocused();
+      await expect(page.locator(count === 3 ? '#four-board > [data-x="8"][data-y="2"]' : '#four-board > [data-x="3"][data-y="4"]')).toBeFocused();
       await page.keyboard.press('ArrowLeft');
       await page.locator(width === 390 ? '[data-quick-action="wait"]' : '[data-human-action="wait"]').click();
       await expect(page.locator('#four-army-screen')).toHaveAttribute('data-record-count', '1');
@@ -50,7 +50,7 @@ for (const count of [3, 4] as const)
       await expect.poll(() => page.evaluate(() => localStorage.getItem('ministr.fourArmy.save.1'))).not.toBeNull();
       const saved = await page.evaluate(() => localStorage.getItem('ministr.fourArmy.save.1')!),
         checked = value(parseFourArmySpectatorSave(saved));
-      expect(checked.schemaVersion).toBe(5);
+      expect(checked.schemaVersion).toBe(6);
       expect(checked.archive.payload.map.match?.participants).toHaveLength(count);
       expect(checked.archive.payload.commands).toEqual([]);
       await page.locator('.four-playback-options').evaluate((e) => ((e as HTMLDetailsElement).open = true));
@@ -127,3 +127,58 @@ test('three-army hotseat hides CPU intervals and never presents an inactive four
   await expect(page.locator('#four-view')).toHaveValue('army3');
   await expect(page.locator('#four-army-info')).not.toContainText('Army 4');
 });
+for (const width of [1280, 390])
+  test(`v1522 arbitrary armies, controller journal and restored handoff ${width}`, async ({ page }, info) => {
+    await page.setViewportSize({ width, height: 900 });
+    await open(page, width === 390 ? 'ja' : 'en');
+    await page.locator('#four-map').selectOption('outpost');
+    await page.locator('[data-active-army="army1"]').uncheck();
+    await page.locator('[data-active-army="army3"]').uncheck();
+    await expect(page.locator('#four-count')).toHaveValue('2');
+    await expect(page.locator('[data-order]')).toHaveCount(2);
+    await page.locator('#four-start').click();
+    await expect(page.locator('#four-board > button')).toHaveCount(252);
+    await expect(page.locator('#four-army-info>div')).toHaveCount(2);
+    await expect(page.locator('#four-view')).toHaveValue('army2');
+    const select = page.locator('[data-live-controller="army2"]');
+    await select.evaluate((e) => ((e.closest('details') as HTMLDetailsElement).open = true));
+    await select.selectOption('cpu');
+    await expect(page.locator('#four-army-screen')).toHaveAttribute('data-record-count', '0');
+    await page.locator('[data-live-controller="army2"]').evaluate((e) => ((e.closest('details') as HTMLDetailsElement).open = true));
+    await page.locator('[data-live-controller="army2"]').selectOption('human');
+    await expect(page.locator('#four-board')).toHaveCount(0);
+    await page.locator('#four-handoff-start').click();
+    await expect(page.locator('#four-army-screen')).toHaveAttribute('data-record-count', '0');
+    await tools(page);
+    await page.locator('[data-save-slot="0"]').click();
+    await expect.poll(() => page.evaluate(() => localStorage.getItem('ministr.fourArmy.save.1'))).not.toBeNull();
+    const checked = value(parseFourArmySpectatorSave(await page.evaluate(() => localStorage.getItem('ministr.fourArmy.save.1')!)));
+    expect(checked.schemaVersion).toBe(6);
+    if (checked.format !== 'ministr-four-army-configurable' || checked.schemaVersion !== 6) throw Error('Expected journal');
+    expect(checked.controlHistory.events).toHaveLength(2);
+    expect(checked.archive.payload.map.match?.participants).toEqual(['army2', 'army4']);
+    await page.locator('[data-load-slot="0"]').click();
+    await expect(page.locator('#four-notice')).toHaveText(width === 390 ? '停止状態で読み込みました。' : 'Loaded and paused.');
+    await expect(page.locator('#four-army-screen')).toHaveAttribute('data-record-count', '0');
+    await expect(page.locator('#four-view')).toHaveValue('army2');
+    await page.screenshot({ path: info.outputPath(`v1522-outpost-switch-${width}.png`), fullPage: true });
+    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width + 1);
+  });
+for (const count of [3, 4])
+  test(`v1522 water ${count} armies shows ships, bridges and fixed allies`, async ({ page }, info) => {
+    await open(page);
+    await page.locator('#four-map').selectOption('strait');
+    await page.locator('#four-count').selectOption(String(count));
+    await page.locator('#four-team-mode').check();
+    await page.locator('#four-start').click();
+    await expect(page.locator('#four-board > button')).toHaveCount(255);
+    await expect(page.locator('#four-board .bridge-marker')).toHaveCount(count === 3 ? 3 : 4);
+    await expect(page.locator('#four-board .unit-landingShip')).toHaveCount(count === 3 ? 2 : 4);
+    await expect(page.locator('#four-army-info')).toContainText('Team A');
+    await tools(page);
+    await page.locator('[data-save-slot="0"]').click();
+    await expect.poll(() => page.evaluate(() => localStorage.getItem('ministr.fourArmy.save.1'))).not.toBeNull();
+    const checked = value(parseFourArmySpectatorSave(await page.evaluate(() => localStorage.getItem('ministr.fourArmy.save.1')!)));
+    expect(checked.archive.payload.map.match).toMatchObject({ version: 2, sourceMapId: 'strait', sharedVision: true });
+    await page.screenshot({ path: info.outputPath(`v1522-water-${count}.png`), fullPage: true });
+  });

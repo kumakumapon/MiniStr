@@ -98,6 +98,8 @@ export function isFourArmyExperience(v: unknown, count: number): v is FourArmyEx
     'logistics',
     'repairReserve',
     'contact',
+    'bridge',
+    'destroyBridge',
   ];
   if (
     !FOUR_ARMY_IDS.every(

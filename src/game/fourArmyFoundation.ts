@@ -168,6 +168,7 @@ export function isFourArmyBattlefield(value: unknown, participants: readonly Fou
 export function resolveFourArmyEliminations(
   input: unknown,
   participants: readonly FourArmyId[] = FOUR_ARMY_IDS,
+  teams?: Partial<Record<FourArmyId, FourArmyId>>,
 ): GameResult<{ battlefield: FourArmyBattlefield; outcome: FourArmyOutcome }> {
   if (!isFourArmyBattlefield(input, participants)) return fail('4軍の脱落判定用データが不正です。');
   const alive = participants.filter(
@@ -181,6 +182,7 @@ export function resolveFourArmyEliminations(
       return owner !== undefined && alive.includes(owner) ? { ...rest, owner } : rest;
     }),
   };
-  const outcome: FourArmyOutcome = alive.length === 0 ? { type: 'draw' } : alive.length === 1 ? { type: 'victory', winner: alive[0]! } : { type: 'ongoing' };
+  const outcome: FourArmyOutcome =
+    alive.length === 0 ? { type: 'draw' } : new Set(alive.map((a) => teams?.[a] ?? a)).size === 1 ? { type: 'victory', winner: alive[0]! } : { type: 'ongoing' };
   return { ok: true, value: { battlefield, outcome } };
 }

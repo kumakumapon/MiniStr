@@ -22,7 +22,9 @@ export type FourArmyHumanAction =
   | 'ambush-primary'
   | 'ambush-secondary'
   | 'logistics'
-  | 'repairReserve';
+  | 'repairReserve'
+  | 'bridge'
+  | 'destroyBridge';
 export interface FourArmyHumanChoice {
   action: FourArmyHumanAction;
   command: FourArmyCommand;
@@ -40,7 +42,7 @@ export function fourArmyHumanChoices(o: FourArmyObservation, selected: Position)
       choices.push({ action, command, ...(target ? { target } : {}), ...(damage ? { damage } : {}), ...(counterDamage ? { counterDamage } : {}) });
   };
   add('endTurn', { actor, type: 'endTurn' });
-  const unit = view.units.find((u) => u.owner === 'red' && u.position?.x === selected.x && u.position.y === selected.y);
+  const unit = view.units.find((u) => o.units.some((original) => original.id === u.id && original.owner === actor) && u.position?.x === selected.x && u.position.y === selected.y);
   if (unit) {
     for (const destination of reachablePositionsForPlayer(view, unit.id, 'red')) add('move', { actor, type: 'move', unitId: unit.id, destination }, destination);
     add('wait', { actor, type: 'wait', unitId: unit.id });
@@ -75,6 +77,10 @@ export function fourArmyHumanChoices(o: FourArmyObservation, selected: Position)
       [0, -1],
     ]) {
       const destination = { x: selected.x + dx!, y: selected.y + dy! };
+      if (o.match?.version === 2) {
+        add('bridge', { actor, type: 'bridge', unitId: unit.id, destination }, destination);
+        add('destroyBridge', { actor, type: 'destroyBridge', unitId: unit.id, destination }, destination);
+      }
       add('disembark', { actor, type: 'disembark', transportId: unit.id, destination }, destination);
     }
   }

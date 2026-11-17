@@ -24,7 +24,7 @@ describe('four-army spectator controller', () => {
     expect(values.get(FOUR_ARMY_SAVE_KEYS[0])).toBe(old);
     expect(document.querySelector('#four-upgrade-cpu')).toBeNull();
     click('[data-save-slot="0"]');
-    await vi.waitFor(() => expect(JSON.parse(values.get(FOUR_ARMY_SAVE_KEYS[0])!).cpuVersion).toBe('four-army-cpu-v4'));
+    await vi.waitFor(() => expect(JSON.parse(values.get(FOUR_ARMY_SAVE_KEYS[0])!).cpuVersion).toBe('four-army-cpu-v6'));
     const saved = JSON.parse(values.get(FOUR_ARMY_SAVE_KEYS[0])!);
     expect(saved.archive.payload.commands.rows).toHaveLength(2);
     expect(saved.archive.payload.state).toEqual(JSON.parse(old).archive.payload.state);
@@ -38,7 +38,7 @@ describe('four-army spectator controller', () => {
     e.value = value;
     e.dispatchEvent(new Event('change', { bubbles: true }));
   };
-  it.each([3, 4] as const)('starts compact %i-army play with a real roster and schema5 autosave', async (count) => {
+  it.each([3, 4] as const)('starts compact %i-army play with a real roster and schema6 autosave', async (count) => {
     change('#four-map', 'compact');
     change('#four-count', String(count));
     change('#four-mode', 'human');
@@ -46,14 +46,14 @@ describe('four-army spectator controller', () => {
     expect(query('#four-count').closest('label')?.textContent).toContain('Armies');
     start();
     expect(query('#four-board').children).toHaveLength(252);
-    expect(query('#four-turn').textContent).toContain('/20');
+    expect(query('#four-turn').textContent).toContain(count === 3 ? '/21' : '/20');
     expect(query('#four-army-info').children).toHaveLength(count);
     expect(query('#four-army-info').textContent).toContain('4/8');
     if (count === 3) expect(query('#four-army-info').textContent).not.toContain('Army 4');
     await vi.waitFor(() => expect(values.has(FOUR_ARMY_AUTO_SAVE_KEY)).toBe(true));
     const raw = JSON.parse(values.get(FOUR_ARMY_AUTO_SAVE_KEY)!);
-    expect(raw).toMatchObject({ schemaVersion: 5, cpuVersion: 'four-army-cpu-v5', archive: { payload: { map: { match: { ending: 'short' } } } } });
-    click(count === 3 ? '#four-board > [data-x="7"][data-y="3"]' : '#four-board > [data-x="2"][data-y="4"]');
+    expect(raw).toMatchObject({ schemaVersion: 6, cpuVersion: 'four-army-cpu-v6', archive: { payload: { map: { match: { ending: 'short' } } } } });
+    click(count === 3 ? '#four-board > [data-x="7"][data-y="2"]' : '#four-board > [data-x="2"][data-y="4"]');
     click('[data-human-action="wait"]');
     expect(query('#four-turn').textContent).toContain('1 commands');
     click('#four-undo');
@@ -81,6 +81,34 @@ describe('four-army spectator controller', () => {
     expect(query<HTMLSelectElement>('#four-count').value).toBe('4');
     start();
     expect(query('#four-board').children).toHaveLength(1024);
+  });
+  it('starts arbitrary two-army identities and retains controller changes across verified reload', async () => {
+    change('#four-map', 'outpost');
+    change('#four-mode', 'human');
+    for (const army of ['army1', 'army3']) {
+      const e = query<HTMLInputElement>(`[data-active-army="${army}"]`);
+      e.checked = false;
+      e.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+    expect(query<HTMLSelectElement>('#four-count').value).toBe('2');
+    start();
+    expect(query('#four-army-info').children).toHaveLength(2);
+    expect(query<HTMLSelectElement>('#four-view').value).toBe('army2');
+    change('[data-live-controller="army2"]', 'cpu');
+    expect(query('#four-turn').textContent).toContain('0 commands');
+    change('[data-live-controller="army2"]', 'human');
+    expect(document.querySelector('#four-board')).toBeNull();
+    click('#four-handoff-start');
+    click('[data-save-slot="0"]');
+    await vi.waitFor(() => expect(values.has(FOUR_ARMY_SAVE_KEYS[0])).toBe(true));
+    const raw = JSON.parse(values.get(FOUR_ARMY_SAVE_KEYS[0])!);
+    expect(raw.controlHistory.events).toEqual([
+      { at: 0, army: 'army2', from: 'human', to: 'cpu' },
+      { at: 0, army: 'army2', from: 'cpu', to: 'human' },
+    ]);
+    click('[data-load-slot="0"]');
+    await vi.waitFor(() => expect(query('#four-notice').textContent).toBe('Loaded and paused.'));
+    expect(query('#four-turn').textContent).toContain('0 commands');
   });
   const start = () => click('#four-start');
   beforeEach(() => {

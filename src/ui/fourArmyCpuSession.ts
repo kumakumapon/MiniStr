@@ -26,7 +26,8 @@ export class FourArmyCpuSession {
   ) {
     if (!isFourArmyState(state) || !isFourArmyCpuSettings(settings) || !isFourArmyCpuVersion(cpuVersion)) throw Error('Invalid four-army CPU session');
     const controls = normalizeFourArmyControllers(humanArmy);
-    if (state.match && cpuVersion !== 'four-army-cpu-v5') throw Error('Compact games require CPU v5');
+    if (state.match && (state.match.version === 2 ? cpuVersion !== 'four-army-cpu-v6' : !['four-army-cpu-v5', 'four-army-cpu-v6'].includes(cpuVersion)))
+      throw Error('Incompatible match CPU version');
     if (Object.entries(controls).some(([a, c]) => c === 'human' && !fourArmyParticipants(state).includes(a as FourArmyId))) throw Error('Inactive human army');
     this.controllers = Object.freeze(controls);
     this.current = structuredClone(state);

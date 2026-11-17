@@ -10,13 +10,15 @@ export interface FourArmyDisplay {
   visible?: ReadonlySet<string>;
   players: Partial<Record<FourArmyId, PlayerState>>;
   fortifications?: FourArmyFortification[];
+  bridges?: FourArmyState['bridges'];
 }
 export function fourArmyDisplay(state: FourArmyState, view: FourArmyView): FourArmyDisplay {
-  if (view === 'all') return { board: state.board, units: state.units, players: state.players, fortifications: state.extensions?.fortifications };
+  if (view === 'all') return { board: state.board, units: state.units, players: state.players, fortifications: state.extensions?.fortifications, bridges: state.bridges };
   const o = observeFourArmy(state, view);
   if (!o.ok) throw Error(o.error);
   return {
     fortifications: o.value.extensions?.fortifications,
+    bridges: o.value.bridges,
     board: o.value.board,
     units: o.value.units,
     players: { [view]: o.value.player },
