@@ -60,7 +60,7 @@ describe('four-army spectator controller', () => {
     expect(query('#four-turn').textContent).toContain('0 commands');
     click('[data-save-slot="0"]');
     await vi.waitFor(() => expect(values.has(FOUR_ARMY_SAVE_KEYS[0])).toBe(true));
-    expect(JSON.parse(values.get(FOUR_ARMY_SAVE_KEYS[0])!).schemaVersion).toBe(5);
+    expect(JSON.parse(values.get(FOUR_ARMY_SAVE_KEYS[0])!).schemaVersion).toBe(6);
     click('#four-menu');
     change('#four-map', 'wide');
     click('[data-load-slot="0"]');
@@ -108,6 +108,22 @@ describe('four-army spectator controller', () => {
     ]);
     click('[data-load-slot="0"]');
     await vi.waitFor(() => expect(query('#four-notice').textContent).toBe('Loaded and paused.'));
+    expect(query('#four-turn').textContent).toContain('0 commands');
+  });
+  it('shows allied naval vision, oriented bridges and only personally controlled logistics', () => {
+    change('#four-map', 'strait');
+    change('#four-mode', 'human');
+    const team = query<HTMLInputElement>('#four-team-mode');
+    team.checked = true;
+    team.dispatchEvent(new Event('change', { bubbles: true }));
+    start();
+    expect(query('#four-board').children).toHaveLength(255);
+    expect(document.querySelectorAll('#four-board .bridge-marker.vertical')).toHaveLength(2);
+    expect(query('#four-army-info').textContent).toContain('Team A');
+    expect(query('#four-logistics-roster').textContent).toContain('Units and logistics (4)');
+    change('[data-live-controller="army3"]', 'human');
+    expect(document.querySelector('#four-board')).toBeNull();
+    click('#four-handoff-start');
     expect(query('#four-turn').textContent).toContain('0 commands');
   });
   const start = () => click('#four-start');

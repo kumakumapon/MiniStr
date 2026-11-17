@@ -1,0 +1,749 @@
+{
+  "protocol": "multifaction-v1522-v1",
+  "mode": "maps",
+  "shard": 0,
+  "shards": 1,
+  "seeds": [
+    152201,
+    152202
+  ],
+  "sourceHashes": {
+    "src/game/expandedBattleMap.ts": "9f9c1c831ae5d9454a2476e963b68a13609ce8fbe5c576b997fcbfcb22fa7f5d",
+    "src/game/smallBattle.ts": "a7a1dc7dab88b0c74d7ccf8703f3027186b2ab73f409bff2cff5835d70b103be",
+    "src/game/fourArmyEngine.ts": "6cf35dd13b578126481ed258d82bf08c31dd04f206146956861f0f2baccc81c4",
+    "src/game/fourArmyFoundation.ts": "7525e4df3fbcd47fb520d6d06ce2186b7ab70f38cbb0db64a7c853d0578a626a",
+    "src/ai/fourArmyCpu.ts": "bda095440414df4db56861bbaa54a12462a3e6c2c4d9b043633c3aed9635f137",
+    "src/ai/fourArmyObservation.ts": "7fcb8f402fb05f1d3062c00bb8e0ee281bb7979d9c6329cdb9bc6e521fe4b996",
+    "src/ai/fourArmyCpuOrder.ts": "a7e7500f3953e115cbe8de25b7bc95a057ba1bc38d9a9c47342a7028d7ffb45a"
+  },
+  "rows": [
+    {
+      "id": "outpost-2-false",
+      "seed": 152202,
+      "order": [
+        "army3",
+        "army4"
+      ],
+      "match": {
+        "version": 2,
+        "sourceMapId": "outpost",
+        "layoutVersion": 2,
+        "participants": [
+          "army3",
+          "army4"
+        ],
+        "initialOrder": [
+          "army3",
+          "army4"
+        ],
+        "initiative": "fixed",
+        "ending": "short",
+        "roundLimit": 20,
+        "teams": {
+          "army3": "army3",
+          "army4": "army4"
+        },
+        "sharedVision": false
+      },
+      "rules": {
+        "version": 1,
+        "tactics": true
+      },
+      "cpuVersion": "four-army-cpu-v6",
+      "count": 391,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army4"
+      },
+      "alive": [
+        "army3",
+        "army4"
+      ],
+      "eliminations": [],
+      "fallbacks": 0,
+      "traceSha256": "969d950695043245ab2f6b8cdeefec2d0eaf3f62682bfbf59610e7ac36ffe1c0",
+      "stateSha256": "aefc229fa9dae3ba0a7341f3a87628aa2508194773bdd3a17510a7f04b0f8e34",
+      "seconds": 3.6844261760000006,
+      "cpuMs": {
+        "p95": 25.24653500000022,
+        "max": 53.83945199999971
+      }
+    },
+    {
+      "id": "outpost-2-true",
+      "seed": 152202,
+      "order": [
+        "army3",
+        "army4"
+      ],
+      "match": {
+        "version": 2,
+        "sourceMapId": "outpost",
+        "layoutVersion": 2,
+        "participants": [
+          "army3",
+          "army4"
+        ],
+        "initialOrder": [
+          "army3",
+          "army4"
+        ],
+        "initiative": "fixed",
+        "ending": "short",
+        "roundLimit": 20,
+        "teams": {
+          "army3": "army3",
+          "army4": "army4"
+        },
+        "sharedVision": false
+      },
+      "rules": {
+        "version": 1,
+        "tactics": true
+      },
+      "cpuVersion": "four-army-cpu-v6",
+      "count": 391,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army4"
+      },
+      "alive": [
+        "army3",
+        "army4"
+      ],
+      "eliminations": [],
+      "fallbacks": 0,
+      "traceSha256": "969d950695043245ab2f6b8cdeefec2d0eaf3f62682bfbf59610e7ac36ffe1c0",
+      "stateSha256": "aefc229fa9dae3ba0a7341f3a87628aa2508194773bdd3a17510a7f04b0f8e34",
+      "seconds": 3.3406766269999997,
+      "cpuMs": {
+        "p95": 21.502496000000065,
+        "max": 35.560811999999714
+      }
+    },
+    {
+      "id": "outpost-3-false",
+      "seed": 152202,
+      "order": [
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "match": {
+        "version": 2,
+        "sourceMapId": "outpost",
+        "layoutVersion": 2,
+        "participants": [
+          "army2",
+          "army3",
+          "army4"
+        ],
+        "initialOrder": [
+          "army2",
+          "army3",
+          "army4"
+        ],
+        "initiative": "rotating",
+        "ending": "short",
+        "roundLimit": 21,
+        "teams": {
+          "army2": "army2",
+          "army3": "army3",
+          "army4": "army4"
+        },
+        "sharedVision": false
+      },
+      "rules": {
+        "version": 1,
+        "tactics": true
+      },
+      "cpuVersion": "four-army-cpu-v6",
+      "count": 537,
+      "round": 22,
+      "outcome": {
+        "type": "victory",
+        "winner": "army3"
+      },
+      "alive": [
+        "army3",
+        "army4"
+      ],
+      "eliminations": [
+        {
+          "army": "army2",
+          "round": 20
+        }
+      ],
+      "fallbacks": 2,
+      "traceSha256": "7a3305ec0da517b96ba483a5145d3970a458ea2d49077bff653b3bd72b03f9a5",
+      "stateSha256": "5bf719f53b821d00aa5d19e6cdb278a5d2206927e2a1773e8f6d2ceef1e7b273",
+      "seconds": 4.495002725,
+      "cpuMs": {
+        "p95": 16.024138000000676,
+        "max": 59.32831199999964
+      }
+    },
+    {
+      "id": "outpost-3-true",
+      "seed": 152202,
+      "order": [
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "match": {
+        "version": 2,
+        "sourceMapId": "outpost",
+        "layoutVersion": 2,
+        "participants": [
+          "army2",
+          "army3",
+          "army4"
+        ],
+        "initialOrder": [
+          "army2",
+          "army3",
+          "army4"
+        ],
+        "initiative": "rotating",
+        "ending": "short",
+        "roundLimit": 21,
+        "teams": {
+          "army2": "army2",
+          "army3": "army1",
+          "army4": "army2"
+        },
+        "sharedVision": true
+      },
+      "rules": {
+        "version": 1,
+        "tactics": true
+      },
+      "cpuVersion": "four-army-cpu-v6",
+      "count": 307,
+      "round": 11,
+      "outcome": {
+        "type": "victory",
+        "winner": "army2"
+      },
+      "alive": [
+        "army2",
+        "army4"
+      ],
+      "eliminations": [
+        {
+          "army": "army3",
+          "round": 11
+        }
+      ],
+      "fallbacks": 0,
+      "traceSha256": "74fc14e0fa28cadc1fd20c224729b3022bce3d7f12a301646365bba9aefb1f9a",
+      "stateSha256": "675794b0617873dd9625917031ca3553545544f92bf29b369a0779e21ec146f4",
+      "seconds": 2.3353553880000018,
+      "cpuMs": {
+        "p95": 15.504415000001245,
+        "max": 34.230352000000494
+      }
+    },
+    {
+      "id": "outpost-4-false",
+      "seed": 152202,
+      "order": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "match": {
+        "version": 2,
+        "sourceMapId": "outpost",
+        "layoutVersion": 2,
+        "participants": [
+          "army1",
+          "army2",
+          "army3",
+          "army4"
+        ],
+        "initialOrder": [
+          "army1",
+          "army2",
+          "army3",
+          "army4"
+        ],
+        "initiative": "rotating",
+        "ending": "short",
+        "roundLimit": 20,
+        "teams": {
+          "army1": "army1",
+          "army2": "army2",
+          "army3": "army3",
+          "army4": "army4"
+        },
+        "sharedVision": false
+      },
+      "rules": {
+        "version": 1,
+        "tactics": true
+      },
+      "cpuVersion": "four-army-cpu-v6",
+      "count": 764,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army3"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "eliminations": [],
+      "fallbacks": 1,
+      "traceSha256": "f6baaed037f5d8885475c149d86cb2f57deba5c0c665890f724cca939bbe3a62",
+      "stateSha256": "a38524a2d84474b38c636b314d8332a092f12ed58fc57340a685d15681abb8cc",
+      "seconds": 7.3851654920000005,
+      "cpuMs": {
+        "p95": 25.369136999997863,
+        "max": 41.745953000001464
+      }
+    },
+    {
+      "id": "outpost-4-true",
+      "seed": 152202,
+      "order": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "match": {
+        "version": 2,
+        "sourceMapId": "outpost",
+        "layoutVersion": 2,
+        "participants": [
+          "army1",
+          "army2",
+          "army3",
+          "army4"
+        ],
+        "initialOrder": [
+          "army1",
+          "army2",
+          "army3",
+          "army4"
+        ],
+        "initiative": "rotating",
+        "ending": "short",
+        "roundLimit": 20,
+        "teams": {
+          "army1": "army1",
+          "army2": "army2",
+          "army3": "army1",
+          "army4": "army2"
+        },
+        "sharedVision": true
+      },
+      "rules": {
+        "version": 1,
+        "tactics": true
+      },
+      "cpuVersion": "four-army-cpu-v6",
+      "count": 698,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army3"
+      },
+      "alive": [
+        "army3",
+        "army4"
+      ],
+      "eliminations": [
+        {
+          "army": "army1",
+          "round": 16
+        },
+        {
+          "army": "army2",
+          "round": 19
+        }
+      ],
+      "fallbacks": 2,
+      "traceSha256": "482c9fa19844433235aa73cefdacc6363123ead472a61bc2c617fe639c0ead85",
+      "stateSha256": "1bb06a43a9282713e289220690ab043227d311cfe45ee2ac9033b4f07a919e4d",
+      "seconds": 5.372819748000001,
+      "cpuMs": {
+        "p95": 15.49891000000207,
+        "max": 98.08569499999794
+      }
+    },
+    {
+      "id": "strait-2-false",
+      "seed": 152202,
+      "order": [
+        "army3",
+        "army4"
+      ],
+      "match": {
+        "version": 2,
+        "sourceMapId": "strait",
+        "layoutVersion": 2,
+        "participants": [
+          "army3",
+          "army4"
+        ],
+        "initialOrder": [
+          "army3",
+          "army4"
+        ],
+        "initiative": "fixed",
+        "ending": "short",
+        "roundLimit": 20,
+        "teams": {
+          "army3": "army3",
+          "army4": "army4"
+        },
+        "sharedVision": false
+      },
+      "rules": {
+        "version": 1,
+        "tactics": true
+      },
+      "cpuVersion": "four-army-cpu-v6",
+      "count": 357,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army4"
+      },
+      "alive": [
+        "army3",
+        "army4"
+      ],
+      "eliminations": [],
+      "fallbacks": 1,
+      "traceSha256": "585f61351c00fc6350bb0e9e6bc4e9b3bd36adbdb81201cf7cf51a9e63bf1302",
+      "stateSha256": "7bca21e618599927d4747b11078e811e57c7316a16499615ddc70e442c14c18c",
+      "seconds": 1.5030272810000025,
+      "cpuMs": {
+        "p95": 6.166940999999497,
+        "max": 89.6795540000021
+      }
+    },
+    {
+      "id": "strait-2-true",
+      "seed": 152202,
+      "order": [
+        "army3",
+        "army4"
+      ],
+      "match": {
+        "version": 2,
+        "sourceMapId": "strait",
+        "layoutVersion": 2,
+        "participants": [
+          "army3",
+          "army4"
+        ],
+        "initialOrder": [
+          "army3",
+          "army4"
+        ],
+        "initiative": "fixed",
+        "ending": "short",
+        "roundLimit": 20,
+        "teams": {
+          "army3": "army3",
+          "army4": "army4"
+        },
+        "sharedVision": false
+      },
+      "rules": {
+        "version": 1,
+        "tactics": true
+      },
+      "cpuVersion": "four-army-cpu-v6",
+      "count": 357,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army4"
+      },
+      "alive": [
+        "army3",
+        "army4"
+      ],
+      "eliminations": [],
+      "fallbacks": 1,
+      "traceSha256": "585f61351c00fc6350bb0e9e6bc4e9b3bd36adbdb81201cf7cf51a9e63bf1302",
+      "stateSha256": "7bca21e618599927d4747b11078e811e57c7316a16499615ddc70e442c14c18c",
+      "seconds": 1.3684104469999985,
+      "cpuMs": {
+        "p95": 4.789797000001272,
+        "max": 27.7428370000016
+      }
+    },
+    {
+      "id": "strait-3-false",
+      "seed": 152202,
+      "order": [
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "match": {
+        "version": 2,
+        "sourceMapId": "strait",
+        "layoutVersion": 2,
+        "participants": [
+          "army2",
+          "army3",
+          "army4"
+        ],
+        "initialOrder": [
+          "army2",
+          "army3",
+          "army4"
+        ],
+        "initiative": "rotating",
+        "ending": "short",
+        "roundLimit": 21,
+        "teams": {
+          "army2": "army2",
+          "army3": "army3",
+          "army4": "army4"
+        },
+        "sharedVision": false
+      },
+      "rules": {
+        "version": 1,
+        "tactics": true
+      },
+      "cpuVersion": "four-army-cpu-v6",
+      "count": 575,
+      "round": 22,
+      "outcome": {
+        "type": "victory",
+        "winner": "army4"
+      },
+      "alive": [
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "eliminations": [],
+      "fallbacks": 0,
+      "traceSha256": "aa49764ae09c5f770b473c52fe549fc26d6e632fe38c92d85a36405b651a2276",
+      "stateSha256": "69d3a29d551ecfb520e93bd2385e493a9e3b0c116bf223f822fc75ef13a8e00b",
+      "seconds": 2.2979695819999977,
+      "cpuMs": {
+        "p95": 6.629337999998825,
+        "max": 49.84268099999463
+      }
+    },
+    {
+      "id": "strait-3-true",
+      "seed": 152202,
+      "order": [
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "match": {
+        "version": 2,
+        "sourceMapId": "strait",
+        "layoutVersion": 2,
+        "participants": [
+          "army2",
+          "army3",
+          "army4"
+        ],
+        "initialOrder": [
+          "army2",
+          "army3",
+          "army4"
+        ],
+        "initiative": "rotating",
+        "ending": "short",
+        "roundLimit": 21,
+        "teams": {
+          "army2": "army2",
+          "army3": "army1",
+          "army4": "army2"
+        },
+        "sharedVision": true
+      },
+      "rules": {
+        "version": 1,
+        "tactics": true
+      },
+      "cpuVersion": "four-army-cpu-v6",
+      "count": 575,
+      "round": 22,
+      "outcome": {
+        "type": "victory",
+        "winner": "army4"
+      },
+      "alive": [
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "eliminations": [],
+      "fallbacks": 0,
+      "traceSha256": "7d9cb439ee7159102a114bb4aefef23bbd07f349e59fe63b20235633a2adbb1a",
+      "stateSha256": "7ae78b611d390e500f1fd22f9ff61c5b3667c85f5bfb2d919bd25db594286224",
+      "seconds": 2.3423658149999973,
+      "cpuMs": {
+        "p95": 6.06165200000396,
+        "max": 32.30729699999938
+      }
+    },
+    {
+      "id": "strait-4-false",
+      "seed": 152202,
+      "order": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "match": {
+        "version": 2,
+        "sourceMapId": "strait",
+        "layoutVersion": 2,
+        "participants": [
+          "army1",
+          "army2",
+          "army3",
+          "army4"
+        ],
+        "initialOrder": [
+          "army1",
+          "army2",
+          "army3",
+          "army4"
+        ],
+        "initiative": "rotating",
+        "ending": "short",
+        "roundLimit": 20,
+        "teams": {
+          "army1": "army1",
+          "army2": "army2",
+          "army3": "army3",
+          "army4": "army4"
+        },
+        "sharedVision": false
+      },
+      "rules": {
+        "version": 1,
+        "tactics": true
+      },
+      "cpuVersion": "four-army-cpu-v6",
+      "count": 639,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army4"
+      },
+      "alive": [
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "eliminations": [
+        {
+          "army": "army1",
+          "round": 20
+        }
+      ],
+      "fallbacks": 3,
+      "traceSha256": "cfd888919b3bead44784624daba46e3f3ade6fb103e0217dbd0e1464bac40ffe",
+      "stateSha256": "fb23148ba2172366e147ec1382f7cb90c55f6faa2695a210f1b19515c5074c4f",
+      "seconds": 3.0005486570000066,
+      "cpuMs": {
+        "p95": 6.3180800000045565,
+        "max": 57.09620100000029
+      }
+    },
+    {
+      "id": "strait-4-true",
+      "seed": 152202,
+      "order": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "match": {
+        "version": 2,
+        "sourceMapId": "strait",
+        "layoutVersion": 2,
+        "participants": [
+          "army1",
+          "army2",
+          "army3",
+          "army4"
+        ],
+        "initialOrder": [
+          "army1",
+          "army2",
+          "army3",
+          "army4"
+        ],
+        "initiative": "rotating",
+        "ending": "short",
+        "roundLimit": 20,
+        "teams": {
+          "army1": "army1",
+          "army2": "army2",
+          "army3": "army1",
+          "army4": "army2"
+        },
+        "sharedVision": true
+      },
+      "rules": {
+        "version": 1,
+        "tactics": true
+      },
+      "cpuVersion": "four-army-cpu-v6",
+      "count": 622,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army1"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army3"
+      ],
+      "eliminations": [
+        {
+          "army": "army4",
+          "round": 17
+        }
+      ],
+      "fallbacks": 2,
+      "traceSha256": "86d09c96a74b5ef50ae0a4811187a1f9c365f9c387306ca0641301562f09fad1",
+      "stateSha256": "de04239f45387a363133b8141bb014d73144a5dedc7d09126f2fcf946882dbf3",
+      "seconds": 5.329163333999997,
+      "cpuMs": {
+        "p95": 13.404669000003196,
+        "max": 67.14711700000043
+      }
+    }
+  ],
+  "environment": {
+    "node": "24.19.0",
+    "vite": "7.3.6",
+    "vitest": "3.2.7",
+    "typescript": "5.9.3",
+    "playwright": "1.63.0",
+    "cpuQuota": 5,
+    "concurrency": "Shared host; 2–8 evaluation/test processes at different times. CPU timing is diagnostic, not physical-device response time."
+  }
+}

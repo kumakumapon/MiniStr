@@ -173,6 +173,7 @@ for (const count of [3, 4])
     await page.locator('#four-start').click();
     await expect(page.locator('#four-board > button')).toHaveCount(255);
     await expect(page.locator('#four-board .bridge-marker')).toHaveCount(count === 3 ? 3 : 4);
+    await expect(page.locator('#four-board .bridge-marker.vertical')).toHaveCount(count === 3 ? 1 : 2);
     await expect(page.locator('#four-board .unit-landingShip')).toHaveCount(count === 3 ? 2 : 4);
     await expect(page.locator('#four-army-info')).toContainText('Team A');
     await tools(page);

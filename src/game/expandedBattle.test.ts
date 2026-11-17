@@ -250,6 +250,36 @@ describe('expanded matches preserve army identities and legacy boundaries', () =
     expect(s.units.find((u) => u.id === unit.id)!.hp).toBe(25);
     expect(s.units.find((u) => u.id === unit.id)!.fuel).toBe(50);
   });
+  it('pauses an unlimited rotating match at100R and applies the next income only once', () => {
+    let s = value(createFourArmyState(value(createExpandedBattleMap({ sourceMapId: 'frontier', participants: ['army1', 'army2', 'army3'], ending: 'unlimited' }))));
+    for (let i = 0; i < 300; i++) s = value(applyFourArmyCommand(s, { actor: s.round.order[s.round.index]!, type: 'endTurn' }));
+    expect(s.paused).toBe(true);
+    expect(s.round.round).toBe(101);
+    for (const a of s.alive) expect(s.players[a].gold).toBe(510000);
+    const actor = s.round.order[s.round.index]!;
+    s = value(applyFourArmyCommand(s, { actor, type: 'resume' }));
+    expect(s.players[actor].gold).toBe(515000);
+    expect(applyFourArmyCommand(s, { actor, type: 'resume' }).ok).toBe(false);
+    expect(s.round.startedArmies).toEqual(['army1', 'army2', 'army3']);
+  });
+  it('skips an eliminated participant without adding income or losing the next rotating round', () => {
+    let s = value(createFourArmyState(value(createExpandedBattleMap({ participants: ['army1', 'army2', 'army3'] }))));
+    const infantry = s.units.find((u) => u.owner === 'army1' && u.kind === 'infantry')!,
+      capital = s.capitals.army2;
+    s = { ...s, board: structuredClone(s.board), units: s.units.map((u) => (u.id === infantry.id ? { ...u, position: capital } : u)) };
+    s.board.terrain[capital.y]![capital.x]!.capturePoints = 10;
+    s = value(applyFourArmyCommand(s, { actor: 'army1', type: 'capture', unitId: infantry.id }));
+    expect(s.alive).toEqual(['army1', 'army3']);
+    const lostGold = s.players.army2.gold;
+    s = value(applyFourArmyCommand(s, { actor: 'army1', type: 'endTurn' }));
+    expect(s.round.order[s.round.index]).toBe('army3');
+    s = value(applyFourArmyCommand(s, { actor: 'army3', type: 'endTurn' }));
+    expect(s.round.round).toBe(2);
+    expect(s.round.startedArmies).toEqual(['army1', 'army3']);
+    expect(s.players.army3.gold).toBe(12000);
+    expect(s.players.army2.gold).toBe(lostGold);
+    expect(isFourArmyObservation(value(observeFourArmy(s, 'army1')))).toBe(true);
+  });
   it('validates controller histories against replay, saves v6 and continues identically', () => {
     const map = preset();
     let s = value(createFourArmyState(map));

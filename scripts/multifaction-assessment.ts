@@ -1,6 +1,7 @@
 import { createHash } from 'node:crypto';
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { createFourArmyMap32 } from '../src/game/fourArmyMap32';
+import { createSmallBattleMap } from '../src/game/smallBattleMap';
 import { createExpandedBattleMap } from '../src/game/expandedBattleMap';
 import { applyFourArmyCommand, createFourArmyState, observeFourArmy, type FourArmyMap, type FourArmyCommand } from '../src/game/fourArmyEngine';
 import { chooseFourArmyCpuCommand, defaultFourArmyCpuSettings } from '../src/ai/fourArmyCpu';
@@ -22,7 +23,13 @@ const hash = (v: string) => createHash('sha256').update(v).digest('hex');
 const [mode = 'compact', shardText = '0', shardsText = '1', output = '/tmp/multifaction.json'] = process.argv.slice(2),
   shard = Number(shardText),
   shards = Number(shardsText);
-if (!['compact', 'holdout', 'legacy', 'diagnosis', 'north', 'maps'].includes(mode) || !Number.isInteger(shard) || !Number.isInteger(shards) || shard < 0 || shard >= shards)
+if (
+  !['compact', 'holdout', 'legacy', 'diagnosis', 'north', 'maps', 'baseline', 'check'].includes(mode) ||
+  !Number.isInteger(shard) ||
+  !Number.isInteger(shards) ||
+  shard < 0 ||
+  shard >= shards
+)
   throw Error('mode shard shards output');
 const old = JSON.parse(readFileSync('docs/reviews/v1.5.20/fairness.json', 'utf8')) as {
   rows: {
@@ -43,10 +50,10 @@ interface Case {
   baseline?: (typeof old.rows)[number];
 }
 const cases: Case[] = [];
-if (mode === 'legacy' || mode === 'diagnosis') {
+if (mode === 'legacy' || mode === 'diagnosis' || mode === 'check') {
   const controls = old.rows.filter((r) => r.cpuVersion === 'four-army-cpu-v3' && r.rules === 'classic' && r.outcome.type === 'ongoing');
   if (controls.length !== 26) throw Error('Expected all 26 classic cutoffs');
-  for (const r of mode === 'diagnosis' ? controls.slice(0, 1) : controls)
+  for (const r of mode === 'diagnosis' || mode === 'check' ? controls.slice(0, 1) : controls)
     cases.push({
       id: r.spec.id,
       map: val(createFourArmyMap32(r.spec.seed, r.spec.order, 1)),
@@ -64,12 +71,15 @@ if (mode === 'legacy' || mode === 'diagnosis') {
       for (const seed of seeds)
         for (const tactics of [false, true]) {
           const participants = FOUR_ARMY_IDS.slice(0, n),
-            map = val(createExpandedBattleMap({ participants, order, seed, rules: { version: 1, tactics } }));
+            map =
+              mode === 'baseline'
+                ? val(createSmallBattleMap(n as 3 | 4, seed, order, 'short', { version: 1, tactics }))
+                : val(createExpandedBattleMap({ participants, order, seed, rules: { version: 1, tactics } }));
           cases.push({
             id: `green-${n}-${seed}-${order.join('')}-${tactics}`,
             map,
-            version: 'four-army-cpu-v6',
-            maxRound: n === 3 ? 21 : 20,
+            version: mode === 'baseline' ? 'four-army-cpu-v5' : 'four-army-cpu-v6',
+            maxRound: mode === 'baseline' ? 20 : n === 3 ? 21 : 20,
             settings: defaultFourArmyCpuSettings(),
           });
         }
@@ -87,7 +97,13 @@ if (mode === 'legacy' || mode === 'diagnosis') {
               ...(teams && n > 2 ? { teams: { army1: 'army1', army2: 'army2', army3: 'army1', army4: 'army2' } as const } : {}),
             }),
           );
-          cases.push({ id: `${sourceMapId}-${n}-${teams}`, map, version: 'four-army-cpu-v6', maxRound: n === 3 ? 21 : 20, settings: defaultFourArmyCpuSettings() });
+          cases.push({
+            id: `${sourceMapId}-${n}-${teams}`,
+            map,
+            version: 'four-army-cpu-v6',
+            maxRound: n === 3 ? 21 : 20,
+            settings: defaultFourArmyCpuSettings(),
+          });
         }
 }
 mkdirSync(output.substring(0, output.lastIndexOf('/')) || '.', { recursive: true });
