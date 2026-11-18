@@ -1,5 +1,7 @@
+import type { CombatSummary } from '../game/combatSummary';
+import type { FourArmyId } from '../game/fourArmyFoundation';
 import type { FourArmyCheckpoint } from '../game/fourArmyArchive';
-import { applyFourArmyCommand, createFourArmyState, type FourArmyState, type FourArmyMap, type FourArmyCommand } from '../game/fourArmyEngine';
+import { applyFourArmyCommand, applyFourArmyCommandWithCombat, createFourArmyState, type FourArmyState, type FourArmyMap, type FourArmyCommand } from '../game/fourArmyEngine';
 
 /** Verified command history only. Yielding seeks remain cancellable, with bounded checkpoint memory. */
 export class FourArmyReplay {
@@ -9,6 +11,7 @@ export class FourArmyReplay {
   private verified: readonly FourArmyCheckpoint[];
   static readonly CACHE_LIMIT = 8;
   position = 0;
+  lastCombat?: CombatSummary<FourArmyId>;
   constructor(
     map: FourArmyMap,
     readonly commands: readonly FourArmyCommand[],
@@ -29,6 +32,7 @@ export class FourArmyReplay {
   }
   cancel(): void {
     this.revision++;
+    this.lastCombat = undefined;
   }
   async seek(position: number): Promise<FourArmyState | undefined> {
     this.cancel();
@@ -36,13 +40,16 @@ export class FourArmyReplay {
     if (!Number.isInteger(position) || position < 0 || position > this.commands.length) throw Error('Invalid replay position');
     const verified = this.verified.filter((p) => p.position <= position).at(-1);
     const cached = Math.max(...[...this.checkpoints.keys()].filter((i) => i <= position));
-    const base = Math.max(cached, verified?.position ?? 0);
-    let state = base === verified?.position ? verified.state : this.checkpoints.get(base)!;
+    const singleStep = position === this.position + 1;
+    const base = singleStep ? this.position : Math.max(cached, verified?.position ?? 0);
+    let state = singleStep ? this.current : base === verified?.position ? verified.state : this.checkpoints.get(base)!;
+    let combat: CombatSummary<FourArmyId> | undefined;
     for (let i = base; i < position; i++) {
       if (revision !== this.revision) return;
-      const next = applyFourArmyCommand(state, this.commands[i]);
+      const next = singleStep ? applyFourArmyCommandWithCombat(state, this.commands[i]) : { ...applyFourArmyCommand(state, this.commands[i]), combat: undefined };
       if (!next.ok) throw Error(next.error);
       state = next.value;
+      combat = next.combat;
       if ((i + 1) % 64 === 0) {
         this.checkpoints.delete(i + 1);
         this.checkpoints.set(i + 1, state);
@@ -54,6 +61,7 @@ export class FourArmyReplay {
       if ((i - base) % 8 === 7) await new Promise<void>((resolve) => setTimeout(resolve, 0));
     }
     if (revision !== this.revision) return;
+    this.lastCombat = combat;
     this.current = state;
     this.position = position;
     return this.state;

@@ -1,8 +1,9 @@
+import type { CombatSummary } from '../game/combatSummary';
 import { fourArmyParticipants } from '../game/smallBattle';
 import { normalizeFourArmyControllers, type FourArmyControllers } from '../game/fourArmyControl';
 import { type FourArmyId } from '../game/fourArmyFoundation';
 import { defaultFourArmyCpuSettings, isFourArmyCpuSettings, isObservedFourArmyCommand, type FourArmyCpuSettings } from '../ai/fourArmyCpu';
-import { applyFourArmyCommand, isFourArmyState, observeFourArmy, type FourArmyCommand, type FourArmyState } from '../game/fourArmyEngine';
+import { applyFourArmyCommandWithCombat, isFourArmyState, observeFourArmy, type FourArmyCommand, type FourArmyState } from '../game/fourArmyEngine';
 import { FourArmyCpuPlanner } from './fourArmyCpuPlanner';
 import { FOUR_ARMY_CPU_VERSION, isFourArmyCpuVersion, type FourArmyCpuVersion } from '../ai/fourArmyCpuVersion';
 
@@ -16,7 +17,7 @@ export class FourArmyCpuSession {
   private running = false;
   private stopped = false;
   private readonly planner: FourArmyCpuPlanner;
-  onCommit?: (before: FourArmyState, command: FourArmyCommand, after: FourArmyState) => void;
+  onCommit?: (before: FourArmyState, command: FourArmyCommand, after: FourArmyState, combat?: CombatSummary<FourArmyId>) => void;
   constructor(
     state: FourArmyState,
     createWorker: () => Worker,
@@ -62,11 +63,11 @@ export class FourArmyCpuSession {
     if (this.current.paused) {
       const before = this.current;
       const command: FourArmyCommand = { actor: this.current.round.order[this.current.round.index]!, type: 'resume' };
-      const next = applyFourArmyCommand(this.current, command);
+      const next = applyFourArmyCommandWithCombat(this.current, command);
       if (!next.ok) throw Error(next.error);
       this.current = next.value;
       this.history.push(command);
-      if (this.onCommit) this.onCommit(structuredClone(before), structuredClone(command), structuredClone(this.current));
+      if (this.onCommit) this.onCommit(structuredClone(before), structuredClone(command), structuredClone(this.current), next.combat ? structuredClone(next.combat) : undefined);
       this.revision++;
     }
     this.running = this.current.outcome.type === 'ongoing';
@@ -90,11 +91,11 @@ export class FourArmyCpuSession {
     if (!observed.ok || !isObservedFourArmyCommand(observed.value, command)) return false;
     this.pause();
     const before = this.current;
-    const next = applyFourArmyCommand(this.current, command);
+    const next = applyFourArmyCommandWithCombat(this.current, command);
     if (!next.ok) return false;
     this.current = next.value;
     this.history.push(structuredClone(command));
-    if (this.onCommit) this.onCommit(structuredClone(before), structuredClone(command), structuredClone(this.current));
+    if (this.onCommit) this.onCommit(structuredClone(before), structuredClone(command), structuredClone(this.current), next.combat ? structuredClone(next.combat) : undefined);
     return true;
   }
   async step(): Promise<FourArmyCommand | undefined> {
@@ -105,19 +106,19 @@ export class FourArmyCpuSession {
     try {
       let command = await this.planner.plan(this.current, this.settings[actor], this.cpuVersion);
       if (!command || this.stopped || !this.running || revision !== this.revision) return undefined;
-      let next = applyFourArmyCommand(this.current, command);
+      let next = applyFourArmyCommandWithCombat(this.current, command);
       if (!next.ok) {
         // Observations intentionally omit hidden occupants. Do not probe alternatives using private state.
         const unitId = 'unitId' in command ? command.unitId : 'transportId' in command ? command.transportId : undefined;
         const fallback: FourArmyCommand = unitId ? { actor, type: 'wait', unitId } : { actor, type: 'endTurn' };
-        next = applyFourArmyCommand(this.current, fallback);
+        next = applyFourArmyCommandWithCombat(this.current, fallback);
         command = fallback;
       }
       if (!next.ok) throw Error(next.error);
       const before = this.current;
       this.current = next.value;
       this.history.push(structuredClone(command));
-      if (this.onCommit) this.onCommit(structuredClone(before), structuredClone(command), structuredClone(this.current));
+      if (this.onCommit) this.onCommit(structuredClone(before), structuredClone(command), structuredClone(this.current), next.combat ? structuredClone(next.combat) : undefined);
       this.revision++;
       if (this.current.paused || this.current.outcome.type !== 'ongoing') this.pause();
       return structuredClone(command);

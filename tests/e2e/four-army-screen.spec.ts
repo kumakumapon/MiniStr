@@ -688,3 +688,128 @@ test('CPU first starts automatically, respects a speed-change pause, then waits 
   await expect(page.locator('#four-toggle')).toBeHidden();
   await expect(page.locator('#four-view')).toHaveValue('army2');
 });
+
+for (const { width, locale, actor } of [
+  { width: 1280, locale: 'ja', actor: 'army3' },
+  { width: 390, locale: 'en', actor: 'army1' },
+] as const) {
+  test(`four-army battle scene preference, HP and single commit ${width}/${locale}`, async ({ page }, info) => {
+    const { fourArmyBattleFixture } = await import('./helpers/fourArmyBattleFixture');
+    const fixture = fourArmyBattleFixture(actor);
+    await page.setViewportSize({ width, height: 900 });
+    await page.addInitScript(() => {
+      if (!localStorage.getItem('ministr.battleScene.settings')) localStorage.setItem('ministr.battleScene.settings', JSON.stringify({ twoArmy: false, multiArmy: true }));
+    });
+    await open(page, locale);
+    await expect(page.locator('#battle-scenes-multiArmy')).toBeChecked();
+    await importMatch(page, fixture.text);
+    await expect(page.locator('#four-notice')).toHaveText(locale === 'ja' ? '停止状態で読み込みました。' : 'Loaded and paused.');
+    const attack = async () => {
+      await humanTile(page, fixture.attacker.position!.x, fixture.attacker.position!.y);
+      await page.locator('#four-attack-weapon').selectOption(String(fixture.command.weaponSlot ?? 0));
+      await humanTile(page, fixture.defender.position!.x, fixture.defender.position!.y);
+    };
+    await page.locator('#battle-scenes-multiArmy').uncheck();
+    await attack();
+    expect(await count(page)).toBe(fixture.count + 1);
+    await expect(page.locator('.battle-scene')).toHaveCount(0);
+    await tools(page);
+    await page.locator('[data-save-slot="0"]').click();
+    await expect(page.locator('#four-notice')).toHaveText(locale === 'ja' ? '4軍専用枠へ保存しました。' : 'Saved to the four-army slot.');
+    const first = parseFourArmySpectatorSave(await page.evaluate(() => localStorage.getItem('ministr.fourArmy.save.1')!));
+    expect(first.ok).toBe(true);
+    if (!first.ok) throw Error(first.error);
+    expect(first.value.archive.payload.state).toEqual(fixture.after);
+    await page.reload();
+    await page.locator('#title-four-army').click();
+    await expect(page.locator('#battle-scenes-multiArmy')).not.toBeChecked();
+    await page.locator('#battle-scenes-multiArmy').check();
+    await importMatch(page, fixture.text);
+    await expect(page.locator('#four-turn')).toContainText(locale === 'ja' ? 'あなたの手番' : 'Your turn');
+    await attack();
+    await expect(page.locator('.four-battle-scene .battle-scene')).toBeVisible();
+    await expect(page.locator('#four-army-screen')).toHaveAttribute('inert', '');
+    await expect(page.locator(`.battle-team-badge-${fixture.attacker.owner}`)).toContainText(locale === 'ja' ? `第${actor.slice(-1)}軍` : `Army ${actor.slice(-1)}`);
+    const hp = fixture.after.units.find((u) => u.id === fixture.command.unitId)?.hp ?? 0;
+    await expect(page.locator('.battle-attacker .battle-hp')).toHaveAttribute('aria-valuenow', String(hp));
+    await page.screenshot({ path: info.outputPath(`systems-four-battle-${width}.png`), animations: 'disabled' });
+    await page.locator('#battle-scene-skip').press('Enter');
+    await expect(page.locator('.battle-scene')).toHaveCount(0);
+    await expect(page.locator('#four-army-screen')).not.toHaveAttribute('inert', '');
+    await expect(page.locator('#four-human-panel [data-human-action="endTurn"]')).toBeEnabled();
+    expect(await count(page)).toBe(fixture.count + 1);
+    expect(await page.evaluate(() => JSON.parse(localStorage.getItem('ministr.battleScene.settings')!))).toEqual({ twoArmy: false, multiArmy: true });
+    await playbackControls(page);
+    await page.locator('#four-replay').click();
+    await playbackControls(page);
+    const seek = async () => {
+      await page.locator('#four-position').evaluate((element, position) => {
+        const input = element as HTMLInputElement;
+        input.value = String(position);
+        input.dispatchEvent(new Event('change', { bubbles: true }));
+      }, fixture.count);
+      await expect.poll(() => count(page)).toBe(fixture.count);
+    };
+    await seek();
+    await page.locator('#four-step').click();
+    await expect(page.locator('.four-battle-scene .battle-scene')).toBeVisible();
+    await page.locator('#battle-scene-skip').press('Enter');
+    await expect(page.locator('.battle-scene')).toHaveCount(0);
+    await page.locator('#battle-scenes-multiArmy').uncheck();
+    await seek();
+    await page.locator('#four-step').click();
+    await expect.poll(() => count(page)).toBe(fixture.count + 1);
+    await expect(page.locator('.battle-scene')).toHaveCount(0);
+  });
+}
+
+test('four-army battle holds CPU progress and cancels on pause, menu and background', async ({ page }) => {
+  const { fourArmyBattleFixture } = await import('./helpers/fourArmyBattleFixture');
+  const fixture = fourArmyBattleFixture('army1', true);
+  await open(page);
+  await importMatch(page, fixture.text);
+  await expect(page.locator('#four-notice')).toHaveText('Loaded and paused.');
+  const now = new Date('2026-11-18T00:00:00Z');
+  await page.clock.install({ time: now });
+  await page.clock.pauseAt(new Date(now.getTime() + 1000));
+  const show = async () => {
+    await page.locator('#four-toggle').click();
+    await page.clock.runFor(150);
+    await expect(page.locator('.four-battle-scene #spectate-scene-pause')).toBeVisible();
+  };
+  await show();
+  const beforeDisable = await count(page);
+  await page.locator('#battle-scenes-multiArmy-overlay').press('Space');
+  await expect(page.locator('.battle-scene')).toHaveCount(0);
+  await page.clock.runFor(500);
+  await expect.poll(() => count(page)).toBeGreaterThan(beforeDisable);
+  await page.locator('#four-toggle').click();
+  await page.locator('#battle-scenes-multiArmy').check();
+  await importMatch(page, fixture.text);
+  await expect(page.locator('#four-notice')).toHaveText('Loaded and paused.');
+  await show();
+  const at = await count(page);
+  await page.clock.runFor(1000);
+  expect(await count(page)).toBe(at);
+  await page.locator('#spectate-scene-pause').press('Enter');
+  await page.clock.runFor(5000);
+  await expect(page.locator('.battle-scene')).toHaveCount(0);
+  expect(await count(page)).toBe(at);
+  await expect(page.locator('#four-toggle')).toHaveAttribute('aria-pressed', 'false');
+  await importMatch(page, fixture.text);
+  await expect(page.locator('#four-notice')).toHaveText('Loaded and paused.');
+  await show();
+  await page.locator('#spectate-scene-menu').press('Enter');
+  await page.clock.runFor(5000);
+  await expect(page.locator('#four-start')).toBeVisible();
+  await expect(page.locator('.battle-scene')).toHaveCount(0);
+  await importMatch(page, fixture.text);
+  await expect(page.locator('#four-notice')).toHaveText('Loaded and paused.');
+  await show();
+  const last = await count(page);
+  await page.evaluate(() => window.dispatchEvent(new Event('pagehide')));
+  await page.clock.runFor(5000);
+  await expect(page.locator('.battle-scene')).toHaveCount(0);
+  expect(await count(page)).toBe(last);
+  await expect(page.locator('#four-toggle')).toHaveAttribute('aria-pressed', 'false');
+});

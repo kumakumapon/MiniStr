@@ -1,0 +1,96 @@
+{
+  "baseline": "d71b9dc154fd09b0c9493c9df58decd2ecb8d564",
+  "method": "Public v1.5.22 engine imports redirected only to unchanged game dependencies; same legal commands compared to the UI presentation path after every command.",
+  "rows": [
+    {
+      "case": "legacy-wide-v1",
+      "engine": 2,
+      "cpu": "four-army-cpu-v1",
+      "commands": 128,
+      "combats": 0,
+      "identicalAtEveryCommand": true,
+      "traceSha256": "7f70df543304052e8ce62094ca24f2d6b5904dfe34be826ae3e44e6a59cee13b",
+      "stateSha256": "0d1355753a7cf04a4e0f374cb7282c849363c15b161e52c8a4c4aee0782fc4cf"
+    },
+    {
+      "case": "legacy-wide-v3",
+      "engine": 2,
+      "cpu": "four-army-cpu-v3",
+      "commands": 128,
+      "combats": 0,
+      "identicalAtEveryCommand": true,
+      "traceSha256": "6cf47903a149334a036a0ed458d0c233db26cc58498de90ff171fa000db6a046",
+      "stateSha256": "51c0a41e1ea6aaf6c721118ae7e9a977c4bd8d15f4817b2b450c2387b4bce007"
+    },
+    {
+      "case": "rules-wide-false",
+      "engine": 3,
+      "cpu": "four-army-cpu-v4",
+      "commands": 128,
+      "combats": 0,
+      "identicalAtEveryCommand": true,
+      "traceSha256": "55898788c5a053e6f36142da8d07697baa544ca3bffb4d8ae33da0bab3b9e78f",
+      "stateSha256": "e8c75ec224ffa5cc3e7a20dcca258ed637368a041b7e93c49f84f789ba76cd10"
+    },
+    {
+      "case": "rules-wide-true",
+      "engine": 3,
+      "cpu": "four-army-cpu-v4",
+      "commands": 128,
+      "combats": 0,
+      "identicalAtEveryCommand": true,
+      "traceSha256": "b668002458a539d80c8c06e56ac1ef2a59257f10ef707554bd8eb7ecc7d63545",
+      "stateSha256": "b8a0e454e1a0de35d5540426b4b1b96a7e2553105435e49fe34eaa7878ff652e"
+    },
+    {
+      "case": "small-v1-3",
+      "engine": 4,
+      "cpu": "four-army-cpu-v5",
+      "commands": 128,
+      "combats": 22,
+      "identicalAtEveryCommand": true,
+      "traceSha256": "d2b21904665c9355a1cdf0e18b052b4110bd677802c30a50dc8d60918a20ee19",
+      "stateSha256": "b49bc392e19c4e5ebec114bcaa1c5c97d012aa184ab847801fcd04ba354145c0"
+    },
+    {
+      "case": "small-v1-4",
+      "engine": 4,
+      "cpu": "four-army-cpu-v5",
+      "commands": 128,
+      "combats": 27,
+      "identicalAtEveryCommand": true,
+      "traceSha256": "b6bbf913b9d2ea34b803748b4644bdd2b7c84973121decd2212eb7c9b514620a",
+      "stateSha256": "598c7122de5de35eeacdefbb4a1bebc507e8a7a53507129495c2e5ffa404ff62"
+    },
+    {
+      "case": "expanded-3",
+      "engine": 5,
+      "cpu": "four-army-cpu-v6",
+      "commands": 128,
+      "combats": 13,
+      "identicalAtEveryCommand": true,
+      "traceSha256": "10d33174da02a0924d8d91ceb02bf5daca479ec50ad5efcf7c97eba44a450c47",
+      "stateSha256": "7fdb4c6069956cb89e0c112d95867c4bf5e058afe8de3ebc2dfe3efd86cfa6f3"
+    },
+    {
+      "case": "expanded-4",
+      "engine": 5,
+      "cpu": "four-army-cpu-v6",
+      "commands": 128,
+      "combats": 12,
+      "identicalAtEveryCommand": true,
+      "traceSha256": "bab3fe82ea9f217970f3d63f8a77c872e75de427bbd9460249c258403ee26831",
+      "stateSha256": "5cf8434ffb42429aa54612e10f71843b19e9500638d306a6964248dc90af0229"
+    },
+    {
+      "case": "water-4",
+      "engine": 5,
+      "cpu": "four-army-cpu-v6",
+      "commands": 128,
+      "combats": 13,
+      "identicalAtEveryCommand": true,
+      "traceSha256": "ec0dd56287e1fa40fe2c29ee34e5ba3283fcca2d122dc9f77dc7b88724757cdb",
+      "stateSha256": "8396848996960a773dce62156b6ea59e4d928c7e16005a11dcc260975ed93c9e"
+    }
+  ]
+}

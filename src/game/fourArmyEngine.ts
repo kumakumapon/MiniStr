@@ -1,3 +1,4 @@
+import { combatSummaryForCommand, type CombatSummary } from './combatSummary';
 import {
   alliedArmies,
   battleOrder,
@@ -608,6 +609,13 @@ export function createFourArmyState(input: unknown): GameResult<FourArmyState> {
 
 /** Runtime boundary for actor-tagged commands. Failed commands leave the original state untouched. */
 export function applyFourArmyCommand(input: unknown, command: unknown): GameResult<FourArmyState> {
+  return resolveFourArmyCommand(input, command, false);
+}
+/** Transient resolved combat for presentation; never part of a state, save or observation. */
+export function applyFourArmyCommandWithCombat(input: unknown, command: unknown): GameResult<FourArmyState> & { combat?: CombatSummary<FourArmyId> } {
+  return resolveFourArmyCommand(input, command, true);
+}
+function resolveFourArmyCommand(input: unknown, command: unknown, includeCombat: boolean): GameResult<FourArmyState> & { combat?: CombatSummary<FourArmyId> } {
   if (!isFourArmyState(input) || !isFourArmyCommand(command)) return fail('4軍の状態または命令が不正です。');
   if (!input.rules && ['fortify', 'recon', 'ambush', 'logistics', 'repairReserve'].includes(command.type)) return fail('この対局の規則では使えない命令です。');
   if (['bridge', 'destroyBridge'].includes(command.type) && input.engineVersion !== 5) return fail('この対局では架橋操作を使えません。');
@@ -616,6 +624,7 @@ export function applyFourArmyCommand(input: unknown, command: unknown): GameResu
   if (command.type === 'resume') return input.paused ? startNext({ ...structuredClone(input), paused: false }) : fail('一時停止していません。');
   if (input.paused) return fail('観戦を再開してください。');
   let next: GameResult<FourArmyState>;
+  let combat: CombatSummary<FourArmyId> | undefined;
   if (command.type === 'endTurn') {
     const ended = advance(input);
     next = ended.ok && !ended.value.paused ? startNext(ended.value) : ended;
@@ -646,6 +655,20 @@ export function applyFourArmyCommand(input: unknown, command: unknown): GameResu
           )
         : applyGameCommand(view, legacy);
     if (!changed.ok) return changed;
+    if (includeCombat && (command.type === 'attack' || command.type === 'move')) {
+      const summary = combatSummaryForCommand(view, legacy, changed.value);
+      const event = changed.value.tactics?.lastCombat;
+      const attackerId = event?.attackerId ?? (command.type === 'attack' ? command.unitId : undefined);
+      const defenderId = event?.defenderId ?? (command.type === 'attack' ? command.targetId : undefined);
+      const attacker = input.units.find((u) => u.id === attackerId);
+      const defender = input.units.find((u) => u.id === defenderId);
+      if (summary && attacker && defender)
+        combat = {
+          ...summary,
+          attacker: { ...summary.attacker, unitId: attacker.id, owner: attacker.owner },
+          defender: { ...summary.defender, unitId: defender.id, owner: defender.owner },
+        };
+    }
     const settled = settle(restore(input, changed.value, actor));
     next =
       settled.outcome.type === 'ongoing' && !settled.alive.includes(actor)
@@ -655,7 +678,8 @@ export function applyFourArmyCommand(input: unknown, command: unknown): GameResu
           })()
         : { ok: true, value: settled };
   }
-  return next.ok && !isFourArmyState(next.value) ? fail('4軍の状態上限を超えました。') : next;
+  if (next.ok && !isFourArmyState(next.value)) return fail('4軍の状態上限を超えました。');
+  return next.ok && combat ? { ...next, combat } : next;
 }
 
 /** Observations omit hidden contacts, enemy funds/cargo/logistics, and the combat RNG stream. */
