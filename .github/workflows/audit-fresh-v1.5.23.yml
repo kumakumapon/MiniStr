@@ -1,0 +1,42 @@
+name: Fresh dependency audit diagnosis
+on:
+  push:
+    branches: [diagnostics/v1.5.23-audit-fresh]
+    paths: [.github/workflows/audit-fresh-v1.5.23.yml]
+permissions:
+  contents: read
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: 91404f8abf19959197b8784dc99fa0a188e76e8c
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
+        with:
+          node-version: 24
+          package-manager-cache: false
+      - run: npm install --global npm@11.9.0
+      - name: Audit both scopes with a fresh cache and no severity exceptions
+        run: |
+          node --input-type=module <<'NODE'
+          import {spawnSync} from 'node:child_process';
+          import {mkdtempSync,rmSync} from 'node:fs';
+          import {tmpdir} from 'node:os';
+          import {join} from 'node:path';
+          const cache=mkdtempSync(join(tmpdir(),'ministr-audit-fresh-'));
+          let blocked=false;
+          try {
+            for(const production of [false,true]) {
+              const result=spawnSync('npm',['audit','--json','--prefer-online','--cache='+cache,...(production?['--omit=dev']:[])],{encoding:'utf8',timeout:120000,maxBuffer:2000000});
+              if(result.error||result.signal||![0,1].includes(result.status)) throw Error('Audit process failed.');
+              const report=JSON.parse(result.stdout);
+              if(report.error||!report.metadata?.vulnerabilities) throw Error('Invalid audit evidence.');
+              console.log(JSON.stringify({scope:production?'production':'all',status:result.status,report}));
+              if(report.metadata.vulnerabilities.high>0||report.metadata.vulnerabilities.critical>0) blocked=true;
+            }
+          } finally {rmSync(cache,{recursive:true,force:true});}
+          if(blocked) throw Error('Fresh audit still reports high or critical findings.');
+          NODE
