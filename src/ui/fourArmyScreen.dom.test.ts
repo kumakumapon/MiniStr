@@ -68,7 +68,7 @@ describe('four-army spectator controller', () => {
     expect(values.get(FOUR_ARMY_SAVE_KEYS[0])).toBe(old);
     expect(document.querySelector('#four-upgrade-cpu')).toBeNull();
     click('[data-save-slot="0"]');
-    await vi.waitFor(() => expect(JSON.parse(values.get(FOUR_ARMY_SAVE_KEYS[0])!).cpuVersion).toBe('four-army-cpu-v6'));
+    await vi.waitFor(() => expect(JSON.parse(values.get(FOUR_ARMY_SAVE_KEYS[0])!).cpuVersion).toBe('four-army-cpu-v7'));
     const saved = JSON.parse(values.get(FOUR_ARMY_SAVE_KEYS[0])!);
     expect(saved.archive.payload.commands.rows).toHaveLength(2);
     expect(saved.archive.payload.state).toEqual(JSON.parse(old).archive.payload.state);
@@ -96,7 +96,7 @@ describe('four-army spectator controller', () => {
     if (count === 3) expect(query('#four-army-info').textContent).not.toContain('Army 4');
     await vi.waitFor(() => expect(values.has(FOUR_ARMY_AUTO_SAVE_KEY)).toBe(true));
     const raw = JSON.parse(values.get(FOUR_ARMY_AUTO_SAVE_KEY)!);
-    expect(raw).toMatchObject({ schemaVersion: 6, cpuVersion: 'four-army-cpu-v6', archive: { payload: { map: { match: { ending: 'short' } } } } });
+    expect(raw).toMatchObject({ schemaVersion: 6, cpuVersion: 'four-army-cpu-v7', archive: { payload: { map: { match: { ending: 'short' } } } } });
     click(count === 3 ? '#four-board > [data-x="7"][data-y="2"]' : '#four-board > [data-x="2"][data-y="4"]');
     click('[data-human-action="wait"]');
     expect(query('#four-turn').textContent).toContain('1 commands');

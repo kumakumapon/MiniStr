@@ -9,6 +9,7 @@ import { SUPPLY_CAPACITY } from './supplyStock';
 
 export interface ExpandedBattleOptions {
   sourceMapId?: ExpandedBattle['sourceMapId'];
+  layoutVersion?: 2 | 3;
   participants?: readonly FourArmyId[];
   order?: readonly FourArmyId[];
   seed?: number;
@@ -20,7 +21,9 @@ export interface ExpandedBattleOptions {
 export function expandedBattleDimensions(source: ExpandedBattle['sourceMapId']) {
   return source === 'frontier' ? { width: 32, height: 32 } : source === 'strait' ? { width: 17, height: 15 } : { width: 18, height: 14 };
 }
-/** Authored v2 snapshots. No legacy preset is edited or used as a mutable source. */
+/** Layout 3 protects the northern neutral facilities from simultaneous flank pressure; callers loading historical snapshots keep layout 2. */
+export const latestExpandedBattleLayout = (source: ExpandedBattle['sourceMapId'], count: number): 2 | 3 => (count === 3 && (source === 'skirmish' || source === 'outpost') ? 3 : 2);
+/** Authored snapshots. No legacy preset is edited or used as a mutable source. */
 export function createExpandedBattleMap(options: ExpandedBattleOptions = {}): GameResult<FourArmyMap> {
   if (
     !options ||
@@ -36,7 +39,7 @@ export function createExpandedBattleMap(options: ExpandedBattleOptions = {}): Ga
   const match: ExpandedBattle = {
     version: 2,
     sourceMapId,
-    layoutVersion: 2,
+    layoutVersion: options.layoutVersion ?? 2,
     participants,
     initialOrder: [...(options.order ?? participants)],
     initiative: participants.length === 2 ? 'fixed' : 'rotating',
@@ -210,7 +213,7 @@ export function createExpandedBattleMap(options: ExpandedBattleOptions = {}): Ga
       put(p, 'city');
   } else {
     participants.forEach((_army, i) => {
-      const distance = wide ? 7 : 4;
+      const distance = wide ? 7 : triangular && match.layoutVersion === 3 && i === 0 ? 3 : 4;
       if (triangular) {
         put(local(i, 0, distance), 'factory');
         put(local(i, -1, distance - 1), 'city');
@@ -246,7 +249,7 @@ export function createExpandedBattleMap(options: ExpandedBattleOptions = {}): Ga
         put(p, 'city');
   }
   const map: FourArmyMap = {
-    id: `${sourceMapId}-multi-${participants.join('-')}-v2`,
+    id: `${sourceMapId}-multi-${participants.join('-')}-v${match.layoutVersion}`,
     match,
     board,
     capitals: fourArmyRoster(participants, (_, i) => homes[i]!),

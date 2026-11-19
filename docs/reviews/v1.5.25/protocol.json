@@ -1,0 +1,35 @@
+{
+  "protocol": "multifaction-v1525-v1",
+  "baselineCpu": "four-army-cpu-v6",
+  "candidateCpu": "four-army-cpu-v7",
+  "trainingSeeds": [152501, 152502],
+  "validationSeeds": [152509, 152510, 152511],
+  "shortRounds": {
+    "threeArmy": 21,
+    "fourArmy": 20
+  },
+  "legacyCutoffs": {
+    "cases": 6,
+    "maxRounds": 400,
+    "maxCommands": 65536
+  },
+  "longWaterTeam": {
+    "maxRounds": 160,
+    "maxCommands": 8192,
+    "continuationCommands": 512,
+    "soakRounds": 300
+  },
+  "policy": "Freeze the candidate before validation. Report all outcomes, fallbacks and cutoffs; do not infer physical-device play time or complete fairness from this matrix.",
+  "candidateFrozenAt": "2026-11-19T05:42:05.253704+00:00",
+  "candidate": "CPU v7 with northern neutral facilities moved one row inward in explicit three-army land layout3; other new maps retain layout2; API default layout2 remains pinned",
+  "frozenSourceHashes": {
+    "src/ai/fourArmyCpu.ts": "3dabdc51349152f973efa14a829274d90c9f11ba1a4da8f5980079bb47d1375d",
+    "src/ai/fourArmyCpuRecovery.ts": "00e9a1febbdae637d4049eb436c4aec4e251e77bf84a5b518d779b0c480dd819",
+    "src/ai/fourArmyCpuVersion.ts": "59ac63c31d4fc2e01811f13d270ab8b84c1a19393a97d1ac27f7579f92ca6fd1",
+    "src/ai/fourArmyCpuOrder.ts": "a7e7500f3953e115cbe8de25b7bc95a057ba1bc38d9a9c47342a7028d7ffb45a",
+    "src/ai/fourArmyObservation.ts": "7fcb8f402fb05f1d3062c00bb8e0ee281bb7979d9c6329cdb9bc6e521fe4b996",
+    "src/game/expandedBattleMap.ts": "e34aa509f70eb10f85bc03f221a713f1ac8fd3af766517777f79036e3560f78f",
+    "src/game/smallBattle.ts": "e1f67d789429d3b0594b03e605fd0c03f73eb293b944c3faceb41d3df058788c",
+    "src/game/fourArmyEngine.ts": "d2df1ca5071429c493e4b816120fa8d5f5f3dc2590d0c1fc2aa558cc225b37f8"
+  }
+}

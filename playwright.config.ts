@@ -12,7 +12,7 @@ export default defineConfig({
     {
       name: 'firefox',
       testMatch:
-        /(?:action-scenes|four-army-cpu|four-army-screen|four-army-support|small-battle|tactical-learning|tactical-rules|save-safety|wide-front|board-response|compatibility|english|custom-maps|finite-supplies|army-music|airlift-and-backup|strategy-expansion|terrain-presentation|share-link|research)\.spec\.ts/,
+        /(?:multifaction-upgrade|action-scenes|four-army-cpu|four-army-screen|four-army-support|small-battle|tactical-learning|tactical-rules|save-safety|wide-front|board-response|compatibility|english|custom-maps|finite-supplies|army-music|airlift-and-backup|strategy-expansion|terrain-presentation|share-link|research)\.spec\.ts/,
       use: { ...devices['Desktop Firefox'] },
     },
     // Share Chromium between both existing CI shards while retaining every engine and case.
@@ -20,7 +20,7 @@ export default defineConfig({
     {
       name: 'webkit',
       testMatch:
-        /(?:action-scenes|four-army-cpu|four-army-screen|four-army-support|small-battle|tactical-learning|tactical-rules|save-safety|wide-front|board-response|compatibility|english|custom-maps|finite-supplies|army-music|airlift-and-backup|strategy-expansion|terrain-presentation|share-link|research)\.spec\.ts/,
+        /(?:multifaction-upgrade|action-scenes|four-army-cpu|four-army-screen|four-army-support|small-battle|tactical-learning|tactical-rules|save-safety|wide-front|board-response|compatibility|english|custom-maps|finite-supplies|army-music|airlift-and-backup|strategy-expansion|terrain-presentation|share-link|research)\.spec\.ts/,
       use: { ...devices['Desktop Safari'] },
     },
   ],

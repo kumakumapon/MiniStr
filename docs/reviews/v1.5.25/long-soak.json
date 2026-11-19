@@ -1,0 +1,427 @@
+{
+  "protocol": "multifaction-long-continuation-v1525-v1",
+  "kind": "soak",
+  "version": "four-army-cpu-v7",
+  "budgets": {
+    "maxRounds": 160,
+    "maxCommands": 8192,
+    "continuationCommands": 512,
+    "soakRounds": 300
+  },
+  "sourceHashes": {
+    "src/game/expandedBattleMap.ts": "e71548a5e680a4cef41167d24235c1ebc1097be8e569799cfa68d97c472a7bab",
+    "src/game/fourArmyEngine.ts": "116ce4d35356a5f3021b1884c17c06b4ef3622ebbbb0a342f86bf1542915be25",
+    "src/game/smallBattle.ts": "74cf3733f65b7eb9d762c56cba4d3c4ef4d0b0a43295bfdde2cf500b89d079ba",
+    "src/game/fourArmySpectatorSave.ts": "40b6002efcc0211199ee372b4f12bcc22a1392d9d394675a2e232390f05365a6",
+    "src/game/fourArmyControlHistory.ts": "1e26f0558682d14c87fbfae61db916cb4f930234efeb94db41609a3d0de93edc",
+    "src/game/fourArmyExperience.ts": "ec3c28f91133b3d1dada509e10f93208980123ed98daac1cc6e5ae8569a97da5",
+    "src/ui/fourArmyReplay.ts": "de8e93777ec9852d6d3d9d057b92db7c473eceafdc0d8e44ec36fc3bec86002c",
+    "src/ai/fourArmyCpu.ts": "158d1caff08fcfe0c8a014185375d60e6d3b70e86e7c417711ec64ec11d2770f",
+    "src/ai/fourArmyCpuRecovery.ts": "3605954adb185df098010c5111548523a1cf2ee878eef5af0272624fcc1f0485"
+  },
+  "sourceHashEncoding": "sha256(JSON.stringify(UTF-8 file text))",
+  "rows": [
+    {
+      "id": "soak-strait-3-false-152501",
+      "sourceMapId": "strait",
+      "participants": [
+        "army1",
+        "army2",
+        "army3"
+      ],
+      "team": false,
+      "seed": 152501,
+      "commands": 2852,
+      "round": 301,
+      "outcome": {
+        "type": "ongoing"
+      },
+      "stoppedBy": "round-budget",
+      "actions": {
+        "wait": 1950,
+        "endTurn": 900,
+        "resume": 2
+      },
+      "fallbacks": 0,
+      "pauses": [
+        101,
+        201
+      ],
+      "controlEvents": 2,
+      "points": [
+        {
+          "at": 256,
+          "reason": "command-checkpoint",
+          "bytes": 19643,
+          "saveSha256": "2c20d0728ba17274a3ef67b0fd1a9eac672fa3d5fd8f5ca7680ddd90c03b6be4",
+          "stateSha256": "8a9490532bae3dd72131b04a1a5399f17fd83d8fa20fb8e129850f43729eb7b4",
+          "compared": 512,
+          "futureTraceSha256": "41186839a1fa4620065d174ef8e191113ccd195a43a702a6bedd8e4132d4ad25",
+          "futureStateSha256": "b3e80964b4f889f5ef06fcf6bb73162c086b3bb4ef0703e8e66a8f336fdb17c2"
+        },
+        {
+          "at": 1024,
+          "reason": "command-checkpoint",
+          "bytes": 25110,
+          "saveSha256": "366da78348ee8724ef3b744e1cbf004cc0f6715005f4a7b80ca2ef7572b707b3",
+          "stateSha256": "cf50e558006475865135c45b0fd37ea31c9459994616e4975d1a601af8b3d875",
+          "compared": 512,
+          "futureTraceSha256": "b955b895a5940576019cc59da82f6c1f6b7919cf5dc2472e2eef0335c87b444b",
+          "futureStateSha256": "c20825b815111ead7d1885b4df3601b1b6a904020c39b61acbbd50b02f8daad9"
+        },
+        {
+          "at": 1050,
+          "reason": "100-round-boundary",
+          "bytes": 25369,
+          "saveSha256": "e677ddefe5261685f285613fff74e05503c9c0caf253705af59f0096382dbee8",
+          "stateSha256": "250e17aa4009aafbf6d699bc4558739b479fdad05da1d1fd0c40248c63c4c897",
+          "compared": 512,
+          "futureTraceSha256": "a838d20497b8425dddf658d2224d88ccfd4eceb7c4e72f96a971f02c52e28901",
+          "futureStateSha256": "090d6ed9c43604d903be4ab2064b9c3592c14d05fa2794d4793e854d747fe44b"
+        },
+        {
+          "at": 1951,
+          "reason": "100-round-boundary",
+          "bytes": 32351,
+          "saveSha256": "5e59fd91041927eae459c16b6d35f6fb5b95cd1d8b92c208c32c7759646dd470",
+          "stateSha256": "03dd5d36a2b3bfb447484cf04e8239ab7896b6dd7f32a2a9f5dce7f76ab4bec4",
+          "compared": 512,
+          "futureTraceSha256": "4a13d5f3098dd870731a3af0a009f093f8f1137d3d3f8d12715f528aa794f6f7",
+          "futureStateSha256": "e4220fe0cc26e2f1b7d0a7a017a18edaae3e68be5807524f7ba42bfc1263f941"
+        },
+        {
+          "at": 2048,
+          "reason": "command-checkpoint",
+          "bytes": 33065,
+          "saveSha256": "26716821d57b2fd28e0471fc9f4e8e9b5eaa838f847c2ced0ae9c5fdce238ae8",
+          "stateSha256": "47ddf7d9caa83dec8f161fdca9063b5c256c42119c63b44107320f7de269c6b2",
+          "compared": 512,
+          "futureTraceSha256": "5ad6af9b65b582cb054927931de03ee6d71dd3b4b8b76e06d36ae4400f859382",
+          "futureStateSha256": "e65c53ee1866716c2904111dd302a37374716449985085da1cc4da8779c63cad"
+        },
+        {
+          "at": 2852,
+          "reason": "final",
+          "bytes": 38960,
+          "saveSha256": "220fa4f845506f02caf72e186bbe5cf2d3ff88086bff990f869b86ec5b8ef6ef",
+          "stateSha256": "7eaf1c67593820cb5d54c9548c9a02784a17a2efde0353a1b47c8075f0888910",
+          "compared": 0
+        }
+      ],
+      "bytes": 38960,
+      "traceSha256": "85b32621573266274dc4c18a9f71de03debe4df956ebc976e6227815992caccc",
+      "stateSha256": "7eaf1c67593820cb5d54c9548c9a02784a17a2efde0353a1b47c8075f0888910",
+      "verifiedCheckpoints": 2,
+      "replayCache": 11,
+      "replayCancelled": true,
+      "seconds": 20.432653384
+    },
+    {
+      "id": "soak-strait-4-false-152501",
+      "sourceMapId": "strait",
+      "participants": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "team": false,
+      "seed": 152501,
+      "commands": 4802,
+      "round": 301,
+      "outcome": {
+        "type": "ongoing"
+      },
+      "stoppedBy": "round-budget",
+      "actions": {
+        "wait": 3600,
+        "endTurn": 1200,
+        "resume": 2
+      },
+      "fallbacks": 0,
+      "pauses": [
+        101,
+        201
+      ],
+      "controlEvents": 2,
+      "points": [
+        {
+          "at": 256,
+          "reason": "command-checkpoint",
+          "bytes": 22578,
+          "saveSha256": "4d83ef8136bd8590240d512679457048eeff6c673d6c879ba68f685b4e2fd309",
+          "stateSha256": "8a1f3317fc7dc0c1f57a977bede73c7572eb2ccafd42c4822a6719c3507b5178",
+          "compared": 512,
+          "futureTraceSha256": "7be203462dfeabed8923007edc6cf731a9395f91d8b94673c8f3d28e8794278c",
+          "futureStateSha256": "114203ddc2913f17bb2d0b45c8798a0054ca884350a61508b401ab03219fef6e"
+        },
+        {
+          "at": 1024,
+          "reason": "command-checkpoint",
+          "bytes": 28694,
+          "saveSha256": "36c1f3d6954c89f23ac23b629aaa0d3acaf1da2765d50e33a5fc8bfebea67858",
+          "stateSha256": "2dbf482d43ed4ace6eddba77c61012ffed4d289f784146c8f8d1e1fe32df9b37",
+          "compared": 512,
+          "futureTraceSha256": "7be203462dfeabed8923007edc6cf731a9395f91d8b94673c8f3d28e8794278c",
+          "futureStateSha256": "961611ea0d06dc2de8f2e2c80503115586618187ddaf023cecbbd7661e6eb7f9"
+        },
+        {
+          "at": 1600,
+          "reason": "100-round-boundary",
+          "bytes": 33638,
+          "saveSha256": "7da44f8d2575e3ad58e70579a8ff88c6deffb2e1c5a04b8f25c84077dcc3052f",
+          "stateSha256": "255668b69d314b5df0c0d72e824c7f79c35ccd6ae39a28fea7c62175d138767b",
+          "compared": 512,
+          "futureTraceSha256": "de6a237b9f99ef1765c2fcf87824e4a58078883063008da2d8a666090bc1c317",
+          "futureStateSha256": "10e25accc1b806369109977097eefa06c86b65f0613e8f0a6e50cd028be0db17"
+        },
+        {
+          "at": 2048,
+          "reason": "command-checkpoint",
+          "bytes": 37054,
+          "saveSha256": "37bdfb28008796df6ab0835860f2698762838dbbc52e00c2f21f784ec637e84d",
+          "stateSha256": "40f4c94930f0b89ff3d381ffce4227deee78cf02434bcf992c2c7eefe27f00a9",
+          "compared": 512,
+          "futureTraceSha256": "93a2c8c109bd03e8b7aa319ede84c400f0f8b706eeed275eba4f840cddf8580e",
+          "futureStateSha256": "7f6284eebf2bb3f614814ddafb0d138e4762ced7dec6a070b54cdbadf074ed43"
+        },
+        {
+          "at": 3201,
+          "reason": "100-round-boundary",
+          "bytes": 45844,
+          "saveSha256": "df37b27e631afb8e3e09e25d6ab1d93c514f258be4555bb9fb506e85e0bf9aae",
+          "stateSha256": "0357bcbe257a77b25753e2fbec4c60615484399347772a958d09cbe7fff4b2b7",
+          "compared": 512,
+          "futureTraceSha256": "de6a237b9f99ef1765c2fcf87824e4a58078883063008da2d8a666090bc1c317",
+          "futureStateSha256": "c84fab0c6efe3f04feebcf302694816e49dc9f42d27a7d8e2ed4e4fc92cba491"
+        },
+        {
+          "at": 4096,
+          "reason": "command-checkpoint",
+          "bytes": 52674,
+          "saveSha256": "ed53e8e3f9f2a6a018a08098ae7d620f20d66d039b4199e7e82327699503a112",
+          "stateSha256": "7401e09be42e82071a029a8e1f6a357bd5fcd14e868849b029e945a772de4f44",
+          "compared": 512,
+          "futureTraceSha256": "a70ef1a8c5dd97caff71221901875d001a6ecbd541bd3d2e581e4f88a1ff087b",
+          "futureStateSha256": "6bf8ea7e91ef87638323984ecbea2ca49ff2f14745df77fe0d409503640921d6"
+        },
+        {
+          "at": 4802,
+          "reason": "final",
+          "bytes": 58054,
+          "saveSha256": "ffe92aeceebbedc48c1f66884ffa4516c0fa703aceba865fe45a7a7d438a2b4a",
+          "stateSha256": "2bd56dbebfdc140f1038b0c7d6ce44e656b132229d843e41a1508a18a8e37efd",
+          "compared": 0
+        }
+      ],
+      "bytes": 58054,
+      "traceSha256": "6c44c9c0606f2a60afa27be98735bf6f0a7232c0540d5c08833e41bddef5abb7",
+      "stateSha256": "2bd56dbebfdc140f1038b0c7d6ce44e656b132229d843e41a1508a18a8e37efd",
+      "verifiedCheckpoints": 3,
+      "replayCache": 12,
+      "replayCancelled": true,
+      "seconds": 40.423443426
+    },
+    {
+      "id": "soak-strait-3-true-152501",
+      "sourceMapId": "strait",
+      "participants": [
+        "army1",
+        "army2",
+        "army3"
+      ],
+      "team": true,
+      "seed": 152501,
+      "commands": 2852,
+      "round": 301,
+      "outcome": {
+        "type": "ongoing"
+      },
+      "stoppedBy": "round-budget",
+      "actions": {
+        "wait": 1950,
+        "endTurn": 900,
+        "resume": 2
+      },
+      "fallbacks": 0,
+      "pauses": [
+        101,
+        201
+      ],
+      "controlEvents": 2,
+      "points": [
+        {
+          "at": 256,
+          "reason": "command-checkpoint",
+          "bytes": 19878,
+          "saveSha256": "b881304d15fcc0c6cf4f4dcde2b3a3864184dee7c6704f06c9268dba0ad4d0f9",
+          "stateSha256": "0126fc87866c4a1c34018a16016176167df3db7a1ab7853d76289a6c090a4bf9",
+          "compared": 512,
+          "futureTraceSha256": "41186839a1fa4620065d174ef8e191113ccd195a43a702a6bedd8e4132d4ad25",
+          "futureStateSha256": "8c32cbe9c80687ad4055ce995aff535959d8f10a9ce3b6b9e3661be2e9a34974"
+        },
+        {
+          "at": 1024,
+          "reason": "command-checkpoint",
+          "bytes": 25274,
+          "saveSha256": "4f2dae66eb3ad0ca5eb868f51d527ec48d9c06d159409db6cd54cf04251eb875",
+          "stateSha256": "cb174856edfa66a3cdd442e3f58a6b93a18e8255e513cae56f48d994a09825f6",
+          "compared": 512,
+          "futureTraceSha256": "b955b895a5940576019cc59da82f6c1f6b7919cf5dc2472e2eef0335c87b444b",
+          "futureStateSha256": "f7e63f923d3d41bc2f9bf5896cf86f28aa05ed0024e0e9539bb9149a13586728"
+        },
+        {
+          "at": 1050,
+          "reason": "100-round-boundary",
+          "bytes": 25545,
+          "saveSha256": "0526dcc136193af8e74e955c20dd00b3a5c3ef5edc5e1c7932c8a718d66b6ec0",
+          "stateSha256": "374ae4ee6abec17c42dd7f4f8c08ab5f29b5cc6ae2362bf5cbc55980bb409644",
+          "compared": 512,
+          "futureTraceSha256": "a838d20497b8425dddf658d2224d88ccfd4eceb7c4e72f96a971f02c52e28901",
+          "futureStateSha256": "f6bb5d5182cc3c730bbb65fa8a43ffb5f5cdc27d92121f09a482f375dce6f665"
+        },
+        {
+          "at": 1951,
+          "reason": "100-round-boundary",
+          "bytes": 32503,
+          "saveSha256": "eb5668cbf6e89dc5e23b77e6fc12aab07177d45eba2a93f3072f58d380400dc8",
+          "stateSha256": "95cc82ff4f6c1f6327b33cf6169fc1e1dc7f84d2212f0d165bbb7021368a415d",
+          "compared": 512,
+          "futureTraceSha256": "4a13d5f3098dd870731a3af0a009f093f8f1137d3d3f8d12715f528aa794f6f7",
+          "futureStateSha256": "9fc05b46a88dc4ce19cb0790708000bccbcc078d77aff6a185ba6eadcb87ea6b"
+        },
+        {
+          "at": 2048,
+          "reason": "command-checkpoint",
+          "bytes": 33217,
+          "saveSha256": "3f826a80a21f930e7294a94d64894870e5b4bc9351f8b1be38c0c000120540c4",
+          "stateSha256": "9d18491e83a7d2d4f1f8bab598548b207502b402fcb2f348feef8f7bcbadf4b9",
+          "compared": 512,
+          "futureTraceSha256": "5ad6af9b65b582cb054927931de03ee6d71dd3b4b8b76e06d36ae4400f859382",
+          "futureStateSha256": "8c3b780f5747c497219abdab0acd5b59d8535e0ba89c3abeaa317197c649a5e7"
+        },
+        {
+          "at": 2852,
+          "reason": "final",
+          "bytes": 39112,
+          "saveSha256": "5dda151ae7e07bfb53d9f2567884256936eec6d137a87c5064ed12ef6c0033c8",
+          "stateSha256": "4b5796d96fc63f7a45c394625f6c3b48bdaf72a69c50393c828b8ba6850fa6d6",
+          "compared": 0
+        }
+      ],
+      "bytes": 39112,
+      "traceSha256": "85b32621573266274dc4c18a9f71de03debe4df956ebc976e6227815992caccc",
+      "stateSha256": "4b5796d96fc63f7a45c394625f6c3b48bdaf72a69c50393c828b8ba6850fa6d6",
+      "verifiedCheckpoints": 2,
+      "replayCache": 11,
+      "replayCancelled": true,
+      "seconds": 34.004410117000006
+    },
+    {
+      "id": "soak-strait-4-true-152501",
+      "sourceMapId": "strait",
+      "participants": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "team": true,
+      "seed": 152501,
+      "commands": 4802,
+      "round": 301,
+      "outcome": {
+        "type": "ongoing"
+      },
+      "stoppedBy": "round-budget",
+      "actions": {
+        "wait": 3600,
+        "endTurn": 1200,
+        "resume": 2
+      },
+      "fallbacks": 0,
+      "pauses": [
+        101,
+        201
+      ],
+      "controlEvents": 2,
+      "points": [
+        {
+          "at": 256,
+          "reason": "command-checkpoint",
+          "bytes": 23250,
+          "saveSha256": "63e85dcae44d87e593bdf924350c189e56cd8e0a6f49e9802fae386d731ee85a",
+          "stateSha256": "bb5ea403bfe512f0e98d856af825b5ff8080ca521d5a79a5e4c3bf3aee3a016e",
+          "compared": 512,
+          "futureTraceSha256": "7be203462dfeabed8923007edc6cf731a9395f91d8b94673c8f3d28e8794278c",
+          "futureStateSha256": "bb8359ae0b82782dce182c6cbb14b011647ff53189724e2d69543c43fb877c29"
+        },
+        {
+          "at": 1024,
+          "reason": "command-checkpoint",
+          "bytes": 29251,
+          "saveSha256": "a723a002ff45ff8606653c9bae344b2f82e99ae1eb5afa19fc11da8f2a1cbcc5",
+          "stateSha256": "3b87773e4be9d946a724a16701e9bfcab9915ad50d8e37c4ee18f58701b5641c",
+          "compared": 512,
+          "futureTraceSha256": "7be203462dfeabed8923007edc6cf731a9395f91d8b94673c8f3d28e8794278c",
+          "futureStateSha256": "7d606799f5318cb0e1ff88cd95d96fd62636ac3ca60575c868a40fc8d3bbca1e"
+        },
+        {
+          "at": 1600,
+          "reason": "100-round-boundary",
+          "bytes": 34165,
+          "saveSha256": "3bdd945d4b691a35868b56481e3d6e38dddd03ba5a13f69fa06a2f5ed8009b8e",
+          "stateSha256": "b3299e5499aab5bb87d67f72c5202eeb2bfa32b1470d0847ab632641171fa7f2",
+          "compared": 512,
+          "futureTraceSha256": "de6a237b9f99ef1765c2fcf87824e4a58078883063008da2d8a666090bc1c317",
+          "futureStateSha256": "8e2695397def9326c4e083641d2d5eb969b102d757a50de4ac90aed34fc3a772"
+        },
+        {
+          "at": 2048,
+          "reason": "command-checkpoint",
+          "bytes": 37581,
+          "saveSha256": "6e875ae3b4e2b8e8f38679f2306a6378558e8d9033c7f0d01b0fba2ed79a2854",
+          "stateSha256": "0e3c251b67a789023b3dbb0543d5de58f55a828388818c9f3dbb29249171b1ef",
+          "compared": 512,
+          "futureTraceSha256": "93a2c8c109bd03e8b7aa319ede84c400f0f8b706eeed275eba4f840cddf8580e",
+          "futureStateSha256": "48e4e991a2d1ab978c64fdc3ab97866483dba83efb358120ff61244585195da1"
+        },
+        {
+          "at": 3201,
+          "reason": "100-round-boundary",
+          "bytes": 46371,
+          "saveSha256": "737038818b33f9deda0a8b9dbbb00c4d8faba9355ff1974db2d1ba682ec4e496",
+          "stateSha256": "43fc31fa04610301e540541a0acfddcc35fbeee06912208e181beb7bd4ad9f45",
+          "compared": 512,
+          "futureTraceSha256": "de6a237b9f99ef1765c2fcf87824e4a58078883063008da2d8a666090bc1c317",
+          "futureStateSha256": "d5eff43ac41afb1bee7756fbc6204a05864537630f03459f215ad8efe3ec6c49"
+        },
+        {
+          "at": 4096,
+          "reason": "command-checkpoint",
+          "bytes": 53201,
+          "saveSha256": "b91fff4ffaed43244da8be0e415e07718f5de2263500520f68de0ea6d1f02708",
+          "stateSha256": "0d430e1f367ddf3e89728262aa4b3f5310ce9072b2c4020c50f8a692ecc79415",
+          "compared": 512,
+          "futureTraceSha256": "a70ef1a8c5dd97caff71221901875d001a6ecbd541bd3d2e581e4f88a1ff087b",
+          "futureStateSha256": "0d2011e3b3c88f1fcd0a3cb850759da57d9a61373d4b771373fa83155a315c90"
+        },
+        {
+          "at": 4802,
+          "reason": "final",
+          "bytes": 58581,
+          "saveSha256": "3510047eb827f6c5a7c4d837dd2dca7a47fb321f12546a262a4ce0fc3b6a9cad",
+          "stateSha256": "f379a883e912f8938732b3bc2b4dfd6d4ac05dd6d9c61c875aa99d92d3a61133",
+          "compared": 0
+        }
+      ],
+      "bytes": 58581,
+      "traceSha256": "6c44c9c0606f2a60afa27be98735bf6f0a7232c0540d5c08833e41bddef5abb7",
+      "stateSha256": "f379a883e912f8938732b3bc2b4dfd6d4ac05dd6d9c61c875aa99d92d3a61133",
+      "verifiedCheckpoints": 3,
+      "replayCache": 12,
+      "replayCancelled": true,
+      "seconds": 38.934446279
+    }
+  ]
+}
