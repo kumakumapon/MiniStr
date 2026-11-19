@@ -7,8 +7,51 @@ import { fourArmySpectatorFixture } from '../game/fourArmySpectator.fixture';
 import { handleFourArmyCpuRequest } from '../ai/fourArmyCpuProtocol';
 import { encodeFourArmySpectatorSave, FOUR_ARMY_SAVE_KEYS, FOUR_ARMY_AUTO_SAVE_KEY } from '../game/fourArmySpectatorSave';
 import * as download from './download';
+import { fourArmyActionFixture } from '../../tests/e2e/helpers/fourArmyActionFixture';
+import { ACTION_SCENE_SETTINGS_KEY } from '../game/actionSceneSettings';
 
 describe('four-army spectator controller', () => {
+  it('disables an active capture independently of combat and preserves a single committed command', async () => {
+    const fixture = fourArmyActionFixture('capture');
+    values.set(FOUR_ARMY_SAVE_KEYS[0], fixture.text);
+    values.set('ministr.battleScene.settings', '{"twoArmy":false,"multiArmy":true}');
+    values.set(ACTION_SCENE_SETTINGS_KEY, '{"twoArmy":false,"multiArmy":true}');
+    screen.open();
+    click('[data-load-slot="0"]');
+    await vi.waitFor(() => expect(query('#four-notice').textContent).toBe('Loaded and paused.'));
+    const unit = fixture.before.units.find((u) => fixture.command.type === 'capture' && u.id === fixture.command.unitId)!;
+    click(`#four-board > [data-x="${unit.position!.x}"][data-y="${unit.position!.y}"]`);
+    click('[data-human-action="capture"]');
+    expect(query('.action-capture-progress').getAttribute('aria-valuenow')).toBe('100');
+    expect(screen.root.inert).toBe(true);
+    const input = query<HTMLInputElement>('#action-scenes-multiArmy-overlay');
+    input.checked = false;
+    input.dispatchEvent(new Event('change'));
+    await vi.waitFor(() => expect(screen.root.inert).toBe(false));
+    expect(document.querySelector('.action-scene')).toBeNull();
+    expect(query('#four-turn').textContent).toContain(`${fixture.count + 1} commands`);
+    expect(values.get(ACTION_SCENE_SETTINGS_KEY)).toBe('{"twoArmy":false,"multiArmy":false}');
+    expect(values.get('ministr.battleScene.settings')).toBe('{"twoArmy":false,"multiArmy":true}');
+    expect(query<HTMLInputElement>('#battle-scenes-multiArmy').checked).toBe(true);
+  });
+  it('defers real supply until hotseat confirmation and clears it when leaving the match', async () => {
+    const fixture = fourArmyActionFixture('logistics', 'hotseat');
+    values.set(FOUR_ARMY_SAVE_KEYS[0], fixture.text);
+    click('[data-load-slot="0"]');
+    await vi.waitFor(() => expect(document.querySelector('#four-handoff-start')).not.toBeNull());
+    click('#four-handoff-start');
+    click('[data-human-action="endTurn"]');
+    await vi.waitFor(() => expect(document.querySelector('#four-handoff-start')).not.toBeNull());
+    expect(document.querySelector('.action-scene')).toBeNull();
+    expect(document.querySelector('#four-board')).toBeNull();
+    click('#four-handoff-start');
+    expect(query('.action-scene-logistics').textContent).toContain('63 → 70');
+    click('#tactical-scene-skip');
+    await vi.waitFor(() => expect(screen.root.inert).toBe(false));
+    click('#four-menu');
+    expect(document.querySelector('.action-scene')).toBeNull();
+    expect(query('#four-start')).not.toBeNull();
+  });
   it('preserves a legacy save and prefix until explicitly switching the future CPU and saving again', async () => {
     const old = JSON.stringify(fourArmySpectatorFixture(2));
     values.set(FOUR_ARMY_SAVE_KEYS[0], old);

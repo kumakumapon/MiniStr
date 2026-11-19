@@ -1,4 +1,8 @@
-import { FourArmyBattleScene, fourArmyBattleIsVisible } from './fourArmyBattleScene';
+import { fourArmyBattleIsVisible } from './fourArmyBattleScene';
+import { FourArmyTacticalScene } from './fourArmyTacticalScene';
+import { fourArmyActionSceneForCommand, fourArmyActionSceneForViewer } from './fourArmyActionScene';
+import type { ActionScene } from './actionScene';
+import { loadActionSceneSettings, saveActionSceneSetting, renderActionSceneSetting } from './actionSceneSettings';
 import { loadBattleSceneSettings, saveBattleSceneSetting, renderBattleSceneSetting } from './battleSceneSettings';
 import type { BattleScene } from './battleScene';
 import type { CombatSummary } from '../game/combatSummary';
@@ -212,19 +216,24 @@ export class FourArmyScreen {
   private autoSnapshot?: FourArmySpectatorSave;
   private battleScenesEnabled = true;
   private battlePreferenceSaved = true;
-  private battleScene: FourArmyBattleScene;
+  private tacticalScene: FourArmyTacticalScene;
+  private actionScenesEnabled = true;
+  private actionPreferenceSaved = true;
+  private queuedAction?: ActionScene;
+  private handoffAction?: ActionScene;
   private feedback?: FourArmyObservedEvent;
   private feedbackTimer?: ReturnType<typeof setTimeout>;
   constructor(private deps: Dependencies) {
     this.battleScenesEnabled = loadBattleSceneSettings(deps.storage).multiArmy;
-    this.battleScene = new FourArmyBattleScene(this.root, {
+    this.actionScenesEnabled = loadActionSceneSettings(deps.storage).multiArmy;
+    this.tacticalScene = new FourArmyTacticalScene(this.root, {
       pause: () => this.pause(text('一時停止しました。', 'Paused.')),
       menu: () => {
         this.pause(undefined, false);
         this.phase = 'menu';
         this.shell();
       },
-      disable: () => this.setBattleScenes(false),
+      disable: (kind) => (kind === 'battle' ? this.setBattleScenes(false) : this.setActionScenes(false)),
       sound: deps.onBattleSound,
     });
     this.codec = deps.codec ?? new FourArmyFileCodec();
@@ -305,6 +314,7 @@ export class FourArmyScreen {
   }
   open(): void {
     if (this.battlePreferenceSaved) this.battleScenesEnabled = loadBattleSceneSettings(this.deps.storage).multiArmy;
+    if (this.actionPreferenceSaved) this.actionScenesEnabled = loadActionSceneSettings(this.deps.storage).multiArmy;
     this.deps.onOpen();
     this.root.hidden = false;
     this.phase = 'menu';
@@ -317,7 +327,7 @@ export class FourArmyScreen {
     else this.paint();
   }
   private get humanTurn(): boolean {
-    return this.rawHumanTurn && !this.handoff && !this.battleScene.active;
+    return this.rawHumanTurn && !this.handoff && !this.tacticalScene.active;
   }
   private get lockedView(): boolean {
     const state = this.session?.state;
@@ -333,8 +343,10 @@ export class FourArmyScreen {
     this.weaponSlot = undefined;
     this.closeProduction(false);
   }
-  private pause(message?: string, redraw = true): void {
-    this.battleScene.dismiss(false);
+  private pause(message?: string, redraw = true, keepHandoff = false): void {
+    this.queuedAction = undefined;
+    if (!keepHandoff) this.handoffAction = undefined;
+    this.tacticalScene.dismiss(false);
     this.clearFeedback();
     this.clearHuman();
     this.generation++;
@@ -534,7 +546,7 @@ export class FourArmyScreen {
         this.view = actor;
         this.clearHuman();
       }
-      this.presentBattle(combat, before, after);
+      this.presentScenes(combat, before, command, after);
       const event = observedFourArmyEvent(before, command, after, this.view, this.count);
       if (event) this.presentFeedback(event);
     };
@@ -560,9 +572,16 @@ export class FourArmyScreen {
       this.session.resume();
       this.captureCheckpoint();
     }
+    if (this.tacticalScene.active) {
+      this.paint();
+      while (this.tacticalScene.active) {
+        await this.tacticalScene.finished();
+        if (generation !== this.generation) return;
+      }
+    }
     if (this.rawHumanTurn) {
       this.prepareHandoff();
-      this.pause();
+      this.pause(undefined, true, true);
       return;
     }
     this.scheduler.start({ initialDelayMs: 450 / this.speed, nextDelayMs: () => 450 / this.speed, step: () => this.advance(generation) });
@@ -579,7 +598,7 @@ export class FourArmyScreen {
           command = this.replay.commands[this.replay.position];
         await this.replay.seek(this.replay.position + 1);
         if (generation === this.generation && command) {
-          this.presentBattle(this.replay.lastCombat, before, this.replay.state);
+          this.presentScenes(this.replay.lastCombat, before, command, this.replay.state);
           const event = observedFourArmyEvent(before, command, this.replay.state, this.view, this.replay.position);
           if (event) this.presentFeedback(event);
         }
@@ -587,9 +606,9 @@ export class FourArmyScreen {
       if (generation !== this.generation) return false;
       if (!this.replay) this.captureCheckpoint();
       this.busy = false;
-      if (this.battleScene.active) {
+      while (this.tacticalScene.active) {
         this.paint();
-        await this.battleScene.finished();
+        await this.tacticalScene.finished();
         if (generation !== this.generation) return false;
       }
       const state = this.replay?.state ?? this.session.state;
@@ -597,7 +616,7 @@ export class FourArmyScreen {
         this.pause(text('自軍が脱落しました。残りの対局を観戦できます。', 'Your army was eliminated. You can watch the remaining match.'));
       else if (this.rawHumanTurn) {
         this.prepareHandoff();
-        this.pause();
+        this.pause(undefined, true, true);
       } else if (this.replay && this.replay.position === this.replay.commands.length) this.pause(text('リプレイの終端です。', 'End of replay.'));
       else if (!this.replay && state.paused)
         this.pause(text('100ラウンドの区切りで停止しました。CPU進行で次の手番を開始します。', 'Paused at the 100-round boundary. Run CPUs starts the next turn.'));
@@ -646,7 +665,7 @@ export class FourArmyScreen {
       if (generation === this.generation) {
         this.busy = false;
         if (position === previous + 1 && command) {
-          this.presentBattle(this.replay.lastCombat, before, this.replay.state);
+          this.presentScenes(this.replay.lastCombat, before, command, this.replay.state);
           const event = observedFourArmyEvent(before, command, this.replay.state, this.view, position);
           if (event) this.presentFeedback(event);
         }
@@ -741,7 +760,7 @@ export class FourArmyScreen {
   private setBattleScenes(enabled: boolean): void {
     this.battleScenesEnabled = enabled;
     this.battlePreferenceSaved = saveBattleSceneSetting(this.deps.storage, 'multiArmy', enabled);
-    if (!enabled) this.battleScene.dismiss();
+    if (!enabled && this.tacticalScene.kind === 'battle') this.tacticalScene.dismiss();
     if (!this.battlePreferenceSaved) {
       this.notice = text('バトルシーン設定はこの画面だけに適用します。保存領域を確認してください。', 'Battle scene preference applies to this screen only. Check storage.');
       const notice = this.query('#four-notice');
@@ -750,6 +769,51 @@ export class FourArmyScreen {
     this.root.querySelectorAll<HTMLInputElement>('[data-battle-scenes="multiArmy"]').forEach((input) => {
       input.checked = enabled;
     });
+  }
+  private setActionScenes(enabled: boolean): void {
+    this.actionScenesEnabled = enabled;
+    this.actionPreferenceSaved = saveActionSceneSetting(this.deps.storage, 'multiArmy', enabled);
+    if (!enabled) {
+      this.queuedAction = undefined;
+      this.handoffAction = undefined;
+      if (this.tacticalScene.kind === 'action') this.tacticalScene.dismiss();
+    }
+    if (!this.actionPreferenceSaved) {
+      this.notice = text(
+        '占領・補給演出の設定はこの画面だけに適用します。保存領域を確認してください。',
+        'Capture and supply preference applies to this screen only. Check storage.',
+      );
+      const notice = this.query('#four-notice');
+      if (notice) notice.textContent = this.notice;
+    }
+    this.root.querySelectorAll<HTMLInputElement>('[data-action-scenes="multiArmy"]').forEach((input) => {
+      input.checked = enabled;
+    });
+  }
+  private showAction(scene: ActionScene): void {
+    if (this.actionScenesEnabled && this.active && this.phase === 'watch' && !this.concealed && !document.hidden) this.tacticalScene.show(scene, this.running);
+  }
+  private presentScenes(combat: CombatSummary<FourArmyId> | undefined, before: FourArmyState, command: FourArmyCommand, after: FourArmyState): void {
+    if (!this.active || this.phase !== 'watch' || document.hidden) return;
+    const resolved = this.actionScenesEnabled ? fourArmyActionSceneForCommand(before, command, after) : undefined;
+    const action = resolved ? fourArmyActionSceneForViewer(resolved, before, after, this.view) : undefined;
+    if (this.concealed) {
+      if (this.handoff && action?.kind === 'logistics') this.handoffAction = action;
+      return;
+    }
+    this.presentBattle(combat, before, after);
+    if (!action) return;
+    if (!this.tacticalScene.active) this.showAction(action);
+    else {
+      const generation = this.generation;
+      this.queuedAction = action;
+      void this.tacticalScene.finished().then(() => {
+        if (generation !== this.generation) return;
+        const next = this.queuedAction;
+        this.queuedAction = undefined;
+        if (next) this.showAction(next);
+      });
+    }
   }
   private presentBattle(combat: CombatSummary<FourArmyId> | undefined, before: FourArmyState, after: FourArmyState): void {
     if (
@@ -762,7 +826,7 @@ export class FourArmyScreen {
       !fourArmyBattleIsVisible(combat, before, after, this.view)
     )
       return;
-    this.battleScene.show(combat, this.running);
+    this.tacticalScene.show(combat, this.running);
   }
   private clearFeedback(): void {
     if (this.feedbackTimer) clearTimeout(this.feedbackTimer);
@@ -777,7 +841,7 @@ export class FourArmyScreen {
     if (!sound || !this.active || this.phase !== 'watch' || this.concealed || document.hidden) return;
     this.clearFeedback();
     this.feedback = event;
-    if (!this.battleScene.active) this.deps.onSound?.(sound);
+    if (this.tacticalScene.kind !== 'battle') this.deps.onSound?.(sound);
     this.feedbackTimer = setTimeout(() => this.clearFeedback(), 650);
   }
   private paintSupport(state: FourArmyState): void {
@@ -1068,6 +1132,9 @@ export class FourArmyScreen {
       this.clearHuman();
       if (this.humanArmy && this.map) this.selected = { ...this.map.capitals[this.humanArmy] };
       this.shell();
+      const action = this.handoffAction;
+      this.handoffAction = undefined;
+      if (action) this.showAction(action);
       return;
     }
     if (button.dataset.forecastTarget && this.session && this.humanArmy) {
@@ -1297,6 +1364,10 @@ export class FourArmyScreen {
     }
   }
   private async change(input: HTMLInputElement): Promise<void> {
+    if (input.dataset.actionScenes === 'multiArmy') {
+      this.setActionScenes(input.checked);
+      return;
+    }
     if (input.dataset.battleScenes === 'multiArmy') {
       this.setBattleScenes(input.checked);
       return;
@@ -1519,7 +1590,7 @@ export class FourArmyScreen {
     this.historyMarkupKey = '';
     this.resultMarkup = '';
     const focus = (document.activeElement as HTMLElement | null)?.id;
-    const head = `<header class="four-header command-bar"><div><p class="four-kicker">MINISTR / MULTI-ARMY</p><h1 id="four-heading" tabindex="-1">${text(`${this.displayedArmies.length}軍対局・観戦`, `${this.displayedArmies.length}-army play & watch`)}</h1></div><label>${text('言語', 'Language')}<select id="four-locale"><option value="ja" ${getLocale() === 'ja' ? 'selected' : ''}>日本語</option><option value="en" ${getLocale() === 'en' ? 'selected' : ''}>English</option></select></label>${renderBattleSceneSetting('multiArmy', this.battleScenesEnabled)}<button id="four-close">${text('タイトルへ', 'Title')}</button></header><div id="four-storage"></div><p id="four-notice" role="status"></p>`;
+    const head = `<header class="four-header command-bar"><div><p class="four-kicker">MINISTR / MULTI-ARMY</p><h1 id="four-heading" tabindex="-1">${text(`${this.displayedArmies.length}軍対局・観戦`, `${this.displayedArmies.length}-army play & watch`)}</h1></div><label>${text('言語', 'Language')}<select id="four-locale"><option value="ja" ${getLocale() === 'ja' ? 'selected' : ''}>日本語</option><option value="en" ${getLocale() === 'en' ? 'selected' : ''}>English</option></select></label>${renderBattleSceneSetting('multiArmy', this.battleScenesEnabled)}${renderActionSceneSetting('multiArmy', this.actionScenesEnabled)}<button id="four-close">${text('タイトルへ', 'Title')}</button></header><div id="four-storage"></div><p id="four-notice" role="status"></p>`;
     if (this.phase === 'menu')
       this.root.innerHTML =
         head +
@@ -2046,10 +2117,12 @@ export class FourArmyScreen {
         ? text('移動しました。未知の敵への接触時は途中で停止します。', 'Moved. Contact with an unseen enemy can stop movement early.')
         : text('命令を実行しました。', 'Command applied.');
     this.paint();
-    if (this.battleScene.active) {
+    if (this.tacticalScene.active) {
       const generation = this.generation;
-      await this.battleScene.finished();
-      if (generation !== this.generation || !this.active || this.phase !== 'watch') return;
+      while (this.tacticalScene.active) {
+        await this.tacticalScene.finished();
+        if (generation !== this.generation || !this.active || this.phase !== 'watch') return;
+      }
       this.paint();
     }
     const state = this.session.state;
