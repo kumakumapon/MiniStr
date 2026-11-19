@@ -1,0 +1,37 @@
+name: Diagnose v1.5.25 CI
+on:
+  push:
+    branches: [diagnose/v1.5.25-ci]
+    paths: [.github/workflows/diagnose-v1.5.25-ci.yml]
+permissions:
+  contents: read
+  actions: read
+jobs:
+  evidence:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Read retained failure traces
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh api repos/kumakumapon/MiniStr/actions/artifacts/14505551897/zip > /tmp/evidence.zip
+          python3 - <<'PY'
+          import zipfile,io,json
+          with zipfile.ZipFile('/tmp/evidence.zip') as outer:
+            for name in outer.namelist():
+              if '/webkit/' not in name: continue
+              if name.endswith('/error-context.md'):
+                print('CONTEXT',name)
+                print(outer.read(name).decode()[:1800])
+              if name.endswith('/trace.zip'):
+                print('TRACE',name)
+                with zipfile.ZipFile(io.BytesIO(outer.read(name))) as trace:
+                  for file in trace.namelist():
+                    if not file.endswith('.trace'): continue
+                    for line in trace.read(file).decode().splitlines():
+                      try: event=json.loads(line)
+                      except ValueError: continue
+                      if event.get('error') or event.get('type')=='error':
+                        print(json.dumps(event,ensure_ascii=False)[:5000])
+          PY
