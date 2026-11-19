@@ -1,3 +1,11 @@
+import {
+  needsFourArmyRecovery,
+  healthyFourArmyCapturers,
+  fourArmySupportTargets,
+  fourArmyCounterProduction,
+  fourArmyBridgeBenefit,
+  fourArmyPressureFocus,
+} from './fourArmyCpuRecovery';
 import { bridgeDestinations } from '../game/bridges';
 import { applyGameCommand } from '../game/session';
 import { reachablePositionsForPlayer } from '../game/commands';
@@ -15,7 +23,7 @@ import { crossingDistances } from './crossing';
 import { exactKeys, fourArmyPlanningView, isFourArmyObservation, record } from './fourArmyObservation';
 import type { CpuDifficulty } from './rules';
 import { fourArmyCpuOrder, smallBattleFocus } from './fourArmyCpuOrder';
-import { FOUR_ARMY_CPU_VERSION, isFourArmyCpuVersion, type FourArmyCpuVersion } from './fourArmyCpuVersion';
+import { FOUR_ARMY_CPU_VERSION, isFourArmyCpuCompatible, isFourArmyCpuVersion, type FourArmyCpuVersion } from './fourArmyCpuVersion';
 
 export interface FourArmyCpuOptions {
   difficulty: CpuDifficulty;
@@ -50,9 +58,10 @@ export function isObservedFourArmyCommand(o: FourArmyObservation, command: unkno
 export function chooseFourArmyCpuCommand(input: unknown, options: unknown, cpuVersion: FourArmyCpuVersion = FOUR_ARMY_CPU_VERSION): FourArmyCommand | undefined {
   if (!isFourArmyObservation(input) || !isFourArmyCpuOptions(options) || !isFourArmyCpuVersion(cpuVersion)) throw Error('Invalid four-army CPU input');
   const o = input;
-  if (o.match && (o.match.version === 2 ? cpuVersion !== 'four-army-cpu-v6' : !['four-army-cpu-v5', 'four-army-cpu-v6'].includes(cpuVersion)))
-    throw Error('Incompatible match CPU version');
-  const late = (cpuVersion === 'four-army-cpu-v5' || cpuVersion === 'four-army-cpu-v6') && o.match?.ending === 'short' && o.round.round >= 16;
+  if (!isFourArmyCpuCompatible(cpuVersion, o.match?.version)) throw Error('Incompatible match CPU version');
+  const improved = cpuVersion === 'four-army-cpu-v7',
+    modernSix = cpuVersion === 'four-army-cpu-v6' || improved;
+  const late = (cpuVersion === 'four-army-cpu-v5' || modernSix) && o.match?.ending === 'short' && o.round.round >= 16;
   if (o.outcome.type !== 'ongoing' || o.round.phase !== 'active' || o.round.order[o.round.index] !== o.viewer || !o.alive.includes(o.viewer)) return undefined;
   const view = fourArmyPlanningView(o),
     own = view.units.filter((u) => o.units.some((original) => original.id === u.id && original.owner === o.viewer)),
@@ -82,15 +91,18 @@ export function chooseFourArmyCpuCommand(input: unknown, options: unknown, cpuVe
   };
   const actor = o.viewer,
     cautious = options.policy === 'defensive' ? 0.65 : options.policy === 'offensive' ? 0.2 : 0.4;
-  const cyclic = cpuVersion === 'four-army-cpu-v5' || cpuVersion === 'four-army-cpu-v6' ? smallBattleFocus(o) : undefined;
+  const cyclic = cpuVersion === 'four-army-cpu-v5' || modernSix ? smallBattleFocus(o) : undefined;
   const ownership = (a: string) => o.board.terrain.flat().filter((t) => t.owner === a).length;
+  const opponents = o.alive.filter((a) => !alliedArmies(o.match, a, actor));
   const focus =
-    cpuVersion === 'four-army-cpu-v6' && cyclic
-      ? o.alive.filter((a) => !alliedArmies(o.match, a, actor)).sort((a, b) => ownership(b) - ownership(a) || Number(b === cyclic) - Number(a === cyclic))[0]
-      : cyclic;
+    improved && cyclic
+      ? fourArmyPressureFocus(o)
+      : modernSix && cyclic
+        ? opponents.sort((a, b) => ownership(b) - ownership(a) || Number(b === cyclic) - Number(a === cyclic))[0]
+        : cyclic;
   const properties = o.board.terrain.flatMap((row, y) =>
     row.flatMap((t, x) =>
-      isPropertyTerrainKind(t.kind) && (t.owner === undefined || !alliedArmies(o.match, t.owner, actor)) && (!focus || t.owner === undefined || t.owner === focus)
+      isPropertyTerrainKind(t.kind) && (t.owner === undefined || !alliedArmies(o.match, t.owner, actor)) && (!focus || improved || t.owner === undefined || t.owner === focus)
         ? [{ x, y }]
         : [],
     ),
@@ -124,7 +136,7 @@ export function chooseFourArmyCpuCommand(input: unknown, options: unknown, cpuVe
     }
     const repairing = isServiceTile(serviceView, u.position, u.kind, 'red') && u.hp < 85;
     add({ actor, type: 'wait', unitId: u.id }, repairing ? 250 : late && tile.owner === 'red' && isPropertyTerrainKind(tile.kind) ? 80 : 1);
-    if ((cpuVersion === 'four-army-cpu-v4' || cpuVersion === 'four-army-cpu-v5' || cpuVersion === 'four-army-cpu-v6') && o.rules && !u.hasMoved) {
+    if ((cpuVersion === 'four-army-cpu-v4' || cpuVersion === 'four-army-cpu-v5' || modernSix) && o.rules && !u.hasMoved) {
       if (u.kind === 'engineer') add({ actor, type: 'fortify', unitId: u.id }, options.policy === 'defensive' ? 260 : 30);
       const near = enemies.some((e) => e.position && manhattanDistance(e.position, u.position!) <= 4);
       if (near && options.policy !== 'offensive')
@@ -136,9 +148,12 @@ export function chooseFourArmyCpuCommand(input: unknown, options: unknown, cpuVe
       if (u.hp < 70 && !u.logistics?.priority)
         add({ actor, type: 'logistics', unitId: u.id, order: { priority: true, resource: (u.fuel ?? unitStats[u.kind].fuel) < 10 ? 'fuel' : 'ammo', repair: true } }, 270);
     }
-    if (cpuVersion === 'four-army-cpu-v6' && o.match?.version === 2 && !u.hasMoved && u.kind === 'engineer')
-      for (const destination of bridgeDestinations(view, u.id)) add({ actor, type: 'bridge', unitId: u.id, destination }, 280);
-    if (u.hasMoved) continue;
+    if (modernSix && o.match?.version === 2 && !u.hasMoved && u.kind === 'engineer')
+      for (const destination of bridgeDestinations(view, u.id)) {
+        const benefit = improved ? fourArmyBridgeBenefit(view, destination, own, goals) : 1;
+        if (benefit > 0) add({ actor, type: 'bridge', unitId: u.id, destination }, 280);
+      }
+    if (u.hasMoved && (!improved || !own.some((c) => c.embarkedIn === u.id))) continue;
     const cargo = own.find((c) => c.embarkedIn === u.id);
     const footDistance = cargo ? crossingDistances(view, cargo.kind, goals) : undefined;
     const shore =
@@ -160,14 +175,17 @@ export function chooseFourArmyCpuCommand(input: unknown, options: unknown, cpuVe
           )
         : [];
     const bestDrop = Math.min(...shore.map((s) => s.d));
-    const combatGoals = cpuVersion === 'four-army-cpu-v6' && o.alive.length <= 2 && o.round.round >= 40 && hostileHomes.length ? hostileHomes : goals;
-    const targets = shore.length
+    const combatGoals = modernSix && (improved || o.alive.length <= 2) && o.round.round >= 40 && hostileHomes.length ? hostileHomes : goals;
+    const rawTargets = shore.length
       ? shore.filter((s) => s.d <= bestDrop + 1).map((s) => s.p)
       : unitStats[u.kind].capturePower > 0
-        ? goals
+        ? improved
+          ? combatGoals
+          : goals
         : [...enemies.flatMap((e) => (e.position ? [e.position] : [])), ...combatGoals];
+    const targets = improved && !cargo && unitStats[u.kind].capturePower === 0 ? fourArmySupportTargets(view, u, rawTargets, own) : rawTargets;
     const service =
-      cpuVersion === 'four-army-cpu-v3' || cpuVersion === 'four-army-cpu-v4' || cpuVersion === 'four-army-cpu-v5' || cpuVersion === 'four-army-cpu-v6'
+      cpuVersion === 'four-army-cpu-v3' || cpuVersion === 'four-army-cpu-v4' || cpuVersion === 'four-army-cpu-v5' || modernSix
         ? o.board.terrain.flatMap((row, y) => row.flatMap((_tile, x) => (isServiceTile(serviceView, { x, y }, u.kind, 'red') ? [{ x, y }] : [])))
         : [];
     const homeDistances = service.length ? crossingDistances(view, u.kind, service) : undefined;
@@ -175,26 +193,35 @@ export function chooseFourArmyCpuCommand(input: unknown, options: unknown, cpuVe
     const fuel = u.fuel ?? unitStats[u.kind].fuel;
     // Begin the return while the observed route is still reachable. No hidden occupancy is consulted.
     const captureRoute =
-      cpuVersion === 'four-army-cpu-v6' && unitStats[u.kind].capturePower > 0 && u.hp >= 50
+      modernSix && unitStats[u.kind].capturePower > 0 && u.hp >= 50
         ? crossingDistances(
             view,
             u.kind,
-            properties.filter((p) => canServiceUnitAt(terrainAt(view.board, p)!.kind, u.kind)),
+            (improved ? targets : properties).filter((p) => canServiceUnitAt(terrainAt(view.board, p)!.kind, u.kind)),
           )
         : undefined;
     const canRefuelAhead = (captureRoute?.get(positionKey(u.position)) ?? Infinity) <= fuel;
-    const returning = !canRefuelAhead && Number.isFinite(homeDistance) && homeDistance > 0 && fuel <= homeDistance + unitStats[u.kind].movement * 2;
+    const returning =
+      Number.isFinite(homeDistance) &&
+      homeDistance > 0 &&
+      ((!canRefuelAhead && fuel <= homeDistance + unitStats[u.kind].movement * 2) || (improved && needsFourArmyRecovery(view, u)));
     const distance = returning ? homeDistances! : crossingDistances(view, u.kind, targets);
     const currentDistance = distance.get(positionKey(u.position)) ?? Infinity;
     const destinations = reachablePositionsForPlayer(view, u.id, 'red')
       .map((p) => ({ p, d: distance.get(positionKey(p)) ?? Infinity }))
       .sort((a, b) => a.d - b.d || (modern ? order.compare(a.p, b.p) : a.p.y - b.p.y || a.p.x - b.p.x))
       .slice(0, 16);
-    for (const { p, d } of destinations) {
+    for (const { p, d } of u.hasMoved ? [] : destinations) {
       const threats = danger(u, p),
         retreating = u.hp < 45 || (u.fuel ?? unitStats[u.kind].fuel) < unitStats[u.kind].movement;
       let score = Number.isFinite(currentDistance) && Number.isFinite(d) ? 60 + (currentDistance - d) * 15 - d : -20;
-      if (unitStats[u.kind].capturePower > 0 && isPropertyTerrainKind(terrainAt(view.board, p)!.kind) && terrainAt(view.board, p)!.owner !== 'red') score += late ? 500 : 240;
+      if (
+        unitStats[u.kind].capturePower > 0 &&
+        isPropertyTerrainKind(terrainAt(view.board, p)!.kind) &&
+        terrainAt(view.board, p)!.owner !== 'red' &&
+        (!improved || o.round.round < 40 || !hostileHomes.length || d < currentDistance)
+      )
+        score += late ? 500 : 240;
       if (options.policy === 'defensive' && enemies.some((e) => e.position && manhattanDistance(e.position, o.capitals[actor]) <= 5))
         score += (manhattanDistance(u.position, o.capitals[actor]) - manhattanDistance(p, o.capitals[actor])) * 25;
       if (retreating && isServiceTile(serviceView, p, u.kind, 'red')) score += 500;
@@ -230,7 +257,7 @@ export function chooseFourArmyCpuCommand(input: unknown, options: unknown, cpuVe
           add({ actor, type: 'disembark', transportId: u.id, destination: p }, 400 - d * 10 - danger(cargo, p));
       }
     }
-    if (isEmbarkableUnit(u.kind) && currentDistance > 6) {
+    if (!u.hasMoved && isEmbarkableUnit(u.kind) && currentDistance > 6) {
       for (const carrier of ready)
         if (
           carrier.position &&
@@ -244,7 +271,9 @@ export function chooseFourArmyCpuCommand(input: unknown, options: unknown, cpuVe
   }
   const scale = options.difficulty === 'easy' ? 0.45 : options.difficulty === 'normal' ? 0.7 : 1;
   const limit = Math.max(4, Math.floor((o.unitLimitPerArmy ?? unitLimit(view.board, 12)) * scale));
-  if (own.length < limit && o.units.length < 128)
+  const healthyCapturers = improved ? healthyFourArmyCapturers(own) : own.filter((u) => unitStats[u.kind].capturePower > 0).length;
+  const captureReinforcement = improved && healthyCapturers < 2 && own.length < (o.unitLimitPerArmy ?? unitLimit(view.board, 12));
+  if ((own.length < limit || captureReinforcement) && o.units.length < 128)
     for (let y = 0; y < o.board.height; y++)
       for (let x = 0; x < o.board.width; x++) {
         const tile = o.board.terrain[y]![x]!;
@@ -253,8 +282,10 @@ export function chooseFourArmyCpuCommand(input: unknown, options: unknown, cpuVe
         for (const kind of kinds) {
           const stats = unitStats[kind];
           if (stats.cost > o.player.gold) continue;
-          const capturers = own.filter((u) => unitStats[u.kind].capturePower > 0).length;
+          if (own.length >= limit && unitStats[kind].capturePower === 0) continue;
+          const capturers = healthyCapturers;
           let score = 80 + (kind === 'infantry' ? (capturers < 2 ? 180 : 10) : kind === 'tank' || kind === 'fighter' || kind === 'destroyer' ? 100 : 0) - stats.cost / 1000;
+          if (improved) score += fourArmyCounterProduction(kind, own, enemies);
           if (kind === 'apc' && !own.some((u) => u.kind === 'apc') && own.some((u) => isGroundUnit(u.kind) && (u.fuel ?? unitStats[u.kind].fuel) < 10)) score += 200;
           if (kind === 'antiAir' && enemies.some((e) => e.kind === 'fighter' || e.kind === 'bomber' || e.kind === 'helicopter')) score += late ? 500 : 240;
           // Unobserved production can be rejected by a hidden occupant. Finish known unit actions first;

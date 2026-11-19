@@ -1,0 +1,6961 @@
+{
+  "protocol": "multifaction-v1525-v1",
+  "mode": "validation",
+  "version": "four-army-cpu-v7",
+  "shard": 0,
+  "shards": 1,
+  "totalCases": 132,
+  "sourceHashes": {
+    "src/game/expandedBattleMap.ts": "e34aa509f70eb10f85bc03f221a713f1ac8fd3af766517777f79036e3560f78f",
+    "src/game/fourArmyEngine.ts": "d2df1ca5071429c493e4b816120fa8d5f5f3dc2590d0c1fc2aa558cc225b37f8",
+    "src/ai/fourArmyCpu.ts": "3dabdc51349152f973efa14a829274d90c9f11ba1a4da8f5980079bb47d1375d",
+    "src/ai/fourArmyCpuRecovery.ts": "00e9a1febbdae637d4049eb436c4aec4e251e77bf84a5b518d779b0c480dd819",
+    "src/ai/fourArmyCpuOrder.ts": "a7e7500f3953e115cbe8de25b7bc95a057ba1bc38d9a9c47342a7028d7ffb45a"
+  },
+  "rows": [
+    {
+      "id": "green-3-152509-army1army2army3-false",
+      "seed": 152509,
+      "participants": [
+        "army1",
+        "army2",
+        "army3"
+      ],
+      "order": [
+        "army1",
+        "army2",
+        "army3"
+      ],
+      "teams": {
+        "army1": "army1",
+        "army2": "army2",
+        "army3": "army3"
+      },
+      "layoutVersion": 3,
+      "tactics": false,
+      "count": 566,
+      "round": 22,
+      "outcome": {
+        "type": "victory",
+        "winner": "army2"
+      },
+      "alive": [
+        "army2",
+        "army3"
+      ],
+      "fallbacks": 1,
+      "actions": {
+        "move": 198,
+        "capture": 37,
+        "produce": 34,
+        "wait": 148,
+        "endTurn": 60,
+        "attack": 80,
+        "recon": 5,
+        "logistics": 4
+      },
+      "traceSha256": "76b607720bddc058563469e239dc6dc3fba5058a5f2fe9aa9f1a6e1a3ab967df",
+      "stateSha256": "23201e8c6f9a9b3adddfbfbb35872f79e4b5dd5540f7b3e16a1cc6675ebd6725",
+      "cpuMs": {
+        "p95": 6.627631999999949,
+        "max": 22.39241899999979
+      },
+      "seconds": 2.239852438
+    },
+    {
+      "id": "green-3-152509-army1army2army3-true",
+      "seed": 152509,
+      "participants": [
+        "army1",
+        "army2",
+        "army3"
+      ],
+      "order": [
+        "army1",
+        "army2",
+        "army3"
+      ],
+      "teams": {
+        "army1": "army1",
+        "army2": "army2",
+        "army3": "army3"
+      },
+      "layoutVersion": 3,
+      "tactics": true,
+      "count": 501,
+      "round": 22,
+      "outcome": {
+        "type": "victory",
+        "winner": "army2"
+      },
+      "alive": [
+        "army2",
+        "army3"
+      ],
+      "fallbacks": 0,
+      "actions": {
+        "move": 167,
+        "capture": 46,
+        "produce": 33,
+        "wait": 117,
+        "endTurn": 55,
+        "attack": 71,
+        "logistics": 6,
+        "recon": 6
+      },
+      "traceSha256": "839c5c4feeacdafbc61dda5aca7e89edba6136d608930ccc42ff82aa4728a5b3",
+      "stateSha256": "ad0c8e8d9c5a059adbcd725ccde791aae8180edccfee01b4bf5adad4817cc18d",
+      "cpuMs": {
+        "p95": 13.168893000000025,
+        "max": 43.06584900000007
+      },
+      "seconds": 2.576242712
+    },
+    {
+      "id": "green-3-152509-army1army3army2-false",
+      "seed": 152509,
+      "participants": [
+        "army1",
+        "army2",
+        "army3"
+      ],
+      "order": [
+        "army1",
+        "army3",
+        "army2"
+      ],
+      "teams": {
+        "army1": "army1",
+        "army2": "army2",
+        "army3": "army3"
+      },
+      "layoutVersion": 3,
+      "tactics": false,
+      "count": 574,
+      "round": 22,
+      "outcome": {
+        "type": "victory",
+        "winner": "army1"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army3"
+      ],
+      "fallbacks": 1,
+      "actions": {
+        "move": 189,
+        "capture": 43,
+        "produce": 41,
+        "wait": 130,
+        "endTurn": 63,
+        "attack": 91,
+        "recon": 6,
+        "logistics": 11
+      },
+      "traceSha256": "6c5b7e4084b999166914c7d8986142e1b258c45bfde59d073c4d5843695afb7c",
+      "stateSha256": "8c96aed4db30b44356188c1574bbd47c1025eb7d573cfdeee5fc424ca95d9c87",
+      "cpuMs": {
+        "p95": 4.500388000000385,
+        "max": 15.536661000000095
+      },
+      "seconds": 1.7069499400000003
+    },
+    {
+      "id": "green-3-152509-army1army3army2-true",
+      "seed": 152509,
+      "participants": [
+        "army1",
+        "army2",
+        "army3"
+      ],
+      "order": [
+        "army1",
+        "army3",
+        "army2"
+      ],
+      "teams": {
+        "army1": "army1",
+        "army2": "army2",
+        "army3": "army3"
+      },
+      "layoutVersion": 3,
+      "tactics": true,
+      "count": 571,
+      "round": 22,
+      "outcome": {
+        "type": "victory",
+        "winner": "army3"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army3"
+      ],
+      "fallbacks": 0,
+      "actions": {
+        "move": 187,
+        "capture": 42,
+        "produce": 35,
+        "wait": 145,
+        "endTurn": 63,
+        "attack": 79,
+        "logistics": 15,
+        "recon": 5
+      },
+      "traceSha256": "f4dcce8d4f8aca2e491695aa869c87f1c74ac4465b0ee82641dc5936a6d3ecf5",
+      "stateSha256": "e196a5ed521c6915b953db89237161e9d4d750f0794cdf6a7def2f73233a7611",
+      "cpuMs": {
+        "p95": 5.551971999999296,
+        "max": 59.85955699999977
+      },
+      "seconds": 2.0631438529999997
+    },
+    {
+      "id": "green-3-152509-army2army1army3-false",
+      "seed": 152509,
+      "participants": [
+        "army1",
+        "army2",
+        "army3"
+      ],
+      "order": [
+        "army2",
+        "army1",
+        "army3"
+      ],
+      "teams": {
+        "army1": "army1",
+        "army2": "army2",
+        "army3": "army3"
+      },
+      "layoutVersion": 3,
+      "tactics": false,
+      "count": 577,
+      "round": 22,
+      "outcome": {
+        "type": "victory",
+        "winner": "army2"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army3"
+      ],
+      "fallbacks": 0,
+      "actions": {
+        "move": 188,
+        "capture": 39,
+        "produce": 43,
+        "wait": 136,
+        "endTurn": 63,
+        "attack": 96,
+        "recon": 6,
+        "logistics": 6
+      },
+      "traceSha256": "751c31ad2609db333a5b7334367bdf45da493439309a83b02ba428b34daaa496",
+      "stateSha256": "2386ac978714389444f9886d4eee4d493960428bc5b79afea212defb65ac9ff6",
+      "cpuMs": {
+        "p95": 4.738517000001593,
+        "max": 25.099582999999257
+      },
+      "seconds": 1.7316982349999999
+    },
+    {
+      "id": "green-3-152509-army2army1army3-true",
+      "seed": 152509,
+      "participants": [
+        "army1",
+        "army2",
+        "army3"
+      ],
+      "order": [
+        "army2",
+        "army1",
+        "army3"
+      ],
+      "teams": {
+        "army1": "army1",
+        "army2": "army2",
+        "army3": "army3"
+      },
+      "layoutVersion": 3,
+      "tactics": true,
+      "count": 583,
+      "round": 22,
+      "outcome": {
+        "type": "victory",
+        "winner": "army2"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army3"
+      ],
+      "fallbacks": 1,
+      "actions": {
+        "move": 190,
+        "capture": 37,
+        "produce": 43,
+        "wait": 136,
+        "endTurn": 63,
+        "attack": 94,
+        "logistics": 13,
+        "ambush": 1,
+        "recon": 6
+      },
+      "traceSha256": "05548eda262d79086605360a4cd89468f1f0c028b111d696b664770267baf651",
+      "stateSha256": "047989abfdca9a994d22a4839625740e62ec61a614c89be97f71fd154bd6bf44",
+      "cpuMs": {
+        "p95": 4.100545999999667,
+        "max": 14.702633000000787
+      },
+      "seconds": 1.5217018130000015
+    },
+    {
+      "id": "green-3-152509-army2army3army1-false",
+      "seed": 152509,
+      "participants": [
+        "army1",
+        "army2",
+        "army3"
+      ],
+      "order": [
+        "army2",
+        "army3",
+        "army1"
+      ],
+      "teams": {
+        "army1": "army1",
+        "army2": "army2",
+        "army3": "army3"
+      },
+      "layoutVersion": 3,
+      "tactics": false,
+      "count": 584,
+      "round": 22,
+      "outcome": {
+        "type": "victory",
+        "winner": "army3"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army3"
+      ],
+      "fallbacks": 3,
+      "actions": {
+        "move": 192,
+        "capture": 40,
+        "produce": 42,
+        "wait": 138,
+        "endTurn": 63,
+        "attack": 96,
+        "recon": 6,
+        "logistics": 7
+      },
+      "traceSha256": "ac9c88bc175699051b5f4145c94637b125cd227f743342c86620812d6422cd81",
+      "stateSha256": "ff217768bd9fce28530c288e000c0eea0527c0e6f502c2f9bcfabc0be3dc49fe",
+      "cpuMs": {
+        "p95": 3.795105000001058,
+        "max": 7.807419000000664
+      },
+      "seconds": 1.4862887640000009
+    },
+    {
+      "id": "green-3-152509-army2army3army1-true",
+      "seed": 152509,
+      "participants": [
+        "army1",
+        "army2",
+        "army3"
+      ],
+      "order": [
+        "army2",
+        "army3",
+        "army1"
+      ],
+      "teams": {
+        "army1": "army1",
+        "army2": "army2",
+        "army3": "army3"
+      },
+      "layoutVersion": 3,
+      "tactics": true,
+      "count": 601,
+      "round": 22,
+      "outcome": {
+        "type": "victory",
+        "winner": "army1"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army3"
+      ],
+      "fallbacks": 0,
+      "actions": {
+        "move": 204,
+        "capture": 36,
+        "produce": 45,
+        "wait": 145,
+        "endTurn": 63,
+        "attack": 89,
+        "logistics": 13,
+        "recon": 6
+      },
+      "traceSha256": "e278b92b73c131e49a4f92bdd3566c7aaa891fab380a23b5c93de2aa2836c605",
+      "stateSha256": "30899962d4ef7d618b5c7dea156980bec8ad55a6e59ef09d95bcc14fffdabdf0",
+      "cpuMs": {
+        "p95": 4.175467999999455,
+        "max": 29.871478000000934
+      },
+      "seconds": 1.5725330060000016
+    },
+    {
+      "id": "green-3-152509-army3army1army2-false",
+      "seed": 152509,
+      "participants": [
+        "army1",
+        "army2",
+        "army3"
+      ],
+      "order": [
+        "army3",
+        "army1",
+        "army2"
+      ],
+      "teams": {
+        "army1": "army1",
+        "army2": "army2",
+        "army3": "army3"
+      },
+      "layoutVersion": 3,
+      "tactics": false,
+      "count": 586,
+      "round": 22,
+      "outcome": {
+        "type": "victory",
+        "winner": "army1"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army3"
+      ],
+      "fallbacks": 0,
+      "actions": {
+        "move": 196,
+        "capture": 29,
+        "produce": 44,
+        "wait": 138,
+        "endTurn": 63,
+        "attack": 103,
+        "recon": 6,
+        "logistics": 7
+      },
+      "traceSha256": "c3ed05f4f51cb42381eaa2dfcbbcdc627e2706201405c7d7ef36d07330c52cea",
+      "stateSha256": "dbe6ba3a8e68629f8d79eb52a31655b26f215dd9627f1f788083b1918978fd03",
+      "cpuMs": {
+        "p95": 3.6103279999988445,
+        "max": 6.7746230000011565
+      },
+      "seconds": 1.348633915999999
+    },
+    {
+      "id": "green-3-152509-army3army1army2-true",
+      "seed": 152509,
+      "participants": [
+        "army1",
+        "army2",
+        "army3"
+      ],
+      "order": [
+        "army3",
+        "army1",
+        "army2"
+      ],
+      "teams": {
+        "army1": "army1",
+        "army2": "army2",
+        "army3": "army3"
+      },
+      "layoutVersion": 3,
+      "tactics": true,
+      "count": 596,
+      "round": 22,
+      "outcome": {
+        "type": "victory",
+        "winner": "army2"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army3"
+      ],
+      "fallbacks": 2,
+      "actions": {
+        "move": 194,
+        "capture": 37,
+        "produce": 43,
+        "wait": 144,
+        "endTurn": 63,
+        "attack": 93,
+        "logistics": 16,
+        "recon": 5,
+        "ambush": 1
+      },
+      "traceSha256": "6c7b2641eea44c0f511f5a0a8739e4ee249b3e5b0026cfd84b893c7d37f5f96d",
+      "stateSha256": "a1decda91cd60c9e1a58609b82e35fca8aa3ae197f320037316335668901d675",
+      "cpuMs": {
+        "p95": 3.964711000000534,
+        "max": 26.690566999997827
+      },
+      "seconds": 1.6009296570000007
+    },
+    {
+      "id": "green-3-152509-army3army2army1-false",
+      "seed": 152509,
+      "participants": [
+        "army1",
+        "army2",
+        "army3"
+      ],
+      "order": [
+        "army3",
+        "army2",
+        "army1"
+      ],
+      "teams": {
+        "army1": "army1",
+        "army2": "army2",
+        "army3": "army3"
+      },
+      "layoutVersion": 3,
+      "tactics": false,
+      "count": 595,
+      "round": 22,
+      "outcome": {
+        "type": "victory",
+        "winner": "army2"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army3"
+      ],
+      "fallbacks": 0,
+      "actions": {
+        "move": 203,
+        "capture": 38,
+        "produce": 39,
+        "wait": 145,
+        "endTurn": 63,
+        "attack": 93,
+        "recon": 4,
+        "logistics": 10
+      },
+      "traceSha256": "070fbefeb8bb2144eacc51a2783eb3ef4917f10b9abc79de4f00815bcae16c39",
+      "stateSha256": "79fa17522732ce64d1205dfa01e679c7386b97277cad701a1d31913a800d95ef",
+      "cpuMs": {
+        "p95": 4.943515000002662,
+        "max": 11.281691000000137
+      },
+      "seconds": 1.7617184269999997
+    },
+    {
+      "id": "green-3-152509-army3army2army1-true",
+      "seed": 152509,
+      "participants": [
+        "army1",
+        "army2",
+        "army3"
+      ],
+      "order": [
+        "army3",
+        "army2",
+        "army1"
+      ],
+      "teams": {
+        "army1": "army1",
+        "army2": "army2",
+        "army3": "army3"
+      },
+      "layoutVersion": 3,
+      "tactics": true,
+      "count": 446,
+      "round": 19,
+      "outcome": {
+        "type": "victory",
+        "winner": "army3"
+      },
+      "alive": [
+        "army3"
+      ],
+      "fallbacks": 1,
+      "actions": {
+        "move": 149,
+        "capture": 48,
+        "produce": 23,
+        "wait": 117,
+        "endTurn": 47,
+        "attack": 48,
+        "recon": 2,
+        "logistics": 10,
+        "ambush": 2
+      },
+      "traceSha256": "a0abf46556c74e6b60e280335d2f99a087a211ef8aadbb84d7f6f8776896ee26",
+      "stateSha256": "5458e6a68357bb9c80faf21ddf17248c06c0e108aabcf6e3ecf28eba1b64c094",
+      "cpuMs": {
+        "p95": 4.319684999998572,
+        "max": 11.091184000000794
+      },
+      "seconds": 1.2664158659999993
+    },
+    {
+      "id": "green-3-152510-army1army2army3-false",
+      "seed": 152510,
+      "participants": [
+        "army1",
+        "army2",
+        "army3"
+      ],
+      "order": [
+        "army1",
+        "army2",
+        "army3"
+      ],
+      "teams": {
+        "army1": "army1",
+        "army2": "army2",
+        "army3": "army3"
+      },
+      "layoutVersion": 3,
+      "tactics": false,
+      "count": 586,
+      "round": 22,
+      "outcome": {
+        "type": "victory",
+        "winner": "army2"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army3"
+      ],
+      "fallbacks": 0,
+      "actions": {
+        "move": 198,
+        "capture": 42,
+        "produce": 36,
+        "wait": 150,
+        "endTurn": 63,
+        "attack": 85,
+        "recon": 6,
+        "logistics": 6
+      },
+      "traceSha256": "e86e1667472c12c23eafa83ad41644c62ffa7776f49108ee0f997429cb65ecdc",
+      "stateSha256": "b8b9fd9033f21a671ce02915ca309d258c8981da4e9ecd49653b394d05b086cf",
+      "cpuMs": {
+        "p95": 3.7318899999991118,
+        "max": 6.666479999999865
+      },
+      "seconds": 1.464393011
+    },
+    {
+      "id": "green-3-152510-army1army2army3-true",
+      "seed": 152510,
+      "participants": [
+        "army1",
+        "army2",
+        "army3"
+      ],
+      "order": [
+        "army1",
+        "army2",
+        "army3"
+      ],
+      "teams": {
+        "army1": "army1",
+        "army2": "army2",
+        "army3": "army3"
+      },
+      "layoutVersion": 3,
+      "tactics": true,
+      "count": 588,
+      "round": 22,
+      "outcome": {
+        "type": "victory",
+        "winner": "army1"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army3"
+      ],
+      "fallbacks": 2,
+      "actions": {
+        "move": 191,
+        "capture": 49,
+        "produce": 36,
+        "wait": 148,
+        "endTurn": 63,
+        "attack": 83,
+        "logistics": 12,
+        "recon": 6
+      },
+      "traceSha256": "eff8113ff474210fa0040420308f258d443df2bfd9de1ae486b11d1acb12b28a",
+      "stateSha256": "24d395b57a0afa440600463d2651f574a0661b871ceffc36855232ec6ec15c1e",
+      "cpuMs": {
+        "p95": 4.466746999998577,
+        "max": 8.167414999999892
+      },
+      "seconds": 1.564434334999998
+    },
+    {
+      "id": "green-3-152510-army1army3army2-false",
+      "seed": 152510,
+      "participants": [
+        "army1",
+        "army2",
+        "army3"
+      ],
+      "order": [
+        "army1",
+        "army3",
+        "army2"
+      ],
+      "teams": {
+        "army1": "army1",
+        "army2": "army2",
+        "army3": "army3"
+      },
+      "layoutVersion": 3,
+      "tactics": false,
+      "count": 560,
+      "round": 22,
+      "outcome": {
+        "type": "victory",
+        "winner": "army3"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army3"
+      ],
+      "fallbacks": 1,
+      "actions": {
+        "move": 184,
+        "capture": 43,
+        "produce": 36,
+        "wait": 134,
+        "endTurn": 63,
+        "attack": 90,
+        "logistics": 7,
+        "recon": 3
+      },
+      "traceSha256": "21312a646ff8fd36aab0b82cf3d972152f654c6cf51333998ee892c2cd930106",
+      "stateSha256": "55cd5704c8d67ac2b3faeef8f8b04780ff55ae5d01f8a74a981b17337c579cd3",
+      "cpuMs": {
+        "p95": 3.914946000000782,
+        "max": 9.50022799999715
+      },
+      "seconds": 1.3695492760000016
+    },
+    {
+      "id": "green-3-152510-army1army3army2-true",
+      "seed": 152510,
+      "participants": [
+        "army1",
+        "army2",
+        "army3"
+      ],
+      "order": [
+        "army1",
+        "army3",
+        "army2"
+      ],
+      "teams": {
+        "army1": "army1",
+        "army2": "army2",
+        "army3": "army3"
+      },
+      "layoutVersion": 3,
+      "tactics": true,
+      "count": 585,
+      "round": 22,
+      "outcome": {
+        "type": "victory",
+        "winner": "army3"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army3"
+      ],
+      "fallbacks": 2,
+      "actions": {
+        "move": 197,
+        "capture": 52,
+        "produce": 37,
+        "wait": 143,
+        "endTurn": 63,
+        "attack": 76,
+        "ambush": 2,
+        "logistics": 9,
+        "recon": 6
+      },
+      "traceSha256": "0659436894de2270eaf6d75628e0ad91d5ca5503d4d04996ffa734af6b1074fe",
+      "stateSha256": "cdf4619f8e85df8e0fc927f603005e2857b8e8ec0d0eeea2642af9ac913b5742",
+      "cpuMs": {
+        "p95": 4.112633000000642,
+        "max": 7.784313000000111
+      },
+      "seconds": 1.4279136529999996
+    },
+    {
+      "id": "green-3-152510-army2army1army3-false",
+      "seed": 152510,
+      "participants": [
+        "army1",
+        "army2",
+        "army3"
+      ],
+      "order": [
+        "army2",
+        "army1",
+        "army3"
+      ],
+      "teams": {
+        "army1": "army1",
+        "army2": "army2",
+        "army3": "army3"
+      },
+      "layoutVersion": 3,
+      "tactics": false,
+      "count": 556,
+      "round": 22,
+      "outcome": {
+        "type": "victory",
+        "winner": "army3"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army3"
+      ],
+      "fallbacks": 1,
+      "actions": {
+        "move": 184,
+        "capture": 43,
+        "produce": 39,
+        "wait": 121,
+        "endTurn": 63,
+        "attack": 97,
+        "recon": 6,
+        "logistics": 3
+      },
+      "traceSha256": "844f6de5eef4ba4e48ef6db6434159a73ebd1cf8b0fe6626c64d73c5227c1a6c",
+      "stateSha256": "86229a0152f86acabb4bf87cbe210e1b92e7253be4e46412b90a28d6e007d0d8",
+      "cpuMs": {
+        "p95": 3.385018000000855,
+        "max": 8.741625000002387
+      },
+      "seconds": 1.3067473150000006
+    },
+    {
+      "id": "green-3-152510-army2army1army3-true",
+      "seed": 152510,
+      "participants": [
+        "army1",
+        "army2",
+        "army3"
+      ],
+      "order": [
+        "army2",
+        "army1",
+        "army3"
+      ],
+      "teams": {
+        "army1": "army1",
+        "army2": "army2",
+        "army3": "army3"
+      },
+      "layoutVersion": 3,
+      "tactics": true,
+      "count": 543,
+      "round": 22,
+      "outcome": {
+        "type": "victory",
+        "winner": "army3"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army3"
+      ],
+      "fallbacks": 2,
+      "actions": {
+        "move": 182,
+        "capture": 33,
+        "produce": 39,
+        "wait": 131,
+        "endTurn": 63,
+        "attack": 87,
+        "logistics": 5,
+        "recon": 3
+      },
+      "traceSha256": "dc9d2e138321d8226b3b02aa77b43566f2fe0bbd32e1fa7eca29ac406b45ed94",
+      "stateSha256": "5e39c207898a2dabb89ca5e52befe87c33d234b3b4ffd7bfa5452e061fc716c9",
+      "cpuMs": {
+        "p95": 4.5659470000027795,
+        "max": 10.708716999997705
+      },
+      "seconds": 1.4354307870000012
+    },
+    {
+      "id": "green-3-152510-army2army3army1-false",
+      "seed": 152510,
+      "participants": [
+        "army1",
+        "army2",
+        "army3"
+      ],
+      "order": [
+        "army2",
+        "army3",
+        "army1"
+      ],
+      "teams": {
+        "army1": "army1",
+        "army2": "army2",
+        "army3": "army3"
+      },
+      "layoutVersion": 3,
+      "tactics": false,
+      "count": 513,
+      "round": 22,
+      "outcome": {
+        "type": "victory",
+        "winner": "army2"
+      },
+      "alive": [
+        "army2",
+        "army3"
+      ],
+      "fallbacks": 2,
+      "actions": {
+        "move": 182,
+        "capture": 61,
+        "produce": 20,
+        "wait": 141,
+        "endTurn": 54,
+        "attack": 45,
+        "recon": 6,
+        "logistics": 4
+      },
+      "traceSha256": "96fa14476e125f7c059c95a0643b68462bcc53712c4d9393396ece44eabffbc0",
+      "stateSha256": "cd398b19fa4cb3e961066cdd78f1ec147844bc1e7003674a831faaacb185e6dd",
+      "cpuMs": {
+        "p95": 3.4409620000005816,
+        "max": 7.407996999998431
+      },
+      "seconds": 1.1445420080000004
+    },
+    {
+      "id": "green-3-152510-army2army3army1-true",
+      "seed": 152510,
+      "participants": [
+        "army1",
+        "army2",
+        "army3"
+      ],
+      "order": [
+        "army2",
+        "army3",
+        "army1"
+      ],
+      "teams": {
+        "army1": "army1",
+        "army2": "army2",
+        "army3": "army3"
+      },
+      "layoutVersion": 3,
+      "tactics": true,
+      "count": 517,
+      "round": 22,
+      "outcome": {
+        "type": "victory",
+        "winner": "army3"
+      },
+      "alive": [
+        "army2",
+        "army3"
+      ],
+      "fallbacks": 1,
+      "actions": {
+        "move": 180,
+        "capture": 48,
+        "produce": 27,
+        "wait": 135,
+        "endTurn": 54,
+        "attack": 57,
+        "logistics": 12,
+        "recon": 4
+      },
+      "traceSha256": "6679c4895b2d47c923126f8869cf2ae05db4215d2c832f09ebaa1ca1febcdf3e",
+      "stateSha256": "515d7134a757b1c1d31263590e14217f1aeee778d2b3c037489987d7731ae11c",
+      "cpuMs": {
+        "p95": 3.8009239999992133,
+        "max": 10.970070999999734
+      },
+      "seconds": 1.2298559890000034
+    },
+    {
+      "id": "green-3-152510-army3army1army2-false",
+      "seed": 152510,
+      "participants": [
+        "army1",
+        "army2",
+        "army3"
+      ],
+      "order": [
+        "army3",
+        "army1",
+        "army2"
+      ],
+      "teams": {
+        "army1": "army1",
+        "army2": "army2",
+        "army3": "army3"
+      },
+      "layoutVersion": 3,
+      "tactics": false,
+      "count": 585,
+      "round": 22,
+      "outcome": {
+        "type": "victory",
+        "winner": "army2"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army3"
+      ],
+      "fallbacks": 2,
+      "actions": {
+        "move": 198,
+        "capture": 50,
+        "produce": 40,
+        "wait": 137,
+        "endTurn": 63,
+        "attack": 86,
+        "recon": 6,
+        "logistics": 5
+      },
+      "traceSha256": "1c20f1364ae07dc334d1643cdf385a349ed4dec94d744d0c2d745ad38e24109c",
+      "stateSha256": "bdf860cb78eb18cd4f651522521e687ccfe7dad190040173b6a0b81be3e26289",
+      "cpuMs": {
+        "p95": 3.674673999994411,
+        "max": 6.834533000001102
+      },
+      "seconds": 1.3801680689999993
+    },
+    {
+      "id": "green-3-152510-army3army1army2-true",
+      "seed": 152510,
+      "participants": [
+        "army1",
+        "army2",
+        "army3"
+      ],
+      "order": [
+        "army3",
+        "army1",
+        "army2"
+      ],
+      "teams": {
+        "army1": "army1",
+        "army2": "army2",
+        "army3": "army3"
+      },
+      "layoutVersion": 3,
+      "tactics": true,
+      "count": 548,
+      "round": 22,
+      "outcome": {
+        "type": "victory",
+        "winner": "army2"
+      },
+      "alive": [
+        "army2",
+        "army3"
+      ],
+      "fallbacks": 0,
+      "actions": {
+        "move": 175,
+        "capture": 39,
+        "produce": 42,
+        "wait": 126,
+        "endTurn": 59,
+        "attack": 89,
+        "logistics": 11,
+        "ambush": 2,
+        "recon": 5
+      },
+      "traceSha256": "db4d92e2df453666b45bc1fcaf978e35c60ffbf5daf240ee86a92535eab67000",
+      "stateSha256": "56431517fedc0f5ee709a479ecb41d86e06210b52467f55ab275207766a02fc8",
+      "cpuMs": {
+        "p95": 2.9296119999999064,
+        "max": 5.394273999998404
+      },
+      "seconds": 1.1832093479999968
+    },
+    {
+      "id": "green-3-152510-army3army2army1-false",
+      "seed": 152510,
+      "participants": [
+        "army1",
+        "army2",
+        "army3"
+      ],
+      "order": [
+        "army3",
+        "army2",
+        "army1"
+      ],
+      "teams": {
+        "army1": "army1",
+        "army2": "army2",
+        "army3": "army3"
+      },
+      "layoutVersion": 3,
+      "tactics": false,
+      "count": 591,
+      "round": 22,
+      "outcome": {
+        "type": "victory",
+        "winner": "army1"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army3"
+      ],
+      "fallbacks": 2,
+      "actions": {
+        "move": 207,
+        "capture": 52,
+        "produce": 37,
+        "wait": 144,
+        "endTurn": 63,
+        "attack": 77,
+        "recon": 5,
+        "logistics": 6
+      },
+      "traceSha256": "4713a36ca90fc9528ed455b632b3a1707f84b5af3733d8b930e5bd192c056164",
+      "stateSha256": "520c865b11f913d1a003abd920014f30f7c331207c647ab562083394d5b8a58e",
+      "cpuMs": {
+        "p95": 3.462854999997944,
+        "max": 5.642397999996319
+      },
+      "seconds": 1.3957083179999972
+    },
+    {
+      "id": "green-3-152510-army3army2army1-true",
+      "seed": 152510,
+      "participants": [
+        "army1",
+        "army2",
+        "army3"
+      ],
+      "order": [
+        "army3",
+        "army2",
+        "army1"
+      ],
+      "teams": {
+        "army1": "army1",
+        "army2": "army2",
+        "army3": "army3"
+      },
+      "layoutVersion": 3,
+      "tactics": true,
+      "count": 532,
+      "round": 22,
+      "outcome": {
+        "type": "victory",
+        "winner": "army3"
+      },
+      "alive": [
+        "army2",
+        "army3"
+      ],
+      "fallbacks": 0,
+      "actions": {
+        "move": 193,
+        "capture": 45,
+        "produce": 20,
+        "wait": 153,
+        "endTurn": 56,
+        "attack": 54,
+        "recon": 5,
+        "logistics": 6
+      },
+      "traceSha256": "10b44843d50bcedf3294bc05286e8e2ad113004062e90a6750fdce15ef082975",
+      "stateSha256": "317ccf1990bb8785a04a7e739765af3f48c0c6669f335b34facc4917d169cf6f",
+      "cpuMs": {
+        "p95": 3.30486799999926,
+        "max": 7.63921599999594
+      },
+      "seconds": 1.230028360000004
+    },
+    {
+      "id": "green-3-152511-army1army2army3-false",
+      "seed": 152511,
+      "participants": [
+        "army1",
+        "army2",
+        "army3"
+      ],
+      "order": [
+        "army1",
+        "army2",
+        "army3"
+      ],
+      "teams": {
+        "army1": "army1",
+        "army2": "army2",
+        "army3": "army3"
+      },
+      "layoutVersion": 3,
+      "tactics": false,
+      "count": 574,
+      "round": 22,
+      "outcome": {
+        "type": "victory",
+        "winner": "army2"
+      },
+      "alive": [
+        "army2",
+        "army3"
+      ],
+      "fallbacks": 0,
+      "actions": {
+        "move": 196,
+        "capture": 40,
+        "produce": 36,
+        "wait": 143,
+        "endTurn": 61,
+        "attack": 86,
+        "recon": 6,
+        "logistics": 6
+      },
+      "traceSha256": "62c00caad4d7eb02ea0b288cf0c94d726a7f5b7616d6089d761fe22385a133e4",
+      "stateSha256": "25cf06524a38040c692c02cf9ff382da5a207a72c4154dfa7b1e12f6dc5afd7f",
+      "cpuMs": {
+        "p95": 4.432656000004499,
+        "max": 9.013324999999895
+      },
+      "seconds": 1.5226776660000032
+    },
+    {
+      "id": "green-3-152511-army1army2army3-true",
+      "seed": 152511,
+      "participants": [
+        "army1",
+        "army2",
+        "army3"
+      ],
+      "order": [
+        "army1",
+        "army2",
+        "army3"
+      ],
+      "teams": {
+        "army1": "army1",
+        "army2": "army2",
+        "army3": "army3"
+      },
+      "layoutVersion": 3,
+      "tactics": true,
+      "count": 590,
+      "round": 22,
+      "outcome": {
+        "type": "victory",
+        "winner": "army2"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army3"
+      ],
+      "fallbacks": 0,
+      "actions": {
+        "move": 194,
+        "capture": 32,
+        "produce": 44,
+        "wait": 143,
+        "endTurn": 63,
+        "attack": 92,
+        "logistics": 16,
+        "recon": 6
+      },
+      "traceSha256": "1de864bf55d552db2f19e056e941987dd0e2b5543ba341ae837b16c27c04ac76",
+      "stateSha256": "97fc3ea5eb120464f27d78889cc416955db2d4f12b0022f56bbaac23124b8fdb",
+      "cpuMs": {
+        "p95": 3.868075999998837,
+        "max": 11.40893800000049
+      },
+      "seconds": 1.4261363429999983
+    },
+    {
+      "id": "green-3-152511-army1army3army2-false",
+      "seed": 152511,
+      "participants": [
+        "army1",
+        "army2",
+        "army3"
+      ],
+      "order": [
+        "army1",
+        "army3",
+        "army2"
+      ],
+      "teams": {
+        "army1": "army1",
+        "army2": "army2",
+        "army3": "army3"
+      },
+      "layoutVersion": 3,
+      "tactics": false,
+      "count": 578,
+      "round": 22,
+      "outcome": {
+        "type": "victory",
+        "winner": "army3"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army3"
+      ],
+      "fallbacks": 3,
+      "actions": {
+        "move": 194,
+        "capture": 49,
+        "produce": 41,
+        "wait": 123,
+        "endTurn": 63,
+        "attack": 97,
+        "logistics": 5,
+        "recon": 6
+      },
+      "traceSha256": "e910ac56a0eee2dcc7550b5b0643b9ee3f31b9b0815d203f323575a59d3fee70",
+      "stateSha256": "02ce1c81486e9b6397000500002684089aed6c42220afe9ea6d883a3f3e6cbc9",
+      "cpuMs": {
+        "p95": 2.941620999998122,
+        "max": 8.257216000005428
+      },
+      "seconds": 1.2040511269999987
+    },
+    {
+      "id": "green-3-152511-army1army3army2-true",
+      "seed": 152511,
+      "participants": [
+        "army1",
+        "army2",
+        "army3"
+      ],
+      "order": [
+        "army1",
+        "army3",
+        "army2"
+      ],
+      "teams": {
+        "army1": "army1",
+        "army2": "army2",
+        "army3": "army3"
+      },
+      "layoutVersion": 3,
+      "tactics": true,
+      "count": 597,
+      "round": 22,
+      "outcome": {
+        "type": "victory",
+        "winner": "army1"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army3"
+      ],
+      "fallbacks": 0,
+      "actions": {
+        "move": 204,
+        "capture": 38,
+        "produce": 43,
+        "wait": 141,
+        "endTurn": 63,
+        "attack": 88,
+        "ambush": 1,
+        "recon": 6,
+        "logistics": 13
+      },
+      "traceSha256": "8f0ef975871e3630f0dcdc7ba64b423037f9873227a51f104d39f6ed30805b3d",
+      "stateSha256": "724602c88d6bf76178ad9ba1c2718fce79ac09ff9fae3538e42874ce50fb7c7d",
+      "cpuMs": {
+        "p95": 3.9645109999983106,
+        "max": 6.225566000000981
+      },
+      "seconds": 1.4419344810000039
+    },
+    {
+      "id": "green-3-152511-army2army1army3-false",
+      "seed": 152511,
+      "participants": [
+        "army1",
+        "army2",
+        "army3"
+      ],
+      "order": [
+        "army2",
+        "army1",
+        "army3"
+      ],
+      "teams": {
+        "army1": "army1",
+        "army2": "army2",
+        "army3": "army3"
+      },
+      "layoutVersion": 3,
+      "tactics": false,
+      "count": 573,
+      "round": 22,
+      "outcome": {
+        "type": "victory",
+        "winner": "army2"
+      },
+      "alive": [
+        "army2",
+        "army3"
+      ],
+      "fallbacks": 1,
+      "actions": {
+        "move": 190,
+        "capture": 35,
+        "produce": 42,
+        "wait": 127,
+        "endTurn": 62,
+        "attack": 103,
+        "recon": 6,
+        "logistics": 8
+      },
+      "traceSha256": "786ea6ca8d3238935bd437c77f709039ecdb3edac3e6e8d61221736807fe958c",
+      "stateSha256": "f1e10eb398c440a01ed31a4649c3b6e4174d9300fd4955923bf86f5b67f76b0d",
+      "cpuMs": {
+        "p95": 3.770108999997319,
+        "max": 6.373298000005889
+      },
+      "seconds": 1.3063756580000045
+    },
+    {
+      "id": "green-3-152511-army2army1army3-true",
+      "seed": 152511,
+      "participants": [
+        "army1",
+        "army2",
+        "army3"
+      ],
+      "order": [
+        "army2",
+        "army1",
+        "army3"
+      ],
+      "teams": {
+        "army1": "army1",
+        "army2": "army2",
+        "army3": "army3"
+      },
+      "layoutVersion": 3,
+      "tactics": true,
+      "count": 532,
+      "round": 22,
+      "outcome": {
+        "type": "victory",
+        "winner": "army2"
+      },
+      "alive": [
+        "army2",
+        "army3"
+      ],
+      "fallbacks": 0,
+      "actions": {
+        "move": 184,
+        "capture": 41,
+        "produce": 35,
+        "wait": 128,
+        "endTurn": 56,
+        "attack": 77,
+        "logistics": 7,
+        "recon": 4
+      },
+      "traceSha256": "a77258f622974a4a97e52a8cb5d7ce0cc60550a7bd516a8f9b8845d2a4be5a60",
+      "stateSha256": "c2bc284e062aa5fee5d2eac27ea26262b445e4852d6f0137896b9416aa22f4a7",
+      "cpuMs": {
+        "p95": 3.5378379999965546,
+        "max": 6.771698000004108
+      },
+      "seconds": 1.1616847879999987
+    },
+    {
+      "id": "green-3-152511-army2army3army1-false",
+      "seed": 152511,
+      "participants": [
+        "army1",
+        "army2",
+        "army3"
+      ],
+      "order": [
+        "army2",
+        "army3",
+        "army1"
+      ],
+      "teams": {
+        "army1": "army1",
+        "army2": "army2",
+        "army3": "army3"
+      },
+      "layoutVersion": 3,
+      "tactics": false,
+      "count": 559,
+      "round": 22,
+      "outcome": {
+        "type": "victory",
+        "winner": "army1"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army3"
+      ],
+      "fallbacks": 0,
+      "actions": {
+        "move": 182,
+        "capture": 35,
+        "produce": 42,
+        "wait": 129,
+        "endTurn": 63,
+        "attack": 97,
+        "recon": 6,
+        "logistics": 5
+      },
+      "traceSha256": "e6664ebf96546c39664e4d6f6d0f3b4bcafdc0864e0e541a4866d96778834c95",
+      "stateSha256": "9959efaeb8c68881ee5addede7b7e44447f3f6a779620d4b52c4905443f42bfe",
+      "cpuMs": {
+        "p95": 2.8438230000028852,
+        "max": 5.59492599999794
+      },
+      "seconds": 1.125512401
+    },
+    {
+      "id": "green-3-152511-army2army3army1-true",
+      "seed": 152511,
+      "participants": [
+        "army1",
+        "army2",
+        "army3"
+      ],
+      "order": [
+        "army2",
+        "army3",
+        "army1"
+      ],
+      "teams": {
+        "army1": "army1",
+        "army2": "army2",
+        "army3": "army3"
+      },
+      "layoutVersion": 3,
+      "tactics": true,
+      "count": 582,
+      "round": 22,
+      "outcome": {
+        "type": "draw"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army3"
+      ],
+      "fallbacks": 1,
+      "actions": {
+        "move": 184,
+        "capture": 34,
+        "produce": 51,
+        "wait": 130,
+        "endTurn": 63,
+        "attack": 102,
+        "logistics": 12,
+        "recon": 6
+      },
+      "traceSha256": "e3ed720d55ea9e96bffe644397ed0dc8e5be83b7867fbecb4b7cda15f991cd9b",
+      "stateSha256": "c83e63062438fdc72cdd226f8e0ae35f11b1cde846e100ffb52a8d7f18da1ec9",
+      "cpuMs": {
+        "p95": 3.709676999998919,
+        "max": 5.638672000000952
+      },
+      "seconds": 1.4345086640000009
+    },
+    {
+      "id": "green-3-152511-army3army1army2-false",
+      "seed": 152511,
+      "participants": [
+        "army1",
+        "army2",
+        "army3"
+      ],
+      "order": [
+        "army3",
+        "army1",
+        "army2"
+      ],
+      "teams": {
+        "army1": "army1",
+        "army2": "army2",
+        "army3": "army3"
+      },
+      "layoutVersion": 3,
+      "tactics": false,
+      "count": 481,
+      "round": 22,
+      "outcome": {
+        "type": "victory",
+        "winner": "army2"
+      },
+      "alive": [
+        "army1",
+        "army2"
+      ],
+      "fallbacks": 0,
+      "actions": {
+        "move": 164,
+        "capture": 45,
+        "produce": 26,
+        "wait": 132,
+        "endTurn": 52,
+        "attack": 55,
+        "recon": 3,
+        "logistics": 4
+      },
+      "traceSha256": "f745f8dbe74ea1a85e828f847e1a9a1bd8d174039f9a791b375e738f556da410",
+      "stateSha256": "abe0a2a0cd05032a3e780f4be8ed96a74f4a3f27bc0e6db3da4b1933361d8ff2",
+      "cpuMs": {
+        "p95": 3.350506000002497,
+        "max": 6.086166000000958
+      },
+      "seconds": 1.025892313999997
+    },
+    {
+      "id": "green-3-152511-army3army1army2-true",
+      "seed": 152511,
+      "participants": [
+        "army1",
+        "army2",
+        "army3"
+      ],
+      "order": [
+        "army3",
+        "army1",
+        "army2"
+      ],
+      "teams": {
+        "army1": "army1",
+        "army2": "army2",
+        "army3": "army3"
+      },
+      "layoutVersion": 3,
+      "tactics": true,
+      "count": 539,
+      "round": 22,
+      "outcome": {
+        "type": "victory",
+        "winner": "army2"
+      },
+      "alive": [
+        "army2",
+        "army3"
+      ],
+      "fallbacks": 1,
+      "actions": {
+        "move": 189,
+        "capture": 39,
+        "produce": 33,
+        "wait": 140,
+        "endTurn": 56,
+        "attack": 67,
+        "logistics": 9,
+        "ambush": 2,
+        "recon": 4
+      },
+      "traceSha256": "15511147d8202b5fca13df04eb02776ecb8b16a8351c62038091d3b7bf8a32c5",
+      "stateSha256": "9d6fec043ee419f87d4167b93faf5565688889a5ba8b772c4708c0b2e6ed7538",
+      "cpuMs": {
+        "p95": 4.449530999998387,
+        "max": 6.331234999997832
+      },
+      "seconds": 1.4180020839999998
+    },
+    {
+      "id": "green-3-152511-army3army2army1-false",
+      "seed": 152511,
+      "participants": [
+        "army1",
+        "army2",
+        "army3"
+      ],
+      "order": [
+        "army3",
+        "army2",
+        "army1"
+      ],
+      "teams": {
+        "army1": "army1",
+        "army2": "army2",
+        "army3": "army3"
+      },
+      "layoutVersion": 3,
+      "tactics": false,
+      "count": 471,
+      "round": 22,
+      "outcome": {
+        "type": "victory",
+        "winner": "army3"
+      },
+      "alive": [
+        "army2",
+        "army3"
+      ],
+      "fallbacks": 0,
+      "actions": {
+        "move": 164,
+        "capture": 51,
+        "produce": 23,
+        "wait": 115,
+        "endTurn": 51,
+        "attack": 58,
+        "recon": 5,
+        "logistics": 4
+      },
+      "traceSha256": "b714d39523fcd71bb1e08f2dab51ffe5160f06fd738530391191accd91bea6b2",
+      "stateSha256": "a8b85a786c265833b1465a57a492f5d922b9db40efeea39752b69942cad86174",
+      "cpuMs": {
+        "p95": 3.015771999998833,
+        "max": 9.56130999999732
+      },
+      "seconds": 0.9844623480000009
+    },
+    {
+      "id": "green-3-152511-army3army2army1-true",
+      "seed": 152511,
+      "participants": [
+        "army1",
+        "army2",
+        "army3"
+      ],
+      "order": [
+        "army3",
+        "army2",
+        "army1"
+      ],
+      "teams": {
+        "army1": "army1",
+        "army2": "army2",
+        "army3": "army3"
+      },
+      "layoutVersion": 3,
+      "tactics": true,
+      "count": 592,
+      "round": 22,
+      "outcome": {
+        "type": "victory",
+        "winner": "army3"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army3"
+      ],
+      "fallbacks": 1,
+      "actions": {
+        "move": 204,
+        "capture": 36,
+        "produce": 48,
+        "wait": 138,
+        "endTurn": 63,
+        "attack": 91,
+        "recon": 4,
+        "logistics": 8
+      },
+      "traceSha256": "f9eb4ad2aab70704252ae7aec40384a863380677b75e0106f590094c3a4d7d48",
+      "stateSha256": "9488ea67839f6b8e61a487cea3ad73fe8072effcf0a87a21f00efcb62d1ed689",
+      "cpuMs": {
+        "p95": 3.4281929999997374,
+        "max": 8.806217000004835
+      },
+      "seconds": 1.3427205290000057
+    },
+    {
+      "id": "green-4-152509-army1army2army3army4-false",
+      "seed": 152509,
+      "participants": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "order": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "teams": {
+        "army1": "army1",
+        "army2": "army2",
+        "army3": "army3",
+        "army4": "army4"
+      },
+      "layoutVersion": 2,
+      "tactics": false,
+      "count": 721,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army2"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "fallbacks": 4,
+      "actions": {
+        "move": 237,
+        "capture": 59,
+        "produce": 52,
+        "wait": 158,
+        "endTurn": 80,
+        "recon": 8,
+        "attack": 122,
+        "logistics": 5
+      },
+      "traceSha256": "2bad8abc3649030cd3b29385698fb9757e2268edbdcabf0e030f5d649d4478c2",
+      "stateSha256": "56dcfd9779037ec96434e3db9e48527c8710e3fe60d4986dc13864dd42fe9aed",
+      "cpuMs": {
+        "p95": 3.3820229999982985,
+        "max": 7.83797400000185
+      },
+      "seconds": 1.6686179249999986
+    },
+    {
+      "id": "green-4-152509-army1army2army3army4-true",
+      "seed": 152509,
+      "participants": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "order": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "teams": {
+        "army1": "army1",
+        "army2": "army2",
+        "army3": "army3",
+        "army4": "army4"
+      },
+      "layoutVersion": 2,
+      "tactics": true,
+      "count": 710,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army3"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "fallbacks": 1,
+      "actions": {
+        "move": 232,
+        "capture": 71,
+        "produce": 41,
+        "wait": 173,
+        "endTurn": 80,
+        "recon": 8,
+        "attack": 94,
+        "logistics": 11
+      },
+      "traceSha256": "edb820147aa3e332d33079bd6bbebb59ff6b79b89a748cb6c79ca07b63032aac",
+      "stateSha256": "118aea0e97dbefb2ead8e9ee869e5b5cd6a10100dfb65bae9f464c8d4b1d34d1",
+      "cpuMs": {
+        "p95": 3.4378769999966607,
+        "max": 6.128128999996989
+      },
+      "seconds": 1.6968029209999949
+    },
+    {
+      "id": "green-4-152509-army1army2army4army3-false",
+      "seed": 152509,
+      "participants": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "order": [
+        "army1",
+        "army2",
+        "army4",
+        "army3"
+      ],
+      "teams": {
+        "army1": "army1",
+        "army2": "army2",
+        "army3": "army3",
+        "army4": "army4"
+      },
+      "layoutVersion": 2,
+      "tactics": false,
+      "count": 681,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army1"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army3"
+      ],
+      "fallbacks": 3,
+      "actions": {
+        "move": 224,
+        "capture": 76,
+        "produce": 41,
+        "wait": 153,
+        "endTurn": 73,
+        "recon": 8,
+        "attack": 100,
+        "logistics": 6
+      },
+      "traceSha256": "814db4b2f79b6dad775080fd28a8422fc45ed0757e09c2e7f3c2e917fc244560",
+      "stateSha256": "bd1ba2e368c19fd22d14be7e8311ee6ab91f1b0625d76e860352abc6f2410b15",
+      "cpuMs": {
+        "p95": 3.061229999999341,
+        "max": 5.316627000000153
+      },
+      "seconds": 1.5757060670000065
+    },
+    {
+      "id": "green-4-152509-army1army2army4army3-true",
+      "seed": 152509,
+      "participants": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "order": [
+        "army1",
+        "army2",
+        "army4",
+        "army3"
+      ],
+      "teams": {
+        "army1": "army1",
+        "army2": "army2",
+        "army3": "army3",
+        "army4": "army4"
+      },
+      "layoutVersion": 2,
+      "tactics": true,
+      "count": 750,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army1"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "fallbacks": 0,
+      "actions": {
+        "move": 248,
+        "capture": 52,
+        "produce": 59,
+        "wait": 169,
+        "endTurn": 80,
+        "recon": 8,
+        "attack": 118,
+        "logistics": 15,
+        "ambush": 1
+      },
+      "traceSha256": "98a69848a1168b08e1ca015eecb3db51150f5cfe6379919ef372eb1966904419",
+      "stateSha256": "c07000cd3fde59c106791a4519db8a3c80df180e8c3f8aced8e39f542834968e",
+      "cpuMs": {
+        "p95": 3.0937290000001667,
+        "max": 10.573163000000932
+      },
+      "seconds": 1.7244482639999987
+    },
+    {
+      "id": "green-4-152509-army1army3army2army4-false",
+      "seed": 152509,
+      "participants": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "order": [
+        "army1",
+        "army3",
+        "army2",
+        "army4"
+      ],
+      "teams": {
+        "army1": "army1",
+        "army2": "army2",
+        "army3": "army3",
+        "army4": "army4"
+      },
+      "layoutVersion": 2,
+      "tactics": false,
+      "count": 668,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army1"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army3"
+      ],
+      "fallbacks": 3,
+      "actions": {
+        "move": 207,
+        "capture": 66,
+        "produce": 45,
+        "wait": 137,
+        "endTurn": 75,
+        "recon": 8,
+        "attack": 117,
+        "logistics": 13
+      },
+      "traceSha256": "4801556e111dca89771a15be616ed78677c147b17d24f715f06a5496af522eb8",
+      "stateSha256": "7ac0f0d62a4759dde78234be2134540da673a466cc42b7ba785ffe290fb5f857",
+      "cpuMs": {
+        "p95": 3.0099129999944125,
+        "max": 7.5452730000033625
+      },
+      "seconds": 1.470260110999996
+    },
+    {
+      "id": "green-4-152509-army1army3army2army4-true",
+      "seed": 152509,
+      "participants": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "order": [
+        "army1",
+        "army3",
+        "army2",
+        "army4"
+      ],
+      "teams": {
+        "army1": "army1",
+        "army2": "army2",
+        "army3": "army3",
+        "army4": "army4"
+      },
+      "layoutVersion": 2,
+      "tactics": true,
+      "count": 714,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army1"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "fallbacks": 7,
+      "actions": {
+        "move": 233,
+        "capture": 57,
+        "produce": 47,
+        "wait": 174,
+        "endTurn": 80,
+        "recon": 8,
+        "attack": 98,
+        "logistics": 17
+      },
+      "traceSha256": "f99f87f3cf60b4827e65df6f67eee97d44017d39addf7d7d2b53eab2c680ce6e",
+      "stateSha256": "8e048d8397b38670e46d31181538caacf18df2ce22b0741c5e585ccde85c53ff",
+      "cpuMs": {
+        "p95": 3.012748000001011,
+        "max": 5.789307999999437
+      },
+      "seconds": 1.5914214500000017
+    },
+    {
+      "id": "green-4-152509-army1army3army4army2-false",
+      "seed": 152509,
+      "participants": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "order": [
+        "army1",
+        "army3",
+        "army4",
+        "army2"
+      ],
+      "teams": {
+        "army1": "army1",
+        "army2": "army2",
+        "army3": "army3",
+        "army4": "army4"
+      },
+      "layoutVersion": 2,
+      "tactics": false,
+      "count": 750,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army1"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "fallbacks": 1,
+      "actions": {
+        "move": 258,
+        "capture": 65,
+        "produce": 47,
+        "wait": 183,
+        "endTurn": 80,
+        "recon": 8,
+        "attack": 106,
+        "logistics": 3
+      },
+      "traceSha256": "2f5475d8ea32f947dc5edeeff9a255abcdee946403d084b1e55254bb3354303b",
+      "stateSha256": "e57790b7380e051c1be40973e3d40f3e1c1c3666cd2f33096ed51e6a15c7df4b",
+      "cpuMs": {
+        "p95": 2.930743999997503,
+        "max": 5.573653999999806
+      },
+      "seconds": 1.6295975219999963
+    },
+    {
+      "id": "green-4-152509-army1army3army4army2-true",
+      "seed": 152509,
+      "participants": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "order": [
+        "army1",
+        "army3",
+        "army4",
+        "army2"
+      ],
+      "teams": {
+        "army1": "army1",
+        "army2": "army2",
+        "army3": "army3",
+        "army4": "army4"
+      },
+      "layoutVersion": 2,
+      "tactics": true,
+      "count": 672,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army1"
+      },
+      "alive": [
+        "army1",
+        "army3",
+        "army4"
+      ],
+      "fallbacks": 0,
+      "actions": {
+        "move": 220,
+        "capture": 60,
+        "produce": 42,
+        "wait": 170,
+        "endTurn": 72,
+        "recon": 8,
+        "attack": 89,
+        "logistics": 11
+      },
+      "traceSha256": "b8681de8302cc42cd6954e4830976818f6c6dfc5a519e067c82953d6bc42313e",
+      "stateSha256": "8ccb40cfd40bd70485476444f0da422a7ac898c35e773358a9d34ecc24c6a83d",
+      "cpuMs": {
+        "p95": 3.8168189999996684,
+        "max": 15.246300999991945
+      },
+      "seconds": 1.877036460999996
+    },
+    {
+      "id": "green-4-152509-army1army4army2army3-false",
+      "seed": 152509,
+      "participants": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "order": [
+        "army1",
+        "army4",
+        "army2",
+        "army3"
+      ],
+      "teams": {
+        "army1": "army1",
+        "army2": "army2",
+        "army3": "army3",
+        "army4": "army4"
+      },
+      "layoutVersion": 2,
+      "tactics": false,
+      "count": 727,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army3"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "fallbacks": 0,
+      "actions": {
+        "move": 253,
+        "capture": 54,
+        "produce": 42,
+        "wait": 183,
+        "endTurn": 80,
+        "recon": 8,
+        "attack": 103,
+        "logistics": 4
+      },
+      "traceSha256": "918f6b7c8549c27a61bf3723487a1518f71655159c7e0e5a8ca672b8dcae357f",
+      "stateSha256": "ab74aead11584832ae2ccddc50adc31eb8a8af24d87ce74ed504361d851e3503",
+      "cpuMs": {
+        "p95": 3.096804000000702,
+        "max": 6.516304000004311
+      },
+      "seconds": 1.6331360380000115
+    },
+    {
+      "id": "green-4-152509-army1army4army2army3-true",
+      "seed": 152509,
+      "participants": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "order": [
+        "army1",
+        "army4",
+        "army2",
+        "army3"
+      ],
+      "teams": {
+        "army1": "army1",
+        "army2": "army2",
+        "army3": "army3",
+        "army4": "army4"
+      },
+      "layoutVersion": 2,
+      "tactics": true,
+      "count": 746,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army3"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "fallbacks": 1,
+      "actions": {
+        "move": 230,
+        "capture": 57,
+        "produce": 53,
+        "wait": 178,
+        "endTurn": 80,
+        "recon": 8,
+        "attack": 118,
+        "logistics": 22
+      },
+      "traceSha256": "908d2a06d78cca811c6145d06489dbf37a05f3edf43d369fa8f213913f47103e",
+      "stateSha256": "5d7d59e177f44f2c22dd1cfc44b24b9862722d5f0a84df2f8b4edcce92e9622d",
+      "cpuMs": {
+        "p95": 4.034937000003993,
+        "max": 12.514366000003065
+      },
+      "seconds": 1.9202012390000018
+    },
+    {
+      "id": "green-4-152509-army1army4army3army2-false",
+      "seed": 152509,
+      "participants": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "order": [
+        "army1",
+        "army4",
+        "army3",
+        "army2"
+      ],
+      "teams": {
+        "army1": "army1",
+        "army2": "army2",
+        "army3": "army3",
+        "army4": "army4"
+      },
+      "layoutVersion": 2,
+      "tactics": false,
+      "count": 702,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army2"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army4"
+      ],
+      "fallbacks": 0,
+      "actions": {
+        "move": 232,
+        "capture": 83,
+        "produce": 45,
+        "wait": 144,
+        "endTurn": 79,
+        "recon": 8,
+        "attack": 106,
+        "logistics": 5
+      },
+      "traceSha256": "b71fd2e23be7a7c41a171b6b184572ec469a4e7f51863c081acc421b5b945e81",
+      "stateSha256": "07f65372eeb243d40465e2a9346a92e796592a1ae77c28d77f3c5f2b5134a650",
+      "cpuMs": {
+        "p95": 3.324626999994507,
+        "max": 14.035476999997627
+      },
+      "seconds": 1.63225055099999
+    },
+    {
+      "id": "green-4-152509-army1army4army3army2-true",
+      "seed": 152509,
+      "participants": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "order": [
+        "army1",
+        "army4",
+        "army3",
+        "army2"
+      ],
+      "teams": {
+        "army1": "army1",
+        "army2": "army2",
+        "army3": "army3",
+        "army4": "army4"
+      },
+      "layoutVersion": 2,
+      "tactics": true,
+      "count": 746,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army3"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "fallbacks": 1,
+      "actions": {
+        "move": 238,
+        "capture": 49,
+        "produce": 56,
+        "wait": 168,
+        "endTurn": 80,
+        "recon": 8,
+        "attack": 128,
+        "logistics": 19
+      },
+      "traceSha256": "c82cffee82b6d1002f55453cc1dc56b6a0fec28572e58a99b40d8996b3049fd1",
+      "stateSha256": "2752bf5e0e7adada9635453ca22101e60d7909a4578d19b86a852302d8f3e4e3",
+      "cpuMs": {
+        "p95": 3.8840199999976903,
+        "max": 8.872841999997036
+      },
+      "seconds": 1.9063292330000112
+    },
+    {
+      "id": "green-4-152509-army2army1army3army4-false",
+      "seed": 152509,
+      "participants": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "order": [
+        "army2",
+        "army1",
+        "army3",
+        "army4"
+      ],
+      "teams": {
+        "army1": "army1",
+        "army2": "army2",
+        "army3": "army3",
+        "army4": "army4"
+      },
+      "layoutVersion": 2,
+      "tactics": false,
+      "count": 681,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army2"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army4"
+      ],
+      "fallbacks": 3,
+      "actions": {
+        "move": 224,
+        "capture": 76,
+        "produce": 41,
+        "wait": 153,
+        "endTurn": 73,
+        "recon": 8,
+        "attack": 100,
+        "logistics": 6
+      },
+      "traceSha256": "e13f6a59fbdd9db45af0d9a4ad3e764a9867c2a62581d14498a5f8938dfa2188",
+      "stateSha256": "b6fdb3b98d73f06c92500b8f00647efe9317ab7c3d24d1e5fd7ed0120f08e15b",
+      "cpuMs": {
+        "p95": 3.4846379999944475,
+        "max": 20.7997139999934
+      },
+      "seconds": 1.690472053999998
+    },
+    {
+      "id": "green-4-152509-army2army1army3army4-true",
+      "seed": 152509,
+      "participants": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "order": [
+        "army2",
+        "army1",
+        "army3",
+        "army4"
+      ],
+      "teams": {
+        "army1": "army1",
+        "army2": "army2",
+        "army3": "army3",
+        "army4": "army4"
+      },
+      "layoutVersion": 2,
+      "tactics": true,
+      "count": 750,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army2"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "fallbacks": 0,
+      "actions": {
+        "move": 248,
+        "capture": 52,
+        "produce": 59,
+        "wait": 169,
+        "endTurn": 80,
+        "recon": 8,
+        "attack": 118,
+        "logistics": 15,
+        "ambush": 1
+      },
+      "traceSha256": "ffbc0e0a37c2399e7514da9a9b2f44d0d595239a16e5f1a60bd63a371c56f6a2",
+      "stateSha256": "49056a9e7e04bfe6f1aa56a16556c84cbc6b1e14f57d7b6e0263b2d7e648ec40",
+      "cpuMs": {
+        "p95": 3.4166560000012396,
+        "max": 24.153565000000526
+      },
+      "seconds": 1.8539279860000097
+    },
+    {
+      "id": "green-4-152509-army2army1army4army3-false",
+      "seed": 152509,
+      "participants": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "order": [
+        "army2",
+        "army1",
+        "army4",
+        "army3"
+      ],
+      "teams": {
+        "army1": "army1",
+        "army2": "army2",
+        "army3": "army3",
+        "army4": "army4"
+      },
+      "layoutVersion": 2,
+      "tactics": false,
+      "count": 721,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army1"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "fallbacks": 4,
+      "actions": {
+        "move": 237,
+        "capture": 59,
+        "produce": 52,
+        "wait": 158,
+        "endTurn": 80,
+        "recon": 8,
+        "attack": 122,
+        "logistics": 5
+      },
+      "traceSha256": "c3c3551068c3c26e72a3dca4e94fa7cd1dcff1202576662b91a73721b154309c",
+      "stateSha256": "230fe0a91ab72e19c6721f327eaa396766e615d318eb352e17e0eb1f25fe67ba",
+      "cpuMs": {
+        "p95": 3.2376059999951394,
+        "max": 19.10065599999507
+      },
+      "seconds": 1.6919592520000006
+    },
+    {
+      "id": "green-4-152509-army2army1army4army3-true",
+      "seed": 152509,
+      "participants": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "order": [
+        "army2",
+        "army1",
+        "army4",
+        "army3"
+      ],
+      "teams": {
+        "army1": "army1",
+        "army2": "army2",
+        "army3": "army3",
+        "army4": "army4"
+      },
+      "layoutVersion": 2,
+      "tactics": true,
+      "count": 710,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army4"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "fallbacks": 1,
+      "actions": {
+        "move": 232,
+        "capture": 71,
+        "produce": 41,
+        "wait": 173,
+        "endTurn": 80,
+        "recon": 8,
+        "attack": 94,
+        "logistics": 11
+      },
+      "traceSha256": "8b48722ab73a931879b095ffdb43b54761289775ff636a29487aa97ab0221737",
+      "stateSha256": "d04f888bdca60073b3adefef5206cc40bbad2b45462a382662c2e8412fff1487",
+      "cpuMs": {
+        "p95": 3.9881460000033258,
+        "max": 8.584688999995706
+      },
+      "seconds": 1.8955264889999963
+    },
+    {
+      "id": "green-4-152509-army2army3army1army4-false",
+      "seed": 152509,
+      "participants": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "order": [
+        "army2",
+        "army3",
+        "army1",
+        "army4"
+      ],
+      "teams": {
+        "army1": "army1",
+        "army2": "army2",
+        "army3": "army3",
+        "army4": "army4"
+      },
+      "layoutVersion": 2,
+      "tactics": false,
+      "count": 727,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army4"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "fallbacks": 0,
+      "actions": {
+        "move": 253,
+        "capture": 54,
+        "produce": 42,
+        "wait": 183,
+        "endTurn": 80,
+        "recon": 8,
+        "attack": 103,
+        "logistics": 4
+      },
+      "traceSha256": "79a35d812c86fad18de2de85958e9ccd84348eca66bb510534f545475331e752",
+      "stateSha256": "73f4eb2180d002ec9e168ef4f3ac8e429bb783d7c7534514a6850a681eda9191",
+      "cpuMs": {
+        "p95": 2.9245840000075987,
+        "max": 6.23281699999643
+      },
+      "seconds": 1.5757320360000013
+    },
+    {
+      "id": "green-4-152509-army2army3army1army4-true",
+      "seed": 152509,
+      "participants": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "order": [
+        "army2",
+        "army3",
+        "army1",
+        "army4"
+      ],
+      "teams": {
+        "army1": "army1",
+        "army2": "army2",
+        "army3": "army3",
+        "army4": "army4"
+      },
+      "layoutVersion": 2,
+      "tactics": true,
+      "count": 746,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army4"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "fallbacks": 1,
+      "actions": {
+        "move": 230,
+        "capture": 57,
+        "produce": 53,
+        "wait": 178,
+        "endTurn": 80,
+        "recon": 8,
+        "attack": 118,
+        "logistics": 22
+      },
+      "traceSha256": "e4e818d512424c2697f94219519282e2c27452f21936edc8f9b25035461767ba",
+      "stateSha256": "37ada266ab5e614199b591f42f6cb8a122c1830788325ae835eda72622abb55a",
+      "cpuMs": {
+        "p95": 3.3120680000138236,
+        "max": 14.686819000009564
+      },
+      "seconds": 1.7786667480000034
+    },
+    {
+      "id": "green-4-152509-army2army3army4army1-false",
+      "seed": 152509,
+      "participants": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "order": [
+        "army2",
+        "army3",
+        "army4",
+        "army1"
+      ],
+      "teams": {
+        "army1": "army1",
+        "army2": "army2",
+        "army3": "army3",
+        "army4": "army4"
+      },
+      "layoutVersion": 2,
+      "tactics": false,
+      "count": 702,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army1"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army3"
+      ],
+      "fallbacks": 0,
+      "actions": {
+        "move": 232,
+        "capture": 83,
+        "produce": 45,
+        "wait": 144,
+        "endTurn": 79,
+        "recon": 8,
+        "attack": 106,
+        "logistics": 5
+      },
+      "traceSha256": "8684212c10d930f4436ca34ca6e5fdf30ca08a129f5730c5920413a6a8e4bb35",
+      "stateSha256": "6aea4e7c40004f43f3dcdb7d934d65853717a60eaba0008a296a8486b0e129fb",
+      "cpuMs": {
+        "p95": 3.258597000007285,
+        "max": 19.782684000005247
+      },
+      "seconds": 1.6693476179999998
+    },
+    {
+      "id": "green-4-152509-army2army3army4army1-true",
+      "seed": 152509,
+      "participants": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "order": [
+        "army2",
+        "army3",
+        "army4",
+        "army1"
+      ],
+      "teams": {
+        "army1": "army1",
+        "army2": "army2",
+        "army3": "army3",
+        "army4": "army4"
+      },
+      "layoutVersion": 2,
+      "tactics": true,
+      "count": 746,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army4"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "fallbacks": 1,
+      "actions": {
+        "move": 238,
+        "capture": 49,
+        "produce": 56,
+        "wait": 168,
+        "endTurn": 80,
+        "recon": 8,
+        "attack": 128,
+        "logistics": 19
+      },
+      "traceSha256": "a858812e38363f100becfd2957a535e4a8dfb47418d92a26b991fe608fce1ecb",
+      "stateSha256": "19318f9e0dd470bad91cae77b1baed4f85dc776fea9a14e45e9d4dda909ea41a",
+      "cpuMs": {
+        "p95": 3.018475999997463,
+        "max": 21.303064000006998
+      },
+      "seconds": 1.7401885249999904
+    },
+    {
+      "id": "green-4-152509-army2army4army1army3-false",
+      "seed": 152509,
+      "participants": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "order": [
+        "army2",
+        "army4",
+        "army1",
+        "army3"
+      ],
+      "teams": {
+        "army1": "army1",
+        "army2": "army2",
+        "army3": "army3",
+        "army4": "army4"
+      },
+      "layoutVersion": 2,
+      "tactics": false,
+      "count": 668,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army2"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army4"
+      ],
+      "fallbacks": 3,
+      "actions": {
+        "move": 207,
+        "capture": 66,
+        "produce": 45,
+        "wait": 137,
+        "endTurn": 75,
+        "recon": 8,
+        "attack": 117,
+        "logistics": 13
+      },
+      "traceSha256": "b694eed34a4b02cb5472b128d796bab2e12c1a6a4d6378388722165e08457ef6",
+      "stateSha256": "2b1378e2e0cb9f6a2f3b8ba23cac129f534c079370040129adf4b3723aaf6395",
+      "cpuMs": {
+        "p95": 3.430791999999201,
+        "max": 8.830008000004455
+      },
+      "seconds": 1.6160025730000052
+    },
+    {
+      "id": "green-4-152509-army2army4army1army3-true",
+      "seed": 152509,
+      "participants": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "order": [
+        "army2",
+        "army4",
+        "army1",
+        "army3"
+      ],
+      "teams": {
+        "army1": "army1",
+        "army2": "army2",
+        "army3": "army3",
+        "army4": "army4"
+      },
+      "layoutVersion": 2,
+      "tactics": true,
+      "count": 714,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army2"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "fallbacks": 7,
+      "actions": {
+        "move": 233,
+        "capture": 57,
+        "produce": 47,
+        "wait": 174,
+        "endTurn": 80,
+        "recon": 8,
+        "attack": 98,
+        "logistics": 17
+      },
+      "traceSha256": "fa1b0d0b83ae6e4ef4bc37d01723f6eaf6a31e8ed01262af55975e68579d26c0",
+      "stateSha256": "d6b2300b9c8fcda08cf82696cec5743d79f1ba8e4a009f26cebd81ebc0a92564",
+      "cpuMs": {
+        "p95": 2.8827109999983804,
+        "max": 9.60005700000329
+      },
+      "seconds": 1.5729973249999893
+    },
+    {
+      "id": "green-4-152509-army2army4army3army1-false",
+      "seed": 152509,
+      "participants": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "order": [
+        "army2",
+        "army4",
+        "army3",
+        "army1"
+      ],
+      "teams": {
+        "army1": "army1",
+        "army2": "army2",
+        "army3": "army3",
+        "army4": "army4"
+      },
+      "layoutVersion": 2,
+      "tactics": false,
+      "count": 750,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army2"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "fallbacks": 1,
+      "actions": {
+        "move": 258,
+        "capture": 65,
+        "produce": 47,
+        "wait": 183,
+        "endTurn": 80,
+        "recon": 8,
+        "attack": 106,
+        "logistics": 3
+      },
+      "traceSha256": "cc4ab009dde5cfb3e334c33ccd851da9847cedc1d482a1ec83ef0b5ae8245479",
+      "stateSha256": "ac8726d23ac07a25dbd510b28b7eced1bb638f2d0a13f345c88893d94c66d82d",
+      "cpuMs": {
+        "p95": 3.43156799999997,
+        "max": 8.080067999995663
+      },
+      "seconds": 1.7129696419999965
+    },
+    {
+      "id": "green-4-152509-army2army4army3army1-true",
+      "seed": 152509,
+      "participants": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "order": [
+        "army2",
+        "army4",
+        "army3",
+        "army1"
+      ],
+      "teams": {
+        "army1": "army1",
+        "army2": "army2",
+        "army3": "army3",
+        "army4": "army4"
+      },
+      "layoutVersion": 2,
+      "tactics": true,
+      "count": 672,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army2"
+      },
+      "alive": [
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "fallbacks": 0,
+      "actions": {
+        "move": 220,
+        "capture": 60,
+        "produce": 42,
+        "wait": 170,
+        "endTurn": 72,
+        "recon": 8,
+        "attack": 89,
+        "logistics": 11
+      },
+      "traceSha256": "b7b11362dbf750bdeceac6f8a5c778e603213f2be219474229474e27df122738",
+      "stateSha256": "5a6ec870de5d15421a13c3efeb7d40e1da847d2fdef847cd682fa5016681623c",
+      "cpuMs": {
+        "p95": 3.6456300000136252,
+        "max": 14.047836000012467
+      },
+      "seconds": 1.669847332000005
+    },
+    {
+      "id": "green-4-152509-army3army1army2army4-false",
+      "seed": 152509,
+      "participants": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "order": [
+        "army3",
+        "army1",
+        "army2",
+        "army4"
+      ],
+      "teams": {
+        "army1": "army1",
+        "army2": "army2",
+        "army3": "army3",
+        "army4": "army4"
+      },
+      "layoutVersion": 2,
+      "tactics": false,
+      "count": 750,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army3"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "fallbacks": 1,
+      "actions": {
+        "move": 258,
+        "capture": 65,
+        "produce": 47,
+        "wait": 183,
+        "endTurn": 80,
+        "recon": 8,
+        "attack": 106,
+        "logistics": 3
+      },
+      "traceSha256": "ce9f5a202c91fdf6541ef77f2bb612068c5fe96faa9c554f6f7a66e972698622",
+      "stateSha256": "4901be8c7241615f671d6eeae54159afbc0ad62e9d5d9708428b45946de58f64",
+      "cpuMs": {
+        "p95": 2.892986999999266,
+        "max": 5.2923009999940405
+      },
+      "seconds": 1.633974051000012
+    },
+    {
+      "id": "green-4-152509-army3army1army2army4-true",
+      "seed": 152509,
+      "participants": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "order": [
+        "army3",
+        "army1",
+        "army2",
+        "army4"
+      ],
+      "teams": {
+        "army1": "army1",
+        "army2": "army2",
+        "army3": "army3",
+        "army4": "army4"
+      },
+      "layoutVersion": 2,
+      "tactics": true,
+      "count": 672,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army3"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army3"
+      ],
+      "fallbacks": 0,
+      "actions": {
+        "move": 220,
+        "capture": 60,
+        "produce": 42,
+        "wait": 170,
+        "endTurn": 72,
+        "recon": 8,
+        "attack": 89,
+        "logistics": 11
+      },
+      "traceSha256": "b2b0e1b198ab3f571500e90f5ab4b4dd740e1f406851d322b4b2c465d54bd602",
+      "stateSha256": "5b7b5a465694b7b2aa5737674569730c752f181e2c47d4b2c71286306ea6c4fa",
+      "cpuMs": {
+        "p95": 3.1247960000036983,
+        "max": 6.727722000010544
+      },
+      "seconds": 1.499754854999992
+    },
+    {
+      "id": "green-4-152509-army3army1army4army2-false",
+      "seed": 152509,
+      "participants": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "order": [
+        "army3",
+        "army1",
+        "army4",
+        "army2"
+      ],
+      "teams": {
+        "army1": "army1",
+        "army2": "army2",
+        "army3": "army3",
+        "army4": "army4"
+      },
+      "layoutVersion": 2,
+      "tactics": false,
+      "count": 668,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army3"
+      },
+      "alive": [
+        "army1",
+        "army3",
+        "army4"
+      ],
+      "fallbacks": 3,
+      "actions": {
+        "move": 207,
+        "capture": 66,
+        "produce": 45,
+        "wait": 137,
+        "endTurn": 75,
+        "recon": 8,
+        "attack": 117,
+        "logistics": 13
+      },
+      "traceSha256": "ca6ecd837a8557152b781b8cc2dd2382e2a184c54fe5482a8e67369d8baf9f54",
+      "stateSha256": "db20abef8fca113f690c9a7cc1256d1302f712571b6d500fcaa749c55e9079da",
+      "cpuMs": {
+        "p95": 3.437936999995145,
+        "max": 8.059156999996048
+      },
+      "seconds": 1.600417272000006
+    },
+    {
+      "id": "green-4-152509-army3army1army4army2-true",
+      "seed": 152509,
+      "participants": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "order": [
+        "army3",
+        "army1",
+        "army4",
+        "army2"
+      ],
+      "teams": {
+        "army1": "army1",
+        "army2": "army2",
+        "army3": "army3",
+        "army4": "army4"
+      },
+      "layoutVersion": 2,
+      "tactics": true,
+      "count": 714,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army3"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "fallbacks": 7,
+      "actions": {
+        "move": 233,
+        "capture": 57,
+        "produce": 47,
+        "wait": 174,
+        "endTurn": 80,
+        "recon": 8,
+        "attack": 98,
+        "logistics": 17
+      },
+      "traceSha256": "de3d7309eea1b7346ebc7d67d53bc18bc9968534c027dd8afc512d38dc6922bd",
+      "stateSha256": "19faf5add35b726a41db1b1d97244f2c4782540a91bd958fdcdeb368034695ee",
+      "cpuMs": {
+        "p95": 3.2370049999881303,
+        "max": 7.227606000000378
+      },
+      "seconds": 1.6519500490000063
+    },
+    {
+      "id": "green-4-152509-army3army2army1army4-false",
+      "seed": 152509,
+      "participants": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "order": [
+        "army3",
+        "army2",
+        "army1",
+        "army4"
+      ],
+      "teams": {
+        "army1": "army1",
+        "army2": "army2",
+        "army3": "army3",
+        "army4": "army4"
+      },
+      "layoutVersion": 2,
+      "tactics": false,
+      "count": 702,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army4"
+      },
+      "alive": [
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "fallbacks": 0,
+      "actions": {
+        "move": 232,
+        "capture": 83,
+        "produce": 45,
+        "wait": 144,
+        "endTurn": 79,
+        "recon": 8,
+        "attack": 106,
+        "logistics": 5
+      },
+      "traceSha256": "2c5e5ea76fb58e4fe38b124de11ff877433fb328d0e3441f2e3cc1aba7edd18a",
+      "stateSha256": "bcbfc5b67ae6595c60b55ebf6f2d91a8113e6c7064a2d98efe2e61dd5aaf19a2",
+      "cpuMs": {
+        "p95": 3.317035999993095,
+        "max": 7.6710519999905955
+      },
+      "seconds": 1.6030500279999977
+    },
+    {
+      "id": "green-4-152509-army3army2army1army4-true",
+      "seed": 152509,
+      "participants": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "order": [
+        "army3",
+        "army2",
+        "army1",
+        "army4"
+      ],
+      "teams": {
+        "army1": "army1",
+        "army2": "army2",
+        "army3": "army3",
+        "army4": "army4"
+      },
+      "layoutVersion": 2,
+      "tactics": true,
+      "count": 746,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army1"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "fallbacks": 1,
+      "actions": {
+        "move": 238,
+        "capture": 49,
+        "produce": 56,
+        "wait": 168,
+        "endTurn": 80,
+        "recon": 8,
+        "attack": 128,
+        "logistics": 19
+      },
+      "traceSha256": "5acb54e80db4e2d5a8f8b74cd16b0e17523fb6db45290b14dd1a8bdcd6158dec",
+      "stateSha256": "f3f43a1fbebdb71f0b0455b63c37a24065d91dd9afa1db8acc5f8a1462b8946f",
+      "cpuMs": {
+        "p95": 3.2381059999897843,
+        "max": 10.944963000001735
+      },
+      "seconds": 1.6886120360000059
+    },
+    {
+      "id": "green-4-152509-army3army2army4army1-false",
+      "seed": 152509,
+      "participants": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "order": [
+        "army3",
+        "army2",
+        "army4",
+        "army1"
+      ],
+      "teams": {
+        "army1": "army1",
+        "army2": "army2",
+        "army3": "army3",
+        "army4": "army4"
+      },
+      "layoutVersion": 2,
+      "tactics": false,
+      "count": 727,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army1"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "fallbacks": 0,
+      "actions": {
+        "move": 253,
+        "capture": 54,
+        "produce": 42,
+        "wait": 183,
+        "endTurn": 80,
+        "recon": 8,
+        "attack": 103,
+        "logistics": 4
+      },
+      "traceSha256": "295f98ec5899d1e3e0ac0ed0f31f4f56d4b6c0aff5ac4704ab15eb2ef4643ec1",
+      "stateSha256": "19aba5fc9dde8a52a37e23af233b274e9016f780a8f29eefd4bcb92fe9d88835",
+      "cpuMs": {
+        "p95": 3.3748519999935525,
+        "max": 6.943357000011019
+      },
+      "seconds": 1.688004006999996
+    },
+    {
+      "id": "green-4-152509-army3army2army4army1-true",
+      "seed": 152509,
+      "participants": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "order": [
+        "army3",
+        "army2",
+        "army4",
+        "army1"
+      ],
+      "teams": {
+        "army1": "army1",
+        "army2": "army2",
+        "army3": "army3",
+        "army4": "army4"
+      },
+      "layoutVersion": 2,
+      "tactics": true,
+      "count": 746,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army1"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "fallbacks": 1,
+      "actions": {
+        "move": 230,
+        "capture": 57,
+        "produce": 53,
+        "wait": 178,
+        "endTurn": 80,
+        "recon": 8,
+        "attack": 118,
+        "logistics": 22
+      },
+      "traceSha256": "198f1843d660457233136cd6aff0cf7c41fb124fc5095f74894cff5c9886181c",
+      "stateSha256": "7f09c1bf7a4de42034a445ca8001339d7f217c2c155c976cb055952e93f7fa7a",
+      "cpuMs": {
+        "p95": 3.222632999997586,
+        "max": 6.953252000006614
+      },
+      "seconds": 1.8135802879999974
+    },
+    {
+      "id": "green-4-152509-army3army4army1army2-false",
+      "seed": 152509,
+      "participants": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "order": [
+        "army3",
+        "army4",
+        "army1",
+        "army2"
+      ],
+      "teams": {
+        "army1": "army1",
+        "army2": "army2",
+        "army3": "army3",
+        "army4": "army4"
+      },
+      "layoutVersion": 2,
+      "tactics": false,
+      "count": 721,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army4"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "fallbacks": 4,
+      "actions": {
+        "move": 237,
+        "capture": 59,
+        "produce": 52,
+        "wait": 158,
+        "endTurn": 80,
+        "recon": 8,
+        "attack": 122,
+        "logistics": 5
+      },
+      "traceSha256": "1f710953182c903fb9ac89ccb125374593aca154f86cd942bde20d89943bc3ac",
+      "stateSha256": "b050571d5bebfbdace55ed7bb979945adb78488d31f0acdfe4b1fb934dc40191",
+      "cpuMs": {
+        "p95": 3.325517999997828,
+        "max": 9.190722999992431
+      },
+      "seconds": 1.747249026999998
+    },
+    {
+      "id": "green-4-152509-army3army4army1army2-true",
+      "seed": 152509,
+      "participants": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "order": [
+        "army3",
+        "army4",
+        "army1",
+        "army2"
+      ],
+      "teams": {
+        "army1": "army1",
+        "army2": "army2",
+        "army3": "army3",
+        "army4": "army4"
+      },
+      "layoutVersion": 2,
+      "tactics": true,
+      "count": 710,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army1"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "fallbacks": 1,
+      "actions": {
+        "move": 232,
+        "capture": 71,
+        "produce": 41,
+        "wait": 173,
+        "endTurn": 80,
+        "recon": 8,
+        "attack": 94,
+        "logistics": 11
+      },
+      "traceSha256": "e545161246d0ffc918a0359713f74c8fcae3e7ae0a6244f1c1bb09a809bc099e",
+      "stateSha256": "ff8d2f15c2ae963182e7a75dfac48f02e58e11046dc032e9a144aedea6c914e7",
+      "cpuMs": {
+        "p95": 4.409771999999066,
+        "max": 8.58328699998674
+      },
+      "seconds": 1.8697635020000016
+    },
+    {
+      "id": "green-4-152509-army3army4army2army1-false",
+      "seed": 152509,
+      "participants": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "order": [
+        "army3",
+        "army4",
+        "army2",
+        "army1"
+      ],
+      "teams": {
+        "army1": "army1",
+        "army2": "army2",
+        "army3": "army3",
+        "army4": "army4"
+      },
+      "layoutVersion": 2,
+      "tactics": false,
+      "count": 681,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army3"
+      },
+      "alive": [
+        "army1",
+        "army3",
+        "army4"
+      ],
+      "fallbacks": 3,
+      "actions": {
+        "move": 224,
+        "capture": 76,
+        "produce": 41,
+        "wait": 153,
+        "endTurn": 73,
+        "recon": 8,
+        "attack": 100,
+        "logistics": 6
+      },
+      "traceSha256": "300eb38dd3a8ae3d81bc35b15d1719cfb10cf93c3fed2017a615b585d0393267",
+      "stateSha256": "a81f6b389e79b711bcdb369d3fc71d27d15d326af1af2275c292d87f835879a9",
+      "cpuMs": {
+        "p95": 3.336444999993546,
+        "max": 9.744156000000658
+      },
+      "seconds": 1.5766111110000056
+    },
+    {
+      "id": "green-4-152509-army3army4army2army1-true",
+      "seed": 152509,
+      "participants": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "order": [
+        "army3",
+        "army4",
+        "army2",
+        "army1"
+      ],
+      "teams": {
+        "army1": "army1",
+        "army2": "army2",
+        "army3": "army3",
+        "army4": "army4"
+      },
+      "layoutVersion": 2,
+      "tactics": true,
+      "count": 750,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army3"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "fallbacks": 0,
+      "actions": {
+        "move": 248,
+        "capture": 52,
+        "produce": 59,
+        "wait": 169,
+        "endTurn": 80,
+        "recon": 8,
+        "attack": 118,
+        "logistics": 15,
+        "ambush": 1
+      },
+      "traceSha256": "162ebd0d11ad3d2536eb05c82d09e8c740b2ffb9c8da2449586f0c6a9310041d",
+      "stateSha256": "2f3d4f50cb8b1b80e1bfcac69ff4fe1cd12bb910f700490ede7f8938d06210a7",
+      "cpuMs": {
+        "p95": 3.1584359999978915,
+        "max": 12.608639999991283
+      },
+      "seconds": 1.7415387020000053
+    },
+    {
+      "id": "green-4-152509-army4army1army2army3-false",
+      "seed": 152509,
+      "participants": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "order": [
+        "army4",
+        "army1",
+        "army2",
+        "army3"
+      ],
+      "teams": {
+        "army1": "army1",
+        "army2": "army2",
+        "army3": "army3",
+        "army4": "army4"
+      },
+      "layoutVersion": 2,
+      "tactics": false,
+      "count": 702,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army3"
+      },
+      "alive": [
+        "army1",
+        "army3",
+        "army4"
+      ],
+      "fallbacks": 0,
+      "actions": {
+        "move": 232,
+        "capture": 83,
+        "produce": 45,
+        "wait": 144,
+        "endTurn": 79,
+        "recon": 8,
+        "attack": 106,
+        "logistics": 5
+      },
+      "traceSha256": "25ff163914a2b063b547484c89c7411de5d7d8058af1e0c8541d12adebc96232",
+      "stateSha256": "e9755fd11dfbca1557d37fd25f07f023de81df3840ad9b7438603396efe5bcc2",
+      "cpuMs": {
+        "p95": 2.9644640000042273,
+        "max": 6.183753999997862
+      },
+      "seconds": 1.5451422239999957
+    },
+    {
+      "id": "green-4-152509-army4army1army2army3-true",
+      "seed": 152509,
+      "participants": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "order": [
+        "army4",
+        "army1",
+        "army2",
+        "army3"
+      ],
+      "teams": {
+        "army1": "army1",
+        "army2": "army2",
+        "army3": "army3",
+        "army4": "army4"
+      },
+      "layoutVersion": 2,
+      "tactics": true,
+      "count": 746,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army2"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "fallbacks": 1,
+      "actions": {
+        "move": 238,
+        "capture": 49,
+        "produce": 56,
+        "wait": 168,
+        "endTurn": 80,
+        "recon": 8,
+        "attack": 128,
+        "logistics": 19
+      },
+      "traceSha256": "585641a8215d4d9816b742072c0822f03a2cac5c958e0af728cb9c04733696b6",
+      "stateSha256": "ebc12125f93e99b3af320149483b6beabcc30808fa065eae594887e324d96d0d",
+      "cpuMs": {
+        "p95": 3.139878999994835,
+        "max": 5.651782000000821
+      },
+      "seconds": 1.6514855320000061
+    },
+    {
+      "id": "green-4-152509-army4army1army3army2-false",
+      "seed": 152509,
+      "participants": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "order": [
+        "army4",
+        "army1",
+        "army3",
+        "army2"
+      ],
+      "teams": {
+        "army1": "army1",
+        "army2": "army2",
+        "army3": "army3",
+        "army4": "army4"
+      },
+      "layoutVersion": 2,
+      "tactics": false,
+      "count": 727,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army2"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "fallbacks": 0,
+      "actions": {
+        "move": 253,
+        "capture": 54,
+        "produce": 42,
+        "wait": 183,
+        "endTurn": 80,
+        "recon": 8,
+        "attack": 103,
+        "logistics": 4
+      },
+      "traceSha256": "f1ae93d713b024f37b9fd0316268e4059ca94406cfe9dc6280ead2616ecfc804",
+      "stateSha256": "ccac2d3d220d7fe4ca9fbdf283889f6afa67f004cefcc18f9e678a66757dd843",
+      "cpuMs": {
+        "p95": 2.9427120000036666,
+        "max": 11.783776999989641
+      },
+      "seconds": 1.5964219869999943
+    },
+    {
+      "id": "green-4-152509-army4army1army3army2-true",
+      "seed": 152509,
+      "participants": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "order": [
+        "army4",
+        "army1",
+        "army3",
+        "army2"
+      ],
+      "teams": {
+        "army1": "army1",
+        "army2": "army2",
+        "army3": "army3",
+        "army4": "army4"
+      },
+      "layoutVersion": 2,
+      "tactics": true,
+      "count": 746,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army2"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "fallbacks": 1,
+      "actions": {
+        "move": 230,
+        "capture": 57,
+        "produce": 53,
+        "wait": 178,
+        "endTurn": 80,
+        "recon": 8,
+        "attack": 118,
+        "logistics": 22
+      },
+      "traceSha256": "ed138495dd072c47361992ac581632b2a104facd59bee0887615a52ae4e3f714",
+      "stateSha256": "8d9f68215db28fb26efcc96eb5bc1c38f55ab76e5a5b6ca789398bdc1bccc425",
+      "cpuMs": {
+        "p95": 3.156894999992801,
+        "max": 6.863025999991805
+      },
+      "seconds": 1.736903450999991
+    },
+    {
+      "id": "green-4-152509-army4army2army1army3-false",
+      "seed": 152509,
+      "participants": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "order": [
+        "army4",
+        "army2",
+        "army1",
+        "army3"
+      ],
+      "teams": {
+        "army1": "army1",
+        "army2": "army2",
+        "army3": "army3",
+        "army4": "army4"
+      },
+      "layoutVersion": 2,
+      "tactics": false,
+      "count": 750,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army4"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "fallbacks": 1,
+      "actions": {
+        "move": 258,
+        "capture": 65,
+        "produce": 47,
+        "wait": 183,
+        "endTurn": 80,
+        "recon": 8,
+        "attack": 106,
+        "logistics": 3
+      },
+      "traceSha256": "71ad5a9059f193f1ac8dd49816b807589630cf55a63e59933f2ecf5fb2ba3f34",
+      "stateSha256": "79fb65a341f7ba65239081f6ebca1ce24d02ec087e3c51f501ce9852332208d3",
+      "cpuMs": {
+        "p95": 2.984694999991916,
+        "max": 7.329008000000613
+      },
+      "seconds": 1.704001939000009
+    },
+    {
+      "id": "green-4-152509-army4army2army1army3-true",
+      "seed": 152509,
+      "participants": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "order": [
+        "army4",
+        "army2",
+        "army1",
+        "army3"
+      ],
+      "teams": {
+        "army1": "army1",
+        "army2": "army2",
+        "army3": "army3",
+        "army4": "army4"
+      },
+      "layoutVersion": 2,
+      "tactics": true,
+      "count": 672,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army4"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army4"
+      ],
+      "fallbacks": 0,
+      "actions": {
+        "move": 220,
+        "capture": 60,
+        "produce": 42,
+        "wait": 170,
+        "endTurn": 72,
+        "recon": 8,
+        "attack": 89,
+        "logistics": 11
+      },
+      "traceSha256": "8aac667954bab73b8581ec622367d7b9a649018cf0159b88d2c6d77bf1e21396",
+      "stateSha256": "8f99e31677beb6c1b5abecc807166067eca31ff2468b872501a39662877587c2",
+      "cpuMs": {
+        "p95": 3.2378160000080243,
+        "max": 7.904389000002993
+      },
+      "seconds": 1.5777088120000118
+    },
+    {
+      "id": "green-4-152509-army4army2army3army1-false",
+      "seed": 152509,
+      "participants": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "order": [
+        "army4",
+        "army2",
+        "army3",
+        "army1"
+      ],
+      "teams": {
+        "army1": "army1",
+        "army2": "army2",
+        "army3": "army3",
+        "army4": "army4"
+      },
+      "layoutVersion": 2,
+      "tactics": false,
+      "count": 668,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army4"
+      },
+      "alive": [
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "fallbacks": 3,
+      "actions": {
+        "move": 207,
+        "capture": 66,
+        "produce": 45,
+        "wait": 137,
+        "endTurn": 75,
+        "recon": 8,
+        "attack": 117,
+        "logistics": 13
+      },
+      "traceSha256": "6b7142c82056dc33f63b36a474c292463a2264a018e195b7f8465554c70dee61",
+      "stateSha256": "275e3ca36317846f0c57e8682c943be0aea163fc881b3d34f801615b0dce9e82",
+      "cpuMs": {
+        "p95": 3.16296699999657,
+        "max": 5.220788999999058
+      },
+      "seconds": 1.5366297219999978
+    },
+    {
+      "id": "green-4-152509-army4army2army3army1-true",
+      "seed": 152509,
+      "participants": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "order": [
+        "army4",
+        "army2",
+        "army3",
+        "army1"
+      ],
+      "teams": {
+        "army1": "army1",
+        "army2": "army2",
+        "army3": "army3",
+        "army4": "army4"
+      },
+      "layoutVersion": 2,
+      "tactics": true,
+      "count": 714,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army4"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "fallbacks": 7,
+      "actions": {
+        "move": 233,
+        "capture": 57,
+        "produce": 47,
+        "wait": 174,
+        "endTurn": 80,
+        "recon": 8,
+        "attack": 98,
+        "logistics": 17
+      },
+      "traceSha256": "bdb8ba2f539b3b9178acf6e7e46e37d0cc3e15fcc44ba898a1da1f212e8520b7",
+      "stateSha256": "e9c774da7246ac29b8a0f9375d12d47b6b7d272f8f330e9402eb9f552c81218c",
+      "cpuMs": {
+        "p95": 3.0656770000059623,
+        "max": 5.765061999991303
+      },
+      "seconds": 1.598743398999999
+    },
+    {
+      "id": "green-4-152509-army4army3army1army2-false",
+      "seed": 152509,
+      "participants": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "order": [
+        "army4",
+        "army3",
+        "army1",
+        "army2"
+      ],
+      "teams": {
+        "army1": "army1",
+        "army2": "army2",
+        "army3": "army3",
+        "army4": "army4"
+      },
+      "layoutVersion": 2,
+      "tactics": false,
+      "count": 681,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army4"
+      },
+      "alive": [
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "fallbacks": 3,
+      "actions": {
+        "move": 224,
+        "capture": 76,
+        "produce": 41,
+        "wait": 153,
+        "endTurn": 73,
+        "recon": 8,
+        "attack": 100,
+        "logistics": 6
+      },
+      "traceSha256": "fb97777d352843c3aa51b9a7d6d9df216aea24bcbf1ce134cfa06b3c6d0111a4",
+      "stateSha256": "258903717570ad9dc6b8e8e5e7a38fb0b0a92c735279411e74b5cf5c166978a6",
+      "cpuMs": {
+        "p95": 2.972065999987535,
+        "max": 6.3378150000062305
+      },
+      "seconds": 1.4572244230000069
+    },
+    {
+      "id": "green-4-152509-army4army3army1army2-true",
+      "seed": 152509,
+      "participants": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "order": [
+        "army4",
+        "army3",
+        "army1",
+        "army2"
+      ],
+      "teams": {
+        "army1": "army1",
+        "army2": "army2",
+        "army3": "army3",
+        "army4": "army4"
+      },
+      "layoutVersion": 2,
+      "tactics": true,
+      "count": 750,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army4"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "fallbacks": 0,
+      "actions": {
+        "move": 248,
+        "capture": 52,
+        "produce": 59,
+        "wait": 169,
+        "endTurn": 80,
+        "recon": 8,
+        "attack": 118,
+        "logistics": 15,
+        "ambush": 1
+      },
+      "traceSha256": "1aee11d46a694bbd0f31bd8da15cabd81cde254a0fa2c0c63e596bfff0d9af3b",
+      "stateSha256": "12d32bc5c8df699895d283ddec200191731343a51760b8be7d4aa18b4558dd2f",
+      "cpuMs": {
+        "p95": 3.431477999998606,
+        "max": 13.710479000001214
+      },
+      "seconds": 1.8342906920000095
+    },
+    {
+      "id": "green-4-152509-army4army3army2army1-false",
+      "seed": 152509,
+      "participants": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "order": [
+        "army4",
+        "army3",
+        "army2",
+        "army1"
+      ],
+      "teams": {
+        "army1": "army1",
+        "army2": "army2",
+        "army3": "army3",
+        "army4": "army4"
+      },
+      "layoutVersion": 2,
+      "tactics": false,
+      "count": 721,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army3"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "fallbacks": 4,
+      "actions": {
+        "move": 237,
+        "capture": 59,
+        "produce": 52,
+        "wait": 158,
+        "endTurn": 80,
+        "recon": 8,
+        "attack": 122,
+        "logistics": 5
+      },
+      "traceSha256": "43bda89e1b6bbb526da5dcd0db6033692c6a22c1f997f151200747d96e35758a",
+      "stateSha256": "158ac1a15ac5af26d00bc06eb4be38df94745b0043e900a325d605658eb06d20",
+      "cpuMs": {
+        "p95": 3.7292360000137705,
+        "max": 7.23489600000903
+      },
+      "seconds": 2.035672367999985
+    },
+    {
+      "id": "green-4-152509-army4army3army2army1-true",
+      "seed": 152509,
+      "participants": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "order": [
+        "army4",
+        "army3",
+        "army2",
+        "army1"
+      ],
+      "teams": {
+        "army1": "army1",
+        "army2": "army2",
+        "army3": "army3",
+        "army4": "army4"
+      },
+      "layoutVersion": 2,
+      "tactics": true,
+      "count": 710,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army2"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "fallbacks": 1,
+      "actions": {
+        "move": 232,
+        "capture": 71,
+        "produce": 41,
+        "wait": 173,
+        "endTurn": 80,
+        "recon": 8,
+        "attack": 94,
+        "logistics": 11
+      },
+      "traceSha256": "cec28572fbbef29313599cb92ddd60e131fa8ed01c3898be821771880705cd59",
+      "stateSha256": "cb6bc7395bf2547e0402f72550f83e8a26d14136a5097e70d7961fde02edfb2a",
+      "cpuMs": {
+        "p95": 4.154748000000836,
+        "max": 6.668012999987695
+      },
+      "seconds": 2.0044218370000015
+    },
+    {
+      "id": "green-4-152510-army1army2army3army4-false",
+      "seed": 152510,
+      "participants": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "order": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "teams": {
+        "army1": "army1",
+        "army2": "army2",
+        "army3": "army3",
+        "army4": "army4"
+      },
+      "layoutVersion": 2,
+      "tactics": false,
+      "count": 669,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army3"
+      },
+      "alive": [
+        "army1",
+        "army3"
+      ],
+      "fallbacks": 0,
+      "actions": {
+        "move": 238,
+        "capture": 80,
+        "produce": 32,
+        "wait": 169,
+        "endTurn": 68,
+        "recon": 8,
+        "attack": 68,
+        "logistics": 6
+      },
+      "traceSha256": "ee55213f3b9e2bd8560cdc9003e272dfc98e27718a3e59010f3fd168b170429c",
+      "stateSha256": "0cc002d5f05eb92935cf971afeb5bb2ef31c3fabd25b5a783ec34c5cfe6c9cce",
+      "cpuMs": {
+        "p95": 3.7054900000221096,
+        "max": 7.613065999990795
+      },
+      "seconds": 1.6148546189999906
+    },
+    {
+      "id": "green-4-152510-army1army2army3army4-true",
+      "seed": 152510,
+      "participants": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "order": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "teams": {
+        "army1": "army1",
+        "army2": "army2",
+        "army3": "army3",
+        "army4": "army4"
+      },
+      "layoutVersion": 2,
+      "tactics": true,
+      "count": 733,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army3"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "fallbacks": 1,
+      "actions": {
+        "move": 233,
+        "capture": 61,
+        "produce": 60,
+        "wait": 162,
+        "endTurn": 80,
+        "recon": 8,
+        "attack": 117,
+        "logistics": 12
+      },
+      "traceSha256": "4cb215ab37f37c4fecaebcc13561af4812983cd1e666c701cbdcda2ecb033132",
+      "stateSha256": "844336d52ab08885dac0ee3c13a6965583212fe4b63d5b4892c66e5589395e5b",
+      "cpuMs": {
+        "p95": 3.123584999993909,
+        "max": 7.068215000006603
+      },
+      "seconds": 1.6636409599999897
+    },
+    {
+      "id": "green-4-152510-army1army2army4army3-false",
+      "seed": 152510,
+      "participants": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "order": [
+        "army1",
+        "army2",
+        "army4",
+        "army3"
+      ],
+      "teams": {
+        "army1": "army1",
+        "army2": "army2",
+        "army3": "army3",
+        "army4": "army4"
+      },
+      "layoutVersion": 2,
+      "tactics": false,
+      "count": 624,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army2"
+      },
+      "alive": [
+        "army1",
+        "army2"
+      ],
+      "fallbacks": 2,
+      "actions": {
+        "move": 221,
+        "capture": 72,
+        "produce": 28,
+        "wait": 154,
+        "endTurn": 67,
+        "recon": 8,
+        "attack": 71,
+        "logistics": 3
+      },
+      "traceSha256": "290f3c19b7c17dd7fb2eb0675453360422d6cfbe0fb48cc6d4ffb5887d3ca6c0",
+      "stateSha256": "978a597f1e525d738f67eef69a0d9ddbcec721bfcfb04118322e7aa7713264e9",
+      "cpuMs": {
+        "p95": 3.259239000006346,
+        "max": 8.209745000000112
+      },
+      "seconds": 1.4022966500000038
+    },
+    {
+      "id": "green-4-152510-army1army2army4army3-true",
+      "seed": 152510,
+      "participants": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "order": [
+        "army1",
+        "army2",
+        "army4",
+        "army3"
+      ],
+      "teams": {
+        "army1": "army1",
+        "army2": "army2",
+        "army3": "army3",
+        "army4": "army4"
+      },
+      "layoutVersion": 2,
+      "tactics": true,
+      "count": 776,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army2"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army4"
+      ],
+      "fallbacks": 1,
+      "actions": {
+        "move": 265,
+        "capture": 70,
+        "produce": 49,
+        "wait": 184,
+        "endTurn": 79,
+        "recon": 8,
+        "attack": 101,
+        "logistics": 19,
+        "ambush": 1
+      },
+      "traceSha256": "fecf52d0ddf91ccb417f8290996395fbffd7c96a98128fc876bb68618bce23fb",
+      "stateSha256": "9f0a2fd2368a0b29352dd2aa8eddcd499b058f1b6965396c98fb07cf9c178f41",
+      "cpuMs": {
+        "p95": 3.0134779999789316,
+        "max": 8.255984000017634
+      },
+      "seconds": 1.7601276079999806
+    },
+    {
+      "id": "green-4-152510-army1army3army2army4-false",
+      "seed": 152510,
+      "participants": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "order": [
+        "army1",
+        "army3",
+        "army2",
+        "army4"
+      ],
+      "teams": {
+        "army1": "army1",
+        "army2": "army2",
+        "army3": "army3",
+        "army4": "army4"
+      },
+      "layoutVersion": 2,
+      "tactics": false,
+      "count": 753,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army2"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "fallbacks": 0,
+      "actions": {
+        "move": 251,
+        "capture": 64,
+        "produce": 59,
+        "wait": 154,
+        "endTurn": 80,
+        "recon": 8,
+        "attack": 131,
+        "logistics": 6
+      },
+      "traceSha256": "0ce67a1c5f24aaa81dc249c25fdd49ed1135d1fc77e345675ae0b2814c62f6b0",
+      "stateSha256": "7f196e6ae63a7b844d2bef890bb4661ae1af56609672166e55b0d4efa8ea2161",
+      "cpuMs": {
+        "p95": 3.12223300000187,
+        "max": 7.698724999994738
+      },
+      "seconds": 1.6418088559999888
+    },
+    {
+      "id": "green-4-152510-army1army3army2army4-true",
+      "seed": 152510,
+      "participants": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "order": [
+        "army1",
+        "army3",
+        "army2",
+        "army4"
+      ],
+      "teams": {
+        "army1": "army1",
+        "army2": "army2",
+        "army3": "army3",
+        "army4": "army4"
+      },
+      "layoutVersion": 2,
+      "tactics": true,
+      "count": 721,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army1"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army3"
+      ],
+      "fallbacks": 1,
+      "actions": {
+        "move": 245,
+        "capture": 67,
+        "produce": 42,
+        "wait": 183,
+        "endTurn": 76,
+        "recon": 8,
+        "attack": 86,
+        "logistics": 13,
+        "ambush": 1
+      },
+      "traceSha256": "49ed9911cb84127de131a37cb11911bc9a9574fa69f28a6ff29a40071fab9e04",
+      "stateSha256": "2bbf86fd1284ac88e77ef35dd5bc2630cb821f93c42fdabc98869b8ed7f0c9ba",
+      "cpuMs": {
+        "p95": 3.3474609999975655,
+        "max": 5.792011999990791
+      },
+      "seconds": 1.7074065669999983
+    },
+    {
+      "id": "green-4-152510-army1army3army4army2-false",
+      "seed": 152510,
+      "participants": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "order": [
+        "army1",
+        "army3",
+        "army4",
+        "army2"
+      ],
+      "teams": {
+        "army1": "army1",
+        "army2": "army2",
+        "army3": "army3",
+        "army4": "army4"
+      },
+      "layoutVersion": 2,
+      "tactics": false,
+      "count": 712,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army2"
+      },
+      "alive": [
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "fallbacks": 1,
+      "actions": {
+        "move": 250,
+        "capture": 69,
+        "produce": 41,
+        "wait": 169,
+        "endTurn": 75,
+        "recon": 8,
+        "attack": 90,
+        "logistics": 10
+      },
+      "traceSha256": "d3d226cb9dbc525eed9888ff9d5aad4672c28a3cd92cccfa180ddbca6bb96b92",
+      "stateSha256": "ccd95550feda52000f48dabe86c5dfee92fbd439ab0e66c4c2d741012d5492c6",
+      "cpuMs": {
+        "p95": 3.031676000013249,
+        "max": 6.945799999986775
+      },
+      "seconds": 1.6143193610000017
+    },
+    {
+      "id": "green-4-152510-army1army3army4army2-true",
+      "seed": 152510,
+      "participants": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "order": [
+        "army1",
+        "army3",
+        "army4",
+        "army2"
+      ],
+      "teams": {
+        "army1": "army1",
+        "army2": "army2",
+        "army3": "army3",
+        "army4": "army4"
+      },
+      "layoutVersion": 2,
+      "tactics": true,
+      "count": 755,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army3"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "fallbacks": 0,
+      "actions": {
+        "move": 251,
+        "capture": 79,
+        "produce": 44,
+        "wait": 180,
+        "endTurn": 80,
+        "recon": 8,
+        "attack": 103,
+        "logistics": 10
+      },
+      "traceSha256": "7b4b5271438e8ee408541375ab1041836c4cf742d78f11dbfea479966e505ee0",
+      "stateSha256": "ecce7cbe5086ba155ff0b1a7ee379f0cd8b1e7d583583849decbc8ba7d5ad90d",
+      "cpuMs": {
+        "p95": 3.4520289999782108,
+        "max": 8.095172000001185
+      },
+      "seconds": 1.8447713899999798
+    },
+    {
+      "id": "green-4-152510-army1army4army2army3-false",
+      "seed": 152510,
+      "participants": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "order": [
+        "army1",
+        "army4",
+        "army2",
+        "army3"
+      ],
+      "teams": {
+        "army1": "army1",
+        "army2": "army2",
+        "army3": "army3",
+        "army4": "army4"
+      },
+      "layoutVersion": 2,
+      "tactics": false,
+      "count": 694,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army2"
+      },
+      "alive": [
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "fallbacks": 4,
+      "actions": {
+        "move": 220,
+        "capture": 73,
+        "produce": 46,
+        "wait": 147,
+        "endTurn": 77,
+        "recon": 8,
+        "attack": 113,
+        "logistics": 10
+      },
+      "traceSha256": "1bd02a70e8dde6d2d0709ac5d8041f6547b39ce8d74bbf666488b5ec9eb88cf8",
+      "stateSha256": "5a5433ce9b46bfdf53f89ba56b92e9f945abb17023f010d5902d2ff3b7948d50",
+      "cpuMs": {
+        "p95": 3.128672999999253,
+        "max": 6.297193000005791
+      },
+      "seconds": 1.6089734140000074
+    },
+    {
+      "id": "green-4-152510-army1army4army2army3-true",
+      "seed": 152510,
+      "participants": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "order": [
+        "army1",
+        "army4",
+        "army2",
+        "army3"
+      ],
+      "teams": {
+        "army1": "army1",
+        "army2": "army2",
+        "army3": "army3",
+        "army4": "army4"
+      },
+      "layoutVersion": 2,
+      "tactics": true,
+      "count": 722,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army3"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "fallbacks": 0,
+      "actions": {
+        "move": 229,
+        "capture": 72,
+        "produce": 46,
+        "wait": 165,
+        "endTurn": 80,
+        "recon": 8,
+        "attack": 107,
+        "logistics": 15
+      },
+      "traceSha256": "687d2fa1391c6458750991c2cd81cc90bd4f678a209e05ccd2d7529cef285cc9",
+      "stateSha256": "af41f43bb1c5808ef8cfb1a99997a454d284a3a7f57115e33997bebe9341beda",
+      "cpuMs": {
+        "p95": 3.3238759999803733,
+        "max": 8.428003000008175
+      },
+      "seconds": 1.6916380359999894
+    },
+    {
+      "id": "green-4-152510-army1army4army3army2-false",
+      "seed": 152510,
+      "participants": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "order": [
+        "army1",
+        "army4",
+        "army3",
+        "army2"
+      ],
+      "teams": {
+        "army1": "army1",
+        "army2": "army2",
+        "army3": "army3",
+        "army4": "army4"
+      },
+      "layoutVersion": 2,
+      "tactics": false,
+      "count": 741,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army1"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "fallbacks": 4,
+      "actions": {
+        "move": 243,
+        "capture": 61,
+        "produce": 40,
+        "wait": 192,
+        "endTurn": 80,
+        "recon": 8,
+        "attack": 107,
+        "logistics": 10
+      },
+      "traceSha256": "ca9c682ef84f0187ed372905f8d409b54db6542053701dbb768646bb18471d86",
+      "stateSha256": "9aad06db5b975ba32100e6be6945e2eca82d86f8ad8d5ed4e81dc6954e21d0d3",
+      "cpuMs": {
+        "p95": 3.0029230000218377,
+        "max": 5.491509999992559
+      },
+      "seconds": 1.6466060399999842
+    },
+    {
+      "id": "green-4-152510-army1army4army3army2-true",
+      "seed": 152510,
+      "participants": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "order": [
+        "army1",
+        "army4",
+        "army3",
+        "army2"
+      ],
+      "teams": {
+        "army1": "army1",
+        "army2": "army2",
+        "army3": "army3",
+        "army4": "army4"
+      },
+      "layoutVersion": 2,
+      "tactics": true,
+      "count": 719,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army3"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "fallbacks": 3,
+      "actions": {
+        "move": 234,
+        "capture": 66,
+        "produce": 46,
+        "wait": 173,
+        "endTurn": 80,
+        "recon": 8,
+        "attack": 101,
+        "logistics": 10,
+        "ambush": 1
+      },
+      "traceSha256": "d85669a34e94a32896f0ad7518cb73202fed488e2b0a184edef35d9d67555c79",
+      "stateSha256": "63d6c96fef753bec6da0fd0975a4ad634004b137a16926cfdd1f9bb89eb2843a",
+      "cpuMs": {
+        "p95": 3.1108660000027157,
+        "max": 7.511752999998862
+      },
+      "seconds": 1.6065324670000118
+    },
+    {
+      "id": "green-4-152510-army2army1army3army4-false",
+      "seed": 152510,
+      "participants": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "order": [
+        "army2",
+        "army1",
+        "army3",
+        "army4"
+      ],
+      "teams": {
+        "army1": "army1",
+        "army2": "army2",
+        "army3": "army3",
+        "army4": "army4"
+      },
+      "layoutVersion": 2,
+      "tactics": false,
+      "count": 624,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army1"
+      },
+      "alive": [
+        "army1",
+        "army2"
+      ],
+      "fallbacks": 2,
+      "actions": {
+        "move": 221,
+        "capture": 72,
+        "produce": 28,
+        "wait": 154,
+        "endTurn": 67,
+        "recon": 8,
+        "attack": 71,
+        "logistics": 3
+      },
+      "traceSha256": "ba723b7ae1350bd7d8397e80988fa94bdd56c86c60f4af3da23602bf8887bad8",
+      "stateSha256": "172a6d2758c389bb5a0b02e96501da755f45597d7fbb095f046a1b4193f34f58",
+      "cpuMs": {
+        "p95": 3.0862380000180565,
+        "max": 6.6212520000117365
+      },
+      "seconds": 1.3679783100000058
+    },
+    {
+      "id": "green-4-152510-army2army1army3army4-true",
+      "seed": 152510,
+      "participants": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "order": [
+        "army2",
+        "army1",
+        "army3",
+        "army4"
+      ],
+      "teams": {
+        "army1": "army1",
+        "army2": "army2",
+        "army3": "army3",
+        "army4": "army4"
+      },
+      "layoutVersion": 2,
+      "tactics": true,
+      "count": 776,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army1"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army3"
+      ],
+      "fallbacks": 1,
+      "actions": {
+        "move": 265,
+        "capture": 70,
+        "produce": 49,
+        "wait": 184,
+        "endTurn": 79,
+        "recon": 8,
+        "attack": 101,
+        "logistics": 19,
+        "ambush": 1
+      },
+      "traceSha256": "75978a29f3a48149e861d824a468990808c770469886f932bba630d07d7e0ca2",
+      "stateSha256": "c350b92cb58b859417b55ae90b86a839b370ae78ba82c8a85bf0aaadb5597158",
+      "cpuMs": {
+        "p95": 3.3134500000160187,
+        "max": 6.890898000012385
+      },
+      "seconds": 1.8093420890000125
+    },
+    {
+      "id": "green-4-152510-army2army1army4army3-false",
+      "seed": 152510,
+      "participants": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "order": [
+        "army2",
+        "army1",
+        "army4",
+        "army3"
+      ],
+      "teams": {
+        "army1": "army1",
+        "army2": "army2",
+        "army3": "army3",
+        "army4": "army4"
+      },
+      "layoutVersion": 2,
+      "tactics": false,
+      "count": 669,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army4"
+      },
+      "alive": [
+        "army2",
+        "army4"
+      ],
+      "fallbacks": 0,
+      "actions": {
+        "move": 238,
+        "capture": 80,
+        "produce": 32,
+        "wait": 169,
+        "endTurn": 68,
+        "recon": 8,
+        "attack": 68,
+        "logistics": 6
+      },
+      "traceSha256": "d7b5a74382fe96b6e3839f3fdff28e04d4274f99242b917e9d7ad9e4149e7cc1",
+      "stateSha256": "a90e7e32bb640550f3579377c4fa3722000428357f1698fe371d79ecd5c63ac9",
+      "cpuMs": {
+        "p95": 3.6735719999996945,
+        "max": 7.381246000004467
+      },
+      "seconds": 1.5679375650000003
+    },
+    {
+      "id": "green-4-152510-army2army1army4army3-true",
+      "seed": 152510,
+      "participants": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "order": [
+        "army2",
+        "army1",
+        "army4",
+        "army3"
+      ],
+      "teams": {
+        "army1": "army1",
+        "army2": "army2",
+        "army3": "army3",
+        "army4": "army4"
+      },
+      "layoutVersion": 2,
+      "tactics": true,
+      "count": 733,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army4"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "fallbacks": 1,
+      "actions": {
+        "move": 233,
+        "capture": 61,
+        "produce": 60,
+        "wait": 162,
+        "endTurn": 80,
+        "recon": 8,
+        "attack": 117,
+        "logistics": 12
+      },
+      "traceSha256": "583a02b88fe1d5e6af6d8c1bdbd21dd6e36580e5db4021c52f703c2f79d9c2c9",
+      "stateSha256": "4b6495591f13ab3c458af61e8e51723372d5309c1264e19993122de2a5cc8214",
+      "cpuMs": {
+        "p95": 2.8954809999850113,
+        "max": 5.124207999993814
+      },
+      "seconds": 1.5831716190000007
+    },
+    {
+      "id": "green-4-152510-army2army3army1army4-false",
+      "seed": 152510,
+      "participants": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "order": [
+        "army2",
+        "army3",
+        "army1",
+        "army4"
+      ],
+      "teams": {
+        "army1": "army1",
+        "army2": "army2",
+        "army3": "army3",
+        "army4": "army4"
+      },
+      "layoutVersion": 2,
+      "tactics": false,
+      "count": 694,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army1"
+      },
+      "alive": [
+        "army1",
+        "army3",
+        "army4"
+      ],
+      "fallbacks": 4,
+      "actions": {
+        "move": 220,
+        "capture": 73,
+        "produce": 46,
+        "wait": 147,
+        "endTurn": 77,
+        "recon": 8,
+        "attack": 113,
+        "logistics": 10
+      },
+      "traceSha256": "4dadd6e2e4cd645c9751d3b5dbe454bd68a54bb20ef6fff104ec0bc66bf98075",
+      "stateSha256": "1c000dc533d84082f2c2cb0ba8bef07603e7607d00adabbc18af1808344c3b4a",
+      "cpuMs": {
+        "p95": 3.068150000006426,
+        "max": 6.72742300000391
+      },
+      "seconds": 1.5634676829999954
+    },
+    {
+      "id": "green-4-152510-army2army3army1army4-true",
+      "seed": 152510,
+      "participants": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "order": [
+        "army2",
+        "army3",
+        "army1",
+        "army4"
+      ],
+      "teams": {
+        "army1": "army1",
+        "army2": "army2",
+        "army3": "army3",
+        "army4": "army4"
+      },
+      "layoutVersion": 2,
+      "tactics": true,
+      "count": 722,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army4"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "fallbacks": 0,
+      "actions": {
+        "move": 229,
+        "capture": 72,
+        "produce": 46,
+        "wait": 165,
+        "endTurn": 80,
+        "recon": 8,
+        "attack": 107,
+        "logistics": 15
+      },
+      "traceSha256": "70d45a295ab78d5773ef2eba5e43703f4f802f005665370703329055608fbb67",
+      "stateSha256": "8db2e5d3a5a09c39e40b84db71c06084fc409a2f5f22b0586eb254d04fe673a2",
+      "cpuMs": {
+        "p95": 4.16778700001305,
+        "max": 8.280690999992657
+      },
+      "seconds": 1.868996844999987
+    },
+    {
+      "id": "green-4-152510-army2army3army4army1-false",
+      "seed": 152510,
+      "participants": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "order": [
+        "army2",
+        "army3",
+        "army4",
+        "army1"
+      ],
+      "teams": {
+        "army1": "army1",
+        "army2": "army2",
+        "army3": "army3",
+        "army4": "army4"
+      },
+      "layoutVersion": 2,
+      "tactics": false,
+      "count": 741,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army2"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "fallbacks": 4,
+      "actions": {
+        "move": 243,
+        "capture": 61,
+        "produce": 40,
+        "wait": 192,
+        "endTurn": 80,
+        "recon": 8,
+        "attack": 107,
+        "logistics": 10
+      },
+      "traceSha256": "5d108949ab1fb30f12b2d1d252f904377834eaebe49875c4c5f530f70fef6c1d",
+      "stateSha256": "1cfcdde60733b323a5feeea4c141ac8855de5961e0d41b362a5e79c13be6f085",
+      "cpuMs": {
+        "p95": 3.091685999999754,
+        "max": 6.497395000013057
+      },
+      "seconds": 1.704642101000005
+    },
+    {
+      "id": "green-4-152510-army2army3army4army1-true",
+      "seed": 152510,
+      "participants": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "order": [
+        "army2",
+        "army3",
+        "army4",
+        "army1"
+      ],
+      "teams": {
+        "army1": "army1",
+        "army2": "army2",
+        "army3": "army3",
+        "army4": "army4"
+      },
+      "layoutVersion": 2,
+      "tactics": true,
+      "count": 719,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army4"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "fallbacks": 3,
+      "actions": {
+        "move": 234,
+        "capture": 66,
+        "produce": 46,
+        "wait": 173,
+        "endTurn": 80,
+        "recon": 8,
+        "attack": 101,
+        "logistics": 10,
+        "ambush": 1
+      },
+      "traceSha256": "fb0c54a5b660e57adb1a60a8a5ebbf3338c7e9d240aa4115f185b60ceb2e00f0",
+      "stateSha256": "5ad222125150670370035b7509d03302944f1135ebf5181b40e7c418fce3eb5c",
+      "cpuMs": {
+        "p95": 2.823703000001842,
+        "max": 6.69126699998742
+      },
+      "seconds": 1.5554525250000006
+    },
+    {
+      "id": "green-4-152510-army2army4army1army3-false",
+      "seed": 152510,
+      "participants": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "order": [
+        "army2",
+        "army4",
+        "army1",
+        "army3"
+      ],
+      "teams": {
+        "army1": "army1",
+        "army2": "army2",
+        "army3": "army3",
+        "army4": "army4"
+      },
+      "layoutVersion": 2,
+      "tactics": false,
+      "count": 753,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army1"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "fallbacks": 0,
+      "actions": {
+        "move": 251,
+        "capture": 64,
+        "produce": 59,
+        "wait": 154,
+        "endTurn": 80,
+        "recon": 8,
+        "attack": 131,
+        "logistics": 6
+      },
+      "traceSha256": "97067aacf6fd368388e8dee9206bdffd47c96acec30d6fc36aa60952bb9dc6eb",
+      "stateSha256": "70dae9f3a7f68601e5c242b0b86d08b87fb338ed0ee4fc9c5342153e5e878572",
+      "cpuMs": {
+        "p95": 3.732791999995243,
+        "max": 6.6670910000102594
+      },
+      "seconds": 1.8249983240000147
+    },
+    {
+      "id": "green-4-152510-army2army4army1army3-true",
+      "seed": 152510,
+      "participants": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "order": [
+        "army2",
+        "army4",
+        "army1",
+        "army3"
+      ],
+      "teams": {
+        "army1": "army1",
+        "army2": "army2",
+        "army3": "army3",
+        "army4": "army4"
+      },
+      "layoutVersion": 2,
+      "tactics": true,
+      "count": 721,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army2"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army4"
+      ],
+      "fallbacks": 1,
+      "actions": {
+        "move": 245,
+        "capture": 67,
+        "produce": 42,
+        "wait": 183,
+        "endTurn": 76,
+        "recon": 8,
+        "attack": 86,
+        "logistics": 13,
+        "ambush": 1
+      },
+      "traceSha256": "5da6973eda396e237ed0496322dc684cd79bf8c49d97c9adedcaca5c9de407e0",
+      "stateSha256": "db6801fa76893c665e411a36478b7654d8d31f629a4832d922d31312032ba4a0",
+      "cpuMs": {
+        "p95": 3.5446280000032857,
+        "max": 7.166973999992479
+      },
+      "seconds": 1.7327914250000032
+    },
+    {
+      "id": "green-4-152510-army2army4army3army1-false",
+      "seed": 152510,
+      "participants": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "order": [
+        "army2",
+        "army4",
+        "army3",
+        "army1"
+      ],
+      "teams": {
+        "army1": "army1",
+        "army2": "army2",
+        "army3": "army3",
+        "army4": "army4"
+      },
+      "layoutVersion": 2,
+      "tactics": false,
+      "count": 712,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army1"
+      },
+      "alive": [
+        "army1",
+        "army3",
+        "army4"
+      ],
+      "fallbacks": 1,
+      "actions": {
+        "move": 250,
+        "capture": 69,
+        "produce": 41,
+        "wait": 169,
+        "endTurn": 75,
+        "recon": 8,
+        "attack": 90,
+        "logistics": 10
+      },
+      "traceSha256": "a13218cfd5f26c65a33e80919e33628ced6195fbfeca22cef236bfafe9918471",
+      "stateSha256": "7b6a8a6f4bded31e73cf78d79542a4427cb35efb8c50fef816a39534d475c2eb",
+      "cpuMs": {
+        "p95": 2.866175999981351,
+        "max": 16.159727999998722
+      },
+      "seconds": 1.5221944080000103
+    },
+    {
+      "id": "green-4-152510-army2army4army3army1-true",
+      "seed": 152510,
+      "participants": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "order": [
+        "army2",
+        "army4",
+        "army3",
+        "army1"
+      ],
+      "teams": {
+        "army1": "army1",
+        "army2": "army2",
+        "army3": "army3",
+        "army4": "army4"
+      },
+      "layoutVersion": 2,
+      "tactics": true,
+      "count": 755,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army4"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "fallbacks": 0,
+      "actions": {
+        "move": 251,
+        "capture": 79,
+        "produce": 44,
+        "wait": 180,
+        "endTurn": 80,
+        "recon": 8,
+        "attack": 103,
+        "logistics": 10
+      },
+      "traceSha256": "6645f97770d4d2c32256ea56b8a913d6f792ccc9ef34023ff8c8600c4226db65",
+      "stateSha256": "7e15351dd8aa8c3157d86c31b6778ec91425cbcb325985d218ab7cd430f07ce1",
+      "cpuMs": {
+        "p95": 3.9778210000076797,
+        "max": 11.804262999998173
+      },
+      "seconds": 2.0281399289999973
+    },
+    {
+      "id": "green-4-152510-army3army1army2army4-false",
+      "seed": 152510,
+      "participants": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "order": [
+        "army3",
+        "army1",
+        "army2",
+        "army4"
+      ],
+      "teams": {
+        "army1": "army1",
+        "army2": "army2",
+        "army3": "army3",
+        "army4": "army4"
+      },
+      "layoutVersion": 2,
+      "tactics": false,
+      "count": 712,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army4"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army4"
+      ],
+      "fallbacks": 1,
+      "actions": {
+        "move": 250,
+        "capture": 69,
+        "produce": 41,
+        "wait": 169,
+        "endTurn": 75,
+        "recon": 8,
+        "attack": 90,
+        "logistics": 10
+      },
+      "traceSha256": "549cfdc01ec49988750988428cf940fc8a9027303c933777a95ad340ba74fda0",
+      "stateSha256": "d09d04e5876fb4155629258052f706e98ff4f65a95d40f824379f1b4715d3ecf",
+      "cpuMs": {
+        "p95": 3.5924309999973048,
+        "max": 7.394646000000648
+      },
+      "seconds": 1.6829515490000195
+    },
+    {
+      "id": "green-4-152510-army3army1army2army4-true",
+      "seed": 152510,
+      "participants": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "order": [
+        "army3",
+        "army1",
+        "army2",
+        "army4"
+      ],
+      "teams": {
+        "army1": "army1",
+        "army2": "army2",
+        "army3": "army3",
+        "army4": "army4"
+      },
+      "layoutVersion": 2,
+      "tactics": true,
+      "count": 755,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army1"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "fallbacks": 0,
+      "actions": {
+        "move": 251,
+        "capture": 79,
+        "produce": 44,
+        "wait": 180,
+        "endTurn": 80,
+        "recon": 8,
+        "attack": 103,
+        "logistics": 10
+      },
+      "traceSha256": "c66d8142fd1113d8253fcaf91c984c652e508deef979fbe5c457794ab34c60b4",
+      "stateSha256": "0985401b96090955a587cd6015d810ae3fb635151e8264b59fccc53b3cec6a66",
+      "cpuMs": {
+        "p95": 3.3214220000081696,
+        "max": 8.725000999984331
+      },
+      "seconds": 1.8316337160000111
+    },
+    {
+      "id": "green-4-152510-army3army1army4army2-false",
+      "seed": 152510,
+      "participants": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "order": [
+        "army3",
+        "army1",
+        "army4",
+        "army2"
+      ],
+      "teams": {
+        "army1": "army1",
+        "army2": "army2",
+        "army3": "army3",
+        "army4": "army4"
+      },
+      "layoutVersion": 2,
+      "tactics": false,
+      "count": 753,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army4"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "fallbacks": 0,
+      "actions": {
+        "move": 251,
+        "capture": 64,
+        "produce": 59,
+        "wait": 154,
+        "endTurn": 80,
+        "recon": 8,
+        "attack": 131,
+        "logistics": 6
+      },
+      "traceSha256": "5194394dde3a41a14b703af4a223738c3660ca697b1ea39db3a46e8b88e06514",
+      "stateSha256": "59d7e15eed6ad868e1dff75314d72cae0948f3559a561a65c0f72d0d5caa4882",
+      "cpuMs": {
+        "p95": 3.149582999991253,
+        "max": 7.12783500002115
+      },
+      "seconds": 1.6956299489999946
+    },
+    {
+      "id": "green-4-152510-army3army1army4army2-true",
+      "seed": 152510,
+      "participants": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "order": [
+        "army3",
+        "army1",
+        "army4",
+        "army2"
+      ],
+      "teams": {
+        "army1": "army1",
+        "army2": "army2",
+        "army3": "army3",
+        "army4": "army4"
+      },
+      "layoutVersion": 2,
+      "tactics": true,
+      "count": 721,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army3"
+      },
+      "alive": [
+        "army1",
+        "army3",
+        "army4"
+      ],
+      "fallbacks": 1,
+      "actions": {
+        "move": 245,
+        "capture": 67,
+        "produce": 42,
+        "wait": 183,
+        "endTurn": 76,
+        "recon": 8,
+        "attack": 86,
+        "logistics": 13,
+        "ambush": 1
+      },
+      "traceSha256": "bf829281f91e668e8468d901ea2405397a4384ddfed4674e000350b68ff613f6",
+      "stateSha256": "5b53d5c81fedfebf190b01ee9b3415a8a1b4415dc0cd21a7c6baca9fffa0b418",
+      "cpuMs": {
+        "p95": 3.0676600000006147,
+        "max": 5.6791640000010375
+      },
+      "seconds": 1.5724363310000045
+    },
+    {
+      "id": "green-4-152510-army3army2army1army4-false",
+      "seed": 152510,
+      "participants": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "order": [
+        "army3",
+        "army2",
+        "army1",
+        "army4"
+      ],
+      "teams": {
+        "army1": "army1",
+        "army2": "army2",
+        "army3": "army3",
+        "army4": "army4"
+      },
+      "layoutVersion": 2,
+      "tactics": false,
+      "count": 741,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army3"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "fallbacks": 4,
+      "actions": {
+        "move": 243,
+        "capture": 61,
+        "produce": 40,
+        "wait": 192,
+        "endTurn": 80,
+        "recon": 8,
+        "attack": 107,
+        "logistics": 10
+      },
+      "traceSha256": "2358691ed4221a8a37e2a1ca31122d550dcd1d7ae2e9392857b610968b77c3fb",
+      "stateSha256": "640187d4a700c6ddbd5c2a488fad8eb2329f323d40968841d45a1e8dd4294756",
+      "cpuMs": {
+        "p95": 3.362143999984255,
+        "max": 12.828730999986874
+      },
+      "seconds": 1.7857179999999935
+    },
+    {
+      "id": "green-4-152510-army3army2army1army4-true",
+      "seed": 152510,
+      "participants": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "order": [
+        "army3",
+        "army2",
+        "army1",
+        "army4"
+      ],
+      "teams": {
+        "army1": "army1",
+        "army2": "army2",
+        "army3": "army3",
+        "army4": "army4"
+      },
+      "layoutVersion": 2,
+      "tactics": true,
+      "count": 719,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army1"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "fallbacks": 3,
+      "actions": {
+        "move": 234,
+        "capture": 66,
+        "produce": 46,
+        "wait": 173,
+        "endTurn": 80,
+        "recon": 8,
+        "attack": 101,
+        "logistics": 10,
+        "ambush": 1
+      },
+      "traceSha256": "03e9428fc49656d5251b4def2613d232c8d1e018b41a6360d862a4f2e9264a4e",
+      "stateSha256": "ae26456f6f79cdad1ad2a28b4ccfd7a42da901ffb69796ace69da06adeefea49",
+      "cpuMs": {
+        "p95": 3.5461709999945015,
+        "max": 8.577336999995168
+      },
+      "seconds": 1.766479737000016
+    },
+    {
+      "id": "green-4-152510-army3army2army4army1-false",
+      "seed": 152510,
+      "participants": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "order": [
+        "army3",
+        "army2",
+        "army4",
+        "army1"
+      ],
+      "teams": {
+        "army1": "army1",
+        "army2": "army2",
+        "army3": "army3",
+        "army4": "army4"
+      },
+      "layoutVersion": 2,
+      "tactics": false,
+      "count": 694,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army4"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army4"
+      ],
+      "fallbacks": 4,
+      "actions": {
+        "move": 220,
+        "capture": 73,
+        "produce": 46,
+        "wait": 147,
+        "endTurn": 77,
+        "recon": 8,
+        "attack": 113,
+        "logistics": 10
+      },
+      "traceSha256": "16021d9ddfa291a5e3a547e81a49113f4dc2b1d8dc30aaa0f73c673dbfd9a416",
+      "stateSha256": "6bafa59ecd712c1694be66490b204467ffbbfa0192ce6f94e17da2f4027b3780",
+      "cpuMs": {
+        "p95": 4.144451999978628,
+        "max": 8.694045000011101
+      },
+      "seconds": 2.0746457400000073
+    },
+    {
+      "id": "green-4-152510-army3army2army4army1-true",
+      "seed": 152510,
+      "participants": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "order": [
+        "army3",
+        "army2",
+        "army4",
+        "army1"
+      ],
+      "teams": {
+        "army1": "army1",
+        "army2": "army2",
+        "army3": "army3",
+        "army4": "army4"
+      },
+      "layoutVersion": 2,
+      "tactics": true,
+      "count": 722,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army1"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "fallbacks": 0,
+      "actions": {
+        "move": 229,
+        "capture": 72,
+        "produce": 46,
+        "wait": 165,
+        "endTurn": 80,
+        "recon": 8,
+        "attack": 107,
+        "logistics": 15
+      },
+      "traceSha256": "2601ce9382e9f92b72b100c7ebd792b602954233f2c6b2184eb5131234c973d3",
+      "stateSha256": "11ab32708f5cd1acbf5df3881ea5653671f170c0fea9a0bf8b023524a4818a55",
+      "cpuMs": {
+        "p95": 3.675195000017993,
+        "max": 9.672297000011895
+      },
+      "seconds": 1.9356875329999894
+    },
+    {
+      "id": "green-4-152510-army3army4army1army2-false",
+      "seed": 152510,
+      "participants": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "order": [
+        "army3",
+        "army4",
+        "army1",
+        "army2"
+      ],
+      "teams": {
+        "army1": "army1",
+        "army2": "army2",
+        "army3": "army3",
+        "army4": "army4"
+      },
+      "layoutVersion": 2,
+      "tactics": false,
+      "count": 669,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army1"
+      },
+      "alive": [
+        "army1",
+        "army3"
+      ],
+      "fallbacks": 0,
+      "actions": {
+        "move": 238,
+        "capture": 80,
+        "produce": 32,
+        "wait": 169,
+        "endTurn": 68,
+        "recon": 8,
+        "attack": 68,
+        "logistics": 6
+      },
+      "traceSha256": "c2e977ff777208820ab3d90d3dd7ae1f04f5b445e5ca28a118ac779ae4b0dd19",
+      "stateSha256": "015b138969d144580e5c12b4e7f3bdb486c8c1048f2a2cc9f94f9f7dc41e80d6",
+      "cpuMs": {
+        "p95": 3.9038090000103693,
+        "max": 21.78658300000825
+      },
+      "seconds": 1.6399745730000141
+    },
+    {
+      "id": "green-4-152510-army3army4army1army2-true",
+      "seed": 152510,
+      "participants": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "order": [
+        "army3",
+        "army4",
+        "army1",
+        "army2"
+      ],
+      "teams": {
+        "army1": "army1",
+        "army2": "army2",
+        "army3": "army3",
+        "army4": "army4"
+      },
+      "layoutVersion": 2,
+      "tactics": true,
+      "count": 733,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army1"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "fallbacks": 1,
+      "actions": {
+        "move": 233,
+        "capture": 61,
+        "produce": 60,
+        "wait": 162,
+        "endTurn": 80,
+        "recon": 8,
+        "attack": 117,
+        "logistics": 12
+      },
+      "traceSha256": "3e074cbe986a1d54e7d252493f0aa9055058a4b6dadf48d11c44ee6277c182b6",
+      "stateSha256": "c1dfbe8904e393fe86bccdfd8778672521a9dd59a3e9ad9a478f9d937aaf06b0",
+      "cpuMs": {
+        "p95": 3.13252799998736,
+        "max": 12.378877999988617
+      },
+      "seconds": 1.6447979080000077
+    },
+    {
+      "id": "green-4-152510-army3army4army2army1-false",
+      "seed": 152510,
+      "participants": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "order": [
+        "army3",
+        "army4",
+        "army2",
+        "army1"
+      ],
+      "teams": {
+        "army1": "army1",
+        "army2": "army2",
+        "army3": "army3",
+        "army4": "army4"
+      },
+      "layoutVersion": 2,
+      "tactics": false,
+      "count": 624,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army4"
+      },
+      "alive": [
+        "army3",
+        "army4"
+      ],
+      "fallbacks": 2,
+      "actions": {
+        "move": 221,
+        "capture": 72,
+        "produce": 28,
+        "wait": 154,
+        "endTurn": 67,
+        "recon": 8,
+        "attack": 71,
+        "logistics": 3
+      },
+      "traceSha256": "ea4fb992cc9648dba8c90014bc7dfd9403583c9ef1b3d5b49360c30bb80c0f00",
+      "stateSha256": "ebeb3e450df5dce7e14f5f18132bf9be23d5707cf9eab1871dd0666dbe71fb48",
+      "cpuMs": {
+        "p95": 3.3701659999787807,
+        "max": 7.06713400001172
+      },
+      "seconds": 1.3972811949999886
+    },
+    {
+      "id": "green-4-152510-army3army4army2army1-true",
+      "seed": 152510,
+      "participants": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "order": [
+        "army3",
+        "army4",
+        "army2",
+        "army1"
+      ],
+      "teams": {
+        "army1": "army1",
+        "army2": "army2",
+        "army3": "army3",
+        "army4": "army4"
+      },
+      "layoutVersion": 2,
+      "tactics": true,
+      "count": 776,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army4"
+      },
+      "alive": [
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "fallbacks": 1,
+      "actions": {
+        "move": 265,
+        "capture": 70,
+        "produce": 49,
+        "wait": 184,
+        "endTurn": 79,
+        "recon": 8,
+        "attack": 101,
+        "logistics": 19,
+        "ambush": 1
+      },
+      "traceSha256": "3ef3ab359f2dae634fdab998fc8a71176883876bfa06b516510de31b2f297a70",
+      "stateSha256": "8b43f06a24585e559fa06fe82d5ac2e5358ec679129fc1e729bace2905deb4c8",
+      "cpuMs": {
+        "p95": 4.401818999991519,
+        "max": 8.330896999977995
+      },
+      "seconds": 2.1910510469999864
+    },
+    {
+      "id": "green-4-152510-army4army1army2army3-false",
+      "seed": 152510,
+      "participants": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "order": [
+        "army4",
+        "army1",
+        "army2",
+        "army3"
+      ],
+      "teams": {
+        "army1": "army1",
+        "army2": "army2",
+        "army3": "army3",
+        "army4": "army4"
+      },
+      "layoutVersion": 2,
+      "tactics": false,
+      "count": 741,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army4"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "fallbacks": 4,
+      "actions": {
+        "move": 243,
+        "capture": 61,
+        "produce": 40,
+        "wait": 192,
+        "endTurn": 80,
+        "recon": 8,
+        "attack": 107,
+        "logistics": 10
+      },
+      "traceSha256": "ff004a4096efd1775ff610e6b13988e80fecbde571d13e23509befba729b6e4d",
+      "stateSha256": "b4c8ff6d51dc5a9526e63828b36187d9a08a5c3f5729b2b03822002f0c17b803",
+      "cpuMs": {
+        "p95": 3.91397500000312,
+        "max": 8.755807000008645
+      },
+      "seconds": 1.858700033000001
+    },
+    {
+      "id": "green-4-152510-army4army1army2army3-true",
+      "seed": 152510,
+      "participants": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "order": [
+        "army4",
+        "army1",
+        "army2",
+        "army3"
+      ],
+      "teams": {
+        "army1": "army1",
+        "army2": "army2",
+        "army3": "army3",
+        "army4": "army4"
+      },
+      "layoutVersion": 2,
+      "tactics": true,
+      "count": 719,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army2"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "fallbacks": 3,
+      "actions": {
+        "move": 234,
+        "capture": 66,
+        "produce": 46,
+        "wait": 173,
+        "endTurn": 80,
+        "recon": 8,
+        "attack": 101,
+        "logistics": 10,
+        "ambush": 1
+      },
+      "traceSha256": "1f6cdebd93f122ae51b57eb1f04fba8ea3df77ce0f9aac3c14504fed1d45d88a",
+      "stateSha256": "d6e50d0644907ece672104036161420acc09b2caef0a433d78dea3c1202d089e",
+      "cpuMs": {
+        "p95": 3.7930429999832995,
+        "max": 50.124800999998115
+      },
+      "seconds": 1.872314265999972
+    },
+    {
+      "id": "green-4-152510-army4army1army3army2-false",
+      "seed": 152510,
+      "participants": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "order": [
+        "army4",
+        "army1",
+        "army3",
+        "army2"
+      ],
+      "teams": {
+        "army1": "army1",
+        "army2": "army2",
+        "army3": "army3",
+        "army4": "army4"
+      },
+      "layoutVersion": 2,
+      "tactics": false,
+      "count": 694,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army3"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army3"
+      ],
+      "fallbacks": 4,
+      "actions": {
+        "move": 220,
+        "capture": 73,
+        "produce": 46,
+        "wait": 147,
+        "endTurn": 77,
+        "recon": 8,
+        "attack": 113,
+        "logistics": 10
+      },
+      "traceSha256": "699798b2f9ebd2a4e6814b93313cde55bf3e7a89c3acd9690846b8205f46a738",
+      "stateSha256": "c736c8bc8d8930b337646de528bc09067bf5838f46567d8d5bd35805352a4d72",
+      "cpuMs": {
+        "p95": 3.719891999993706,
+        "max": 26.680412999994587
+      },
+      "seconds": 1.769224721000006
+    },
+    {
+      "id": "green-4-152510-army4army1army3army2-true",
+      "seed": 152510,
+      "participants": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "order": [
+        "army4",
+        "army1",
+        "army3",
+        "army2"
+      ],
+      "teams": {
+        "army1": "army1",
+        "army2": "army2",
+        "army3": "army3",
+        "army4": "army4"
+      },
+      "layoutVersion": 2,
+      "tactics": true,
+      "count": 722,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army2"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "fallbacks": 0,
+      "actions": {
+        "move": 229,
+        "capture": 72,
+        "produce": 46,
+        "wait": 165,
+        "endTurn": 80,
+        "recon": 8,
+        "attack": 107,
+        "logistics": 15
+      },
+      "traceSha256": "94b0451410b3f15364d54542d45f0088ae6e263236b59478c753e8c795db3c55",
+      "stateSha256": "6b2e438a5757789f104638c31f74780cb7e82969a71ad0d6e5331f0a6d1c0f12",
+      "cpuMs": {
+        "p95": 2.9565130000119098,
+        "max": 5.762237999995705
+      },
+      "seconds": 1.6667481379999953
+    },
+    {
+      "id": "green-4-152510-army4army2army1army3-false",
+      "seed": 152510,
+      "participants": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "order": [
+        "army4",
+        "army2",
+        "army1",
+        "army3"
+      ],
+      "teams": {
+        "army1": "army1",
+        "army2": "army2",
+        "army3": "army3",
+        "army4": "army4"
+      },
+      "layoutVersion": 2,
+      "tactics": false,
+      "count": 712,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army3"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army3"
+      ],
+      "fallbacks": 1,
+      "actions": {
+        "move": 250,
+        "capture": 69,
+        "produce": 41,
+        "wait": 169,
+        "endTurn": 75,
+        "recon": 8,
+        "attack": 90,
+        "logistics": 10
+      },
+      "traceSha256": "e0e226f96c6b5ebf6987f0607fc52d57dcd4ff88a6d469647e3f156d5128e98f",
+      "stateSha256": "621b03cc2f9deb5a8d315f511cc3af1b65cb9a8dcd8264c2192e5a34f0e6141b",
+      "cpuMs": {
+        "p95": 3.0957629999902565,
+        "max": 5.98370199999772
+      },
+      "seconds": 1.5802739580000051
+    },
+    {
+      "id": "green-4-152510-army4army2army1army3-true",
+      "seed": 152510,
+      "participants": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "order": [
+        "army4",
+        "army2",
+        "army1",
+        "army3"
+      ],
+      "teams": {
+        "army1": "army1",
+        "army2": "army2",
+        "army3": "army3",
+        "army4": "army4"
+      },
+      "layoutVersion": 2,
+      "tactics": true,
+      "count": 755,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army2"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "fallbacks": 0,
+      "actions": {
+        "move": 251,
+        "capture": 79,
+        "produce": 44,
+        "wait": 180,
+        "endTurn": 80,
+        "recon": 8,
+        "attack": 103,
+        "logistics": 10
+      },
+      "traceSha256": "62398cffa906c9f3cbb94b33d9b9879bcd82280c86480ab05d936845f09ae86d",
+      "stateSha256": "8bde54469e54a7f6719e7a3e1a88b981358be5a70beb3667b474dde568d957b0",
+      "cpuMs": {
+        "p95": 3.272889000014402,
+        "max": 17.681834999995772
+      },
+      "seconds": 1.895996904999978
+    },
+    {
+      "id": "green-4-152510-army4army2army3army1-false",
+      "seed": 152510,
+      "participants": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "order": [
+        "army4",
+        "army2",
+        "army3",
+        "army1"
+      ],
+      "teams": {
+        "army1": "army1",
+        "army2": "army2",
+        "army3": "army3",
+        "army4": "army4"
+      },
+      "layoutVersion": 2,
+      "tactics": false,
+      "count": 753,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army3"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "fallbacks": 0,
+      "actions": {
+        "move": 251,
+        "capture": 64,
+        "produce": 59,
+        "wait": 154,
+        "endTurn": 80,
+        "recon": 8,
+        "attack": 131,
+        "logistics": 6
+      },
+      "traceSha256": "20ec566f8d92b3c01903e041e92160b18acd8aff00ef9c245cb9c2763d462198",
+      "stateSha256": "79242b5d6bcca92b9a1a2e3d8880c680bf32b9a89fd9bf5d1b27b641d27cf116",
+      "cpuMs": {
+        "p95": 3.1050370000011753,
+        "max": 12.929162999993423
+      },
+      "seconds": 1.7553520830000051
+    },
+    {
+      "id": "green-4-152510-army4army2army3army1-true",
+      "seed": 152510,
+      "participants": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "order": [
+        "army4",
+        "army2",
+        "army3",
+        "army1"
+      ],
+      "teams": {
+        "army1": "army1",
+        "army2": "army2",
+        "army3": "army3",
+        "army4": "army4"
+      },
+      "layoutVersion": 2,
+      "tactics": true,
+      "count": 721,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army4"
+      },
+      "alive": [
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "fallbacks": 1,
+      "actions": {
+        "move": 245,
+        "capture": 67,
+        "produce": 42,
+        "wait": 183,
+        "endTurn": 76,
+        "recon": 8,
+        "attack": 86,
+        "logistics": 13,
+        "ambush": 1
+      },
+      "traceSha256": "a438849207900b1d4bc367bfc515b2923cb097e02fcb2751be081ff30284e15e",
+      "stateSha256": "e8c219c9770b072c42ecb6332d28828bf7484abba40737ebde864789abd1d29d",
+      "cpuMs": {
+        "p95": 3.1125370000081602,
+        "max": 58.54319600001327
+      },
+      "seconds": 1.7768868450000008
+    },
+    {
+      "id": "green-4-152510-army4army3army1army2-false",
+      "seed": 152510,
+      "participants": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "order": [
+        "army4",
+        "army3",
+        "army1",
+        "army2"
+      ],
+      "teams": {
+        "army1": "army1",
+        "army2": "army2",
+        "army3": "army3",
+        "army4": "army4"
+      },
+      "layoutVersion": 2,
+      "tactics": false,
+      "count": 624,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army3"
+      },
+      "alive": [
+        "army3",
+        "army4"
+      ],
+      "fallbacks": 2,
+      "actions": {
+        "move": 221,
+        "capture": 72,
+        "produce": 28,
+        "wait": 154,
+        "endTurn": 67,
+        "recon": 8,
+        "attack": 71,
+        "logistics": 3
+      },
+      "traceSha256": "8505f19181c32601b626cb0fc3677a91fe1b511d91f7c462eb23e577ef534850",
+      "stateSha256": "0f699e62dd4bd4dd2d2162e7559ec734a5ca316c226a8f7df6ed647e6c00f293",
+      "cpuMs": {
+        "p95": 3.067339000001084,
+        "max": 37.89474199997494
+      },
+      "seconds": 1.4321481400000047
+    },
+    {
+      "id": "green-4-152510-army4army3army1army2-true",
+      "seed": 152510,
+      "participants": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "order": [
+        "army4",
+        "army3",
+        "army1",
+        "army2"
+      ],
+      "teams": {
+        "army1": "army1",
+        "army2": "army2",
+        "army3": "army3",
+        "army4": "army4"
+      },
+      "layoutVersion": 2,
+      "tactics": true,
+      "count": 776,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army3"
+      },
+      "alive": [
+        "army1",
+        "army3",
+        "army4"
+      ],
+      "fallbacks": 1,
+      "actions": {
+        "move": 265,
+        "capture": 70,
+        "produce": 49,
+        "wait": 184,
+        "endTurn": 79,
+        "recon": 8,
+        "attack": 101,
+        "logistics": 19,
+        "ambush": 1
+      },
+      "traceSha256": "4bc6710734a7b09d4912c25f86a4164f9488958ee7bb7da2bf5d524402c10941",
+      "stateSha256": "2fba18fc7040898429d4afd948c445306f10e5d57e152a0c44a5866f2dff7b98",
+      "cpuMs": {
+        "p95": 2.8656360000022687,
+        "max": 4.193104999983916
+      },
+      "seconds": 1.7041428719999967
+    },
+    {
+      "id": "green-4-152510-army4army3army2army1-false",
+      "seed": 152510,
+      "participants": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "order": [
+        "army4",
+        "army3",
+        "army2",
+        "army1"
+      ],
+      "teams": {
+        "army1": "army1",
+        "army2": "army2",
+        "army3": "army3",
+        "army4": "army4"
+      },
+      "layoutVersion": 2,
+      "tactics": false,
+      "count": 669,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army2"
+      },
+      "alive": [
+        "army2",
+        "army4"
+      ],
+      "fallbacks": 0,
+      "actions": {
+        "move": 238,
+        "capture": 80,
+        "produce": 32,
+        "wait": 169,
+        "endTurn": 68,
+        "recon": 8,
+        "attack": 68,
+        "logistics": 6
+      },
+      "traceSha256": "4e1d4ed920fce0094283cee0af2e9fc9f0a8e9c024b7312c6a6c5ec0fffc81b0",
+      "stateSha256": "ee2be0fd0336135c655b2176b57976e26531a6ffd61521b48f8b6a03c3830b06",
+      "cpuMs": {
+        "p95": 3.592841000005137,
+        "max": 27.68996300001163
+      },
+      "seconds": 1.6750723279999802
+    },
+    {
+      "id": "green-4-152510-army4army3army2army1-true",
+      "seed": 152510,
+      "participants": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "order": [
+        "army4",
+        "army3",
+        "army2",
+        "army1"
+      ],
+      "teams": {
+        "army1": "army1",
+        "army2": "army2",
+        "army3": "army3",
+        "army4": "army4"
+      },
+      "layoutVersion": 2,
+      "tactics": true,
+      "count": 733,
+      "round": 21,
+      "outcome": {
+        "type": "victory",
+        "winner": "army2"
+      },
+      "alive": [
+        "army1",
+        "army2",
+        "army3",
+        "army4"
+      ],
+      "fallbacks": 1,
+      "actions": {
+        "move": 233,
+        "capture": 61,
+        "produce": 60,
+        "wait": 162,
+        "endTurn": 80,
+        "recon": 8,
+        "attack": 117,
+        "logistics": 12
+      },
+      "traceSha256": "7105ff0cd9225554f3cdb0bba0e43ee00a28c81e717baaabec0fb844f5052def",
+      "stateSha256": "b3ff7cbbd2be53b1f52d49fc7ff432b247b4ca4c360a72ed613dbd3abe71f83c",
+      "cpuMs": {
+        "p95": 3.6921819999988656,
+        "max": 10.186100999999326
+      },
+      "seconds": 1.8003399999999965
+    }
+  ]
+}

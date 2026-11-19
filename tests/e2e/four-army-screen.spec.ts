@@ -85,7 +85,7 @@ for (const { locale, width } of [
     const checked = parseFourArmySpectatorSave(stored);
     expect(checked.ok).toBe(true);
     if (!checked.ok) throw Error(checked.error);
-    expect(checked.value.cpuVersion).toBe('four-army-cpu-v6');
+    expect(checked.value.cpuVersion).toBe('four-army-cpu-v7');
     expect(checked.value.archive.payload.map.pathVersion).toBeUndefined();
     expect(checked.value.archive.payload.commands.slice(0, 2)).toEqual(source.archive.payload.commands);
     expect(checked.value.archive.payload.commands[2]).toMatchObject({ type: 'move', unitId: 'u4', destination: { x: 12, y: 5 } });

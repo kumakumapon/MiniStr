@@ -1,0 +1,47 @@
+{
+  "reference": "docs/reviews/v1.5.22/legacy-comparison.json",
+  "rows": [
+    {
+      "id": "holdout-orders-15152-11",
+      "commands": 22558,
+      "traceSha256": "8186dc2a13722be3b36325dfb9612e6c42db58ba97b9016bf5cbc8a50ae960da",
+      "stateSha256": "ef6c2927c6dd8e760d4df39ef1a3346142c22b13c24c860427d66cac3affeaab",
+      "matchesV1522": true
+    },
+    {
+      "id": "holdout-orders-15152-13",
+      "commands": 22558,
+      "traceSha256": "c3d7cde2f512690e16f047608e7fcdf7067177e3a2706b4494e1c4dd3a67a3f1",
+      "stateSha256": "6abbe0f10159dbaca940f4e2346d10cd0214c23a0d87b617eb4834dc5debc2d8",
+      "matchesV1522": true
+    },
+    {
+      "id": "holdout-orders-15152-2",
+      "commands": 22558,
+      "traceSha256": "1e5dcdfd08b1b43d36a5e775839264a0e58d52dfc8072c4add2d56d4f32e69a2",
+      "stateSha256": "b862ceae9d83b6d205c058c7c40c2ed0b852c28bc60a04ab5cd76d27b27aaa81",
+      "matchesV1522": true
+    },
+    {
+      "id": "holdout-orders-15152-20",
+      "commands": 22558,
+      "traceSha256": "1b24d7be0339ab37db0d36269923298558ec0466a95b6eb9e1af1205f654e354",
+      "stateSha256": "d4992d5a730cb42fcf52d2b92d22b576154173deedb30370ca2f784e555cde23",
+      "matchesV1522": true
+    },
+    {
+      "id": "settings-152003-0",
+      "commands": 26798,
+      "traceSha256": "3f2bae24d22dbbcfe7279c7dbba21d7b2768211f1c3a4d2d8412708568f56f03",
+      "stateSha256": "4961177d7be607082f953a11882ef79d286f39201c33c54774f0f80264d15f43",
+      "matchesV1522": true
+    },
+    {
+      "id": "settings-152003-2",
+      "commands": 26798,
+      "traceSha256": "8fe8f040ec9ae326264590aa1290d99dcadedf8f8adba718731c891db917590f",
+      "stateSha256": "43299adfe35c41a74937327e04396cb33108472c4cee02c6b53fe75a17f3f384",
+      "matchesV1522": true
+    }
+  ]
+}

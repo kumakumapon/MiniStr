@@ -5,7 +5,7 @@ import { type FourArmyId } from '../game/fourArmyFoundation';
 import { defaultFourArmyCpuSettings, isFourArmyCpuSettings, isObservedFourArmyCommand, type FourArmyCpuSettings } from '../ai/fourArmyCpu';
 import { applyFourArmyCommandWithCombat, isFourArmyState, observeFourArmy, type FourArmyCommand, type FourArmyState } from '../game/fourArmyEngine';
 import { FourArmyCpuPlanner } from './fourArmyCpuPlanner';
-import { FOUR_ARMY_CPU_VERSION, isFourArmyCpuVersion, type FourArmyCpuVersion } from '../ai/fourArmyCpuVersion';
+import { FOUR_ARMY_CPU_VERSION, isFourArmyCpuCompatible, isFourArmyCpuVersion, type FourArmyCpuVersion } from '../ai/fourArmyCpuVersion';
 
 /** Authoritative UI-thread owner. One step applies at most one current, legal command. */
 export class FourArmyCpuSession {
@@ -27,8 +27,7 @@ export class FourArmyCpuSession {
   ) {
     if (!isFourArmyState(state) || !isFourArmyCpuSettings(settings) || !isFourArmyCpuVersion(cpuVersion)) throw Error('Invalid four-army CPU session');
     const controls = normalizeFourArmyControllers(humanArmy);
-    if (state.match && (state.match.version === 2 ? cpuVersion !== 'four-army-cpu-v6' : !['four-army-cpu-v5', 'four-army-cpu-v6'].includes(cpuVersion)))
-      throw Error('Incompatible match CPU version');
+    if (!isFourArmyCpuCompatible(cpuVersion, state.match?.version)) throw Error('Incompatible match CPU version');
     if (Object.entries(controls).some(([a, c]) => c === 'human' && !fourArmyParticipants(state).includes(a as FourArmyId))) throw Error('Inactive human army');
     this.controllers = Object.freeze(controls);
     this.current = structuredClone(state);

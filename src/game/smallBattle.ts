@@ -15,7 +15,7 @@ export interface LegacySmallBattle {
 export interface ExpandedBattle {
   version: 2;
   sourceMapId: 'skirmish' | 'outpost' | 'strait' | 'frontier';
-  layoutVersion: 2;
+  layoutVersion: 2 | 3;
   participants: FourArmyId[];
   initialOrder: FourArmyId[];
   initiative: 'fixed' | 'rotating';
@@ -46,7 +46,7 @@ export function isSmallBattle(v: unknown): v is SmallBattle {
     if (
       Object.keys(m).length !== names.length ||
       !names.every((k) => Object.hasOwn(m, k)) ||
-      m.layoutVersion !== 2 ||
+      (m.layoutVersion !== 2 && !(m.layoutVersion === 3 && Array.isArray(ids) && ids.length === 3 && ['skirmish', 'outpost'].includes(String(m.sourceMapId)))) ||
       !['skirmish', 'outpost', 'strait', 'frontier'].includes(String(m.sourceMapId)) ||
       !Array.isArray(ids) ||
       ids.length < 2 ||
@@ -138,7 +138,7 @@ export function smallBattleMapShape(m: FourArmyMap): boolean {
       !!m.board &&
       m.board.width === (m.match.sourceMapId === 'frontier' ? 32 : m.match.sourceMapId === 'strait' ? 17 : 18) &&
       m.board.height === (m.match.sourceMapId === 'frontier' ? 32 : m.match.sourceMapId === 'strait' ? 15 : 14) &&
-      m.id === `${m.match.sourceMapId}-multi-${m.match.participants.join('-')}-v2`
+      m.id === `${m.match.sourceMapId}-multi-${m.match.participants.join('-')}-v${m.match.layoutVersion}`
     );
   return (
     !!m.match &&

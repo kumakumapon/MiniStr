@@ -11,7 +11,7 @@ import { FOUR_ARMY_LONG_COMMANDS, packFourArmyCommands, unpackFourArmyCommands }
 import { isFourArmyCpuSettings, type FourArmyCpuSettings } from '../ai/fourArmyCpu';
 import { parseBoundedJson } from './jsonBoundary';
 import type { GameResult } from './types';
-import { isFourArmyCpuVersion, type FourArmyCpuVersion } from '../ai/fourArmyCpuVersion';
+import { isFourArmyCpuCompatible, isFourArmyCpuVersion, type FourArmyCpuVersion } from '../ai/fourArmyCpuVersion';
 import {
   isFourArmyExperienceManifest,
   fourArmyExperienceVerifier,
@@ -153,6 +153,7 @@ export function* verifyFourArmySpectatorSave(text: string): Generator<FourArmyVe
         ? map.match.version === 2
           ? createExpandedBattleMap({
               sourceMapId: map.match.sourceMapId,
+              layoutVersion: map.match.layoutVersion,
               participants: map.match.participants,
               seed: map.seed,
               order: map.order,
@@ -167,16 +168,15 @@ export function* verifyFourArmySpectatorSave(text: string): Generator<FourArmyVe
   if (
     !expected?.ok ||
     (save.schemaVersion === 6
-      ? (map.match?.version === 2
-          ? save.cpuVersion !== 'four-army-cpu-v6'
-          : map.match
-            ? !['four-army-cpu-v5', 'four-army-cpu-v6'].includes(save.cpuVersion)
-            : save.cpuVersion === 'four-army-cpu-v5') || save.archive.schemaVersion !== (map.match?.version === 2 ? 5 : map.match ? 4 : map.rules ? 3 : 2)
+      ? !isFourArmyCpuCompatible(save.cpuVersion, map.match?.version) ||
+        (!map.match && save.cpuVersion === 'four-army-cpu-v5') ||
+        save.archive.schemaVersion !== (map.match?.version === 2 ? 5 : map.match ? 4 : map.rules ? 3 : 2)
       : save.schemaVersion === 5
         ? save.archive.schemaVersion !== 4 || !map.match || save.cpuVersion !== 'four-army-cpu-v5'
         : !!map.match ||
           save.cpuVersion === 'four-army-cpu-v5' ||
           save.cpuVersion === 'four-army-cpu-v6' ||
+          save.cpuVersion === 'four-army-cpu-v7' ||
           (save.archive.schemaVersion !== 2 && !((save.schemaVersion === 3 || save.schemaVersion === 4) && save.archive.schemaVersion === 3))) ||
     canonical(map) !== canonical(expected.value)
   )
