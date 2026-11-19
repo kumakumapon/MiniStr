@@ -1,6 +1,6 @@
 # MiniStr 実装ガイド
 
-この文書は、MiniStr の機能一覧ではなく、実装を変更・調査する開発者が「どの層が何を保証し、どこから呼ばれるか」を追うための設計資料です。プレイ方法とゲームルールは [README](../README.md) を参照してください。
+この文書は、MiniStr の機能一覧ではなく、実装を変更・調査する開発者が「どの層が何を保証し、どこから呼ばれるか」を追うための設計資料です。プレイの入口は [README](../README.md)、複数軍の規則は [複数軍対局仕様](multifaction-v2.md) を参照してください。
 
 ## 1. 設計の要点
 
@@ -19,7 +19,7 @@ flowchart TB
   Browser["ブラウザ UI<br/>src/main.ts"]
   UI["UI 補助<br/>src/ui/"]
   Game["ゲーム規則<br/>src/game/"]
-  AI["CPU 判断<br/>src/ai/rules.ts"]
+  AI["CPU 判断<br/>src/ai/"]
   Storage["localStorage<br/>セーブ・設定・進行"]
   Data["組み込み / カスタム<br/>シナリオ JSON"]
 
@@ -31,7 +31,7 @@ flowchart TB
   Data --> Game
 ```
 
-### ディレクトリ別の責務
+### 主なモジュールと責務
 
 | 場所 | 主な責務 | 変更時の注意 |
 | --- | --- | --- |
@@ -50,7 +50,13 @@ flowchart TB
 | `src/game/replay.ts` | リプレイ作成、移行、整合性検証、JSON 入出力 | `finalState` と `summary` は履歴から再計算して検証する |
 | `src/game/campaign.ts` | ステージ解放、評価、キャンペーン進行の保存・移行 | スキーマ変更時は移行関数とテストを追加する |
 | `src/game/editor.ts` | エディタ状態、編集操作、シナリオ JSON 入出力 | エディタ独自の緩い検証を作らず `maps.ts` の検証を再利用する |
-| `src/ai/rules.ts` | 難易度別の CPU 行動選択 | 合法な高レベル命令だけを返し、適用はゲームコマンド層に任せる |
+| `src/game/fourArmyEngine.ts`、`src/game/expandedBattleMap.ts`、`src/game/smallBattle.ts` | 複数軍のコマンド、対局状態、参加軍・チームと小型／広域の初期盤面 | 旧盤面・規則の版を保持し、全参加軍の手番と確定済みの記録を検証する |
+| `src/game/jsonBoundary.ts`、`src/game/fourArmyArchive.ts`、`src/game/fourArmySpectatorSave.ts` | 外部JSONの検査、複数軍の命令履歴の再適用、保存・再生の版管理 | 受け取った履歴を合法な命令から再構成し、状態・規則・CPU版の整合性を確認する |
+| `src/game/backup.ts`、`src/game/saveRecovery.ts` | 全体バックアップの検証と、読めない保存の扱い | 形式・上限を検査し、復元前に既存データとの関係を確認する |
+| `src/ai/rules.ts` | 通常2軍のCPU行動選択 | 高レベル命令を返し、適用はゲームコマンド層に任せる |
+| `src/ai/fourArmyCpu.ts`、`src/ai/fourArmyObservation.ts` | 観測から複数軍CPUの命令を選ぶ | 敵情報は観測の範囲に限り、旧CPU版の判断を保持する |
+| `src/ui/cpuWorker.ts`、`src/ui/fourArmyCpuWorker.ts`、`src/ui/fourArmyFileWorker.ts` | CPU計画と複数軍ファイルの検証をWorkerへ委譲 | 命令適用・保存確定は各呼び出し元で行い、停止・画面遷移時に古い応答を捨てる |
+| `src/ui/fourArmyScreen.ts`、`src/ui/fourArmyReplay.ts` | 複数軍の開始・操作・観戦、保存記録の再生 | 視点ごとの情報と端末交代時の遮蔽を維持し、長い再生の中断を扱う |
 | `src/ui/titleScreen.ts`、`src/ui/titleEvents.ts` | タイトル画面の状態（`TitleState`）、描画データの組み立て、イベント束縛 | `main.ts` の変数を直接読まず、描画は値のスナップショット、操作は `TitleEventDeps` のコールバックで受け取る。DOM id と data 属性は E2E が参照する |
 | `src/game/shareLink.ts`、`src/ui/shareLinkDialog.ts` | 生成マップの共有リンク（URLハッシュ）の形式・検証と確認画面。受信と保留は `titleEvents.ts`（`installShareLink`） | 形式の版は凍結し、変える場合は新しいリンク形式の版を追加する。ハッシュは外部入力として許可リストで検証し、確認前に保存しない。詳細は `docs/share-links.md` |
 | `src/ui/` | キーボード操作、ズーム、ラベル、マス情報、演出、音、文言、セーブ一覧 | 規則ではなく表示・入力補助を担う |
@@ -112,7 +118,7 @@ sequenceDiagram
 - **占領**: 占領可能ユニットの HP に比例して `capturePoints` を減らす。占領途中に離脱・撃破・移動された拠点は進行度を回復する。
 - **生産**: 所有する空き施設、対応する生産規則、資金を同時に満たす必要がある。生産部隊はその手番に移動・行動済みで配置される。
 - **合流**: 同種・隣接・未行動の友軍を 1 部隊へ統合する。生存部隊の ID を維持するので、リプレイで結果が安定する。
-- **乗船／上陸**: 歩兵を隣接する輸送艦へ載せ、輸送艦と搭載部隊の同一手番での海越えを防ぐ。上陸先は隣接する空き陸地に限る。
+- **乗船／上陸**: 歩兵を隣接する輸送艦へ載せ、隣接する空き陸地へ上陸させる。移動後の降車可否は保存された規則版に従い、統合戦術以降の規則では合法な位置への移動後降車を許す。
 - **ターン終了**: 手番を交代し、収入、補給、燃料処理、勝敗・ターン制限を規則層で進める。
 
 ## 5. 手番と CPU
@@ -129,9 +135,11 @@ flowchart TD
   Done -- はい --> Render["再描画・オートセーブ"]
 ```
 
-`chooseCpuAction` は、概ね「占領 → 攻撃 → 輸送 → 生産 → 移動 → 手番終了」の優先順で 1 件の高レベル操作を選びます。移動の評価は、敵からの圧力、地形防御、目標距離、低 HP 時の退避を重み付けします。これらの重みは全難易度で共通で、難易度は CPU が動員する部隊数の上限の倍率（`forceLimitScale`）だけで分かれます。重みの差で難易度を付ける方式は、CPU 同士の計測で順序が逆転・三すくみになったため採用していません（#119、`docs/reviews/2026-09-27-difficulty.md`）。
+`chooseCpuAction` は、概ね「占領 → 攻撃 → 輸送 → 生産 → 移動 → 手番終了」の優先順で 1 件の高レベル操作を選びます。移動の評価は、敵からの圧力、地形防御、目標距離、低 HP 時の退避を重み付けします。評価の基本の重みは共通で、難易度は部隊数の上限の倍率（`forceLimitScale`）と移動後攻撃の計画範囲（`strikePlanning`）で分かれます。重みの差で難易度を付ける方式は、CPU 同士の計測で順序が逆転・三すくみになったため採用していません（#119、`docs/reviews/2026-09-27-difficulty.md`）。
 
 CPU 計画コンテキストは可視敵だけで構成されます。島しょ目標については、歩兵が移動できる陸地連結成分を求め、異なる連結成分の目標にだけ輸送艦を使うため、海を徒歩経路として誤認しません。操作を連続表示する遅延と中断は `CommandScheduler` が一つのキャンセル可能なタイマーとして管理します。
+
+複数軍の場合は `fourArmyScreen.ts` から `fourArmyCpuSession.ts` が進行を管理し、`observeFourArmy` で軍別の観測を作ります。CPUはその観測から命令を返し、`applyFourArmyCommand` が検証・適用します。盤面・参加軍・チーム・手番の規則は [複数軍対局仕様](multifaction-v2.md) にあります。
 
 ## 6. 視界・戦闘・勝敗の境界
 
@@ -231,9 +239,9 @@ CI は pull request と `main` への push で、コミットメッセージの�
 | 移動範囲や地形通行可否 | `src/game/terrain.ts`、`src/game/units.ts` |
 | ダメージ予測と反撃 | `src/game/combat.ts` |
 | 霧・危険域 | `src/game/fog.ts`、`src/game/threat.ts` |
-| CPU がなぜその行動を選ぶか | `src/ai/rules.ts` |
+| CPU がなぜその行動を選ぶか | 通常2軍は `src/ai/rules.ts`、複数軍は `src/ai/fourArmyCpu.ts` |
 | マップの初期配置や目標 | `src/game/maps.ts` |
-| 保存・リプレイが拒否される条件 | `src/game/session.ts`、`src/game/replay.ts` |
+| 保存・リプレイが拒否される条件 | 通常2軍は `src/game/session.ts`、`src/game/replay.ts`、複数軍は `src/game/fourArmyArchive.ts`、`src/game/fourArmySpectatorSave.ts` |
 | キャンペーンの解放・評価・移行 | `src/game/campaign.ts` |
 | 画面の入力から描画まで | `src/main.ts`、対応する `src/ui/` モジュール |
 | 回帰テストの例 | 各 `src/game/*.test.ts`、`tests/`、`tests/e2e/` |
