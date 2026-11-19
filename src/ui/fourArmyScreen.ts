@@ -1,3 +1,7 @@
+import { FourArmyBattleScene, fourArmyBattleIsVisible } from './fourArmyBattleScene';
+import { loadBattleSceneSettings, saveBattleSceneSetting, renderBattleSceneSetting } from './battleSceneSettings';
+import type { BattleScene } from './battleScene';
+import type { CombatSummary } from '../game/combatSummary';
 import { createExpandedBattleMap } from '../game/expandedBattleMap';
 import type { FourArmyControlHistory } from '../game/fourArmyControlHistory';
 import { battleWinners, fourArmyParticipants } from '../game/smallBattle';
@@ -82,6 +86,7 @@ interface Dependencies {
   onLocale: (locale: 'ja' | 'en') => void;
   onGesture: () => void;
   onSound?: (sound: SoundEvent) => void;
+  onBattleSound?: (scene: BattleScene) => (() => void) | undefined;
   createSession?: (state: FourArmyState, settings: FourArmyCpuSettings, cpuVersion: FourArmyCpuVersion, humanArmy?: FourArmyId | FourArmyControllers) => FourArmyCpuSession;
   codec?: FourArmyFileCodec;
   autosaveCodec?: FourArmyFileCodec;
@@ -205,9 +210,23 @@ export class FourArmyScreen {
   private autosave: FourArmyAutosave;
   private autoTurn?: string;
   private autoSnapshot?: FourArmySpectatorSave;
+  private battleScenesEnabled = true;
+  private battlePreferenceSaved = true;
+  private battleScene: FourArmyBattleScene;
   private feedback?: FourArmyObservedEvent;
   private feedbackTimer?: ReturnType<typeof setTimeout>;
   constructor(private deps: Dependencies) {
+    this.battleScenesEnabled = loadBattleSceneSettings(deps.storage).multiArmy;
+    this.battleScene = new FourArmyBattleScene(this.root, {
+      pause: () => this.pause(text('一時停止しました。', 'Paused.')),
+      menu: () => {
+        this.pause(undefined, false);
+        this.phase = 'menu';
+        this.shell();
+      },
+      disable: () => this.setBattleScenes(false),
+      sound: deps.onBattleSound,
+    });
     this.codec = deps.codec ?? new FourArmyFileCodec();
     this.autosave = new FourArmyAutosave(
       deps.storage,
@@ -285,6 +304,7 @@ export class FourArmyScreen {
     return !!this.session && this.signature() !== this.savedSignature;
   }
   open(): void {
+    if (this.battlePreferenceSaved) this.battleScenesEnabled = loadBattleSceneSettings(this.deps.storage).multiArmy;
     this.deps.onOpen();
     this.root.hidden = false;
     this.phase = 'menu';
@@ -297,7 +317,7 @@ export class FourArmyScreen {
     else this.paint();
   }
   private get humanTurn(): boolean {
-    return this.rawHumanTurn && !this.handoff;
+    return this.rawHumanTurn && !this.handoff && !this.battleScene.active;
   }
   private get lockedView(): boolean {
     const state = this.session?.state;
@@ -314,6 +334,7 @@ export class FourArmyScreen {
     this.closeProduction(false);
   }
   private pause(message?: string, redraw = true): void {
+    this.battleScene.dismiss(false);
     this.clearFeedback();
     this.clearHuman();
     this.generation++;
@@ -496,7 +517,7 @@ export class FourArmyScreen {
     this.resultMarkup = '';
     if (!support?.keepAutosave) this.autoTurn = this.turnKey(state);
     const session = this.session;
-    session.onCommit = (before, command, after) => {
+    session.onCommit = (before, command, after, combat) => {
       if (this.session !== session) return;
       this.recordRevision++;
       this.experience = advanceFourArmyExperience(this.experience, before, command, after, this.count);
@@ -513,6 +534,7 @@ export class FourArmyScreen {
         this.view = actor;
         this.clearHuman();
       }
+      this.presentBattle(combat, before, after);
       const event = observedFourArmyEvent(before, command, after, this.view, this.count);
       if (event) this.presentFeedback(event);
     };
@@ -557,6 +579,7 @@ export class FourArmyScreen {
           command = this.replay.commands[this.replay.position];
         await this.replay.seek(this.replay.position + 1);
         if (generation === this.generation && command) {
+          this.presentBattle(this.replay.lastCombat, before, this.replay.state);
           const event = observedFourArmyEvent(before, command, this.replay.state, this.view, this.replay.position);
           if (event) this.presentFeedback(event);
         }
@@ -564,6 +587,11 @@ export class FourArmyScreen {
       if (generation !== this.generation) return false;
       if (!this.replay) this.captureCheckpoint();
       this.busy = false;
+      if (this.battleScene.active) {
+        this.paint();
+        await this.battleScene.finished();
+        if (generation !== this.generation) return false;
+      }
       const state = this.replay?.state ?? this.session.state;
       if (!this.replay && humanWasAlive && !fourArmyHumanArmies(this.controllers).some((a) => state.alive.includes(a)))
         this.pause(text('自軍が脱落しました。残りの対局を観戦できます。', 'Your army was eliminated. You can watch the remaining match.'));
@@ -618,6 +646,7 @@ export class FourArmyScreen {
       if (generation === this.generation) {
         this.busy = false;
         if (position === previous + 1 && command) {
+          this.presentBattle(this.replay.lastCombat, before, this.replay.state);
           const event = observedFourArmyEvent(before, command, this.replay.state, this.view, position);
           if (event) this.presentFeedback(event);
         }
@@ -709,6 +738,32 @@ export class FourArmyScreen {
       retry.disabled = !this.deps.writable() || this.deps.conflicted();
     }
   }
+  private setBattleScenes(enabled: boolean): void {
+    this.battleScenesEnabled = enabled;
+    this.battlePreferenceSaved = saveBattleSceneSetting(this.deps.storage, 'multiArmy', enabled);
+    if (!enabled) this.battleScene.dismiss();
+    if (!this.battlePreferenceSaved) {
+      this.notice = text('バトルシーン設定はこの画面だけに適用します。保存領域を確認してください。', 'Battle scene preference applies to this screen only. Check storage.');
+      const notice = this.query('#four-notice');
+      if (notice) notice.textContent = this.notice;
+    }
+    this.root.querySelectorAll<HTMLInputElement>('[data-battle-scenes="multiArmy"]').forEach((input) => {
+      input.checked = enabled;
+    });
+  }
+  private presentBattle(combat: CombatSummary<FourArmyId> | undefined, before: FourArmyState, after: FourArmyState): void {
+    if (
+      !combat ||
+      !this.battleScenesEnabled ||
+      !this.active ||
+      this.phase !== 'watch' ||
+      this.concealed ||
+      document.hidden ||
+      !fourArmyBattleIsVisible(combat, before, after, this.view)
+    )
+      return;
+    this.battleScene.show(combat, this.running);
+  }
   private clearFeedback(): void {
     if (this.feedbackTimer) clearTimeout(this.feedbackTimer);
     this.feedbackTimer = undefined;
@@ -722,7 +777,7 @@ export class FourArmyScreen {
     if (!sound || !this.active || this.phase !== 'watch' || this.concealed || document.hidden) return;
     this.clearFeedback();
     this.feedback = event;
-    this.deps.onSound?.(sound);
+    if (!this.battleScene.active) this.deps.onSound?.(sound);
     this.feedbackTimer = setTimeout(() => this.clearFeedback(), 650);
   }
   private paintSupport(state: FourArmyState): void {
@@ -1242,6 +1297,10 @@ export class FourArmyScreen {
     }
   }
   private async change(input: HTMLInputElement): Promise<void> {
+    if (input.dataset.battleScenes === 'multiArmy') {
+      this.setBattleScenes(input.checked);
+      return;
+    }
     if (input.id === 'four-rules') {
       this.expandedRules = input.value === 'expanded';
       this.shell();
@@ -1460,7 +1519,7 @@ export class FourArmyScreen {
     this.historyMarkupKey = '';
     this.resultMarkup = '';
     const focus = (document.activeElement as HTMLElement | null)?.id;
-    const head = `<header class="four-header command-bar"><div><p class="four-kicker">MINISTR / MULTI-ARMY</p><h1 id="four-heading" tabindex="-1">${text(`${this.displayedArmies.length}軍対局・観戦`, `${this.displayedArmies.length}-army play & watch`)}</h1></div><label>${text('言語', 'Language')}<select id="four-locale"><option value="ja" ${getLocale() === 'ja' ? 'selected' : ''}>日本語</option><option value="en" ${getLocale() === 'en' ? 'selected' : ''}>English</option></select></label><button id="four-close">${text('タイトルへ', 'Title')}</button></header><div id="four-storage"></div><p id="four-notice" role="status"></p>`;
+    const head = `<header class="four-header command-bar"><div><p class="four-kicker">MINISTR / MULTI-ARMY</p><h1 id="four-heading" tabindex="-1">${text(`${this.displayedArmies.length}軍対局・観戦`, `${this.displayedArmies.length}-army play & watch`)}</h1></div><label>${text('言語', 'Language')}<select id="four-locale"><option value="ja" ${getLocale() === 'ja' ? 'selected' : ''}>日本語</option><option value="en" ${getLocale() === 'en' ? 'selected' : ''}>English</option></select></label>${renderBattleSceneSetting('multiArmy', this.battleScenesEnabled)}<button id="four-close">${text('タイトルへ', 'Title')}</button></header><div id="four-storage"></div><p id="four-notice" role="status"></p>`;
     if (this.phase === 'menu')
       this.root.innerHTML =
         head +
@@ -1987,6 +2046,12 @@ export class FourArmyScreen {
         ? text('移動しました。未知の敵への接触時は途中で停止します。', 'Moved. Contact with an unseen enemy can stop movement early.')
         : text('命令を実行しました。', 'Command applied.');
     this.paint();
+    if (this.battleScene.active) {
+      const generation = this.generation;
+      await this.battleScene.finished();
+      if (generation !== this.generation || !this.active || this.phase !== 'watch') return;
+      this.paint();
+    }
     const state = this.session.state;
     if (fourArmyHumanArmies(this.controllers).length > 0 && !fourArmyHumanArmies(this.controllers).some((a) => state.alive.includes(a))) {
       this.notice = text('自軍が脱落しました。残りの対局を観戦できます。', 'Your army was eliminated. You can watch the remaining match.');

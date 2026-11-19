@@ -28,6 +28,28 @@ afterEach(() => {
 });
 
 describe('Ubuntu HTTPS mirrors', () => {
+  it.each(['http://us-east-2.ec2.archive.ubuntu.com', 'https://eu-west-1.ec2.archive.ubuntu.com', 'http://ap-southeast-2.ec2.archive.ubuntu.com'])(
+    'updates regional AWS mirror %s in all source formats and preserves trust metadata',
+    (host) => {
+      const directory = fixture({
+        'apt-mirrors.txt': `${host}/ubuntu\tpriority:1\n`,
+        'apt-mirrors-security.txt': `${host}/ubuntu/\n`,
+        'sources.list': `deb ${host}/ubuntu resolute main\n`,
+        'sources.list.d/ubuntu.sources': `URIs: ${host}/ubuntu/\nSuites: resolute resolute-security\nSigned-By: /usr/share/keyrings/ubuntu-archive-keyring.gpg\n`,
+        'sources.list.d/other.list': `deb ${host}/ubuntu-extra resolute main\n`,
+      });
+      configure(directory);
+      configure(directory);
+      expect(readFileSync(join(directory, 'apt-mirrors.txt'), 'utf8')).toBe('https://ubuntu.osuosl.org/ubuntu\tpriority:1\n');
+      expect(readFileSync(join(directory, 'apt-mirrors-security.txt'), 'utf8')).toBe('https://ubuntu.osuosl.org/ubuntu/\n');
+      expect(readFileSync(join(directory, 'sources.list'), 'utf8')).toBe('deb https://ubuntu.osuosl.org/ubuntu resolute main\n');
+      expect(readFileSync(join(directory, 'sources.list.d/ubuntu.sources'), 'utf8')).toBe(
+        'URIs: https://ubuntu.osuosl.org/ubuntu/\nSuites: resolute resolute-security\nSigned-By: /usr/share/keyrings/ubuntu-archive-keyring.gpg\n',
+      );
+      expect(readFileSync(join(directory, 'sources.list.d/other.list'), 'utf8')).toBe(`deb ${host}/ubuntu-extra resolute main\n`);
+    },
+  );
+
   it('updates the mirror lists used by current GitHub runners', () => {
     const sources = 'Types: deb\nURIs: mirror+file:/etc/apt/apt-mirrors.txt\nSuites: noble noble-updates\nSigned-By: /usr/share/keyrings/ubuntu-archive-keyring.gpg\n';
     const directory = fixture({

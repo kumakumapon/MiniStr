@@ -136,6 +136,7 @@ export interface TitleOverlayContext {
   cpuSpeed: CommandSpeed;
   boardZoom: { index: number; automatic: boolean };
   musicSettings: MusicSettings;
+  battleScenesEnabled?: boolean;
   canContinue: boolean;
   storagePersistent: boolean;
   hasStoredSave: () => boolean;
@@ -168,6 +169,7 @@ export function buildTitleOverlay(context: TitleOverlayContext): string {
     cpuSpeed: context.cpuSpeed,
     boardZoom: context.boardZoom,
     musicSettings: context.musicSettings,
+    battleScenesEnabled: context.battleScenesEnabled,
     musicOpen: state.musicOpen,
     canContinue: context.canContinue,
     daily: titleVisible

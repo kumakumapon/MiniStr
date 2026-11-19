@@ -1,3 +1,4 @@
+import { BATTLE_SCENE_SETTINGS_KEY, parseBattleSceneSettings } from './battleSceneSettings';
 import { isResearchKey, parseResearch } from './research';
 import { isFourArmySaveKey, parseFourArmySpectatorSave, verifyFourArmySpectatorSaveAsync, FOUR_ARMY_FILE_BYTES } from './fourArmySpectatorSave';
 import { MUSIC_SETTINGS_KEY, parseMusicSettings } from './musicSettings';
@@ -138,6 +139,8 @@ function validateLegacyEntries(entries: Map<string, string>): GameResult<void> {
           settings.value.volume > 1
         )
           return { ok: false, error: '音量設定が不正です。' };
+      } else if (key === BATTLE_SCENE_SETTINGS_KEY) {
+        if (!parseBattleSceneSettings(raw)) return { ok: false, error: 'バトルシーン設定が不正です。' };
       } else if (key === 'ministr.confirmEndTurnWithUnacted') {
         if (!['true', 'false'].includes(raw)) return { ok: false, error: '操作設定が不正です。' };
       } else if (key === 'ministr.locale') {

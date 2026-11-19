@@ -1,5 +1,6 @@
-import type { GameCommand, GameState, PlayerId, Position, TerrainKind, UnitKind, WeaponKind } from '../game';
-import { forecastCombat, isDeployedUnit, weaponsForUnit } from '../game';
+import type { PlayerId } from '../game';
+import type { FourArmyId } from '../game/fourArmyFoundation';
+import type { CombatParticipant, CombatSummary } from '../game/combatSummary';
 import { unitNames, terrainNames, weaponNames } from './labels';
 import { getLocale } from './locale';
 import { escapeHtml } from './strings';
@@ -15,71 +16,9 @@ export const BATTLE_SCENE_TIMING = {
   result: 2_700,
 } as const;
 
-export interface BattleParticipant {
-  kind: UnitKind;
-  owner: PlayerId;
-  position: Position;
-  weapon?: WeaponKind;
-  hpBefore: number;
-  hpAfter: number;
-}
-
-export interface BattleScene {
-  simultaneous?: true;
-  ambush?: true;
-  counterFired?: true;
-  attacker: BattleParticipant;
-  defender: BattleParticipant;
-  terrain: TerrainKind;
-}
-
-/** Creates a visual summary from resolved combat, leaving all game rules untouched. */
-export function battleSceneForCommand(before: GameState, command: GameCommand, after: GameState): BattleScene | undefined {
-  const event = after.tactics?.lastCombat;
-  if (command.type !== 'attack') {
-    if (!event?.ambush || command.type !== 'move') return undefined;
-    command = { type: 'attack', unitId: event.attackerId, targetId: event.defenderId, weaponSlot: event.attackWeapon };
-  }
-  const originalAttacker = before.units.find((unit) => unit.id === command.unitId);
-  const originalDefender = before.units.find((unit) => unit.id === command.targetId);
-  if (!originalAttacker || !isDeployedUnit(originalAttacker) || !originalDefender || !isDeployedUnit(originalDefender)) return undefined;
-  const attackerBefore = event ? { ...originalAttacker, position: event.attackerPosition } : originalAttacker;
-  const defenderBefore = event ? { ...originalDefender, position: event.defenderPosition } : originalDefender;
-
-  const attackerAfter = after.units.find((unit) => unit.id === command.unitId);
-  const defenderAfter = after.units.find((unit) => unit.id === command.targetId);
-  const terrain = before.board.terrain[defenderBefore.position.y]?.[defenderBefore.position.x];
-  if (!terrain) return undefined;
-
-  const forecast = forecastCombat(before, attackerBefore, defenderBefore, command.weaponSlot, event?.ambush);
-  const attackingWeapon = forecast.ok ? weaponsForUnit(attackerBefore.kind, before)[forecast.value.attackWeapon]?.kind : undefined;
-  const counterWeapon =
-    (defenderAfter || event?.simultaneous) && !event?.ambush && forecast.ok && forecast.value.counterWeapon !== undefined
-      ? weaponsForUnit(defenderBefore.kind, before)[forecast.value.counterWeapon]?.kind
-      : undefined;
-  return {
-    ...(event?.simultaneous ? { simultaneous: true as const } : {}),
-    ...(event?.ambush ? { ambush: true as const } : {}),
-    ...(event?.counterWeapon !== undefined ? { counterFired: true as const } : {}),
-    attacker: {
-      kind: attackerBefore.kind,
-      weapon: attackingWeapon,
-      owner: attackerBefore.owner,
-      position: { ...attackerBefore.position },
-      hpBefore: attackerBefore.hp,
-      hpAfter: attackerAfter && isDeployedUnit(attackerAfter) ? attackerAfter.hp : 0,
-    },
-    defender: {
-      kind: defenderBefore.kind,
-      weapon: counterWeapon,
-      owner: defenderBefore.owner,
-      position: { ...defenderBefore.position },
-      hpBefore: defenderBefore.hp,
-      hpAfter: defenderAfter && isDeployedUnit(defenderAfter) ? defenderAfter.hp : 0,
-    },
-    terrain: terrain.kind,
-  };
-}
+export type BattleParticipant = CombatParticipant<PlayerId | FourArmyId>;
+export type BattleScene = CombatSummary<PlayerId | FourArmyId>;
+export { combatSummaryForCommand as battleSceneForCommand } from '../game/combatSummary';
 
 function clampedHp(hp: number): number {
   return Math.max(0, Math.min(100, Math.round(hp)));
@@ -126,6 +65,8 @@ export function renderBattleScene(scene: BattleScene, spectating = false): strin
 
   const combatant = (unit: BattleParticipant, role: 'attacker' | 'defender', incomingDamage: number): string => {
     const sideLabel = role === 'attacker' ? labels.attacker : labels.defender;
+    const armyLabel = unit.owner === 'red' ? labels.red : unit.owner === 'blue' ? labels.blue : english ? `Army ${unit.owner.slice(-1)}` : `第${unit.owner.slice(-1)}軍`;
+    const marker = unit.owner === 'red' || unit.owner === 'army1' ? '■' : unit.owner === 'blue' || unit.owner === 'army2' ? '●' : unit.owner === 'army3' ? '◆' : '▲';
     const before = clampedHp(unit.hpBefore);
     const after = clampedHp(unit.hpAfter);
     const name = unitNames[unit.kind];
@@ -134,7 +75,7 @@ export function renderBattleScene(scene: BattleScene, spectating = false): strin
     const hitClass = incomingDamage > 0 ? ' battle-hit' : '';
     const fireClass = role === 'attacker' || scene.counterFired || scene.attacker.hpAfter < scene.attacker.hpBefore ? ' battle-firing' : '';
     return `<article class="battle-combatant battle-${role} battle-team-${escapeHtml(unit.owner)}${hitClass}${fireClass}${after === 0 ? ' battle-destroyed-unit' : ''}">
-      <span class="battle-team-badge battle-team-badge-${escapeHtml(unit.owner)}">${unit.owner === 'red' ? '■' : '●'} ${unit.owner === 'red' ? labels.red : labels.blue}</span>
+      <span class="battle-team-badge battle-team-badge-${escapeHtml(unit.owner)}">${marker} ${armyLabel}</span>
       <span class="battle-side-label">${sideLabel}</span>
       <div class="battle-unit-stage" aria-hidden="true">
         <span class="battle-target-lock"></span>

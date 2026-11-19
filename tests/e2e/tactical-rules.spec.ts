@@ -278,3 +278,49 @@ for (const width of [1280, 390])
       await page.screenshot({ path: info.outputPath(`systems-sonar-${width}-${locale}.png`) });
     });
   }
+
+for (const { width, locale } of [
+  { width: 1280, locale: 'en' },
+  { width: 390, locale: 'ja' },
+]) {
+  test(`two-army battle preference persists without changing combat ${width}/${locale}`, async ({ page }, info) => {
+    const scenario = operation({
+      tacticalOptions: { ...combinedTactics, weather: false },
+      initialUnits: [
+        { kind: 'tank', owner: 'red', x: 1, y: 1 },
+        { kind: 'infantry', owner: 'red', x: 0, y: 2 },
+        { kind: 'heavyTank', owner: 'blue', x: 2, y: 1 },
+        { kind: 'infantry', owner: 'blue', x: 7, y: 3 },
+      ],
+      victoryConditions: [{ type: 'eliminate' }],
+      defeatConditions: [{ type: 'eliminate' }],
+    });
+    const saved = savedOperation(scenario, []);
+    await page.setViewportSize({ width, height: 900 });
+    await resume(page, saved, locale);
+    await expect(page.locator('#battle-scenes-twoArmy')).toBeChecked();
+    await page.locator('#battle-scenes-twoArmy').uncheck();
+    await tile(page, 1, 1).click();
+    await tile(page, 2, 1).click();
+    await expect(page.locator('.battle-scene')).toHaveCount(0);
+    await page.locator('#save').click();
+    const off = await page.evaluate(() => JSON.parse(localStorage.getItem('ministr.save.manual')!));
+    expect(off.gameState).toEqual(valueOf(applyGameCommand(saved.gameState, { type: 'attack', unitId: 'r1', targetId: 'b1' })));
+    await page.evaluate((source) => localStorage.setItem('ministr.save.manual', JSON.stringify(source)), saved);
+    await page.reload();
+    await expect(page.locator('#battle-scenes-twoArmy-title')).not.toBeChecked();
+    await page.locator('#battle-scenes-twoArmy-title').check();
+    await page.locator('#title-continue').click();
+    await tile(page, 1, 1).click();
+    await tile(page, 2, 1).click();
+    await expect(page.locator('.battle-scene')).toBeVisible();
+    await page.screenshot({ path: info.outputPath(`systems-two-battle-${width}.png`), animations: 'disabled' });
+    await page.locator('#battle-scenes-twoArmy-overlay').press('Space');
+    await expect(page.locator('.battle-scene')).toHaveCount(0);
+    await page.locator('#save').click();
+    const on = await page.evaluate(() => JSON.parse(localStorage.getItem('ministr.save.manual')!));
+    expect(on.gameState).toEqual(off.gameState);
+    expect(on.commands).toEqual(off.commands);
+    expect(await page.evaluate(() => JSON.parse(localStorage.getItem('ministr.battleScene.settings')!))).toEqual({ twoArmy: false, multiArmy: true });
+  });
+}

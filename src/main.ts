@@ -1,3 +1,4 @@
+import { loadBattleSceneSettings, saveBattleSceneSetting, renderBattleSceneSetting } from './ui/battleSceneSettings';
 import { campaignTimingSummary, isDeadlineCondition, objectiveTimingDescription, scenarioConditionDescription, scenarioTiming, timingProgress, timingSummary } from './ui/turnTiming';
 import { updateScreen } from './ui/screenView';
 import { FourArmyScreen } from './ui/fourArmyScreen';
@@ -305,6 +306,11 @@ const fourArmyScreen = new FourArmyScreen({
   },
   onGesture: () => unlockAudio(),
   onSound: sound => soundPlayer.play(sound),
+  onBattleSound: scene => {
+    musicPlayer.setBattle(true, true);
+    const stop = playBattleSceneAudio(scene, (cue, kind) => soundPlayer.playBattle(cue, kind));
+    return () => { stop(); musicPlayer.setBattle(false); };
+  },
 });
 app.addEventListener('input', event => {
   const input = event.target;
@@ -333,6 +339,7 @@ let terrainLegendOpen = false;
 let musicSettings: MusicSettings = loadMusicSettings(localStorage);
 const musicPlayer = new BackgroundMusicPlayer(musicSettings);
 let pendingPresentationEffects: PresentationEffect[] = [];
+let battleSceneSettings = loadBattleSceneSettings(localStorage);
 let activeTacticalScene: BattleScene | ActionScene | undefined;
 let tacticalSceneTimer: number | undefined;
 let activeTacticalSceneDurationMs = BATTLE_SCENE_DURATION_MS;
@@ -340,6 +347,7 @@ let pendingHandoffActionScene: ActionScene | undefined;
 let stopBattleAudio: (() => void) | undefined;
 
 function showTacticalScene(scene: BattleScene | ActionScene): void {
+  if ('attacker' in scene && !battleSceneSettings.twoArmy) return;
   if (tacticalSceneTimer !== undefined) window.clearTimeout(tacticalSceneTimer);
   stopBattleAudio?.();
   stopBattleAudio = undefined;
@@ -1454,7 +1462,7 @@ function render(): void {
     savePicker: () => (localStorage.conflicted ? `<p role="alert">${getLocale() === 'en' ? 'Another tab changed the data. Export your match before reloading.' : '別タブで変更されました。現在の対局を書き出してから再読み込みしてください。'}<button id="storage-session-export">${getLocale() === 'en' ? 'Export current match' : '現在の対局を書き出す'}</button><button id="storage-reload">${getLocale() === 'en' ? 'Reload' : '再読み込み'}</button></p>` : '') + renderSaveSlotManager(listSaveSlots(localStorage), getStorageUsage(localStorage), false, matchMode === 'spectate') + renderResearchSaves(localStorage),
     cpuSpeed,
     boardZoom: { index: boardZoomIndex, automatic: boardZoomAuto },
-    musicSettings,
+    musicSettings, battleScenesEnabled: battleSceneSettings.twoArmy,
     canContinue: hasSave(),
     storagePersistent: localStorage.persistent,
     hasStoredSave,
@@ -1494,7 +1502,7 @@ function render(): void {
     ${!localStorage.persistent ? '<p class="storage-warning" role="alert">ブラウザーの保存領域を利用できません。このタブを閉じるとデータが失われます。バックアップをダウンロードしてください。</p>' : ''}
     <header class="command-bar"><div class="brand"><span class="brand-mark" aria-hidden="true">✦</span><div><h1>MiniStr</h1><p>TACTICAL COMMAND</p></div></div><label class="map-picker">戦域<select id="map" aria-label="戦域マップを選択" ${replayMode || campaignRun ? 'disabled' : ''}>${!availableScenarios().some(map => map.id === renderedMap.id) ? `<option data-user-content value="${escapeHtml(renderedMap.id)}" selected>${escapeHtml(scenarioDisplayName(renderedMap))}</option>` : ''}<optgroup label="組み込み">${[...maps, ...operationScenarios].map(map => `<option data-user-content value="${escapeHtml(map.id)}" ${map.id === renderedMap.id ? 'selected' : ''}>${escapeHtml(scenarioDisplayName(map))}</option>`).join('')}</optgroup>${availableScenarios().filter(map => ![...maps, ...operationScenarios].some(builtIn => builtIn.id === map.id)).length ? `<optgroup label="カスタム">${availableScenarios().filter(map => ![...maps, ...operationScenarios].some(builtIn => builtIn.id === map.id)).map(map => `<option data-user-content value="${escapeHtml(map.id)}" ${map.id === renderedMap.id ? 'selected' : ''}>${escapeHtml(scenarioDisplayName(map))}</option>`).join('')}</optgroup>` : ''}</select></label>${renderedRedDifficulty ? `<label class="map-picker">${uiText.spectateRedDifficulty}<select id="red-difficulty" aria-label="赤軍CPUの難易度を選択" ${replayMode || dailyLocked() ? 'disabled' : ''}>${difficultyOptions(renderedRedDifficulty)}</select></label>` : ''}<label class="map-picker">${spectateDifficulties ? uiText.spectateBlueDifficulty : '難易度'}<select id="difficulty" aria-label="${spectateDifficulties ? '青軍CPU' : 'CPU'}の難易度を選択" ${replayMode || dailyLocked() ? 'disabled' : ''}>${difficultyOptions(renderedDifficulty)}</select></label>${renderCpuSpeedControl(cpuSpeed, 'cpu-speed', replayMode)}<div class="save-controls"><button id="open-title" class="save-action" ${replayMode ? 'disabled' : ''}>${uiText.titleOpen}</button><button id="open-editor" class="save-action" ${replayMode ? 'disabled' : ''}>マップ編集</button><button id="open-campaign" class="save-action" ${replayMode ? 'disabled' : ''}>キャンペーン</button><button id="continue" class="save-action" ${replayMode || !hasSave() ? 'disabled' : ''}>続きから</button><button id="save" class="save-action" ${replayMode ? 'disabled' : ''}>${research ? (getLocale() === 'en' ? 'Save research' : '研究を手動保存') : manualSaveTarget(matchMode) === 'slot' ? uiText.spectateSaveToSlot : '手動セーブ'}</button><button id="delete-save" class="save-action" ${matchSaveDeletionAllowed(matchMode) ? '' : `title="${escapeHtml(uiText.spectateNoSaveDeletion)}"`} ${research || replayMode || !hasStoredSave() || !matchSaveDeletionAllowed(matchMode) ? 'disabled' : ''}>対局セーブ削除</button><button id="undo" class="save-action" ${canAct && undoAllowed(matchMode) && undoStack.length > 0 ? '' : 'disabled'}>1手戻す</button><button id="import-replay" class="save-action" ${replayMode ? 'disabled' : ''}>JSON取込</button><input id="replay-file" class="visually-hidden" type="file" accept=".json,application/json" aria-label="リプレイ・研究JSONファイルを選択"></div><div class="turn-indicator ${escapeHtml(renderedGame.activePlayer)}"><span>${replayMode ? 'REPLAY' : cpuInProgress ? 'CPU THINKING' : campaignRun ? 'CAMPAIGN' : matchMode === 'spectate' ? 'SPECTATE' : 'TURN'}</span><strong>${cpuInProgress ? (matchMode === 'spectate' ? `${activeLabel} CPU 行動中` : 'CPU 行動中') : concealed ? `${activeLabel}の番` : activeLabel}</strong></div>${cpuInProgress ? `<button id="skip-cpu" class="save-action" ${cpuSkipAllowed(matchContext()) ? '' : 'disabled'} title="${matchMode === 'spectate' ? 'CPU観戦中はスキップできません。CPU速度を変更できます。' : 'CPUの残りの行動を高速に進める'}">CPU をスキップ</button>` : ''}${spectateControl}${wholeBoardControl}<button id="end" class="end-turn" title="現在のターンを終了" aria-label="ターンを終了する" ${!canAct ? 'disabled' : ''}>ターン終了 <span aria-hidden="true">→</span></button></header>
     ${scenarioLoadError ? `<p class="scenario-warning">組み込みシナリオの読み込みに失敗したため、緊急スカーミッシュで起動しています。${escapeHtml(scenarioLoadError)}</p>` : ''}
-    <section class="sound-controls" aria-label="音量設定"><label><input id="sound-muted" type="checkbox" ${!soundSettings.muted ? 'checked' : ''}> 効果音</label><label>音量 <input id="sound-volume" type="range" min="0" max="100" value="${Math.round(soundSettings.volume * 100)}" aria-label="効果音の音量"></label>${renderMusicControls(musicSettings)}</section>
+    <section class="sound-controls" aria-label="音量設定"><label><input id="sound-muted" type="checkbox" ${!soundSettings.muted ? 'checked' : ''}> 効果音</label><label>音量 <input id="sound-volume" type="range" min="0" max="100" value="${Math.round(soundSettings.volume * 100)}" aria-label="効果音の音量"></label>${renderMusicControls(musicSettings)}${renderBattleSceneSetting('twoArmy', battleSceneSettings.twoArmy)}</section>
     ${!hasSave() && hasStoredSave() ? `<p class="scenario-warning" role="status">${matchSaveDeletionAllowed(matchMode) ? uiText.invalidSaveWarning : uiText.invalidSaveWarningSpectating}</p>` : ''}
     ${research && !replayMode && !screens.titleOpen && !game.winner && !game.draw ? renderResearchStatus(research, false, menuAllowed(matchContext())) + renderResearchSaves(localStorage) : ''}
     ${replay ? `<section class="replay-toolbar" aria-label="リプレイ再生コントロール"><div><p class="card-kicker">REPLAY</p><strong aria-live="polite">${Number(replay.index)} / ${replay.file.commands.length} 手</strong></div><button id="replay-toggle" class="end-turn" aria-label="${replay.playing ? 'リプレイを一時停止' : replay.index >= replay.file.commands.length ? 'リプレイを最初から再生' : 'リプレイを再生'}" ${replay.file.commands.length === 0 ? 'disabled' : ''}>${replay.playing ? '一時停止' : replay.index >= replay.file.commands.length ? 'もう一度再生' : '再生'}</button><button id="replay-step" class="save-action" ${replay.playing || replay.index >= replay.file.commands.length ? 'disabled' : ''}>1手送り</button><label class="replay-speed">速度<select id="replay-speed" aria-label="リプレイ再生速度">${COMMAND_SPEEDS.map(speed => `<option value="${speed}" ${speed === replay!.speed ? 'selected' : ''}>${speed}x</option>`).join('')}</select></label>${renderReplayNavigation(replay.index, replay.file.commands.length, replay.viewpoint, replay.timeline)}${renderResearchFork(replay, researchPolicy, researchForkPending)}<button id="replay-exit" class="save-action">リプレイを終了</button></section>` : ''}
@@ -1516,6 +1524,7 @@ function render(): void {
   app.insertAdjacentHTML('beforeend', editorOverlay);
   app.insertAdjacentHTML('beforeend', concealed ? renderHandoffOverlay(sideName('hotseat', renderedGame.activePlayer)) : '');
   app.insertAdjacentHTML('beforeend', activeTacticalScene ? ('attacker' in activeTacticalScene ? renderBattleScene(activeTacticalScene, matchMode === 'spectate' && !replay) : renderActionScene(activeTacticalScene, matchMode === 'spectate' && !replay)) : '');
+  if (activeTacticalScene && 'attacker' in activeTacticalScene) app.querySelector('.battle-scene')?.insertAdjacentHTML('beforeend', renderBattleSceneSetting('twoArmy', battleSceneSettings.twoArmy, 'overlay'));
   app.insertAdjacentHTML('beforeend', productionOverlay);
   if (localStorage.persistent) {
     const notice = renderStorageWriterNotice(storageWriter.state);
@@ -1796,6 +1805,7 @@ function render(): void {
       presetDraftNames = {};
       const progress = loadCampaignProgress(localStorage);
       if (progress.ok) campaignProgress = progress.value;
+      battleSceneSettings = loadBattleSceneSettings(localStorage);
       soundSettings = loadSoundSettings(localStorage); soundPlayer.setSettings(soundSettings); musicSettings = loadMusicSettings(localStorage); musicPlayer.setSettings(musicSettings);
       confirmEndTurnWithUnacted = localStorage.getItem(END_TURN_CONFIRM_KEY) !== 'false';
       document.documentElement.lang = setLocale(localStorage.getItem('ministr.locale') === 'en' ? 'en' : 'ja');
@@ -1873,6 +1883,16 @@ function render(): void {
     focusSelector = '#production-facility';
     render();
   });
+  app.querySelectorAll<HTMLInputElement>('[data-battle-scenes="twoArmy"]').forEach(input => input.addEventListener('change', () => {
+    battleSceneSettings = { ...battleSceneSettings, twoArmy: input.checked };
+    if (!saveBattleSceneSetting(localStorage, 'twoArmy', input.checked)) message = getLocale() === 'en' ? 'Battle scene preference applies to this tab only.' : 'バトルシーン設定はこのタブだけに適用します。';
+    const close = !input.checked && activeTacticalScene && 'attacker' in activeTacticalScene;
+    if (close) dismissTacticalScene(false);
+    focusSelector = close ? '#battle-scenes-twoArmy' : '#' + input.id;
+    render();
+    if (close && cpuInProgress) resumeCpuStep?.();
+    else if (close && replay?.playing) scheduleReplay();
+  }));
   const updateSoundSettings = (next: SoundSettings) => {
     soundSettings = next;
     soundPlayer.setSettings(next);
