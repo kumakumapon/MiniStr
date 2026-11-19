@@ -48,8 +48,9 @@ for (const width of [1280, 390]) {
     const raw = await page.evaluate(() => localStorage.getItem('ministr.fourArmy.save.1')!);
     const checked = parseFourArmySpectatorSave(raw);
     expect(checked.ok).toBe(true);
-    if (!checked.ok || checked.value.format !== 'ministr-four-army-configurable' || checked.value.schemaVersion !== 4) throw Error('Expected schema4');
+    if (!checked.ok || checked.value.format !== 'ministr-four-army-configurable' || checked.value.schemaVersion !== 6) throw Error('Expected schema6');
     expect(checked.value.archive.payload.commands).toEqual([{ actor: 'army1', type: 'wait', unitId: 'u2' }]);
+    expect(checked.value.cpuVersion).toBe('four-army-cpu-v7');
     expect(checked.value.experience.events.army1).toEqual([1]);
     await page.locator('#four-recon').click();
     await page.locator('#four-board > [data-x="16"][data-y="16"]').click();

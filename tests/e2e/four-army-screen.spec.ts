@@ -1,6 +1,7 @@
 import { expect, type Page } from '@playwright/test';
 import { readFile } from 'node:fs/promises';
 import { test } from './helpers/engineTest';
+import { freezeSceneClock } from './helpers/sceneClock';
 import { chooseFourArmyCpuCommand } from '../../src/ai/fourArmyCpu';
 import { applyFourArmyCommand, observeFourArmy } from '../../src/game/fourArmyEngine';
 import { fourArmySpectatorFixture } from '../../src/game/fourArmySpectator.fixture';
@@ -726,6 +727,7 @@ for (const { width, locale, actor } of [
     await page.locator('#battle-scenes-multiArmy').check();
     await importMatch(page, fixture.text);
     await expect(page.locator('#four-turn')).toContainText(locale === 'ja' ? 'あなたの手番' : 'Your turn');
+    await freezeSceneClock(page);
     await attack();
     await expect(page.locator('.four-battle-scene .battle-scene')).toBeVisible();
     await expect(page.locator('#four-army-screen')).toHaveAttribute('inert', '');
@@ -748,6 +750,8 @@ for (const { width, locale, actor } of [
         input.value = String(position);
         input.dispatchEvent(new Event('change', { bubbles: true }));
       }, fixture.count);
+      // Replay yields after eight commands; advance that task while scene timers remain paused.
+      await page.clock.runFor(20);
       await expect.poll(() => count(page)).toBe(fixture.count);
     };
     await seek();

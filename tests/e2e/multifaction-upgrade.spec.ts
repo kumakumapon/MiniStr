@@ -1,5 +1,6 @@
 import { expect, type Page } from '@playwright/test';
 import { test } from './helpers/engineTest';
+import { freezeSceneClock } from './helpers/sceneClock';
 import { createExpandedBattleMap } from '../../src/game/expandedBattleMap';
 import { createFourArmyState } from '../../src/game/fourArmyEngine';
 import { defaultFourArmyCpuSettings } from '../../src/ai/fourArmyCpu';
@@ -37,13 +38,14 @@ for (const { width, locale } of [
     await page.locator('#four-start').click();
     await expect(page.locator('#four-board > button')).toHaveCount(252);
     await expect(page.locator('#four-upgrade-cpu')).toHaveCount(0);
+    await freezeSceneClock(page);
     await page.locator('#four-board > [data-x="8"][data-y="4"]').click();
     await expect(page.locator('#four-selection')).toContainText(locale === 'ja' ? '工場' : 'Factory');
     await page.locator('#four-board > [data-x="7"][data-y="2"]').click();
     await page.locator('#four-board > [data-x="7"][data-y="3"]').click();
     await page.locator('[data-human-action="capture"]').click();
     await expect(page.locator('.action-scene-capture')).toBeVisible();
-    await page.locator('#tactical-scene-skip').click();
+    await page.locator('#tactical-scene-skip').press('Enter');
     await expect(page.locator('#four-army-screen')).toHaveAttribute('data-record-count', '2');
     await tools(page);
     await page.locator('[data-save-slot="0"]').click();
@@ -72,7 +74,7 @@ for (const { width, locale } of [
     await expect(page.locator('#four-replay-count')).toHaveText('1/2');
     await page.locator('#four-step').click();
     await expect(page.locator('.action-scene-capture')).toBeVisible();
-    await page.locator('#tactical-scene-skip').click();
+    await page.locator('#tactical-scene-skip').press('Enter');
     await expect(page.locator('#four-army-screen')).toHaveAttribute('data-record-count', '2');
     await expect(page.locator('#four-board > [data-x="7"][data-y="3"] .unit.army1')).toHaveCount(1);
     expect(await page.evaluate(() => localStorage.getItem('ministr.fourArmy.save.1'))).toBe(stored);
