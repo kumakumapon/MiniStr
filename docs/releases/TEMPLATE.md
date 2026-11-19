@@ -9,3 +9,5 @@
 - 前版からの比較URL:
 
 チェック: キャンペーン段数・既存機能・テスト数を対象SHAで再確認。過去のrelease-readiness記録を現在の仕様として転記しない。
+
+版ごとの変更は `docs/releases/` と [CHANGELOG](../../CHANGELOG.md) に記録する。README では「最新版」の要約と参照リンクを更新し、版別の節を積み上げない。
