@@ -37,6 +37,7 @@ describe('four-army spectator controller', () => {
   it('defers real supply until hotseat confirmation and clears it when leaving the match', async () => {
     const fixture = fourArmyActionFixture('logistics', 'hotseat');
     values.set(FOUR_ARMY_SAVE_KEYS[0], fixture.text);
+    screen.open();
     click('[data-load-slot="0"]');
     await vi.waitFor(() => expect(document.querySelector('#four-handoff-start')).not.toBeNull());
     click('#four-handoff-start');
