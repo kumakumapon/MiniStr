@@ -1,3 +1,4 @@
+import type { FourArmyId } from '../game/fourArmyFoundation';
 import { renderSpectatorSceneControls } from './spectatorSceneControls';
 import type { GameCommand, GameState, PlayerId, Position, TerrainKind, UnitKind } from '../game';
 import { adjacentToSupplyUnit, isDeployedUnit, isServiceTile, isSupplyUnit, weaponAmmo, weaponsForUnit, unitStats } from '../game';
@@ -5,16 +6,18 @@ import { unitNames, terrainNames } from './labels';
 import { getLocale } from './locale';
 import { escapeHtml } from './strings';
 
+export type ActionSceneOwner = PlayerId | FourArmyId;
 const CAPTURE_POINTS = 20;
 export const ACTION_SCENE_DURATION_MS = 1_800;
 
 export interface CaptureActionScene {
   kind: 'capture';
+  unitId?: string;
   unitKind: UnitKind;
-  owner: PlayerId;
+  owner: ActionSceneOwner;
   position: Position;
   terrain: TerrainKind;
-  propertyOwner?: PlayerId;
+  propertyOwner?: ActionSceneOwner;
   progressBefore: number;
   progressAfter: number;
   captured: boolean;
@@ -27,20 +30,21 @@ export interface LogisticsResourceChange {
 }
 
 export interface LogisticsChange {
+  unitId?: string;
   kind: UnitKind;
-  owner: PlayerId;
+  owner: ActionSceneOwner;
   position: Position;
   source:
     | { type: 'facility'; terrain: TerrainKind }
-    | { type: 'supply'; kind: UnitKind; position: Position }
-    | { type: 'transport'; kind: UnitKind; position: Position }
+    | { type: 'supply'; kind: UnitKind; position: Position; unitId?: string }
+    | { type: 'transport'; kind: UnitKind; position: Position; unitId?: string }
     | { type: 'field' };
   resources: LogisticsResourceChange[];
 }
 
 export interface LogisticsActionScene {
   kind: 'logistics';
-  owner: PlayerId;
+  owner: ActionSceneOwner;
   changes: LogisticsChange[];
 }
 
@@ -52,7 +56,7 @@ function captureProgress(owner: PlayerId | undefined, unitOwner: PlayerId, remai
 }
 
 /** Builds a capture or turn-start logistics scene from resolved state changes only. */
-export function actionSceneForCommand(before: GameState, command: GameCommand, after: GameState): ActionScene | undefined {
+export function actionSceneForCommand(before: GameState, command: GameCommand, after: GameState, includeUnitIds = false): ActionScene | undefined {
   if (command.type === 'capture') {
     const unitBefore = before.units.find((unit) => unit.id === command.unitId);
     const unitAfter = after.units.find((unit) => unit.id === command.unitId);
@@ -62,6 +66,7 @@ export function actionSceneForCommand(before: GameState, command: GameCommand, a
     if (!terrainBefore || !terrainAfter) return undefined;
     return {
       kind: 'capture',
+      ...(includeUnitIds ? { unitId: unitBefore.id } : {}),
       unitKind: unitBefore.kind,
       owner: unitBefore.owner,
       position: { ...unitBefore.position },
@@ -118,11 +123,13 @@ export function actionSceneForCommand(before: GameState, command: GameCommand, a
       source = isSupplyUnit(carrier.kind)
         ? {
             type: 'supply',
+            ...(includeUnitIds ? { unitId: carrier.id } : {}),
             kind: carrier.kind,
             position: { ...carrier.position },
           }
         : {
             type: 'transport',
+            ...(includeUnitIds ? { unitId: carrier.id } : {}),
             kind: carrier.kind,
             position: { ...carrier.position },
           };
@@ -138,6 +145,7 @@ export function actionSceneForCommand(before: GameState, command: GameCommand, a
       if (supplier && isDeployedUnit(supplier))
         source = {
           type: 'supply',
+          ...(includeUnitIds ? { unitId: supplier.id } : {}),
           kind: supplier.kind,
           position: { ...supplier.position },
         };
@@ -145,6 +153,7 @@ export function actionSceneForCommand(before: GameState, command: GameCommand, a
     }
 
     changes.push({
+      ...(includeUnitIds ? { unitId: unit.id } : {}),
       kind: unit.kind,
       owner: unit.owner,
       position: { ...position },
@@ -169,8 +178,14 @@ export function actionSceneForVisiblePositions(scene: ActionScene, visible: Read
   return changes.length ? { ...scene, changes } : undefined;
 }
 
-function unitSprite(kind: UnitKind, owner: PlayerId, label: string): string {
+function unitSprite(kind: UnitKind, owner: ActionSceneOwner, label: string): string {
   return `<span class="unit battle-sprite ${owner} unit-${kind} action-scene-sprite" aria-hidden="true"><span class="unit-art"></span><span class="visually-hidden">${escapeHtml(label)}</span></span>`;
+}
+
+function armyBadge(owner: ActionSceneOwner, english: boolean): string {
+  if (owner === 'red' || owner === 'blue') return '';
+  const marker = owner === 'army1' ? '■' : owner === 'army2' ? '●' : owner === 'army3' ? '◆' : '▲';
+  return `<span class="battle-team-badge battle-team-badge-${owner}">${marker} ${english ? 'Army ' : '第'}${owner.slice(-1)}${english ? '' : '軍'}</span>`;
 }
 
 function renderCaptureScene(scene: CaptureActionScene, english: boolean): string {
@@ -183,7 +198,7 @@ function renderCaptureScene(scene: CaptureActionScene, english: boolean): string
       ? 'Keep a unit here to complete the capture.'
       : '部隊を維持すると占領が完了します。';
   return `<header class="action-scene-header">
-      <div><p class="card-kicker">${english ? 'PROPERTY OPERATION' : '拠点作戦'}</p><h2 id="tactical-scene-title">${title}</h2></div>
+      <div><p class="card-kicker">${english ? 'PROPERTY OPERATION' : '拠点作戦'}</p><h2 id="tactical-scene-title">${title}</h2>${armyBadge(scene.owner, english)}</div>
       <span class="action-scene-terrain">${escapeHtml(terrainNames[scene.terrain])}</span>
     </header>
     <div class="action-capture-stage">
@@ -214,7 +229,7 @@ function renderLogisticsScene(scene: LogisticsActionScene, english: boolean): st
     ? { hp: 'HP', fuel: 'FUEL', ammo: 'AMMO', secondaryAmmo: 'SECONDARY AMMO' }
     : { hp: '耐久', fuel: '燃料', ammo: '弾薬', secondaryAmmo: '副武器弾薬' };
   return `<header class="action-scene-header">
-      <div><p class="card-kicker">SUPPLY &amp; SERVICE</p><h2 id="tactical-scene-title">${english ? 'Resupply and repairs' : '補給・整備'}</h2></div>
+      <div><p class="card-kicker">SUPPLY &amp; SERVICE</p><h2 id="tactical-scene-title">${english ? 'Resupply and repairs' : '補給・整備'}</h2>${armyBadge(scene.owner, english)}</div>
       <span class="action-scene-terrain">${english ? `${scene.changes.length} units serviced` : `${scene.changes.length}部隊を整備`}</span>
     </header>
     <div class="action-logistics-list">

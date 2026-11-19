@@ -789,12 +789,16 @@ button:focus-visible, select:focus-visible, input:focus-visible, summary:focus-v
   background: linear-gradient(145deg, #746447, #4c4938);
   box-shadow: 0 7px 20px #0007, inset 0 0 0 5px #171d18;
 }
-.action-capture-property.red { border-color: #ff9a8c; color: #ffd7cc; background: linear-gradient(145deg, #a4473d, #522a29); }
-.action-capture-property.blue { border-color: #9ecbff; color: #d7eaff; background: linear-gradient(145deg, #3977ae, #203b55); }
+.action-capture-property.red, .action-capture-property.army1 { border-color: #ff9a8c; color: #ffd7cc; background: linear-gradient(145deg, #a4473d, #522a29); }
+.action-capture-property.blue, .action-capture-property.army2 { border-color: #9ecbff; color: #d7eaff; background: linear-gradient(145deg, #3977ae, #203b55); }
+.action-capture-property.army3 { border-color: #83d6ad; color: #d3f7df; background: linear-gradient(145deg, #24683e, #163425); }
+.action-capture-property.army4 { border-color: #f0cf79; color: #fff0b8; background: linear-gradient(145deg, #806724, #3c321b); }
 .action-capture-building { font-size: clamp(2.7rem, 9vw, 4.5rem); line-height: 1; text-shadow: 0 4px #0007; }
 .action-capture-flag { position: absolute; top: -17px; right: 8px; color: #f4d978; font-size: 1.65rem; opacity: .35; }
-.action-capture-property.red .action-capture-flag { color: #ff7967; opacity: 1; animation: action-flag-raise .55s .25s ease-out both; }
-.action-capture-property.blue .action-capture-flag { color: #77baff; opacity: 1; animation: action-flag-raise .55s .25s ease-out both; }
+.action-capture-property.red .action-capture-flag, .action-capture-property.army1 .action-capture-flag { color: #ff7967; opacity: 1; animation: action-flag-raise .55s .25s ease-out both; }
+.action-capture-property.blue .action-capture-flag, .action-capture-property.army2 .action-capture-flag { color: #77baff; opacity: 1; animation: action-flag-raise .55s .25s ease-out both; }
+.action-capture-property.army3 .action-capture-flag { color: #83d6ad; opacity: 1; animation: action-flag-raise .55s .25s ease-out both; }
+.action-capture-property.army4 .action-capture-flag { color: #f0cf79; opacity: 1; animation: action-flag-raise .55s .25s ease-out both; }
 .action-capture-progress {
   height: 15px;
   overflow: hidden;
@@ -809,8 +813,18 @@ button:focus-visible, select:focus-visible, input:focus-visible, summary:focus-v
   background: linear-gradient(90deg, #d99442, #ffe16b);
   animation: action-capture-progress .75s .2s ease-out forwards;
 }
-.action-capture-progress-fill.red { background: linear-gradient(90deg, #b43f39, #ff9981); }
-.action-capture-progress-fill.blue { background: linear-gradient(90deg, #3977ae, #9ecbff); }
+.action-capture-progress-fill.red, .action-capture-progress-fill.army1 { background: linear-gradient(90deg, #b43f39, #ff9981); }
+.action-capture-progress-fill.blue, .action-capture-progress-fill.army2 { background: linear-gradient(90deg, #3977ae, #9ecbff); }
+.action-capture-progress-fill.army3 { background: linear-gradient(90deg, #24683e, #83d6ad); }
+.action-capture-progress-fill.army4 { background: linear-gradient(90deg, #806724, #f0cf79); }
+.four-action-scene .unit.army1 .unit-art { filter: drop-shadow(0 1px 1px #251916cc); }
+.four-action-scene .unit.army2 .unit-art { filter: hue-rotate(195deg) drop-shadow(0 1px 1px #162125cc); }
+.four-action-scene .unit.army3 .unit-art { filter: hue-rotate(95deg) drop-shadow(0 1px 1px #16251dcc); }
+.four-action-scene .unit.army4 .unit-art { filter: hue-rotate(35deg) drop-shadow(0 1px 1px #16251dcc); }
+.four-action-scene .battle-team-badge-army1 { background: #a4473d; }
+.four-action-scene .battle-team-badge-army2 { background: #3977ae; }
+.four-action-scene .battle-team-badge-army3 { background: #24683e; }
+.four-action-scene .battle-team-badge-army4 { color: #171c17; background: #d1a83e; }
 .action-scene-detail {
   margin: 10px 0 0;
   color: #ced8c9;
