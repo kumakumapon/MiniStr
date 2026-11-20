@@ -2,7 +2,7 @@ import { ACTION_SCENE_SETTINGS_KEY, parseActionSceneSettings } from './actionSce
 import { BATTLE_SCENE_SETTINGS_KEY, parseBattleSceneSettings } from './battleSceneSettings';
 import { isResearchKey, parseResearch } from './research';
 import { isFourArmySaveKey, parseFourArmySpectatorSave, verifyFourArmySpectatorSaveAsync, FOUR_ARMY_FILE_BYTES } from './fourArmySpectatorSave';
-import { MUSIC_SETTINGS_KEY, parseMusicSettings } from './musicSettings';
+import { FOUR_ARMY_MUSIC_KEY, MUSIC_SETTINGS_KEY, parseFourArmyMusic, parseMusicSettings } from './musicSettings';
 import { CAMPAIGN_STORAGE_KEY, parseCampaignProgress } from './campaign';
 import { DAILY_RECORDS_KEY, parseDailyRecords } from './dailyChallenge';
 import { DEPLOYMENT_PRESETS_KEY, parseDeploymentPresets } from './deploymentPresets';
@@ -129,6 +129,8 @@ function validateLegacyEntries(entries: Map<string, string>): GameResult<void> {
         if (!daily.ok) return daily;
       } else if (key === MUSIC_SETTINGS_KEY) {
         if (!parseMusicSettings(raw)) return { ok: false, error: 'BGM設定が不正です。' };
+      } else if (key === FOUR_ARMY_MUSIC_KEY) {
+        if (!parseFourArmyMusic(raw)) return { ok: false, error: '複数軍のBGM設定が不正です。' };
       } else if (key === 'ministr.sound.settings') {
         const settings = parseBoundedJson(raw, 1000);
         if (

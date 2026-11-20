@@ -1812,6 +1812,7 @@ function render(): void {
       battleSceneSettings = loadBattleSceneSettings(localStorage);
       actionSceneSettings = loadActionSceneSettings(localStorage);
       soundSettings = loadSoundSettings(localStorage); soundPlayer.setSettings(soundSettings); musicSettings = loadMusicSettings(localStorage); musicPlayer.setSettings(musicSettings);
+      fourArmyScreen.restoreMusicSettings();
       confirmEndTurnWithUnacted = localStorage.getItem(END_TURN_CONFIRM_KEY) !== 'false';
       document.documentElement.lang = setLocale(localStorage.getItem('ministr.locale') === 'en' ? 'en' : 'ja');
     }

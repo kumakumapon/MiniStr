@@ -9,7 +9,7 @@ import { encodeFourArmySpectatorSave, FOUR_ARMY_SAVE_KEYS, FOUR_ARMY_AUTO_SAVE_K
 import * as download from './download';
 import { fourArmyActionFixture } from '../../tests/e2e/helpers/fourArmyActionFixture';
 import { type MusicSettings } from './music';
-import { FOUR_ARMY_MUSIC_KEY, loadFourArmyMusic } from './fourArmyMusic';
+import { FOUR_ARMY_MUSIC_KEY, loadFourArmyMusic } from '../game/musicSettings';
 import { ACTION_SCENE_SETTINGS_KEY } from '../game/actionSceneSettings';
 
 describe('four-army spectator controller', () => {
@@ -241,6 +241,7 @@ describe('four-army spectator controller', () => {
   it('switches the actual playback selection for each recorded turn and keeps the shared track in setup', async () => {
     const saved = fourArmySpectatorFixture(4);
     values.set(FOUR_ARMY_SAVE_KEYS[0], JSON.stringify(saved));
+    screen.open();
     const checkbox = query<HTMLInputElement>('#four-music-by-army');
     expect(checkbox.checked).toBe(false);
     checkbox.click();

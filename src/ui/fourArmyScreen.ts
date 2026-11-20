@@ -22,7 +22,8 @@ import { fourArmyBoardCells } from './fourArmyBattleView';
 import { fourArmyPlanningView } from '../ai/fourArmyObservation';
 import type { ThreatPreview } from '../game/threat';
 import { fourArmyMovementKind, fourArmyThreats, renderFourArmyTileInfo } from './fourArmyIntel';
-import { editFourArmyMusic, fourArmyMusicPlayback, loadFourArmyMusic, renderFourArmyMusic, saveFourArmyMusic, type FourArmyMusicSettings } from './fourArmyMusic';
+import { editFourArmyMusic, fourArmyMusicPlayback, renderFourArmyMusic } from './fourArmyMusic';
+import { loadFourArmyMusic, saveFourArmyMusic, type FourArmyMusicSettings } from '../game/musicSettings';
 import type { MusicSettings } from './music';
 import { renderTerrainLegend } from './terrainLegend';
 import { forecastCombat } from '../game/combat';
@@ -336,6 +337,10 @@ export class FourArmyScreen {
     this.phase = 'menu';
     this.notice = '';
     this.shell();
+  }
+  restoreMusicSettings(): void {
+    this.music = loadFourArmyMusic(this.deps.storage);
+    if (this.active) this.shell();
   }
   refreshStorage(): void {
     if (this.deps.conflicted())

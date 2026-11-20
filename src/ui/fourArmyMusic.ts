@@ -1,59 +1,9 @@
-import { parseBoundedJson } from '../game/jsonBoundary';
+import type { FourArmyMusicSettings } from '../game/musicSettings';
 import { FOUR_ARMY_IDS, type FourArmyId } from '../game/fourArmyFoundation';
-import type { StorageLike } from '../game/session';
-import { FIELD_TRACKS, FIELD_TRACK_LABELS, loadMusicSettings, type FieldTrack, type MusicSettings } from './music';
+import { FIELD_TRACKS, FIELD_TRACK_LABELS, type FieldTrack, type MusicSettings } from './music';
 import { getLocale, translateText } from './locale';
 
-export const FOUR_ARMY_MUSIC_KEY = 'ministr.fourArmy.music';
-export interface FourArmyMusicSettings {
-  muted: boolean;
-  volume: number;
-  fieldTrack: FieldTrack;
-  armyTracks: boolean;
-  tracks: Record<FourArmyId, FieldTrack>;
-}
-
 const trackFor = (value: unknown) => FIELD_TRACKS.find((track) => track === value);
-
-export function loadFourArmyMusic(storage: StorageLike): FourArmyMusicSettings {
-  const original = loadMusicSettings(storage);
-  const defaults: FourArmyMusicSettings = {
-    muted: original.muted,
-    volume: original.volume,
-    fieldTrack: original.fieldTrack,
-    armyTracks: false,
-    tracks: { army1: 'rock-red', army2: 'rock-blue', army3: 'drive', army4: 'dawn' },
-  };
-  try {
-    const data = parseBoundedJson(storage.getItem(FOUR_ARMY_MUSIC_KEY) ?? '', 1000);
-    if (!data.ok || !data.value || typeof data.value !== 'object') return defaults;
-    const { muted, volume, fieldTrack, armyTracks, tracks } = data.value as Partial<FourArmyMusicSettings>;
-    if (
-      typeof muted !== 'boolean' ||
-      typeof volume !== 'number' ||
-      !Number.isFinite(volume) ||
-      volume < 0 ||
-      volume > 1 ||
-      !trackFor(fieldTrack) ||
-      typeof armyTracks !== 'boolean' ||
-      !tracks ||
-      !FOUR_ARMY_IDS.every((army) => trackFor(tracks[army]))
-    )
-      return defaults;
-    return { muted, volume, fieldTrack: fieldTrack!, armyTracks, tracks: { army1: tracks.army1, army2: tracks.army2, army3: tracks.army3, army4: tracks.army4 } };
-  } catch {
-    return defaults;
-  }
-}
-
-export function saveFourArmyMusic(storage: StorageLike, settings: FourArmyMusicSettings): boolean {
-  try {
-    storage.setItem(FOUR_ARMY_MUSIC_KEY, JSON.stringify(settings));
-    return true;
-  } catch {
-    return false;
-  }
-}
 
 export function fourArmyMusicPlayback(settings: FourArmyMusicSettings, actor?: FourArmyId): MusicSettings {
   const fieldTrack = settings.armyTracks && actor ? settings.tracks[actor] : settings.fieldTrack;
