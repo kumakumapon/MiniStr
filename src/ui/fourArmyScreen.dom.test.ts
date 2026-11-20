@@ -8,6 +8,8 @@ import { handleFourArmyCpuRequest } from '../ai/fourArmyCpuProtocol';
 import { encodeFourArmySpectatorSave, FOUR_ARMY_SAVE_KEYS, FOUR_ARMY_AUTO_SAVE_KEY } from '../game/fourArmySpectatorSave';
 import * as download from './download';
 import { fourArmyActionFixture } from '../../tests/e2e/helpers/fourArmyActionFixture';
+import { type MusicSettings } from './music';
+import { FOUR_ARMY_MUSIC_KEY, loadFourArmyMusic } from './fourArmyMusic';
 import { ACTION_SCENE_SETTINGS_KEY } from '../game/actionSceneSettings';
 
 describe('four-army spectator controller', () => {
@@ -74,6 +76,7 @@ describe('four-army spectator controller', () => {
     expect(saved.archive.payload.state).toEqual(JSON.parse(old).archive.payload.state);
   });
   let codec: FourArmyFileCodec;
+  const music = vi.fn<(settings: MusicSettings) => void>();
   let screen: FourArmyScreen, values: Map<string, string>, writable: boolean, closed: () => void;
   const query = <T extends HTMLElement = HTMLElement>(s: string) => document.querySelector<T>(s)!;
   const click = (s: string) => query<HTMLButtonElement>(s).click();
@@ -176,6 +179,7 @@ describe('four-army spectator controller', () => {
     setLocale('en');
     values = new Map();
     writable = true;
+    music.mockClear();
     closed = vi.fn();
     vi.spyOn(window, 'confirm').mockReturnValue(true);
     vi.spyOn(download, 'downloadJson').mockImplementation(() => {});
@@ -205,6 +209,7 @@ describe('four-army spectator controller', () => {
       onClose: closed,
       onLocale: setLocale,
       onGesture: vi.fn(),
+      onMusic: music,
       codec,
       createSession: (state, settings, cpuVersion, humanArmy) =>
         new FourArmyCpuSession(
@@ -232,6 +237,46 @@ describe('four-army spectator controller', () => {
     screen.root.querySelector<HTMLButtonElement>('#four-close')?.click();
     screen.root.remove();
     vi.restoreAllMocks();
+  });
+  it('switches the actual playback selection for each recorded turn and keeps the shared track in setup', async () => {
+    const saved = fourArmySpectatorFixture(4);
+    values.set(FOUR_ARMY_SAVE_KEYS[0], JSON.stringify(saved));
+    const checkbox = query<HTMLInputElement>('#four-music-by-army');
+    expect(checkbox.checked).toBe(false);
+    checkbox.click();
+    change('#four-music-shared', 'mist');
+    change('#four-music-army1', 'dawn');
+    change('#four-music-army2', 'drive');
+    change('#four-music-army3', 'rock-blue');
+    change('#four-music-army4', 'wasteland');
+    expect(music).toHaveBeenLastCalledWith(expect.objectContaining({ fieldTrack: 'mist', armyTracks: false }));
+    expect(values.has('ministr.music.settings')).toBe(false);
+    expect(JSON.parse(values.get(FOUR_ARMY_MUSIC_KEY)!).tracks).toEqual({ army1: 'dawn', army2: 'drive', army3: 'rock-blue', army4: 'wasteland' });
+    click('[data-load-slot="0"]');
+    await vi.waitFor(() => expect(query('#four-notice').textContent).toBe('Loaded and paused.'));
+    click('#four-replay');
+    for (const [position, track] of ['dawn', 'drive', 'rock-blue', 'wasteland'].entries()) {
+      await vi.waitFor(() => expect(query('#four-replay-count').textContent).toBe(`${position}/4`));
+      expect(music).toHaveBeenLastCalledWith(expect.objectContaining({ fieldTrack: track }));
+      if (position < 3) click('#four-step');
+    }
+  });
+  it('rejects restored BGM settings with an unknown army track', () => {
+    values.set(FOUR_ARMY_MUSIC_KEY, JSON.stringify({ muted: false, volume: 0.5, fieldTrack: 'mist', armyTracks: true, tracks: { army1: 'bad' } }));
+    const bad = loadFourArmyMusic({
+      get length() {
+        return values.size;
+      },
+      key: (i) => [...values.keys()][i] ?? null,
+      getItem: (key) => values.get(key) ?? null,
+      setItem: (key, value) => {
+        values.set(key, value);
+      },
+      removeItem: (key) => {
+        values.delete(key);
+      },
+    });
+    expect(bad).toMatchObject({ fieldTrack: 'march', armyTracks: false });
   });
   it('autosaves the initial human turn separately and rewinds an own wait together with history', async () => {
     change('#four-mode', 'human');

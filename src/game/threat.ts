@@ -1,7 +1,7 @@
 import { reachablePositionsForPlayer } from './commands';
 import { visibleEnemies, observeLogistics } from './fog';
-import { isDeployedUnit, type GameState, type PlayerId } from './types';
-import { unitStats } from './units';
+import { isDeployedUnit, type GameState, type PlayerId, type Position, type Unit, type UnitKind } from './types';
+import { unitCategory, unitStats } from './units';
 import { weaponsForUnit } from './weapons';
 
 export interface ThreatPreview { movement: Set<string>; attack: Set<string> }
@@ -18,10 +18,20 @@ export function enemyThreatPreview(state: GameState, unitId: string, viewer: Pla
   if (!unit || !isDeployedUnit(unit) || unit.owner === viewer || unitStats[unit.kind].attack <= 0)
     return { movement: new Set(), attack: new Set() };
 
+  return potentialThreat(state, unit, () => reachablePositionsForPlayer(state, unit.id, viewer));
+}
+
+/** Attack geometry for an already observed unit. Callers supply only known occupancy. */
+export function potentialThreat(
+  state: GameState,
+  unit: Unit & { position: Position },
+  reachable: () => readonly Position[],
+  targetKind?: UnitKind,
+): ThreatPreview {
   const movement = new Set<string>();
   const attack = new Set<string>();
-  const weapons = weaponsForUnit(unit.kind, state);
-  const destinations = weapons.some(weapon => !weapon.indirect) ? reachablePositionsForPlayer(state, unit.id, viewer) : [];
+  const weapons = weaponsForUnit(unit.kind, state).filter(weapon => !targetKind || weapon.effectiveness[unitCategory[targetKind]] > 0);
+  const destinations = weapons.some(weapon => !weapon.indirect) ? reachable() : [];
   for (const weapon of weapons) {
     const origins = [unit.position];
     if (!weapon.indirect) for (const position of destinations) {
