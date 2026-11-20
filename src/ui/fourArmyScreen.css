@@ -599,6 +599,13 @@ strong.four-army-label {
   .four-screen .four-map-viewport {
     max-height: 52vh;
   }
+  .four-screen .mobile-action-bar .mobile-action-primary {
+    background: #c94437;
+  }
+  .four-screen .mobile-action-bar .mobile-action-primary:hover:not(:disabled),
+  .four-screen .mobile-action-bar .mobile-action-primary:focus-visible {
+    background: #e05243;
+  }
   .four-screen .mobile-action-bar button {
     min-height: 52px;
     padding: 6px 3px;
@@ -807,4 +814,50 @@ strong.four-army-label {
   .four-screen .four-action-focus {
     animation: none;
   }
+}
+
+.four-threat-control {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  color: var(--four-ink);
+}
+.four-music-settings,
+#four-tile-info {
+  margin-block: 8px;
+}
+.four-music-settings summary,
+#four-tile-info summary {
+  min-height: 44px;
+  padding: 9px 0;
+  cursor: pointer;
+}
+.four-music-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 14px;
+  align-items: center;
+}
+.four-music-controls label {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.four-music-controls input[type='range'] {
+  max-width: 100%;
+}
+
+.four-music-controls label:has(input[type='checkbox']),
+.four-threat-control {
+  min-height: 44px;
+}
+.four-music-controls input[type='checkbox'],
+.four-threat-control input {
+  width: 18px;
+  height: 18px;
+  min-height: 0;
+  padding: 0;
+  accent-color: #eed08c;
 }

@@ -1,3 +1,4 @@
+import { FOUR_ARMY_IDS, type FourArmyId } from './fourArmyFoundation';
 import type { StorageLike } from './session';
 import { parseBoundedJson } from './jsonBoundary';
 
@@ -67,6 +68,67 @@ export function saveMusicSettings(storage: StorageLike, settings: MusicSettings)
   if (!isMusicSettings(settings)) return false;
   try {
     storage.setItem(MUSIC_SETTINGS_KEY, JSON.stringify(settings));
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+export const FOUR_ARMY_MUSIC_KEY = 'ministr.fourArmy.music';
+
+export interface FourArmyMusicSettings {
+  muted: boolean;
+  volume: number;
+  fieldTrack: FieldTrack;
+  armyTracks: boolean;
+  tracks: Record<FourArmyId, FieldTrack>;
+}
+
+function isFourArmyMusicSettings(value: unknown): value is FourArmyMusicSettings {
+  if (!value || typeof value !== 'object' || Array.isArray(value) || Object.keys(value).length !== 5) return false;
+  const settings = value as Partial<FourArmyMusicSettings>;
+  return (
+    typeof settings.muted === 'boolean' &&
+    typeof settings.volume === 'number' &&
+    Number.isFinite(settings.volume) &&
+    settings.volume >= 0 &&
+    settings.volume <= 1 &&
+    isFieldTrack(settings.fieldTrack) &&
+    typeof settings.armyTracks === 'boolean' &&
+    !!settings.tracks &&
+    typeof settings.tracks === 'object' &&
+    Object.keys(settings.tracks).length === FOUR_ARMY_IDS.length &&
+    FOUR_ARMY_IDS.every((army) => isFieldTrack(settings.tracks![army]))
+  );
+}
+
+export function parseFourArmyMusic(raw: string): FourArmyMusicSettings | undefined {
+  const parsed = parseBoundedJson(raw, 1000);
+  return parsed.ok && isFourArmyMusicSettings(parsed.value) ? parsed.value : undefined;
+}
+
+export function loadFourArmyMusic(storage: StorageLike): FourArmyMusicSettings {
+  try {
+    const raw = storage.getItem(FOUR_ARMY_MUSIC_KEY);
+    const result = raw ? parseFourArmyMusic(raw) : undefined;
+    if (result) return result;
+  } catch {
+    // A blocked browser store still permits per-tab playback.
+  }
+  const original = loadMusicSettings(storage);
+  return {
+    muted: original.muted,
+    volume: original.volume,
+    fieldTrack: original.fieldTrack,
+    armyTracks: false,
+    tracks: { army1: 'rock-red', army2: 'rock-blue', army3: 'drive', army4: 'dawn' },
+  };
+}
+
+export function saveFourArmyMusic(storage: StorageLike, settings: FourArmyMusicSettings): boolean {
+  if (!isFourArmyMusicSettings(settings)) return false;
+  try {
+    storage.setItem(FOUR_ARMY_MUSIC_KEY, JSON.stringify(settings));
     return true;
   } catch {
     return false;

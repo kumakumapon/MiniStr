@@ -1,4 +1,4 @@
-import { loadMusicSettings, MUSIC_SETTINGS_KEY, defaultMusicSettings } from './musicSettings';
+import { loadMusicSettings, MUSIC_SETTINGS_KEY, defaultMusicSettings, loadFourArmyMusic, FOUR_ARMY_MUSIC_KEY, saveFourArmyMusic } from './musicSettings';
 import { readdirSync, readFileSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
@@ -218,6 +218,23 @@ describe('complete local backup', () => {
       expect(restoreBackup(storage, pack([['ministr.locale', 'en']])).ok).toBe(true);
       expect(storage.getItem(DAILY_RECORDS_KEY)).toBeNull();
     });
+  });
+
+  it('round trips independent multi-army music and rejects forged tracks atomically', () => {
+    const source = new Store(),
+      target = new Store();
+    const settings = { ...loadFourArmyMusic(source), armyTracks: true, tracks: { army1: 'march', army2: 'rock-blue', army3: 'mist', army4: 'dawn' } } as const;
+    expect(saveFourArmyMusic(source, settings)).toBe(true);
+    source.setItem(MUSIC_SETTINGS_KEY, JSON.stringify({ ...defaultMusicSettings, volume: 0.17 }));
+    const exported = exportBackup(source);
+    if (!exported.ok) throw Error(exported.error);
+    expect(restoreBackup(target, exported.value).ok).toBe(true);
+    expect(loadFourArmyMusic(target)).toEqual(settings);
+    expect(loadMusicSettings(target).volume).toBe(0.17);
+    const previous = new Map(target.data);
+    const invalid = JSON.stringify({ ...settings, tracks: { ...settings.tracks, army4: 'unrecognized' } });
+    expect(restoreBackup(target, pack([[FOUR_ARMY_MUSIC_KEY, invalid]])).ok).toBe(false);
+    expect(target.data).toEqual(previous);
   });
 
   it('knows every persisted key the application source mentions, so a new key cannot be forgotten by backup', () => {

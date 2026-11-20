@@ -291,10 +291,11 @@ const fourArmyScreen = new FourArmyScreen({
   conflicted: () => localStorage.conflicted,
   writerState: () => storageWriter.state,
   retrySaving: () => storageWriter.acquire(storageWriterChanged),
+  titlePresentation: () => ({ speed: cpuSpeed, zoomIndex: boardZoomIndex, automatic: boardZoomAuto }),
+  onMusic: settings => musicPlayer.setSettings(settings),
   onOpen: () => {
     commandScheduler.cancel(); cpuRunGeneration += 1; cpuInProgress = false; fileReadGate.invalidate();
     pauseSpectate(false); dismissTacticalScene(false);
-    musicPlayer.setSettings({ ...musicSettings, armyTracks: false });
     app.hidden = true; app.inert = true;
   },
   onClose: () => {
@@ -1811,6 +1812,7 @@ function render(): void {
       battleSceneSettings = loadBattleSceneSettings(localStorage);
       actionSceneSettings = loadActionSceneSettings(localStorage);
       soundSettings = loadSoundSettings(localStorage); soundPlayer.setSettings(soundSettings); musicSettings = loadMusicSettings(localStorage); musicPlayer.setSettings(musicSettings);
+      fourArmyScreen.restoreMusicSettings();
       confirmEndTurnWithUnacted = localStorage.getItem(END_TURN_CONFIRM_KEY) !== 'false';
       document.documentElement.lang = setLocale(localStorage.getItem('ministr.locale') === 'en' ? 'en' : 'ja');
     }
