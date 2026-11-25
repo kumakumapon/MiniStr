@@ -89,6 +89,7 @@ describe('four-army spectator controller', () => {
     const details = () => query<HTMLDetailsElement>('#four-setup-options');
     expect(details().open).toBe(false);
     query('#four-setup-summary').click();
+    change('#four-map', 'compact');
     change('#four-mode', 'custom');
     for (const army of ['army1', 'army2']) {
       const input = query<HTMLInputElement>(`[data-active-army="${army}"]`);
