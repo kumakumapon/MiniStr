@@ -101,6 +101,48 @@
   background: #253d30;
   margin: 8px 0;
 }
+.four-start-card,
+.four-setup-options,
+.four-setup-tools {
+  padding: 16px;
+  border: 1px solid var(--four-line);
+  border-radius: 8px;
+  background: var(--four-panel);
+}
+.four-start-card {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px 20px;
+  border-left: 3px solid var(--four-gold);
+}
+.four-start-card .four-primary {
+  min-width: 10rem;
+}
+.four-start-card .four-primary:hover:not(:disabled) {
+  background: #ffe1a1;
+}
+.four-start-card p {
+  margin-top: 4px;
+  color: var(--four-muted);
+}
+.four-setup-options,
+.four-setup-tools {
+  margin-top: 12px;
+}
+.four-setup-options > summary {
+  min-height: 44px;
+  padding-block: 11px;
+  cursor: pointer;
+  font-weight: 700;
+}
+.four-setup-options > .four-setup {
+  margin-block: 12px;
+}
+#four-setup-confirm {
+  margin-top: 4px;
+}
 .four-setup {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -394,9 +436,17 @@ strong.four-army-label {
   .four-toolbar label {
     flex: 1 1 40%;
   }
-  .four-setup > section,
-  .four-brief {
+  .four-start-card,
+  .four-setup-options,
+  .four-setup-tools,
+  .four-setup > section {
     padding: 12px;
+  }
+  .four-start-card .four-buttons {
+    width: 100%;
+  }
+  .four-start-card .four-buttons > button {
+    flex: 1;
   }
   .four-slot {
     grid-template-columns: minmax(0, 1fr) auto;

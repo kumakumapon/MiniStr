@@ -1202,3 +1202,16 @@ body.production-menu-open { overflow: hidden; }
 .research-saves > div { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 8px; }
 .research-saves h2 { font-size: 1.1rem; margin: 0; }
 .research-status button, .research-fork button, .research-fork select, .research-saves button { min-height: 44px; max-width: 100%; margin: 3px; }
+
+/* Live player matches keep the turn controls above the board and setup tools below it. */
+.match-options { margin-top: 12px; min-height: 0; gap: 10px 14px; box-shadow: none; }
+.match-options .save-controls { max-width: none; }
+.match-options .map-picker select { min-width: 0; max-width: 100%; }
+.match-options:focus { outline: 2px solid #e8c55f; outline-offset: 2px; }
+.match-command-bar ~ .battle-layout .unit-brief-empty { min-height: 0; }
+@media (max-width: 640px) {
+  .match-command-bar .brand { flex: 1 1 100%; }
+  .match-command-bar .save-action, .match-options .save-action { min-height: 44px; }
+  .match-command-bar .turn-indicator { margin-left: auto; }
+  .match-command-bar #end { flex: 1 1 auto; }
+}

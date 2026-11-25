@@ -16,6 +16,85 @@ for (const { width, locale } of [
   { width: 390, locale: 'ja' },
   { width: 1280, locale: 'en' },
 ] as const) {
+  test(`normal two-army play exposes the board immediately ${width}/${locale}`, async ({ page }, info) => {
+    await page.setViewportSize({ width, height: width === 390 ? 844 : 800 });
+    await title(page, locale);
+    await page.locator('.title-map-card[data-map-id="skirmish"]').click();
+    await page.locator('#begin-operation').click();
+    const board = page.locator('#board-viewport');
+    await expect(board).toBeFocused();
+    const aboveBar = await board.evaluate((element) => {
+      const bar = document.querySelector('.mobile-action-bar')!.getBoundingClientRect();
+      const bottom = bar.height ? bar.top : innerHeight;
+      return bottom - element.getBoundingClientRect().top;
+    });
+    expect(aboveBar).toBeGreaterThanOrEqual(88);
+    expect(await page.evaluate(() => window.scrollY)).toBe(0);
+    await expect(page.locator('#objective-title')).toBeVisible();
+    await page.screenshot({ path: info.outputPath(`systems-start-two-army-${width}.png`) });
+    await page.locator('#board-viewport .tile .unit.red').first().locator('..').click();
+    await expect(page.locator('#unit-brief')).toHaveAttribute('data-unit-id', /.+/);
+    await page.locator('#match-options-link').press('Enter');
+    await expect(page.locator('#match-options')).toBeFocused();
+    await expect(page.locator('#save')).toBeInViewport();
+    await expect(page.locator('#sound-muted')).toBeVisible();
+    await page.locator('#cpu-speed').selectOption('2');
+    await expect(page.locator('#cpu-speed')).toHaveValue('2');
+
+    expect(await page.evaluate(() => window.scrollY)).toBeGreaterThan(0);
+    await page.locator('#map').selectOption('islands');
+    await page.locator('#begin-operation').click();
+    await expect(board).toBeFocused();
+    expect(await page.evaluate(() => window.scrollY)).toBe(0);
+  });
+
+  test(`multi-army default start and detailed setup ${width}/${locale}`, async ({ page }, info) => {
+    await page.setViewportSize({ width, height: 844 });
+    await title(page, locale);
+    await page.locator('#title-four-army').click();
+
+    const start = page.locator('#four-start');
+    const details = page.locator('#four-setup-options');
+    const summary = page.locator('#four-start-summary');
+    await expect(start).toBeInViewport({ ratio: 1 });
+    await expect(page.locator('#four-setup-summary')).toBeInViewport({ ratio: 1 });
+    await expect(details).toHaveJSProperty('open', false);
+    await expect(summary).toContainText(locale === 'ja' ? '第1軍を操作・CPU 3軍' : 'Play as Army 1 · 3 CPUs');
+    await page.screenshot({ path: info.outputPath(`systems-start-multi-army-${width}.png`) });
+    await start.press('Enter');
+    await expect(page.locator('#four-board > button')).toHaveCount(252);
+    await expect(page.locator('#four-view')).toHaveValue('army1');
+    await expect(page.locator('#four-toggle')).toBeHidden();
+
+    await page.locator('.four-playback-options > summary').click();
+    await page.locator('#four-menu').click();
+    await expect(page.locator('#four-return')).toBeInViewport();
+    await page.locator('#four-setup-summary').press('Enter');
+    const map = page.locator('#four-map');
+    await map.focus();
+    await map.selectOption('outpost');
+    await expect(map).toBeFocused();
+    await expect(details).toHaveJSProperty('open', true);
+    await page.locator('#four-count').selectOption('3');
+    await page.locator('#four-team-mode').check();
+    await page.locator('[data-team="army2"]').selectOption('army1');
+    await page.locator('#four-mode').selectOption('spectator');
+    await expect(summary).toContainText(locale === 'ja' ? 'CPU 3軍で観戦 · 固定チーム · 21ラウンド判定' : 'Watch 3 CPUs · Fixed teams · 21-round decision');
+    await page.locator('#four-setup-confirm').click();
+    await expect(details).toHaveJSProperty('open', false);
+    await expect(start).toBeFocused();
+    await start.press('Enter');
+    await expect(page.locator('#four-notice')).toContainText(locale === 'ja' ? '2組以上' : 'at least two teams');
+    await expect(details).toHaveJSProperty('open', true);
+    await page.locator('[data-team="army3"]').selectOption('army2');
+    await page.locator('#four-setup-confirm').click();
+    await start.press('Enter');
+    await expect(page.locator('#four-view')).toHaveValue('all');
+    await expect(page.locator('.four-map-heading h2')).toHaveText(locale === 'ja' ? '前哨基地強襲' : 'Outpost Assault');
+    await expect(page.locator('#four-army-info > *')).toHaveCount(3);
+    await expect(page.locator('#four-toggle')).toHaveAttribute('aria-pressed', 'false');
+  });
+
   test(`multi-army preferences, tile inspection and turn controls ${width}/${locale}`, async ({ page }, info) => {
     await page.setViewportSize({ width, height: 844 });
     const original = { muted: true, volume: 0.44, fieldTrack: 'dawn', armyTracks: true, blueFieldTrack: 'rock-blue' };
@@ -34,6 +113,7 @@ for (const { width, locale } of [
       (e as HTMLInputElement).value = '30';
       e.dispatchEvent(new Event('input', { bubbles: true }));
     });
+    await page.locator('#four-setup-summary').click();
     await page.locator('#four-map').selectOption(width === 390 ? 'compact' : 'strait');
     await page.locator('#four-start').click();
     await expect(page.locator('#four-speed')).toHaveValue('4');

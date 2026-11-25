@@ -3,6 +3,7 @@ import { FourArmyScreen } from './fourArmyScreen';
 import { FourArmyCpuSession } from './fourArmyCpuSession';
 import { FourArmyFileCodec } from './fourArmyFileCodec';
 import { setLocale } from './locale';
+import * as locale from './locale';
 import { fourArmySpectatorFixture } from '../game/fourArmySpectator.fixture';
 import { handleFourArmyCpuRequest } from '../ai/fourArmyCpuProtocol';
 import { encodeFourArmySpectatorSave, FOUR_ARMY_SAVE_KEYS, FOUR_ARMY_AUTO_SAVE_KEY } from '../game/fourArmySpectatorSave';
@@ -85,6 +86,28 @@ describe('four-army spectator controller', () => {
     e.value = value;
     e.dispatchEvent(new Event('change', { bubbles: true }));
   };
+  it('uses only participating armies to summarize detailed setup and starts the reviewed controllers', () => {
+    const details = () => query<HTMLDetailsElement>('#four-setup-options');
+    expect(details().open).toBe(false);
+    query('#four-setup-summary').click();
+    change('#four-map', 'compact');
+    change('#four-mode', 'custom');
+    for (const army of ['army1', 'army2']) {
+      const input = query<HTMLInputElement>(`[data-active-army="${army}"]`);
+      input.click();
+    }
+    expect(details().open).toBe(true);
+    expect(query('#four-start-summary').textContent).toContain('Watch 2 CPUs');
+    expect(query('#four-start').textContent).toBe('Open CPU observation');
+    change('#four-controller-army3', 'human');
+    expect(query('#four-start-summary').textContent).toContain('Play as Army 3 · 1 CPU');
+    click('#four-setup-confirm');
+    expect(details().open).toBe(false);
+    expect(document.activeElement?.id).toBe('four-start');
+    start();
+    expect(query<HTMLSelectElement>('#four-view').value).toBe('army3');
+    expect(query('#four-army-info').children).toHaveLength(2);
+  });
   it.each([3, 4] as const)('starts compact %i-army play with a real roster and schema6 autosave', async (count) => {
     change('#four-map', 'compact');
     change('#four-count', String(count));
@@ -237,6 +260,16 @@ describe('four-army spectator controller', () => {
     screen.root.querySelector<HTMLButtonElement>('#four-close')?.click();
     screen.root.remove();
     vi.restoreAllMocks();
+  });
+  it('renders translated BGM track labels as literal text in shared and army options', () => {
+    const label = 'Evening <live> & "studio"';
+    vi.spyOn(locale, 'translateText').mockReturnValue(label);
+    screen.open();
+    for (const selector of ['#four-music-shared', '#four-music-army4']) {
+      const option = query<HTMLOptionElement>(`${selector} option[value="dawn"]`);
+      expect(option.textContent).toBe(label);
+      expect(option.children).toHaveLength(0);
+    }
   });
   it('switches the actual playback selection for each recorded turn and keeps the shared track in setup', async () => {
     const saved = fourArmySpectatorFixture(4);

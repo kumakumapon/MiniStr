@@ -2,6 +2,7 @@ import type { FourArmyMusicSettings } from '../game/musicSettings';
 import { FOUR_ARMY_IDS, type FourArmyId } from '../game/fourArmyFoundation';
 import { FIELD_TRACKS, FIELD_TRACK_LABELS, type FieldTrack, type MusicSettings } from './music';
 import { getLocale, translateText } from './locale';
+import { escapeHtml } from './strings';
 
 const trackFor = (value: unknown) => FIELD_TRACKS.find((track) => track === value);
 
@@ -29,7 +30,7 @@ export function editFourArmyMusic(settings: FourArmyMusicSettings, input: HTMLIn
 export function renderFourArmyMusic(settings: FourArmyMusicSettings, open: boolean): string {
   const en = getLocale() === 'en';
   const trackOptions = (track: FieldTrack) =>
-    FIELD_TRACKS.map((id) => `<option value="${id}" ${track === id ? 'selected' : ''}>${translateText(FIELD_TRACK_LABELS[id])}</option>`).join('');
+    FIELD_TRACKS.map((id) => `<option value="${id}" ${track === id ? 'selected' : ''}>${escapeHtml(translateText(FIELD_TRACK_LABELS[id]))}</option>`).join('');
   return `<details id="four-music-settings" class="four-music-settings" ${open ? 'open' : ''}>
     <summary>${en ? 'BGM settings' : 'BGM設定'}</summary>
     <div class="four-music-controls">
