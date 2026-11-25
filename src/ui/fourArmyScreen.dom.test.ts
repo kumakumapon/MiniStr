@@ -85,6 +85,24 @@ describe('four-army spectator controller', () => {
     e.value = value;
     e.dispatchEvent(new Event('change', { bubbles: true }));
   };
+  it('preserves literal record name and seed values through a setup redraw', () => {
+    const name = 'North <reserve> & "west"';
+    const seed = '1 & "2"';
+    for (const [selector, value] of [
+      ['#four-name', name],
+      ['#four-seed', seed],
+    ] as const) {
+      const input = query<HTMLInputElement>(selector);
+      input.value = value;
+      input.dispatchEvent(new Event('input', { bubbles: true }));
+    }
+    change('#four-map', 'compact');
+    expect(query<HTMLInputElement>('#four-name').value).toBe(name);
+    expect(query<HTMLInputElement>('#four-seed').value).toBe(seed);
+    start();
+    expect(query('#four-notice').textContent).toContain('Enter an integer seed');
+    expect(document.querySelector('#four-board')).toBeNull();
+  });
   it('uses only participating armies to summarize detailed setup and starts the reviewed controllers', () => {
     const details = () => query<HTMLDetailsElement>('#four-setup-options');
     expect(details().open).toBe(false);
