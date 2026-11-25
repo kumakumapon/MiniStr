@@ -1,0 +1,49 @@
+name: Trace PR 331 CodeQL finding
+
+on:
+  push:
+    branches: [verify/pr-331-codeql-flow]
+    paths: [.github/workflows/verify-pr-331-codeql-flow.yml]
+
+permissions:
+  contents: read
+
+jobs:
+  analyze:
+    if: github.repository == 'kumakumapon/MiniStr' && github.ref == 'refs/heads/verify/pr-331-codeql-flow'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: 4a8d2a72f57630fff35a0011da722b5f4b2da0d6
+          persist-credentials: false
+      - run: test "$(git rev-parse HEAD)" = '4a8d2a72f57630fff35a0011da722b5f4b2da0d6'
+      - uses: github/codeql-action/init@915412ff23e8b7659517e607487dbeae018f2934
+        with:
+          languages: javascript-typescript
+          build-mode: none
+      - uses: github/codeql-action/analyze@915412ff23e8b7659517e607487dbeae018f2934
+        with:
+          output: sarif-results
+          upload: never
+      - name: Report the analysis path
+        run: |
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          for file in Path('sarif-results').glob('*.sarif'):
+              for run in json.loads(file.read_text())['runs']:
+                  for result in run['results']:
+                      if result['ruleId'] != 'js/xss':
+                          continue
+                      def report(location):
+                          physical = location['physicalLocation']
+                          print(physical['artifactLocation']['uri'], physical['region']['startLine'], physical['region'].get('startColumn'), location.get('message', {}).get('text', ''))
+                      for finding in result['locations']:
+                          report(finding)
+                      for flow in result.get('codeFlows', []):
+                          for thread in flow['threadFlows']:
+                              for link in thread['locations']:
+                                  report(link['location'])
+          PY
