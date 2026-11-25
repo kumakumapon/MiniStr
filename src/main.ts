@@ -2486,9 +2486,11 @@ function render(): void {
     screens.briefingOpen = false;
     message = matchMode === 'hotseat' ? `2人対戦を開始しました。${sideName('hotseat', game.activePlayer)}から操作してください。`
       : matchMode === 'spectate' ? uiText.spectateStarted : '作戦を開始しました。ユニットを選択してください。';
-    if (matchMode !== 'spectate') focusSelector = '#board-viewport';
+    const playerMatch = matchMode !== 'spectate';
+    if (playerMatch) focusSelector = '#board-viewport';
     if (cpuShouldRun(matchContext())) runCpu();
     render();
+    if (playerMatch && window.scrollY) window.scrollTo({ top: 0, behavior: 'instant' });
   });
   document.querySelector<HTMLButtonElement>('#handoff-start')?.addEventListener('click', beginHandoffTurn);
 }

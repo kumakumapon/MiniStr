@@ -40,6 +40,12 @@ for (const { width, locale } of [
     await expect(page.locator('#sound-muted')).toBeVisible();
     await page.locator('#cpu-speed').selectOption('2');
     await expect(page.locator('#cpu-speed')).toHaveValue('2');
+
+    expect(await page.evaluate(() => window.scrollY)).toBeGreaterThan(0);
+    await page.locator('#map').selectOption('islands');
+    await page.locator('#begin-operation').click();
+    await expect(board).toBeFocused();
+    expect(await page.evaluate(() => window.scrollY)).toBe(0);
   });
 
   test(`multi-army default start and detailed setup ${width}/${locale}`, async ({ page }, info) => {
