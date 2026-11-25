@@ -311,6 +311,7 @@ for (const { width, locale } of [
     await expect(page.locator('#battle-scenes-twoArmy-title')).not.toBeChecked();
     await page.locator('#battle-scenes-twoArmy-title').check();
     await page.locator('#title-continue').click();
+    await pauseBattleClock(page);
     await tile(page, 1, 1).click();
     await tile(page, 2, 1).click();
     await expect(page.locator('.battle-scene')).toBeVisible();
