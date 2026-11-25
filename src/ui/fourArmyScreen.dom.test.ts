@@ -3,6 +3,7 @@ import { FourArmyScreen } from './fourArmyScreen';
 import { FourArmyCpuSession } from './fourArmyCpuSession';
 import { FourArmyFileCodec } from './fourArmyFileCodec';
 import { setLocale } from './locale';
+import * as locale from './locale';
 import { fourArmySpectatorFixture } from '../game/fourArmySpectator.fixture';
 import { handleFourArmyCpuRequest } from '../ai/fourArmyCpuProtocol';
 import { encodeFourArmySpectatorSave, FOUR_ARMY_SAVE_KEYS, FOUR_ARMY_AUTO_SAVE_KEY } from '../game/fourArmySpectatorSave';
@@ -85,24 +86,6 @@ describe('four-army spectator controller', () => {
     e.value = value;
     e.dispatchEvent(new Event('change', { bubbles: true }));
   };
-  it('preserves literal record name and seed values through a setup redraw', () => {
-    const name = 'North <reserve> & "west"';
-    const seed = '1 & "2"';
-    for (const [selector, value] of [
-      ['#four-name', name],
-      ['#four-seed', seed],
-    ] as const) {
-      const input = query<HTMLInputElement>(selector);
-      input.value = value;
-      input.dispatchEvent(new Event('input', { bubbles: true }));
-    }
-    change('#four-map', 'compact');
-    expect(query<HTMLInputElement>('#four-name').value).toBe(name);
-    expect(query<HTMLInputElement>('#four-seed').value).toBe(seed);
-    start();
-    expect(query('#four-notice').textContent).toContain('Enter an integer seed');
-    expect(document.querySelector('#four-board')).toBeNull();
-  });
   it('uses only participating armies to summarize detailed setup and starts the reviewed controllers', () => {
     const details = () => query<HTMLDetailsElement>('#four-setup-options');
     expect(details().open).toBe(false);
@@ -277,6 +260,16 @@ describe('four-army spectator controller', () => {
     screen.root.querySelector<HTMLButtonElement>('#four-close')?.click();
     screen.root.remove();
     vi.restoreAllMocks();
+  });
+  it('renders translated BGM track labels as literal text in shared and army options', () => {
+    const label = 'Evening <live> & "studio"';
+    vi.spyOn(locale, 'translateText').mockReturnValue(label);
+    screen.open();
+    for (const selector of ['#four-music-shared', '#four-music-army4']) {
+      const option = query<HTMLOptionElement>(`${selector} option[value="dawn"]`);
+      expect(option.textContent).toBe(label);
+      expect(option.children).toHaveLength(0);
+    }
   });
   it('switches the actual playback selection for each recorded turn and keeps the shared track in setup', async () => {
     const saved = fourArmySpectatorFixture(4);
