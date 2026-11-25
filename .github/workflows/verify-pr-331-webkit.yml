@@ -1,0 +1,52 @@
+name: Verify PR 331 WebKit shard 1
+
+on:
+  push:
+    branches: [verify/pr-331-webkit]
+    paths: [.github/workflows/verify-pr-331-webkit.yml]
+
+permissions:
+  contents: read
+
+jobs:
+  webkit:
+    if: github.repository == 'kumakumapon/MiniStr' && github.ref == 'refs/heads/verify/pr-331-webkit'
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: b0d5c605846b193b26ccd029a2b7e2c72f5427fb
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
+        with:
+          node-version: 24
+          cache: npm
+      - name: Confirm exact PR source
+        run: |
+          test "$(git rev-parse HEAD)" = 'b0d5c605846b193b26ccd029a2b7e2c72f5427fb'
+          test "$(git rev-parse 'HEAD^{tree}')" = 'c05b2dbacb79c7b13e98a06b15a51becc99d6fc3'
+      - run: npm install --global npm@11.9.0
+      - run: npm ci
+      - name: Build the verified source
+        run: GITHUB_SHA="$(git rev-parse HEAD)" npm run build
+      - run: sudo bash scripts/use-ubuntu-https-mirror.sh
+      - run: npx playwright install --with-deps webkit
+      - name: Provide a virtual audio output for native browser recovery tests
+        run: |
+          sudo apt-get install --yes --no-install-recommends pulseaudio pulseaudio-utils
+          pulseaudio --start --exit-idle-time=-1
+          pactl load-module module-null-sink sink_name=ministr_ci
+          pactl set-default-sink ministr_ci
+      - name: Run the existing WebKit shard
+        run: npx playwright test --project=webkit --shard=1/2 --output=test-results/shard-1-of-2/webkit
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        if: always()
+        with:
+          name: pr-331-webkit-evidence
+          path: |
+            test-results/**/systems-start-*.png
+            test-results/**/trace.zip
+            test-results/**/test-failed-*.png
+          if-no-files-found: ignore
+          retention-days: 14
