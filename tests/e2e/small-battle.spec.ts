@@ -26,6 +26,7 @@ for (const count of [3, 4] as const)
     test(`compact ${count}-army human play and verified restore ${width}`, async ({ page }, info) => {
       await page.setViewportSize({ width, height: 900 });
       await open(page, width === 390 ? 'en' : 'ja');
+      await page.locator('#four-setup-summary').click();
       await expect(page.locator('#four-map')).toHaveValue('compact');
       await expect(page.locator('#four-ending')).toHaveValue('short');
       await page.locator('#four-count').selectOption(String(count));
@@ -55,6 +56,7 @@ for (const count of [3, 4] as const)
       expect(checked.archive.payload.commands).toEqual([]);
       await page.locator('.four-playback-options').evaluate((e) => ((e as HTMLDetailsElement).open = true));
       await page.locator('#four-menu').click();
+      await page.locator('#four-setup-summary').click();
       await page.locator('#four-map').selectOption('wide');
       await tools(page);
       await page.locator('[data-load-slot="0"]').click();
@@ -98,6 +100,7 @@ test('twentieth-round result, replay and rematch retain three-army conditions', 
   await page.screenshot({ path: info.outputPath('v1521-compact-result.png'), fullPage: true });
   await page.locator('.four-playback-options').evaluate((e) => ((e as HTMLDetailsElement).open = true));
   await page.locator('#four-menu').click();
+  await page.locator('#four-setup-summary').click();
   await page.locator('#four-map').selectOption('wide');
   await page.locator('#four-return').click();
   await page.locator('#four-rematch').click();
@@ -108,6 +111,7 @@ test('twentieth-round result, replay and rematch retain three-army conditions', 
 });
 test('three-army hotseat hides CPU intervals and never presents an inactive fourth army', async ({ page }) => {
   await open(page);
+  await page.locator('#four-setup-summary').click();
   await page.locator('#four-count').selectOption('3');
   await page.locator('#four-mode').selectOption('custom');
   await expect(page.locator('[data-controller]')).toHaveCount(3);
@@ -131,6 +135,7 @@ for (const width of [1280, 390])
   test(`v1522 arbitrary armies, controller journal and restored handoff ${width}`, async ({ page }, info) => {
     await page.setViewportSize({ width, height: 900 });
     await open(page, width === 390 ? 'ja' : 'en');
+    await page.locator('#four-setup-summary').click();
     await page.locator('#four-map').selectOption('outpost');
     await page.locator('[data-active-army="army1"]').uncheck();
     await page.locator('[data-active-army="army3"]').uncheck();
@@ -167,6 +172,7 @@ for (const width of [1280, 390])
 for (const count of [3, 4])
   test(`v1522 water ${count} armies shows ships, bridges and fixed allies`, async ({ page }, info) => {
     await open(page);
+    await page.locator('#four-setup-summary').click();
     await page.locator('#four-map').selectOption('strait');
     await page.locator('#four-count').selectOption(String(count));
     await page.locator('#four-team-mode').check();

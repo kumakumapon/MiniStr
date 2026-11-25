@@ -219,6 +219,7 @@ test('ten-minute actual spectator lifecycle: pause input, background, view chang
         completedCommands += paused;
         games++;
         await page.locator('#four-menu').click();
+        await page.locator('#four-setup-summary').click();
         await page.locator('#four-seed').fill(String(1512 + games));
         await page.locator('#four-start').click();
         await page.locator('#four-speed').selectOption('4');

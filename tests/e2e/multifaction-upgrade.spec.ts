@@ -32,6 +32,7 @@ for (const { width, locale } of [
   test(`new three-army layout and CPU persist through capture, restore and replay ${width}/${locale}`, async ({ page }, info) => {
     await page.setViewportSize({ width, height: 900 });
     await open(page, locale);
+    await page.locator('#four-setup-summary').click();
     await page.locator('#four-map').selectOption('compact');
     await page.locator('#four-count').selectOption('3');
     await page.locator('#four-seed').fill('42');

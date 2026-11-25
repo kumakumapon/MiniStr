@@ -9,6 +9,7 @@ async function open(page: Page, locale = 'en') {
   page.on('dialog', (dialog) => dialog.accept());
   await page.goto('/');
   await page.locator('#title-four-army').click();
+  await page.locator('#four-setup-summary').click();
   await page.locator('#four-map').selectOption('wide');
 }
 async function tools(page: Page) {

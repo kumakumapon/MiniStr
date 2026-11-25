@@ -85,6 +85,27 @@ describe('four-army spectator controller', () => {
     e.value = value;
     e.dispatchEvent(new Event('change', { bubbles: true }));
   };
+  it('uses only participating armies to summarize detailed setup and starts the reviewed controllers', () => {
+    const details = () => query<HTMLDetailsElement>('#four-setup-options');
+    expect(details().open).toBe(false);
+    query('#four-setup-summary').click();
+    change('#four-mode', 'custom');
+    for (const army of ['army1', 'army2']) {
+      const input = query<HTMLInputElement>(`[data-active-army="${army}"]`);
+      input.click();
+    }
+    expect(details().open).toBe(true);
+    expect(query('#four-start-summary').textContent).toContain('Watch 2 CPUs');
+    expect(query('#four-start').textContent).toBe('Open CPU observation');
+    change('#four-controller-army3', 'human');
+    expect(query('#four-start-summary').textContent).toContain('Play as Army 3 · 1 CPU');
+    click('#four-setup-confirm');
+    expect(details().open).toBe(false);
+    expect(document.activeElement?.id).toBe('four-start');
+    start();
+    expect(query<HTMLSelectElement>('#four-view').value).toBe('army3');
+    expect(query('#four-army-info').children).toHaveLength(2);
+  });
   it.each([3, 4] as const)('starts compact %i-army play with a real roster and schema6 autosave', async (count) => {
     change('#four-map', 'compact');
     change('#four-count', String(count));
