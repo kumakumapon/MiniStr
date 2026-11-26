@@ -278,6 +278,7 @@ describe('four-army spectator controller', () => {
   it('keeps a suspended match and the concealed handoff when returning from the title', async () => {
     const fixture = fourArmyActionFixture('logistics', 'hotseat');
     values.set(FOUR_ARMY_SAVE_KEYS[0], fixture.text);
+    screen.open();
     click('[data-load-slot="0"]');
     await vi.waitFor(() => expect(query('#four-handoff-start')).toBeTruthy());
     click('#four-title');
