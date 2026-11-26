@@ -8,7 +8,8 @@ async function open(page: Page, locale = 'en') {
   await page.addInitScript((locale) => localStorage.setItem('ministr.locale', locale), locale);
   page.on('dialog', (dialog) => dialog.accept());
   await page.goto('/');
-  await page.locator('#title-four-army').click();
+  await page.locator('.title-map-card[data-map-id="skirmish"]').click();
+  await page.locator('#briefing-match-variants').selectOption('4');
   await page.locator('#four-setup-summary').click();
   await page.locator('#four-map').selectOption('wide');
 }

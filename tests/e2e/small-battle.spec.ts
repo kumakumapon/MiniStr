@@ -16,7 +16,8 @@ async function open(page: Page, locale = 'en') {
   await page.addInitScript((locale) => localStorage.setItem('ministr.locale', locale), locale);
   page.on('dialog', (d) => d.accept());
   await page.goto('/');
-  await page.locator('#title-four-army').click();
+  await page.locator('.title-map-card[data-map-id="skirmish"]').click();
+  await page.locator('#briefing-match-variants').selectOption('4');
 }
 async function tools(page: Page) {
   await page.locator('.four-tools').evaluate((e) => ((e as HTMLDetailsElement).open = true));

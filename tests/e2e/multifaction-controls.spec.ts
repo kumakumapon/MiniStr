@@ -2,6 +2,11 @@ import { expect, type Page } from '@playwright/test';
 import { test } from './helpers/engineTest';
 import { fourArmyBattleFixture } from './helpers/fourArmyBattleFixture';
 import { freezeSceneClock } from './helpers/sceneClock';
+import { normalResearchTestEntries } from './helpers/researchFixtures';
+import { fourArmySpectatorFixture } from '../../src/game/fourArmySpectator.fixture';
+import { researchReplayFixture } from '../../src/game/research.fixture';
+import { forkResearch } from '../../src/game/research';
+import { valueOf } from '../../src/game/operations.fixture';
 
 test.describe.configure({ mode: 'parallel' });
 async function title(page: Page, locale: 'ja' | 'en') {
@@ -51,7 +56,8 @@ for (const { width, locale } of [
   test(`multi-army default start and detailed setup ${width}/${locale}`, async ({ page }, info) => {
     await page.setViewportSize({ width, height: 844 });
     await title(page, locale);
-    await page.locator('#title-four-army').click();
+    await page.locator('.title-map-card[data-map-id="skirmish"]').click();
+    await page.locator('#briefing-match-variants').selectOption('4');
 
     const start = page.locator('#four-start');
     const details = page.locator('#four-setup-options');
@@ -102,7 +108,8 @@ for (const { width, locale } of [
     await title(page, locale);
     await page.locator('#title-cpu-speed').selectOption('4');
     await page.locator('#title-board-zoom').selectOption('150');
-    await page.locator('#title-four-army').click();
+    await page.locator('.title-map-card[data-map-id="skirmish"]').click();
+    await page.locator('#briefing-match-variants').selectOption('4');
     await disclosures(page, '#four-music-settings');
     await expect(page.locator('#four-music-on')).not.toBeChecked();
     await expect(page.locator('#four-music-army4')).toBeDisabled();
@@ -143,7 +150,8 @@ for (const { width, locale } of [
       await expect(page.locator('#four-mobile-host .mobile-action-primary')).toHaveCount(1);
     }
     await page.reload();
-    await page.locator('#title-four-army').click();
+    await page.locator('.title-map-card[data-map-id="skirmish"]').click();
+    await page.locator('#briefing-match-variants').selectOption('4');
     await disclosures(page, '#four-music-settings');
     await expect(page.locator('#four-music-by-army')).toBeChecked();
     await expect(page.locator('#four-music-army4')).toHaveValue('mist');
@@ -158,7 +166,8 @@ test('visible enemy danger and tile information stay scoped to the viewed army a
   await page.setViewportSize({ width: 1280, height: 844 });
   await title(page, 'en');
   await page.locator('#title-cpu-speed').selectOption('0.5');
-  await page.locator('#title-four-army').click();
+  await page.locator('.title-map-card[data-map-id="skirmish"]').click();
+  await page.locator('#briefing-match-variants').selectOption('4');
   await disclosures(page, '.four-tools');
   await page.locator('#four-file').setInputFiles({ name: 'front.json', mimeType: 'application/json', buffer: Buffer.from(fixture.text) });
   await expect(page.locator('#four-notice')).toHaveText('Loaded and paused.');
@@ -177,4 +186,87 @@ test('visible enemy danger and tile information stay scoped to the viewed army a
   await page.screenshot({ path: info.outputPath('systems-v161-visible-threat.png'), animations: 'disabled' });
   await page.locator('#four-show-threats').uncheck();
   await expect(page.locator('#four-board .enemy-attack-zone')).toHaveCount(0);
+});
+
+test('one map card opens standard and multiplayer variants without replacing the standard briefing on back', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await title(page, 'ja');
+  const card = page.locator('.title-map-card[data-map-id="outpost"]');
+  await expect(card).toContainText('2〜4軍');
+  await card.click();
+  await expect(page.locator('#briefing-match-variants')).toHaveValue('standard');
+  await page.locator('#briefing-match-variants').selectOption('3');
+  await expect(page.locator('#four-start-map')).toContainText('前哨基地強襲');
+  await expect(page.locator('#four-start-summary')).toContainText('21ラウンド判定');
+  await page.locator('#four-variants').selectOption('standard');
+  await expect(page.locator('#briefing-match-variants')).toBeFocused();
+  await page.locator('#begin-operation').click();
+  await expect(page.locator('#board-viewport')).toBeFocused();
+  await expect(page.locator('#app .map-turn-status')).toBeVisible();
+  await expect(page.locator('#mobile-end')).toBeEnabled();
+  await page.locator('#open-title').click();
+  await card.click();
+  await page.locator('#briefing-match-variants').selectOption('2');
+  await page.locator('#four-start').click();
+  await expect(page.locator('#four-army-info > *')).toHaveCount(2);
+  await expect(page.locator('#four-turn')).toContainText('/20');
+  await expect(page.locator('#four-army-screen .mobile-action-primary')).toContainText('ターン終了');
+  await page.locator('#four-mobile-panel').click();
+  await expect(page.locator('#four-command-panel')).toBeFocused();
+  await page.locator('#four-title').click();
+  await expect(page.locator('#title-resume-multiplayer')).toBeFocused();
+  await page.locator('#title-resume-multiplayer').click();
+  await expect(page.locator('#four-army-info > *')).toHaveCount(2);
+});
+
+test('the common map list includes water and both large layouts with their supported army counts', async ({ page }) => {
+  await title(page, 'en');
+  await page.locator('.title-map-card[data-map-id="multiplayer:strait"]').click();
+  await expect(page.locator('#four-start-summary')).toContainText('17 × 15');
+  await expect(page.locator('#four-variants option')).toHaveCount(3);
+  await page.locator('#four-close').click();
+  await expect(page.locator('.title-map-card[data-map-id="multiplayer:strait"]')).toBeFocused();
+  await page.locator('.title-map-card[data-map-id="multiplayer:wide"]').click();
+  await expect(page.locator('#four-start-summary')).toContainText('32 × 32');
+  await expect(page.locator('#four-variants option')).toHaveCount(1);
+  await page.locator('#four-close').click();
+  await page.locator('.title-map-card[data-map-id="multiplayer:frontier"]').click();
+  await expect(page.locator('#four-variants option')).toHaveCount(3);
+});
+
+test('continue and record import route verified old saves to the right match', async ({ page }) => {
+  const normal = normalResearchTestEntries();
+  const study = valueOf(await forkResearch(researchReplayFixture(), 0));
+  const four = JSON.stringify(fourArmySpectatorFixture(2));
+  await page.addInitScript(
+    ({ normal, study, four }) => {
+      for (const [key, raw] of Object.entries(normal)) localStorage.setItem(key, raw);
+      localStorage.setItem('ministr.research.manual', study);
+      localStorage.setItem('ministr.fourArmy.save.1', four);
+    },
+    { normal, study: JSON.stringify(study), four },
+  );
+  await title(page, 'en');
+  const upload = async (raw: string) => page.locator('#title-replay-file').setInputFiles({ name: 'saved.json', mimeType: 'application/json', buffer: Buffer.from(raw) });
+  await page.locator('#title-continue').click();
+  await expect(page.locator('#title-saves-heading')).toBeFocused();
+  await page.locator('[data-multiplayer-save="ministr.fourArmy.save.1"]').click();
+  await expect(page.locator('#four-turn')).toContainText('2 commands');
+  await expect(page.locator('#four-toggle')).toHaveAttribute('aria-pressed', 'false');
+  await page.locator('#four-title').click();
+  await upload(JSON.stringify({ format: 'ministr-four-army-match', schemaVersion: 6 }));
+  await expect(page.locator('.title-notice')).not.toContainText('Verifying');
+  await expect(page.locator('#title-resume-multiplayer')).toBeVisible();
+  await upload(four);
+  await expect(page.locator('#title-record-replay')).toBeEnabled();
+  await page.locator('#title-record-replay').click();
+  await expect(page.locator('#four-replay-count')).toBeVisible();
+  await page.locator('#four-title').click();
+  await upload(JSON.stringify(study));
+  await expect(page.locator('.research-status')).toBeVisible();
+  await page.locator('#open-title').click();
+  await upload(normal['ministr.save.manual']!);
+  await expect(page.locator('#board-viewport')).toBeVisible();
+  await expect(page.locator('.research-status')).toHaveCount(0);
+  expect(await page.evaluate(() => localStorage.getItem('ministr.fourArmy.save.1'))).toBe(four);
 });

@@ -1215,3 +1215,27 @@ body.production-menu-open { overflow: hidden; }
   .match-command-bar .turn-indicator { margin-left: auto; }
   .match-command-bar #end { flex: 1 1 auto; }
 }
+
+.match-variants {
+  display: grid;
+  gap: 4px;
+  margin-block: 8px;
+  width: fit-content;
+}
+.match-variants select {
+  min-height: 44px;
+  max-width: 100%;
+  padding: 6px 10px;
+  background: #203c30;
+  color: #f4eddb;
+  border: 1px solid #587361;
+  border-radius: 5px;
+}
+.title-record-choice {
+  margin-block: 12px;
+  padding: 12px;
+  border: 1px solid #587361;
+}
+.title-record-choice h3 {
+  overflow-wrap: anywhere;
+}

@@ -230,6 +230,8 @@ describe('four-army spectator controller', () => {
       retrySaving: vi.fn(),
       onOpen: vi.fn(),
       onClose: closed,
+      onTitle: vi.fn(),
+      allowClassicMap: () => true,
       onLocale: setLocale,
       onGesture: vi.fn(),
       onMusic: music,
@@ -261,6 +263,33 @@ describe('four-army spectator controller', () => {
     screen.root.remove();
     vi.restoreAllMocks();
   });
+  it('switches between map variants and returns to the standard briefing', () => {
+    screen.open({ map: 'outpost', count: 3, mode: 'cpu' });
+    expect(query('#four-start-map').textContent).toBe('Outpost Assault');
+    expect(query('#four-start-summary').textContent).toContain('21-round decision');
+    change('#four-variants', '2');
+    expect(query('#four-start-summary').textContent).toContain('20-round decision');
+    change('#four-variants', 'standard');
+    expect(closed).toHaveBeenCalledWith('outpost');
+    expect(screen.active).toBe(false);
+    expect(screen.canReturnFromTitle).toBe(false);
+  });
+
+  it('keeps a suspended match and the concealed handoff when returning from the title', async () => {
+    const fixture = fourArmyActionFixture('logistics', 'hotseat');
+    values.set(FOUR_ARMY_SAVE_KEYS[0], fixture.text);
+    click('[data-load-slot="0"]');
+    await vi.waitFor(() => expect(query('#four-handoff-start')).toBeTruthy());
+    click('#four-title');
+    expect(screen.canReturnFromTitle).toBe(true);
+    expect(screen.root.children).toHaveLength(0);
+    screen.resumeFromTitle();
+    expect(query('#four-handoff-start')).toBeTruthy();
+    expect(document.querySelector('#four-board')).toBeNull();
+    click('#four-handoff-start');
+    expect(query('#four-board')).toBeTruthy();
+  });
+
   it('renders translated BGM track labels as literal text in shared and army options', () => {
     const label = 'Evening <live> & "studio"';
     vi.spyOn(locale, 'translateText').mockReturnValue(label);
