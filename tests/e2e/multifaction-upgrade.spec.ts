@@ -17,7 +17,8 @@ async function open(page: Page, locale = 'en') {
   await page.addInitScript((locale) => localStorage.setItem('ministr.locale', locale), locale);
   page.on('dialog', (d) => d.accept());
   await page.goto('/');
-  await page.locator('#title-four-army').click();
+  await page.locator('.title-map-card[data-map-id="skirmish"]').click();
+  await page.locator('#briefing-match-variants').selectOption('4');
 }
 async function tools(page: Page) {
   await page.locator('.four-tools').evaluate((e) => ((e as HTMLDetailsElement).open = true));
@@ -60,7 +61,8 @@ for (const { width, locale } of [
     await page.screenshot({ path: info.outputPath(`systems-v1525-three-${width}-${locale}.png`), animations: 'disabled' });
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width + 1);
     await page.reload();
-    await page.locator('#title-four-army').click();
+    await page.locator('.title-map-card[data-map-id="skirmish"]').click();
+    await page.locator('#briefing-match-variants').selectOption('4');
     await tools(page);
     await page.locator('[data-load-slot="0"]').click();
     await expect(page.locator('#four-notice')).toHaveText(locale === 'ja' ? '停止状態で読み込みました。' : 'Loaded and paused.');

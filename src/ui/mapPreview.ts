@@ -1,5 +1,6 @@
 import { renderTerrainPattern, renderTerrainFilter, terrainFilter } from './terrainAppearance';
 import type { Board, PlayerId, ScenarioTheme, TerrainKind } from '../game';
+import type { FourArmyId } from '../game/fourArmyFoundation';
 
 /** Close to the board's own tile colours, flattened for a few pixels per tile. */
 const terrainColors: Record<TerrainKind, string> = {
@@ -44,16 +45,23 @@ const themeColors: Partial<Record<ScenarioTheme, Partial<Record<TerrainKind, str
   },
 };
 
-const ownerColors: Record<PlayerId | 'neutral', string> = {
+type PreviewOwner = PlayerId | FourArmyId;
+type PreviewBoard = Pick<Board, 'width' | 'height'> & { terrain: readonly (readonly { kind: TerrainKind; owner?: PreviewOwner }[])[] };
+
+const ownerColors: Record<PreviewOwner | 'neutral', string> = {
   red: '#e0644f',
   blue: '#4f8fe0',
+  army1: '#e0644f',
+  army2: '#4f8fe0',
+  army3: '#83d6ad',
+  army4: '#cbb3f2',
   neutral: '#e4dccb',
 };
 
 const propertyKinds: ReadonlySet<TerrainKind> = new Set(['city', 'factory', 'airport', 'port', 'capital', 'supplyDepot']);
 
 export interface PreviewUnit {
-  owner: PlayerId;
+  owner: PreviewOwner;
   x: number;
   y: number;
 }
@@ -66,7 +74,7 @@ export interface PreviewUnit {
  */
 let previewSerial = 0;
 
-export function renderMapPreview(board: Board, units: readonly PreviewUnit[], theme: ScenarioTheme): string {
+export function renderMapPreview(board: PreviewBoard, units: readonly PreviewUnit[], theme: ScenarioTheme): string {
   const { width, height } = board;
   if (!Number.isSafeInteger(width) || !Number.isSafeInteger(height) || width <= 0 || height <= 0 || width > 256 || height > 256) return '';
   const colors = { ...terrainColors, ...themeColors[theme] };
@@ -101,7 +109,7 @@ export function renderMapPreview(board: Board, units: readonly PreviewUnit[], th
         textureKind = kind;
       }
       if (x === width || !tile || !propertyKinds.has(kind)) continue;
-      const fill = ownerColors[tile.owner === 'red' || tile.owner === 'blue' ? tile.owner : 'neutral'];
+      const fill = ownerColors[tile.owner && Object.hasOwn(ownerColors, tile.owner) ? tile.owner : 'neutral'];
       const inset = kind === 'capital' ? 0.1 : 0.22;
       properties.push(`<rect class="map-preview-property" x="${x + inset}" y="${y + inset}" width="${1 - inset * 2}" height="${1 - inset * 2}" fill="${fill}"/>`);
     }
@@ -110,7 +118,7 @@ export function renderMapPreview(board: Board, units: readonly PreviewUnit[], th
     .filter((unit) => Number.isInteger(unit.x) && Number.isInteger(unit.y) && unit.x >= 0 && unit.y >= 0 && unit.x < width && unit.y < height)
     .map(
       (unit) =>
-        `<circle class="map-preview-unit" cx="${Number(unit.x + 0.5)}" cy="${Number(unit.y + 0.5)}" r="0.26" fill="${ownerColors[unit.owner === 'blue' ? 'blue' : 'red']}" stroke="#0d1714" stroke-width="0.1"/>`,
+        `<circle class="map-preview-unit" cx="${Number(unit.x + 0.5)}" cy="${Number(unit.y + 0.5)}" r="0.26" fill="${ownerColors[Object.hasOwn(ownerColors, unit.owner) ? unit.owner : 'red']}" stroke="#0d1714" stroke-width="0.1"/>`,
     );
   return `<svg class="map-preview" viewBox="0 0 ${Number(width)} ${Number(height)}" preserveAspectRatio="xMidYMid meet" aria-hidden="true" focusable="false" shape-rendering="crispEdges"><defs>${[...patternKinds].map((kind) => renderTerrainPattern(kind, patternId(kind)) + renderTerrainFilter(kind, theme, `${patternId(kind)}-color`)).join('')}</defs>${tiles.join('')}${artwork.join('')}${properties.join('')}<g shape-rendering="geometricPrecision">${dots.join('')}</g></svg>`;
 }

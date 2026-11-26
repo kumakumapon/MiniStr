@@ -27,6 +27,8 @@ export interface TitleEventDeps {
   startMap: (mapId: string) => void;
   startDaily: () => void;
   continueSave: () => boolean;
+  openSaveList?: () => boolean;
+  openMultiplayerMap?: (id: string) => boolean;
   /** The status line, which a failed load leaves explaining why. */
   message: () => string;
   /** Opens the campaign menu, which redraws. */
@@ -240,7 +242,7 @@ export function bindTitleEvents(app: HTMLElement, deps: TitleEventDeps): void {
   app.querySelectorAll<HTMLButtonElement>('.title-map-card').forEach((card) =>
     card.addEventListener('click', () => {
       const mapId = card.dataset.mapId ?? '';
-      if (!screens.titleOpen || !deps.scenarioExists(mapId) || !deps.confirmReplaceMatch()) return;
+      if (!screens.titleOpen || deps.openMultiplayerMap?.(mapId) || !deps.scenarioExists(mapId) || !deps.confirmReplaceMatch()) return;
       state.leaveTitle();
       deps.startMap(mapId);
       render();
@@ -251,6 +253,7 @@ export function bindTitleEvents(app: HTMLElement, deps: TitleEventDeps): void {
     render();
   });
   document.querySelector<HTMLButtonElement>('#title-continue')?.addEventListener('click', () => {
+    if (deps.openSaveList?.()) return;
     if (deps.continueSave()) state.leaveTitle();
     else state.notice = deps.message();
     render();

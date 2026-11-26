@@ -117,6 +117,15 @@
   gap: 12px 20px;
   border-left: 3px solid var(--four-gold);
 }
+.four-start-choices {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 8px 14px;
+}
+.four-start-choices .match-variants {
+  margin-block: 0;
+}
 .four-start-card .four-primary {
   min-width: 10rem;
 }

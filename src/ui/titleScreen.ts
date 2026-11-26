@@ -15,6 +15,8 @@ import { scenarioConditionDescription, scenarioTiming, timingSummary } from './t
 import type { ScreenController } from './screenController';
 import { renderMapGenerator, type GeneratorForm } from './standaloneSystems';
 import { uiText } from './strings';
+import type { TitleMapCard } from './overlays';
+import { armyCountLabel, multiplayerVariant } from './matchVariants';
 
 const themeNames = localized<Record<ScenarioTheme, string>>(
   { temperate: '温帯', desert: '砂漠', snow: '雪原', urban: '市街地', coastal: '沿岸' },
@@ -126,6 +128,8 @@ export interface TitleOverlayContext {
   editorOpen: boolean;
   scenarios: () => readonly ScenarioDefinition[];
   selectedMapId: string;
+  canResumeMultiplayer?: boolean;
+  multiplayerCards?: () => readonly TitleMapCard[];
   mapPreview: (map: ScenarioDefinition) => string;
   operationCatalog: OperationCatalog;
   operationNotice: string;
@@ -152,21 +156,25 @@ export function buildTitleOverlay(context: TitleOverlayContext): string {
     // Built only while the title shows; every other redraw skips the map list.
     maps: !titleVisible
       ? []
-      : context.scenarios().map((map) => ({
-          id: map.id,
-          name: scenarioDisplayName(map),
-          theme: themeNames[map.theme],
-          width: map.board.width,
-          height: map.board.height,
-          startingGold: map.startingGold,
-          timing: timingSummary(scenarioTiming(map)),
-          victory:
-            map.victoryConditions.map((condition) => scenarioConditionDescription(map, condition, 'red')).join(' / ') +
-            (context.operationCatalog?.records.some((record) => record.scenarioId === map.id && record.revision === operationRevision(map)) ? ' ／ クリア記録あり' : ''),
-          custom: ![...maps, ...operationScenarios].some((builtIn) => builtIn.id === map.id),
-          selected: map.id === context.selectedMapId,
-          preview: context.mapPreview(map),
-        })),
+      : [
+          ...context.scenarios().map((map) => ({
+            id: map.id,
+            name: scenarioDisplayName(map),
+            theme: themeNames[map.theme],
+            width: map.board.width,
+            height: map.board.height,
+            startingGold: map.startingGold,
+            timing: timingSummary(scenarioTiming(map)),
+            victory:
+              map.victoryConditions.map((condition) => scenarioConditionDescription(map, condition, 'red')).join(' / ') +
+              (context.operationCatalog?.records.some((record) => record.scenarioId === map.id && record.revision === operationRevision(map)) ? ' ／ クリア記録あり' : ''),
+            custom: ![...maps, ...operationScenarios].some((builtIn) => builtIn.id === map.id),
+            selected: map.id === context.selectedMapId,
+            preview: context.mapPreview(map),
+            armyCount: multiplayerVariant(map.id) && armyCountLabel(multiplayerVariant(map.id)!),
+          })),
+          ...(context.multiplayerCards?.() ?? []),
+        ],
     cpuSpeed: context.cpuSpeed,
     boardZoom: context.boardZoom,
     musicSettings: context.musicSettings,
@@ -195,6 +203,7 @@ export function buildTitleOverlay(context: TitleOverlayContext): string {
       : undefined,
     savePicker: titleVisible ? context.savePicker() : '',
     canResume: state.resumable,
+    canResumeMultiplayer: context.canResumeMultiplayer,
     notice:
       state.notice ||
       state.shareNotice ||

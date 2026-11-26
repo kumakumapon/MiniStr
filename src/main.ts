@@ -1,8 +1,15 @@
+import { createExpandedBattleMap } from './game/expandedBattleMap';
+import { createFourArmyMap32 } from './game/fourArmyMap32';
+import { renderMatchActionBar, renderTurnProgress } from './ui/matchHud';
 import { loadActionSceneSettings, saveActionSceneSetting, renderActionSceneSetting } from './ui/actionSceneSettings';
 import { loadBattleSceneSettings, saveBattleSceneSetting, renderBattleSceneSetting } from './ui/battleSceneSettings';
 import { campaignTimingSummary, isDeadlineCondition, objectiveTimingDescription, scenarioConditionDescription, scenarioTiming, timingProgress, timingSummary } from './ui/turnTiming';
 import { updateScreen } from './ui/screenView';
-import { FourArmyScreen } from './ui/fourArmyScreen';
+import { canReplayFourArmySave, FourArmyScreen } from './ui/fourArmyScreen';
+import { FourArmyFileCodec } from './ui/fourArmyFileCodec';
+import type { FourArmyFileResult } from './game/fourArmySpectatorProtocol';
+import { FOUR_ARMY_AUTO_SAVE_KEY, FOUR_ARMY_FILE_BYTES, FOUR_ARMY_SAVE_KEYS, fourArmySlotName, isFourArmySaveKey } from './game/fourArmySpectatorSave';
+import { armyCountLabel, armyCountOptions, type MultiplayerMap, multiplayerCardId, multiplayerName, multiplayerOnlyMaps, multiplayerSize, multiplayerVariant, renderMatchVariants } from './ui/matchVariants';
 import { boardTileSelector, syncBoardFocus } from './ui/boardFocus';
 import { TileMarkupCache } from './ui/tileMarkupCache';
 import { BoardInput } from './ui/boardInput';
@@ -56,6 +63,18 @@ const screens = new ScreenController();
 import { TitleState, buildTitleOverlay } from './ui/titleScreen';
 import { TitlePreviews } from './ui/titlePreviews';
 const titlePreviews = new TitlePreviews();
+const multiplayerPreviews = new Map<MultiplayerMap, string>();
+function multiplayerPreview(map: (typeof multiplayerOnlyMaps)[number]): string {
+  const cached = multiplayerPreviews.get(map);
+  if (cached !== undefined) return cached;
+  const made = map === 'wide' ? createFourArmyMap32() : createExpandedBattleMap({ sourceMapId: map });
+  if (!made.ok) return '';
+  const { board, units } = made.value;
+  const preview = renderMapPreview(board, units.flatMap(unit => unit.position ? [{ ...unit.position, owner: unit.owner }] : []), map === 'strait' ? 'coastal' : 'temperate');
+  multiplayerPreviews.set(map, preview);
+  return preview;
+}
+
 import { bindTitleEvents, installShareLink, installTitleDelegation, type TitleEventDeps } from './ui/titleEvents';
 import { renderShareLinkDialog, shareDialogVisible } from './ui/shareLinkDialog';
 const titleState = new TitleState(screens);
@@ -80,7 +99,7 @@ import { observedEnemy } from './game/fog';
 import { scenarioForState, type ScenarioDefinition } from './game/maps';
 import { campaignDeployment, campaignOperations, createCampaignScenario } from './game/campaignOperations';
 import { recordCampaignVeterans } from './game/campaign';
-import { withinInteractiveMatchBudget } from './game/session';
+import { parseSavedGame, withinInteractiveMatchBudget } from './game/session';
 const storageWriter = createStorageWriter(() => navigator.locks);
 const localStorage = createBrowserStorage(() => window.localStorage, () => storageWriter.writable);
 document.documentElement.lang = setLocale(localStorage.getItem('ministr.locale'));
@@ -284,6 +303,10 @@ const loadedCampaign = loadCampaignProgress(localStorage);
 let campaignProgress = loadedCampaign.ok ? loadedCampaign.value : createCampaignProgress();
 let campaignNotice = loadedCampaign.ok ? '' : loadedCampaign.error;
 const app = document.querySelector<HTMLDivElement>('#app')!;
+let multiplayerReturnMap = 'skirmish';
+const titleRecordCodec = new FourArmyFileCodec();
+let titleRecordRevision: number | undefined;
+let pendingMultiplayerRecord: FourArmyFileResult | undefined;
 const fourArmyScreen = new FourArmyScreen({
   storage: localStorage,
   persistent: () => localStorage.persistent,
@@ -295,12 +318,32 @@ const fourArmyScreen = new FourArmyScreen({
   onMusic: settings => musicPlayer.setSettings(settings),
   onOpen: () => {
     commandScheduler.cancel(); cpuRunGeneration += 1; cpuInProgress = false; fileReadGate.invalidate();
+    titleRecordCodec.cancel(); titleRecordRevision = undefined; pendingMultiplayerRecord = undefined;
     pauseSpectate(false); dismissTacticalScene(false);
     app.hidden = true; app.inert = true;
   },
-  onClose: () => {
-    app.hidden = false; app.inert = false; musicPlayer.setSettings(musicSettings);
-    focusSelector = '#title-four-army'; render();
+  allowClassicMap: map => screens.briefingOpen && selectedMap.id === map || confirmReplaceMatch(),
+  onClose: classicMap => {
+    showNormalScreen();
+    if (classicMap) {
+      titleState.leaveTitle();
+      if (!screens.briefingOpen || selectedMap.id !== classicMap) {
+        campaignRun = undefined; campaignOutcome = undefined;
+        resetGame(classicMap);
+      }
+      focusSelector = '#briefing-match-variants';
+    } else {
+      if (screens.briefingOpen) titleState.openFromBriefing();
+      focusSelector = `.title-map-card[data-map-id="${multiplayerReturnMap}"]`;
+    }
+    render();
+  },
+  onTitle: () => {
+    showNormalScreen();
+    if (screens.briefingOpen) titleState.openFromBriefing();
+    else if (!screens.titleOpen) titleState.openFromMatch();
+    focusSelector = fourArmyScreen.canReturnFromTitle ? '#title-resume-multiplayer' : `.title-map-card[data-map-id="${multiplayerReturnMap}"]`;
+    render();
   },
   onLocale: locale => {
     document.documentElement.lang = setLocale(locale);
@@ -314,6 +357,10 @@ const fourArmyScreen = new FourArmyScreen({
     return () => { stop(); musicPlayer.setBattle(false); };
   },
 });
+function showNormalScreen(): void {
+  app.hidden = false; app.inert = false;
+  musicPlayer.setSettings(musicSettings);
+}
 app.addEventListener('input', event => {
   const input = event.target;
   if (!(input instanceof HTMLInputElement)) return;
@@ -959,6 +1006,52 @@ function resumeResearch(key: string): void {
   render();
 }
 
+const multiplayerSaveKeys = [FOUR_ARMY_AUTO_SAVE_KEY, ...FOUR_ARMY_SAVE_KEYS];
+const multiplayerSaveNames = new Map<string, { raw: string; name?: string }>();
+function hasOtherMatchSaves(): boolean {
+  return [...multiplayerSaveKeys, RESEARCH_MANUAL_KEY, RESEARCH_AUTO_KEY].some(key => localStorage.getItem(key) !== null);
+}
+function renderMultiplayerSaves(): string {
+  const en = getLocale() === 'en';
+  const rows = multiplayerSaveKeys.map((key, index) => {
+    const raw = localStorage.getItem(key);
+    if (raw === null) { multiplayerSaveNames.delete(key); return ''; }
+    let cached = multiplayerSaveNames.get(key);
+    if (cached?.raw !== raw) {
+      cached = { raw, name: fourArmySlotName(raw) };
+      multiplayerSaveNames.set(key, cached);
+    }
+    const slot = index === 0 ? (en ? 'Autosave' : '自動保存') : (en ? `Slot ${index}` : `保存${index}`);
+    return `<li><div><strong data-user-content>${escapeHtml(cached.name ?? (en ? 'Verify on load' : '読込時に検証'))}</strong><span>${slot}</span></div><button class="save-action" data-multiplayer-save="${key}">${en ? 'Resume' : '再開'}</button></li>`;
+  }).join('');
+  return rows ? `<section class="save-slot-manager"><h3>${en ? 'Multiplayer saves' : '複数軍のセーブ'}</h3><ol>${rows}</ol></section>` : '';
+}
+function renderPendingRecord(): string {
+  if (!pendingMultiplayerRecord) return '';
+  const saved = pendingMultiplayerRecord.save;
+  const en = getLocale() === 'en';
+  return `<section class="title-record-choice" aria-labelledby="title-record-name"><h3 id="title-record-name" data-user-content>${escapeHtml(saved.name)}</h3><div class="backup-actions"><button id="title-record-resume" class="save-action">${en ? 'Resume match' : '対局として再開'}</button>${canReplayFourArmySave(saved) ? `<button id="title-record-replay" class="save-action">${en ? 'Replay record' : '記録を再生'}</button>` : ''}<button id="title-record-cancel" class="save-action">${en ? 'Cancel' : '取消'}</button></div></section>`;
+}
+async function verifyMultiplayerRecord(raw: string, current: () => boolean, resume: boolean): Promise<boolean> {
+  titleRecordRevision = screens.revision;
+  const verifying = getLocale() === 'en' ? 'Verifying the record…' : '記録を検証しています…';
+  titleState.setNotice(verifying);
+  message = verifying;
+  render();
+  const checked = await titleRecordCodec.run(raw);
+  if (!current() || !checked) return false;
+  titleRecordRevision = undefined;
+  if (!checked.ok) { message = checked.error; return true; }
+  if (resume) {
+    message = fourArmyScreen.openVerifiedRecord(checked.value, 'resume') ?? '';
+  } else {
+    if (!screens.titleOpen) titleState.openFromMatch();
+    pendingMultiplayerRecord = checked.value;
+    message = '';
+  }
+  return true;
+}
+
 function downloadReplay(): void {
   const created = completedReplay();
   if (!created.ok) { message = created.error; render(); return; }
@@ -981,24 +1074,40 @@ function chooseReplayFile(event: Event): void {
     if (!applied) return;
     if (!screens.titleOpen) return;
     titleState.setNotice(message);
-    focusSelector = '#title-import-replay';
+    focusSelector = pendingMultiplayerRecord ? '#title-record-resume' : '#title-import-replay';
     render();
   });
 }
 async function importReplay(file: File): Promise<boolean> {
   const request = fileReadGate.begin();
+  titleRecordCodec.cancel();
+  pendingMultiplayerRecord = undefined;
   const expectedGame = game; const expectedRevision = screens.revision;
   const isCurrent = () => fileReadGate.isCurrent(request) && screens.revision === expectedRevision && game === expectedGame;
-  if (file.size > MAX_REPLAY_BYTES) { message = 'リプレイデータが大きすぎます。'; render(); return true; }
+  if (file.size > FOUR_ARMY_FILE_BYTES) { message = 'リプレイデータが大きすぎます。'; render(); return true; }
   let text: string;
   try { text = await file.text(); } catch { if (!isCurrent()) return false; message = 'リプレイファイルを読み込めませんでした。'; render(); return true; }
   if (!isCurrent()) return false;
-  const envelope = parseBoundedJson(text, MAX_REPLAY_BYTES);
-  if (envelope.ok && envelope.value && typeof envelope.value === 'object' && 'format' in envelope.value && envelope.value.format === 'ministr-research') {
+  const envelope = parseBoundedJson(text, FOUR_ARMY_FILE_BYTES, 1_000_000);
+  const record = envelope.ok && envelope.value && typeof envelope.value === 'object' ? envelope.value : undefined;
+  if (record && 'format' in record && ['ministr-four-army-spectator', 'ministr-four-army-match', 'ministr-four-army-configurable'].some(format => format === record.format)) {
+    const applied = await verifyMultiplayerRecord(text, isCurrent, false);
+    if (applied) render();
+    return applied;
+  }
+  if (file.size > MAX_REPLAY_BYTES) { message = 'リプレイデータが大きすぎます。'; render(); return true; }
+  if (record && 'format' in record && record.format === 'ministr-research') {
     const studied = parseResearch(text);
     if (!studied.ok) { message = studied.error; titleState.setNotice(message); render(); return true; }
     if (restoreMatch(researchSavedMatch(studied.value), studied.value.origin)) titleState.leaveTitle();
     titleState.setNotice(message); render(); return true;
+  }
+  if (record && 'gameState' in record) {
+    const saved = parseSavedGame(text);
+    if (!saved.ok) message = saved.error;
+    else if (restoreMatch(saved.value)) titleState.leaveTitle();
+    render();
+    return true;
   }
   const parsed = parseReplay(text);
   if (!parsed.ok) { message = parsed.error; render(); return true; }
@@ -1118,6 +1227,18 @@ const titleEventDeps: TitleEventDeps = {
   },
   startDaily: () => startDaily(),
   continueSave: () => continueSavedGame(),
+  openSaveList: () => {
+    if (!hasOtherMatchSaves()) return false;
+    app.querySelector<HTMLElement>('#title-saves-heading')?.focus();
+    return true;
+  },
+  openMultiplayerMap: id => {
+    const map = multiplayerOnlyMaps.find(candidate => multiplayerCardId(candidate) === id);
+    if (!map) return false;
+    multiplayerReturnMap = id;
+    fourArmyScreen.open({ map, count: 4, mode: 'cpu' });
+    return true;
+  },
   message: () => message,
   openCampaign: () => openCampaignMenu(),
   openEditor: () => { screens.editorOpen = true; editorNotice = '編集したシナリオはJSONとして書き出せます。'; render(); },
@@ -1135,6 +1256,11 @@ function clearShareHash(): void {
   try { window.history.replaceState(null, '', window.location.pathname + window.location.search); } catch { /* the address bar is cosmetic */ }
 }
 function render(): void {
+  if (titleRecordRevision !== undefined && titleRecordRevision !== screens.revision) {
+    titleRecordCodec.cancel();
+    titleRecordRevision = undefined;
+  }
+  if (!screens.titleOpen || fourArmyScreen.active) pendingMultiplayerRecord = undefined;
   if (fourArmyScreen.active) { fourArmyScreen.refreshStorage(); return; }
   if (screens.briefingOpen && !finiteSupplies && (game.tactics || game.units.some(unit => unit.callsign !== undefined) || game.units.some(unit => unit.kind === 'transportHelicopter') || [...deploymentChoices.red, ...deploymentChoices.blue].includes('transportHelicopter'))) {
     finiteSupplies = true; game = { ...game, ruleVersion: campaignRun || dailyLocked() ? CURRENT_RULE_VERSION : LOGISTICS_RULE_VERSION }; initialState = structuredClone(game);
@@ -1370,7 +1496,7 @@ function render(): void {
     ? `<button id="restart" class="save-action">${getLocale() === 'en' ? 'Retry from branch point' : '分岐点からやり直す'}</button><button id="result-title-menu" class="save-action">${getLocale() === 'en' ? 'Title' : 'タイトルへ'}</button>`
     : campaignRun
     ? `<button id="campaign-retry" class="save-action">再挑戦</button><button id="campaign-back" class="save-action">キャンペーンへ戻る</button>${campaignOutcome?.nextScenarioId ? '<button id="campaign-next" class="end-turn">次の戦場へ</button>' : ''}`
-    : '<button id="restart" class="save-action">もう一度</button><button id="result-title-menu" class="save-action">タイトルへ</button>';
+    : `<button id="restart" class="save-action">${getLocale() === 'en' ? 'Rematch same conditions' : '同条件で再戦'}</button><button id="result-title-menu" class="save-action">タイトルへ</button>`;
   const gameOverOverlay = renderGameOverOverlay({
     visible: !activeTacticalScene && !screens.campaignMenuOpen && !screens.titleOpen && !replayMode && (renderedGame.winner !== undefined || renderedGame.draw === true),
     winner: renderedGame.draw ? 'draw' : renderedGame.winner,
@@ -1390,8 +1516,16 @@ function render(): void {
   const mapTheme = `theme-${renderedMap.theme}`;
   const tileInspectorPanel = renderTileInspector(renderedGame, productionRule);
   const unitBriefPanel = renderUnitBrief(renderedGame, me, visible, selected, focusedPosition, selectedWeaponSlot(), canCommand(), fullBoardView());
-  const turnStatus = !replayMode && matchMode === 'cpu' && !renderedGame.winner && !renderedGame.draw
-    ? `<section class="map-turn-status ${cpuInProgress ? 'enemy' : 'player'}" aria-label="手番の進行"><div role="status"><strong>${renderedGame.activePlayer === 'blue' ? cpuInProgress ? uiText.enemyTurnTitle : uiText.enemyTurnPausedTitle : uiText.playerTurnTitle} · ${Number(renderedGame.turn)}</strong><p>${escapeHtml(localStorage.conflicted ? uiText.turnStopped : cpuInProgress ? uiText.enemyTurnHint : uiText.playerTurnHint)}</p></div>${canAct && !localStorage.conflicted ? `<button id="board-end-turn" class="save-action">${uiText.boardEndTurn}</button>` : ''}</section>` : '';
+  const turnStatus = !renderedGame.winner && !renderedGame.draw
+    ? renderTurnProgress(
+      `${replayMode ? (replay?.playing ? (getLocale() === 'en' ? 'Replaying' : 'リプレイ再生中') : (getLocale() === 'en' ? 'Replay paused' : 'リプレイ停止中'))
+        : matchMode === 'spectate' ? (spectatePaused ? uiText.spectatePaused : (getLocale() === 'en' ? 'Spectating' : '観戦中'))
+        : matchMode === 'hotseat' ? sideName(matchMode, renderedGame.activePlayer)
+        : renderedGame.activePlayer === 'blue' ? cpuInProgress ? uiText.enemyTurnTitle : uiText.enemyTurnPausedTitle : uiText.playerTurnTitle} · ${Number(renderedGame.turn)}`,
+      { tone: cpuInProgress ? 'enemy' : 'player',
+        hint: localStorage.conflicted ? uiText.turnStopped : replayMode || matchMode !== 'cpu' ? undefined : cpuInProgress ? uiText.enemyTurnHint : uiText.playerTurnHint,
+        action: canAct && !localStorage.conflicted ? `<button id="board-end-turn" class="save-action">${uiText.boardEndTurn}</button>` : undefined,
+      }) : '';
   // The current numbered turn is still playable; timeout is normalized to a
   // survive condition that resolves only after this count reaches zero.
   const renderedTiming = scenarioTiming(renderedMap, renderedGame);
@@ -1404,8 +1538,14 @@ function render(): void {
   // Phones put the command panel a long scroll below the board, so the actions a
   // turn actually needs stay reachable in a bar fixed to the bottom of the screen.
   const mobileActionBar = !replayMode
-    ? `<nav class="mobile-action-bar" aria-label="クイック操作"><button id="mobile-next-unit" class="mobile-action" ${canAct && unactedUnits.length > 0 ? '' : 'disabled'}><span aria-hidden="true">▶</span>未行動 <strong>${unactedUnits.length}</strong></button><button id="mobile-wait" class="mobile-action" ${canWait ? '' : 'disabled'}><span aria-hidden="true">✓</span>行動終了</button><button id="mobile-capture" class="mobile-action" ${canCapture ? '' : 'disabled'}><span aria-hidden="true">⚑</span>占領</button><button id="mobile-production" class="mobile-action" ${!canAct || !idleFacilities.length || atUnitLimit ? 'disabled' : ''}><span aria-hidden="true">＋</span>生産</button><button id="mobile-panel" class="mobile-action"><span aria-hidden="true">☰</span>作戦情報</button><button id="mobile-end" class="mobile-action mobile-action-primary" ${!canAct ? 'disabled' : ''}><span aria-hidden="true">→</span>ターン終了</button></nav>`
-    : '';
+    ? renderMatchActionBar([
+      { id: 'mobile-next-unit', label: '未行動', icon: '▶', enabled: canAct && unactedUnits.length > 0, count: unactedUnits.length },
+      { id: 'mobile-wait', label: '行動終了', icon: '✓', enabled: canWait },
+      { id: 'mobile-capture', label: '占領', icon: '⚑', enabled: canCapture },
+      { id: 'mobile-production', label: '生産', icon: '＋', enabled: canAct && idleFacilities.length > 0 && !atUnitLimit },
+      { id: 'mobile-panel', label: '作戦情報', icon: '☰' },
+      { id: 'mobile-end', label: 'ターン終了', icon: '→', enabled: canAct, primary: true },
+    ]) : '';
   const turnSetting = !replayMode ? `<section class="turn-setting"><label><input id="confirm-end-turn" type="checkbox" ${confirmEndTurnWithUnacted ? 'checked' : ''}> 未行動部隊がいる時にターン終了を確認する</label></section>` : '';
   const saveSlotManager = !replayMode && !research && !screens.titleOpen ? renderSaveSlotManager(listSaveSlots(localStorage), getStorageUsage(localStorage), true, matchMode === 'spectate') : '';
   const cpuActivityPanel = !replayMode && matchMode === 'cpu' ? `<section class="intel-card" aria-labelledby="cpu-activity-title"><p class="card-kicker">ENEMY ACTIVITY</p><h2 id="cpu-activity-title">直前のCPU行動</h2>${cpuActivity.length ? `<ol>${cpuActivity.map(entry => `<li>${escapeHtml(translateGameText(entry))}</li>`).join('')}</ol>` : '<p>視認できる敵行動はありません。</p>'}</section>` : '';
@@ -1455,6 +1595,14 @@ function render(): void {
     titleOpen: screens.titleOpen && !shareDialogOpen, replayMode, campaignMenuOpen: screens.campaignMenuOpen, editorOpen: screens.editorOpen,
     scenarios: () => availableScenarios().map(map => tacticalPreset && !isDailyScenarioId(map.id) && map.id !== 'training' ? tacticalScenario(map) : map),
     selectedMapId: selectedMap.id,
+    canResumeMultiplayer: fourArmyScreen.canReturnFromTitle,
+    multiplayerCards: () => multiplayerOnlyMaps.map(map => ({
+      id: multiplayerCardId(map), name: multiplayerName(map), ...multiplayerSize(map),
+      theme: '', startingGold: map === 'strait' ? 6000 : 10000, armyCount: armyCountLabel(map),
+      timing: map === 'wide' ? (getLocale() === 'en' ? 'No round limit' : '期限なし') : (getLocale() === 'en' ? 'Short or unlimited' : '短期戦／期限なし'),
+      victory: getLocale() === 'en' ? 'Last army or team standing' : '最後の生存軍・チームが勝利',
+      custom: false, selected: false, preview: titlePreviews.placeholder(multiplayerCardId(map), () => multiplayerPreview(map)),
+    })),
     mapPreview: map => titlePreviews.placeholder(map.id, () => mapPreviews.get(map) ?? (() => {
       const preview = renderMapPreview(map.board, map.initialUnits, map.theme);
       mapPreviews.set(map, preview);
@@ -1462,16 +1610,18 @@ function render(): void {
     })()),
     operationCatalog, operationNotice,
     dailyCatalog, dailyNotice, dailyClock,
-    savePicker: () => (localStorage.conflicted ? `<p role="alert">${getLocale() === 'en' ? 'Another tab changed the data. Export your match before reloading.' : '別タブで変更されました。現在の対局を書き出してから再読み込みしてください。'}<button id="storage-session-export">${getLocale() === 'en' ? 'Export current match' : '現在の対局を書き出す'}</button><button id="storage-reload">${getLocale() === 'en' ? 'Reload' : '再読み込み'}</button></p>` : '') + renderSaveSlotManager(listSaveSlots(localStorage), getStorageUsage(localStorage), false, matchMode === 'spectate') + renderResearchSaves(localStorage),
+    savePicker: () => `<section aria-labelledby="title-saves-heading"><h2 id="title-saves-heading" tabindex="-1">${getLocale() === 'en' ? 'Saved matches' : '保存した対局'}</h2>` + renderPendingRecord() + (localStorage.conflicted ? `<p role="alert">${getLocale() === 'en' ? 'Another tab changed the data. Export your match before reloading.' : '別タブで変更されました。現在の対局を書き出してから再読み込みしてください。'}<button id="storage-session-export">${getLocale() === 'en' ? 'Export current match' : '現在の対局を書き出す'}</button><button id="storage-reload">${getLocale() === 'en' ? 'Reload' : '再読み込み'}</button></p>` : '') + renderSaveSlotManager(listSaveSlots(localStorage), getStorageUsage(localStorage), false, matchMode === 'spectate') + renderMultiplayerSaves() + renderResearchSaves(localStorage) + '</section>',
     cpuSpeed,
     boardZoom: { index: boardZoomIndex, automatic: boardZoomAuto },
     musicSettings, battleScenesEnabled: battleSceneSettings.twoArmy, actionScenesEnabled: actionSceneSettings.twoArmy,
-    canContinue: hasSave(),
+    canContinue: hasSave() || screens.titleOpen && hasOtherMatchSaves(),
     storagePersistent: localStorage.persistent,
     hasStoredSave,
   });
   const deployment = screens.briefingOpen ? plannedDeployment() : undefined;
+  const briefingVariant = !campaignRun && !dailyLocked() ? multiplayerVariant(renderedMap.id) : undefined;
   const briefing = renderBriefingOverlay({
+    variants: briefingVariant ? renderMatchVariants(briefingVariant, 'standard', 'briefing-match-variants') : undefined,
     visible: !screens.campaignMenuOpen && !screens.titleOpen && !replayMode && screens.briefingOpen,
     backToTitle: true,
     finiteSupplies,
@@ -2065,7 +2215,45 @@ function render(): void {
     titleState.openFromMatch(); render();
   }));
   bindTitleEvents(app, titleEventDeps);
-  app.querySelector<HTMLButtonElement>('#title-four-army')?.addEventListener('click', () => { if (screens.titleOpen) fourArmyScreen.open(); });
+  app.querySelector<HTMLSelectElement>('#briefing-match-variants')?.addEventListener('change', event => {
+    if (!screens.briefingOpen || campaignRun || dailyLocked()) return;
+    const map = multiplayerVariant(selectedMap.id);
+    const count = map && armyCountOptions(map).find(value => String(value) === (event.currentTarget as HTMLSelectElement).value);
+    if (!map || !count) return;
+    multiplayerReturnMap = selectedMap.id;
+    fourArmyScreen.open({ map, count, mode: matchMode });
+    fourArmyScreen.root.querySelector<HTMLElement>('#four-variants')?.focus();
+  });
+  app.querySelector<HTMLButtonElement>('#title-resume-multiplayer')?.addEventListener('click', () => {
+    if (screens.titleOpen) fourArmyScreen.resumeFromTitle();
+  });
+  app.querySelectorAll<HTMLButtonElement>('[data-multiplayer-save]').forEach(button => button.addEventListener('click', async () => {
+    const key = button.dataset.multiplayerSave ?? '';
+    if (!screens.titleOpen || !isFourArmySaveKey(key)) return;
+    const raw = localStorage.getItem(key);
+    if (raw === null) return;
+    const request = fileReadGate.begin();
+    const revision = screens.revision;
+    pendingMultiplayerRecord = undefined;
+    const current = () => fileReadGate.isCurrent(request) && revision === screens.revision && !fourArmyScreen.active && !localStorage.conflicted;
+    if (!await verifyMultiplayerRecord(raw, current, true)) return;
+    if (!fourArmyScreen.active) {
+      titleState.setNotice(message);
+      focusSelector = '#title-saves-heading';
+      render();
+    }
+  }));
+  for (const mode of ['resume', 'replay'] as const) {
+    app.querySelector<HTMLButtonElement>(`#title-record-${mode}`)?.addEventListener('click', () => {
+      if (!screens.titleOpen || !pendingMultiplayerRecord || localStorage.conflicted) return;
+      const error = fourArmyScreen.openVerifiedRecord(pendingMultiplayerRecord, mode);
+      if (!error) { pendingMultiplayerRecord = undefined; return; }
+      titleState.setNotice(error); focusSelector = `#title-record-${mode}`; render();
+    });
+  }
+  app.querySelector<HTMLButtonElement>('#title-record-cancel')?.addEventListener('click', () => {
+    pendingMultiplayerRecord = undefined; titleState.setNotice(''); focusSelector = '#title-import-replay'; render();
+  });
   if (screens.editorOpen) {
     // Keep the existing compact editor markup while adding the production rule
     // as a real form control. The value is part of the exported scenario data.

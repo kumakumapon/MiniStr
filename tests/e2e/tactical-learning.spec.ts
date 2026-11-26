@@ -66,7 +66,7 @@ test('renders nearby title previews only, then preserves dimensions and draws ev
   const count = await cards.count();
   await expect(cards.first().locator('.map-preview')).toBeVisible();
   expect(await page.locator('.title-map-card .map-preview').count()).toBeLessThan(count);
-  const last = cards.last();
+  const last = page.locator('.title-map-card[data-map-id="multiplayer:wide"]');
   const before = await last.boundingBox();
   await expect(last.locator('.map-preview')).toHaveCount(0);
   await last.scrollIntoViewIfNeeded();
@@ -75,7 +75,7 @@ test('renders nearby title previews only, then preserves dimensions and draws ev
   expect(after!.height).toBeCloseTo(before!.height, 1);
   // Leaving and returning discards stale observer callbacks.
   await last.click();
-  await page.locator('#briefing-back-to-title').click();
+  await page.locator('#four-close').click();
   await expect(last).toBeFocused();
   await expect(last.locator('.map-preview')).toBeVisible();
 });

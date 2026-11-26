@@ -50,7 +50,8 @@ jobs:
 
   quality-shard:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    # Leave time for the last WebKit shard after coverage and distribution checks.
+    timeout-minutes: 35
     strategy:
       fail-fast: false
       matrix:

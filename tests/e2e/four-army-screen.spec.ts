@@ -14,7 +14,8 @@ async function open(page: Page, locale = 'en', mode: 'spectator' | 'human' = 'sp
   await page.addInitScript((locale) => localStorage.setItem('ministr.locale', locale), locale);
   page.on('dialog', (dialog) => dialog.accept());
   await page.goto('/');
-  await page.locator('#title-four-army').click();
+  await page.locator('.title-map-card[data-map-id="skirmish"]').click();
+  await page.locator('#briefing-match-variants').selectOption('4');
   await page.locator('#four-setup-summary').click();
   await page.locator('#four-map').selectOption('wide');
   await expect(page.locator('#four-heading')).toBeVisible();
@@ -156,7 +157,7 @@ for (const locale of ['ja', 'en'])
       await page.locator('#four-menu').click();
       await page.locator('#four-return').click();
       await page.locator('#four-close').click();
-      await expect(page.locator('#title-four-army')).toBeFocused();
+      await expect(page.locator('.title-map-card[data-map-id="skirmish"]')).toBeFocused();
     });
   }
 
@@ -197,7 +198,8 @@ test('four-army dedicated saves, JSON and replay preserve current state and lega
   await page.locator('#four-replay-close').click();
   expect(await count(page)).toBe(1);
   await page.reload();
-  await page.locator('#title-four-army').click();
+  await page.locator('.title-map-card[data-map-id="skirmish"]').click();
+  await page.locator('#briefing-match-variants').selectOption('4');
   await page.locator('#four-setup-summary').click();
   await page.locator('#four-map').selectOption('wide');
   await tools(page);
@@ -724,7 +726,8 @@ for (const { width, locale, actor } of [
     if (!first.ok) throw Error(first.error);
     expect(first.value.archive.payload.state).toEqual(fixture.after);
     await page.reload();
-    await page.locator('#title-four-army').click();
+    await page.locator('.title-map-card[data-map-id="skirmish"]').click();
+    await page.locator('#briefing-match-variants').selectOption('4');
     await expect(page.locator('#battle-scenes-multiArmy')).not.toBeChecked();
     await page.locator('#battle-scenes-multiArmy').check();
     await importMatch(page, fixture.text);
