@@ -1,3 +1,4 @@
+import { isAsymmetricSource, type AsymmetricSource } from './asymmetricBattlefield';
 import { FOUR_ARMY_IDS, type FourArmyId, type FourArmyOutcome } from './fourArmyFoundation';
 import type { FourArmyMap, FourArmyState } from './fourArmyEngine';
 import { isPropertyTerrainKind } from './facilities';
@@ -14,8 +15,10 @@ export interface LegacySmallBattle {
 }
 export interface ExpandedBattle {
   version: 2;
-  sourceMapId: 'skirmish' | 'outpost' | 'strait' | 'frontier';
-  layoutVersion: 2 | 3;
+  sourceMapId: 'skirmish' | 'outpost' | 'strait' | 'frontier' | AsymmetricSource;
+  layoutVersion: 2 | 3 | 4;
+  /** Army assigned to each ordered authored site in layout 4. */
+  siteArmies?: FourArmyId[];
   participants: FourArmyId[];
   initialOrder: FourArmyId[];
   initiative: 'fixed' | 'rotating';
@@ -41,13 +44,16 @@ export function isSmallBattle(v: unknown): v is SmallBattle {
   const m = v as Record<string, unknown>,
     expected = ['version', 'sourceMapId', 'layoutVersion', 'participants', 'ending', ...(m.ending === 'short' ? ['roundLimit'] : [])];
   if (m.version === 2) {
-    const names = [...expected, 'initialOrder', 'initiative', 'teams', 'sharedVision'];
+    const authored = isAsymmetricSource(m.sourceMapId);
+    const names = [...expected, ...(authored ? ['siteArmies'] : []), 'initialOrder', 'initiative', 'teams', 'sharedVision'];
     const ids = m.participants;
     if (
       Object.keys(m).length !== names.length ||
       !names.every((k) => Object.hasOwn(m, k)) ||
-      (m.layoutVersion !== 2 && !(m.layoutVersion === 3 && Array.isArray(ids) && ids.length === 3 && ['skirmish', 'outpost'].includes(String(m.sourceMapId)))) ||
-      !['skirmish', 'outpost', 'strait', 'frontier'].includes(String(m.sourceMapId)) ||
+      (authored
+        ? m.layoutVersion !== 4
+        : m.layoutVersion !== 2 && !(m.layoutVersion === 3 && Array.isArray(ids) && ids.length === 3 && ['skirmish', 'outpost'].includes(String(m.sourceMapId)))) ||
+      (!authored && !['skirmish', 'outpost', 'strait', 'frontier'].includes(String(m.sourceMapId))) ||
       !Array.isArray(ids) ||
       ids.length < 2 ||
       ids.length > 4 ||
@@ -66,6 +72,16 @@ export function isSmallBattle(v: unknown): v is SmallBattle {
     )
       return false;
     const teams = m.teams as Record<string, unknown>;
+    if (
+      authored &&
+      (ids.length < 3 ||
+        !Array.isArray(m.siteArmies) ||
+        m.siteArmies.length !== ids.length ||
+        new Set(m.siteArmies).size !== ids.length ||
+        !m.siteArmies.every((a) => ids.includes(a)) ||
+        ids.some((a) => teams[a] !== a))
+    )
+      return false;
     if (!ids.every((a) => Object.hasOwn(teams, a) && FOUR_ARMY_IDS.includes(teams[a] as FourArmyId)) || new Set(Object.values(teams)).size < 2) return false;
     if (new Set(Object.values(teams)).size < ids.length && !m.sharedVision) return false;
     return m.ending === 'unlimited' || (m.ending === 'short' && m.roundLimit === (ids.length === 3 ? 21 : 20));

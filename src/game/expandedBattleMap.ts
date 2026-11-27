@@ -1,3 +1,4 @@
+import { createAsymmetricLayout, isAsymmetricSource } from './asymmetricBattlefield';
 import { FOUR_ARMY_IDS, type FourArmyId } from './fourArmyFoundation';
 import { createFourArmyState, type FourArmyMap, type FourArmyTerrain } from './fourArmyEngine';
 import { isFourArmyRules, type FourArmyRules } from './fourArmyRules';
@@ -9,7 +10,8 @@ import { SUPPLY_CAPACITY } from './supplyStock';
 
 export interface ExpandedBattleOptions {
   sourceMapId?: ExpandedBattle['sourceMapId'];
-  layoutVersion?: 2 | 3;
+  layoutVersion?: ExpandedBattle['layoutVersion'];
+  siteArmies?: readonly FourArmyId[];
   participants?: readonly FourArmyId[];
   order?: readonly FourArmyId[];
   seed?: number;
@@ -22,14 +24,16 @@ export function expandedBattleDimensions(source: ExpandedBattle['sourceMapId']) 
   return source === 'frontier' ? { width: 32, height: 32 } : source === 'strait' ? { width: 17, height: 15 } : { width: 18, height: 14 };
 }
 /** Layout 3 protects the northern neutral facilities from simultaneous flank pressure; callers loading historical snapshots keep layout 2. */
-export const latestExpandedBattleLayout = (source: ExpandedBattle['sourceMapId'], count: number): 2 | 3 => (count === 3 && (source === 'skirmish' || source === 'outpost') ? 3 : 2);
+export const latestExpandedBattleLayout = (source: ExpandedBattle['sourceMapId'], count: number): ExpandedBattle['layoutVersion'] =>
+  isAsymmetricSource(source) ? 4 : count === 3 && (source === 'skirmish' || source === 'outpost') ? 3 : 2;
 /** Authored snapshots. No legacy preset is edited or used as a mutable source. */
 export function createExpandedBattleMap(options: ExpandedBattleOptions = {}): GameResult<FourArmyMap> {
   if (
     !options ||
     typeof options !== 'object' ||
     (options.participants !== undefined && !Array.isArray(options.participants)) ||
-    (options.order !== undefined && !Array.isArray(options.order))
+    (options.order !== undefined && !Array.isArray(options.order)) ||
+    (options.siteArmies !== undefined && (!isAsymmetricSource(options.sourceMapId) || !Array.isArray(options.siteArmies)))
   )
     return { ok: false, error: '参加軍・チーム・初期条件が不正です。' };
   const participants: FourArmyId[] = [...(options.participants ?? FOUR_ARMY_IDS)],
@@ -39,7 +43,8 @@ export function createExpandedBattleMap(options: ExpandedBattleOptions = {}): Ga
   const match: ExpandedBattle = {
     version: 2,
     sourceMapId,
-    layoutVersion: options.layoutVersion ?? 2,
+    layoutVersion: options.layoutVersion ?? (isAsymmetricSource(sourceMapId) ? 4 : 2),
+    ...(isAsymmetricSource(sourceMapId) ? { siteArmies: [...(options.siteArmies ?? participants)] } : {}),
     participants,
     initialOrder: [...(options.order ?? participants)],
     initiative: participants.length === 2 ? 'fixed' : 'rotating',
@@ -50,6 +55,11 @@ export function createExpandedBattleMap(options: ExpandedBattleOptions = {}): Ga
   };
   if (!isSmallBattle(match) || !Number.isSafeInteger(seed) || seed < 0 || seed > 0xffffffff || (options.rules !== undefined && !isFourArmyRules(options.rules)))
     return { ok: false, error: '参加軍・チーム・初期条件が不正です。' };
+  if (isAsymmetricSource(sourceMapId)) {
+    const map = createAsymmetricLayout(sourceMapId, match, seed, options.rules);
+    const checked = createFourArmyState(map);
+    return checked.ok ? { ok: true, value: map } : checked;
+  }
   const { width, height } = expandedBattleDimensions(sourceMapId),
     wide = sourceMapId === 'frontier',
     sea = sourceMapId === 'strait',

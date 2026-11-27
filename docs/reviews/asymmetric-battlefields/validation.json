@@ -1,0 +1,1550 @@
+[
+  {
+    "seed": 33509,
+    "source": "canyon",
+    "armyCount": 3,
+    "tactics": false,
+    "games": 12,
+    "natural": 5,
+    "deadline": 7,
+    "cutoff": 0,
+    "draws": 0,
+    "noElimination": 6,
+    "safeFallbacks": 3,
+    "sites": [
+      {
+        "site": "A",
+        "wins": 4,
+        "firstEliminations": 1,
+        "multiDirectionAttackRounds": 21,
+        "firstFactoryCaptureMedianRound": 5.0,
+        "noFactoryCapture": 0
+      },
+      {
+        "site": "B",
+        "wins": 0,
+        "firstEliminations": 5,
+        "multiDirectionAttackRounds": 37,
+        "firstFactoryCaptureMedianRound": 5.0,
+        "noFactoryCapture": 0
+      },
+      {
+        "site": "C",
+        "wins": 8,
+        "firstEliminations": 0,
+        "multiDirectionAttackRounds": 20,
+        "firstFactoryCaptureMedianRound": 5.0,
+        "noFactoryCapture": 0
+      }
+    ]
+  },
+  {
+    "seed": 33509,
+    "source": "canyon",
+    "armyCount": 3,
+    "tactics": true,
+    "games": 12,
+    "natural": 4,
+    "deadline": 8,
+    "cutoff": 0,
+    "draws": 0,
+    "noElimination": 4,
+    "safeFallbacks": 10,
+    "sites": [
+      {
+        "site": "A",
+        "wins": 2,
+        "firstEliminations": 6,
+        "multiDirectionAttackRounds": 30,
+        "firstFactoryCaptureMedianRound": 5.0,
+        "noFactoryCapture": 0
+      },
+      {
+        "site": "B",
+        "wins": 2,
+        "firstEliminations": 0,
+        "multiDirectionAttackRounds": 31,
+        "firstFactoryCaptureMedianRound": 5.0,
+        "noFactoryCapture": 0
+      },
+      {
+        "site": "C",
+        "wins": 8,
+        "firstEliminations": 2,
+        "multiDirectionAttackRounds": 26,
+        "firstFactoryCaptureMedianRound": 5.0,
+        "noFactoryCapture": 0
+      }
+    ]
+  },
+  {
+    "seed": 33509,
+    "source": "canyon",
+    "armyCount": 4,
+    "tactics": false,
+    "games": 48,
+    "natural": 0,
+    "deadline": 48,
+    "cutoff": 0,
+    "draws": 0,
+    "noElimination": 14,
+    "safeFallbacks": 47,
+    "sites": [
+      {
+        "site": "A",
+        "wins": 11,
+        "firstEliminations": 10,
+        "multiDirectionAttackRounds": 219,
+        "firstFactoryCaptureMedianRound": 6,
+        "noFactoryCapture": 5
+      },
+      {
+        "site": "B",
+        "wins": 19,
+        "firstEliminations": 13,
+        "multiDirectionAttackRounds": 200,
+        "firstFactoryCaptureMedianRound": 2,
+        "noFactoryCapture": 3
+      },
+      {
+        "site": "C",
+        "wins": 11,
+        "firstEliminations": 3,
+        "multiDirectionAttackRounds": 240,
+        "firstFactoryCaptureMedianRound": 2.0,
+        "noFactoryCapture": 0
+      },
+      {
+        "site": "D",
+        "wins": 7,
+        "firstEliminations": 8,
+        "multiDirectionAttackRounds": 191,
+        "firstFactoryCaptureMedianRound": 6,
+        "noFactoryCapture": 9
+      }
+    ]
+  },
+  {
+    "seed": 33509,
+    "source": "canyon",
+    "armyCount": 4,
+    "tactics": true,
+    "games": 48,
+    "natural": 0,
+    "deadline": 48,
+    "cutoff": 0,
+    "draws": 0,
+    "noElimination": 28,
+    "safeFallbacks": 59,
+    "sites": [
+      {
+        "site": "A",
+        "wins": 6,
+        "firstEliminations": 6,
+        "multiDirectionAttackRounds": 179,
+        "firstFactoryCaptureMedianRound": 6,
+        "noFactoryCapture": 7
+      },
+      {
+        "site": "B",
+        "wins": 23,
+        "firstEliminations": 2,
+        "multiDirectionAttackRounds": 149,
+        "firstFactoryCaptureMedianRound": 2.0,
+        "noFactoryCapture": 0
+      },
+      {
+        "site": "C",
+        "wins": 16,
+        "firstEliminations": 5,
+        "multiDirectionAttackRounds": 182,
+        "firstFactoryCaptureMedianRound": 5.0,
+        "noFactoryCapture": 2
+      },
+      {
+        "site": "D",
+        "wins": 3,
+        "firstEliminations": 7,
+        "multiDirectionAttackRounds": 214,
+        "firstFactoryCaptureMedianRound": 4,
+        "noFactoryCapture": 9
+      }
+    ]
+  },
+  {
+    "seed": 33509,
+    "source": "marsh",
+    "armyCount": 3,
+    "tactics": false,
+    "games": 12,
+    "natural": 2,
+    "deadline": 10,
+    "cutoff": 0,
+    "draws": 0,
+    "noElimination": 3,
+    "safeFallbacks": 3,
+    "sites": [
+      {
+        "site": "A",
+        "wins": 2,
+        "firstEliminations": 5,
+        "multiDirectionAttackRounds": 36,
+        "firstFactoryCaptureMedianRound": 4.0,
+        "noFactoryCapture": 0
+      },
+      {
+        "site": "B",
+        "wins": 2,
+        "firstEliminations": 4,
+        "multiDirectionAttackRounds": 24,
+        "firstFactoryCaptureMedianRound": 6.0,
+        "noFactoryCapture": 0
+      },
+      {
+        "site": "C",
+        "wins": 8,
+        "firstEliminations": 0,
+        "multiDirectionAttackRounds": 15,
+        "firstFactoryCaptureMedianRound": 2.0,
+        "noFactoryCapture": 0
+      }
+    ]
+  },
+  {
+    "seed": 33509,
+    "source": "marsh",
+    "armyCount": 3,
+    "tactics": true,
+    "games": 12,
+    "natural": 2,
+    "deadline": 10,
+    "cutoff": 0,
+    "draws": 0,
+    "noElimination": 1,
+    "safeFallbacks": 8,
+    "sites": [
+      {
+        "site": "A",
+        "wins": 2,
+        "firstEliminations": 8,
+        "multiDirectionAttackRounds": 47,
+        "firstFactoryCaptureMedianRound": 4.0,
+        "noFactoryCapture": 0
+      },
+      {
+        "site": "B",
+        "wins": 0,
+        "firstEliminations": 3,
+        "multiDirectionAttackRounds": 14,
+        "firstFactoryCaptureMedianRound": 6.0,
+        "noFactoryCapture": 0
+      },
+      {
+        "site": "C",
+        "wins": 10,
+        "firstEliminations": 0,
+        "multiDirectionAttackRounds": 9,
+        "firstFactoryCaptureMedianRound": 2.0,
+        "noFactoryCapture": 0
+      }
+    ]
+  },
+  {
+    "seed": 33509,
+    "source": "marsh",
+    "armyCount": 4,
+    "tactics": false,
+    "games": 48,
+    "natural": 0,
+    "deadline": 48,
+    "cutoff": 0,
+    "draws": 0,
+    "noElimination": 11,
+    "safeFallbacks": 88,
+    "sites": [
+      {
+        "site": "A",
+        "wins": 12,
+        "firstEliminations": 14,
+        "multiDirectionAttackRounds": 206,
+        "firstFactoryCaptureMedianRound": 5.5,
+        "noFactoryCapture": 4
+      },
+      {
+        "site": "B",
+        "wins": 10,
+        "firstEliminations": 12,
+        "multiDirectionAttackRounds": 205,
+        "firstFactoryCaptureMedianRound": 4,
+        "noFactoryCapture": 3
+      },
+      {
+        "site": "C",
+        "wins": 17,
+        "firstEliminations": 6,
+        "multiDirectionAttackRounds": 185,
+        "firstFactoryCaptureMedianRound": 2.0,
+        "noFactoryCapture": 0
+      },
+      {
+        "site": "D",
+        "wins": 9,
+        "firstEliminations": 5,
+        "multiDirectionAttackRounds": 288,
+        "firstFactoryCaptureMedianRound": 5,
+        "noFactoryCapture": 7
+      }
+    ]
+  },
+  {
+    "seed": 33509,
+    "source": "marsh",
+    "armyCount": 4,
+    "tactics": true,
+    "games": 48,
+    "natural": 0,
+    "deadline": 48,
+    "cutoff": 0,
+    "draws": 0,
+    "noElimination": 25,
+    "safeFallbacks": 57,
+    "sites": [
+      {
+        "site": "A",
+        "wins": 3,
+        "firstEliminations": 12,
+        "multiDirectionAttackRounds": 238,
+        "firstFactoryCaptureMedianRound": 4.0,
+        "noFactoryCapture": 16
+      },
+      {
+        "site": "B",
+        "wins": 12,
+        "firstEliminations": 2,
+        "multiDirectionAttackRounds": 241,
+        "firstFactoryCaptureMedianRound": 4.0,
+        "noFactoryCapture": 0
+      },
+      {
+        "site": "C",
+        "wins": 28,
+        "firstEliminations": 0,
+        "multiDirectionAttackRounds": 194,
+        "firstFactoryCaptureMedianRound": 2.0,
+        "noFactoryCapture": 0
+      },
+      {
+        "site": "D",
+        "wins": 5,
+        "firstEliminations": 9,
+        "multiDirectionAttackRounds": 228,
+        "firstFactoryCaptureMedianRound": 6.0,
+        "noFactoryCapture": 2
+      }
+    ]
+  },
+  {
+    "seed": 33509,
+    "source": "skirmish",
+    "armyCount": 3,
+    "tactics": false,
+    "games": 6,
+    "natural": 0,
+    "deadline": 6,
+    "cutoff": 0,
+    "draws": 0,
+    "noElimination": 5,
+    "safeFallbacks": 3,
+    "sites": [
+      {
+        "site": "A",
+        "wins": 0,
+        "firstEliminations": 1,
+        "multiDirectionAttackRounds": 33,
+        "firstFactoryCaptureMedianRound": 4.0,
+        "noFactoryCapture": 0
+      },
+      {
+        "site": "B",
+        "wins": 1,
+        "firstEliminations": 0,
+        "multiDirectionAttackRounds": 24,
+        "firstFactoryCaptureMedianRound": 4.0,
+        "noFactoryCapture": 0
+      },
+      {
+        "site": "C",
+        "wins": 5,
+        "firstEliminations": 0,
+        "multiDirectionAttackRounds": 22,
+        "firstFactoryCaptureMedianRound": 8.5,
+        "noFactoryCapture": 0
+      }
+    ]
+  },
+  {
+    "seed": 33509,
+    "source": "skirmish",
+    "armyCount": 3,
+    "tactics": true,
+    "games": 6,
+    "natural": 0,
+    "deadline": 6,
+    "cutoff": 0,
+    "draws": 0,
+    "noElimination": 5,
+    "safeFallbacks": 4,
+    "sites": [
+      {
+        "site": "A",
+        "wins": 2,
+        "firstEliminations": 1,
+        "multiDirectionAttackRounds": 27,
+        "firstFactoryCaptureMedianRound": 4.0,
+        "noFactoryCapture": 0
+      },
+      {
+        "site": "B",
+        "wins": 3,
+        "firstEliminations": 0,
+        "multiDirectionAttackRounds": 23,
+        "firstFactoryCaptureMedianRound": 4.0,
+        "noFactoryCapture": 0
+      },
+      {
+        "site": "C",
+        "wins": 1,
+        "firstEliminations": 0,
+        "multiDirectionAttackRounds": 24,
+        "firstFactoryCaptureMedianRound": 4,
+        "noFactoryCapture": 1
+      }
+    ]
+  },
+  {
+    "seed": 33509,
+    "source": "skirmish",
+    "armyCount": 4,
+    "tactics": false,
+    "games": 24,
+    "natural": 0,
+    "deadline": 24,
+    "cutoff": 0,
+    "draws": 0,
+    "noElimination": 10,
+    "safeFallbacks": 20,
+    "sites": [
+      {
+        "site": "A",
+        "wins": 6,
+        "firstEliminations": 4,
+        "multiDirectionAttackRounds": 50,
+        "firstFactoryCaptureMedianRound": 2.0,
+        "noFactoryCapture": 0
+      },
+      {
+        "site": "B",
+        "wins": 6,
+        "firstEliminations": 3,
+        "multiDirectionAttackRounds": 51,
+        "firstFactoryCaptureMedianRound": 2.0,
+        "noFactoryCapture": 0
+      },
+      {
+        "site": "C",
+        "wins": 6,
+        "firstEliminations": 3,
+        "multiDirectionAttackRounds": 51,
+        "firstFactoryCaptureMedianRound": 2.0,
+        "noFactoryCapture": 0
+      },
+      {
+        "site": "D",
+        "wins": 6,
+        "firstEliminations": 4,
+        "multiDirectionAttackRounds": 50,
+        "firstFactoryCaptureMedianRound": 2.0,
+        "noFactoryCapture": 0
+      }
+    ]
+  },
+  {
+    "seed": 33509,
+    "source": "skirmish",
+    "armyCount": 4,
+    "tactics": true,
+    "games": 24,
+    "natural": 0,
+    "deadline": 24,
+    "cutoff": 0,
+    "draws": 0,
+    "noElimination": 20,
+    "safeFallbacks": 56,
+    "sites": [
+      {
+        "site": "A",
+        "wins": 6,
+        "firstEliminations": 1,
+        "multiDirectionAttackRounds": 52,
+        "firstFactoryCaptureMedianRound": 2.0,
+        "noFactoryCapture": 0
+      },
+      {
+        "site": "B",
+        "wins": 6,
+        "firstEliminations": 1,
+        "multiDirectionAttackRounds": 52,
+        "firstFactoryCaptureMedianRound": 2.0,
+        "noFactoryCapture": 0
+      },
+      {
+        "site": "C",
+        "wins": 6,
+        "firstEliminations": 1,
+        "multiDirectionAttackRounds": 52,
+        "firstFactoryCaptureMedianRound": 2.0,
+        "noFactoryCapture": 0
+      },
+      {
+        "site": "D",
+        "wins": 6,
+        "firstEliminations": 1,
+        "multiDirectionAttackRounds": 52,
+        "firstFactoryCaptureMedianRound": 2.0,
+        "noFactoryCapture": 0
+      }
+    ]
+  },
+  {
+    "seed": 33517,
+    "source": "canyon",
+    "armyCount": 3,
+    "tactics": false,
+    "games": 12,
+    "natural": 5,
+    "deadline": 7,
+    "cutoff": 0,
+    "draws": 0,
+    "noElimination": 4,
+    "safeFallbacks": 8,
+    "sites": [
+      {
+        "site": "A",
+        "wins": 3,
+        "firstEliminations": 4,
+        "multiDirectionAttackRounds": 19,
+        "firstFactoryCaptureMedianRound": 5.0,
+        "noFactoryCapture": 0
+      },
+      {
+        "site": "B",
+        "wins": 3,
+        "firstEliminations": 4,
+        "multiDirectionAttackRounds": 29,
+        "firstFactoryCaptureMedianRound": 5.0,
+        "noFactoryCapture": 0
+      },
+      {
+        "site": "C",
+        "wins": 6,
+        "firstEliminations": 0,
+        "multiDirectionAttackRounds": 30,
+        "firstFactoryCaptureMedianRound": 5.0,
+        "noFactoryCapture": 0
+      }
+    ]
+  },
+  {
+    "seed": 33517,
+    "source": "canyon",
+    "armyCount": 3,
+    "tactics": true,
+    "games": 12,
+    "natural": 5,
+    "deadline": 7,
+    "cutoff": 0,
+    "draws": 0,
+    "noElimination": 5,
+    "safeFallbacks": 10,
+    "sites": [
+      {
+        "site": "A",
+        "wins": 0,
+        "firstEliminations": 2,
+        "multiDirectionAttackRounds": 25,
+        "firstFactoryCaptureMedianRound": 5.0,
+        "noFactoryCapture": 0
+      },
+      {
+        "site": "B",
+        "wins": 5,
+        "firstEliminations": 4,
+        "multiDirectionAttackRounds": 27,
+        "firstFactoryCaptureMedianRound": 5.0,
+        "noFactoryCapture": 0
+      },
+      {
+        "site": "C",
+        "wins": 7,
+        "firstEliminations": 1,
+        "multiDirectionAttackRounds": 21,
+        "firstFactoryCaptureMedianRound": 5.0,
+        "noFactoryCapture": 0
+      }
+    ]
+  },
+  {
+    "seed": 33517,
+    "source": "canyon",
+    "armyCount": 4,
+    "tactics": false,
+    "games": 48,
+    "natural": 0,
+    "deadline": 48,
+    "cutoff": 0,
+    "draws": 0,
+    "noElimination": 21,
+    "safeFallbacks": 48,
+    "sites": [
+      {
+        "site": "A",
+        "wins": 8,
+        "firstEliminations": 6,
+        "multiDirectionAttackRounds": 192,
+        "firstFactoryCaptureMedianRound": 6.5,
+        "noFactoryCapture": 8
+      },
+      {
+        "site": "B",
+        "wins": 23,
+        "firstEliminations": 10,
+        "multiDirectionAttackRounds": 215,
+        "firstFactoryCaptureMedianRound": 4,
+        "noFactoryCapture": 1
+      },
+      {
+        "site": "C",
+        "wins": 15,
+        "firstEliminations": 0,
+        "multiDirectionAttackRounds": 226,
+        "firstFactoryCaptureMedianRound": 2.0,
+        "noFactoryCapture": 0
+      },
+      {
+        "site": "D",
+        "wins": 2,
+        "firstEliminations": 11,
+        "multiDirectionAttackRounds": 228,
+        "firstFactoryCaptureMedianRound": 7.0,
+        "noFactoryCapture": 12
+      }
+    ]
+  },
+  {
+    "seed": 33517,
+    "source": "canyon",
+    "armyCount": 4,
+    "tactics": true,
+    "games": 48,
+    "natural": 0,
+    "deadline": 48,
+    "cutoff": 0,
+    "draws": 0,
+    "noElimination": 27,
+    "safeFallbacks": 49,
+    "sites": [
+      {
+        "site": "A",
+        "wins": 9,
+        "firstEliminations": 0,
+        "multiDirectionAttackRounds": 221,
+        "firstFactoryCaptureMedianRound": 6,
+        "noFactoryCapture": 3
+      },
+      {
+        "site": "B",
+        "wins": 12,
+        "firstEliminations": 9,
+        "multiDirectionAttackRounds": 179,
+        "firstFactoryCaptureMedianRound": 2.0,
+        "noFactoryCapture": 0
+      },
+      {
+        "site": "C",
+        "wins": 18,
+        "firstEliminations": 3,
+        "multiDirectionAttackRounds": 163,
+        "firstFactoryCaptureMedianRound": 5,
+        "noFactoryCapture": 3
+      },
+      {
+        "site": "D",
+        "wins": 9,
+        "firstEliminations": 9,
+        "multiDirectionAttackRounds": 228,
+        "firstFactoryCaptureMedianRound": 4.0,
+        "noFactoryCapture": 12
+      }
+    ]
+  },
+  {
+    "seed": 33517,
+    "source": "marsh",
+    "armyCount": 3,
+    "tactics": false,
+    "games": 12,
+    "natural": 1,
+    "deadline": 11,
+    "cutoff": 0,
+    "draws": 0,
+    "noElimination": 6,
+    "safeFallbacks": 13,
+    "sites": [
+      {
+        "site": "A",
+        "wins": 3,
+        "firstEliminations": 2,
+        "multiDirectionAttackRounds": 58,
+        "firstFactoryCaptureMedianRound": 4.0,
+        "noFactoryCapture": 0
+      },
+      {
+        "site": "B",
+        "wins": 3,
+        "firstEliminations": 4,
+        "multiDirectionAttackRounds": 9,
+        "firstFactoryCaptureMedianRound": 6.0,
+        "noFactoryCapture": 0
+      },
+      {
+        "site": "C",
+        "wins": 6,
+        "firstEliminations": 0,
+        "multiDirectionAttackRounds": 23,
+        "firstFactoryCaptureMedianRound": 2.0,
+        "noFactoryCapture": 0
+      }
+    ]
+  },
+  {
+    "seed": 33517,
+    "source": "marsh",
+    "armyCount": 3,
+    "tactics": true,
+    "games": 12,
+    "natural": 1,
+    "deadline": 11,
+    "cutoff": 0,
+    "draws": 0,
+    "noElimination": 7,
+    "safeFallbacks": 8,
+    "sites": [
+      {
+        "site": "A",
+        "wins": 0,
+        "firstEliminations": 4,
+        "multiDirectionAttackRounds": 51,
+        "firstFactoryCaptureMedianRound": 4.0,
+        "noFactoryCapture": 0
+      },
+      {
+        "site": "B",
+        "wins": 2,
+        "firstEliminations": 1,
+        "multiDirectionAttackRounds": 7,
+        "firstFactoryCaptureMedianRound": 6.0,
+        "noFactoryCapture": 0
+      },
+      {
+        "site": "C",
+        "wins": 10,
+        "firstEliminations": 0,
+        "multiDirectionAttackRounds": 9,
+        "firstFactoryCaptureMedianRound": 2.0,
+        "noFactoryCapture": 0
+      }
+    ]
+  },
+  {
+    "seed": 33517,
+    "source": "marsh",
+    "armyCount": 4,
+    "tactics": false,
+    "games": 48,
+    "natural": 1,
+    "deadline": 47,
+    "cutoff": 0,
+    "draws": 0,
+    "noElimination": 20,
+    "safeFallbacks": 119,
+    "sites": [
+      {
+        "site": "A",
+        "wins": 3,
+        "firstEliminations": 9,
+        "multiDirectionAttackRounds": 202,
+        "firstFactoryCaptureMedianRound": 6,
+        "noFactoryCapture": 5
+      },
+      {
+        "site": "B",
+        "wins": 20,
+        "firstEliminations": 8,
+        "multiDirectionAttackRounds": 239,
+        "firstFactoryCaptureMedianRound": 4,
+        "noFactoryCapture": 3
+      },
+      {
+        "site": "C",
+        "wins": 17,
+        "firstEliminations": 2,
+        "multiDirectionAttackRounds": 200,
+        "firstFactoryCaptureMedianRound": 2.0,
+        "noFactoryCapture": 0
+      },
+      {
+        "site": "D",
+        "wins": 8,
+        "firstEliminations": 9,
+        "multiDirectionAttackRounds": 298,
+        "firstFactoryCaptureMedianRound": 6,
+        "noFactoryCapture": 9
+      }
+    ]
+  },
+  {
+    "seed": 33517,
+    "source": "marsh",
+    "armyCount": 4,
+    "tactics": true,
+    "games": 48,
+    "natural": 0,
+    "deadline": 48,
+    "cutoff": 0,
+    "draws": 0,
+    "noElimination": 22,
+    "safeFallbacks": 68,
+    "sites": [
+      {
+        "site": "A",
+        "wins": 4,
+        "firstEliminations": 10,
+        "multiDirectionAttackRounds": 191,
+        "firstFactoryCaptureMedianRound": 6.0,
+        "noFactoryCapture": 14
+      },
+      {
+        "site": "B",
+        "wins": 9,
+        "firstEliminations": 6,
+        "multiDirectionAttackRounds": 204,
+        "firstFactoryCaptureMedianRound": 7.0,
+        "noFactoryCapture": 4
+      },
+      {
+        "site": "C",
+        "wins": 26,
+        "firstEliminations": 3,
+        "multiDirectionAttackRounds": 136,
+        "firstFactoryCaptureMedianRound": 2.0,
+        "noFactoryCapture": 0
+      },
+      {
+        "site": "D",
+        "wins": 9,
+        "firstEliminations": 7,
+        "multiDirectionAttackRounds": 223,
+        "firstFactoryCaptureMedianRound": 6,
+        "noFactoryCapture": 11
+      }
+    ]
+  },
+  {
+    "seed": 33517,
+    "source": "skirmish",
+    "armyCount": 3,
+    "tactics": false,
+    "games": 6,
+    "natural": 0,
+    "deadline": 6,
+    "cutoff": 0,
+    "draws": 0,
+    "noElimination": 5,
+    "safeFallbacks": 5,
+    "sites": [
+      {
+        "site": "A",
+        "wins": 2,
+        "firstEliminations": 1,
+        "multiDirectionAttackRounds": 32,
+        "firstFactoryCaptureMedianRound": 4.0,
+        "noFactoryCapture": 0
+      },
+      {
+        "site": "B",
+        "wins": 3,
+        "firstEliminations": 0,
+        "multiDirectionAttackRounds": 26,
+        "firstFactoryCaptureMedianRound": 4.0,
+        "noFactoryCapture": 0
+      },
+      {
+        "site": "C",
+        "wins": 1,
+        "firstEliminations": 0,
+        "multiDirectionAttackRounds": 28,
+        "firstFactoryCaptureMedianRound": 8.0,
+        "noFactoryCapture": 0
+      }
+    ]
+  },
+  {
+    "seed": 33517,
+    "source": "skirmish",
+    "armyCount": 3,
+    "tactics": true,
+    "games": 6,
+    "natural": 0,
+    "deadline": 6,
+    "cutoff": 0,
+    "draws": 0,
+    "noElimination": 5,
+    "safeFallbacks": 3,
+    "sites": [
+      {
+        "site": "A",
+        "wins": 1,
+        "firstEliminations": 1,
+        "multiDirectionAttackRounds": 30,
+        "firstFactoryCaptureMedianRound": 4.0,
+        "noFactoryCapture": 0
+      },
+      {
+        "site": "B",
+        "wins": 3,
+        "firstEliminations": 0,
+        "multiDirectionAttackRounds": 20,
+        "firstFactoryCaptureMedianRound": 4.0,
+        "noFactoryCapture": 0
+      },
+      {
+        "site": "C",
+        "wins": 2,
+        "firstEliminations": 0,
+        "multiDirectionAttackRounds": 25,
+        "firstFactoryCaptureMedianRound": 4.0,
+        "noFactoryCapture": 0
+      }
+    ]
+  },
+  {
+    "seed": 33517,
+    "source": "skirmish",
+    "armyCount": 4,
+    "tactics": false,
+    "games": 24,
+    "natural": 0,
+    "deadline": 24,
+    "cutoff": 0,
+    "draws": 0,
+    "noElimination": 8,
+    "safeFallbacks": 44,
+    "sites": [
+      {
+        "site": "A",
+        "wins": 6,
+        "firstEliminations": 4,
+        "multiDirectionAttackRounds": 57,
+        "firstFactoryCaptureMedianRound": 2.0,
+        "noFactoryCapture": 0
+      },
+      {
+        "site": "B",
+        "wins": 6,
+        "firstEliminations": 4,
+        "multiDirectionAttackRounds": 57,
+        "firstFactoryCaptureMedianRound": 2.0,
+        "noFactoryCapture": 0
+      },
+      {
+        "site": "C",
+        "wins": 6,
+        "firstEliminations": 4,
+        "multiDirectionAttackRounds": 57,
+        "firstFactoryCaptureMedianRound": 2.0,
+        "noFactoryCapture": 0
+      },
+      {
+        "site": "D",
+        "wins": 6,
+        "firstEliminations": 4,
+        "multiDirectionAttackRounds": 57,
+        "firstFactoryCaptureMedianRound": 2.0,
+        "noFactoryCapture": 0
+      }
+    ]
+  },
+  {
+    "seed": 33517,
+    "source": "skirmish",
+    "armyCount": 4,
+    "tactics": true,
+    "games": 24,
+    "natural": 0,
+    "deadline": 24,
+    "cutoff": 0,
+    "draws": 0,
+    "noElimination": 12,
+    "safeFallbacks": 28,
+    "sites": [
+      {
+        "site": "A",
+        "wins": 6,
+        "firstEliminations": 3,
+        "multiDirectionAttackRounds": 52,
+        "firstFactoryCaptureMedianRound": 2.0,
+        "noFactoryCapture": 0
+      },
+      {
+        "site": "B",
+        "wins": 6,
+        "firstEliminations": 3,
+        "multiDirectionAttackRounds": 52,
+        "firstFactoryCaptureMedianRound": 2.0,
+        "noFactoryCapture": 0
+      },
+      {
+        "site": "C",
+        "wins": 6,
+        "firstEliminations": 3,
+        "multiDirectionAttackRounds": 52,
+        "firstFactoryCaptureMedianRound": 2.0,
+        "noFactoryCapture": 0
+      },
+      {
+        "site": "D",
+        "wins": 6,
+        "firstEliminations": 3,
+        "multiDirectionAttackRounds": 52,
+        "firstFactoryCaptureMedianRound": 2.0,
+        "noFactoryCapture": 0
+      }
+    ]
+  },
+  {
+    "seed": 33523,
+    "source": "canyon",
+    "armyCount": 3,
+    "tactics": false,
+    "games": 12,
+    "natural": 5,
+    "deadline": 7,
+    "cutoff": 0,
+    "draws": 0,
+    "noElimination": 1,
+    "safeFallbacks": 8,
+    "sites": [
+      {
+        "site": "A",
+        "wins": 1,
+        "firstEliminations": 3,
+        "multiDirectionAttackRounds": 7,
+        "firstFactoryCaptureMedianRound": 5.0,
+        "noFactoryCapture": 0
+      },
+      {
+        "site": "B",
+        "wins": 0,
+        "firstEliminations": 8,
+        "multiDirectionAttackRounds": 26,
+        "firstFactoryCaptureMedianRound": 5.0,
+        "noFactoryCapture": 2
+      },
+      {
+        "site": "C",
+        "wins": 11,
+        "firstEliminations": 0,
+        "multiDirectionAttackRounds": 23,
+        "firstFactoryCaptureMedianRound": 5.0,
+        "noFactoryCapture": 0
+      }
+    ]
+  },
+  {
+    "seed": 33523,
+    "source": "canyon",
+    "armyCount": 3,
+    "tactics": true,
+    "games": 12,
+    "natural": 3,
+    "deadline": 9,
+    "cutoff": 0,
+    "draws": 0,
+    "noElimination": 5,
+    "safeFallbacks": 1,
+    "sites": [
+      {
+        "site": "A",
+        "wins": 4,
+        "firstEliminations": 3,
+        "multiDirectionAttackRounds": 45,
+        "firstFactoryCaptureMedianRound": 5.0,
+        "noFactoryCapture": 0
+      },
+      {
+        "site": "B",
+        "wins": 3,
+        "firstEliminations": 4,
+        "multiDirectionAttackRounds": 31,
+        "firstFactoryCaptureMedianRound": 5.0,
+        "noFactoryCapture": 0
+      },
+      {
+        "site": "C",
+        "wins": 5,
+        "firstEliminations": 0,
+        "multiDirectionAttackRounds": 26,
+        "firstFactoryCaptureMedianRound": 5.0,
+        "noFactoryCapture": 0
+      }
+    ]
+  },
+  {
+    "seed": 33523,
+    "source": "canyon",
+    "armyCount": 4,
+    "tactics": false,
+    "games": 48,
+    "natural": 0,
+    "deadline": 48,
+    "cutoff": 0,
+    "draws": 0,
+    "noElimination": 24,
+    "safeFallbacks": 82,
+    "sites": [
+      {
+        "site": "A",
+        "wins": 9,
+        "firstEliminations": 14,
+        "multiDirectionAttackRounds": 179,
+        "firstFactoryCaptureMedianRound": 6.0,
+        "noFactoryCapture": 12
+      },
+      {
+        "site": "B",
+        "wins": 25,
+        "firstEliminations": 2,
+        "multiDirectionAttackRounds": 215,
+        "firstFactoryCaptureMedianRound": 2.0,
+        "noFactoryCapture": 0
+      },
+      {
+        "site": "C",
+        "wins": 6,
+        "firstEliminations": 2,
+        "multiDirectionAttackRounds": 210,
+        "firstFactoryCaptureMedianRound": 2.0,
+        "noFactoryCapture": 0
+      },
+      {
+        "site": "D",
+        "wins": 8,
+        "firstEliminations": 6,
+        "multiDirectionAttackRounds": 222,
+        "firstFactoryCaptureMedianRound": 7.0,
+        "noFactoryCapture": 8
+      }
+    ]
+  },
+  {
+    "seed": 33523,
+    "source": "canyon",
+    "armyCount": 4,
+    "tactics": true,
+    "games": 48,
+    "natural": 0,
+    "deadline": 48,
+    "cutoff": 0,
+    "draws": 0,
+    "noElimination": 31,
+    "safeFallbacks": 79,
+    "sites": [
+      {
+        "site": "A",
+        "wins": 2,
+        "firstEliminations": 5,
+        "multiDirectionAttackRounds": 184,
+        "firstFactoryCaptureMedianRound": 4,
+        "noFactoryCapture": 11
+      },
+      {
+        "site": "B",
+        "wins": 24,
+        "firstEliminations": 3,
+        "multiDirectionAttackRounds": 166,
+        "firstFactoryCaptureMedianRound": 4.0,
+        "noFactoryCapture": 0
+      },
+      {
+        "site": "C",
+        "wins": 15,
+        "firstEliminations": 6,
+        "multiDirectionAttackRounds": 179,
+        "firstFactoryCaptureMedianRound": 4,
+        "noFactoryCapture": 1
+      },
+      {
+        "site": "D",
+        "wins": 7,
+        "firstEliminations": 3,
+        "multiDirectionAttackRounds": 228,
+        "firstFactoryCaptureMedianRound": 4.0,
+        "noFactoryCapture": 8
+      }
+    ]
+  },
+  {
+    "seed": 33523,
+    "source": "marsh",
+    "armyCount": 3,
+    "tactics": false,
+    "games": 12,
+    "natural": 2,
+    "deadline": 10,
+    "cutoff": 0,
+    "draws": 0,
+    "noElimination": 8,
+    "safeFallbacks": 3,
+    "sites": [
+      {
+        "site": "A",
+        "wins": 2,
+        "firstEliminations": 0,
+        "multiDirectionAttackRounds": 41,
+        "firstFactoryCaptureMedianRound": 4.0,
+        "noFactoryCapture": 0
+      },
+      {
+        "site": "B",
+        "wins": 2,
+        "firstEliminations": 4,
+        "multiDirectionAttackRounds": 19,
+        "firstFactoryCaptureMedianRound": 6.0,
+        "noFactoryCapture": 0
+      },
+      {
+        "site": "C",
+        "wins": 8,
+        "firstEliminations": 0,
+        "multiDirectionAttackRounds": 29,
+        "firstFactoryCaptureMedianRound": 2.0,
+        "noFactoryCapture": 0
+      }
+    ]
+  },
+  {
+    "seed": 33523,
+    "source": "marsh",
+    "armyCount": 3,
+    "tactics": true,
+    "games": 12,
+    "natural": 0,
+    "deadline": 12,
+    "cutoff": 0,
+    "draws": 0,
+    "noElimination": 3,
+    "safeFallbacks": 4,
+    "sites": [
+      {
+        "site": "A",
+        "wins": 0,
+        "firstEliminations": 8,
+        "multiDirectionAttackRounds": 35,
+        "firstFactoryCaptureMedianRound": 4.0,
+        "noFactoryCapture": 0
+      },
+      {
+        "site": "B",
+        "wins": 0,
+        "firstEliminations": 1,
+        "multiDirectionAttackRounds": 14,
+        "firstFactoryCaptureMedianRound": 6.0,
+        "noFactoryCapture": 0
+      },
+      {
+        "site": "C",
+        "wins": 12,
+        "firstEliminations": 0,
+        "multiDirectionAttackRounds": 21,
+        "firstFactoryCaptureMedianRound": 2.0,
+        "noFactoryCapture": 0
+      }
+    ]
+  },
+  {
+    "seed": 33523,
+    "source": "marsh",
+    "armyCount": 4,
+    "tactics": false,
+    "games": 48,
+    "natural": 0,
+    "deadline": 48,
+    "cutoff": 0,
+    "draws": 0,
+    "noElimination": 8,
+    "safeFallbacks": 86,
+    "sites": [
+      {
+        "site": "A",
+        "wins": 11,
+        "firstEliminations": 15,
+        "multiDirectionAttackRounds": 242,
+        "firstFactoryCaptureMedianRound": 5.0,
+        "noFactoryCapture": 6
+      },
+      {
+        "site": "B",
+        "wins": 16,
+        "firstEliminations": 14,
+        "multiDirectionAttackRounds": 245,
+        "firstFactoryCaptureMedianRound": 4,
+        "noFactoryCapture": 5
+      },
+      {
+        "site": "C",
+        "wins": 14,
+        "firstEliminations": 7,
+        "multiDirectionAttackRounds": 233,
+        "firstFactoryCaptureMedianRound": 2.0,
+        "noFactoryCapture": 0
+      },
+      {
+        "site": "D",
+        "wins": 7,
+        "firstEliminations": 4,
+        "multiDirectionAttackRounds": 302,
+        "firstFactoryCaptureMedianRound": 5,
+        "noFactoryCapture": 5
+      }
+    ]
+  },
+  {
+    "seed": 33523,
+    "source": "marsh",
+    "armyCount": 4,
+    "tactics": true,
+    "games": 48,
+    "natural": 3,
+    "deadline": 45,
+    "cutoff": 0,
+    "draws": 0,
+    "noElimination": 28,
+    "safeFallbacks": 73,
+    "sites": [
+      {
+        "site": "A",
+        "wins": 6,
+        "firstEliminations": 4,
+        "multiDirectionAttackRounds": 205,
+        "firstFactoryCaptureMedianRound": 4,
+        "noFactoryCapture": 15
+      },
+      {
+        "site": "B",
+        "wins": 10,
+        "firstEliminations": 6,
+        "multiDirectionAttackRounds": 244,
+        "firstFactoryCaptureMedianRound": 3,
+        "noFactoryCapture": 7
+      },
+      {
+        "site": "C",
+        "wins": 26,
+        "firstEliminations": 5,
+        "multiDirectionAttackRounds": 141,
+        "firstFactoryCaptureMedianRound": 2.0,
+        "noFactoryCapture": 0
+      },
+      {
+        "site": "D",
+        "wins": 6,
+        "firstEliminations": 5,
+        "multiDirectionAttackRounds": 232,
+        "firstFactoryCaptureMedianRound": 5,
+        "noFactoryCapture": 5
+      }
+    ]
+  },
+  {
+    "seed": 33523,
+    "source": "skirmish",
+    "armyCount": 3,
+    "tactics": false,
+    "games": 6,
+    "natural": 0,
+    "deadline": 6,
+    "cutoff": 0,
+    "draws": 0,
+    "noElimination": 6,
+    "safeFallbacks": 8,
+    "sites": [
+      {
+        "site": "A",
+        "wins": 1,
+        "firstEliminations": 0,
+        "multiDirectionAttackRounds": 38,
+        "firstFactoryCaptureMedianRound": 4.0,
+        "noFactoryCapture": 0
+      },
+      {
+        "site": "B",
+        "wins": 2,
+        "firstEliminations": 0,
+        "multiDirectionAttackRounds": 20,
+        "firstFactoryCaptureMedianRound": 4.0,
+        "noFactoryCapture": 0
+      },
+      {
+        "site": "C",
+        "wins": 3,
+        "firstEliminations": 0,
+        "multiDirectionAttackRounds": 32,
+        "firstFactoryCaptureMedianRound": 10,
+        "noFactoryCapture": 1
+      }
+    ]
+  },
+  {
+    "seed": 33523,
+    "source": "skirmish",
+    "armyCount": 3,
+    "tactics": true,
+    "games": 6,
+    "natural": 0,
+    "deadline": 6,
+    "cutoff": 0,
+    "draws": 0,
+    "noElimination": 2,
+    "safeFallbacks": 6,
+    "sites": [
+      {
+        "site": "A",
+        "wins": 0,
+        "firstEliminations": 4,
+        "multiDirectionAttackRounds": 32,
+        "firstFactoryCaptureMedianRound": 4.0,
+        "noFactoryCapture": 0
+      },
+      {
+        "site": "B",
+        "wins": 4,
+        "firstEliminations": 0,
+        "multiDirectionAttackRounds": 19,
+        "firstFactoryCaptureMedianRound": 4.0,
+        "noFactoryCapture": 0
+      },
+      {
+        "site": "C",
+        "wins": 2,
+        "firstEliminations": 0,
+        "multiDirectionAttackRounds": 20,
+        "firstFactoryCaptureMedianRound": 4.0,
+        "noFactoryCapture": 0
+      }
+    ]
+  },
+  {
+    "seed": 33523,
+    "source": "skirmish",
+    "armyCount": 4,
+    "tactics": false,
+    "games": 24,
+    "natural": 0,
+    "deadline": 24,
+    "cutoff": 0,
+    "draws": 0,
+    "noElimination": 8,
+    "safeFallbacks": 36,
+    "sites": [
+      {
+        "site": "A",
+        "wins": 6,
+        "firstEliminations": 4,
+        "multiDirectionAttackRounds": 49,
+        "firstFactoryCaptureMedianRound": 2.0,
+        "noFactoryCapture": 0
+      },
+      {
+        "site": "B",
+        "wins": 6,
+        "firstEliminations": 4,
+        "multiDirectionAttackRounds": 49,
+        "firstFactoryCaptureMedianRound": 2.0,
+        "noFactoryCapture": 0
+      },
+      {
+        "site": "C",
+        "wins": 6,
+        "firstEliminations": 4,
+        "multiDirectionAttackRounds": 49,
+        "firstFactoryCaptureMedianRound": 2.0,
+        "noFactoryCapture": 0
+      },
+      {
+        "site": "D",
+        "wins": 6,
+        "firstEliminations": 4,
+        "multiDirectionAttackRounds": 49,
+        "firstFactoryCaptureMedianRound": 2.0,
+        "noFactoryCapture": 0
+      }
+    ]
+  },
+  {
+    "seed": 33523,
+    "source": "skirmish",
+    "armyCount": 4,
+    "tactics": true,
+    "games": 24,
+    "natural": 0,
+    "deadline": 24,
+    "cutoff": 0,
+    "draws": 0,
+    "noElimination": 16,
+    "safeFallbacks": 72,
+    "sites": [
+      {
+        "site": "A",
+        "wins": 6,
+        "firstEliminations": 2,
+        "multiDirectionAttackRounds": 61,
+        "firstFactoryCaptureMedianRound": 2.0,
+        "noFactoryCapture": 0
+      },
+      {
+        "site": "B",
+        "wins": 6,
+        "firstEliminations": 2,
+        "multiDirectionAttackRounds": 61,
+        "firstFactoryCaptureMedianRound": 2.0,
+        "noFactoryCapture": 0
+      },
+      {
+        "site": "C",
+        "wins": 6,
+        "firstEliminations": 2,
+        "multiDirectionAttackRounds": 61,
+        "firstFactoryCaptureMedianRound": 2.0,
+        "noFactoryCapture": 0
+      },
+      {
+        "site": "D",
+        "wins": 6,
+        "firstEliminations": 2,
+        "multiDirectionAttackRounds": 61,
+        "firstFactoryCaptureMedianRound": 2.0,
+        "noFactoryCapture": 0
+      }
+    ]
+  }
+]

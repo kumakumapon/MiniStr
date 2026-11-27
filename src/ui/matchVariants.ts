@@ -1,24 +1,33 @@
+import { isAsymmetricSource, type AsymmetricSource } from '../game/asymmetricBattlefield';
 import { localized } from './locale';
 import { escapeHtml } from './strings';
 
 export type ArmyCount = 2 | 3 | 4;
-export type MultiplayerMap = 'compact' | 'outpost' | 'strait' | 'frontier' | 'wide';
+export type MultiplayerMap = 'compact' | 'outpost' | 'strait' | 'frontier' | 'wide' | AsymmetricSource;
 
 const names = localized(
-  { compact: '緑の国境', outpost: '前哨基地強襲', strait: '交差海峡', frontier: '新・四方の前線', wide: '四方の前線' },
-  { compact: 'Green Border', outpost: 'Outpost Assault', strait: 'Cross Strait', frontier: 'New Four Fronts', wide: 'Four Fronts' },
+  { canyon: '峡谷の関門', marsh: '湿地の突破', compact: '緑の国境', outpost: '前哨基地強襲', strait: '交差海峡', frontier: '新・四方の前線', wide: '四方の前線' },
+  {
+    canyon: 'Canyon Checkpoint',
+    marsh: 'Marsh Breakthrough',
+    compact: 'Green Border',
+    outpost: 'Outpost Assault',
+    strait: 'Cross Strait',
+    frontier: 'New Four Fronts',
+    wide: 'Four Fronts',
+  },
 );
 
 export const multiplayerOnlyMaps = ['strait', 'frontier', 'wide'] as const;
 export const multiplayerName = (map: MultiplayerMap): string => names[map];
 export const multiplayerSize = (map: MultiplayerMap): { width: number; height: number } =>
   map === 'strait' ? { width: 17, height: 15 } : map === 'frontier' || map === 'wide' ? { width: 32, height: 32 } : { width: 18, height: 14 };
-export const classicVariant = (map: MultiplayerMap): string | undefined => (map === 'compact' ? 'skirmish' : map === 'outpost' ? 'outpost' : undefined);
-export const multiplayerVariant = (id: string): MultiplayerMap | undefined => (id === 'skirmish' ? 'compact' : id === 'outpost' ? 'outpost' : undefined);
+export const classicVariant = (map: MultiplayerMap): string | undefined => (map === 'compact' ? 'skirmish' : map === 'outpost' || isAsymmetricSource(map) ? map : undefined);
+export const multiplayerVariant = (id: string): MultiplayerMap | undefined => (id === 'skirmish' ? 'compact' : id === 'outpost' || isAsymmetricSource(id) ? id : undefined);
 export const multiplayerCardId = (map: MultiplayerMap): string => `multiplayer:${map}`;
 
 export function armyCountOptions(map: MultiplayerMap): readonly ArmyCount[] {
-  return map === 'wide' ? [4] : [2, 3, 4];
+  return map === 'wide' ? [4] : isAsymmetricSource(map) ? [3, 4] : [2, 3, 4];
 }
 
 const labels = localized(
