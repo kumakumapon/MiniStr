@@ -91,11 +91,13 @@ export function chooseFourArmyCpuCommand(input: unknown, options: unknown, cpuVe
   };
   const actor = o.viewer,
     cautious = options.policy === 'defensive' ? 0.65 : options.policy === 'offensive' ? 0.2 : 0.4;
-  const shortPass =
-    improved && o.match?.version === 2 && o.match.layoutVersion === 5 && o.match.ending === 'short' && (o.match.sourceMapId === 'canyon' || o.match.sourceMapId === 'marsh');
-  const threeWay = shortPass && o.match.participants.length === 3;
+  const passMatch =
+    improved && o.match?.version === 2 && o.match.layoutVersion === 5 && o.match.ending === 'short' && (o.match.sourceMapId === 'canyon' || o.match.sourceMapId === 'marsh')
+      ? o.match
+      : undefined;
+  const threeWay = passMatch?.participants.length === 3;
   // Following the initial order gives each living site one pursuer until the first elimination.
-  const assignedRival = threeWay && o.alive.length === 3 ? o.match.initialOrder[(o.match.initialOrder.indexOf(actor) + 1) % 3] : undefined;
+  const assignedRival = threeWay && o.alive.length === 3 ? passMatch.initialOrder[(passMatch.initialOrder.indexOf(actor) + 1) % 3] : undefined;
   const cyclic = cpuVersion === 'four-army-cpu-v5' || modernSix ? smallBattleFocus(o) : undefined;
   const ownership = (a: string) => o.board.terrain.flat().filter((t) => t.owner === a).length;
   const opponents = o.alive.filter((a) => !alliedArmies(o.match, a, actor));
@@ -119,7 +121,7 @@ export function chooseFourArmyCpuCommand(input: unknown, options: unknown, cpuVe
     .filter((a) => !alliedArmies(o.match, a, actor) && (!focus || a === focus) && o.board.terrain[o.capitals[a].y]![o.capitals[a].x]!.owner === a)
     .map((a) => o.capitals[a]);
   // The normal round-40 switch lies beyond these short matches' deadlines.
-  const passAssault = shortPass && o.round.round >= (threeWay ? 9 : 6);
+  const passAssault = passMatch && o.round.round >= (threeWay ? 9 : 6);
   const goals = [...hostileHomes, ...properties];
   const combatGoals = modernSix && (improved || o.alive.length <= 2) && (passAssault || o.round.round >= 40) && hostileHomes.length ? hostileHomes : goals;
   const danger = (u: Unit, p: Position): number => {
