@@ -4,6 +4,17 @@ import type { FourArmyControllers } from '../game/fourArmyControl';
 import { getLocale } from './locale';
 import { renderMapPreview } from './mapPreview';
 const copy = {
+  river: [
+    ['北岸・北の橋頭堡', 'North bank · northern bridgehead'],
+    ['西岸道・西の橋への進路', 'Western road · western crossing'],
+    ['東岸道・東の橋への進路', 'Eastern road · eastern crossing'],
+    ['南岸・中央と東の橋への進路', 'South bank · central and eastern crossings'],
+  ],
+  tundra: [
+    ['北の守備軍・司令部を15ラウンド防衛', 'Northern defender · hold headquarters for 15 rounds'],
+    ['西の攻撃軍・西峠から同盟軍と攻める', 'Western attacker · advance through the western pass'],
+    ['東の攻撃軍・東峠から同盟軍と攻める', 'Eastern attacker · advance through the eastern pass'],
+  ],
   canyon: [
     ['北の峠口・工場手前の山道', 'Northern pass · mountain approaches to the factory'],
     ['西の街道口・中央へ通じる道路', 'Western highway · roads toward the center'],
@@ -17,16 +28,21 @@ const copy = {
     ['南の土手・中央への道路', 'Southern levee · road to the center'],
   ],
 } as const;
+export function battlefieldTheme(source: unknown) {
+  return source === 'tundra' ? 'snow' : source === 'canyon' ? 'desert' : 'temperate';
+}
 export function renderStartingSites(source: AsymmetricSource, armies: readonly FourArmyId[], controllers: FourArmyControllers): string {
   const en = getLocale() === 'en';
-  const { board, homes } = asymmetricBoard(source, armies);
+  const { board, homes, bridges } = asymmetricBoard(source, armies);
+  for (const {
+    position: { x, y },
+  } of bridges)
+    board.terrain[y]![x] = { kind: 'road' };
   const labels = armies.map((a, i) => {
     const h = homes[a];
     return `${copy[source][i]![en ? 1 : 0]} (${h.x + 1}, ${h.y + 1})`;
   });
-  return `<fieldset class="four-start-sites"><legend>${en ? 'Starting sites' : '出発地点'}</legend>${renderMapPreview(board, [], source === 'marsh' ? 'temperate' : 'desert')}${[
-    ...armies,
-  ]
+  return `<fieldset class="four-start-sites"><legend>${en ? 'Starting sites' : '出発地点'}</legend>${renderMapPreview(board, [], battlefieldTheme(source))}${[...armies]
     .sort()
     .map(
       (a) =>

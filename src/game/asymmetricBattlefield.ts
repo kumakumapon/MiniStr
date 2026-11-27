@@ -6,14 +6,15 @@ import type { Position, UnitKind } from './types';
 import { unitStats } from './units';
 import { weaponsForUnit } from './weapons';
 
-export type AsymmetricSource = 'canyon' | 'marsh';
+export type AsymmetricSource = 'canyon' | 'marsh' | 'river' | 'tundra';
 export function isAsymmetricSource(source: unknown): source is AsymmetricSource {
-  return source === 'canyon' || source === 'marsh';
+  return source === 'canyon' || source === 'marsh' || source === 'river' || source === 'tundra';
 }
 
 // A–D are permanent site identities within this layout. A row is west to east.
-// # mountain, ~ swamp, = road, + forest, f neutral factory, c neutral city.
-const layouts = {
+// # mountain, ~ swamp, = road, + forest, f neutral factory, c neutral city, w water, b bridged water.
+// Version 4 is regenerated exactly when a recorded match is opened.
+const historicalLayouts = {
   canyon: {
     3: [
       '..................',
@@ -84,15 +85,140 @@ const layouts = {
   },
 } as const;
 
-const ground: Record<string, FourArmyTerrain['kind']> = { '.': 'plain', '#': 'mountain', '~': 'swamp', '=': 'road', '+': 'forest', f: 'factory', c: 'city' };
+const layouts = {
+  canyon: {
+    3: [
+      '..................',
+      '..................',
+      '........A.........',
+      '..##..........#...',
+      '....##c.f..#.#....',
+      '......#.=.#.......',
+      '........=.........',
+      '..+.====.====.....',
+      '........=.........',
+      '...B.f..=..f.C....',
+      '..................',
+      '...#c.+......c....',
+      '..................',
+      '..................',
+    ],
+    4: [
+      '..................',
+      '..................',
+      '..................',
+      '..#.....A.........',
+      '...##...=...##....',
+      '.....#..=..#......',
+      '......c.=.........',
+      '..+.B===f===C.....',
+      '........=.c...+...',
+      '........=..#......',
+      '...#.#..=...#.....',
+      '......+.D.........',
+      '..................',
+      '..................',
+    ],
+  },
+  marsh: {
+    3: [
+      '..................',
+      '..................',
+      '........A.........',
+      '..~~...f.c....~...',
+      '....~~.....~.~....',
+      '......~.=.~.......',
+      '........=.........',
+      '....c.==.====.....',
+      '...B....=.....+...',
+      '.....f..=.f.C.....',
+      '...........c......',
+      '...~..+......~....',
+      '..................',
+      '..................',
+    ],
+    4: [
+      '..................',
+      '..................',
+      '..................',
+      '..~.....A.........',
+      '...~~...=...~~....',
+      '.....~..=..~......',
+      '......c.=.........',
+      '..+.B===f===C.....',
+      '........=.c...+...',
+      '........=..~......',
+      '...~.~..=...~.....',
+      '......+.D.........',
+      '..................',
+      '..................',
+    ],
+  },
+  river: {
+    3: [
+      '..................',
+      '..................',
+      '........A.........',
+      '..................',
+      '...=.c...=+...=...',
+      '...=.+...=f.c.=...',
+      'wwwbwwwwwbwwwwbwww',
+      '...=...f.=..+.=...',
+      '...=.c.+.=....=...',
+      '...B.......c..C...',
+      '..................',
+      '..................',
+      '..................',
+      '..................',
+    ],
+    4: [
+      '..................',
+      '..................',
+      '.....A............',
+      '..............C...',
+      '...=.c...=+...=...',
+      '...=.+...=f.c.=...',
+      'wwwbwwwwwbwwwwbwww',
+      '...=...f.=..+.=...',
+      '...=.c.+.=....=...',
+      '...B.......c......',
+      '..................',
+      '............D.....',
+      '..................',
+      '..................',
+    ],
+  },
+  tundra: {
+    3: [
+      '..................',
+      '..................',
+      '........A.........',
+      '..................',
+      '......c.=.c.......',
+      '...##...f...##....',
+      '.....##.=.##......',
+      '..+.+...=...+..+..',
+      '....=========.....',
+      '.....c..=...c.....',
+      '...B..........C...',
+      '..................',
+      '..................',
+      '..................',
+    ],
+  },
+} as const;
+
+const ground: Record<string, FourArmyTerrain['kind']> = { w: 'sea', b: 'sea', '.': 'plain', '#': 'mountain', '~': 'swamp', '=': 'road', '+': 'forest', f: 'factory', c: 'city' };
 const forward = [
   { x: 0, y: 1 },
   { x: 1, y: 0 },
   { x: -1, y: 0 },
   { x: 0, y: -1 },
 ] as const;
-export function asymmetricBoard(source: AsymmetricSource, siteArmies: readonly FourArmyId[]) {
-  const rows = layouts[source][siteArmies.length === 3 ? 3 : 4];
+export function asymmetricBoard(source: AsymmetricSource, siteArmies: readonly FourArmyId[], layoutVersion = 5) {
+  const count = siteArmies.length === 3 ? 3 : 4;
+  const rows = source === 'tundra' ? layouts.tundra[3] : layoutVersion === 4 && source !== 'river' ? historicalLayouts[source][count] : layouts[source][count];
+  const bridges: NonNullable<FourArmyMap['bridges']> = [];
   const homes = {} as FourArmyMap['capitals'];
   const terrain = rows.map((row, y) =>
     Array.from(row, (tile, x): FourArmyTerrain => {
@@ -102,6 +228,7 @@ export function asymmetricBoard(source: AsymmetricSource, siteArmies: readonly F
         homes[owner] = { x, y };
         return { kind: 'capital', owner, capturePoints: 20 };
       }
+      if (tile === 'b') bridges.push({ owner: siteArmies[bridges.length % siteArmies.length]!, position: { x, y } });
       const kind = ground[tile]!;
       return kind === 'city' || kind === 'factory' ? { kind, capturePoints: 20 } : { kind };
     }),
@@ -112,12 +239,12 @@ export function asymmetricBoard(source: AsymmetricSource, siteArmies: readonly F
     terrain[h.y + d.x]![h.x - d.y] = { kind: 'factory', owner: army, capturePoints: 20 };
     terrain[h.y - d.y]![h.x - d.x] = { kind: 'city', owner: army, capturePoints: 20 };
   });
-  return { board: { width: rows[0].length, height: rows.length, terrain }, homes };
+  return { board: { width: rows[0].length, height: rows.length, terrain }, homes, bridges };
 }
 
 export function createAsymmetricLayout(source: AsymmetricSource, match: ExpandedBattle, seed: number, rules?: FourArmyRules): FourArmyMap {
   const siteArmies = match.siteArmies!;
-  const { board, homes } = asymmetricBoard(source, siteArmies);
+  const { board, homes, bridges } = asymmetricBoard(source, siteArmies, match.layoutVersion);
   const units: FourArmyMap['units'] = [];
   const players = {} as FourArmyMap['players'];
   const startZones = {} as NonNullable<FourArmyMap['setup']>['startZones'];
@@ -162,7 +289,7 @@ export function createAsymmetricLayout(source: AsymmetricSource, match: Expanded
     order: [...match.initialOrder],
     seed,
     pathVersion: 3,
-    bridges: [],
+    bridges,
     setup: { version: 1, unitLimitPerArmy: 8, startZones },
     ...(rules ? { rules: structuredClone(rules) } : {}),
   };

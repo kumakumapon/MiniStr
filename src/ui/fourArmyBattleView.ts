@@ -23,7 +23,7 @@ export function fourArmyBoardCells(
   action?: string,
   threat?: ThreatPreview,
   supply?: ReadonlySet<string>,
-  theme: 'temperate' | 'desert' = 'temperate',
+  theme: 'temperate' | 'desert' | 'snow' = 'temperate',
 ): string[] {
   const units = new Map(display.units.filter((u) => u.position).map((u) => [positionKey(u.position!), u]));
   const reachable = new Set(choices.filter((c) => c.action === (action ?? 'move') && c.target).map((c) => positionKey(c.target!)));

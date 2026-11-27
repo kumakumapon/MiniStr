@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { createExpandedBattleMap } from './expandedBattleMap';
-import { createFourArmyState, applyFourArmyCommand, type FourArmyCommand } from './fourArmyEngine';
+import { createFourArmyState, applyFourArmyCommand, type FourArmyCommand, isFourArmyState } from './fourArmyEngine';
+import { parseFourArmyArchive, serializeFourArmyArchive } from './fourArmyArchive';
 import { FOUR_ARMY_IDS } from './fourArmyFoundation';
 import { fourArmyControllers } from './fourArmyControl';
 import { initialFourArmyExperience, advanceFourArmyExperience, fourArmyExperienceManifest } from './fourArmyExperience';
@@ -8,7 +9,7 @@ import { encodeFourArmySpectatorSave, serializeFourArmySpectatorSave, parseFourA
 import { defaultFourArmyCpuSettings } from '../ai/fourArmyCpu';
 import { FourArmyReplay } from '../ui/fourArmyReplay';
 import { terrainRules } from './terrain';
-import { isSmallBattle } from './smallBattle';
+import { battleWinners, isSmallBattle } from './smallBattle';
 import type { GameResult, Position } from './types';
 const value = <T>(result: GameResult<T>) => {
   if (!result.ok) throw Error(result.error);
@@ -22,7 +23,7 @@ describe.each(['canyon', 'marsh'] as const)('%s authored starting sites', (sourc
     const map = value(createExpandedBattleMap({ sourceMapId, participants, siteArmies, order }));
     const normal = value(createExpandedBattleMap({ sourceMapId, participants }));
     expect(map.order).toEqual(order);
-    expect(map.match).toMatchObject({ layoutVersion: 4, siteArmies, initialOrder: order });
+    expect(map.match).toMatchObject({ layoutVersion: 5, siteArmies, initialOrder: order });
     expect(Object.keys(map.players).sort()).toEqual(participants);
     expect(map.units).toHaveLength(count * 4);
     const targets = map.board.terrain.flatMap((r, y) => r.flatMap((tile, x) => (['capital', 'city', 'factory'].includes(tile.kind) ? [{ x, y }] : [])));
@@ -67,11 +68,11 @@ describe.each(['canyon', 'marsh'] as const)('%s authored starting sites', (sourc
       }
     }
   });
-  it('rebuilds saved, replayed and rematched starts and refuses changed assignments and terrain', async () => {
+  it.each([4, 5] as const)('layout %i rebuilds saved, replayed and rematched starts and refuses changed assignments and terrain', async (layoutVersion) => {
     const participants = ['army1', 'army3', 'army4'] as const,
       siteArmies = ['army4', 'army1', 'army3'] as const,
       order = ['army3', 'army4', 'army1'] as const;
-    const map = value(createExpandedBattleMap({ sourceMapId, participants, siteArmies, order, seed: 33 }));
+    const map = value(createExpandedBattleMap({ sourceMapId, participants, siteArmies, order, layoutVersion, seed: 33 }));
     const initial = value(createFourArmyState(map));
     let state = initial,
       experience = initialFourArmyExperience(initial, 0);
@@ -116,7 +117,7 @@ describe.each(['canyon', 'marsh'] as const)('%s authored starting sites', (sourc
       { siteArmies: undefined },
       { siteArmies: order.slice(1) },
       { siteArmies: ['army4', 'army4', 'army3'] },
-      { layoutVersion: 5 },
+      { layoutVersion: 6 },
       { siteArmies: ['army1', 'army2', 'army3'] },
     ])
       expect(isSmallBattle({ ...map.match, ...patch })).toBe(false);
@@ -127,4 +128,51 @@ it('keeps original presets strict and the authored layouts open only to 3 or 4 i
   expect(createExpandedBattleMap({ sourceMapId: 'marsh', teams: { army1: 'army2' } }).ok).toBe(false);
   expect(createExpandedBattleMap({ sourceMapId: 'skirmish', siteArmies: FOUR_ARMY_IDS }).ok).toBe(false);
   expect(createExpandedBattleMap({ sourceMapId: 'outpost', layoutVersion: 4 }).ok).toBe(false);
+});
+
+const defense = { sourceMapId: 'tundra', participants: ['army1', 'army3', 'army4'], siteArmies: ['army4', 'army1', 'army3'], order: ['army3', 'army4', 'army1'] } as const;
+it('awards the northern defender the deadline with a surviving headquarters and unit', () => {
+  const map = value(createExpandedBattleMap(defense));
+  expect(map.match).toMatchObject({ roundLimit: 15, teams: { army4: 'army4', army3: 'army1', army1: 'army1' }, sharedVision: true });
+  let s = value(createFourArmyState(map));
+  const commands: FourArmyCommand[] = [];
+  for (let turn = 0; turn < 45; turn++) {
+    expect(s.outcome.type).toBe('ongoing');
+    const command: FourArmyCommand = { type: 'endTurn', actor: s.round.order[s.round.index]! };
+    s = value(applyFourArmyCommand(s, command));
+    commands.push(command);
+  }
+  expect(value(parseFourArmyArchive(value(serializeFourArmyArchive(map, commands, s)))).payload.state).toEqual(s);
+  expect(s.decision).toEqual({ round: 15 });
+  expect(battleWinners(s)).toEqual(['army4']);
+  expect(isFourArmyState(s)).toBe(true);
+  expect(isFourArmyState({ ...s, outcome: { type: 'victory', winner: 'army1' } })).toBe(false);
+});
+it('ends immediately when the northern headquarters falls to either allied attacker', () => {
+  const map = value(createExpandedBattleMap(defense));
+  let s = value(createFourArmyState(map));
+  const home = s.capitals.army4;
+  const u = s.units.find((u) => u.owner === 'army3' && u.kind === 'infantry')!;
+  u.position = { ...home };
+  s.board.terrain[home.y]![home.x]!.capturePoints = 1;
+  s = value(applyFourArmyCommand(s, { type: 'capture', actor: 'army3', unitId: u.id }));
+  expect(battleWinners(s)).toEqual(['army1', 'army3']);
+  expect(s.decision).toBeUndefined();
+  expect(isFourArmyState(s)).toBe(true);
+});
+it('refuses other roles, deadlines, old layouts or unsupported army counts in defense', () => {
+  for (const options of [
+    { ending: 'unlimited' } as const,
+    { layoutVersion: 4 } as const,
+    { teams: { army4: 'army1' } as const },
+    { sharedVision: false },
+    { participants: FOUR_ARMY_IDS, siteArmies: FOUR_ARMY_IDS, order: FOUR_ARMY_IDS },
+  ])
+    expect(createExpandedBattleMap({ ...defense, ...options }).ok).toBe(false);
+});
+it.each([3, 4])('connects both river banks at three public bridges for %i armies', (count) => {
+  const map = value(createExpandedBattleMap({ sourceMapId: 'river', participants: FOUR_ARMY_IDS.slice(0, count) }));
+  expect(map.bridges).toHaveLength(3);
+  expect(map.board.terrain[6]!.every((t) => t.kind === 'sea')).toBe(true);
+  for (const { position: p } of map.bridges!) for (const y of [p.y - 1, p.y + 1]) expect(Number.isFinite(terrainRules[map.board.terrain[y]![p.x]!.kind].movement.tank)).toBe(true);
 });

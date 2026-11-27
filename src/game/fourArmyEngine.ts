@@ -55,7 +55,7 @@ export interface FourArmyMap {
 }
 export interface FourArmyState {
   match?: SmallBattle;
-  decision?: { round: 20 | 21 };
+  decision?: { round: 15 | 20 | 21 };
   /** Omission preserves the absolute-coordinate path rule of existing recordings. */
   pathVersion?: 1 | 2 | 3;
   bridges?: { owner: FourArmyId; position: Position }[];
@@ -78,7 +78,7 @@ export interface FourArmyState {
 }
 export interface FourArmyObservation {
   match?: SmallBattle;
-  decision?: { round: 20 | 21 };
+  decision?: { round: 15 | 20 | 21 };
   bridges?: { owner: FourArmyId; position: Position }[];
   rules?: FourArmyRules;
   extensions?: FourArmyRuleObservation;
@@ -516,6 +516,7 @@ export function isFourArmyState(value: unknown): value is FourArmyState {
     s.decision?.round === s.match.roundLimit &&
     Object.keys(s.decision!).join() === 'round';
   if (s.decision && !deadline) return false;
+  if (deadline && s.match?.sourceMapId === 'tundra' && (!resolved.ok || resolved.value.outcome.type !== 'ongoing')) return false;
   if (s.match?.ending === 'short' && (s.round.round > s.match.roundLimit! + 1 || (s.round.round === s.match.roundLimit! + 1 && !deadline))) return false;
   const expectedOutcome = deadline ? smallBattleDecision(s) : resolved.ok ? resolved.value.outcome : undefined;
   if (

@@ -6,8 +6,20 @@ export type ArmyCount = 2 | 3 | 4;
 export type MultiplayerMap = 'compact' | 'outpost' | 'strait' | 'frontier' | 'wide' | AsymmetricSource;
 
 const names = localized(
-  { canyon: '峡谷の関門', marsh: '湿地の突破', compact: '緑の国境', outpost: '前哨基地強襲', strait: '交差海峡', frontier: '新・四方の前線', wide: '四方の前線' },
   {
+    river: '渡河作戦',
+    tundra: '凍土の防衛線',
+    canyon: '峡谷の関門',
+    marsh: '湿地の突破',
+    compact: '緑の国境',
+    outpost: '前哨基地強襲',
+    strait: '交差海峡',
+    frontier: '新・四方の前線',
+    wide: '四方の前線',
+  },
+  {
+    river: 'River Crossing',
+    tundra: 'Frozen Defense Line',
     canyon: 'Canyon Checkpoint',
     marsh: 'Marsh Breakthrough',
     compact: 'Green Border',
@@ -27,11 +39,11 @@ export const multiplayerVariant = (id: string): MultiplayerMap | undefined => (i
 export const multiplayerCardId = (map: MultiplayerMap): string => `multiplayer:${map}`;
 
 export function armyCountOptions(map: MultiplayerMap): readonly ArmyCount[] {
-  return map === 'wide' ? [4] : isAsymmetricSource(map) ? [3, 4] : [2, 3, 4];
+  return map === 'wide' ? [4] : map === 'tundra' ? [3] : isAsymmetricSource(map) ? [3, 4] : [2, 3, 4];
 }
 
 const labels = localized(
-  { standard: '通常の2軍', two: '2軍（複数軍ルール）', three: '3軍', four: '4軍', label: '参加軍数・規則', range: '2〜4軍', fixed: '固定4軍' },
+  { standard: '通常の2軍', two: '2軍（複数軍ルール）', three: '3軍', four: '4軍', label: '参加軍数・規則', range: '2〜4軍', fixed: '固定4軍', defense: '2・3軍' },
   {
     standard: 'Standard two-army',
     two: '2 armies (multiplayer rules)',
@@ -40,10 +52,11 @@ const labels = localized(
     label: 'Army count and rules',
     range: '2–4 armies',
     fixed: 'Fixed 4 armies',
+    defense: '2 or 3 armies',
   },
 );
 
-export const armyCountLabel = (map: MultiplayerMap): string => (map === 'wide' ? labels.fixed : labels.range);
+export const armyCountLabel = (map: MultiplayerMap): string => (map === 'wide' ? labels.fixed : map === 'tundra' ? labels.defense : labels.range);
 
 export function renderMatchVariants(map: MultiplayerMap, current: 'standard' | ArmyCount, id: string): string {
   const variants: { value: string; label: string }[] = armyCountOptions(map).map((count) => ({

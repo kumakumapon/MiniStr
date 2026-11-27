@@ -91,18 +91,28 @@ export function chooseFourArmyCpuCommand(input: unknown, options: unknown, cpuVe
   };
   const actor = o.viewer,
     cautious = options.policy === 'defensive' ? 0.65 : options.policy === 'offensive' ? 0.2 : 0.4;
+  const passMatch =
+    improved && o.match?.version === 2 && o.match.layoutVersion === 5 && o.match.ending === 'short' && (o.match.sourceMapId === 'canyon' || o.match.sourceMapId === 'marsh')
+      ? o.match
+      : undefined;
+  const threeWay = passMatch?.participants.length === 3;
+  // Following the initial order gives each living site one pursuer until the first elimination.
+  const assignedRival = threeWay && o.alive.length === 3 ? passMatch.initialOrder[(passMatch.initialOrder.indexOf(actor) + 1) % 3] : undefined;
   const cyclic = cpuVersion === 'four-army-cpu-v5' || modernSix ? smallBattleFocus(o) : undefined;
   const ownership = (a: string) => o.board.terrain.flat().filter((t) => t.owner === a).length;
   const opponents = o.alive.filter((a) => !alliedArmies(o.match, a, actor));
   const focus =
-    improved && cyclic
+    assignedRival ??
+    (improved && cyclic
       ? fourArmyPressureFocus(o)
       : modernSix && cyclic
         ? opponents.sort((a, b) => ownership(b) - ownership(a) || Number(b === cyclic) - Number(a === cyclic))[0]
-        : cyclic;
+        : cyclic);
   const properties = o.board.terrain.flatMap((row, y) =>
     row.flatMap((t, x) =>
-      isPropertyTerrainKind(t.kind) && (t.owner === undefined || !alliedArmies(o.match, t.owner, actor)) && (!focus || improved || t.owner === undefined || t.owner === focus)
+      isPropertyTerrainKind(t.kind) &&
+      (t.owner === undefined || !alliedArmies(o.match, t.owner, actor)) &&
+      (!focus || (improved && !threeWay) || t.owner === undefined || t.owner === focus)
         ? [{ x, y }]
         : [],
     ),
@@ -110,7 +120,10 @@ export function chooseFourArmyCpuCommand(input: unknown, options: unknown, cpuVe
   const hostileHomes = o.alive
     .filter((a) => !alliedArmies(o.match, a, actor) && (!focus || a === focus) && o.board.terrain[o.capitals[a].y]![o.capitals[a].x]!.owner === a)
     .map((a) => o.capitals[a]);
+  // The normal round-40 switch lies beyond these short matches' deadlines.
+  const passAssault = passMatch && o.round.round >= (threeWay ? 9 : 6);
   const goals = [...hostileHomes, ...properties];
+  const combatGoals = modernSix && (improved || o.alive.length <= 2) && (passAssault || o.round.round >= 40) && hostileHomes.length ? hostileHomes : goals;
   const danger = (u: Unit, p: Position): number => {
     const moved = { ...u, position: p };
     return enemies.reduce((sum, e) => {
@@ -175,7 +188,6 @@ export function chooseFourArmyCpuCommand(input: unknown, options: unknown, cpuVe
           )
         : [];
     const bestDrop = Math.min(...shore.map((s) => s.d));
-    const combatGoals = modernSix && (improved || o.alive.length <= 2) && o.round.round >= 40 && hostileHomes.length ? hostileHomes : goals;
     const rawTargets = shore.length
       ? shore.filter((s) => s.d <= bestDrop + 1).map((s) => s.p)
       : unitStats[u.kind].capturePower > 0
@@ -219,9 +231,10 @@ export function chooseFourArmyCpuCommand(input: unknown, options: unknown, cpuVe
         unitStats[u.kind].capturePower > 0 &&
         isPropertyTerrainKind(terrainAt(view.board, p)!.kind) &&
         terrainAt(view.board, p)!.owner !== 'red' &&
-        (!improved || o.round.round < 40 || !hostileHomes.length || d < currentDistance)
+        (!improved || ((threeWay || !passAssault) && o.round.round < 40) || !hostileHomes.length || d < currentDistance)
       )
         score += late ? 500 : 240;
+      if (passAssault && unitStats[u.kind].capturePower > 0 && hostileHomes.some((h) => h.x === p.x && h.y === p.y)) score += 1400;
       if (options.policy === 'defensive' && enemies.some((e) => e.position && manhattanDistance(e.position, o.capitals[actor]) <= 5))
         score += (manhattanDistance(u.position, o.capitals[actor]) - manhattanDistance(p, o.capitals[actor])) * 25;
       if (retreating && isServiceTile(serviceView, p, u.kind, 'red')) score += 500;
