@@ -154,6 +154,7 @@ export function* verifyFourArmySpectatorSave(text: string): Generator<FourArmyVe
           ? createExpandedBattleMap({
               sourceMapId: map.match.sourceMapId,
               layoutVersion: map.match.layoutVersion,
+              siteArmies: map.match.siteArmies,
               participants: map.match.participants,
               seed: map.seed,
               order: map.order,

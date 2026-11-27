@@ -123,6 +123,21 @@
   align-items: end;
   gap: 8px 14px;
 }
+.four-start-sites {
+  display: grid;
+  flex: 1 0 100%;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr));
+  gap: 8px 14px;
+  min-width: 0;
+  border: 1px solid var(--four-line);
+}
+.four-start-sites .map-preview {
+  grid-row: span 2;
+  align-self: center;
+}
+.four-start-sites select {
+  width: 100%;
+}
 .four-start-choices .match-variants {
   margin-block: 0;
 }

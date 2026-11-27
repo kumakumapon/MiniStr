@@ -23,6 +23,7 @@ export function fourArmyBoardCells(
   action?: string,
   threat?: ThreatPreview,
   supply?: ReadonlySet<string>,
+  theme: 'temperate' | 'desert' = 'temperate',
 ): string[] {
   const units = new Map(display.units.filter((u) => u.position).map((u) => [positionKey(u.position!), u]));
   const reachable = new Set(choices.filter((c) => c.action === (action ?? 'move') && c.target).map((c) => positionKey(c.target!)));
@@ -58,7 +59,7 @@ export function fourArmyBoardCells(
       const rank = unit ? experienceRank(unit.experience) : 0;
       const facility = facilities[tile.kind];
       const cargo = unit && display.units.find((u) => u.embarkedIn === unit.id);
-      return `<button type="button" class="${classes}" data-x="${x}" data-y="${y}" tabindex="${focused.x === x && focused.y === y ? 0 : -1}" aria-label="${escapeHtml(label)}"${selected ? ' aria-pressed="true"' : ''}>${renderTerrainArt(tile.kind, 'temperate')}${bridge ? `<span class="bridge-marker${vertical ? ' vertical' : ''}" aria-hidden="true">═</span>` : ''}${fort ? '<span class="fortification-marker" aria-hidden="true">▣</span>' : ''}${facility ? `<span class="facility facility-${tile.kind} ${tile.owner ?? 'neutral'}" aria-hidden="true"><b>${facility}</b>${tile.owner ? `<small>${tile.owner.slice(-1)}</small>` : ''}</span>` : ''}${unit ? `<span class="unit unit-${unit.kind} ${unit.owner}${unit.hasActed ? ' four-unit-done' : ''}" aria-hidden="true"><span class="unit-art"></span><small>${unit.hp}</small><i class="unit-owner-marker">${unit.owner.slice(-1)}</i>${rank ? `<i class="unit-rank" aria-hidden="true">${'★'.repeat(rank)}</i>` : ''}${cargo ? `<i class="cargo-marker">${getLocale() === 'en' ? 'C' : '積'}</i>` : ''}</span>` : ''}</button>`;
+      return `<button type="button" class="${classes}" data-x="${x}" data-y="${y}" tabindex="${focused.x === x && focused.y === y ? 0 : -1}" aria-label="${escapeHtml(label)}"${selected ? ' aria-pressed="true"' : ''}>${renderTerrainArt(tile.kind, theme)}${bridge ? `<span class="bridge-marker${vertical ? ' vertical' : ''}" aria-hidden="true">═</span>` : ''}${fort ? '<span class="fortification-marker" aria-hidden="true">▣</span>' : ''}${facility ? `<span class="facility facility-${tile.kind} ${tile.owner ?? 'neutral'}" aria-hidden="true"><b>${facility}</b>${tile.owner ? `<small>${tile.owner.slice(-1)}</small>` : ''}</span>` : ''}${unit ? `<span class="unit unit-${unit.kind} ${unit.owner}${unit.hasActed ? ' four-unit-done' : ''}" aria-hidden="true"><span class="unit-art"></span><small>${unit.hp}</small><i class="unit-owner-marker">${unit.owner.slice(-1)}</i>${rank ? `<i class="unit-rank" aria-hidden="true">${'★'.repeat(rank)}</i>` : ''}${cargo ? `<i class="cargo-marker">${getLocale() === 'en' ? 'C' : '積'}</i>` : ''}</span>` : ''}</button>`;
     }),
   );
 }
