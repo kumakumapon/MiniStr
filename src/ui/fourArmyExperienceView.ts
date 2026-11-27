@@ -92,7 +92,7 @@ export function renderFourArmyResult(state: FourArmyState, controllers: FourArmy
         ? text('あなたの勝利です。', 'You win.')
         : text('あなたの軍は敗北しました。', 'Your army lost.')
       : '';
-  return `<section class="four-result" aria-labelledby="four-result-title"><h2 id="four-result-title" tabindex="-1">${escapeHtml(title)}</h2><p>${personal} ${text('ラウンド', 'Round')} ${state.decision?.round ?? state.round.round} · ${count.toLocaleString()} ${text('命令', 'commands')}</p>${state.decision ? `<p>${text(`${state.decision.round}ラウンド判定：チーム拠点数 → 合計HP → 同点は引分`, `${state.decision.round}-round decision: team properties → HP → tied draw`)}</p>` : ''}<div class="four-result-table"><table><thead><tr><th>${text('軍', 'Army')}</th><th>${text('結果', 'Result')}</th><th>${text('残部隊', 'Units left')}</th><th>${text('施設', 'Properties')}</th><th>HP</th></tr></thead><tbody>${fourArmyParticipants(
+  return `<section class="four-result" aria-labelledby="four-result-title"><h2 id="four-result-title" tabindex="-1">${escapeHtml(title)}</h2><p>${personal} ${text('ラウンド', 'Round')} ${state.decision?.round ?? state.round.round} · ${count.toLocaleString()} ${text('命令', 'commands')}</p>${state.decision ? `<p>${state.match?.sourceMapId === 'tundra' ? text('守備軍が第15ラウンドまで防衛に成功', 'The defender held through round 15') : text(`${state.decision.round}ラウンド判定：チーム拠点数 → 合計HP → 同点は引分`, `${state.decision.round}-round decision: team properties → HP → tied draw`)}</p>` : ''}<div class="four-result-table"><table><thead><tr><th>${text('軍', 'Army')}</th><th>${text('結果', 'Result')}</th><th>${text('残部隊', 'Units left')}</th><th>${text('施設', 'Properties')}</th><th>HP</th></tr></thead><tbody>${fourArmyParticipants(
     state,
   )
     .map((army) => {
@@ -103,7 +103,9 @@ export function renderFourArmyResult(state: FourArmyState, controllers: FourArmy
           : eliminated
             ? `R${eliminated.round} ${text('脱落', 'eliminated')}`
             : state.outcome.type === 'victory'
-              ? text('判定敗北', 'Lost on points')
+              ? state.match?.sourceMapId === 'tundra'
+                ? text('期限内に攻略できず', 'Defense held')
+                : text('判定敗北', 'Lost on points')
               : text('引分', 'Draw');
       const properties = state.board.terrain.flat().filter((tile) => tile.owner === army).length;
       return `<tr><th>${escapeHtml(fourArmyName(army))}<small>${controllers[army] === 'human' ? text('人間', 'Human') : 'CPU'}</small></th><td>${result}</td><td>${state.units.filter((u) => u.owner === army).length}</td><td>${properties}</td><td>${state.units.filter((u) => u.owner === army).reduce((sum, u) => sum + u.hp, 0)}</td></tr>`;

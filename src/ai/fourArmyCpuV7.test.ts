@@ -151,3 +151,17 @@ describe('CPU v7 recovery, support and observed production', () => {
     expect(fourArmyPressureFocus(value(observeFourArmy(team, 'army3')))).toBe('army2');
   });
 });
+
+it('takes a reachable enemy headquarters in a short four-way pass assault', () => {
+  const map = value(createExpandedBattleMap({ sourceMapId: 'canyon' }));
+  let state = value(createFourArmyState(map));
+  while (state.round.round < 6 || state.round.order[state.round.index] !== 'army1') {
+    state = value(applyFourArmyCommand(state, { actor: state.round.order[state.round.index]!, type: 'endTurn' }));
+  }
+  const h = state.capitals.army2;
+  const unit = state.units.find((u) => u.owner === 'army1' && u.kind === 'infantry')!;
+  unit.position = { x: h.x - 1, y: h.y - 1 };
+  for (const other of state.units) if (other.owner === 'army1' && other !== unit) other.hasActed = true;
+  state.players.army1.gold = 0;
+  expect(decide(state).command).toMatchObject({ type: 'move', unitId: unit.id, destination: h });
+});

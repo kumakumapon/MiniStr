@@ -1,5 +1,5 @@
 import { isAsymmetricSource } from '../game/asymmetricBattlefield';
-import { renderStartingSites } from './startingSites';
+import { battlefieldTheme, renderStartingSites } from './startingSites';
 import { renderMatchActionBar, renderTurnProgress } from './matchHud';
 import type { FourArmyFileResult } from '../game/fourArmySpectatorProtocol';
 import { armyCountOptions, classicVariant, multiplayerName, multiplayerSize, renderMatchVariants, type ArmyCount, type MultiplayerMap } from './matchVariants';
@@ -195,7 +195,7 @@ export class FourArmyScreen {
     return this.phase === 'watch' && this.map ? fourArmyParticipants(this.map) : this.setupArmies;
   }
   private get terrainTheme() {
-    return this.map?.match?.sourceMapId === 'canyon' ? ('desert' as const) : ('temperate' as const);
+    return battlefieldTheme(this.map?.match?.sourceMapId);
   }
   private get mapTitle(): string {
     return this.mapName(this.map?.match?.sourceMapId ?? 'wide');
@@ -429,8 +429,19 @@ export class FourArmyScreen {
     this.musicApplied = undefined;
     this.deps.onClose(classicMap);
   }
+  private get defenseObjective(): string {
+    return text(
+      '北の守備軍は第15ラウンド終了まで司令部と1部隊以上を維持すれば勝利。西・東の攻撃軍はそれまでに北を脱落させればチーム勝利。攻撃2軍が先に脱落すれば守備軍の勝利。',
+      'The northern defender wins by holding headquarters with at least one unit through round 15, or by eliminating both attackers. The western and eastern attackers win together by eliminating the defender before then.',
+    );
+  }
+
   private participantForm(): string {
-    return `<fieldset><legend>${isAsymmetricSource(this.setupMap) ? text('参加軍（3〜4軍）', 'Participants (3–4)') : text('参加軍（2〜4軍）', 'Participants (2–4)')}</legend>${FOUR_ARMY_IDS.map((a) => `<label><input type="checkbox" id="four-active-${a}" data-active-army="${a}" ${this.setupArmies.includes(a) ? 'checked' : ''}>${armyName(a)}</label>`).join('')}<label><input id="four-team-mode" type="checkbox" ${isAsymmetricSource(this.setupMap) ? 'disabled' : ''} ${this.setupTeamMode ? 'checked' : ''}>${text('固定チーム戦', 'Fixed teams')}</label>${this.setupTeamMode ? this.setupArmies.map((a) => `<label>${armyName(a)}<select data-team="${a}">${options(FOUR_ARMY_IDS, this.setupTeams[a], ['A', 'B', 'C', 'D'])}</select></label>`).join('') : ''}<p class="four-hint">${text('不参加軍は配置・手番・収入なし。チームは2組以上。味方の通常視界を共有し、資金・施設補給・部隊操作・偵察は軍別です。', 'Inactive armies have no units, turns or income. Use at least two teams. Allies share ordinary vision; funds, facility service, controls and reconnaissance stay army-specific.')}</p></fieldset>`;
+    if (this.setupMap === 'tundra') {
+      const reserve = FOUR_ARMY_IDS.find((a) => !this.setupArmies.includes(a))!;
+      return `<label>${text('不参加の軍', 'Inactive army')}<select id="four-reserve">${options(FOUR_ARMY_IDS, reserve, FOUR_ARMY_IDS.map(armyName))}</select></label>`;
+    }
+    return `<fieldset><legend>${isAsymmetricSource(this.setupMap) ? text('参加軍（3〜4軍）', 'Participants (3–4)') : text('参加軍（2〜4軍）', 'Participants (2–4)')}</legend>${FOUR_ARMY_IDS.map((a) => `<label><input type="checkbox" id="four-active-${a}" data-active-army="${a}" ${this.setupArmies.includes(a) ? 'checked' : ''}>${armyName(a)}</label>`).join('')}<label><input id="four-team-mode" type="checkbox" ${isAsymmetricSource(this.setupMap) ? 'disabled' : ''} ${this.setupTeamMode ? 'checked' : ''}>${text('固定チーム戦', 'Fixed teams')}</label>${this.setupTeamMode && !isAsymmetricSource(this.setupMap) ? this.setupArmies.map((a) => `<label>${armyName(a)}<select data-team="${a}">${options(FOUR_ARMY_IDS, this.setupTeams[a], ['A', 'B', 'C', 'D'])}</select></label>`).join('') : ''}<p class="four-hint">${text('不参加軍は配置・手番・収入なし。チームは2組以上。味方の通常視界を共有し、資金・施設補給・部隊操作・偵察は軍別です。', 'Inactive armies have no units, turns or income. Use at least two teams. Allies share ordinary vision; funds, facility service, controls and reconnaissance stay army-specific.')}</p></fieldset>`;
   }
   private liveControllerForm(): string {
     if (!this.session || this.replay || this.session.state.outcome.type !== 'ongoing') return '';
@@ -532,7 +543,7 @@ export class FourArmyScreen {
       this.rejectSetup(text('seedは0〜4294967295の整数を入力してください。', 'Enter an integer seed from 0 to 4294967295.'));
       return;
     }
-    const teams = this.setupMap !== 'wide' && this.setupTeamMode ? this.setupTeams : undefined;
+    const teams = !isAsymmetricSource(this.setupMap) && this.setupMap !== 'wide' && this.setupTeamMode ? this.setupTeams : undefined;
     if (teams && new Set(this.setupArmies.map((army) => teams[army])).size < 2) {
       this.rejectSetup(text('参加軍を2組以上のチームに分けてください。', 'Assign participating armies to at least two teams.'));
       return;
@@ -1117,7 +1128,7 @@ export class FourArmyScreen {
     this.setupMap = match?.version === 2 ? (match.sourceMapId === 'skirmish' ? 'compact' : match.sourceMapId) : match ? 'compact' : 'wide';
     this.siteArmies = match?.version === 2 && match.siteArmies ? [...match.siteArmies] : [...this.setupArmies];
     this.setupEnding = match?.ending ?? 'unlimited';
-    this.setupTeamMode = match?.version === 2 && new Set(Object.values(match.teams)).size < match.participants.length;
+    this.setupTeamMode = match?.version === 2 && !isAsymmetricSource(this.setupMap) && new Set(Object.values(match.teams)).size < match.participants.length;
     if (match?.version === 2) this.setupTeams = { ...this.setupTeams, ...match.teams };
 
     this.expandedRules = !!saved.archive.payload.map.rules;
@@ -1492,7 +1503,7 @@ export class FourArmyScreen {
       this.tacticalRules = input.checked;
       return;
     }
-    if (input.id === 'four-map' && ['compact', 'outpost', 'canyon', 'marsh', 'strait', 'frontier', 'wide'].includes(input.value)) {
+    if (input.id === 'four-map' && ['compact', 'outpost', 'canyon', 'marsh', 'river', 'tundra', 'strait', 'frontier', 'wide'].includes(input.value)) {
       this.setupMap = input.value as typeof this.setupMap;
       if (isAsymmetricSource(this.setupMap)) {
         this.setupTeamMode = false;
@@ -1521,6 +1532,20 @@ export class FourArmyScreen {
       if (armyCountOptions(this.setupMap).includes(count)) {
         this.setArmyCount(count);
         this.shell();
+      }
+      return;
+    }
+    if (input.id === 'four-reserve' && this.setupMap === 'tundra') {
+      const reserve = FOUR_ARMY_IDS.find((a) => !this.setupArmies.includes(a))!;
+      const removed = this.setupArmies.find((a) => a === input.value);
+      if (removed) {
+        const replace = (a: FourArmyId) => (a === removed ? reserve : a);
+        this.setupParticipants = FOUR_ARMY_IDS.filter((a) => a !== removed);
+        this.siteArmies = this.siteArmies.map(replace);
+        this.order = this.order.map(replace);
+        this.setupHuman = replace(this.setupHuman);
+        this.shell();
+        this.query<HTMLElement>('#four-reserve')?.focus();
       }
       return;
     }
@@ -1760,10 +1785,17 @@ export class FourArmyScreen {
         : text(`人間 ${humans.length}軍・CPU ${cpuCount}軍`, `${humans.length} human armies · ${cpuCount} CPU${cpuCount === 1 ? '' : 's'}`);
     const { width, height } = multiplayerSize(this.setupMap);
     const ending =
-      this.setupMap !== 'wide' && this.setupEnding === 'short'
-        ? text(`${armies === 3 ? 21 : 20}ラウンド判定`, `${armies === 3 ? 21 : 20}-round decision`)
-        : text('決着まで', 'Last army standing');
-    const format = this.setupMap !== 'wide' && this.setupTeamMode ? text('固定チーム', 'Fixed teams') : text('個人戦', 'Free-for-all');
+      this.setupMap === 'tundra'
+        ? text('第15ラウンドまで防衛', 'Defend through round 15')
+        : this.setupMap !== 'wide' && this.setupEnding === 'short'
+          ? text(`${armies === 3 ? 21 : 20}ラウンド判定`, `${armies === 3 ? 21 : 20}-round decision`)
+          : text('決着まで', 'Last army standing');
+    const format =
+      this.setupMap === 'tundra'
+        ? text('守備1軍・攻撃2軍', '1 defender vs 2 attackers')
+        : this.setupMap !== 'wide' && this.setupTeamMode
+          ? text('固定チーム', 'Fixed teams')
+          : text('個人戦', 'Free-for-all');
 
     return `<section class="four-start-card" aria-labelledby="four-start-map">
       <div>
@@ -1783,11 +1815,11 @@ export class FourArmyScreen {
     <details id="four-setup-options" class="four-setup-options" ${open ? 'open' : ''}>
       <summary id="four-setup-summary">${text('詳細設定', 'Match setup')}</summary>
       <div class="four-setup">
-        <section class="four-brief"><label>${text('マップ', 'Map')}<select id="four-map">${options(['compact', 'outpost', 'canyon', 'marsh', 'strait', 'frontier', 'wide'], this.setupMap, [text('小型：緑の国境 18×14', 'Compact: Green Border 18×14'), text('小型：前哨基地強襲 18×14', 'Compact: Outpost Assault 18×14'), this.mapName('canyon'), this.mapName('marsh'), text('水域：交差海峡 17×15', 'Water: Cross Strait 17×15'), text('広域：新・四方の前線 32×32', 'Wide: New Four Fronts 32×32'), text('従来：四方の前線 32×32（4軍）', 'Legacy: Four Fronts 32×32 (4 armies)')])}</select></label><label>${text('参加軍数', 'Armies')}<select id="four-count" ${this.setupMap === 'wide' ? 'disabled' : ''}>${options(
+        <section class="four-brief"><label>${text('マップ', 'Map')}<select id="four-map">${options(['compact', 'outpost', 'canyon', 'marsh', 'river', 'tundra', 'strait', 'frontier', 'wide'], this.setupMap, [text('小型：緑の国境 18×14', 'Compact: Green Border 18×14'), text('小型：前哨基地強襲 18×14', 'Compact: Outpost Assault 18×14'), this.mapName('canyon'), this.mapName('marsh'), this.mapName('river'), this.mapName('tundra'), text('水域：交差海峡 17×15', 'Water: Cross Strait 17×15'), text('広域：新・四方の前線 32×32', 'Wide: New Four Fronts 32×32'), text('従来：四方の前線 32×32（4軍）', 'Legacy: Four Fronts 32×32 (4 armies)')])}</select></label><label>${text('参加軍数', 'Armies')}<select id="four-count" ${this.setupMap === 'wide' ? 'disabled' : ''}>${options(
           armyCountOptions(this.setupMap).map(String),
           String(this.setupCount),
           armyCountOptions(this.setupMap).map((n) => text(`${n}軍`, `${n} armies`)),
-        )}</select></label>${this.setupMap !== 'wide' ? `${this.participantForm()}<label>${text('終了方式', 'Ending')}<select id="four-ending">${options(['short', 'unlimited'], this.setupEnding, [text(`短期戦：${this.setupCount === 3 ? 21 : 20}ラウンド判定`, `Short: ${this.setupCount === 3 ? 21 : 20}-round decision`), text('決着まで（期限なし）', 'Last army standing (unlimited)')])}</select></label><p class="four-hint">${this.setupEnding === 'short' ? text(`${this.setupCount === 3 ? 21 : 20}R終了時にチームの拠点数 → 合計HPで判定。同点は引分。3・4軍は毎ラウンド先手が交代します。`, `After round ${this.setupCount === 3 ? 21 : 20}: team properties, then HP; tied draw. Initiative rotates each round with 3–4 armies.`) : text('期限による判定はなく、長期化する場合があります。', 'No round-limit decision; this may take longer.')}</p>` : ''}<label>${text('操作する軍', 'Your army')}<select id="four-human-army" ${this.setupMode !== 'human' ? 'disabled' : ''}>${options(this.setupArmies, this.setupHuman, this.setupArmies.map(armyName))}</select></label>${this.setupMode === 'custom' ? `<fieldset><legend>${text('各軍の操作', 'Army controllers')}</legend>${this.setupArmies.map((a) => `<label>${armyName(a)}<select id="four-controller-${a}" data-controller="${a}">${options(['human', 'cpu'], this.setupControllers[a], [text('人間', 'Human'), 'CPU'])}</select></label>`).join('')}<p>${text('複数軍の人間操作は同端末で交代します。チームは開始時の設定で固定です。', 'Human armies take turns on this device. Teams are fixed at match start.')}</p></fieldset>` : ''}<label>${text('ゲーム規則', 'Rules')}<select id="four-rules">${options(['expanded', 'classic'], this.expandedRules ? 'expanded' : 'classic', [text('偵察・設営・兵站指示', 'Recon, engineering and logistics'), text('従来の4軍規則', 'Original four-army rules')])}</select></label>${this.expandedRules ? `<label><input id="four-tactics" type="checkbox" ${this.tacticalRules ? 'checked' : ''}>${text('陸戦統合戦術：同時射撃・待伏せ・地形・天候・ZOC', 'Land tactics: simultaneous fire, ambush, cover, weather, ZOC')}</label>` : ''}<label>${text('seed', 'Seed')}<input id="four-seed" inputmode="numeric" maxlength="10" value="${escapeHtml(this.seed)}"></label><fieldset><legend>${text('手番順', 'Turn order')}</legend><div class="four-order">${this.order.map((a, i) => `<label>${i + 1}<select id="four-order-${i}" data-order="${i}">${options(this.setupArmies, a, this.setupArmies.map(armyName))}</select></label>`).join('')}</div></fieldset><p>${text('司令部または全部隊を失うと脱落します。個人戦は最後の1軍、固定チーム戦は最後のチームが勝利します。', 'Losing headquarters or all units eliminates an army. The last army or fixed team wins.')}</p><p>${width !== 32 ? text('各軍4部隊・基本資金6,000。搭載込み上限8部隊。人間1軍で20〜30分を目指す小型対局です（実時間は操作速度等で変わります）。', 'Each army starts with 4 units and 6,000 gold; cap 8 including cargo. Designed for shorter play: 20–30 minutes is a target, not a timer.') : text('各軍8部隊・基本資金10,000。搭載込み上限16部隊。100ラウンドごとに停止します。', 'Each army starts with 8 units and 10,000 gold; cap 16 including cargo. Pauses every 100 rounds.')}</p></section>
+        )}</select></label>${this.setupMap !== 'wide' ? `${this.participantForm()}${this.setupMap === 'tundra' ? `<p>${this.defenseObjective}</p>` : `<label>${text('終了方式', 'Ending')}<select id="four-ending">${options(['short', 'unlimited'], this.setupEnding, [text(`短期戦：${this.setupCount === 3 ? 21 : 20}ラウンド判定`, `Short: ${this.setupCount === 3 ? 21 : 20}-round decision`), text('決着まで（期限なし）', 'Last army standing (unlimited)')])}</select></label><p class="four-hint">${this.setupEnding === 'short' ? text(`${this.setupCount === 3 ? 21 : 20}R終了時にチームの拠点数 → 合計HPで判定。同点は引分。3・4軍は毎ラウンド先手が交代します。`, `After round ${this.setupCount === 3 ? 21 : 20}: team properties, then HP; tied draw. Initiative rotates each round with 3–4 armies.`) : text('期限による判定はなく、長期化する場合があります。', 'No round-limit decision; this may take longer.')}</p>`}` : ''}<label>${text('操作する軍', 'Your army')}<select id="four-human-army" ${this.setupMode !== 'human' ? 'disabled' : ''}>${options(this.setupArmies, this.setupHuman, this.setupArmies.map(armyName))}</select></label>${this.setupMode === 'custom' ? `<fieldset><legend>${text('各軍の操作', 'Army controllers')}</legend>${this.setupArmies.map((a) => `<label>${armyName(a)}<select id="four-controller-${a}" data-controller="${a}">${options(['human', 'cpu'], this.setupControllers[a], [text('人間', 'Human'), 'CPU'])}</select></label>`).join('')}<p>${text('複数軍の人間操作は同端末で交代します。チームは開始時の設定で固定です。', 'Human armies take turns on this device. Teams are fixed at match start.')}</p></fieldset>` : ''}<label>${text('ゲーム規則', 'Rules')}<select id="four-rules">${options(['expanded', 'classic'], this.expandedRules ? 'expanded' : 'classic', [text('偵察・設営・兵站指示', 'Recon, engineering and logistics'), text('従来の4軍規則', 'Original four-army rules')])}</select></label>${this.expandedRules ? `<label><input id="four-tactics" type="checkbox" ${this.tacticalRules ? 'checked' : ''}>${text('陸戦統合戦術：同時射撃・待伏せ・地形・天候・ZOC', 'Land tactics: simultaneous fire, ambush, cover, weather, ZOC')}</label>` : ''}<label>${text('seed', 'Seed')}<input id="four-seed" inputmode="numeric" maxlength="10" value="${escapeHtml(this.seed)}"></label><fieldset><legend>${text('手番順', 'Turn order')}</legend><div class="four-order">${this.order.map((a, i) => `<label>${i + 1}<select id="four-order-${i}" data-order="${i}">${options(this.setupArmies, a, this.setupArmies.map(armyName))}</select></label>`).join('')}</div></fieldset><p>${text('司令部または全部隊を失うと脱落します。個人戦は最後の1軍、固定チーム戦は最後のチームが勝利します。', 'Losing headquarters or all units eliminates an army. The last army or fixed team wins.')}</p><p>${width !== 32 ? text('各軍4部隊・基本資金6,000。搭載込み上限8部隊。人間1軍で20〜30分を目指す小型対局です（実時間は操作速度等で変わります）。', 'Each army starts with 4 units and 6,000 gold; cap 8 including cargo. Designed for shorter play: 20–30 minutes is a target, not a timer.') : text('各軍8部隊・基本資金10,000。搭載込み上限16部隊。100ラウンドごとに停止します。', 'Each army starts with 8 units and 10,000 gold; cap 16 including cargo. Pauses every 100 rounds.')}</p></section>
         <section><h2>${text('軍別CPU設定', 'Army CPU settings')}</h2>${this.settingsForm()}<p class="four-hint">${text('各軍を人間／CPUに設定できます。複数人操作では交代時に視界を保護します。設定変更は一時停止します。', 'Configure each army as Human or CPU. Local handoffs protect each army’s view. Setting changes pause play.')}</p></section>
       </div>
       <button id="four-setup-confirm" class="four-primary">${text('開始ボタンへ', 'Go to start button')}</button>
@@ -1797,6 +1829,8 @@ export class FourArmyScreen {
 
   private renderObjectives(): string {
     const match = this.map?.match;
+    if (match?.sourceMapId === 'tundra')
+      return `<details class="four-objectives"><summary>${text('作戦目標', 'Objectives')}</summary><p>${armyName(match.siteArmies![0]!)} · ${this.defenseObjective}</p></details>`;
     const teams = match?.version === 2 && new Set(match.participants.map((army) => match.teams[army])).size < match.participants.length;
     const win = teams ? text('最後の生存チームが勝利', 'The last team standing wins') : text('最後の生存軍が勝利', 'The last army standing wins');
     const decision =

@@ -25,7 +25,7 @@ export function expandedBattleDimensions(source: ExpandedBattle['sourceMapId']) 
 }
 /** Layout 3 protects the northern neutral facilities from simultaneous flank pressure; callers loading historical snapshots keep layout 2. */
 export const latestExpandedBattleLayout = (source: ExpandedBattle['sourceMapId'], count: number): ExpandedBattle['layoutVersion'] =>
-  isAsymmetricSource(source) ? 4 : count === 3 && (source === 'skirmish' || source === 'outpost') ? 3 : 2;
+  isAsymmetricSource(source) ? 5 : count === 3 && (source === 'skirmish' || source === 'outpost') ? 3 : 2;
 /** Authored snapshots. No legacy preset is edited or used as a mutable source. */
 export function createExpandedBattleMap(options: ExpandedBattleOptions = {}): GameResult<FourArmyMap> {
   if (
@@ -40,18 +40,20 @@ export function createExpandedBattleMap(options: ExpandedBattleOptions = {}): Ga
     sourceMapId = options.sourceMapId ?? 'skirmish',
     seed = options.seed ?? 1522,
     ending = options.ending ?? (sourceMapId === 'frontier' ? 'unlimited' : 'short');
+  const sites = options.siteArmies ?? participants;
+  const team = (a: FourArmyId) => options.teams?.[a] ?? (sourceMapId === 'tundra' && a !== sites[0] ? sites[1]! : a);
   const match: ExpandedBattle = {
     version: 2,
     sourceMapId,
-    layoutVersion: options.layoutVersion ?? (isAsymmetricSource(sourceMapId) ? 4 : 2),
-    ...(isAsymmetricSource(sourceMapId) ? { siteArmies: [...(options.siteArmies ?? participants)] } : {}),
+    layoutVersion: options.layoutVersion ?? (isAsymmetricSource(sourceMapId) ? 5 : 2),
+    ...(isAsymmetricSource(sourceMapId) ? { siteArmies: [...sites] } : {}),
     participants,
     initialOrder: [...(options.order ?? participants)],
     initiative: participants.length === 2 ? 'fixed' : 'rotating',
     ending,
-    ...(ending === 'short' ? { roundLimit: participants.length === 3 ? (21 as const) : (20 as const) } : {}),
-    teams: fourArmyRoster(participants, (a) => options.teams?.[a] ?? a),
-    sharedVision: options.sharedVision ?? new Set(participants.map((a) => options.teams?.[a] ?? a)).size < participants.length,
+    ...(ending === 'short' ? { roundLimit: sourceMapId === 'tundra' ? (15 as const) : participants.length === 3 ? (21 as const) : (20 as const) } : {}),
+    teams: fourArmyRoster(participants, team),
+    sharedVision: options.sharedVision ?? new Set(participants.map(team)).size < participants.length,
   };
   if (!isSmallBattle(match) || !Number.isSafeInteger(seed) || seed < 0 || seed > 0xffffffff || (options.rules !== undefined && !isFourArmyRules(options.rules)))
     return { ok: false, error: '参加軍・チーム・初期条件が不正です。' };

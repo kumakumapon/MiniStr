@@ -16,14 +16,14 @@ export interface LegacySmallBattle {
 export interface ExpandedBattle {
   version: 2;
   sourceMapId: 'skirmish' | 'outpost' | 'strait' | 'frontier' | AsymmetricSource;
-  layoutVersion: 2 | 3 | 4;
-  /** Army assigned to each ordered authored site in layout 4. */
+  layoutVersion: 2 | 3 | 4 | 5;
+  /** Army assigned to each ordered authored site in authored layouts. */
   siteArmies?: FourArmyId[];
   participants: FourArmyId[];
   initialOrder: FourArmyId[];
   initiative: 'fixed' | 'rotating';
   ending: 'short' | 'unlimited';
-  roundLimit?: 20 | 21;
+  roundLimit?: 15 | 20 | 21;
   teams: Record<FourArmyId, FourArmyId>;
   sharedVision: boolean;
 }
@@ -51,7 +51,7 @@ export function isSmallBattle(v: unknown): v is SmallBattle {
       Object.keys(m).length !== names.length ||
       !names.every((k) => Object.hasOwn(m, k)) ||
       (authored
-        ? m.layoutVersion !== 4
+        ? m.layoutVersion !== 5 && !(m.layoutVersion === 4 && (m.sourceMapId === 'canyon' || m.sourceMapId === 'marsh'))
         : m.layoutVersion !== 2 && !(m.layoutVersion === 3 && Array.isArray(ids) && ids.length === 3 && ['skirmish', 'outpost'].includes(String(m.sourceMapId)))) ||
       (!authored && !['skirmish', 'outpost', 'strait', 'frontier'].includes(String(m.sourceMapId))) ||
       !Array.isArray(ids) ||
@@ -79,12 +79,14 @@ export function isSmallBattle(v: unknown): v is SmallBattle {
         m.siteArmies.length !== ids.length ||
         new Set(m.siteArmies).size !== ids.length ||
         !m.siteArmies.every((a) => ids.includes(a)) ||
-        ids.some((a) => teams[a] !== a))
+        (m.sourceMapId === 'tundra'
+          ? ids.length !== 3 || m.ending !== 'short' || !m.siteArmies.every((army, i, sites) => teams[army] === sites[i === 0 ? 0 : 1])
+          : ids.some((a) => teams[a] !== a)))
     )
       return false;
     if (!ids.every((a) => Object.hasOwn(teams, a) && FOUR_ARMY_IDS.includes(teams[a] as FourArmyId)) || new Set(Object.values(teams)).size < 2) return false;
     if (new Set(Object.values(teams)).size < ids.length && !m.sharedVision) return false;
-    return m.ending === 'unlimited' || (m.ending === 'short' && m.roundLimit === (ids.length === 3 ? 21 : 20));
+    return m.ending === 'unlimited' || (m.ending === 'short' && m.roundLimit === (m.sourceMapId === 'tundra' ? 15 : ids.length === 3 ? 21 : 20));
   }
   return (
     Object.keys(m).length === expected.length &&
@@ -126,6 +128,7 @@ export function smallBattleStandings(s: Pick<FourArmyState, 'match' | 'alive' | 
 }
 export function smallBattleDecision(s: Pick<FourArmyState, 'match' | 'alive' | 'board' | 'units'>): FourArmyOutcome {
   if (s.match?.version === 2) {
+    if (s.match.sourceMapId === 'tundra') return { type: 'victory', winner: s.match.siteArmies![0]! };
     const groups = new Map<FourArmyId, { army: FourArmyId; properties: number; hp: number }>();
     for (const row of smallBattleStandings(s).filter((r) => r.alive)) {
       const team = s.match.teams[row.army],

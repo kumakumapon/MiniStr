@@ -110,7 +110,18 @@ export function chooseFourArmyCpuCommand(input: unknown, options: unknown, cpuVe
   const hostileHomes = o.alive
     .filter((a) => !alliedArmies(o.match, a, actor) && (!focus || a === focus) && o.board.terrain[o.capitals[a].y]![o.capitals[a].x]!.owner === a)
     .map((a) => o.capitals[a]);
+  // On the compact four-way passes a round-40 switch never occurs before the round-20 decision.
+  // Use public headquarters after the opening; other layouts retain their recorded CPU behavior.
+  const passAssault =
+    improved &&
+    o.match?.version === 2 &&
+    o.match.layoutVersion === 5 &&
+    o.match.participants.length === 4 &&
+    (o.match.sourceMapId === 'canyon' || o.match.sourceMapId === 'marsh') &&
+    o.match.ending === 'short' &&
+    o.round.round >= 6;
   const goals = [...hostileHomes, ...properties];
+  const combatGoals = modernSix && (improved || o.alive.length <= 2) && (passAssault || o.round.round >= 40) && hostileHomes.length ? hostileHomes : goals;
   const danger = (u: Unit, p: Position): number => {
     const moved = { ...u, position: p };
     return enemies.reduce((sum, e) => {
@@ -175,7 +186,6 @@ export function chooseFourArmyCpuCommand(input: unknown, options: unknown, cpuVe
           )
         : [];
     const bestDrop = Math.min(...shore.map((s) => s.d));
-    const combatGoals = modernSix && (improved || o.alive.length <= 2) && o.round.round >= 40 && hostileHomes.length ? hostileHomes : goals;
     const rawTargets = shore.length
       ? shore.filter((s) => s.d <= bestDrop + 1).map((s) => s.p)
       : unitStats[u.kind].capturePower > 0
@@ -219,9 +229,10 @@ export function chooseFourArmyCpuCommand(input: unknown, options: unknown, cpuVe
         unitStats[u.kind].capturePower > 0 &&
         isPropertyTerrainKind(terrainAt(view.board, p)!.kind) &&
         terrainAt(view.board, p)!.owner !== 'red' &&
-        (!improved || o.round.round < 40 || !hostileHomes.length || d < currentDistance)
+        (!improved || (!passAssault && o.round.round < 40) || !hostileHomes.length || d < currentDistance)
       )
         score += late ? 500 : 240;
+      if (passAssault && unitStats[u.kind].capturePower > 0 && hostileHomes.some((h) => h.x === p.x && h.y === p.y)) score += 1400;
       if (options.policy === 'defensive' && enemies.some((e) => e.position && manhattanDistance(e.position, o.capitals[actor]) <= 5))
         score += (manhattanDistance(u.position, o.capitals[actor]) - manhattanDistance(p, o.capitals[actor])) * 25;
       if (retreating && isServiceTile(serviceView, p, u.kind, 'red')) score += 500;
