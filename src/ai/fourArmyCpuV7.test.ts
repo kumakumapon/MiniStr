@@ -165,3 +165,23 @@ it('takes a reachable enemy headquarters in a short four-way pass assault', () =
   state.players.army1.gold = 0;
   expect(decide(state).command).toMatchObject({ type: 'move', unitId: unit.id, destination: h });
 });
+
+it('changes a three-army pass assault target with the initial order while keeping starting sites fixed', () => {
+  for (const order of [
+    ['army1', 'army2', 'army3'],
+    ['army1', 'army3', 'army2'],
+  ] as const) {
+    const map = value(createExpandedBattleMap({ sourceMapId: 'canyon', participants: ['army1', 'army2', 'army3'], order }));
+    let state = value(createFourArmyState(map));
+    while (state.round.round < 9 || state.round.order[state.round.index] !== 'army1')
+      state = value(applyFourArmyCommand(state, { type: 'endTurn', actor: state.round.order[state.round.index]! }));
+    state.units = state.alive.map((army) => state.units.find((u) => u.owner === army && u.kind === 'infantry')!);
+    const p = { x: 8, y: 8 };
+    for (const u of state.units) u.position = u.owner === 'army1' ? p : state.capitals[u.owner];
+    state.players.army1.gold = 0;
+    const next = decide(state);
+    expect(next.command.type).toBe('move');
+    const target = state.capitals[order[1]];
+    expect(manhattanDistance(next.after.units[0]!.position!, target)).toBeLessThan(manhattanDistance(p, target));
+  }
+});

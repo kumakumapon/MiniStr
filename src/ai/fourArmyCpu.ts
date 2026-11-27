@@ -91,18 +91,26 @@ export function chooseFourArmyCpuCommand(input: unknown, options: unknown, cpuVe
   };
   const actor = o.viewer,
     cautious = options.policy === 'defensive' ? 0.65 : options.policy === 'offensive' ? 0.2 : 0.4;
+  const shortPass =
+    improved && o.match?.version === 2 && o.match.layoutVersion === 5 && o.match.ending === 'short' && (o.match.sourceMapId === 'canyon' || o.match.sourceMapId === 'marsh');
+  const threeWay = shortPass && o.match.participants.length === 3;
+  // Following the initial order gives each living site one pursuer until the first elimination.
+  const assignedRival = threeWay && o.alive.length === 3 ? o.match.initialOrder[(o.match.initialOrder.indexOf(actor) + 1) % 3] : undefined;
   const cyclic = cpuVersion === 'four-army-cpu-v5' || modernSix ? smallBattleFocus(o) : undefined;
   const ownership = (a: string) => o.board.terrain.flat().filter((t) => t.owner === a).length;
   const opponents = o.alive.filter((a) => !alliedArmies(o.match, a, actor));
   const focus =
-    improved && cyclic
+    assignedRival ??
+    (improved && cyclic
       ? fourArmyPressureFocus(o)
       : modernSix && cyclic
         ? opponents.sort((a, b) => ownership(b) - ownership(a) || Number(b === cyclic) - Number(a === cyclic))[0]
-        : cyclic;
+        : cyclic);
   const properties = o.board.terrain.flatMap((row, y) =>
     row.flatMap((t, x) =>
-      isPropertyTerrainKind(t.kind) && (t.owner === undefined || !alliedArmies(o.match, t.owner, actor)) && (!focus || improved || t.owner === undefined || t.owner === focus)
+      isPropertyTerrainKind(t.kind) &&
+      (t.owner === undefined || !alliedArmies(o.match, t.owner, actor)) &&
+      (!focus || (improved && !threeWay) || t.owner === undefined || t.owner === focus)
         ? [{ x, y }]
         : [],
     ),
@@ -110,16 +118,8 @@ export function chooseFourArmyCpuCommand(input: unknown, options: unknown, cpuVe
   const hostileHomes = o.alive
     .filter((a) => !alliedArmies(o.match, a, actor) && (!focus || a === focus) && o.board.terrain[o.capitals[a].y]![o.capitals[a].x]!.owner === a)
     .map((a) => o.capitals[a]);
-  // On the compact four-way passes a round-40 switch never occurs before the round-20 decision.
-  // Use public headquarters after the opening; other layouts retain their recorded CPU behavior.
-  const passAssault =
-    improved &&
-    o.match?.version === 2 &&
-    o.match.layoutVersion === 5 &&
-    o.match.participants.length === 4 &&
-    (o.match.sourceMapId === 'canyon' || o.match.sourceMapId === 'marsh') &&
-    o.match.ending === 'short' &&
-    o.round.round >= 6;
+  // The normal round-40 switch lies beyond these short matches' deadlines.
+  const passAssault = shortPass && o.round.round >= (threeWay ? 9 : 6);
   const goals = [...hostileHomes, ...properties];
   const combatGoals = modernSix && (improved || o.alive.length <= 2) && (passAssault || o.round.round >= 40) && hostileHomes.length ? hostileHomes : goals;
   const danger = (u: Unit, p: Position): number => {
@@ -229,7 +229,7 @@ export function chooseFourArmyCpuCommand(input: unknown, options: unknown, cpuVe
         unitStats[u.kind].capturePower > 0 &&
         isPropertyTerrainKind(terrainAt(view.board, p)!.kind) &&
         terrainAt(view.board, p)!.owner !== 'red' &&
-        (!improved || (!passAssault && o.round.round < 40) || !hostileHomes.length || d < currentDistance)
+        (!improved || ((threeWay || !passAssault) && o.round.round < 40) || !hostileHomes.length || d < currentDistance)
       )
         score += late ? 500 : 240;
       if (passAssault && unitStats[u.kind].capturePower > 0 && hostileHomes.some((h) => h.x === p.x && h.y === p.y)) score += 1400;
