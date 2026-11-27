@@ -2219,7 +2219,7 @@ export class FourArmyScreen {
         observed.value.match?.version === 2
           ? {
               ...projection,
-              units: projection.units.map((u) => ({ ...u, owner: observed.value.units.find((original) => original.id === u.id)!.owner === viewer ? 'red' : 'blue' })),
+              units: observed.value.units.map((unit) => ({ ...unit, owner: unit.owner === viewer ? 'red' : 'blue' })),
               board: {
                 ...projection.board,
                 terrain: projection.board.terrain.map((row, y) =>

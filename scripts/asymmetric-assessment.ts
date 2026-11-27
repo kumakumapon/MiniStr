@@ -10,10 +10,11 @@ const value = <T>(result: GameResult<T>) => {
   if (!result.ok) throw Error(result.error);
   return result.value;
 };
-const [stage = 'validation', part = '0', parts = '1'] = process.argv.slice(2);
+const [stage = 'validation', part = '0', parts = '1', seedText] = process.argv.slice(2);
 if (!['training', 'validation'].includes(stage) || !Number.isInteger(+part) || !Number.isInteger(+parts) || +part < 0 || +parts < 1 || +part >= +parts)
   throw Error('training|validation shard shardCount');
-const seed = stage === 'training' ? 33501 : 33509;
+const seed = seedText === undefined ? (stage === 'training' ? 33501 : 33509) : Number(seedText);
+if (!Number.isInteger(seed) || seed < 0 || seed > 0xffffffff) throw Error('invalid seed');
 const bearing = (from: Position, to: Position) => {
   const dx = from.x - to.x,
     dy = from.y - to.y;
