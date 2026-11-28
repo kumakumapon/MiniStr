@@ -1,4 +1,7 @@
 import { afterEach, describe, expect, it } from 'vitest';
+import { maps } from '../game/maps';
+import { renderScenarioBriefingMap } from './scenarioBriefingMap';
+import { toggleBriefingPreview } from './briefingShell';
 import { setLocale } from './locale';
 import {
   renderBriefingOverlay,
@@ -77,6 +80,43 @@ describe('overlay renderers', () => {
 
     expect(result).toContain('青軍の勝利');
     expect(result).not.toContain('CPU');
+  });
+
+  it('keeps the map and match format above advanced settings and the launch action outside the scrolling content', () => {
+    const map = maps[0]!;
+    const target = { x: 1, y: 1 };
+    const control = { type: 'control' as const, positions: [target], target: 3 };
+    const preview = renderScenarioBriefingMap({ ...map, victoryConditions: [control], defeatConditions: [control] }, true, false);
+    document.body.innerHTML = renderBriefingOverlay({
+      visible: true,
+      mapName: map.name,
+      briefing: map.briefing,
+      victoryConditions: [],
+      defeatConditions: [],
+      startingGold: 0,
+      difficultyName: '',
+      campaignRun: false,
+      matchMode: 'cpu',
+      deployment: '<section id="test-deployment"></section>',
+      preview,
+    });
+    expect(document.querySelector('#briefing-title')?.getAttribute('tabindex')).toBe('-1');
+    expect(document.querySelectorAll('.briefing-preview .briefing-objective')).toHaveLength(1);
+    expect(document.querySelectorAll('.briefing-preview .briefing-hq').length).toBeGreaterThan(0);
+    expect(document.querySelectorAll('.briefing-preview .map-preview-unit')).toHaveLength(map.initialUnits.filter((unit) => unit.owner === 'red').length);
+    expect(renderScenarioBriefingMap(map, false, false)).not.toContain('class="map-preview-unit"');
+    expect(document.querySelector('#briefing-advanced[open]')).toBeNull();
+    expect(document.querySelector('#briefing-advanced #briefing-supply-mode')).not.toBeNull();
+    expect(document.querySelector('#briefing-advanced #test-deployment')).not.toBeNull();
+    expect(document.querySelector('.briefing-overview [name="match-mode"]:checked')).not.toBeNull();
+    expect(document.querySelector('.briefing-content + .briefing-actions #begin-operation')).not.toBeNull();
+    const button = document.querySelector<HTMLButtonElement>('[data-briefing-zoom]')!;
+    toggleBriefingPreview(button);
+    expect(button.getAttribute('aria-pressed')).toBe('true');
+    setLocale('en');
+    toggleBriefingPreview(button);
+    expect(button.textContent).toBe('Enlarge map');
+    expect(document.querySelector('.briefing-preview')?.getAttribute('data-zoomed')).toBe('false');
   });
 
   it('offers the match format outside campaigns only', () => {

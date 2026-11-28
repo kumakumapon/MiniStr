@@ -1218,21 +1218,31 @@ body.production-menu-open { overflow: hidden; }
   .match-command-bar #end { flex: 1 1 auto; }
 }
 
-.match-variants {
-  display: grid;
-  gap: 4px;
-  margin-block: 8px;
-  width: fit-content;
+.briefing-content .match-variants {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  min-width: 0;
+  margin: 0 0 16px;
+  padding: 0;
+  border: 0;
 }
-.match-variants select {
+.match-variants legend { margin-bottom: 5px; color: #d5c597; font-size: .8rem; font-weight: 700; }
+.briefing-content .match-variants label { display: flex; position: relative; margin: 0; cursor: pointer; }
+.match-variants input { position: absolute; width: 1px; height: 1px; opacity: 0; }
+.match-variants label span {
+  display: flex;
+  align-items: center;
   min-height: 44px;
-  max-width: 100%;
-  padding: 6px 10px;
-  background: #203c30;
-  color: #f4eddb;
-  border: 1px solid #587361;
+  padding: 6px 12px;
+  border: 1px solid #637c6a;
   border-radius: 5px;
+  background: #1a2d24;
+  color: #edf4eb;
+  font-weight: 700;
 }
+.match-variants input:checked + span { border-color: #f2d282; color: #261f10; background: #dfc283; }
+.match-variants input:focus-visible + span { outline: 3px solid #fff0bd; outline-offset: 2px; }
 .title-record-choice {
   margin-block: 12px;
   padding: 12px;
@@ -1241,3 +1251,95 @@ body.production-menu-open { overflow: hidden; }
 .title-record-choice h3 {
   overflow-wrap: anywhere;
 }
+
+/* One briefing for all army counts. Only the content scrolls, keeping launch in reach. */
+.briefing-overlay .briefing-card {
+  display: flex;
+  flex-direction: column;
+  width: min(1080px, 100%);
+  max-height: calc(100dvh - 40px);
+  min-height: 0;
+  padding: 0;
+  overflow: hidden;
+}
+.briefing-content {
+  min-height: 0;
+  padding: clamp(16px, 3vw, 32px);
+  overflow: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+}
+.briefing-content > #briefing-title {
+  margin: 0 0 16px;
+  color: #fff2bd;
+  font-size: clamp(1.65rem, 3.5vw, 2.55rem);
+  line-height: 1.15;
+  overflow-wrap: anywhere;
+}
+.briefing-columns {
+  display: grid;
+  grid-template-columns: minmax(0, 1.12fr) minmax(0, 1fr);
+  align-items: start;
+  gap: clamp(14px, 2vw, 26px);
+}
+.briefing-overview { min-width: 0; }
+.briefing-preview { min-width: 0; }
+.briefing-preview-heading { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 8px; }
+.briefing-preview-heading h3 { margin: 0; font-size: .95rem; color: #f0dfad; }
+.briefing-preview-heading button { min-height: 44px; }
+.briefing-map-viewport { max-width: 100%; overflow: auto; border: 1px solid #557063; border-radius: 5px; background: #0d1813; }
+.briefing-map-surface { position: relative; width: 100%; }
+.briefing-preview[data-zoomed="true"] .briefing-map-surface { width: 175%; }
+.briefing-preview .briefing-map-surface > .map-preview { display: block; width: 100%; height: auto; max-width: none; margin: 0; }
+.briefing-marker {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+  font-family: system-ui, sans-serif;
+  font-weight: 800;
+  line-height: 1;
+}
+.briefing-hq { padding: 1px 3px; border: 1px solid currentColor; border-radius: 3px; color: #fff; background: #344637; font-size: clamp(9px, 1.25vw, 15px); }
+.briefing-hq.red { background: #822e27; }
+.briefing-hq.blue { background: #245894; }
+.briefing-objective { color: #ffec76; font-size: clamp(15px, 2.3vw, 26px); text-shadow: 0 1px 3px #102017, 1px -1px #102017; }
+.briefing-map-legend { display: flex; flex-wrap: wrap; gap: 6px 14px; margin: 8px 0; color: #d6e2da; font-size: .8rem; }
+.briefing-map-legend b { color: #ffe396; }
+.briefing-advanced { margin-top: 18px; padding: 10px 14px; color: #dbe6da; border: 1px solid #506b5d; border-radius: 6px; }
+.briefing-advanced > summary { padding: 9px 0; font-weight: 700; cursor: pointer; }
+.briefing-card > .briefing-actions {
+  display: flex;
+  flex: 0 0 auto;
+  flex-wrap: wrap;
+  align-items: stretch;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 12px clamp(16px, 3vw, 32px);
+  border-top: 1px solid #40594f;
+  background: #15231e;
+}
+.briefing-actions > button { min-height: 44px; }
+.briefing-card .briefing-actions .briefing-start { min-width: 9rem; color: #fff6e9; background: #b13c31; font-weight: 700; }
+.briefing-card .briefing-actions .briefing-start:hover:enabled { background: #c44b40; }
+@media (max-width: 700px) {
+  .briefing-overlay { padding: 0; }
+  .briefing-overlay .briefing-card { width: 100%; height: 100dvh; max-height: 100dvh; border-radius: 0; }
+  .briefing-content { scrollbar-gutter: auto; }
+  .briefing-columns { grid-template-columns: minmax(0, 1fr); }
+  .briefing-card > .briefing-actions { padding: 8px 10px max(8px, env(safe-area-inset-bottom)); gap: 5px; }
+  .briefing-actions > .save-action { flex: 1; padding: 6px; }
+  .briefing-card .briefing-actions .briefing-start { flex: 2; width: auto; min-width: min(7rem, 100%); }
+}
+.briefing-advanced .army-policies {
+  display: grid;
+  gap: 8px;
+  margin: 14px 0;
+  padding: 12px;
+  border: 1px solid #506b5d;
+  border-radius: 6px;
+}
+.briefing-advanced .army-policies p { margin: 0; font-size: .8rem; line-height: 1.6; }
+.briefing-advanced .army-policies label { display: grid; gap: 5px; }
+.briefing-advanced .army-policies select { width: 100%; min-height: 44px; padding: 7px; border: 1px solid #69856f; border-radius: 4px; background: #233a2e; color: #edf4eb; }

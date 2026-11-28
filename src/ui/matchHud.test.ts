@@ -25,11 +25,11 @@ describe('shared match screen controls', () => {
     expect(armyCountLabel('wide')).toBe('Fixed 4 armies');
     expect(armyCountLabel('compact')).toBe('2–4 armies');
     document.body.innerHTML = renderMatchVariants('compact', 'standard', 'variants');
-    const select = document.querySelector<HTMLSelectElement>('#variants')!;
-    expect(select.value).toBe('standard');
-    expect([...select.options].map((o) => o.value)).toEqual(['standard', '2', '3', '4']);
+    const radios = () => Array.from(document.querySelectorAll<HTMLInputElement>('#variants input[type=radio]'));
+    expect(radios().find((radio) => radio.checked)?.value).toBe('standard');
+    expect(radios().map((radio) => radio.value)).toEqual(['standard', '2', '3', '4']);
     document.body.innerHTML = renderMatchVariants('wide', 4, 'variants');
-    expect([...document.querySelectorAll('option')].map((o) => o.value)).toEqual(['4']);
+    expect(radios().map((radio) => radio.value)).toEqual(['4']);
   });
 
   it('renders only the supplied command controls and escapes display content', () => {

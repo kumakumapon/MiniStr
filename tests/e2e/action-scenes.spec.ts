@@ -10,7 +10,7 @@ async function open(page: Page, text: string, locale = 'en', hotseat = false) {
   page.on('dialog', (dialog) => dialog.accept());
   await page.goto('/');
   await page.locator('.title-map-card[data-map-id="skirmish"]').click();
-  await page.locator('#briefing-match-variants').selectOption('4');
+  await page.locator('#briefing-match-variants label:has(input[value="4"])').click();
   await page.locator('.four-tools').evaluate((e) => ((e as HTMLDetailsElement).open = true));
   await page.locator('#four-file').setInputFiles({ name: 'four.json', mimeType: 'application/json', buffer: Buffer.from(text) });
   if (hotseat) await expect(page.locator('#four-handoff-start')).toBeVisible();

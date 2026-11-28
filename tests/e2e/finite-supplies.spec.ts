@@ -7,6 +7,7 @@ for (const width of [1280, 390])
       await page.addInitScript(() => localStorage.setItem('ministr.locale', 'en'));
       await page.goto('/');
       await page.locator('#title-training').click();
+      await page.locator('#briefing-advanced > summary').click();
       await page.locator('#briefing-supply-mode').selectOption(mode);
       await expect(page.locator('#briefing-supply-mode')).toBeFocused();
       await page.locator('#begin-operation').click();

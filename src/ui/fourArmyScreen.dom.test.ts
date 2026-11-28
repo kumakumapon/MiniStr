@@ -1,3 +1,4 @@
+import { uiText } from './strings';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { FourArmyScreen } from './fourArmyScreen';
 import { FourArmyCpuSession } from './fourArmyCpuSession';
@@ -97,8 +98,9 @@ describe('four-army spectator controller', () => {
       input.click();
     }
     expect(details().open).toBe(true);
+    expect(query('#four-start-summary').textContent).toContain('2-army observation setup');
     expect(query('#four-start-summary').textContent).toContain('Watch 2 CPUs');
-    expect(query('#four-start').textContent).toBe('Start operation');
+    expect(query('#four-start').textContent).toContain(uiText.beginOperation);
     change('#four-controller-army3', 'human');
     expect(query('#four-start-summary').textContent).toContain('Play as Army 3 · 1 CPU');
     click('#four-setup-confirm');
@@ -110,10 +112,11 @@ describe('four-army spectator controller', () => {
   });
   it.each([3, 4] as const)('starts compact %i-army play with a real roster and schema6 autosave', async (count) => {
     change('#four-map', 'compact');
-    change('#four-count', String(count));
+    click(`#four-variants-${count}`);
     change('#four-mode', 'human');
-    expect(query('#four-heading').textContent).toContain(`${count}-army`);
-    expect(query('#four-count').closest('label')?.textContent).toContain('Armies');
+    expect(query('#briefing-title').textContent).toBe('Green Border');
+    expect(query('#four-start-summary').textContent).toContain(`${count}-army match setup`);
+    expect(query<HTMLInputElement>('#four-variants input:checked').value).toBe(String(count));
     start();
     expect(query('#four-board').children).toHaveLength(252);
     expect(query('#four-turn').textContent).toContain(count === 3 ? '/21' : '/20');
@@ -139,17 +142,44 @@ describe('four-army spectator controller', () => {
     expect(query('#four-board').children).toHaveLength(252);
     expect(query('#four-toggle').hidden).toBe(true);
   });
+  it('assigns a headquarters from the map or the site list and starts with that assignment', async () => {
+    screen.open({ map: 'canyon', count: 3, mode: 'cpu' });
+    expect(query('#briefing-title').textContent).toBe('Canyon Checkpoint');
+    expect(query('.four-site-map').querySelectorAll('.map-preview-unit')).toHaveLength(0);
+    click('#four-site-marker-2');
+    expect(query<HTMLSelectElement>('#four-site-army1').value).toBe('2');
+    expect(query<HTMLSelectElement>('#four-site-army3').value).toBe('0');
+    expect(query('#four-site-marker-2').getAttribute('aria-pressed')).toBe('true');
+    expect(query('#four-site-marker-2').getAttribute('aria-label')).toContain('Eastern foothills · skirt the ridge · Army 1 · Human');
+    expect(query('.four-start-sites').textContent).not.toMatch(/\d+, \d+/);
+    change('#four-site-army1', '1');
+    start();
+    await vi.waitFor(() => expect(values.has(FOUR_ARMY_AUTO_SAVE_KEY)).toBe(true));
+    const saved = JSON.parse(values.get(FOUR_ARMY_AUTO_SAVE_KEY)!);
+    expect(saved.archive.payload.map.match.siteArmies).toEqual(['army3', 'army1', 'army2']);
+  });
+  it('selects the fixed headquarters and changes controller roles without exposing units', () => {
+    screen.open({ map: 'wide', count: 4, mode: 'cpu' });
+    click('#four-site-marker-2');
+    expect(query<HTMLSelectElement>('#four-human-army').value).toBe('army3');
+    expect(query('#four-start-summary').textContent).toContain('Play as Army 3');
+    change('#four-mode', 'spectator');
+    click('#four-site-marker-1');
+    expect(query('#four-site-marker-1').getAttribute('aria-label')).toContain('Army 2 · CPU');
+    expect(query('#four-start-summary').textContent).toContain('Watch 4 CPUs');
+    expect(query('.four-site-map').querySelectorAll('.map-preview-unit')).toHaveLength(0);
+  });
   it('keeps unlimited small settings separate from the wide four-army map', () => {
     change('#four-map', 'compact');
-    change('#four-count', '3');
+    click('#four-variants-3');
     change('#four-ending', 'unlimited');
     expect(query('.four-brief').textContent).toContain('No round-limit decision');
     start();
     expect(query('#four-turn').textContent).not.toContain('/20');
     click('#four-menu');
     change('#four-map', 'wide');
-    expect(query<HTMLSelectElement>('#four-count').disabled).toBe(true);
-    expect(query<HTMLSelectElement>('#four-count').value).toBe('4');
+    expect(query('#four-variants').querySelectorAll('input')).toHaveLength(1);
+    expect(query<HTMLInputElement>('#four-variants input:checked').value).toBe('4');
     start();
     expect(query('#four-board').children).toHaveLength(1024);
   });
@@ -161,7 +191,7 @@ describe('four-army spectator controller', () => {
       e.checked = false;
       e.dispatchEvent(new Event('change', { bubbles: true }));
     }
-    expect(query<HTMLSelectElement>('#four-count').value).toBe('2');
+    expect(query<HTMLInputElement>('#four-variants input:checked').value).toBe('2');
     start();
     expect(query('#four-army-info').children).toHaveLength(2);
     expect(query<HTMLSelectElement>('#four-view').value).toBe('army2');
@@ -266,11 +296,11 @@ describe('four-army spectator controller', () => {
   });
   it('switches between map variants and returns to the standard briefing', () => {
     screen.open({ map: 'outpost', count: 3, mode: 'cpu' });
-    expect(query('#four-start-map').textContent).toBe('Outpost Assault');
+    expect(query('#briefing-title').textContent).toBe('Outpost Assault');
     expect(query('#four-start-summary').textContent).toContain('21-round decision');
-    change('#four-variants', '2');
+    click('#four-variants-2');
     expect(query('#four-start-summary').textContent).toContain('20-round decision');
-    change('#four-variants', 'standard');
+    click('#four-variants-standard');
     expect(closed).toHaveBeenCalledWith('outpost');
     expect(screen.active).toBe(false);
     expect(screen.canReturnFromTitle).toBe(false);

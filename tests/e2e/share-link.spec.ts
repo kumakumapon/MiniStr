@@ -97,7 +97,7 @@ test('confirming adds a custom operation, opens the briefing and clears the hash
   await page.goto(LINK);
   await page.locator('#share-link-confirm').click();
   await expect(page.locator('#briefing-title')).toContainText('Share-E2E');
-  await expect(page.locator('#begin-operation')).toBeFocused();
+  await expect(page.locator('#briefing-title')).toBeFocused();
   expect(await page.evaluate(() => location.hash)).toBe('');
   const ids = await page.evaluate(() =>
     (JSON.parse(localStorage.getItem('ministr.scenarios.custom')!) as { scenarios: { id: string }[] }).scenarios.map((scenario) => scenario.id),

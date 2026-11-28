@@ -32,7 +32,7 @@ for (const locale of ['ja', 'en'] as const) {
       await expect(page.locator('#briefing-title')).toHaveText(mapName);
       await expect(page.locator('.briefing-objectives section').last().locator('li')).toHaveText(defeat);
       const begin = page.getByRole('button', { name: english ? 'Start operation' : '作戦開始', exact: true });
-      await expect(begin).toBeFocused();
+      await expect(page.locator('#briefing-title')).toBeFocused();
       await page.locator('.briefing-objectives').screenshot({ path: info.outputPath(`systems-objectives-${viewport.width}-${locale}.png`) });
       await begin.press('Enter');
       await expect(page.locator('.battlefield-heading h2')).toHaveText(mapName);

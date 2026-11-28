@@ -17,6 +17,7 @@ for (const viewport of [
     await expect(page.locator('#editor-notice')).toContainText('JSONを反映しました');
     await page.locator('#editor-start').click();
     await expect(page.locator('#briefing-title')).toHaveText('撤退の操作確認');
+    await page.locator('#briefing-advanced > summary').click();
     await page.locator('#briefing-deployment summary').click();
     const slot = page.locator('#briefing-deployment-red-1');
     await slot.focus();
@@ -70,6 +71,7 @@ test('offers both authored operations and protects the escort loadout', async ({
   await page.goto('/');
   await expect(page.locator('.title-map-card[data-map-id="fighting-withdrawal"]')).toContainText('撤退路を開け');
   await page.locator('.title-map-card[data-map-id="convoy-escort"]').click();
+  await page.locator('#briefing-advanced > summary').click();
   await page.locator('#briefing-deployment summary').click();
   await expect(page.locator('#briefing-deployment-red-0')).toBeDisabled();
   await expect(page.locator('#briefing-deployment-red-0')).toHaveValue('apc');

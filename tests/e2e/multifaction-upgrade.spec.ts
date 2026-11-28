@@ -18,7 +18,7 @@ async function open(page: Page, locale = 'en') {
   page.on('dialog', (d) => d.accept());
   await page.goto('/');
   await page.locator('.title-map-card[data-map-id="skirmish"]').click();
-  await page.locator('#briefing-match-variants').selectOption('4');
+  await page.locator('#briefing-match-variants label:has(input[value="4"])').click();
 }
 async function tools(page: Page) {
   await page.locator('.four-tools').evaluate((e) => ((e as HTMLDetailsElement).open = true));
@@ -35,7 +35,7 @@ for (const { width, locale } of [
     await open(page, locale);
     await page.locator('#four-setup-summary').click();
     await page.locator('#four-map').selectOption('compact');
-    await page.locator('#four-count').selectOption('3');
+    await page.locator('#four-variants label:has(input[value="3"])').click();
     await page.locator('#four-seed').fill('42');
     await page.locator('#four-start').click();
     await expect(page.locator('#four-board > button')).toHaveCount(252);
@@ -62,7 +62,7 @@ for (const { width, locale } of [
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width + 1);
     await page.reload();
     await page.locator('.title-map-card[data-map-id="skirmish"]').click();
-    await page.locator('#briefing-match-variants').selectOption('4');
+    await page.locator('#briefing-match-variants label:has(input[value="4"])').click();
     await tools(page);
     await page.locator('[data-load-slot="0"]').click();
     await expect(page.locator('#four-notice')).toHaveText(locale === 'ja' ? '停止状態で読み込みました。' : 'Loaded and paused.');

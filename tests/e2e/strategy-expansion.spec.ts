@@ -14,6 +14,7 @@ for (const width of [1280, 390])
       page.on('dialog', (dialog) => dialog.accept());
       await page.goto('/');
       await page.locator('.title-map-card[data-map-id="skirmish"]').click();
+      await page.locator('#briefing-advanced > summary').click();
       await page.locator('[data-army-policy="blue"]').selectOption('defensive');
       await page.locator('#begin-operation').click();
       await page.locator('#save').click();
@@ -102,6 +103,7 @@ for (const width of [1280, 390])
       await page.goto('/');
       await page.locator('.title-map-card[data-map-id="canyon"]').click();
       await page.locator('input[name="match-mode"][value="hotseat"]').check();
+      await page.locator('#briefing-advanced > summary').click();
       await page.locator('#briefing-deployment summary').click();
       await expect(page.locator('[data-position-player]')).toHaveCount(10);
       await expect(page.locator('#briefing-position-red-4')).toBeDisabled();
@@ -142,6 +144,7 @@ for (const width of [1280, 390])
       await page.locator('#title-tactical-preset').uncheck();
       await page.locator('.title-map-card[data-map-id="canyon"]').click();
       await page.locator('input[name="match-mode"][value="hotseat"]').check();
+      await page.locator('#briefing-advanced > summary').click();
       await page.locator('#briefing-deployment summary').click();
       await page.locator('#briefing-position-red-0').selectOption('3,4');
       await page.locator('#briefing-position-blue-0').selectOption('16,11');
@@ -184,11 +187,13 @@ test('pre-operation positions stay outside campaign and other operations', async
   await page.goto('/');
   await page.locator('#title-campaign').click();
   await page.locator('.campaign-start[data-campaign-id="canyon"]').click();
+  await page.locator('#briefing-advanced > summary').click();
   await page.locator('#briefing-deployment summary').click();
   await expect(page.locator('[data-position-player]')).toHaveCount(0);
   await expect(page.locator('#briefing-deployment-red-0')).toBeVisible();
   await page.goto('/');
   await page.locator('.title-map-card[data-map-id="skirmish"]').click();
+  await page.locator('#briefing-advanced > summary').click();
   await page.locator('#briefing-deployment summary').click();
   await expect(page.locator('[data-position-player]')).toHaveCount(0);
   await expect(page.locator('#briefing-deployment-red-0')).toBeVisible();
@@ -199,6 +204,7 @@ test('pre-operation positions initialize both spectator armies', async ({ page }
   await page.goto('/');
   await page.locator('.title-map-card[data-map-id="canyon"]').click();
   await page.locator('input[name="match-mode"][value="spectate"]').check();
+  await page.locator('#briefing-advanced > summary').click();
   await page.locator('#briefing-deployment summary').click();
   await page.locator('#briefing-position-red-0').selectOption('3,4');
   await page.locator('#briefing-position-blue-0').selectOption('16,11');

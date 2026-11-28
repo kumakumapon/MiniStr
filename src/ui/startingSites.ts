@@ -1,6 +1,9 @@
-import { asymmetricBoard, type AsymmetricSource } from '../game/asymmetricBattlefield';
+import { asymmetricBoard, isAsymmetricSource } from '../game/asymmetricBattlefield';
 import type { FourArmyId } from '../game/fourArmyFoundation';
 import type { FourArmyControllers } from '../game/fourArmyControl';
+import { createExpandedBattleMap, latestExpandedBattleLayout } from '../game/expandedBattleMap';
+import { createFourArmyMap32 } from '../game/fourArmyMap32';
+import { type MultiplayerMap } from './matchVariants';
 import { getLocale } from './locale';
 import { renderMapPreview } from './mapPreview';
 const copy = {
@@ -31,22 +34,101 @@ const copy = {
 export function battlefieldTheme(source: unknown) {
   return source === 'tundra' ? 'snow' : source === 'canyon' ? 'desert' : 'temperate';
 }
-export function renderStartingSites(source: AsymmetricSource, armies: readonly FourArmyId[], controllers: FourArmyControllers): string {
-  const en = getLocale() === 'en';
-  const { board, homes, bridges } = asymmetricBoard(source, armies);
+const cardinalNames = [
+  ['北', 'North'],
+  ['西', 'West'],
+  ['東', 'East'],
+] as const;
+const cornerNames = [
+  ['北西', 'Northwest'],
+  ['北東', 'Northeast'],
+  ['南東', 'Southeast'],
+  ['南西', 'Southwest'],
+] as const;
+
+function previewLayout(source: MultiplayerMap, armies: readonly FourArmyId[]) {
+  if (isAsymmetricSource(source)) return asymmetricBoard(source, armies);
+  const sourceMapId = source === 'compact' ? 'skirmish' : source;
+  const made =
+    sourceMapId === 'wide'
+      ? createFourArmyMap32()
+      : createExpandedBattleMap({
+          sourceMapId,
+          participants: armies,
+          layoutVersion: latestExpandedBattleLayout(sourceMapId, armies.length),
+        });
+  if (made.ok) return { board: made.value.board, homes: made.value.capitals, bridges: made.value.bridges ?? [] };
+}
+
+export function renderStartingSites(
+  source: MultiplayerMap,
+  armies: readonly FourArmyId[],
+  controllers: FourArmyControllers,
+  selectedArmy: FourArmyId,
+  mode: 'human' | 'custom' | 'spectator',
+  teams?: Readonly<Record<FourArmyId, FourArmyId>>,
+): { diagram: string; roster: string } {
+  const layout = previewLayout(source, armies);
+  if (!layout) return { diagram: '', roster: '' };
+  const { board, homes, bridges } = layout;
   for (const {
     position: { x, y },
   } of bridges)
     board.terrain[y]![x] = { kind: 'road' };
-  const labels = armies.map((a, i) => {
-    const h = homes[a];
-    return `${copy[source][i]![en ? 1 : 0]} (${h.x + 1}, ${h.y + 1})`;
+  const en = getLocale() === 'en';
+  const loc = en ? 1 : 0;
+  const armyName = (army: FourArmyId) => (en ? `Army ${army.slice(-1)}` : `第${army.slice(-1)}軍`);
+  const authored = isAsymmetricSource(source);
+  const names = armies.map((army, i) => {
+    if (authored) return copy[source][i]![loc];
+    if (armies.length === 3) return cardinalNames[i]![loc];
+    const { x, y } = homes[army];
+    return cornerNames[y < board.height / 2 ? (x < board.width / 2 ? 0 : 1) : x < board.width / 2 ? 3 : 2]![loc];
   });
-  return `<fieldset class="four-start-sites"><legend>${en ? 'Starting sites' : '出発地点'}</legend>${renderMapPreview(board, [], battlefieldTheme(source))}${[...armies]
+  const teamLabel = (army: FourArmyId, i: number) => {
+    if (source === 'tundra') return i === 0 ? (en ? 'Defender' : '守備側') : en ? 'Attackers' : '攻撃側';
+    if (!teams) return en ? 'Free-for-all' : '個人戦';
+    const team = String.fromCharCode(64 + Number(teams[army].slice(-1)));
+    return en ? `Team ${team}` : `チーム${team}`;
+  };
+  const role = (army: FourArmyId, i: number) => [armyName(army), controllers[army] === 'human' ? (en ? 'Human' : '人間') : 'CPU', teamLabel(army, i)].join(' · ');
+  const markers = armies
+    .map((army, i) => {
+      const { x, y } = homes[army];
+      return `<button type="button" id="four-site-marker-${i}" data-site-index="${i}" class="four-site-marker four-army-label ${army}" style="left:${((x + 0.5) / board.width) * 100}%;top:${((y + 0.5) / board.height) * 100}%" aria-pressed="${army === selectedArmy}" aria-label="${names[i]} · ${role(army, i)}">${army.slice(-1)}</button>`;
+    })
+    .join('');
+  const label = mode === 'human' ? (en ? 'Your army' : '操作する軍') : en ? 'Selected army' : '選択中の軍';
+  const picker = `<label>${label}<select id="four-human-army">${armies
+    .slice()
     .sort()
-    .map(
-      (a) =>
-        `<label class="four-army-label ${a}">${en ? 'Army ' + a.slice(-1) : '第' + a.slice(-1) + '軍'} · ${controllers[a] === 'cpu' ? 'CPU' : en ? 'Human' : '人間'}<select id="four-site-${a}" data-site-army="${a}">${labels.map((label, i) => `<option value="${i}" ${armies[i] === a ? 'selected' : ''}>${label}</option>`).join('')}</select></label>`,
-    )
-    .join('')}</fieldset>`;
+    .map((army) => `<option value="${army}" ${selectedArmy === army ? 'selected' : ''}>${armyName(army)}</option>`)
+    .join('')}</select></label>`;
+  const rows = armies
+    .map((army, i) => {
+      const site = authored
+        ? `<label>${en ? 'Starting site' : '出発地点'}<select id="four-site-${army}" data-site-army="${army}">${names.map((name, j) => `<option value="${j}" ${i === j ? 'selected' : ''}>${name}</option>`).join('')}</select></label>`
+        : `<span>${names[i]}</span>`;
+      const controller =
+        mode === 'custom'
+          ? `<label>${en ? 'Controller' : '操作担当'}<select id="four-controller-${army}" data-controller="${army}"><option value="human" ${controllers[army] === 'human' ? 'selected' : ''}>${en ? 'Human' : '人間'}</option><option value="cpu" ${controllers[army] === 'cpu' ? 'selected' : ''}>CPU</option></select></label>`
+          : '';
+      return `<li class="four-army-label ${army}"><strong>${role(army, i)}</strong>${site}${controller}</li>`;
+    })
+    .join('');
+  const hint = authored
+    ? en
+      ? 'Select an army, then its starting headquarters on the map.'
+      : '軍を選び、地図上の司令部を押すと、その軍の出発地点を入れ替えます。'
+    : mode === 'human'
+      ? en
+        ? 'Choose a headquarters on the map to play as its army.'
+        : '地図上の司令部を押して、操作する軍を選びます。'
+      : en
+        ? 'Select a headquarters to inspect its army.'
+        : '地図上の司令部を押して、担当する軍を確認できます。';
+  return {
+    diagram: `<div class="briefing-map-viewport"><div class="briefing-map-surface four-site-map">${renderMapPreview(board, [], battlefieldTheme(source))}${markers}</div></div>`,
+    roster: `<fieldset class="four-start-sites"><legend>${en ? 'Starting headquarters' : '出発地点・司令部'}</legend><p class="four-hint">${hint}</p>${picker}<ul>${rows}</ul></fieldset>`,
+  };
 }

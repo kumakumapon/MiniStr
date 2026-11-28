@@ -17,7 +17,7 @@ async function open(page: Page, locale = 'en') {
   page.on('dialog', (d) => d.accept());
   await page.goto('/');
   await page.locator('.title-map-card[data-map-id="skirmish"]').click();
-  await page.locator('#briefing-match-variants').selectOption('4');
+  await page.locator('#briefing-match-variants label:has(input[value="4"])').click();
 }
 async function tools(page: Page) {
   await page.locator('.four-tools').evaluate((e) => ((e as HTMLDetailsElement).open = true));
@@ -30,7 +30,7 @@ for (const count of [3, 4] as const)
       await page.locator('#four-setup-summary').click();
       await expect(page.locator('#four-map')).toHaveValue('compact');
       await expect(page.locator('#four-ending')).toHaveValue('short');
-      await page.locator('#four-count').selectOption(String(count));
+      await page.locator(`#four-variants label:has(input[value="${count}"])`).click();
       await expect(page.locator('[data-order]')).toHaveCount(count);
       await page.locator('#four-start').click();
       await expect(page.locator('#four-board > button')).toHaveCount(252);
@@ -113,7 +113,7 @@ test('twentieth-round result, replay and rematch retain three-army conditions', 
 test('three-army hotseat hides CPU intervals and never presents an inactive fourth army', async ({ page }) => {
   await open(page);
   await page.locator('#four-setup-summary').click();
-  await page.locator('#four-count').selectOption('3');
+  await page.locator('#four-variants label:has(input[value="3"])').click();
   await page.locator('#four-mode').selectOption('custom');
   await expect(page.locator('[data-controller]')).toHaveCount(3);
   await page.locator('#four-controller-army2').selectOption('cpu');
@@ -140,7 +140,7 @@ for (const width of [1280, 390])
     await page.locator('#four-map').selectOption('outpost');
     await page.locator('[data-active-army="army1"]').uncheck();
     await page.locator('[data-active-army="army3"]').uncheck();
-    await expect(page.locator('#four-count')).toHaveValue('2');
+    await expect(page.locator('#four-variants input[value="2"]')).toBeChecked();
     await expect(page.locator('[data-order]')).toHaveCount(2);
     await page.locator('#four-start').click();
     await expect(page.locator('#four-board > button')).toHaveCount(252);
@@ -175,7 +175,7 @@ for (const count of [3, 4])
     await open(page);
     await page.locator('#four-setup-summary').click();
     await page.locator('#four-map').selectOption('strait');
-    await page.locator('#four-count').selectOption(String(count));
+    await page.locator(`#four-variants label:has(input[value="${count}"])`).click();
     await page.locator('#four-team-mode').check();
     await page.locator('#four-start').click();
     await expect(page.locator('#four-board > button')).toHaveCount(255);

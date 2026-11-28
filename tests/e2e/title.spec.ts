@@ -105,18 +105,18 @@ test('keeps the way back to a match through screens opened from the title (#143 
   await expect(page.locator('.tile[data-x="0"][data-y="2"] .unit.red')).toBeVisible();
 });
 
-test('lands on the start button after going back and forth by keyboard (#143 review)', async ({ page }) => {
+test('lands on the briefing heading after going back and forth by keyboard (#143 review)', async ({ page }) => {
   await page.goto('/');
   await expect(page.locator('.title-map-card[data-map-id="skirmish"]')).toBeFocused();
   await page.keyboard.press('Enter');
-  await expect(page.locator('#begin-operation')).toBeFocused();
+  await expect(page.locator('#briefing-title')).toBeFocused();
   await page.locator('#briefing-back-to-title').focus();
   await page.keyboard.press('Enter');
   await expect(page.locator('.title-overlay')).toBeVisible();
   await page.locator('.title-map-card[data-map-id="islands"]').focus();
   await page.keyboard.press('Enter');
   await expect(page.locator('#briefing-title')).toHaveText('群島補給線');
-  await expect(page.locator('#begin-operation')).toBeFocused();
+  await expect(page.locator('#briefing-title')).toBeFocused();
 });
 
 test('explains a rejected replay on the title and keeps focus on the import button (#143 review)', async ({ page }) => {
