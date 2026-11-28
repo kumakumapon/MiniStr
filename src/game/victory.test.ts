@@ -17,12 +17,12 @@ function scenario(patch: Partial<ScenarioDefinition> = {}): ScenarioDefinition {
 }
 
 /** Scenarios that deliberately replace the shared eliminate/capture objective pair. */
-const dedicatedObjectiveIds = new Set(['landing', 'industrial', 'tundra']);
+const dedicatedObjectiveIds = new Set(['landing', 'industrial', 'tundra', 'relief-corridor', 'island-fortress']);
 
 describe('data-driven victory conditions', () => {
   it('keeps the standard-objective maps mirrored while allowing dedicated scenarios', () => {
     const standardMaps = maps.filter(map => !dedicatedObjectiveIds.has(map.id));
-    expect(standardMaps.map(map => map.id)).toEqual(['skirmish', 'islands', 'canyon', 'siege', 'river', 'outpost', 'marsh', 'admiralty', 'highland-crossing', 'peninsula-neck']);
+    expect(standardMaps.map(map => map.id)).toEqual(['skirmish', 'islands', 'canyon', 'siege', 'river', 'outpost', 'marsh', 'admiralty', 'highland-crossing', 'peninsula-neck', 'forest-ambush', 'offset-crossroads', 'desert-coastal-road', 'river-delta']);
     for (const map of standardMaps) {
       expect(map.briefing.length).toBeGreaterThan(0);
       expect(map.victoryConditions).toEqual([{ type: 'eliminate' }, { type: 'captureCapital' }]);
@@ -35,7 +35,7 @@ describe('data-driven victory conditions', () => {
 
   it('gives the dedicated scenarios their own briefed objectives', () => {
     const dedicated = maps.filter(map => dedicatedObjectiveIds.has(map.id));
-    expect(dedicated.map(map => map.id)).toEqual(['landing', 'industrial', 'tundra']);
+    expect(dedicated.map(map => map.id)).toEqual(['landing', 'industrial', 'tundra', 'relief-corridor', 'island-fortress']);
     for (const map of dedicated) {
       expect(map.briefing.length).toBeGreaterThan(0);
       expect(map.victoryConditions).not.toEqual([{ type: 'eliminate' }, { type: 'captureCapital' }]);

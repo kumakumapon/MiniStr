@@ -1,3 +1,4 @@
+import { isAuthoredFourSource } from './asymmetricFourSites';
 import { createAsymmetricLayout, isAsymmetricSource, siteTeam } from './asymmetricBattlefield';
 import { FOUR_ARMY_IDS, type FourArmyId } from './fourArmyFoundation';
 import { createFourArmyState, type FourArmyMap, type FourArmyTerrain } from './fourArmyEngine';
@@ -25,7 +26,17 @@ export function expandedBattleDimensions(source: ExpandedBattle['sourceMapId']) 
 }
 /** Layout 3 protects the northern neutral facilities from simultaneous flank pressure; callers loading historical snapshots keep layout 2. */
 export const latestExpandedBattleLayout = (source: ExpandedBattle['sourceMapId'], count: number): ExpandedBattle['layoutVersion'] =>
-  source === 'encirclement' ? 7 : source === 'crown' ? 6 : isAsymmetricSource(source) ? 5 : count === 3 && (source === 'skirmish' || source === 'outpost') ? 3 : 2;
+  isAuthoredFourSource(source)
+    ? 8
+    : source === 'encirclement'
+      ? 7
+      : source === 'crown'
+        ? 6
+        : isAsymmetricSource(source)
+          ? 5
+          : count === 3 && (source === 'skirmish' || source === 'outpost')
+            ? 3
+            : 2;
 /** Authored snapshots. No legacy preset is edited or used as a mutable source. */
 export function createExpandedBattleMap(options: ExpandedBattleOptions = {}): GameResult<FourArmyMap> {
   if (

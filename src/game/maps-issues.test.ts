@@ -1,3 +1,4 @@
+import { isAuthoredDuel } from './asymmetricDuels';
 import { describe, expect, it } from 'vitest';
 import { endTurn } from './commands';
 import { idleProductionFacilities } from './facilities';
@@ -17,7 +18,7 @@ function unitSignature(kind: string, owner: PlayerId, x: number, y: number): str
 
 describe('issues #85, #87, and #90 built-in map invariants', () => {
   it('gives both sides an explicit idle airport on each original battlefield', () => {
-    for (const scenario of maps.filter(map => !['highland-crossing', 'peninsula-neck'].includes(map.id))) {
+    for (const scenario of maps.filter(map => !['highland-crossing', 'peninsula-neck'].includes(map.id) && !isAuthoredDuel(map.id))) {
       expect(scenario.productionRules).toBe('facility-v2');
       for (const owner of ['red', 'blue'] as const) {
         const position = scenario.board.terrain.flatMap((row, y) => row.flatMap((tile, x) => tile.kind === 'airport' && tile.owner === owner ? [{ x, y }] : []))[0]!;

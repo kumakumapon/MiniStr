@@ -1,4 +1,4 @@
-import { createAsymmetricLayout } from './asymmetricBattlefield';
+import { createAsymmetricLayout, isFixedFourArmySource } from './asymmetricBattlefield';
 import { FOUR_ARMY_ARCHIVES } from './fourArmyFoundation';
 import { applyFourArmyCommand, createFourArmyState, isFourArmyCommand, isFourArmyState, type FourArmyCommand, type FourArmyMap, type FourArmyState } from './fourArmyEngine';
 import { parseBoundedJson } from './jsonBoundary';
@@ -97,7 +97,7 @@ export function* verifyFourArmyArchive(
   const map = p.map as FourArmyMap;
   if (
     map.match?.version === 2 &&
-    (map.match.sourceMapId === 'crown' || map.match.sourceMapId === 'encirclement') &&
+    isFixedFourArmySource(map.match.sourceMapId) &&
     canonical(map) !== canonical(createAsymmetricLayout(map.match.sourceMapId, map.match, map.seed, map.rules))
   ) {
     return fail('保存された初期配置が戦域の定義と一致しません。');

@@ -1,3 +1,5 @@
+import { authoredFourSources } from '../src/game/asymmetricFourSites';
+import { isFixedFourArmySource } from '../src/game/asymmetricBattlefield';
 import { FOUR_ARMY_IDS, type FourArmyId } from '../src/game/fourArmyFoundation';
 import { createExpandedBattleMap } from '../src/game/expandedBattleMap';
 import { createFourArmyState, applyFourArmyCommand, observeFourArmy, type FourArmyCommand } from '../src/game/fourArmyEngine';
@@ -23,18 +25,13 @@ const bearing = (from: Position, to: Position) => {
     dy = from.y - to.y;
   return Math.abs(dx) >= Math.abs(dy) ? (dx > 0 ? 'E' : 'W') : dy > 0 ? 'S' : 'N';
 };
-const sources = ['canyon', 'marsh', 'skirmish', 'strait', 'river', 'tundra', 'crown', 'encirclement'] as const;
+const sources = ['canyon', 'marsh', 'skirmish', 'strait', 'river', 'tundra', 'crown', 'encirclement', ...authoredFourSources] as const;
 if (armyCount !== undefined && !['3', '4'].includes(armyCount)) throw Error('army count must be 3 or 4');
 if (!sourceList.split(',').every((s) => sources.some((v) => v === s)) || !['current', '4'].includes(layout)) throw Error('invalid source or layout');
 let index = 0;
 for (const source of sources.filter((s) => sourceList.split(',').includes(s)))
   for (const count of [3, 4]) {
-    if (
-      (armyCount && count !== Number(armyCount)) ||
-      (source === 'tundra' && count !== 3) ||
-      ((source === 'crown' || source === 'encirclement') && (count !== 4 || layout !== 'current'))
-    )
-      continue;
+    if ((armyCount && count !== Number(armyCount)) || (source === 'tundra' && count !== 3) || (isFixedFourArmySource(source) && (count !== 4 || layout !== 'current'))) continue;
     const ids = FOUR_ARMY_IDS.slice(0, count),
       orders = fourArmyOrders(ids);
     for (const [i, order] of orders.entries())
@@ -42,7 +39,7 @@ for (const source of sources.filter((s) => sourceList.split(',').includes(s)))
         for (const swap of source === 'skirmish' || source === 'strait' ? [0] : [0, 1]) {
           if (stage === 'endurance' && (i !== 0 || swap !== 0 || !['strait', 'river'].includes(source))) continue;
           if (stage === 'routes' && (i !== 0 || tactics || swap !== 0)) continue;
-          if (stage === 'training' && (source === 'encirclement' ? i % (orders.length / count) !== 0 : i >= count)) continue;
+          if (stage === 'training' && (isFixedFourArmySource(source) ? i % (orders.length / count) !== 0 : i >= count)) continue;
           if (index++ % +parts !== +part) continue;
           const offset = swap ? 1 + (i % (count - 1)) : 0;
           const sites = [...ids.slice(offset), ...ids.slice(0, offset)];

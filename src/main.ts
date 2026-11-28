@@ -1,3 +1,5 @@
+import { fixedTeamFormat } from './ui/matchVariants';
+import { coastalFourSource } from './game/asymmetricFourSites';
 import { isFixedFourArmySource, startingSiteResources } from './game/asymmetricBattlefield';
 import { createExpandedBattleMap, latestExpandedBattleLayout } from './game/expandedBattleMap';
 import { FOUR_ARMY_IDS } from './game/fourArmyFoundation';
@@ -1673,10 +1675,10 @@ function render(): void {
     multiplayerCards: () => multiplayerOnlyMaps.map(map => ({
       id: multiplayerCardId(map), name: multiplayerName(map), ...multiplayerSize(map),
       category: 'battle', formats: [multiplayerCatalogFormat(map, count => titlePreviews.placeholder(multiplayerCardId(map), () => multiplayerPreview(map, count)))], clear: 'untracked',
-      theme: map === 'strait' ? (getLocale() === 'en' ? 'Coastal' : '沿岸') : (getLocale() === 'en' ? 'Temperate' : '温帯'), startingGold: isFixedFourArmySource(map) ? startingSiteResources(map, 0).gold : map === 'strait' ? 6000 : 10000,
+      theme: coastalFourSource(map) ? (getLocale() === 'en' ? 'Coastal' : '沿岸') : (getLocale() === 'en' ? 'Temperate' : '温帯'), startingGold: isFixedFourArmySource(map) ? startingSiteResources(map, 0).gold : map === 'strait' ? 6000 : 10000,
       ...(isFixedFourArmySource(map) ? { startingGoldLabel: getLocale() === 'en' ? 'Starting funds vary by site' : '初期資金は地点別' } : {}),
       timing: map === 'wide' ? (getLocale() === 'en' ? 'No round limit' : '期限なし') : (getLocale() === 'en' ? 'Short or unlimited' : '短期戦／期限なし'),
-      victory: map === 'encirclement' ? (getLocale() === 'en' ? 'Fixed 1 vs 3 · last team standing wins' : '固定1対3・最後の生存チームが勝利') : map === 'crown' ? (getLocale() === 'en' ? 'Last army standing' : '最後の生存軍が勝利') : getLocale() === 'en' ? 'Last army or team standing' : '最後の生存軍・チームが勝利',
+      victory: map === 'encirclement' ? (getLocale() === 'en' ? 'Fixed 1 vs 3 · last team standing wins' : '固定1対3・最後の生存チームが勝利') : map === 'crown' || map === 'four-homelands' ? (getLocale() === 'en' ? 'Last army standing' : '最後の生存軍が勝利') : fixedTeamFormat(map) ?? (getLocale() === 'en' ? 'Last army or team standing' : '最後の生存軍・チームが勝利'),
       custom: false, selected: false, preview: '',
     })),
     mapPreview: map => titlePreviews.placeholder(map.id, () => mapPreviews.get(map) ?? (() => {

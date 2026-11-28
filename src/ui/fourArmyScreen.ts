@@ -1,3 +1,4 @@
+import { authoredFourSources } from '../game/asymmetricFourSites';
 import { armyEmblem, armyShapes } from './fourArmyEmblems';
 import { encirclementAllianceLimit, encirclementHegemonLimit, isAsymmetricSource, isFixedFourArmySource } from '../game/asymmetricBattlefield';
 import { battlefieldTheme, renderStartingSites } from './startingSites';
@@ -8,7 +9,9 @@ import type { FourArmyFileResult } from '../game/fourArmySpectatorProtocol';
 import {
   armyCountOptions,
   classicVariant,
+  authoredTeamLabel,
   encirclementTeamName,
+  fixedTeamFormat,
   multiplayerBriefing,
   multiplayerMaps,
   multiplayerName,
@@ -469,8 +472,9 @@ export class FourArmyScreen {
 
   private participantForm(): string {
     if (isFixedFourArmySource(this.setupMap)) {
-      return this.setupMap === 'encirclement'
-        ? `<p>${text('1対3の固定チーム戦。通常視界は同盟内で共有し、資金・部隊・偵察は軍別です。', 'Fixed 1 versus 3 teams. Allies share ordinary vision. Funds, units and reconnaissance are army-specific.')}</p>`
+      const format = fixedTeamFormat(this.setupMap);
+      return format
+        ? `<p>${format} · ${text('通常視界は同盟内で共有し、資金・部隊・偵察は軍別です。', 'Allies share ordinary vision. Funds, units and reconnaissance are army-specific.')}</p>`
         : '';
     }
     if (this.setupMap === 'tundra') {
@@ -1851,17 +1855,13 @@ export class FourArmyScreen {
         ? text('第15ラウンドまで防衛', 'Defend through round 15')
         : this.setupMap !== 'wide' && this.setupEnding === 'short'
           ? text(`${armies === 3 ? 21 : 20}ラウンド判定`, `${armies === 3 ? 21 : 20}-round decision`)
-          : this.setupMap === 'encirclement'
+          : this.setupIsTeamBattle
             ? text('決着まで', 'Last team standing')
             : text('決着まで', 'Last army standing');
     const format =
       this.setupMap === 'tundra'
         ? text('守備1軍・攻撃2軍', '1 defender vs 2 attackers')
-        : this.setupMap === 'encirclement'
-          ? text('覇権国1軍・包囲同盟3軍', '1 hegemon vs 3 allied armies')
-          : this.setupMap !== 'wide' && this.setupTeamMode
-            ? text('固定チーム', 'Fixed teams')
-            : text('個人戦', 'Free-for-all');
+        : (fixedTeamFormat(this.setupMap) ?? (this.setupIsTeamBattle ? text('固定チーム', 'Fixed teams') : text('個人戦', 'Free-for-all')));
 
     const sites = renderStartingSites(
       this.setupMap,
@@ -1884,7 +1884,7 @@ export class FourArmyScreen {
     <details id="four-setup-options" class="four-setup-options" ${open ? 'open' : ''}>
       <summary id="four-setup-summary">${text('詳細設定', 'Match setup')}</summary>
       <div class="four-setup">
-        <section class="four-brief"><label>${text('マップ', 'Map')}<select id="four-map">${options(multiplayerMaps, this.setupMap, [text('小型：緑の国境 18×14', 'Compact: Green Border 18×14'), text('小型：前哨基地強襲 18×14', 'Compact: Outpost Assault 18×14'), this.mapName('canyon'), this.mapName('marsh'), this.mapName('river'), this.mapName('tundra'), text('水域：交差海峡 17×15', 'Water: Cross Strait 17×15'), text('広域：新・四方の前線 32×32', 'Wide: New Four Fronts 32×32'), text('従来：四方の前線 32×32（4軍）', 'Legacy: Four Fronts 32×32 (4 armies)'), this.mapName('crown'), this.mapName('encirclement')])}</select></label>${this.setupMap !== 'wide' ? `${this.participantForm()}${this.setupMap === 'tundra' ? `<p>${this.defenseObjective}</p>` : `<label>${text('終了方式', 'Ending')}<select id="four-ending">${options(['short', 'unlimited'], this.setupEnding, [text(`短期戦：${this.setupCount === 3 ? 21 : 20}ラウンド判定`, `Short: ${this.setupCount === 3 ? 21 : 20}-round decision`), this.setupIsTeamBattle ? text('決着まで（期限なし）', 'Last team standing (unlimited)') : text('決着まで（期限なし）', 'Last army standing (unlimited)')])}</select></label><p class="four-hint">${this.setupEnding === 'short' ? text(`${this.setupCount === 3 ? 21 : 20}R終了時にチームの拠点数 → 合計HPで判定。同点は引分。3・4軍は毎ラウンド先手が交代します。`, `After round ${this.setupCount === 3 ? 21 : 20}: team properties, then HP; tied draw. Initiative rotates each round with 3–4 armies.`) : text('期限による判定はなく、長期化する場合があります。', 'No round-limit decision; this may take longer.')}</p>`}` : ''}<label>${text('ゲーム規則', 'Rules')}<select id="four-rules">${options(['expanded', 'classic'], this.expandedRules ? 'expanded' : 'classic', [text('偵察・設営・兵站指示', 'Recon, engineering and logistics'), text('従来の4軍規則', 'Original four-army rules')])}</select></label>${this.expandedRules ? `<label><input id="four-tactics" type="checkbox" ${this.tacticalRules ? 'checked' : ''}>${text('陸戦統合戦術：同時射撃・待伏せ・地形・天候・ZOC', 'Land tactics: simultaneous fire, ambush, cover, weather, ZOC')}</label>` : ''}<label>${text('seed', 'Seed')}<input id="four-seed" inputmode="numeric" maxlength="10" value="${escapeHtml(this.seed)}"></label><fieldset><legend>${text('手番順', 'Turn order')}</legend><div class="four-order">${this.order.map((a, i) => `<label>${i + 1}<select id="four-order-${i}" data-order="${i}">${options(this.setupArmies, a, this.setupArmies.map(armyName))}</select></label>`).join('')}</div></fieldset><p>${text('司令部または全部隊を失うと脱落します。個人戦は最後の1軍、固定チーム戦は最後のチームが勝利します。', 'Losing headquarters or all units eliminates an army. The last army or fixed team wins.')}</p><p>${this.setupMap === 'encirclement' ? text(`搭載込みの上限は覇権国${encirclementHegemonLimit}部隊、同盟は各軍${encirclementAllianceLimit}部隊です。`, `Unit limit including cargo: ${encirclementHegemonLimit} for the hegemon and ${encirclementAllianceLimit} per allied army.`) : this.setupMap === 'crown' ? text('資金・部隊・保有施設は出発地点によって決まります。搭載込み上限は各軍8部隊です。', 'Starting funds, units and owned properties follow the site. Each army may field up to 8 units, including cargo.') : width !== 32 ? text('各軍4部隊・基本資金6,000。搭載込み上限8部隊。人間1軍で20〜30分を目指す小型対局です（実時間は操作速度等で変わります）。', 'Each army starts with 4 units and 6,000 gold; cap 8 including cargo. Designed for shorter play: 20–30 minutes is a target, not a timer.') : text('各軍8部隊・基本資金10,000。搭載込み上限16部隊。100ラウンドごとに停止します。', 'Each army starts with 8 units and 10,000 gold; cap 16 including cargo. Pauses every 100 rounds.')}</p></section>
+        <section class="four-brief"><label>${text('マップ', 'Map')}<select id="four-map">${options(multiplayerMaps, this.setupMap, [text('小型：緑の国境 18×14', 'Compact: Green Border 18×14'), text('小型：前哨基地強襲 18×14', 'Compact: Outpost Assault 18×14'), this.mapName('canyon'), this.mapName('marsh'), this.mapName('river'), this.mapName('tundra'), text('水域：交差海峡 17×15', 'Water: Cross Strait 17×15'), text('広域：新・四方の前線 32×32', 'Wide: New Four Fronts 32×32'), text('従来：四方の前線 32×32（4軍）', 'Legacy: Four Fronts 32×32 (4 armies)'), this.mapName('crown'), this.mapName('encirclement'), ...authoredFourSources.map((map) => this.mapName(map))])}</select></label>${this.setupMap !== 'wide' ? `${this.participantForm()}${this.setupMap === 'tundra' ? `<p>${this.defenseObjective}</p>` : `<label>${text('終了方式', 'Ending')}<select id="four-ending">${options(['short', 'unlimited'], this.setupEnding, [text(`短期戦：${this.setupCount === 3 ? 21 : 20}ラウンド判定`, `Short: ${this.setupCount === 3 ? 21 : 20}-round decision`), this.setupIsTeamBattle ? text('決着まで（期限なし）', 'Last team standing (unlimited)') : text('決着まで（期限なし）', 'Last army standing (unlimited)')])}</select></label><p class="four-hint">${this.setupEnding === 'short' ? text(`${this.setupCount === 3 ? 21 : 20}R終了時にチームの拠点数 → 合計HPで判定。同点は引分。3・4軍は毎ラウンド先手が交代します。`, `After round ${this.setupCount === 3 ? 21 : 20}: team properties, then HP; tied draw. Initiative rotates each round with 3–4 armies.`) : text('期限による判定はなく、長期化する場合があります。', 'No round-limit decision; this may take longer.')}</p>`}` : ''}<label>${text('ゲーム規則', 'Rules')}<select id="four-rules">${options(['expanded', 'classic'], this.expandedRules ? 'expanded' : 'classic', [text('偵察・設営・兵站指示', 'Recon, engineering and logistics'), text('従来の4軍規則', 'Original four-army rules')])}</select></label>${this.expandedRules ? `<label><input id="four-tactics" type="checkbox" ${this.tacticalRules ? 'checked' : ''}>${text('陸戦統合戦術：同時射撃・待伏せ・地形・天候・ZOC', 'Land tactics: simultaneous fire, ambush, cover, weather, ZOC')}</label>` : ''}<label>${text('seed', 'Seed')}<input id="four-seed" inputmode="numeric" maxlength="10" value="${escapeHtml(this.seed)}"></label><fieldset><legend>${text('手番順', 'Turn order')}</legend><div class="four-order">${this.order.map((a, i) => `<label>${i + 1}<select id="four-order-${i}" data-order="${i}">${options(this.setupArmies, a, this.setupArmies.map(armyName))}</select></label>`).join('')}</div></fieldset><p>${text('司令部または全部隊を失うと脱落します。個人戦は最後の1軍、固定チーム戦は最後のチームが勝利します。', 'Losing headquarters or all units eliminates an army. The last army or fixed team wins.')}</p><p>${this.setupMap === 'encirclement' ? text(`搭載込みの上限は覇権国${encirclementHegemonLimit}部隊、同盟は各軍${encirclementAllianceLimit}部隊です。`, `Unit limit including cargo: ${encirclementHegemonLimit} for the hegemon and ${encirclementAllianceLimit} per allied army.`) : isFixedFourArmySource(this.setupMap) ? text('資金・部隊・保有施設は出発地点によって決まります。搭載込み上限は各軍8部隊です。', 'Starting funds, units and owned properties follow the site. Each army may field up to 8 units, including cargo.') : width !== 32 ? text('各軍4部隊・基本資金6,000。搭載込み上限8部隊。人間1軍で20〜30分を目指す小型対局です（実時間は操作速度等で変わります）。', 'Each army starts with 4 units and 6,000 gold; cap 8 including cargo. Designed for shorter play: 20–30 minutes is a target, not a timer.') : text('各軍8部隊・基本資金10,000。搭載込み上限16部隊。100ラウンドごとに停止します。', 'Each army starts with 8 units and 10,000 gold; cap 16 including cargo. Pauses every 100 rounds.')}</p></section>
         <section><h2>${text('軍別CPU設定', 'Army CPU settings')}</h2>${this.settingsForm()}<p class="four-hint">${text('各軍を人間／CPUに設定できます。複数人操作では交代時に視界を保護します。設定変更は一時停止します。', 'Configure each army as Human or CPU. Local handoffs protect each army’s view. Setting changes pause play.')}</p></section>
       </div>
       <div class="four-buttons">${locale}${sceneSettings}</div>
@@ -1904,7 +1904,7 @@ export class FourArmyScreen {
   }
 
   private get setupIsTeamBattle(): boolean {
-    return this.setupMap === 'encirclement' || (this.setupMap !== 'wide' && this.setupTeamMode);
+    return fixedTeamFormat(this.setupMap) !== undefined || (this.setupMap !== 'wide' && this.setupTeamMode);
   }
 
   private setupObjectives(hasHuman: boolean): string {
@@ -2120,12 +2120,10 @@ export class FourArmyScreen {
       .map((army) => {
         const player = display.players[army];
         const restricted = !player;
-        const team =
-          state.match?.version === 2 && state.match.sourceMapId === 'encirclement'
-            ? ' · ' + encirclementTeamName(army === state.match.siteArmies![0])
-            : teamBattle
-              ? ' · ' + text('チーム ', 'Team ') + String.fromCharCode(64 + Number(teams[army].slice(-1)))
-              : '';
+        const site = state.match?.version === 2 ? (state.match.siteArmies?.indexOf(army) ?? -1) : -1;
+        const map = state.match?.sourceMapId;
+        const namedTeam = map === 'encirclement' ? encirclementTeamName(site === 0) : authoredTeamLabel(map, site);
+        const team = namedTeam ? ' · ' + namedTeam : teamBattle ? ' · ' + text('チーム ', 'Team ') + String.fromCharCode(64 + Number(teams[army].slice(-1))) : '';
         const units = display.units.filter((unit) => unit.owner === army).length;
         const unitCount = restricted
           ? text('視認部隊', 'Seen units') + ' ' + units

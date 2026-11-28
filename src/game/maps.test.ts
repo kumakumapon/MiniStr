@@ -70,7 +70,7 @@ describe('expanded map roster', () => {
     expect(createScenarioInitialState(catalog.scenarios[0]!).units).toHaveLength(2);
   });
 
-  it('offers thirteen distinct scenarios with map-owned starting forces', () => {
+  it('offers nineteen distinct scenarios with map-owned starting forces', () => {
     expect(maps.map((map) => map.id)).toEqual([
       'skirmish',
       'islands',
@@ -85,6 +85,12 @@ describe('expanded map roster', () => {
       'admiralty',
       'highland-crossing',
       'peninsula-neck',
+      'relief-corridor',
+      'island-fortress',
+      'forest-ambush',
+      'offset-crossroads',
+      'desert-coastal-road',
+      'river-delta',
     ]);
     for (const map of maps) {
       expect(map.initialUnits.some((unit) => unit.owner === 'red')).toBe(true);

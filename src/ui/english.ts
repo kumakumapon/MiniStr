@@ -1,8 +1,10 @@
+import { asymmetricDuelEnglish } from '../game/asymmetricDuels';
 import { peninsulaNeckBriefing } from '../game/peninsulaNeck';
 import { japaneseUnitNames, englishUnitNames } from './unitNameText';
 
 /** English display resources. IDs, authored data and saved JSON stay unchanged. */
 export const englishResources: readonly (readonly [string, string])[] = [
+  ...asymmetricDuelEnglish,
   ['半島の付け根', 'Peninsula Neck'],
   [
     peninsulaNeckBriefing,
