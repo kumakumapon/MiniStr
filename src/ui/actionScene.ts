@@ -1,3 +1,4 @@
+import { armyEmblem } from './fourArmyEmblems';
 import type { FourArmyId } from '../game/fourArmyFoundation';
 import { renderSpectatorSceneControls } from './spectatorSceneControls';
 import type { GameCommand, GameState, PlayerId, Position, TerrainKind, UnitKind } from '../game';
@@ -184,8 +185,7 @@ function unitSprite(kind: UnitKind, owner: ActionSceneOwner, label: string): str
 
 function armyBadge(owner: ActionSceneOwner, english: boolean): string {
   if (owner === 'red' || owner === 'blue') return '';
-  const marker = owner === 'army1' ? '■' : owner === 'army2' ? '●' : owner === 'army3' ? '◆' : '▲';
-  return `<span class="battle-team-badge battle-team-badge-${owner}">${marker} ${english ? 'Army ' : '第'}${owner.slice(-1)}${english ? '' : '軍'}</span>`;
+  return `<span class="battle-team-badge battle-team-badge-${owner}">${armyEmblem(owner)} ${english ? 'Army ' : '第'}${owner.slice(-1)}${english ? '' : '軍'}</span>`;
 }
 
 function renderCaptureScene(scene: CaptureActionScene, english: boolean): string {

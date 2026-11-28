@@ -1,3 +1,4 @@
+import { armyEmblem } from './fourArmyEmblems';
 import { asymmetricBoard, isAsymmetricSource } from '../game/asymmetricBattlefield';
 import type { FourArmyId } from '../game/fourArmyFoundation';
 import type { FourArmyControllers } from '../game/fourArmyControl';
@@ -95,7 +96,7 @@ export function renderStartingSites(
   const markers = armies
     .map((army, i) => {
       const { x, y } = homes[army];
-      return `<button type="button" id="four-site-marker-${i}" data-site-index="${i}" class="four-site-marker four-army-label ${army}" style="left:${((x + 0.5) / board.width) * 100}%;top:${((y + 0.5) / board.height) * 100}%" aria-pressed="${army === selectedArmy}" aria-label="${names[i]} · ${role(army, i)}">${army.slice(-1)}</button>`;
+      return `<button type="button" id="four-site-marker-${i}" data-site-index="${i}" class="four-site-marker four-army-label ${army}" style="left:${((x + 0.5) / board.width) * 100}%;top:${((y + 0.5) / board.height) * 100}%" aria-pressed="${army === selectedArmy}" aria-label="${names[i]} · ${role(army, i)}">${armyEmblem(army)}<span aria-hidden="true">${army.slice(-1)}</span></button>`;
     })
     .join('');
   const label = mode === 'human' ? (en ? 'Your army' : '操作する軍') : en ? 'Selected army' : '選択中の軍';
@@ -113,7 +114,7 @@ export function renderStartingSites(
         mode === 'custom'
           ? `<label>${en ? 'Controller' : '操作担当'}<select id="four-controller-${army}" data-controller="${army}"><option value="human" ${controllers[army] === 'human' ? 'selected' : ''}>${en ? 'Human' : '人間'}</option><option value="cpu" ${controllers[army] === 'cpu' ? 'selected' : ''}>CPU</option></select></label>`
           : '';
-      return `<li class="four-army-label ${army}"><strong>${role(army, i)}</strong>${site}${controller}</li>`;
+      return `<li class="four-army-label ${army}"><strong>${armyEmblem(army)} ${role(army, i)}</strong>${site}${controller}</li>`;
     })
     .join('');
   const hint = authored

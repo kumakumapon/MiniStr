@@ -38,6 +38,9 @@ for (const { width, locale } of [
     await page.locator(`#four-board > [data-x="${unit.position!.x}"][data-y="${unit.position!.y}"]`).click();
     await page.locator('[data-human-action="capture"]').click();
     await expect(page.locator('.four-action-scene .action-scene-capture')).toBeVisible();
+    await expect(page.locator('.four-action-scene .army-emblem.army3')).toHaveText('◆');
+    const armyColor = await page.locator('#four-army-info .army-emblem.army3').evaluate((el) => getComputedStyle(el).color);
+    await expect(page.locator('.four-action-scene .army-emblem.army3')).toHaveCSS('color', armyColor);
     await expect(page.locator('.action-capture-progress')).toHaveAttribute('aria-valuenow', '100');
     await expect(page.locator('.action-scene')).toContainText(locale === 'ja' ? '第3軍' : 'Army 3');
     await expect(page.locator('#four-army-screen')).toHaveAttribute('inert', '');
