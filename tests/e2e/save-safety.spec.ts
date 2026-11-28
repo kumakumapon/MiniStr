@@ -7,7 +7,9 @@ for (const width of [1280, 390])
     test(`preserves conflicting tabs and recovers a damaged backup at ${width}/${locale}`, async ({ page, context }, info) => {
       await page.setViewportSize({ width, height: 844 });
       await page.goto('/');
+      await openTitlePanel(page, 'settings');
       await page.locator('.title-overlay [data-locale]').selectOption(locale);
+      await openTitlePanel(page, 'home');
       await page.locator('.title-map-card').first().click();
       await page.locator('input[name="match-mode"][value="hotseat"]').check();
       await page.locator('#begin-operation').click();
@@ -18,9 +20,9 @@ for (const width of [1280, 390])
       const second = await context.newPage();
       await second.goto('/');
       await second.evaluate(() => localStorage.setItem('ministr.save.manual', '{broken-in-other-tab'));
+      await openTitlePanel(page, 'records', true);
       await expect(page.locator('#storage-session-export')).toBeVisible();
       const download = page.waitForEvent('download');
-      await openTitlePanel(page, 'records', true);
       await page.locator('#backup-export').click();
       const stream = await (await download).createReadStream();
       const chunks: Buffer[] = [];
@@ -34,6 +36,7 @@ for (const width of [1280, 390])
       await page.screenshot({ path: info.outputPath('systems-storage-conflict.png'), fullPage: true });
       await second.close();
       await page.reload();
+      await openTitlePanel(page, 'records');
       await expect(page.locator('.export-save-slot[data-save-slot="manual"]')).toBeEnabled();
       page.on('dialog', (d) => d.accept());
       const recovery = JSON.stringify({

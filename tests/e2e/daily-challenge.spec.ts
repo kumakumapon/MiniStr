@@ -91,8 +91,8 @@ test('fits a phone screen and keeps every control reachable', async ({ page }) =
 
 test('shows records by date, deletes one, and resets all without touching operation records', async ({ page }) => {
   await open(page, { 'ministr.daily.records': records(DATE, '2026-02-02', '2026-02-01'), 'ministr.operations.records': JSON.stringify({ schemaVersion: 1, records: [] }) });
-  await expect(page.locator('.daily-best')).toHaveText('最短10ターン・損失0');
   await openTitlePanel(page, 'records');
+  await expect(page.locator('.daily-best')).toHaveText('最短10ターン・損失0');
   await page.locator('#title-daily-records-heading').click();
   await expect(page.locator('.daily-record-list li')).toHaveCount(3);
   page.once('dialog', (dialog) => dialog.accept());

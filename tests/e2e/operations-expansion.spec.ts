@@ -52,7 +52,8 @@ for (const viewport of [
     await expect(page.locator('.operation-challenges')).toContainText('追加チャレンジ');
     await page.locator('#begin-operation').click();
     await expect(page.locator('.control-score')).toContainText('赤 0 ／ 青 0');
-    await expect(page.locator('#unit-brief + #board-viewport')).toHaveCount(1);
+    await expect(page.locator('#command-panel .hud-selection #unit-brief')).toHaveCount(1);
+    await expect(page.locator('.battlefield-wrap #board-viewport')).toBeVisible();
     await page.locator('.control-score summary').click();
     await expect(page.locator('[data-control-x]')).toHaveCount(2);
     await expect(page.locator('.control-score')).toContainText('常駐は不要');

@@ -252,6 +252,19 @@
     font-size: 0.66rem;
     line-height: 1.2;
   }
+  .hud-layout .four-map-heading .four-display-controls {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    flex-basis: 100%;
+    gap: 4px;
+  }
+  .hud-layout .four-display-controls label.four-threat-control,
+  .hud-layout .four-display-controls summary {
+    min-height: 44px;
+    padding: 4px;
+    font-size: 0.72rem;
+    white-space: normal;
+  }
 }
 .four-screen .hud-status.command-bar {
   margin-bottom: 4px;

@@ -50,15 +50,15 @@ test('shows both recorded CPU difficulties when replaying a spectated match (#13
   await expect(page.locator('#red-difficulty')).toBeDisabled();
   await expect(page.locator('#difficulty')).toHaveValue('hard');
   await expect(page.locator('#difficulty')).toBeDisabled();
-  await expect(page.locator('.command-bar')).toContainText('赤軍CPU');
-  await expect(page.locator('.command-bar')).toContainText('青軍CPU');
+  await expect(page.locator('#match-options')).toContainText('赤軍CPU');
+  await expect(page.locator('#match-options')).toContainText('青軍CPU');
 });
 
 test('keeps the single difficulty for replays without a red difficulty (#137)', async ({ page }) => {
   await importReplay(page, spectatedReplayJson(undefined, 'normal'));
   await expect(page.locator('#red-difficulty')).toHaveCount(0);
   await expect(page.locator('#difficulty')).toHaveValue('normal');
-  await expect(page.locator('.command-bar')).not.toContainText('赤軍CPU');
+  await expect(page.locator('#match-options')).not.toContainText('赤軍CPU');
 });
 
 test('returns to the title after a replay imported there ends (#143)', async ({ page }) => {

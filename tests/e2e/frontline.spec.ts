@@ -23,7 +23,8 @@ for (const viewport of [
     await page.locator('.tile[data-x="2"][data-y="1"]').click();
     await expect(page.locator('#unit-brief')).toContainText('補給予定');
     await expect(page.locator('#unit-brief')).toContainText('HP修理なし');
-    await expect(page.locator('#unit-brief + #board-viewport')).toHaveCount(1);
+    await expect(page.locator('#command-panel .hud-selection #unit-brief')).toHaveCount(1);
+    await expect(page.locator('.battlefield-wrap #board-viewport')).toBeVisible();
     await page.locator('#supply-range').click();
     await expect(page.locator('.tile.supply-coverage')).toHaveCount(6);
     await expect(page.locator('.tile[data-x="8"][data-y="4"] .unit')).toHaveCount(0);

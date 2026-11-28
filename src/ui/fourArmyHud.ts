@@ -57,7 +57,7 @@ export function arrangeFourArmyHud(root: HTMLElement, state: ReturnType<typeof r
     help.append(keyboard);
     const controls = map.querySelector('.four-map-heading')!;
     controls.insertAdjacentHTML('beforeend', `<button type="button" data-hud-open aria-controls="four-command-panel">${english ? 'Info' : '作戦情報'}</button>`);
-    controls.append(help);
+    controls.insertBefore(help, controls.querySelector('.four-display-controls'));
   }
   bindContextPanel(root, state);
 }
