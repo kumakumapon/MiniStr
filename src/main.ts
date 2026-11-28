@@ -1,4 +1,6 @@
-import { createExpandedBattleMap } from './game/expandedBattleMap';
+import { createExpandedBattleMap, latestExpandedBattleLayout } from './game/expandedBattleMap';
+import { FOUR_ARMY_IDS } from './game/fourArmyFoundation';
+import { battlefieldTheme } from './ui/startingSites';
 import { createFourArmyMap32 } from './game/fourArmyMap32';
 import { renderMatchActionBar, renderTurnProgress } from './ui/matchHud';
 import { loadActionSceneSettings, saveActionSceneSetting, renderActionSceneSetting } from './ui/actionSceneSettings';
@@ -9,7 +11,7 @@ import { canReplayFourArmySave, FourArmyScreen } from './ui/fourArmyScreen';
 import { FourArmyFileCodec } from './ui/fourArmyFileCodec';
 import type { FourArmyFileResult } from './game/fourArmySpectatorProtocol';
 import { FOUR_ARMY_AUTO_SAVE_KEY, FOUR_ARMY_FILE_BYTES, FOUR_ARMY_SAVE_KEYS, fourArmySlotName, isFourArmySaveKey } from './game/fourArmySpectatorSave';
-import { armyCountLabel, armyCountOptions, type MultiplayerMap, multiplayerCardId, multiplayerName, multiplayerOnlyMaps, multiplayerSize, multiplayerVariant, renderMatchVariants } from './ui/matchVariants';
+import { armyCountOptions, type MultiplayerMap, multiplayerCardId, multiplayerName, multiplayerOnlyMaps, multiplayerSize, multiplayerVariant, renderMatchVariants } from './ui/matchVariants';
 import { boardTileSelector, syncBoardFocus } from './ui/boardFocus';
 import { TileMarkupCache } from './ui/tileMarkupCache';
 import { BoardInput } from './ui/boardInput';
@@ -60,18 +62,20 @@ const resultCache = new ResultCache();
 let learningOpen = false;
 import { ScreenController } from './ui/screenController';
 const screens = new ScreenController();
-import { TitleState, buildTitleOverlay } from './ui/titleScreen';
+import { TitleState, buildTitleOverlay, multiplayerCatalogFormat } from './ui/titleScreen';
 import { TitlePreviews } from './ui/titlePreviews';
 const titlePreviews = new TitlePreviews();
-const multiplayerPreviews = new Map<MultiplayerMap, string>();
-function multiplayerPreview(map: (typeof multiplayerOnlyMaps)[number]): string {
-  const cached = multiplayerPreviews.get(map);
+const multiplayerPreviews = new Map<string, string>();
+function multiplayerPreview(map: MultiplayerMap, count: 2 | 3 | 4): string {
+  const key = map + ':' + count;
+  const cached = multiplayerPreviews.get(key);
   if (cached !== undefined) return cached;
-  const made = map === 'wide' ? createFourArmyMap32() : createExpandedBattleMap({ sourceMapId: map });
+  const source = map === 'compact' ? 'skirmish' : map;
+  const made = source === 'wide' ? createFourArmyMap32() : createExpandedBattleMap({ sourceMapId: source, participants: FOUR_ARMY_IDS.slice(0, count), layoutVersion: latestExpandedBattleLayout(source, count) });
   if (!made.ok) return '';
   const { board, units } = made.value;
-  const preview = renderMapPreview(board, units.flatMap(unit => unit.position ? [{ ...unit.position, owner: unit.owner }] : []), map === 'strait' ? 'coastal' : 'temperate');
-  multiplayerPreviews.set(map, preview);
+  const preview = renderMapPreview(board, units.flatMap(unit => unit.position ? [{ ...unit.position, owner: unit.owner }] : []), map === 'strait' ? 'coastal' : battlefieldTheme(map), true);
+  multiplayerPreviews.set(key, preview);
   return preview;
 }
 
@@ -1235,11 +1239,11 @@ const titleEventDeps: TitleEventDeps = {
     app.querySelector<HTMLElement>('#title-saves-heading')?.focus();
     return true;
   },
-  openMultiplayerMap: id => {
-    const map = multiplayerOnlyMaps.find(candidate => multiplayerCardId(candidate) === id);
+  openMultiplayerMap: (id, count) => {
+    const map = multiplayerOnlyMaps.find(candidate => multiplayerCardId(candidate) === id) ?? (count && multiplayerVariant(id));
     if (!map) return false;
     multiplayerReturnMap = id;
-    fourArmyScreen.open({ map, count: 4, mode: 'cpu' });
+    fourArmyScreen.open({ map, count: count ?? 4, mode: 'cpu' });
     return true;
   },
   message: () => message,
@@ -1599,15 +1603,17 @@ function render(): void {
     scenarios: () => availableScenarios().map(map => tacticalPreset && !isDailyScenarioId(map.id) && map.id !== 'training' ? tacticalScenario(map) : map),
     selectedMapId: selectedMap.id,
     canResumeMultiplayer: fourArmyScreen.canReturnFromTitle,
+    multiplayerPreview: (map, count) => titlePreviews.placeholder(multiplayerCardId(map), () => multiplayerPreview(map, count)),
     multiplayerCards: () => multiplayerOnlyMaps.map(map => ({
       id: multiplayerCardId(map), name: multiplayerName(map), ...multiplayerSize(map),
-      theme: '', startingGold: map === 'strait' ? 6000 : 10000, armyCount: armyCountLabel(map),
+      category: 'battle', formats: [multiplayerCatalogFormat(map, count => titlePreviews.placeholder(multiplayerCardId(map), () => multiplayerPreview(map, count)))], clear: 'untracked',
+      theme: map === 'strait' ? (getLocale() === 'en' ? 'Coastal' : '沿岸') : (getLocale() === 'en' ? 'Temperate' : '温帯'), startingGold: map === 'strait' ? 6000 : 10000,
       timing: map === 'wide' ? (getLocale() === 'en' ? 'No round limit' : '期限なし') : (getLocale() === 'en' ? 'Short or unlimited' : '短期戦／期限なし'),
       victory: getLocale() === 'en' ? 'Last army or team standing' : '最後の生存軍・チームが勝利',
-      custom: false, selected: false, preview: titlePreviews.placeholder(multiplayerCardId(map), () => multiplayerPreview(map)),
+      custom: false, selected: false, preview: '',
     })),
     mapPreview: map => titlePreviews.placeholder(map.id, () => mapPreviews.get(map) ?? (() => {
-      const preview = renderMapPreview(map.board, map.initialUnits, map.theme);
+      const preview = renderMapPreview(map.board, map.initialUnits, map.theme, true);
       mapPreviews.set(map, preview);
       return preview;
     })()),

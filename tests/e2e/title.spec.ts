@@ -84,8 +84,8 @@ test('fits a phone screen without horizontal scrolling (#143)', async ({ page })
   expect(widths.page).toBeLessThanOrEqual(widths.viewport);
   expect(widths.screen).toBeLessThanOrEqual(widths.screenBox);
   const [first, second] = await page.locator('.title-map-card').evaluateAll((cards) => cards.slice(0, 2).map((card) => card.getBoundingClientRect().left));
-  // One column: the cards line up vertically.
-  expect(first).toBe(second);
+  // Browsing on a phone keeps two cards in the same row.
+  expect(second).toBeGreaterThan(first!);
 });
 
 test('keeps the way back to a match through screens opened from the title (#143 review)', async ({ page }) => {

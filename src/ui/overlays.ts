@@ -1,6 +1,7 @@
 import { renderBriefingShell } from './briefingShell';
 import { renderActionSceneSetting } from './actionSceneSettings';
 import { renderBattleSceneSetting } from './battleSceneSettings';
+import { renderTitleCatalog, type CatalogFilters, type CatalogCategory, type CatalogFormat } from './titleCatalog';
 import { timingSummary } from './turnTiming';
 import { renderMusicControls } from './musicControls';
 import type { MusicSettings } from './music';
@@ -159,7 +160,10 @@ export interface TitleMapCard {
   selected: boolean;
   /** Decorative SVG from `renderMapPreview`; markup built only from numbers and fixed colours. */
   preview: string;
-  armyCount?: string;
+  rules?: string;
+  category?: Exclude<CatalogCategory, 'all'>;
+  formats?: CatalogFormat[];
+  clear?: 'cleared' | 'uncleared' | 'untracked';
 }
 
 /**
@@ -170,6 +174,7 @@ export interface TitleMapCard {
 export function renderTitleOverlay(options: {
   visible: boolean;
   maps: readonly TitleMapCard[];
+  catalogFilters?: CatalogFilters;
   canContinue: boolean;
   canResume: boolean;
   canResumeMultiplayer?: boolean;
@@ -189,13 +194,7 @@ export function renderTitleOverlay(options: {
   const automatic = options.boardZoom?.automatic ?? true;
   const zoomLabel = getLocale() === 'en' ? 'Map display size' : 'マップ表示サイズ';
   const zoomControl = `<label class="map-picker board-zoom-control">${zoomLabel}<select id="title-board-zoom" aria-label="${zoomLabel}"><option value="auto" ${automatic ? 'selected' : ''}>${getLocale() === 'en' ? 'Auto' : '自動'}</option>${BOARD_ZOOM_LEVELS.map((_, index) => `<option value="${boardZoomPercent(index)}" ${!automatic && options.boardZoom?.index === index ? 'selected' : ''}>${boardZoomPercent(index)}%</option>`).join('')}</select></label>`;
-  const cards = options.maps
-    .map(
-      (map) =>
-        `<li class="title-map-entry"><button class="title-map-card" data-map-id="${escapeHtml(map.id)}" ${map.selected ? 'aria-current="true"' : ''}>${map.preview}<span class="title-map-name">${escapeHtml(map.name)}${map.custom ? `<em>${uiText.titleCustom}</em>` : ''}</span><span class="title-map-facts"><span>${escapeHtml(map.theme)}</span>${map.armyCount ? `<span>${escapeHtml(map.armyCount)}</span>` : ''}<span>${uiText.titleBoard(map.width, map.height)}</span><span>${uiText.titleGold(map.startingGold)}</span><span>${escapeHtml(map.timing ?? timingSummary({ deadline: map.turnLimit }))}</span></span><span class="title-map-victory">${escapeHtml(map.victory)}</span></button>${map.custom ? `<button type="button" class="save-action title-map-delete" id="title-delete-${escapeHtml(map.id)}" data-delete-custom-map="${escapeHtml(map.id)}" data-user-attributes="aria-label" aria-label="${escapeHtml(uiText.customMapDeleteLabel(map.name))}">${uiText.customMapDelete}</button>` : ''}</li>`,
-    )
-    .join('');
-  return `<div class="title-overlay" role="dialog" aria-modal="true" aria-labelledby="title-heading"><section class="title-screen"><header class="title-hero"><p class="card-kicker">${uiText.titleKicker}</p><h2 id="title-heading">${uiText.titleHeading}</h2><p>${uiText.titleLead}</p></header><nav class="title-menu" aria-label="${uiText.titleMenu}">${renderLocalePicker()}${renderCpuSpeedControl(options.cpuSpeed ?? 1, 'title-cpu-speed')}${zoomControl}${renderBattleSceneSetting('twoArmy', options.battleScenesEnabled ?? true, 'title')}${renderActionSceneSetting('twoArmy', options.actionScenesEnabled ?? true, 'title')}${options.canResume ? `<button id="title-resume" class="end-turn">${uiText.titleResume}</button>` : ''}${options.canResumeMultiplayer ? `<button id="title-resume-multiplayer" class="end-turn">${getLocale() === 'en' ? 'Return to multiplayer match' : '複数軍の対局へ戻る'}</button>` : ''}<button id="title-continue" class="save-action" ${options.canContinue ? '' : 'disabled'}>${uiText.titleContinue}</button><button id="title-training" class="save-action">基本操作を練習</button><button id="title-campaign" class="save-action">${uiText.titleCampaign}</button><button id="title-import-replay" class="save-action">${getLocale() === 'en' ? 'Open record' : '記録を開く'}</button><button id="title-editor" class="save-action">${uiText.titleEditor}</button><input id="title-replay-file" class="visually-hidden" type="file" accept=".json,application/json" aria-label="リプレイ・研究JSONファイルを選択"></nav><details id="title-music-settings" class="title-music-settings" ${options.musicOpen ? 'open' : ''}><summary>${getLocale() === 'en' ? 'BGM settings' : 'BGM設定'}</summary>${renderMusicControls(options.musicSettings, 'title-music', true)}</details>${options.daily ?? ''}${options.savePicker ?? ''}${options.generator ?? ''}${options.notice ? `<p class="title-notice" role="status">${escapeHtml(options.notice)}</p>` : ''}<section aria-labelledby="title-maps-heading"><h3 id="title-maps-heading">${uiText.titleMapsHeading}</h3><ol class="title-map-list">${cards}</ol></section></section></div>`;
+  return `<div class="title-overlay" role="dialog" aria-modal="true" aria-labelledby="title-heading"><section class="title-screen"><header class="title-hero"><p class="card-kicker">${uiText.titleKicker}</p><h2 id="title-heading">${uiText.titleHeading}</h2><p>${uiText.titleLead}</p></header><nav class="title-menu" aria-label="${uiText.titleMenu}">${renderLocalePicker()}${renderCpuSpeedControl(options.cpuSpeed ?? 1, 'title-cpu-speed')}${zoomControl}${renderBattleSceneSetting('twoArmy', options.battleScenesEnabled ?? true, 'title')}${renderActionSceneSetting('twoArmy', options.actionScenesEnabled ?? true, 'title')}${options.canResume ? `<button id="title-resume" class="end-turn">${uiText.titleResume}</button>` : ''}${options.canResumeMultiplayer ? `<button id="title-resume-multiplayer" class="end-turn">${getLocale() === 'en' ? 'Return to multiplayer match' : '複数軍の対局へ戻る'}</button>` : ''}<button id="title-continue" class="save-action" ${options.canContinue ? '' : 'disabled'}>${uiText.titleContinue}</button><button id="title-training" class="save-action">基本操作を練習</button><button id="title-campaign" class="save-action">${uiText.titleCampaign}</button><button id="title-import-replay" class="save-action">${getLocale() === 'en' ? 'Open record' : '記録を開く'}</button><button id="title-editor" class="save-action">${uiText.titleEditor}</button><input id="title-replay-file" class="visually-hidden" type="file" accept=".json,application/json" aria-label="リプレイ・研究JSONファイルを選択"></nav><details id="title-music-settings" class="title-music-settings" ${options.musicOpen ? 'open' : ''}><summary>${getLocale() === 'en' ? 'BGM settings' : 'BGM設定'}</summary>${renderMusicControls(options.musicSettings, 'title-music', true)}</details>${options.daily ?? ''}${options.savePicker ?? ''}${options.generator ?? ''}${options.notice ? `<p class="title-notice" role="status">${escapeHtml(options.notice)}</p>` : ''}${renderTitleCatalog(options.maps, options.catalogFilters)}</section></div>`;
 }
 
 /**
