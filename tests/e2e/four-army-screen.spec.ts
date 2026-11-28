@@ -729,6 +729,7 @@ for (const { width, locale, actor } of [
     await page.reload();
     await page.locator('.title-map-card[data-map-id="skirmish"]').click();
     await page.locator('#briefing-match-variants label:has(input[value="4"])').click();
+    await page.locator('#four-setup-summary').click();
     await expect(page.locator('#battle-scenes-multiArmy')).not.toBeChecked();
     await page.locator('#battle-scenes-multiArmy').check();
     await importMatch(page, fixture.text);
