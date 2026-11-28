@@ -95,7 +95,11 @@ export function* verifyFourArmyArchive(
   let replayed = createFourArmyState(p.map);
   if (!replayed.ok) return replayed;
   const map = p.map as FourArmyMap;
-  if (map.match?.version === 2 && map.match.sourceMapId === 'crown' && canonical(map) !== canonical(createAsymmetricLayout('crown', map.match, map.seed, map.rules))) {
+  if (
+    map.match?.version === 2 &&
+    (map.match.sourceMapId === 'crown' || map.match.sourceMapId === 'encirclement') &&
+    canonical(map) !== canonical(createAsymmetricLayout(map.match.sourceMapId, map.match, map.seed, map.rules))
+  ) {
     return fail('保存された初期配置が戦域の定義と一致しません。');
   }
   visit?.(replayed.value, 0);

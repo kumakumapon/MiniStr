@@ -125,7 +125,7 @@ test('both complete quality shards are required by the stable test-and-build gat
     assert.ifError(run.error);
     assert.equal(run.status, result === 'success' ? 0 : 1);
   }
-  assert.match(quality, /timeout-minutes: 35/);
+  assert.match(quality, /timeout-minutes: 45/);
   assert.match(quality, /fail-fast: false\n {6}matrix:\n {8}browser-shard: \[1, 2\]/);
   assert.match(quality, /group: \$\{\{ github\.workflow \}\}-\$\{\{ github\.ref \}\}-quality-\$\{\{ matrix\.browser-shard \}\}/);
   assert.match(quality, /run: npm run test:e2e -- --shard=\$\{\{ matrix\.browser-shard \}\}\/2/);

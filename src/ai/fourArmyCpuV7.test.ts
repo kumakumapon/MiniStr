@@ -166,6 +166,27 @@ it('takes a reachable enemy headquarters in a short four-way pass assault', () =
   expect(decide(state).command).toMatchObject({ type: 'move', unitId: unit.id, destination: h });
 });
 
+it.each([
+  { siteArmies: ['army1', 'army2', 'army3', 'army4'] as const, target: 'army2' as const, position: { x: 3, y: 6 } },
+  { siteArmies: ['army2', 'army1', 'army3', 'army4'] as const, target: 'army2' as const, position: { x: 8, y: 5 } },
+])('assaults a hostile headquarters from either team in short Encirclement ($siteArmies)', ({ siteArmies, target, position }) => {
+  const map = value(createExpandedBattleMap({ sourceMapId: 'encirclement', siteArmies }));
+  let state = value(createFourArmyState(map));
+  while (state.round.round < 5 || state.round.order[state.round.index] !== 'army1') {
+    state = value(applyFourArmyCommand(state, { actor: state.round.order[state.round.index]!, type: 'endTurn' }));
+  }
+  const infantry = state.units.find((unit) => unit.owner === 'army1' && unit.kind === 'infantry')!;
+  infantry.position = position;
+  state.units = state.alive.map((army, index) => {
+    if (army === 'army1') return infantry;
+    const reserve = state.units.find((unit) => unit.owner === army && unit.kind === 'infantry')!;
+    return { ...reserve, position: { x: 12 + index, y: 13 } };
+  });
+  state.players.army1.gold = 0;
+  const next = decide(state);
+  expect(next.command).toMatchObject({ type: 'move', unitId: infantry.id, destination: state.capitals[target] });
+});
+
 it('changes a three-army pass assault target with the initial order while keeping starting sites fixed', () => {
   for (const order of [
     ['army1', 'army2', 'army3'],

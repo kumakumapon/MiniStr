@@ -1,14 +1,27 @@
 import { armyEmblem } from './fourArmyEmblems';
-import { asymmetricBoard, isAsymmetricSource, startingSiteResources } from '../game/asymmetricBattlefield';
+import {
+  asymmetricBoard,
+  encirclementAllianceLimit,
+  encirclementHegemonLimit,
+  isAsymmetricSource,
+  isFixedFourArmySource,
+  startingSiteResources,
+} from '../game/asymmetricBattlefield';
 import type { FourArmyId } from '../game/fourArmyFoundation';
 import type { FourArmyControllers } from '../game/fourArmyControl';
 import { createExpandedBattleMap, latestExpandedBattleLayout } from '../game/expandedBattleMap';
 import { createFourArmyMap32 } from '../game/fourArmyMap32';
-import { type MultiplayerMap } from './matchVariants';
+import { encirclementTeamName, type MultiplayerMap } from './matchVariants';
 import { terrainNames, unitNames } from './labels';
 import { getLocale } from './locale';
 import { renderMapPreview } from './mapPreview';
 const copy = {
+  encirclement: [
+    ['北・3つの峠を守る山脈の奥', 'North · holds the ridge behind three mountain passes'],
+    ['西・西の峠への街道', 'West · road to the western pass'],
+    ['東・東の峠への街道', 'East · road to the eastern pass'],
+    ['南・中央の峠へ伸びる道', 'South · road to the central pass'],
+  ],
   crown: [
     ['中央・三方に開けた街道網', 'Center · a crossroads with three exposed approaches'],
     ['北西・山林に守られた外縁', 'Northwest · a foothold behind woods and mountains'],
@@ -74,11 +87,12 @@ function countedNames(names: readonly string[]): string {
   return [...counts].map(([name, count]) => `${name} ×${count}`).join(' · ');
 }
 
-function crownResources(site: number, en: boolean): string {
-  const { gold, units, facilities } = startingSiteResources('crown', site);
+function siteResources(source: 'crown' | 'encirclement', site: number, en: boolean): string {
+  const { gold, units, facilities } = startingSiteResources(source, site);
   const initialUnits = countedNames(units.map(([kind]) => unitNames[kind]));
   const buildings = countedNames([terrainNames.capital, ...facilities.map(([kind]) => terrainNames[kind])]);
-  return `<dl class="four-site-resources"><dt>${en ? 'Starting funds' : '初期資金'}</dt><dd>${gold.toLocaleString(en ? 'en-US' : 'ja-JP')}G</dd><dt>${en ? 'Starting units' : '初期部隊'}</dt><dd>${initialUnits}</dd><dt>${en ? 'Owned properties' : '保有施設'}</dt><dd>${buildings}</dd></dl>`;
+  const cap = source === 'encirclement' ? `<dt>${en ? 'Unit limit' : '部隊上限'}</dt><dd>${site === 0 ? encirclementHegemonLimit : encirclementAllianceLimit}</dd>` : '';
+  return `<dl class="four-site-resources"><dt>${en ? 'Starting funds' : '初期資金'}</dt><dd>${gold.toLocaleString(en ? 'en-US' : 'ja-JP')}G</dd><dt>${en ? 'Starting units' : '初期部隊'}</dt><dd>${initialUnits}</dd><dt>${en ? 'Owned properties' : '保有施設'}</dt><dd>${buildings}</dd>${cap}</dl>`;
 }
 
 export function renderStartingSites(
@@ -107,6 +121,7 @@ export function renderStartingSites(
     return cornerNames[y < board.height / 2 ? (x < board.width / 2 ? 0 : 1) : x < board.width / 2 ? 3 : 2]![loc];
   });
   const teamLabel = (army: FourArmyId, i: number) => {
+    if (source === 'encirclement') return encirclementTeamName(i === 0);
     if (source === 'tundra') return i === 0 ? (en ? 'Defender' : '守備側') : en ? 'Attackers' : '攻撃側';
     if (!teams) return en ? 'Free-for-all' : '個人戦';
     const team = String.fromCharCode(64 + Number(teams[army].slice(-1)));
@@ -134,7 +149,7 @@ export function renderStartingSites(
         mode === 'custom'
           ? `<label>${en ? 'Controller' : '操作担当'}<select id="four-controller-${army}" data-controller="${army}"><option value="human" ${controllers[army] === 'human' ? 'selected' : ''}>${en ? 'Human' : '人間'}</option><option value="cpu" ${controllers[army] === 'cpu' ? 'selected' : ''}>CPU</option></select></label>`
           : '';
-      return `<li class="four-army-label ${army}"><strong>${armyEmblem(army)} ${role(army, i)}</strong>${site}${source === 'crown' ? crownResources(i, en) : ''}${controller}</li>`;
+      return `<li class="four-army-label ${army}"><strong>${armyEmblem(army)} ${role(army, i)}</strong>${site}${isFixedFourArmySource(source) ? siteResources(source, i, en) : ''}${controller}</li>`;
     })
     .join('');
   const hint = authored

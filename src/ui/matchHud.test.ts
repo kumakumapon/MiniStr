@@ -16,9 +16,11 @@ describe('shared match screen controls', () => {
     expect(multiplayerVariant('islands')).toBeUndefined();
     expect(classicVariant('outpost')).toBe('outpost');
     expect(classicVariant('frontier')).toBeUndefined();
-    expect(multiplayerOnlyMaps.map(multiplayerCardId)).toEqual(['multiplayer:strait', 'multiplayer:frontier', 'multiplayer:wide', 'multiplayer:crown']);
+    expect(multiplayerOnlyMaps.map(multiplayerCardId)).toEqual(['multiplayer:strait', 'multiplayer:frontier', 'multiplayer:wide', 'multiplayer:crown', 'multiplayer:encirclement']);
     expect(classicVariant('crown')).toBeUndefined();
     expect(armyCountLabel('crown')).toBe('Fixed 4 armies');
+    expect(classicVariant('encirclement')).toBeUndefined();
+    expect(armyCountLabel('encirclement')).toBe('Fixed 4 armies');
     expect(multiplayerName('strait')).toBe('Cross Strait');
     expect(multiplayerSize('strait')).toEqual({ width: 17, height: 15 });
     expect(multiplayerSize('frontier')).toEqual({ width: 32, height: 32 });

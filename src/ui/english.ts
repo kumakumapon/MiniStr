@@ -1,7 +1,13 @@
+import { peninsulaNeckBriefing } from '../game/peninsulaNeck';
 import { japaneseUnitNames, englishUnitNames } from './unitNameText';
 
 /** English display resources. IDs, authored data and saved JSON stay unchanged. */
 export const englishResources: readonly (readonly [string, string])[] = [
+  ['半島の付け根', 'Peninsula Neck'],
+  [
+    peninsulaNeckBriefing,
+    'Red holds two ports and a factory on the western peninsula and can send a landing ship around the coast. Blue holds two factories and an airport on the eastern mainland and can cross the isthmus with a transport helicopter. On land, both sides meet at the narrow central neck. Capture the neutral towns along the road and coast to extend supply, then seize the enemy headquarters or eliminate their forces.',
+  ],
   ['高地と低地の渡河', 'Highland Crossing'],
   [
     '赤軍は北岸の高地に工場1か所と対空車両を持ち、近くの中立工場と空港を確保できる。青軍は南岸の平野に工場2か所と空港を持つ。渡河路は3か所。どちらの軍も敵司令部の占領または敵部隊の全滅で勝利する。',

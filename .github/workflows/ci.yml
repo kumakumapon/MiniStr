@@ -50,8 +50,8 @@ jobs:
 
   quality-shard:
     runs-on: ubuntu-latest
-    # Leave time for the last WebKit shard after coverage and distribution checks.
-    timeout-minutes: 35
+    # Allow the last WebKit shard and artifact uploads after coverage and distribution checks.
+    timeout-minutes: 45
     strategy:
       fail-fast: false
       matrix:
