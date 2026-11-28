@@ -140,6 +140,8 @@ button:disabled, select:disabled { cursor: not-allowed; opacity: .45; }
 .objective-group.victory li { border-left-color: #d1ae45; }
 .objective-group.defeat li { border-left-color: #ad5a4e; }
 .objective-group li strong { color: #f5efe1; font-size:0.625rem; white-space: nowrap; }
+.objective-group.decision li { grid-template-columns: minmax(0, 1fr); }
+.objective-group.decision li strong { white-space: normal; }
 
 .briefing-overlay { position: fixed; inset: 0; z-index: 120; display: grid; place-items: center; padding: 20px; background: radial-gradient(circle at 50% 35%, #263c35ee, #08100fee 72%); backdrop-filter: blur(5px); }
 .briefing-card { width: min(680px, 100%); max-height: calc(100vh - 40px); overflow: auto; padding: 30px; border: 1px solid #d2aa49; border-radius: 10px; background: linear-gradient(155deg, #1c2d27 0 55%, #131e1a); box-shadow: 0 28px 80px #000c, inset 0 1px #fff1b21a; }

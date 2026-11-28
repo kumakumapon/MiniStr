@@ -550,9 +550,9 @@ function objectiveProgress(condition: VictoryCondition, state: GameState, player
   return progress.complete ? '達成' : `${progress.current} / ${progress.target}`;
 }
 
-function objectiveList(conditions: readonly VictoryCondition[], state: GameState, player: PlayerId): string {
+function objectiveList(conditions: readonly VictoryCondition[], state: GameState, player: PlayerId, viewingPlayer: PlayerId): string {
   if (conditions.length === 0) return '<li><span>条件なし</span></li>';
-  return conditions.map(condition => `<li><span>${escapeHtml(objectiveTimingDescription(state, condition, player))}${condition.type === 'hold' || condition.type === 'control' || isEvacuationCondition(condition) ? ` (${condition.positions.map(position => `${Number(position.x) + 1}, ${Number(position.y) + 1}`).join(' / ')})` : ''}</span><strong>${escapeHtml(objectiveProgress(condition, state, player))}</strong></li>`).join('');
+  return conditions.map(condition => `<li><span>${escapeHtml(objectiveTimingDescription(state, condition, player, viewingPlayer))}${condition.type === 'hold' || condition.type === 'control' || isEvacuationCondition(condition) ? ` (${condition.positions.map(position => `${Number(position.x) + 1}, ${Number(position.y) + 1}`).join(' / ')})` : ''}</span><strong>${escapeHtml(objectiveProgress(condition, state, player))}</strong></li>`).join('');
 }
 
 
@@ -1401,7 +1401,7 @@ function render(): void {
       // comparing two undefined values would mark every empty tile as selected.
       const statuses = [
         exitPositions.has(positionKey) ? '脱出地点' : objectivePositions.has(positionKey) ? '作戦目標地点' : '',
-        unit && !hidden && missionTargets.has(unit.id) ? `作戦対象 ${unit.id}` : '',
+        unit && !hidden && missionTargets.has(unit.id) ? `作戦対象 ${unitNames[unit.kind]}` : '',
         isSelected ? '選択中' : '',
         isReachable ? '移動可能' : '',
         enemyMovement ? '選択中の敵ユニットの移動範囲' : '',
@@ -1475,7 +1475,7 @@ function render(): void {
     ? `<section class="transport-card"><p class="card-kicker">TRANSPORT OPERATION</p><strong>${cargo ? `${escapeHtml(unitNames[cargo.kind])}を搭載中` : '輸送部隊への搭載'}</strong><span>${cargo ? '隣接する空の陸地を選んで降車させます。' : '隣接する空の輸送部隊を選んで搭載します。'}</span>${embarkTargets.map(unit => `<button class="transport-action embark" data-transport-id="${escapeHtml(unit.id)}">${escapeHtml(unitNames[unit.kind])}に搭載</button>`).join('')}${landingTargets.map(position => `<button class="transport-action disembark" data-x="${Number(position.x)}" data-y="${Number(position.y)}">(${Number(position.x) + 1}, ${Number(position.y) + 1}) に降車</button>`).join('')}${cargo && landingTargets.length === 0 ? '<em class="transport-note">降車できる隣接陸地がありません。</em>' : ''}</section>`
     : '';
   const evacuationAction = !replayMode && selectedUnit?.owner === me && isEvacuationTarget(renderedGame, selectedUnit.id, me)
-    ? `<section class="transport-card evacuation-card"><p class="card-kicker">撤退操作</p><strong>作戦対象 ${escapeHtml(selectedUnit.id)}</strong><p>脱出地点「脱」へ移動し、未行動の状態で撤退してください。搭載部隊は先に降車させます。</p><button id="evacuate-unit" class="end-turn" ${canAct && canEvacuateUnit(renderedGame, selectedUnit.id) ? '' : 'disabled'}>脱出地点から撤退</button></section>` : '';
+    ? `<section class="transport-card evacuation-card"><p class="card-kicker">撤退操作</p><strong>作戦対象 ${escapeHtml(unitNames[selectedUnit.kind])}</strong><p>脱出地点「脱」へ移動し、未行動の状態で撤退してください。搭載部隊は先に降車させます。</p><button id="evacuate-unit" class="end-turn" ${canAct && canEvacuateUnit(renderedGame, selectedUnit.id) ? '' : 'disabled'}>脱出地点から撤退</button></section>` : '';
   const indirectFireBlocked = !replayMode && selectedUnit?.owner === renderedGame.activePlayer
     && unitStats[selectedUnit.kind].indirect && selectedUnit.hasMoved && !selectedUnit.hasActed
     && !hasUsableWeapon(renderedGame, selectedUnit);
@@ -1532,7 +1532,7 @@ function render(): void {
   // Property ownership is public; unit value is not shown because it would reveal hidden units.
   const renderedDecisionRound = renderedTiming.decision;
   const decisionPanel = renderedDecisionRound === undefined ? '' : `<div class="objective-group decision"><h3>判定</h3><ul><li><span>${escapeHtml(uiText.decisionRule(renderedDecisionRound))}</span><strong>${getLocale() === 'en' ? 'Properties' : '拠点'} ${Number(decisionStanding(renderedGame, me).properties)} ${getLocale() === 'en' ? 'vs' : '対'} ${Number(decisionStanding(renderedGame, foe).properties)}・${escapeHtml(timingProgress(renderedTiming, renderedGame.turn))}</strong></li></ul></div>`;
-  const objectivePanel = `<section class="objective-card" aria-labelledby="objective-title"><div class="objective-heading"><div><p class="card-kicker">MISSION</p><h2 id="objective-title">作戦目標</h2></div><span class="turn-limit">${escapeHtml(timingProgress(renderedTiming, renderedGame.turn))}</span></div><p class="mission-timing">${escapeHtml(timingSummary(renderedTiming))}</p><div class="objective-group victory"><h3>勝利条件</h3><ul>${me === 'red' ? objectiveList(renderedMap.victoryConditions, renderedGame, 'red') : objectiveList(renderedMap.defeatConditions, renderedGame, 'blue')}</ul></div><div class="objective-group defeat"><h3>敗北条件</h3><ul>${me === 'red' ? objectiveList(renderedMap.defeatConditions, renderedGame, 'blue') : objectiveList(renderedMap.victoryConditions, renderedGame, 'red')}</ul></div>${decisionPanel}${campaignRun ? `<details class="campaign-orders"><summary>作戦指令・補給方針</summary><p data-user-content>${escapeHtml(scenarioDisplayBriefing(renderedMap))}</p></details>` : ''}</section>`;
+  const objectivePanel = `<section class="objective-card" aria-labelledby="objective-title"><div class="objective-heading"><div><p class="card-kicker">MISSION</p><h2 id="objective-title">作戦目標</h2></div><span class="turn-limit">${escapeHtml(timingProgress(renderedTiming, renderedGame.turn))}</span></div><p class="mission-timing">${escapeHtml(timingSummary(renderedTiming))}</p><div class="objective-group victory"><h3>勝利条件</h3><ul>${me === 'red' ? objectiveList(renderedMap.victoryConditions, renderedGame, 'red', me) : objectiveList(renderedMap.defeatConditions, renderedGame, 'blue', me)}</ul></div><div class="objective-group defeat"><h3>敗北条件</h3><ul>${me === 'red' ? objectiveList(renderedMap.defeatConditions, renderedGame, 'blue', me) : objectiveList(renderedMap.victoryConditions, renderedGame, 'red', me)}</ul></div>${decisionPanel}${campaignRun ? `<details class="campaign-orders"><summary>作戦指令・補給方針</summary><p data-user-content>${escapeHtml(scenarioDisplayBriefing(renderedMap))}</p></details>` : ''}</section>`;
   const unactedUnits = !replayMode && canAct ? unactedOwnUnits(renderedGame, me) : [];
   const unitQueuePanel = !replayMode ? `<section class="unit-queue-card" aria-labelledby="unit-queue-title"><div><p class="card-kicker">UNIT STATUS</p><h2 id="unit-queue-title">未行動部隊 <strong>${unactedUnits.length}</strong></h2></div>${unactedUnits.length ? `<ol>${unactedUnits.map(unit => `<li><button class="unit-queue-item" data-unit-id="${escapeHtml(unit.id)}" aria-label="${escapeHtml(unitNames[unit.kind])}、耐久 ${Number(unit.hp)}、マス ${Number(unit.position.x) + 1}、${Number(unit.position.y) + 1} を選択"><span class="${escapeHtml(unit.owner)}" aria-hidden="true">${escapeHtml(unitTokens[unit.kind])}</span>${escapeHtml(unitNames[unit.kind])} <em>${Number(unit.hp)}</em></button></li>`).join('')}</ol><button id="next-unit" class="save-action" ${canAct ? '' : 'disabled'}>次の未行動部隊 <kbd>N</kbd></button>` : '<p class="unit-queue-empty">未行動の自軍ユニットはありません。</p>'}</section>` : '';
   // Phones put the command panel a long scroll below the board, so the actions a
@@ -1638,7 +1638,7 @@ function render(): void {
     conditionHeadings: campaignRun ? { victory: '勝利条件（いずれか達成）', defeat: '敗北条件（いずれか成立）' }
       : matchMode === 'cpu' ? undefined : { victory: '赤軍の勝利条件', defeat: '青軍の勝利条件' },
     spectateDifficulties: { red: redDifficulty, blue: difficulty, levels: cpuDifficulties.map(level => ({ value: level, label: difficultyNames[level] })) },
-    defeatConditions: renderedMap.defeatConditions.map(condition => scenarioConditionDescription(renderedMap, condition, 'blue')),
+    defeatConditions: renderedMap.defeatConditions.map(condition => scenarioConditionDescription(renderedMap, condition, 'blue', campaignRun || matchMode === 'cpu' ? 'red' : 'blue')),
     startingGold: deployment?.ok ? createScenarioInitialState(deployment.value).players.red.gold : initialState.players.red.gold,
     timing: campaignRun ? campaignTimingSummary(campaignStages.find(stage => stage.scenarioId === campaignRun?.scenarioId)?.recommendedTurns ?? 0, renderedTiming) : timingSummary(renderedTiming),
     difficultyName: matchDifficultyName(),
@@ -1909,6 +1909,9 @@ function render(): void {
     const raw = key ? localStorage.getItem(key) : null;
     if (raw !== null) downloadJson(`ministr-save-${id}.json`, raw);
   }));
+  app.querySelectorAll<HTMLButtonElement>('[data-save-file]').forEach(button => {
+    button.addEventListener('click', () => app.querySelector<HTMLInputElement>(`#${button.dataset.saveFile}`)?.click());
+  });
   app.querySelector<HTMLInputElement>('#save-recovery-import')?.addEventListener('change', async event => {
     const input = event.currentTarget as HTMLInputElement;
     const file = input.files?.[0]; input.value = '';

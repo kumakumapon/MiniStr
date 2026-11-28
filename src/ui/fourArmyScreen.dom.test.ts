@@ -98,7 +98,7 @@ describe('four-army spectator controller', () => {
     }
     expect(details().open).toBe(true);
     expect(query('#four-start-summary').textContent).toContain('Watch 2 CPUs');
-    expect(query('#four-start').textContent).toBe('Open CPU observation');
+    expect(query('#four-start').textContent).toBe('Start operation');
     change('#four-controller-army3', 'human');
     expect(query('#four-start-summary').textContent).toContain('Play as Army 3 · 1 CPU');
     click('#four-setup-confirm');
@@ -117,6 +117,7 @@ describe('four-army spectator controller', () => {
     start();
     expect(query('#four-board').children).toHaveLength(252);
     expect(query('#four-turn').textContent).toContain(count === 3 ? '/21' : '/20');
+    expect(query('#four-heading').textContent).toBe(`${count}-army match`);
     expect(query('#four-army-info').children).toHaveLength(count);
     expect(query('#four-army-info').textContent).toContain('4/8');
     if (count === 3) expect(query('#four-army-info').textContent).not.toContain('Army 4');
@@ -413,6 +414,7 @@ describe('four-army spectator controller', () => {
     click('#four-return');
     expect(query('#four-turn').textContent).toContain('Your turn');
     click('#four-replay');
+    expect(query('#four-heading').textContent).toBe('4-army replay');
     expect(query('#four-human-panel').textContent).toContain('disabled during replay');
     expect(query('[data-human-action]')).toBeNull();
     expect(query<HTMLSelectElement>('#four-view').disabled).toBe(true);
@@ -534,6 +536,12 @@ describe('four-army spectator controller', () => {
     start();
     click('#four-next-unit');
     expect(query('#four-unit-brief').dataset.unitId).toBe('u1');
+    const unitOptions = [...query<HTMLSelectElement>('#four-unit').options];
+    expect(new Set(unitOptions.map((option) => option.text)).size).toBe(unitOptions.length);
+    expect(unitOptions.find((option) => option.value === 'u1')?.text).toBe('Army 1 Infantry 1');
+    expect(query('#four-selection').textContent).toContain('Army 1 Infantry 1');
+    expect(query('.four-human-source').textContent).toBe('Infantry 1');
+    expect(query('#four-unit-brief h3').textContent).toBe('Army 1 · Infantry 1');
     query('#four-board').dispatchEvent(new KeyboardEvent('keydown', { key: 'n', bubbles: true }));
     expect(query('#four-unit-brief').dataset.unitId).toBe('u2');
     click('#four-board > [data-x="31"][data-y="31"]');
@@ -563,7 +571,8 @@ describe('four-army spectator controller', () => {
     expect(query('#four-toggle').firstChild).toBe(label);
     expect(query('#four-unit').firstChild).toBe(unit);
     query('#four-board').dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }));
-    expect(query('#four-selection').textContent).toContain('(5, 4)');
+    expect(query('#four-board > [tabindex="0"]').getAttribute('aria-label')).toContain('(5, 4)');
+    expect(query('#four-selection').textContent).not.toMatch(/\(\d+, \d+\)/);
     click('#four-zoom-in');
     click('#four-zoom-out');
     click('#four-fit');
@@ -638,6 +647,7 @@ describe('four-army spectator controller', () => {
     change('#four-position', '12');
     await vi.waitFor(() => expect(query('#four-replay-count').textContent).toBe('12/24'));
     click('#four-replay-close');
+    expect(query('#four-heading').textContent).toBe('4-army observation');
     expect(query('#four-turn').textContent).toContain('24 commands');
   });
   it('rejects corrupt slots and prevents writes when the tab is not the storage owner', async () => {

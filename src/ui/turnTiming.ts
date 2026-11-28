@@ -24,14 +24,14 @@ export function isDeadlineCondition(scenario: ScenarioDefinition | undefined, co
   return player === 'blue' && scenario?.turnLimit !== undefined && condition.type === 'survive' && condition.untilTurn === scenario.turnLimit + 1;
 }
 
-export function scenarioConditionDescription(scenario: ScenarioDefinition, condition: VictoryCondition, player: PlayerId): string {
-  if (!isDeadlineCondition(scenario, condition, player)) return conditionDescription(condition);
+export function scenarioConditionDescription(scenario: ScenarioDefinition, condition: VictoryCondition, player: PlayerId, viewer: PlayerId = player): string {
+  if (!isDeadlineCondition(scenario, condition, player)) return conditionDescription(condition, viewer !== player);
   return getLocale() === 'en' ? `Deadline reached (end of round ${Number(scenario.turnLimit)})` : `作戦期限（${Number(scenario.turnLimit)}ラウンド終了）に到達`;
 }
 
-export function objectiveTimingDescription(state: GameState, condition: VictoryCondition, player: PlayerId): string {
+export function objectiveTimingDescription(state: GameState, condition: VictoryCondition, player: PlayerId, viewer: PlayerId = player): string {
   const scenario = scenarioForState(state);
-  return scenario ? scenarioConditionDescription(scenario, condition, player) : conditionDescription(condition);
+  return scenario ? scenarioConditionDescription(scenario, condition, player, viewer) : conditionDescription(condition, viewer !== player);
 }
 
 /** A tied decision is checked again at later round ends, rather than becoming a zero deadline. */
