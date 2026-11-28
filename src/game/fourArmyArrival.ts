@@ -48,11 +48,6 @@ export function isCanonicalArrival(actual: unknown, expected: unknown): boolean 
   return Object.keys(left).length === keys.length && keys.every((key) => Object.hasOwn(left, key) && isCanonicalArrival(left[key], right[key]));
 }
 
-export function earlierArmies(map: Pick<FourArmyMap, 'match' | 'order'>): FourArmyId[] {
-  const reserve = fourArmyArrival(map.match);
-  return reserve ? map.order.filter((army) => army !== reserve.army) : map.order;
-}
-
 export function withoutReserve(map: FourArmyMap): FourArmyMap {
   const reserve = fourArmyArrival(map.match);
   if (!reserve) return map;

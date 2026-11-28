@@ -1,7 +1,7 @@
 import { createAsymmetricLayout, isAsymmetricSource } from './asymmetricBattlefield';
-import { earlierArmies, enterReservedArmy, fourArmyArrival, isCanonicalArrival, validArrivalProgress, withoutReserve } from './fourArmyArrival';
+import { enterReservedArmy, fourArmyArrival, isCanonicalArrival, validArrivalProgress, withoutReserve } from './fourArmyArrival';
 import { isExpandedBattle } from './smallBattle';
-import { fourArmyObjective, heldObjectiveOutcome, isFourArmyHoldProgress, updateFourArmyHold, type FourArmyHoldProgress } from './fourArmyObjective';
+import { heldObjectiveOutcome, isFourArmyHoldProgress, updateFourArmyHold, type FourArmyHoldProgress } from './fourArmyObjective';
 import { combatSummaryForCommand, type CombatSummary } from './combatSummary';
 import {
   alliedArmies,
