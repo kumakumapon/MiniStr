@@ -19,7 +19,7 @@ for (const [source, name, count] of [
     await page.locator(`.title-map-card[data-map-id="${source}"]`).click();
     await expect(page.locator('#briefing-match-variants')).toHaveValue('standard');
     await expect(page.locator('#briefing-match-variants option')).toHaveCount(source === 'tundra' ? 2 : 3);
-    await page.getByRole('button', { name: /単体作戦を開始/ }).click();
+    await page.getByRole('button', { name: '作戦開始', exact: true }).click();
     await expect(page.locator('.battlefield-heading h2')).toContainText(name);
   });
   test(`assigns ${source} sites independently of initiative and restores the record`, async ({ page }, info) => {

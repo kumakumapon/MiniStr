@@ -3,7 +3,7 @@ import { expect, test } from '@playwright/test';
 test('keeps background music controls independent and persistent', async ({ page }) => {
   await page.goto('/');
   await page.locator('.title-map-card[data-map-id="skirmish"]').click();
-  await page.getByRole('button', { name: /単体作戦を開始/ }).click();
+  await page.getByRole('button', { name: '作戦開始', exact: true }).click();
   const effectsEnabled = page.locator('#sound-muted');
   const musicEnabled = page.locator('#music-muted');
   await expect(effectsEnabled).toBeVisible();
@@ -25,7 +25,7 @@ test('keeps background music controls independent and persistent', async ({ page
 test('lets the player choose a field track and keeps it after reload', async ({ page }) => {
   await page.goto('/');
   await page.locator('.title-map-card[data-map-id="skirmish"]').click();
-  await page.getByRole('button', { name: /単体作戦を開始/ }).click();
+  await page.getByRole('button', { name: '作戦開始', exact: true }).click();
   const track = page.locator('#music-track');
   await expect(track).toHaveValue('march');
   await expect(track.locator('option')).toHaveCount(7);
@@ -36,6 +36,6 @@ test('lets the player choose a field track and keeps it after reload', async ({ 
 
   await page.reload();
   await page.locator('.title-map-card[data-map-id="skirmish"]').click();
-  await page.getByRole('button', { name: /単体作戦を開始/ }).click();
+  await page.getByRole('button', { name: '作戦開始', exact: true }).click();
   await expect(page.locator('#music-track')).toHaveValue('mist');
 });

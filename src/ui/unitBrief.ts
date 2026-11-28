@@ -16,6 +16,7 @@ export function renderUnitBrief(
   weaponSlot?: WeaponSlot,
   canSelectWeapon = false,
   fullInformation = false,
+  presentation?: { heading?: string; showCoordinates?: boolean },
 ): string {
   const unit =
     state.units.find((unit) => unit.id === selectedId) ?? state.units.find((unit) => isDeployedUnit(unit) && unit.position.x === focused.x && unit.position.y === focused.y);
@@ -36,6 +37,9 @@ export function renderUnitBrief(
   const fuel = own ? `${unit.fuel ?? stats.fuel} / ${stats.fuel}` : uiText.unitBriefUnknown;
   const range = stats.range[0] === stats.range[1] ? `${stats.range[0]}` : stats.range.join('–');
   const status = own ? (unit.hasActed ? uiText.unitBriefDone : unit.hasMoved ? uiText.unitBriefMoved : uiText.unitBriefReady) : '';
+  const location = presentation?.showCoordinates === false ? '' : `(${Number(unit.position.x + 1)}, ${Number(unit.position.y + 1)})`;
+  const positionAndStatus = [location, status].filter(Boolean).join(' · ');
+  const heading = presentation?.heading ?? `${sideLabel(unit.owner, viewer)} ${unitNames[unit.kind]}`;
   const empty = own && weapons.length > 0 && !hasUsableWeapon(state, unit, false);
   const rows: [string, string][] = [
     [uiText.unitBriefHp, `${Number(unit.hp)} / 100`],
@@ -44,7 +48,7 @@ export function renderUnitBrief(
   ];
   if (usesFiniteSupplyRules(state) && unit.kind === 'apc') rows.push([uiText.supplyStock, own ? `${supplyStock(unit)} / ${Number(SUPPLY_CAPACITY)}` : uiText.unitBriefUnknown]);
   return `<section id="unit-brief" class="unit-brief unit-brief-${escapeHtml(unit.owner)}" aria-label="${uiText.unitBriefTitle}" data-unit-id="${escapeHtml(unit.id)}">
-    <div class="unit-brief-heading"><div>${title}<h3>${escapeHtml(sideLabel(unit.owner, viewer))} ${escapeHtml(unitNames[unit.kind])}${own && unit.callsign ? ` <span data-user-content>${escapeHtml(unit.callsign)}</span>` : ''}</h3></div><span class="unit-brief-position">(${Number(unit.position.x + 1)}, ${Number(unit.position.y + 1)})${status ? ` · ${status}` : ''}</span></div>
+    <div class="unit-brief-heading"><div>${title}<h3>${escapeHtml(heading)}${own && unit.callsign ? ` <span data-user-content>${escapeHtml(unit.callsign)}</span>` : ''}</h3></div>${positionAndStatus ? `<span class="unit-brief-position">${escapeHtml(positionAndStatus)}</span>` : ''}</div>
     ${unit.kind === 'submarine' ? `<p>${unit.submerged ? (english ? 'Submerged contact' : '潜航中（探知済み）') : english ? 'Surfaced' : '浮上中'}</p>` : ''}<p class="unit-brief-weapon">${escapeHtml(unitWeaponName(unit.kind, state))} · ${uiText.unitBriefRange} ${range} · ${uiText.unitBriefMovement} ${stats.movement}${empty ? ` <strong class="unit-brief-warning">${uiText.ammoEmpty}</strong>` : ''}</p>
     ${weapons.length > 1 ? `<ul class="unit-brief-weapons">${weapons.map((weapon, slot) => `<li><strong>${escapeHtml(weaponNames[weapon.kind])}</strong> · ${english ? 'Power' : '威力'} ${Number(weapon.attack)} · ${uiText.unitBriefRange} ${weapon.range.join('–')} · ${uiText.ammo} ${own ? `${weaponAmmo(unit, slot as WeaponSlot)} / ${Number(weapon.ammo)}` : uiText.unitBriefUnknown}</li>`).join('')}</ul>` : ''}
     ${own && selectedId === unit.id && weapons.length > 1 && canSelectWeapon ? `<label class="unit-weapon-select">${english ? 'Attack weapon' : '攻撃武器'} <select id="attack-weapon" ${unit.hasActed ? 'disabled' : ''}><option value="auto"${weaponSlot === undefined ? ' selected' : ''}>${english ? 'Auto (strongest available)' : '自動（使用可能な武器の最大ダメージ）'}</option>${weapons.map((weapon, slot) => `<option value="${Number(slot)}"${weaponSlot === slot ? ' selected' : ''} ${weaponAmmo(unit, slot as WeaponSlot) === 0 || (weapon.indirect && unit.hasMoved) ? 'disabled' : ''}>${escapeHtml(weaponNames[weapon.kind])} · ${english ? 'Power' : '威力'} ${Number(weapon.attack)} · ${uiText.ammo} ${weaponAmmo(unit, slot as WeaponSlot)} / ${Number(weapon.ammo)}</option>`).join('')}</select></label>` : ''}

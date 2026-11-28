@@ -11,6 +11,21 @@ import { escapeHtml } from './strings';
 import { renderTerrainArt } from './terrainAppearance';
 
 export const fourArmyName = (army: FourArmyId): string => (getLocale() === 'en' ? `Army ${army.slice(-1)}` : `第${army.slice(-1)}軍`);
+/** Number matching units within the displayed army. Unseen units never contribute to these labels. */
+export function fourArmyUnitNames(units: FourArmyDisplay['units']): Map<string, string> {
+  const groups = new Map<string, FourArmyDisplay['units']>();
+  for (const unit of units) {
+    const key = `${unit.owner}:${unit.kind}`;
+    const group = groups.get(key);
+    if (group) group.push(unit);
+    else groups.set(key, [unit]);
+  }
+  const names = new Map<string, string>();
+  for (const group of groups.values()) {
+    group.forEach((unit, index) => names.set(unit.id, group.length === 1 ? unitNames[unit.kind] : `${unitNames[unit.kind]} ${index + 1}`));
+  }
+  return names;
+}
 const positionKey = (p: Position) => `${p.x},${p.y}`;
 const facilities: Record<string, string> = { capital: '⚑', city: 'C', factory: 'F', airport: 'A', port: 'P', supplyDepot: 'S' };
 

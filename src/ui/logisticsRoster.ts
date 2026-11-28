@@ -32,10 +32,10 @@ function rosterUi(namespace: string): RosterUi {
   return ui;
 }
 
-export function renderLogisticsRoster(state: GameState, player: PlayerId, canAct: boolean, selected?: string, namespace = ''): string {
+export function renderLogisticsRoster(state: GameState, player: PlayerId, canAct: boolean, selected?: string, namespace = '', names?: ReadonlyMap<string, string>): string {
   const ui = rosterUi(namespace);
   const key = [player, canAct, getLocale(), ui.open, ui.filter].join(':');
-  if (ui.view?.state !== state || ui.view.key !== key) ui.view = { state, key, version: ++ui.version, markup: rosterMarkup(state, player, canAct, ui) };
+  if (ui.view?.state !== state || ui.view.key !== key) ui.view = { state, key, version: ++ui.version, markup: rosterMarkup(state, player, canAct, ui, names) };
   const view = ui.view;
   const selectedId = escapeHtml(selected ?? '');
   return view.markup
@@ -45,7 +45,7 @@ export function renderLogisticsRoster(state: GameState, player: PlayerId, canAct
 }
 
 /** Selection alone does not change the immutable upkeep projection or row controls. */
-function rosterMarkup(state: GameState, player: PlayerId, canAct: boolean, ui: RosterUi): string {
+function rosterMarkup(state: GameState, player: PlayerId, canAct: boolean, ui: RosterUi, names?: ReadonlyMap<string, string>): string {
   const en = getLocale() === 'en';
   const t = (ja: string, english: string) => (en ? english : ja);
   const units = state.units.filter((u) => u.owner === player);
@@ -73,7 +73,7 @@ function rosterMarkup(state: GameState, player: PlayerId, canAct: boolean, ui: R
           weaponsForUnit(unit.kind, state).some((_, i) => weaponAmmo(after, i === 0 ? 0 : 1) > weaponAmmo(unit, i === 0 ? 0 : 1)));
       const field = (key: string, label: string, options: string) =>
         `<label>${label}<select id="logistics-${escapeHtml(unit.id)}-${key}" data-logistics-field="${key}" data-unit="${escapeHtml(unit.id)}" ${!canAct ? 'disabled' : ''}>${options}</select></label>`;
-      return `<li ${ui.filter !== 'all' && !(ui.filter === 'damaged' ? unit.hp < 100 : ui.filter === 'ammo' ? lowAmmo : ui.filter === 'fuel' ? dry : ui.filter === 'supply' ? receivingSupply : !unit.hasActed) ? 'hidden' : ''} data-logistics-row data-damaged="${unit.hp < 100}" data-ammo="${lowAmmo}" data-fuel="${dry}" data-ready="${!unit.hasActed}" data-supply="${receivingSupply}" data-logistics-unit="${escapeHtml(unit.id)}" data-selected="false"><button class="save-action" data-logistics-select="${escapeHtml(unit.id)}">${escapeHtml(unitNames[unit.kind])} · ${escapeHtml(unit.callsign ?? unit.id)}${!isDeployedUnit(unit) ? ` (${t('搭載中', 'Embarked')})` : ''}</button><p>HP ${unit.hp} · ${t('弾薬', 'Ammo')} ${ammo} · ${t('燃料', 'Fuel')} ${unit.fuel ?? unitStats[unit.kind].fuel}/${unitStats[unit.kind].fuel} · ${unit.hasActed ? t('行動済み', 'Acted') : t('未行動', 'Ready')}</p><p>${escapeHtml(supplyOutlook(state, unit))}</p><p>${t('現配置での次手番見込み', 'Next-turn estimate at current positions')}: HP ${after.hp} · ${t('燃料', 'Fuel')} ${after.fuel ?? unitStats[unit.kind].fuel} · ${t('弾薬', 'Ammo')} ${weaponsForUnit(
+      return `<li ${ui.filter !== 'all' && !(ui.filter === 'damaged' ? unit.hp < 100 : ui.filter === 'ammo' ? lowAmmo : ui.filter === 'fuel' ? dry : ui.filter === 'supply' ? receivingSupply : !unit.hasActed) ? 'hidden' : ''} data-logistics-row data-damaged="${unit.hp < 100}" data-ammo="${lowAmmo}" data-fuel="${dry}" data-ready="${!unit.hasActed}" data-supply="${receivingSupply}" data-logistics-unit="${escapeHtml(unit.id)}" data-selected="false"><button class="save-action" data-logistics-select="${escapeHtml(unit.id)}">${escapeHtml(names?.get(unit.id) ?? `${unitNames[unit.kind]} · ${unit.callsign ?? unit.id}`)}${!isDeployedUnit(unit) ? ` (${t('搭載中', 'Embarked')})` : ''}</button><p>HP ${unit.hp} · ${t('弾薬', 'Ammo')} ${ammo} · ${t('燃料', 'Fuel')} ${unit.fuel ?? unitStats[unit.kind].fuel}/${unitStats[unit.kind].fuel} · ${unit.hasActed ? t('行動済み', 'Acted') : t('未行動', 'Ready')}</p><p>${escapeHtml(supplyOutlook(state, unit))}</p><p>${t('現配置での次手番見込み', 'Next-turn estimate at current positions')}: HP ${after.hp} · ${t('燃料', 'Fuel')} ${after.fuel ?? unitStats[unit.kind].fuel} · ${t('弾薬', 'Ammo')} ${weaponsForUnit(
         after.kind,
         state,
       )

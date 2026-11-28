@@ -15,7 +15,7 @@ test('plays a two-player hotseat match without revealing either side across hand
   await page.locator('.title-map-card[data-map-id="skirmish"]').click();
   await page.locator('input[name="match-mode"][value="hotseat"]').check();
   await expect(page.locator('.briefing-overlay')).toContainText('赤軍の勝利条件');
-  await page.getByRole('button', { name: /単体作戦を開始/ }).click();
+  await page.getByRole('button', { name: '作戦開始', exact: true }).click();
   await expect(page.locator('.turn-indicator strong')).toHaveText('赤軍');
 
   // Red moves an infantry unit and ends the turn.

@@ -156,8 +156,8 @@ export function learningSteps(state: GameState, viewer: PlayerId, p: LearningPro
     step(
       '指定歩兵を搭載する',
       'Load the mission infantry',
-      '指定歩兵 r2 を隣接する輸送車へ搭載します。対象を失うと敗北するので護衛します。',
-      'Load mission infantry r2 into the adjacent transport and protect it; losing the target means defeat.',
+      '指定の歩兵を隣接する輸送車へ搭載します。対象を失うと敗北するので護衛します。',
+      'Load the designated infantry into the adjacent transport and protect it; losing the target means defeat.',
       p.missionEmbark,
     ),
     step(
@@ -170,8 +170,8 @@ export function learningSteps(state: GameState, viewer: PlayerId, p: LearningPro
     step(
       '出口から撤退する',
       'Evacuate from the exit',
-      '歩兵 r2 を出口 (9,4) へ進め、未行動の状態で「撤退」を実行します。',
-      'Move infantry r2 to the exit at (9,4) and use Evacuate before acting.',
+      '指定の歩兵を出口 (9,4) へ進め、未行動の状態で「撤退」を実行します。',
+      'Move the designated infantry to the exit at (9,4) and use Evacuate before acting.',
       p.missionEvacuate,
     ),
     step(

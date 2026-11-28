@@ -18,7 +18,7 @@ export const englishResources: readonly (readonly [string, string])[] = [
   ],
   [
     '指定歩兵 r2 を対岸の出口 (9, 4) へ送り、「撤退」で脱出させよ。対象を失うと敗北。広域偵察で対岸を確認し、工兵で川 (6, 4) に仮設橋を架け、輸送車で歩兵を運ぶ練習ができる。上下端の道路からの迂回も可能。降車は空いている隣接陸地へ。学習課題は勝利の追加条件ではない。期限は30ターン。',
-    'Evacuate mission infantry r2 from the far-bank exit at (9, 4). Losing the target means defeat. Practice scanning the far bank, building a temporary bridge at (6, 4) and carrying infantry in a transport. Roads at both edges offer detours. Unload onto adjacent empty land. Learning tasks are not extra victory conditions. The limit is 30 turns.',
+    'Evacuate the designated infantry from the far-bank exit at (9, 4). Losing the target means defeat. Practice scanning the far bank, building a temporary bridge at (6, 4) and carrying infantry in a transport. Roads at both edges offer detours. Unload onto adjacent empty land. Learning tasks are not extra victory conditions. The limit is 30 turns.',
   ],
   ['広域戦線32', 'Wide Front 32'],
   [
@@ -930,7 +930,7 @@ export const englishResources: readonly (readonly [string, string])[] = [
   ['橋頭堡を確保せよ', 'Establish a Bridgehead'],
   [
     '指定部隊 r2・r3・r5 のうち2部隊を対岸の出口 (12, 4)・(12, 7) から撤退させよ。対象が2部隊未満になると敗北。',
-    'Evacuate two of r2, r3 and r5 through the opposite-bank exits at (12, 4) and (12, 7). You lose if fewer than two targets remain available.',
+    'Evacuate two of the three designated units through the opposite-bank exits at (12, 4) and (12, 7). You lose if fewer than two targets remain available.',
   ],
   [
     '補給所 (12, 6) を占領し、地上部隊で2ターン連続保持せよ。敵は補給所 (8, 9) の2ターン保持を狙う。',
@@ -1212,12 +1212,12 @@ export const englishResources: readonly (readonly [string, string])[] = [
   ['補給隊を護衛せよ', 'Escort the Supply Convoy'],
   [
     '護衛対象 r1 の補給車を東端の脱出地点 (12, 5)・(12, 6) のいずれかへ送り、「撤退」を実行せよ。対象を失うと敗北。前衛で道路を開き、砲兵と対空車両を随伴させる。搭載部隊は撤退前に降車させる。',
-    'Send the escort target r1, an APC, to either eastern exit at (12, 5) or (12, 6), then choose Evacuate. Losing the target means defeat. Clear the road with the vanguard and bring artillery and anti-air support. Unload any cargo before evacuating.',
+    'Send the designated APC to either eastern exit at (12, 5) or (12, 6), then choose Evacuate. Losing the target means defeat. Clear the road with the vanguard and bring artillery and anti-air support. Unload any cargo before evacuating.',
   ],
   ['撤退路を開け', 'Open the Retreat Route'],
   [
     '指定部隊 r1・r2・r3・r4 のうち3部隊を西端 (1, 9)・(1, 10) へ撤退させよ。前衛で追撃を防ぎ、移動後は脱出地点で「撤退」を実行する。脱出可能な対象が3部隊未満になると敗北。',
-    'Evacuate three of r1, r2, r3 and r4 through the western exits at (1, 9) and (1, 10). Hold back pursuit with the vanguard, then choose Evacuate after moving onto an exit. You lose if fewer than three targets remain able to escape.',
+    'Evacuate three of the four designated units through the western exits at (1, 9) and (1, 10). Hold back pursuit with the vanguard, then choose Evacuate after moving onto an exit. You lose if fewer than three targets remain able to escape.',
   ],
   ['港湾争奪戦', 'Contest for the Port'],
   [
@@ -1232,7 +1232,7 @@ export const englishResources: readonly (readonly [string, string])[] = [
   ['包囲網を突破せよ', 'Break the Encirclement'],
   [
     '指定部隊 r1・r2・r3 のうち2部隊を東側の脱出地点 (15, 5)・(15, 8) から撤退させよ。二つの通路を前衛で開き、補給しながら脱出する。移動後も未行動なら「撤退」を実行できる。生還可能な対象が2部隊未満になると敗北。',
-    'Evacuate two of r1, r2 and r3 through the eastern exits at (15, 5) and (15, 8). Open both routes with the vanguard and maintain supplies during the withdrawal. Units that have moved can still evacuate if they have not acted. You lose if fewer than two targets can survive.',
+    'Evacuate two of the three designated units through the eastern exits at (15, 5) and (15, 8). Open both routes with the vanguard and maintain supplies during the withdrawal. Units that have moved can still evacuate if they have not acted. You lose if fewer than two targets can survive.',
   ],
   ['基本操作の練習', 'Basic Training'],
   [

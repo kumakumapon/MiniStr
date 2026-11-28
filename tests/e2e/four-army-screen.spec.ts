@@ -121,7 +121,7 @@ for (const locale of ['ja', 'en'])
       ).toBe(22);
       await page.locator('#four-board').focus();
       await page.keyboard.press('ArrowRight');
-      await expect(page.locator('#four-selection')).toContainText('(5, 4)');
+      await expect(page.locator('#four-board > [tabindex="0"]')).toHaveAttribute('aria-label', /\(5, 4\)/);
       await page.locator('#four-step').click();
       await expect.poll(() => count(page)).toBe(1);
       await playbackControls(page);
@@ -466,7 +466,8 @@ test('human production, embark and disembark use the public board controls', asy
   await humanTile(page, 4, 6);
   await page.locator('[data-human-action="disembark"]').click();
   await humanTile(page, 4, 5);
-  await expect(page.locator('#four-selection')).toContainText('u3');
+  await expect(page.locator('#four-selection')).toContainText('Army 1 Infantry 3');
+  await expect(page.locator('#four-board > [data-x="4"][data-y="5"] .unit-infantry')).toBeVisible();
   await expect(page.locator('#four-unit option')).toHaveCount(9);
 });
 

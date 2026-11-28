@@ -5,7 +5,7 @@ test('spectates a CPU-versus-CPU match with pause and resume (#129)', async ({ p
   await page.locator('.title-map-card[data-map-id="skirmish"]').click();
   await page.locator('input[name="match-mode"][value="spectate"]').check();
   await expect(page.locator('.briefing-overlay')).toContainText('赤軍の勝利条件');
-  await page.getByRole('button', { name: /単体作戦を開始/ }).click();
+  await page.getByRole('button', { name: '作戦開始', exact: true }).click();
 
   // Red's CPU starts on its own; the viewer cannot issue commands.
   await expect(page.locator('.turn-indicator strong')).toHaveText('赤軍 CPU 行動中');
@@ -47,7 +47,7 @@ test('spectating rejects skips, preserves player saves and keeps alternating', a
   await page.reload();
   await page.locator('.title-map-card[data-map-id="skirmish"]').click();
   await page.locator('input[name="match-mode"][value="spectate"]').check();
-  await page.getByRole('button', { name: /単体作戦を開始/ }).click();
+  await page.getByRole('button', { name: '作戦開始', exact: true }).click();
 
   // Even a synthetic click on the disabled control must leave the current CPU step queued.
   const before = await page.evaluate(() => {
@@ -78,7 +78,7 @@ test('sets each side’s CPU difficulty for spectating (#131)', async ({ page })
   await expect(page.locator('#briefing-red-difficulty')).toBeFocused();
   await page.locator('#briefing-blue-difficulty').selectOption('hard');
   await expect(page.locator('.briefing-meta')).toContainText('観戦・赤軍易しい / 青軍難しい');
-  await page.getByRole('button', { name: /単体作戦を開始/ }).click();
+  await page.getByRole('button', { name: '作戦開始', exact: true }).click();
 
   // The header shows both sides; changes are refused while a CPU turn runs.
   await expect(page.locator('#red-difficulty')).toHaveValue('easy');
@@ -100,7 +100,7 @@ test('shows the whole board without fog while spectating, and only then (#133)',
   await page.goto('/');
   await page.locator('.title-map-card[data-map-id="skirmish"]').click();
   await page.locator('input[name="match-mode"][value="spectate"]').check();
-  await page.getByRole('button', { name: /単体作戦を開始/ }).click();
+  await page.getByRole('button', { name: '作戦開始', exact: true }).click();
 
   // The acting side's fog is the default view.
   const toggle = page.locator('#spectate-whole-board');
@@ -126,7 +126,7 @@ test('shows the whole board without fog while spectating, and only then (#133)',
   await expect(page.locator('#map')).toBeEnabled();
   await page.locator('#map').selectOption({ index: 0 });
   await page.locator('input[name="match-mode"][value="cpu"]').check();
-  await page.getByRole('button', { name: /単体作戦を開始/ }).click();
+  await page.getByRole('button', { name: '作戦開始', exact: true }).click();
   await expect(page.locator('#spectate-whole-board')).toHaveCount(0);
   await expect(page.locator('.tile.fog').first()).toBeVisible();
 });
@@ -143,7 +143,7 @@ test('saves a paused spectated match to a slot and resumes it paused with both d
   await page.locator('input[name="match-mode"][value="spectate"]').check();
   await page.locator('#briefing-red-difficulty').selectOption('easy');
   await page.locator('#briefing-blue-difficulty').selectOption('hard');
-  await page.getByRole('button', { name: /単体作戦を開始/ }).click();
+  await page.getByRole('button', { name: '作戦開始', exact: true }).click();
 
   // Blue's first turn is reached, then the viewer pauses and saves to a named slot.
   await expect(page.locator('.turn-indicator strong')).toHaveText('青軍 CPU 行動中', { timeout: 20_000 });
@@ -158,7 +158,7 @@ test('saves a paused spectated match to a slot and resumes it paused with both d
   // A fresh page resumes the spectated match paused, with both difficulties restored.
   await page.reload();
   await page.locator('.title-map-card[data-map-id="skirmish"]').click();
-  await page.getByRole('button', { name: /単体作戦を開始/ }).click();
+  await page.getByRole('button', { name: '作戦開始', exact: true }).click();
   const slot = page.locator('.save-slot-manager li', { hasText: '観戦テスト' });
   await expect(slot).toContainText('/ 観戦');
   await slot.locator('.load-save-slot').click();
@@ -180,14 +180,14 @@ test('cannot delete the player’s match saves while spectating, but can delete 
   await page.reload();
   await page.locator('.title-map-card[data-map-id="skirmish"]').click();
   // Outside spectating the button is usable for these (invalid) stored saves.
-  await page.getByRole('button', { name: /単体作戦を開始/ }).click();
+  await page.getByRole('button', { name: '作戦開始', exact: true }).click();
   await expect(page.locator('#delete-save')).toBeEnabled();
   await expect(page.locator('.scenario-warning[role="status"]')).toContainText('対局セーブ削除で削除して新規対局を開始できます');
 
   await page.locator('#map').selectOption({ index: 0 });
   page.on('dialog', (dialog) => dialog.accept('削除テスト'));
   await page.locator('input[name="match-mode"][value="spectate"]').check();
-  await page.getByRole('button', { name: /単体作戦を開始/ }).click();
+  await page.getByRole('button', { name: '作戦開始', exact: true }).click();
   await page.locator('#spectate-toggle').click();
   await expect(page.locator('#spectate-toggle')).toHaveText('観戦を再開');
 

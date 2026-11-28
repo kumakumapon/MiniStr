@@ -2,6 +2,10 @@ import type { SaveSlot, StorageUsage } from '../game';
 import { formatDate, getLocale, translateText } from './locale';
 import { escapeHtml, formatBytes, uiText } from './strings';
 
+function importControl(id: string, label: string): string {
+  return `<button type="button" class="save-action" id="choose-${id}" data-save-file="${id}">${label}</button><input id="${id}" type="file" accept=".json,application/json" hidden>`;
+}
+
 export function renderSaveSlotManager(slots: readonly SaveSlot[], usage: StorageUsage, canSave = true, protectLegacy = false): string {
   const rows = slots.length
     ? slots
@@ -11,5 +15,5 @@ export function renderSaveSlotManager(slots: readonly SaveSlot[], usage: Storage
         )
         .join('')
     : '<li class="save-slot-empty">保存済みの対局はありません。</li>';
-  return `<section class="save-slot-manager" aria-labelledby="save-slot-title"><div><p class="card-kicker">SAVES</p><h2 id="save-slot-title">${uiText.saveManager}</h2><p>${uiText.storageUsage}: ${formatBytes(usage.bytes)} (${Number(usage.itemCount)}件)</p></div>${canSave ? `<button id="save-new-slot" class="save-action">${uiText.saveSlot}</button>` : ''}<div class="backup-actions"><button class="save-action" id="backup-export">全データをバックアップ</button><label class="save-action">バックアップを復元<input id="backup-import" type="file" accept=".json,application/json"></label><label class="save-action">${getLocale() === 'en' ? 'Recover matches from a save / backup' : 'セーブ・バックアップから対局を救出'}<input id="save-recovery-import" type="file" accept=".json,application/json"></label></div><p>${getLocale() === 'en' ? 'Recovery adds valid matches as new slots. Damaged data is retained; export it before deleting.' : '救出は正常な対局を新しいスロットへ追加します。破損データは残るため、削除前に書き出してください。'}</p><ol>${rows}</ol>${usage.warning ? `<p class="storage-warning" role="status">${uiText.storageWarning}</p>` : ''}</section>`;
+  return `<section class="save-slot-manager" aria-labelledby="save-slot-title"><div><p class="card-kicker">SAVES</p><h2 id="save-slot-title">${uiText.saveManager}</h2><p>${uiText.storageUsage}: ${formatBytes(usage.bytes)} (${Number(usage.itemCount)}件)</p></div>${canSave ? `<button id="save-new-slot" class="save-action">${uiText.saveSlot}</button>` : ''}<div class="backup-actions"><button class="save-action" id="backup-export">全データをバックアップ</button>${importControl('backup-import', getLocale() === 'en' ? 'Choose a backup to restore' : '復元するバックアップを選ぶ')}${importControl('save-recovery-import', getLocale() === 'en' ? 'Choose a file to recover matches' : '対局を救出するファイルを選ぶ')}</div><p>${getLocale() === 'en' ? 'Recovery adds valid matches as new slots. Damaged data is retained; export it before deleting.' : '救出は正常な対局を新しいスロットへ追加します。破損データは残るため、削除前に書き出してください。'}</p><ol>${rows}</ol>${usage.warning ? `<p class="storage-warning" role="status">${uiText.storageWarning}</p>` : ''}</section>`;
 }

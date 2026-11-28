@@ -100,6 +100,11 @@ describe('overlay renderers', () => {
     expect(briefing(false)).toContain('value="hotseat" checked');
     expect(briefing(false)).toContain('赤軍の勝利条件');
     expect(briefing(true)).not.toContain('match-mode');
+    expect(briefing(false)).toContain('>作戦開始 <span');
+    expect(briefing(true)).toContain('>キャンペーン作戦を開始 <span');
+    setLocale('en');
+    expect(briefing(false)).toContain('>Start operation <span');
+    expect(briefing(true)).toContain('>Start campaign operation <span');
   });
 
   it('offers CPU-versus-CPU spectating as a match format (#129)', () => {

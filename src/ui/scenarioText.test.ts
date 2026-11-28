@@ -13,12 +13,44 @@ describe('scenario display localization', () => {
   it('translates tactical variants while preserving custom names and their snapshots', () => {
     setLocale('en');
     const variant = tacticalScenario(maps[0]!);
-    expect(scenarioDisplayName(variant)).toBe('Green Border / Tactical v2');
-    expect(scenarioDisplayName(tacticalScenario({ ...maps[0]!, name: '利用者の作戦' }))).toBe('利用者の作戦 / Tactical v2');
+    expect(scenarioDisplayName(variant)).toBe('Green Border');
+    expect(scenarioDisplayName(tacticalScenario({ ...maps[0]!, name: '利用者の作戦' }))).toBe('利用者の作戦');
     expect(variant.name).toBe('緑の国境 / Tactical v2');
-    expect(scenarioDisplayName({ ...variant, name: '緑の国境 / Tactical v1' })).toBe('Green Border / Tactical v1');
-    expect(scenarioDisplayName({ ...variant, name: '利用者の作戦 / Tactical v1' })).toBe('利用者の作戦 / Tactical v1');
+    expect(scenarioDisplayName({ ...variant, name: '緑の国境 / Tactical v1' })).toBe('Green Border');
+    expect(scenarioDisplayName({ ...variant, name: '利用者の作戦 / Tactical v1' })).toBe('利用者の作戦');
   });
+  it('keeps the original title when the version suffix belongs to an authored map name', () => {
+    const custom = { ...maps[0]!, id: 'custom-heading', name: '練習 / Tactical v1' };
+    expect(scenarioDisplayName(custom)).toBe(custom.name);
+    expect(scenarioDisplayName(tacticalScenario(custom))).toBe(custom.name);
+  });
+
+  it('shows evacuation counts and briefing orders in each language while preserving saved IDs and user text', () => {
+    for (const locale of ['ja', 'en'] as const) {
+      setLocale(locale);
+      const targets = operationScenarios.filter((scenario) => scenario.victoryConditions.some((c) => c.type === 'escort' || c.type === 'withdraw'));
+      expect(targets.length).toBeGreaterThan(0);
+      for (const scenario of targets) {
+        const snapshot = JSON.stringify(scenarioDefinitionToData(scenario));
+        expect(scenarioDisplayBriefing(scenario)).not.toMatch(/\br\d+\b/);
+        for (const condition of scenario.victoryConditions) {
+          if (condition.type !== 'escort' && condition.type !== 'withdraw') continue;
+          expect(conditionDescription(condition)).not.toMatch(/\br\d+\b/);
+          if (condition.unitIds.length > 1) {
+            expect(conditionDescription(condition)).toContain(
+              locale === 'en'
+                ? `${condition.required} of the ${condition.unitIds.length} designated units`
+                : `指定の${condition.unitIds.length}部隊のうち${condition.required}部隊`,
+            );
+          }
+        }
+        expect(JSON.stringify(scenarioDefinitionToData(scenario))).toBe(snapshot);
+        const authored = { ...scenario, briefing: '指定部隊 r2・r3 のうち1部隊を任意に選ぶ' };
+        expect(scenarioDisplayBriefing(authored)).toBe(authored.briefing);
+      }
+    }
+  });
+
   it('translates every built-in name and briefing without changing scenario snapshots', () => {
     setLocale('en');
     for (const scenario of [...maps, ...operationScenarios, trainingScenario, ...maps.flatMap((entry) => scenarioHistory(entry.id))]) {

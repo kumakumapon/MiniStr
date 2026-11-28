@@ -28,13 +28,10 @@ function generatedMetadata(scenario: ScenarioDefinition) {
 
 /** Translate known app-provided metadata without modifying its saved definition. */
 export function scenarioDisplayName(scenario: ScenarioDefinition): string {
-  const suffix = scenario.tacticalOptions ? / \/ Tactical v[12]$/.exec(scenario.name)?.[0] : undefined;
-  if (scenario.tacticalOptions && suffix) return scenarioDisplayName({ ...scenario, name: scenario.name.slice(0, -suffix.length) }) + suffix;
+  const name = scenario.tacticalOptions ? scenario.name.replace(/ \/ Tactical v[12]$/, '') : scenario.name;
   const canonical = builtIns.filter((entry) => entry.id === scenario.id);
   const operation = campaignOperations[scenario.id];
-  return canonical.some((entry) => entry.name === scenario.name) || operation?.title === scenario.name || generatedMetadata(scenario)?.name === scenario.name
-    ? translateGameText(scenario.name)
-    : scenario.name;
+  return canonical.some((entry) => entry.name === name) || operation?.title === name || generatedMetadata(scenario)?.name === name ? translateGameText(name) : name;
 }
 
 export function scenarioDisplayBriefing(scenario: ScenarioDefinition): string {
@@ -43,26 +40,50 @@ export function scenarioDisplayBriefing(scenario: ScenarioDefinition): string {
   const orders = operation && `${operation.orders} 別途、敵司令部の占領でも勝利。補給方針：${operation.logistics} 敵軍の作戦：${operation.enemyOrders}`;
   const generated = generatedMetadata(scenario);
   if (getLocale() === 'en' && generated?.briefing === scenario.briefing) return generated.english;
-  return canonical.some((entry) => entry.briefing === scenario.briefing) || orders === scenario.briefing ? translateGameText(scenario.briefing) : scenario.briefing;
+  if (!canonical.some((entry) => entry.briefing === scenario.briefing) && orders !== scenario.briefing) return scenario.briefing;
+  if (getLocale() === 'en') return translateGameText(scenario.briefing);
+  return scenario.briefing
+    .replace(/指定部隊 ([rb]\d+(?:・[rb]\d+)*) のうち/g, (_, ids: string) => `指定の${ids.split('・').length}部隊のうち`)
+    .replace('護衛対象 r1 の補給車', '護衛対象の補給車')
+    .replace('指定歩兵 r2 を', '指定の歩兵を');
 }
 
-export function conditionDescription(condition: VictoryCondition): string {
-  if (getLocale() !== 'en') return condition.type === 'survive' ? `${condition.untilTurn}ラウンド開始まで生存する` : describeVictoryCondition(condition);
+export function conditionDescription(condition: VictoryCondition, fromOpponent = false): string {
+  const en = getLocale() === 'en';
+  if (condition.type === 'escort' || condition.type === 'withdraw') {
+    const total = condition.unitIds.length;
+    if (en) {
+      const targets = total === 1 ? 'the designated unit' : `${condition.required} of the ${total} designated units`;
+      return fromOpponent ? `The enemy evacuates ${targets} through an exit` : `Evacuate ${targets} through an exit (losing too many targets means defeat)`;
+    }
+    const targets = total === 1 ? '指定の部隊' : `指定の${total}部隊のうち${condition.required}部隊`;
+    return fromOpponent ? `敵軍が${targets}を脱出地点から撤退させる` : `${targets}を脱出地点から撤退させる（対象不足で敗北）`;
+  }
+  if (!en && !fromOpponent) return condition.type === 'survive' ? `${condition.untilTurn}ラウンド開始まで生存する` : describeVictoryCondition(condition);
   switch (condition.type) {
     case 'eliminate':
-      return 'Eliminate all enemy units';
+      return fromOpponent ? (en ? 'All your units are eliminated' : '自軍の部隊が全滅する') : 'Eliminate all enemy units';
     case 'captureCapital':
-      return 'Capture enemy headquarters';
-    case 'hold':
-      return `${condition.requireOwnership ? 'Capture the designated property, then hold it' : 'Hold the designated location'}${condition.groundOnly ? ' with ground units' : ''} for ${condition.turns} consecutive turns`;
+      return fromOpponent ? (en ? 'Your headquarters is captured' : '自軍の司令部を占領される') : 'Capture enemy headquarters';
+    case 'hold': {
+      if (!en) return `敵軍が${describeVictoryCondition(condition)}`;
+      const action = condition.requireOwnership
+        ? fromOpponent
+          ? 'The enemy captures the designated property, then holds it'
+          : 'Capture the designated property, then hold it'
+        : fromOpponent
+          ? 'The enemy holds the designated location'
+          : 'Hold the designated location';
+      return `${action}${condition.groundOnly ? ' with ground units' : ''} for ${condition.turns} consecutive turns`;
+    }
     case 'survive':
-      return `Survive to the start of round ${condition.untilTurn}`;
+      return en ? `${fromOpponent ? 'The enemy survives' : 'Survive'} to the start of round ${condition.untilTurn}` : `敵軍が${condition.untilTurn}ラウンド開始まで生存する`;
     case 'score':
-      return `Earn ${condition.target} points`;
+      return en ? `${fromOpponent ? 'The enemy earns' : 'Earn'} ${condition.target} points` : `敵軍がスコア${condition.target}を獲得する`;
     case 'control':
-      return `Earn points for owned objectives at the end of each round and reach ${condition.target} points`;
-    case 'escort':
-    case 'withdraw':
-      return `Evacuate ${condition.required} of ${condition.unitIds.join(', ')} through an exit; losing too many targets means defeat`;
+      if (!en) return `敵軍が指定拠点の所有でラウンド終了時に加点し、${condition.target}点に到達する`;
+      return fromOpponent
+        ? `The enemy earns points for owned objectives at the end of each round and reaches ${condition.target} points`
+        : `Earn points for owned objectives at the end of each round and reach ${condition.target} points`;
   }
 }

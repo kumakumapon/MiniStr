@@ -95,6 +95,43 @@ describe('effective turn timing (#273)', () => {
     );
   });
 
+  it('describes losses for the viewing army and preserves the acting army’s conditions and deadline', () => {
+    const scenario = map('landing');
+    const state = createScenarioInitialState(scenario);
+    const conditions: [VictoryCondition, string, string][] = [
+      [{ type: 'eliminate' }, '自軍の部隊が全滅する', 'All your units are eliminated'],
+      [{ type: 'captureCapital' }, '自軍の司令部を占領される', 'Your headquarters is captured'],
+      [
+        { type: 'hold', positions: [{ x: 0, y: 0 }], turns: 3, requireOwnership: true, groundOnly: true },
+        '敵軍が指定拠点を占領し、地上部隊で3ターン連続で保持する',
+        'The enemy captures the designated property, then holds it with ground units for 3 consecutive turns',
+      ],
+      [{ type: 'survive', untilTurn: 20 }, '敵軍が20ラウンド開始まで生存する', 'The enemy survives to the start of round 20'],
+      [{ type: 'score', target: 12 }, '敵軍がスコア12を獲得する', 'The enemy earns 12 points'],
+      [
+        { type: 'control', target: 6, positions: [{ x: 0, y: 0 }] },
+        '敵軍が指定拠点の所有でラウンド終了時に加点し、6点に到達する',
+        'The enemy earns points for owned objectives at the end of each round and reaches 6 points',
+      ],
+      [
+        { type: 'withdraw', unitIds: ['b1', 'b2', 'b3'], required: 2, positions: [{ x: 0, y: 0 }] },
+        '敵軍が指定の3部隊のうち2部隊を脱出地点から撤退させる',
+        'The enemy evacuates 2 of the 3 designated units through an exit',
+      ],
+    ];
+    for (const locale of ['ja', 'en'] as const) {
+      setLocale(locale);
+      for (const [condition, ja, en] of conditions) {
+        const expected = locale === 'ja' ? ja : en;
+        expect(scenarioConditionDescription(scenario, condition, 'blue', 'red')).toBe(expected);
+        expect(objectiveTimingDescription(state, condition, 'red', 'blue')).toBe(expected);
+        expect(scenarioConditionDescription(scenario, condition, 'blue', 'blue')).not.toBe(expected);
+      }
+      const deadline = { type: 'survive', untilTurn: scenario.turnLimit! + 1 } as const;
+      expect(objectiveTimingDescription(state, deadline, 'blue', 'red')).toBe(scenarioConditionDescription(scenario, deadline, 'blue'));
+    }
+  });
+
   it('shows subsequent decisions after a complete tie instead of a misleading zero countdown', () => {
     expect(timingProgress({ decision: 60 }, 60)).toBe('判定まで残り1ラウンド');
     expect(timingProgress({ decision: 60 }, 61)).toBe('毎ラウンド終了時に再判定（完全同点なら続行）');
