@@ -58,7 +58,10 @@ export interface PendingShare {
  * Title-screen UI state. Which screen is showing stays with `ScreenController`;
  * everything the title itself remembers between redraws lives here.
  */
+export type TitlePanel = 'home' | 'settings' | 'records';
+
 export class TitleState {
+  panel: TitlePanel = 'home';
   /** Opened from a match, so the title offers to return to it unchanged. */
   resumable = false;
   /** Why the last title action (continue, replay import) did not leave the title. */
@@ -102,6 +105,7 @@ export class TitleState {
   /** Shows the title from a match, with a way back to it. */
   openFromMatch(): void {
     this.screens.titleOpen = true;
+    this.panel = 'home';
     this.resumable = true;
     this.notice = '';
   }
@@ -109,6 +113,7 @@ export class TitleState {
   openFromBriefing(): void {
     this.screens.briefingOpen = false;
     this.screens.titleOpen = true;
+    this.panel = 'home';
     this.resumable = false;
     this.notice = '';
   }
@@ -178,48 +183,50 @@ export function buildTitleOverlay(context: TitleOverlayContext): string {
   const titleVisible = context.titleOpen && !context.replayMode && !context.campaignMenuOpen && !context.editorOpen;
   return renderTitleOverlay({
     visible: titleVisible,
+    panel: state.panel,
     // Built only while the title shows; every other redraw skips the map list.
-    maps: !titleVisible
-      ? []
-      : [
-          ...context.scenarios().map((map): TitleMapCard => {
-            const custom = ![...maps, ...operationScenarios].some((builtIn) => builtIn.id === map.id);
-            const variant = multiplayerVariant(map.id);
-            const cleared = context.operationCatalog?.records.some((record) => record.scenarioId === map.id && record.revision === operationRevision(map));
-            return {
-              id: map.id,
-              name: scenarioDisplayName(map),
-              theme: themeNames[map.theme],
-              width: map.board.width,
-              height: map.board.height,
-              startingGold: map.startingGold,
-              rules: map.tacticalOptions ? (getLocale() === 'en' ? 'Combined tactics' : '統合戦術') : getLocale() === 'en' ? 'Basic rules' : '基本規則',
-              timing: timingSummary(scenarioTiming(map)),
-              victory: map.victoryConditions.map((condition) => scenarioConditionDescription(map, condition, 'red')).join(' / '),
-              custom,
-              selected: map.id === context.selectedMapId,
-              preview: context.mapPreview(map),
-              category: custom
-                ? 'custom'
-                : learningOperationData.some((data) => data.id === map.id)
-                  ? 'exercise'
-                  : operationScenarios.some((data) => data.id === map.id)
-                    ? 'mission'
-                    : 'battle',
-              clear: cleared ? 'cleared' : operationIds.has(map.id) ? 'uncleared' : 'untracked',
-              formats: [
-                {
-                  armies: [2],
-                  width: map.board.width,
-                  height: map.board.height,
-                  terrain: map.board.terrain.some((row) => row.some((tile) => tile.kind === 'sea')) ? 'water' : 'land',
-                },
-                ...(variant ? [multiplayerCatalogFormat(variant, context.multiplayerPreview && ((count) => context.multiplayerPreview!(variant, count)))] : []),
-              ],
-            };
-          }),
-          ...(context.multiplayerCards?.() ?? []),
-        ],
+    maps:
+      !titleVisible || state.panel !== 'home'
+        ? []
+        : [
+            ...context.scenarios().map((map): TitleMapCard => {
+              const custom = ![...maps, ...operationScenarios].some((builtIn) => builtIn.id === map.id);
+              const variant = multiplayerVariant(map.id);
+              const cleared = context.operationCatalog?.records.some((record) => record.scenarioId === map.id && record.revision === operationRevision(map));
+              return {
+                id: map.id,
+                name: scenarioDisplayName(map),
+                theme: themeNames[map.theme],
+                width: map.board.width,
+                height: map.board.height,
+                startingGold: map.startingGold,
+                rules: map.tacticalOptions ? (getLocale() === 'en' ? 'Combined tactics' : '統合戦術') : getLocale() === 'en' ? 'Basic rules' : '基本規則',
+                timing: timingSummary(scenarioTiming(map)),
+                victory: map.victoryConditions.map((condition) => scenarioConditionDescription(map, condition, 'red')).join(' / '),
+                custom,
+                selected: map.id === context.selectedMapId,
+                preview: context.mapPreview(map),
+                category: custom
+                  ? 'custom'
+                  : learningOperationData.some((data) => data.id === map.id)
+                    ? 'exercise'
+                    : operationScenarios.some((data) => data.id === map.id)
+                      ? 'mission'
+                      : 'battle',
+                clear: cleared ? 'cleared' : operationIds.has(map.id) ? 'uncleared' : 'untracked',
+                formats: [
+                  {
+                    armies: [2],
+                    width: map.board.width,
+                    height: map.board.height,
+                    terrain: map.board.terrain.some((row) => row.some((tile) => tile.kind === 'sea')) ? 'water' : 'land',
+                  },
+                  ...(variant ? [multiplayerCatalogFormat(variant, context.multiplayerPreview && ((count) => context.multiplayerPreview!(variant, count)))] : []),
+                ],
+              };
+            }),
+            ...(context.multiplayerCards?.() ?? []),
+          ],
     catalogFilters: state.catalogFilters,
     cpuSpeed: context.cpuSpeed,
     boardZoom: context.boardZoom,
@@ -228,26 +235,27 @@ export function buildTitleOverlay(context: TitleOverlayContext): string {
     actionScenesEnabled: context.actionScenesEnabled,
     musicOpen: state.musicOpen,
     canContinue: context.canContinue,
-    daily: titleVisible
-      ? (() => {
-          const today = dailyConditions(dailyDateKey(context.dailyClock()));
-          return today.ok
-            ? renderDailyCard({
-                conditions: today.value,
-                today: context.dailyCatalog?.records.find((record) => record.date === today.value.date),
-                catalog: context.dailyCatalog,
-                notice: context.dailyNotice,
-                recordsOpen: state.dailyRecordsOpen,
-              })
-            : '';
-        })()
-      : undefined,
+    daily:
+      titleVisible && state.panel === 'records'
+        ? (() => {
+            const today = dailyConditions(dailyDateKey(context.dailyClock()));
+            return today.ok
+              ? renderDailyCard({
+                  conditions: today.value,
+                  today: context.dailyCatalog?.records.find((record) => record.date === today.value.date),
+                  catalog: context.dailyCatalog,
+                  notice: context.dailyNotice,
+                  recordsOpen: state.dailyRecordsOpen,
+                })
+              : '';
+          })()
+        : undefined,
+    tactics: titleVisible && state.panel === 'settings' ? renderTacticalPreset(context.tacticalPreset ?? DEFAULT_TACTICAL_PRESET) : undefined,
     generator: titleVisible
-      ? renderTacticalPreset(context.tacticalPreset ?? DEFAULT_TACTICAL_PRESET) +
-        renderMapGenerator(state.generatorForm, state.generatorNotice, state.generatorOpen, { status: state.generatorLinkStatus, text: state.generatorLinkText }) +
-        renderOperationRecords(context.operationCatalog, context.operationNotice, state.operationRecordsOpen)
+      ? renderMapGenerator(state.generatorForm, state.generatorNotice, state.generatorOpen, { status: state.generatorLinkStatus, text: state.generatorLinkText })
       : undefined,
-    savePicker: titleVisible ? context.savePicker() : '',
+    operationRecords: titleVisible && state.panel === 'records' ? renderOperationRecords(context.operationCatalog, context.operationNotice, state.operationRecordsOpen) : undefined,
+    savePicker: titleVisible && state.panel === 'records' ? context.savePicker() : '',
     canResume: state.resumable,
     canResumeMultiplayer: context.canResumeMultiplayer,
     notice:

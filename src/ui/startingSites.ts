@@ -1,13 +1,20 @@
 import { armyEmblem } from './fourArmyEmblems';
-import { asymmetricBoard, isAsymmetricSource } from '../game/asymmetricBattlefield';
+import { asymmetricBoard, isAsymmetricSource, startingSiteResources } from '../game/asymmetricBattlefield';
 import type { FourArmyId } from '../game/fourArmyFoundation';
 import type { FourArmyControllers } from '../game/fourArmyControl';
 import { createExpandedBattleMap, latestExpandedBattleLayout } from '../game/expandedBattleMap';
 import { createFourArmyMap32 } from '../game/fourArmyMap32';
 import { type MultiplayerMap } from './matchVariants';
+import { terrainNames, unitNames } from './labels';
 import { getLocale } from './locale';
 import { renderMapPreview } from './mapPreview';
 const copy = {
+  crown: [
+    ['中央・三方に開けた街道網', 'Center · a crossroads with three exposed approaches'],
+    ['北西・山林に守られた外縁', 'Northwest · a foothold behind woods and mountains'],
+    ['北東・山沿いの進路', 'Northeast · an approach along the ridge'],
+    ['南・北へ延びる街道', 'South · the road north'],
+  ],
   river: [
     ['北岸・北の橋頭堡', 'North bank · northern bridgehead'],
     ['西岸道・西の橋への進路', 'Western road · western crossing'],
@@ -59,6 +66,19 @@ function previewLayout(source: MultiplayerMap, armies: readonly FourArmyId[]) {
           layoutVersion: latestExpandedBattleLayout(sourceMapId, armies.length),
         });
   if (made.ok) return { board: made.value.board, homes: made.value.capitals, bridges: made.value.bridges ?? [] };
+}
+
+function countedNames(names: readonly string[]): string {
+  const counts = new Map<string, number>();
+  for (const name of names) counts.set(name, (counts.get(name) ?? 0) + 1);
+  return [...counts].map(([name, count]) => `${name} ×${count}`).join(' · ');
+}
+
+function crownResources(site: number, en: boolean): string {
+  const { gold, units, facilities } = startingSiteResources('crown', site);
+  const initialUnits = countedNames(units.map(([kind]) => unitNames[kind]));
+  const buildings = countedNames([terrainNames.capital, ...facilities.map(([kind]) => terrainNames[kind])]);
+  return `<dl class="four-site-resources"><dt>${en ? 'Starting funds' : '初期資金'}</dt><dd>${gold.toLocaleString(en ? 'en-US' : 'ja-JP')}G</dd><dt>${en ? 'Starting units' : '初期部隊'}</dt><dd>${initialUnits}</dd><dt>${en ? 'Owned properties' : '保有施設'}</dt><dd>${buildings}</dd></dl>`;
 }
 
 export function renderStartingSites(
@@ -114,7 +134,7 @@ export function renderStartingSites(
         mode === 'custom'
           ? `<label>${en ? 'Controller' : '操作担当'}<select id="four-controller-${army}" data-controller="${army}"><option value="human" ${controllers[army] === 'human' ? 'selected' : ''}>${en ? 'Human' : '人間'}</option><option value="cpu" ${controllers[army] === 'cpu' ? 'selected' : ''}>CPU</option></select></label>`
           : '';
-      return `<li class="four-army-label ${army}"><strong>${armyEmblem(army)} ${role(army, i)}</strong>${site}${controller}</li>`;
+      return `<li class="four-army-label ${army}"><strong>${armyEmblem(army)} ${role(army, i)}</strong>${site}${source === 'crown' ? crownResources(i, en) : ''}${controller}</li>`;
     })
     .join('');
   const hint = authored

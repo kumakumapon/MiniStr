@@ -1,3 +1,4 @@
+import { openTitlePanel } from './helpers/titleNavigation';
 import { expect, test } from '@playwright/test';
 import { crossingScenarioData } from '../crossing.fixture';
 
@@ -11,6 +12,7 @@ for (const viewport of [
     await page.goto('/');
     await expect(page.locator('[data-map-id="bridgehead"]')).toBeVisible();
     await expect(page.locator('[data-map-id="river-withdrawal"]')).toBeVisible();
+    await openTitlePanel(page, 'records');
     await page.locator('#title-editor').click();
     await page.locator('#editor-json').fill(JSON.stringify(crossingScenarioData()));
     await page.locator('#editor-import').click();
@@ -43,6 +45,7 @@ for (const viewport of [
     await page.locator('#undo').click();
     await expect(page.locator('.bridge-marker')).toHaveCount(0);
     await page.reload();
+    await openTitlePanel(page, 'records', true);
     await page.locator('.load-save-slot[data-save-slot="manual"]').click();
     await expect(page.locator('.bridge-marker')).toHaveCount(1);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true);
@@ -53,6 +56,7 @@ for (const viewport of [
   test(`generates, saves and reloads frontline settings at ${viewport.width}`, async ({ page }, testInfo) => {
     await page.setViewportSize(viewport);
     await page.goto('/');
+    await openTitlePanel(page, 'records');
     await page.locator('#title-generator summary').click();
     await page.locator('#title-generator-size').selectOption('16');
     await page.locator('#title-generator-sea').selectOption('ocean');

@@ -1,3 +1,4 @@
+import { openTitlePanel } from './helpers/titleNavigation';
 import { expect, test } from '@playwright/test';
 
 for (const viewport of [
@@ -7,6 +8,7 @@ for (const viewport of [
   test(`sets map size on the title and restores automatic sizing at ${viewport.width}px`, async ({ page }, testInfo) => {
     await page.setViewportSize(viewport);
     await page.goto('/');
+    await openTitlePanel(page, 'settings');
     const select = page.locator('#title-board-zoom');
     await expect(select).toHaveValue('auto');
     await expect(select.locator('option')).toHaveText(['自動', '50%', '75%', '100%', '125%', '150%', '200%']);
@@ -15,6 +17,7 @@ for (const viewport of [
     await expect(select).toBeFocused();
     await page.locator('.title-menu').screenshot({ path: testInfo.outputPath('systems-title-map-zoom.png') });
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true);
+    await openTitlePanel(page, 'home');
     await page.locator('.title-map-card[data-map-id="skirmish"]').click();
     await page.locator('#begin-operation').click();
     await expect(page.locator('.board')).toHaveAttribute('data-zoom', '50');
@@ -49,18 +52,22 @@ for (const viewport of [
   test(`shares title speed and plays at half-size on ${viewport.width}px screens`, async ({ page }, testInfo) => {
     await page.setViewportSize(viewport);
     await page.goto('/');
+    await openTitlePanel(page, 'settings');
     await expect(page.locator('#title-cpu-speed')).toHaveValue('1');
     await page.locator('#title-cpu-speed').focus();
     await page.locator('#title-cpu-speed').selectOption('4');
     await expect(page.locator('#title-cpu-speed')).toBeFocused();
     await page.locator('.title-menu').screenshot({ path: testInfo.outputPath('systems-title-cpu-speed.png') });
+    await openTitlePanel(page, 'home');
     await page.locator('.title-map-card[data-map-id="skirmish"]').click();
     await page.locator('#begin-operation').click();
     await expect(page.locator('#cpu-speed')).toHaveValue('4');
     await page.locator('#cpu-speed').selectOption('2');
     await page.locator('#open-title').click();
+    await openTitlePanel(page, 'settings');
     await expect(page.locator('#title-cpu-speed')).toHaveValue('2');
     await page.locator('#title-cpu-speed').selectOption('0.5');
+    await openTitlePanel(page, 'home');
     await page.locator('#title-resume').click();
     await expect(page.locator('#cpu-speed')).toHaveValue('0.5');
 

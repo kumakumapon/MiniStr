@@ -487,12 +487,12 @@ describe('installTitleDelegation', () => {
   });
 });
 
-it('shows the shared save list without resuming a normal save automatically', () => {
+it('resumes the newer research or multiplayer save through its own reader', () => {
   const h = harness();
-  h.deps.openSaveList = vi.fn(() => true);
+  h.deps.continueOtherSave = vi.fn(() => true);
   h.draw();
   h.app.querySelector<HTMLButtonElement>('#title-continue')?.click();
-  expect(h.deps.openSaveList).toHaveBeenCalledOnce();
+  expect(h.deps.continueOtherSave).toHaveBeenCalledOnce();
   expect(h.deps.continueSave).not.toHaveBeenCalled();
   expect(h.screens.titleOpen).toBe(true);
 });

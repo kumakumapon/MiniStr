@@ -1,3 +1,4 @@
+import { openTitlePanel } from './helpers/titleNavigation';
 import { expect, test } from '@playwright/test';
 import { frontlineScenarioData } from '../frontline.fixture';
 import { MANUAL_SAVE_KEY } from '../../src/game/session';
@@ -12,6 +13,7 @@ for (const viewport of [
     await page.goto('/');
     await expect(page.locator('.title-map-card[data-map-id="supply-contest"]')).toBeVisible();
     await expect(page.locator('.title-map-card[data-map-id="supply-ridge"]')).toBeVisible();
+    await openTitlePanel(page, 'records');
     await page.locator('#title-editor').click();
     await page.locator('#editor-json').fill(JSON.stringify(frontlineScenarioData()));
     await page.locator('#editor-import').click();
@@ -44,6 +46,7 @@ for (const viewport of [
     await page.locator('#undo').click();
     await expect(page.locator('.fortification-marker')).toHaveCount(0);
     await page.reload();
+    await openTitlePanel(page, 'records', true);
     await page.locator('.load-save-slot[data-save-slot="manual"]').click();
     await expect(page.locator('.fortification-marker')).toHaveCount(1);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true);

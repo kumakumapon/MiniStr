@@ -1,3 +1,4 @@
+import { openTitlePanel } from './titleNavigation';
 import { distributedSource } from './distributedSource';
 import { afterEach, describe, expect, it } from 'vitest';
 // jsdom is intentionally instantiated per test: startup listeners/timers cannot leak between apps.
@@ -77,8 +78,10 @@ describe('distributed application boundaries', () => {
     const id = initialState.units.find((unit) => unit.owner === 'red')!.id;
     for (const key of Object.keys(data)) data[key] = data[key]!.replaceAll(JSON.stringify(id), JSON.stringify('r1"><img data-injected="true" src="x">'));
     const document = launch({ storage: data });
+    openTitlePanel(dom.window.document, 'records');
     expect(document.querySelector('.load-save-slot[data-save-slot="html-safe"]')?.hasAttribute('disabled')).toBe(true);
     expect(document.querySelector('[data-injected]')).toBeNull();
+    openTitlePanel(dom.window.document, 'home');
     click('#title-training');
     click('#begin-operation');
     expect(document.querySelectorAll('.board .tile').length).toBeGreaterThan(0);
@@ -87,6 +90,7 @@ describe('distributed application boundaries', () => {
 
   it('shares title zoom with operations, resume and board buttons, rejecting invalid values', () => {
     const document = launch();
+    openTitlePanel(dom.window.document, 'settings');
     const titleZoom = () => (document.querySelector('#title-board-zoom') as HTMLSelectElement).value;
     const boardZoom = () => document.querySelector('.board')!.getAttribute('data-zoom');
     expect(titleZoom()).toBe('auto');
@@ -100,6 +104,7 @@ describe('distributed application boundaries', () => {
       expect(titleZoom()).toBe('50');
     }
     const previousTitleSelect = document.querySelector('#title-board-zoom') as HTMLSelectElement;
+    openTitlePanel(dom.window.document, 'home');
     click('#title-training');
     click('#begin-operation');
     previousTitleSelect.value = '200';
@@ -109,7 +114,9 @@ describe('distributed application boundaries', () => {
     click('#board-zoom-in');
     click('#open-title');
     expect(titleZoom()).toBe('75');
+    openTitlePanel(dom.window.document, 'settings');
     change('#title-board-zoom', '200');
+    openTitlePanel(dom.window.document, 'home');
     click('#title-resume');
     expect(boardZoom()).toBe('200');
     click('#open-title');
@@ -120,8 +127,10 @@ describe('distributed application boundaries', () => {
     click('#begin-operation');
     expect(boardZoom()).toBe('200');
     click('#open-title');
+    openTitlePanel(dom.window.document, 'settings');
     change('#title-board-zoom', 'auto');
     expect(titleZoom()).toBe('auto');
+    openTitlePanel(dom.window.document, 'home');
     click('#title-resume');
     expect(Number(boardZoom())).toBeGreaterThanOrEqual(100);
     expect(Number(boardZoom())).toBeLessThanOrEqual(150);
@@ -129,11 +138,13 @@ describe('distributed application boundaries', () => {
   it('shares CPU speed between title and game and rejects unsupported form values', () => {
     const document = launch();
     const speed = (selector: string) => (document.querySelector(selector) as HTMLSelectElement).value;
+    openTitlePanel(dom.window.document, 'settings');
     expect(speed('#title-cpu-speed')).toBe('1');
     change('#title-cpu-speed', '4');
     expect(speed('#title-cpu-speed')).toBe('4');
     change('#title-cpu-speed', '3');
     expect(speed('#title-cpu-speed')).toBe('4');
+    openTitlePanel(dom.window.document, 'home');
     click('#title-training');
     click('#begin-operation');
     expect(speed('#cpu-speed')).toBe('4');
@@ -141,8 +152,10 @@ describe('distributed application boundaries', () => {
     change('#cpu-speed', 'Infinity');
     expect(speed('#cpu-speed')).toBe('2');
     click('#open-title');
+    openTitlePanel(dom.window.document, 'settings');
     expect(speed('#title-cpu-speed')).toBe('2');
     change('#title-cpu-speed', '0.5');
+    openTitlePanel(dom.window.document, 'home');
     click('#title-resume');
     expect(speed('#cpu-speed')).toBe('0.5');
   });
@@ -174,6 +187,7 @@ describe('distributed application boundaries', () => {
     };
     valueOf(saveGameToSlot(store, 'replay-history', 'Replay', { mapId: initial.scenarioId!, initialState: initial, gameState: final, commands, difficulty: 'normal' }));
     const document = launch({ storage });
+    openTitlePanel(dom.window.document, 'records');
     click('.load-save-slot[data-save-slot="replay-history"]');
     click('#view-replay');
     expect(document.querySelector('.recon-contact')).toBeNull();
@@ -193,6 +207,7 @@ describe('distributed application boundaries', () => {
   });
   it('generates a custom map and persists, applies and deletes its deployment preset across startup', () => {
     let document = launch();
+    openTitlePanel(dom.window.document, 'records');
     change('#title-generator-size', '16');
     change('#title-generator-sea', 'ocean');
     input('#title-generator-seed', 'distributed-1');
@@ -217,6 +232,7 @@ describe('distributed application boundaries', () => {
     }
     dom.window.close();
     document = launch({ storage });
+    openTitlePanel(dom.window.document, 'home');
     click('.title-map-card[data-map-id="generated-v2-16-ocean-distributed-1"]');
     expect(document.querySelector<HTMLInputElement>('#briefing-preset-red-0-name')?.value).toBe('機動部隊');
     click('#briefing-preset-red-0-apply');
@@ -227,7 +243,9 @@ describe('distributed application boundaries', () => {
 
   it('reconstructs stale observations after undo and save/resume without exposing full analysis', () => {
     const document = launch();
+    openTitlePanel(dom.window.document, 'settings');
     click('#title-tactical-preset'); // Preserve this original-layout regression fixture.
+    openTitlePanel(dom.window.document, 'records');
     click('#title-editor');
     change(
       '#editor-json',
@@ -256,6 +274,7 @@ describe('distributed application boundaries', () => {
     click('.tile[data-x="0"][data-y="3"]');
     click('#save');
     click('#open-title');
+    openTitlePanel(dom.window.document, 'records');
     click('.load-save-slot[data-save-slot="manual"]');
     expect(document.querySelector('.recon-contact')?.textContent).toContain('最終 T1');
     click('#recon-markers');
@@ -280,6 +299,7 @@ describe('distributed application boundaries', () => {
 
   it('rejects invalid seeds and recovers corrupt presets without deleting match saves', () => {
     const document = launch({ storage: { 'ministr.deployment.presets': '{bad', 'ministr.save.manual': 'retained' } });
+    openTitlePanel(dom.window.document, 'records');
     input('#title-generator-seed', 'bad seed');
     click('#title-generator-create');
     expect(document.querySelector('#title-generator [role=alert]')?.textContent).toContain('seed');
@@ -293,6 +313,7 @@ describe('distributed application boundaries', () => {
   });
   it('deploys a custom force and preserves evacuation progress through undo, save and resume', () => {
     const document = launch();
+    openTitlePanel(dom.window.document, 'records');
     click('#title-editor');
     change('#editor-json', JSON.stringify(operationData({ id: 'distributed-withdrawal' })));
     click('#editor-import');
@@ -321,6 +342,7 @@ describe('distributed application boundaries', () => {
     expect(saved.initialState.units.find((unit) => unit.id === 'r2')?.kind).toBe('infantry');
     expect(saved.gameState.evacuatedUnits?.map((unit) => unit.id)).toEqual(['r1']);
     click('#open-title');
+    openTitlePanel(dom.window.document, 'records');
     click('.load-save-slot[data-save-slot="manual"]');
     expect(document.querySelector('.title-overlay')).toBeNull();
     click('.tile[data-x="1"][data-y="2"]');
@@ -381,6 +403,7 @@ describe('distributed application boundaries', () => {
     });
     const document = launch({ storage: data });
     expect(document.querySelector('#title-continue')?.hasAttribute('disabled')).toBe(false);
+    openTitlePanel(dom.window.document, 'records');
     click('.load-save-slot[data-save-slot="named"]');
     expect(document.querySelector('.title-overlay')).toBeNull();
     expect(document.querySelector('.board')).not.toBeNull();
@@ -422,15 +445,18 @@ describe('distributed application boundaries', () => {
     document.querySelector('#continue')?.dispatchEvent(new dom.window.MouseEvent('click', { bubbles: true }));
     expect(boardMarkup()).toBe(before);
     click('#open-title');
+    openTitlePanel(dom.window.document, 'records');
     expect(document.querySelector('.load-save-slot[data-save-slot="manual"]')?.hasAttribute('disabled')).toBe(true);
     click('.delete-save-slot[data-save-slot="manual"]');
     expect(dom.window.localStorage.getItem('ministr.save.manual')).toBeNull();
+    openTitlePanel(dom.window.document, 'home');
     click('#title-resume');
     expect(boardMarkup()).toBe(before);
   });
 
   it('opens editor, blocks empty operation, paints and undoes without losing the draft', () => {
     const document = launch();
+    openTitlePanel(dom.window.document, 'records');
     click('#title-editor');
     click('#editor-start');
     expect(document.querySelector('.editor-overlay')).not.toBeNull();

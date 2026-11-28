@@ -1,3 +1,4 @@
+import { openTitlePanel } from './helpers/titleNavigation';
 import { expect, test } from '@playwright/test';
 
 test('picks a map on the title screen, goes back from the briefing, and starts (#143)', async ({ page }) => {
@@ -41,7 +42,7 @@ test('opens the title during a match and returns to the same match (#143)', asyn
   await expect(page.locator('.status-message')).toContainText('移動しました');
 
   await page.locator('#open-title').click();
-  await expect(page.locator('#title-resume')).toBeFocused();
+  await expect(page.locator('#title-heading')).toBeFocused();
   await page.locator('#title-resume').click();
   await expect(page.locator('.title-overlay')).toHaveCount(0);
   // The moved infantry is still where it went.
@@ -55,6 +56,7 @@ test('returns to the title from the campaign menu and the editor (#143)', async 
   await page.locator('#campaign-close').click();
   await expect(page.locator('.title-overlay')).toBeVisible();
 
+  await openTitlePanel(page, 'records');
   await page.locator('#title-editor').click();
   await expect(page.locator('.editor-overlay')).toBeVisible();
   await page.locator('#editor-close').click();
@@ -63,7 +65,15 @@ test('returns to the title from the campaign menu and the editor (#143)', async 
 
 test('works from the keyboard alone (#143)', async ({ page }) => {
   await page.goto('/');
-  // Focus starts on the last chosen map, the first one at start.
+  await expect(page.locator('#title-heading')).toBeFocused();
+  await page.locator('#title-new-game').focus();
+  await page.keyboard.press('Enter');
+  await expect(page.locator('#title-catalog-heading')).toBeFocused();
+  await page.keyboard.press('Tab');
+  await expect(page.locator('#title-category-all')).toBeFocused();
+  await page.keyboard.press('Tab');
+  await expect(page.locator('#title-catalog-filters summary')).toBeFocused();
+  await page.keyboard.press('Tab');
   await expect(page.locator('.title-map-card[data-map-id="skirmish"]')).toBeFocused();
   await page.keyboard.press('Tab');
   await expect(page.locator('.title-map-card[data-map-id="islands"]')).toBeFocused();
@@ -98,8 +108,10 @@ test('keeps the way back to a match through screens opened from the title (#143 
   await page.locator('#open-title').click();
   await page.locator('#title-campaign').click();
   await page.locator('#campaign-close').click();
+  await openTitlePanel(page, 'records');
   await page.locator('#title-editor').click();
   await page.locator('#editor-close').click();
+  await openTitlePanel(page, 'home');
   await expect(page.locator('#title-resume')).toBeVisible();
   await page.locator('#title-resume').click();
   await expect(page.locator('.tile[data-x="0"][data-y="2"] .unit.red')).toBeVisible();
@@ -107,7 +119,8 @@ test('keeps the way back to a match through screens opened from the title (#143 
 
 test('lands on the briefing heading after going back and forth by keyboard (#143 review)', async ({ page }) => {
   await page.goto('/');
-  await expect(page.locator('.title-map-card[data-map-id="skirmish"]')).toBeFocused();
+  await expect(page.locator('#title-heading')).toBeFocused();
+  await page.locator('.title-map-card[data-map-id="skirmish"]').focus();
   await page.keyboard.press('Enter');
   await expect(page.locator('#briefing-title')).toBeFocused();
   await page.locator('#briefing-back-to-title').focus();
@@ -121,6 +134,7 @@ test('lands on the briefing heading after going back and forth by keyboard (#143
 
 test('explains a rejected replay on the title and keeps focus on the import button (#143 review)', async ({ page }) => {
   await page.goto('/');
+  await openTitlePanel(page, 'records');
   await page.locator('#title-import-replay').focus();
   await page.locator('#title-replay-file').setInputFiles({
     name: 'broken.json',
@@ -149,7 +163,9 @@ for (const locale of ['ja', 'en'] as const) {
       const decision = locale === 'en' ? 'Decision: from the end of round 60; complete ties continue' : '判定：60ラウンド終了時から・完全同点なら続行';
       const deadline = locale === 'en' ? 'Deadline: end of round 40' : '期限：40ラウンド終了';
       for (const tactics of [true, false]) {
+        await openTitlePanel(page, 'settings');
         await page.locator('#title-tactical-preset').setChecked(tactics);
+        await openTitlePanel(page, 'home');
         const card = page.locator('[data-map-id="skirmish"]');
         await expect(card).toContainText(decision);
         await card.click();

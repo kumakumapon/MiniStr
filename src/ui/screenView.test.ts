@@ -106,6 +106,20 @@ it('keeps an unchanged open roster connected with focus and native control state
   expect(roster.dataset.logisticsSelected).toBe('r2');
 });
 
+it('keeps a focused roster connected inside its scrolling HUD section', () => {
+  const host = setup();
+  const nested = (selected: string) =>
+    withRoster('same', selected)
+      .replace('<details open', '<div class="hud-pages"><section id="classic-hud-units"><details open')
+      .replace('</details></aside>', '</details></section></div></aside>');
+  updateScreen(host, nested('r1'), false);
+  const input = host.querySelector<HTMLInputElement>('#logistics-list input')!;
+  input.focus();
+  updateScreen(host, nested('r2'), true);
+  expect(document.activeElement).toBe(input);
+  expect(host.querySelector<HTMLElement>('#logistics-roster')!.dataset.logisticsSelected).toBe('r2');
+});
+
 it('refreshes roster controls when the model changes, the screen is concealed or peer order changes', () => {
   const host = setup();
   updateScreen(host, withRoster('one'), false);

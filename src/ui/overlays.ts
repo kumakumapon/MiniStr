@@ -1,3 +1,4 @@
+import type { TitlePanel } from './titleScreen';
 import { renderBriefingShell } from './briefingShell';
 import { renderActionSceneSetting } from './actionSceneSettings';
 import { renderBattleSceneSetting } from './battleSceneSettings';
@@ -151,6 +152,7 @@ export interface TitleMapCard {
   width: number;
   height: number;
   startingGold: number;
+  startingGoldLabel?: string;
   turnLimit?: number;
   timing?: string;
   /** One line summarising how to win. */
@@ -175,6 +177,9 @@ export function renderTitleOverlay(options: {
   visible: boolean;
   maps: readonly TitleMapCard[];
   catalogFilters?: CatalogFilters;
+  panel?: TitlePanel;
+  tactics?: string;
+  operationRecords?: string;
   canContinue: boolean;
   canResume: boolean;
   canResumeMultiplayer?: boolean;
@@ -194,7 +199,35 @@ export function renderTitleOverlay(options: {
   const automatic = options.boardZoom?.automatic ?? true;
   const zoomLabel = getLocale() === 'en' ? 'Map display size' : 'マップ表示サイズ';
   const zoomControl = `<label class="map-picker board-zoom-control">${zoomLabel}<select id="title-board-zoom" aria-label="${zoomLabel}"><option value="auto" ${automatic ? 'selected' : ''}>${getLocale() === 'en' ? 'Auto' : '自動'}</option>${BOARD_ZOOM_LEVELS.map((_, index) => `<option value="${boardZoomPercent(index)}" ${!automatic && options.boardZoom?.index === index ? 'selected' : ''}>${boardZoomPercent(index)}%</option>`).join('')}</select></label>`;
-  return `<div class="title-overlay" role="dialog" aria-modal="true" aria-labelledby="title-heading"><section class="title-screen"><header class="title-hero"><p class="card-kicker">${uiText.titleKicker}</p><h2 id="title-heading">${uiText.titleHeading}</h2><p>${uiText.titleLead}</p></header><nav class="title-menu" aria-label="${uiText.titleMenu}">${renderLocalePicker()}${renderCpuSpeedControl(options.cpuSpeed ?? 1, 'title-cpu-speed')}${zoomControl}${renderBattleSceneSetting('twoArmy', options.battleScenesEnabled ?? true, 'title')}${renderActionSceneSetting('twoArmy', options.actionScenesEnabled ?? true, 'title')}${options.canResume ? `<button id="title-resume" class="end-turn">${uiText.titleResume}</button>` : ''}${options.canResumeMultiplayer ? `<button id="title-resume-multiplayer" class="end-turn">${getLocale() === 'en' ? 'Return to multiplayer match' : '複数軍の対局へ戻る'}</button>` : ''}<button id="title-continue" class="save-action" ${options.canContinue ? '' : 'disabled'}>${uiText.titleContinue}</button><button id="title-training" class="save-action">基本操作を練習</button><button id="title-campaign" class="save-action">${uiText.titleCampaign}</button><button id="title-import-replay" class="save-action">${getLocale() === 'en' ? 'Open record' : '記録を開く'}</button><button id="title-editor" class="save-action">${uiText.titleEditor}</button><input id="title-replay-file" class="visually-hidden" type="file" accept=".json,application/json" aria-label="リプレイ・研究JSONファイルを選択"></nav><details id="title-music-settings" class="title-music-settings" ${options.musicOpen ? 'open' : ''}><summary>${getLocale() === 'en' ? 'BGM settings' : 'BGM設定'}</summary>${renderMusicControls(options.musicSettings, 'title-music', true)}</details>${options.daily ?? ''}${options.savePicker ?? ''}${options.generator ?? ''}${options.notice ? `<p class="title-notice" role="status">${escapeHtml(options.notice)}</p>` : ''}${renderTitleCatalog(options.maps, options.catalogFilters)}</section></div>`;
+  const en = getLocale() === 'en';
+  const panel = options.panel ?? 'home';
+  const labels = {
+    home: uiText.titleHeading,
+    settings: en ? 'Settings' : '設定',
+    records: en ? 'Records and tools' : '記録・その他',
+    daily: en ? "Today's battlefield" : '今日の戦域',
+  };
+  const other = (id: string, label: string) =>
+    `<button id="title-open-${id}" class="save-action" type="button">${id === 'settings' ? '<span aria-hidden="true">⚙</span> ' : ''}${label}</button>`;
+  const home = `<header class="title-home-header"><h2 id="title-heading" tabindex="-1">${uiText.titleHeading}</h2><div>${other('settings', labels.settings)}${other('records', labels.records)}</div></header>
+    <nav class="title-home-menu" aria-label="${uiText.titleMenu}">
+    ${options.canResume ? `<button id="title-resume" class="save-action">${uiText.titleResume}</button>` : ''}
+    ${options.canResumeMultiplayer ? `<button id="title-resume-multiplayer" class="save-action">${en ? 'Return to multiplayer match' : '複数軍の対局へ戻る'}</button>` : ''}
+    <button id="title-continue" class="save-action" ${options.canContinue ? '' : 'disabled'}>${uiText.titleContinue}</button>
+    <button id="title-new-game" class="end-turn">${en ? 'New match' : '新しい対局'}</button>
+    <button id="daily-start" class="save-action">${labels.daily}</button><button id="title-campaign" class="save-action">${uiText.titleCampaign}</button>
+    <button id="title-training" class="save-action">${en ? 'Practice the basics' : '基本操作を練習'}</button></nav>
+    ${renderTitleCatalog(options.maps, options.catalogFilters)}`;
+  const settings = `<div class="title-menu title-settings-controls">${renderLocalePicker()}${renderCpuSpeedControl(options.cpuSpeed ?? 1, 'title-cpu-speed')}${zoomControl}${renderBattleSceneSetting('twoArmy', options.battleScenesEnabled ?? true, 'title')}${renderActionSceneSetting('twoArmy', options.actionScenesEnabled ?? true, 'title')}</div>
+    <details id="title-music-settings" class="title-music-settings" ${options.musicOpen ? 'open' : ''}><summary>${en ? 'BGM settings' : 'BGM設定'}</summary>${renderMusicControls(options.musicSettings, 'title-music', true)}</details>${options.tactics ?? ''}`;
+  const records = `<div class="title-record-actions"><button id="title-import-replay" class="save-action">${en ? 'Open record' : '記録を開く'}</button><input id="title-replay-file" class="visually-hidden" type="file" accept=".json,application/json" aria-label="${en ? 'Select a replay or research JSON file' : 'リプレイ・研究JSONファイルを選択'}"><button id="title-editor" class="save-action">${uiText.titleEditor}</button></div>${options.savePicker ?? ''}${options.generator ?? ''}${options.operationRecords ?? ''}${options.daily ?? ''}`;
+  const panelHeading = panel === 'home' ? 'title-heading' : 'title-panel-heading';
+  const header =
+    panel === 'home'
+      ? ''
+      : `<header class="title-panel-header"><h2 id="title-panel-heading" tabindex="-1">${labels[panel]}</h2><button type="button" id="title-home-back" class="save-action">${en ? 'Back to home' : 'ホームへ戻る'}</button></header>`;
+  const content = panel === 'home' ? home : panel === 'settings' ? settings : records;
+  return `<div class="title-overlay" role="dialog" aria-modal="true" aria-labelledby="${panelHeading}"><section id="title-${panel}" class="title-screen" data-title-panel="${panel}">${header}${options.notice ? `<p class="title-notice" role="status">${escapeHtml(options.notice)}</p>` : ''}${content}</section></div>`;
 }
 
 /**

@@ -1,3 +1,4 @@
+import { openTitlePanel } from './helpers/titleNavigation';
 // Imports the game and CPU modules on the Node side to build a real finished
 // replay. They must stay free of Vite-only features (import.meta.env, asset imports).
 import { expect, test, type Page } from '@playwright/test';
@@ -34,6 +35,7 @@ function spectatedReplayJson(red: CpuDifficulty | undefined, blue: CpuDifficulty
 async function importReplay(page: Page, json: string): Promise<void> {
   await page.goto('/');
   // Imported from the title screen (#143).
+  await openTitlePanel(page, 'records');
   await page.locator('#title-replay-file').setInputFiles({
     name: 'replay.json',
     mimeType: 'application/json',

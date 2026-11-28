@@ -1,3 +1,4 @@
+import { openTitlePanel } from '../e2e/helpers/titleNavigation';
 import { expect, type Page } from '@playwright/test';
 import { test } from '../e2e/helpers/engineTest';
 import { build } from 'vite';
@@ -140,8 +141,10 @@ test('maximum record: lossless import, checkpoint seeks, persistence, export and
     .then(async (n) => {
       if (n) await page.locator('#save-slots-panel').evaluate((e) => ((e as HTMLDetailsElement).open = true));
     });
+  await openTitlePanel(page, 'records');
   const input = page.locator('#backup-import');
   await input.setInputFiles({ name: 'long-backup.json', mimeType: 'application/json', buffer: Buffer.from(backup) });
+  await openTitlePanel(page, 'home');
   await page.locator('#title-training').click();
   await expect(page.locator('#briefing-title')).toBeVisible();
   await page.waitForTimeout(100);

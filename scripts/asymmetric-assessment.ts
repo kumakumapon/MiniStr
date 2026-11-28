@@ -23,13 +23,13 @@ const bearing = (from: Position, to: Position) => {
     dy = from.y - to.y;
   return Math.abs(dx) >= Math.abs(dy) ? (dx > 0 ? 'E' : 'W') : dy > 0 ? 'S' : 'N';
 };
-const sources = ['canyon', 'marsh', 'skirmish', 'strait', 'river', 'tundra'] as const;
+const sources = ['canyon', 'marsh', 'skirmish', 'strait', 'river', 'tundra', 'crown'] as const;
 if (armyCount !== undefined && !['3', '4'].includes(armyCount)) throw Error('army count must be 3 or 4');
 if (!sourceList.split(',').every((s) => sources.some((v) => v === s)) || !['current', '4'].includes(layout)) throw Error('invalid source or layout');
 let index = 0;
 for (const source of sources.filter((s) => sourceList.split(',').includes(s)))
   for (const count of [3, 4]) {
-    if ((armyCount && count !== Number(armyCount)) || (source === 'tundra' && count !== 3)) continue;
+    if ((armyCount && count !== Number(armyCount)) || (source === 'tundra' && count !== 3) || (source === 'crown' && (count !== 4 || layout !== 'current'))) continue;
     const ids = FOUR_ARMY_IDS.slice(0, count),
       orders = fourArmyOrders(ids);
     for (const [i, order] of orders.entries())

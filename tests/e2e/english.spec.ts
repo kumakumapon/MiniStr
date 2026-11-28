@@ -1,3 +1,4 @@
+import { openTitlePanel } from './helpers/titleNavigation';
 import { expect, test, type Page } from '@playwright/test';
 
 async function expectEnglish(page: Page) {
@@ -96,6 +97,7 @@ for (const viewport of [
     await page.locator('#title-campaign').click();
     await expectEnglish(page);
     await page.locator('#campaign-close').click();
+    await openTitlePanel(page, 'records');
     await page.locator('#title-editor').click();
     await expectEnglish(page);
     await page.locator('#editor-close').click();
@@ -107,9 +109,13 @@ for (const viewport of [
       if (!localStorage.getItem('ministr.locale')) localStorage.setItem('ministr.locale', 'en');
     });
     await page.goto('/');
+    await openTitlePanel(page, 'settings');
     await page.locator('.title-menu [data-locale]').selectOption('ja');
+    await openTitlePanel(page, 'home');
     await expect(page.locator('#title-training')).toHaveText('基本操作を練習');
+    await openTitlePanel(page, 'settings');
     await page.locator('.title-menu [data-locale]').selectOption('en');
+    await openTitlePanel(page, 'home');
     await expect(page.locator('#title-training')).toHaveText('Practice the basics');
     await expectEnglish(page);
     await page.reload();

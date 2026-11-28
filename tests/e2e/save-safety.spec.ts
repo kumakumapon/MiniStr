@@ -1,3 +1,4 @@
+import { openTitlePanel } from './helpers/titleNavigation';
 import { expect, test, type Page } from '@playwright/test';
 import { operationData } from '../../src/game/operations.fixture';
 
@@ -19,6 +20,7 @@ for (const width of [1280, 390])
       await second.evaluate(() => localStorage.setItem('ministr.save.manual', '{broken-in-other-tab'));
       await expect(page.locator('#storage-session-export')).toBeVisible();
       const download = page.waitForEvent('download');
+      await openTitlePanel(page, 'records', true);
       await page.locator('#backup-export').click();
       const stream = await (await download).createReadStream();
       const chunks: Buffer[] = [];
@@ -41,6 +43,7 @@ for (const width of [1280, 390])
           ['ministr.save.auto', '{broken'],
         ],
       });
+      await openTitlePanel(page, 'records', true);
       await page.locator('#save-recovery-import').setInputFiles({ name: 'damaged-backup.json', mimeType: 'application/json', buffer: Buffer.from(recovery) });
       await expect(page.locator('.load-save-slot:not([disabled])')).toHaveCount(1);
       expect(await page.evaluate(() => localStorage.getItem('ministr.save.manual'))).toBe('{broken-in-other-tab');
@@ -174,7 +177,9 @@ for (const width of [1280, 390])
       page.on('dialog', (dialog) => dialog.accept('Paused match'));
       await page.goto('/');
       await expect(page.locator('.storage-write-notice')).toHaveCount(0);
+      await openTitlePanel(page, 'settings');
       await page.locator('#title-cpu-speed').selectOption('4');
+      await openTitlePanel(page, 'home');
       await page.locator('.title-map-card[data-map-id="pause-combat"]').click();
       await page.locator('input[name="match-mode"][value="spectate"]').check();
       await page.locator('#begin-operation').click();
@@ -320,7 +325,9 @@ test('ignores a cancelled fallback result after rapid pause and resume', async (
   );
   page.on('dialog', (dialog) => dialog.accept('Fallback pause'));
   await page.goto('/');
+  await openTitlePanel(page, 'settings');
   await page.locator('#title-cpu-speed').selectOption('4');
+  await openTitlePanel(page, 'home');
   await page.locator('.title-map-card[data-map-id="fallback-pause"]').click();
   await page.locator('input[name="match-mode"][value="spectate"]').check();
   await page.locator('#begin-operation').click();

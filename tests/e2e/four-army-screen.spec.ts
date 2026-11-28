@@ -156,7 +156,7 @@ for (const locale of ['ja', 'en'])
       await page.locator('#four-menu').click();
       await page.locator('#four-return').click();
       await page.locator('#four-close').click();
-      await expect(page.locator('.title-map-card[data-map-id="skirmish"]')).toBeFocused();
+      await expect(page.locator('#title-heading')).toBeFocused();
     });
   }
 
@@ -564,7 +564,7 @@ for (const width of [1280, 390]) {
     await expect(page.locator('#four-handoff-title')).toContainText(width === 390 ? 'Army 1' : '第1軍');
     await page.locator('#four-handoff-start').click();
     await expect(page.locator('#four-board > button')).toHaveCount(1024);
-    await page.locator('#four-human-panel [data-human-action="endTurn"]').click();
+    await page.locator('.hud-status [data-human-action="endTurn"]').click();
     for (const selector of [
       '.tile',
       '#four-unit-brief',
@@ -596,7 +596,7 @@ for (const width of [1280, 390]) {
     await expect(page.locator('.tile')).toHaveCount(0);
     await page.locator('#four-handoff-start').click();
     await expect(page.locator('#four-human-panel')).toContainText(width === 390 ? 'Army 2' : '第2軍');
-    await page.locator('#four-human-panel [data-human-action="endTurn"]').click();
+    await page.locator('.hud-status [data-human-action="endTurn"]').click();
     await expect(page.locator('.tile')).toHaveCount(0);
     await expect(page.locator('#four-toggle')).toBeVisible();
     await page.locator('#four-toggle').click();
@@ -758,7 +758,7 @@ for (const { width, locale, actor } of [
     await page.locator('#battle-scene-skip').press('Enter');
     await expect(page.locator('.battle-scene')).toHaveCount(0);
     await expect(page.locator('#four-army-screen')).not.toHaveAttribute('inert', '');
-    await expect(page.locator('#four-human-panel [data-human-action="endTurn"]')).toBeEnabled();
+    await expect(page.locator('.hud-status [data-human-action="endTurn"]')).toBeEnabled();
     expect(await count(page)).toBe(fixture.count + 1);
     expect(await page.evaluate(() => JSON.parse(localStorage.getItem('ministr.battleScene.settings')!))).toEqual({ twoArmy: false, multiArmy: true });
     await playbackControls(page);

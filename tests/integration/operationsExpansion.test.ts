@@ -1,3 +1,4 @@
+import { openTitlePanel } from './titleNavigation';
 import { distributedSource } from './distributedSource';
 import { afterEach, describe, expect, it } from 'vitest';
 // @ts-expect-error jsdom is a runtime development dependency, as in startup.test.ts.
@@ -40,6 +41,7 @@ afterEach(() => dom?.window.close());
 describe('distributed recon, control and operation records', () => {
   it('targets, cancels, undoes and restores scans without retaining vision into the next turn', () => {
     let document = launch();
+    openTitlePanel(dom.window.document, 'records');
     click('#title-editor');
     change('#editor-json', JSON.stringify(scanScenarioData()));
     click('#editor-import');
@@ -63,9 +65,11 @@ describe('distributed recon, control and operation records', () => {
     const values = stored();
     dom.window.close();
     document = launch(values);
+    openTitlePanel(dom.window.document, 'records');
     click('.load-save-slot[data-save-slot="manual"]');
     expect(document.querySelector('#recon-target')?.textContent).toContain('残り1回');
     click('#open-title');
+    openTitlePanel(dom.window.document, 'records');
     click('#title-editor');
     change('#editor-json', JSON.stringify(scanScenarioData()));
     click('#editor-import');
@@ -84,41 +88,50 @@ describe('distributed recon, control and operation records', () => {
   });
   it('records completed human operations idempotently and presents conditions and challenge results', () => {
     const document = launch({ [MANUAL_SAVE_KEY]: finishedDefense().serialized });
+    openTitlePanel(dom.window.document, 'records');
     click('.load-save-slot[data-save-slot="manual"]');
     expect(document.querySelector('.game-over .operation-challenges')?.textContent).toContain('達成');
     const first = dom.window.localStorage.getItem(OPERATION_RECORDS_KEY)!;
     expect(JSON.parse(first).records).toHaveLength(1);
     click('#result-title-menu');
     expect(document.querySelector('.title-map-card[data-map-id="frontier-defense"] .catalog-clear')?.textContent).toBe('未クリア');
+    openTitlePanel(dom.window.document, 'settings');
     click('#title-tactical-preset'); // Historical OFF records belong to the original layout.
+    openTitlePanel(dom.window.document, 'home');
     expect(document.querySelector('.title-map-card[data-map-id="frontier-defense"] .catalog-clear')?.textContent).toBe('クリア済み');
+    openTitlePanel(dom.window.document, 'records');
     click('#operation-records summary');
     expect(document.querySelector('#operation-records')?.textContent).toContain('標準編成');
     const values = stored();
     dom.window.close();
     launch(values);
+    openTitlePanel(dom.window.document, 'records');
     click('.load-save-slot[data-save-slot="manual"]');
     expect(dom.window.localStorage.getItem(OPERATION_RECORDS_KEY)).toBe(first);
     click('#view-replay');
     expect(dom.window.localStorage.getItem(OPERATION_RECORDS_KEY)).toBe(first);
     dom.window.close();
     launch({ [MANUAL_SAVE_KEY]: finishedDefense('spectate').serialized });
+    openTitlePanel(dom.window.document, 'records');
     click('.load-save-slot[data-save-slot="manual"]');
     expect(dom.window.localStorage.getItem(OPERATION_RECORDS_KEY)).toBeNull();
   });
   it('recovers corrupt records without deleting matches and supports per-condition deletion', () => {
     const save = finishedDefense().serialized;
     const document = launch({ [MANUAL_SAVE_KEY]: save, [OPERATION_RECORDS_KEY]: '{broken' });
+    openTitlePanel(dom.window.document, 'records');
     expect(document.querySelector('#operation-records [role=alert]')).not.toBeNull();
     click('#operation-records-reset');
     expect(dom.window.localStorage.getItem(MANUAL_SAVE_KEY)).toBe(save);
     click('.load-save-slot[data-save-slot="manual"]');
     click('#result-title-menu');
+    openTitlePanel(dom.window.document, 'records');
     click('[data-record-delete="0"]');
     expect(JSON.parse(dom.window.localStorage.getItem(OPERATION_RECORDS_KEY)!).records).toEqual([]);
     expect(document.querySelector('#operation-records')?.textContent).toContain('まだありません');
     dom.window.close();
     launch({ [MANUAL_SAVE_KEY]: finishedDefense('hotseat').serialized });
+    openTitlePanel(dom.window.document, 'records');
     click('.load-save-slot[data-save-slot="manual"]');
     expect(dom.window.localStorage.getItem(OPERATION_RECORDS_KEY)).toBeNull();
   });
@@ -126,6 +139,7 @@ describe('distributed recon, control and operation records', () => {
     const document = launch();
     expect(document.querySelector('.title-map-card[data-map-id="control-crossroads"]')).not.toBeNull();
     expect(document.querySelector('.title-map-card[data-map-id="control-coast"]')).not.toBeNull();
+    openTitlePanel(dom.window.document, 'records');
     click('#title-editor');
     const data = scanScenarioData();
     data.board.cells = [[0, 0, 'city']];

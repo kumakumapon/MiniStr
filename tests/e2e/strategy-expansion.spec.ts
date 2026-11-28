@@ -1,3 +1,4 @@
+import { openTitlePanel } from './helpers/titleNavigation';
 import { expect, test } from '@playwright/test';
 import { operation, valueOf } from '../../src/game/operations.fixture';
 import { createScenarioInitialState, applyGameCommand, saveGame, type GameCommand } from '../../src/game';
@@ -141,7 +142,9 @@ for (const width of [1280, 390])
       await page.addInitScript((locale) => localStorage.setItem('ministr.locale', locale), locale);
       page.on('dialog', (dialog) => dialog.accept());
       await page.goto('/');
+      await openTitlePanel(page, 'settings');
       await page.locator('#title-tactical-preset').uncheck();
+      await openTitlePanel(page, 'home');
       await page.locator('.title-map-card[data-map-id="canyon"]').click();
       await page.locator('input[name="match-mode"][value="hotseat"]').check();
       await page.locator('#briefing-advanced > summary').click();
@@ -221,6 +224,7 @@ test('pre-operation positions initialize both spectator armies', async ({ page }
   expect(snapshot.initialState.units.find((u: { id: string }) => u.id === 'r1').position).toEqual({ x: 3, y: 4 });
   expect(snapshot.initialState.units.find((u: { id: string }) => u.id === 'b1').position).toEqual({ x: 16, y: 11 });
   await page.reload();
+  await openTitlePanel(page, 'records', true);
   await page.locator('.load-save-slot').first().click();
   await expect(page.locator('#spectate-toggle')).toBeVisible();
   await expect(page.locator('[data-position-player]')).toHaveCount(0);

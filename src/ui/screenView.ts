@@ -48,8 +48,8 @@ export function updateScreen(root: HTMLElement, markup: string, retainBoard: boo
   }
   const currentPanel = currentPath[1]!.querySelector<HTMLElement>(':scope > #command-panel');
   const nextPanel = nextPath[1]!.querySelector<HTMLElement>(':scope > #command-panel');
-  const currentRoster = currentPanel?.querySelector<HTMLElement>(':scope > #logistics-roster');
-  const nextRoster = nextPanel?.querySelector<HTMLElement>(':scope > #logistics-roster');
+  const currentRoster = currentPanel?.querySelector<HTMLElement>('#logistics-roster');
+  const nextRoster = nextPanel?.querySelector<HTMLElement>('#logistics-roster');
   const samePanelOrder =
     currentPanel &&
     nextPanel &&
@@ -62,8 +62,17 @@ export function updateScreen(root: HTMLElement, markup: string, retainBoard: boo
     currentRoster.dataset.logisticsView &&
     currentRoster.dataset.logisticsView === nextRoster.dataset.logisticsView;
   if (retainRoster && currentPanel && nextPanel && currentRoster && nextRoster) {
-    updateChildren(currentPanel, nextPanel, new Map([[nextRoster, currentRoster]]));
-    syncAttributes(currentPanel, nextPanel);
+    // Keep the open roster connected through its HUD page as well as the panel.
+    let currentAnchor = currentRoster;
+    let nextAnchor = nextRoster;
+    while (currentAnchor !== currentPanel && nextAnchor !== nextPanel) {
+      const current = currentAnchor.parentElement!;
+      const next = nextAnchor.parentElement!;
+      updateChildren(current, next, new Map([[nextAnchor, currentAnchor]]));
+      syncAttributes(current, next);
+      currentAnchor = current;
+      nextAnchor = next;
+    }
     syncAttributes(currentRoster, nextRoster);
   }
   let currentParent: HTMLElement = root;

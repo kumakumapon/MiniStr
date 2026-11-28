@@ -1,3 +1,4 @@
+import { openTitlePanel } from './helpers/titleNavigation';
 import { expect, type Page } from '@playwright/test';
 import { test } from './helpers/engineTest';
 import { fourArmyActionFixture } from './helpers/fourArmyActionFixture';
@@ -174,9 +175,11 @@ for (const { width, locale } of [
     expect(off.gameState).toEqual(valueOf(applyGameCommand(initial, { type: 'capture', unitId: 'r1' })));
     await page.evaluate((saved) => localStorage.setItem('ministr.save.manual', JSON.stringify(saved)), saved);
     await page.reload();
+    await openTitlePanel(page, 'settings');
     await expect(page.locator('#action-scenes-twoArmy-title')).not.toBeChecked();
     await expect(page.locator('#battle-scenes-twoArmy-title')).toBeChecked();
     await page.locator('#action-scenes-twoArmy-title').check();
+    await openTitlePanel(page, 'home');
     await page.locator('#title-continue').click();
     await freeze(page);
     await capture();

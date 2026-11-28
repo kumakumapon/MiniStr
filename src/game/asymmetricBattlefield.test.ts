@@ -1,12 +1,12 @@
 import { describe, it, expect } from 'vitest';
 import { createExpandedBattleMap } from './expandedBattleMap';
-import { createFourArmyState, applyFourArmyCommand, type FourArmyCommand, isFourArmyState } from './fourArmyEngine';
+import { createFourArmyState, applyFourArmyCommand, type FourArmyCommand, isFourArmyState, observeFourArmy } from './fourArmyEngine';
 import { parseFourArmyArchive, serializeFourArmyArchive } from './fourArmyArchive';
 import { FOUR_ARMY_IDS } from './fourArmyFoundation';
 import { fourArmyControllers } from './fourArmyControl';
 import { initialFourArmyExperience, advanceFourArmyExperience, fourArmyExperienceManifest } from './fourArmyExperience';
 import { encodeFourArmySpectatorSave, serializeFourArmySpectatorSave, parseFourArmySpectatorSave, type FourArmySpectatorSave } from './fourArmySpectatorSave';
-import { defaultFourArmyCpuSettings } from '../ai/fourArmyCpu';
+import { chooseFourArmyCpuCommand, defaultFourArmyCpuSettings } from '../ai/fourArmyCpu';
 import { FourArmyReplay } from '../ui/fourArmyReplay';
 import { terrainRules } from './terrain';
 import { battleWinners, isSmallBattle } from './smallBattle';
@@ -175,4 +175,91 @@ it.each([3, 4])('connects both river banks at three public bridges for %i armies
   expect(map.bridges).toHaveLength(3);
   expect(map.board.terrain[6]!.every((t) => t.kind === 'sea')).toBe(true);
   for (const { position: p } of map.bridges!) for (const y of [p.y - 1, p.y + 1]) expect(Number.isFinite(terrainRules[map.board.terrain[y]![p.x]!.kind].movement.tank)).toBe(true);
+});
+
+it('ties the central power’s forces, economy, and cities to its permanent site across saves, replay, and rematch', async () => {
+  const siteArmies = ['army3', 'army4', 'army2', 'army1'] as const;
+  const order = ['army4', 'army1', 'army2', 'army3'] as const;
+  const options = { sourceMapId: 'crown', participants: FOUR_ARMY_IDS, siteArmies, order, seed: 311 } as const;
+  const map = value(createExpandedBattleMap(options));
+  expect(map.match).toMatchObject({ layoutVersion: 6, siteArmies, initialOrder: order, sharedVision: false });
+  for (const [i, army] of siteArmies.entries()) {
+    expect(map.players[army].gold).toBe(i === 0 ? 8000 : 6000);
+    const owned = map.board.terrain.flat().filter((tile) => tile.owner === army);
+    expect(owned.filter((tile) => tile.kind === 'city')).toHaveLength(i === 0 ? 5 : 1);
+    expect(owned.filter((tile) => tile.kind === 'factory')).toHaveLength(1);
+    expect(map.units.filter((unit) => unit.owner === army).map((unit) => unit.kind)).toEqual(
+      i === 0 ? ['infantry', 'infantry', 'rocket', 'tank', 'heavyTank', 'mech', 'tank'] : ['infantry', 'infantry', 'recon', 'tank'],
+    );
+  }
+  const initial = value(createFourArmyState(map));
+  let state = initial,
+    experience = initialFourArmyExperience(initial, 0);
+  const commands: FourArmyCommand[] = [];
+  while (state.outcome.type === 'ongoing') {
+    const command: FourArmyCommand = { type: 'endTurn', actor: state.round.order[state.round.index]! };
+    const after = value(applyFourArmyCommand(state, command));
+    commands.push(command);
+    experience = advanceFourArmyExperience(experience, state, command, after, commands.length);
+    state = after;
+  }
+  const controllers = fourArmyControllers(['army3']);
+  const save: FourArmySpectatorSave = {
+    format: 'ministr-four-army-configurable',
+    schemaVersion: 6,
+    cpuVersion: 'four-army-cpu-v7',
+    name: 'Crown',
+    savedAt: '2026-11-28T00:00:00.000Z',
+    settings: defaultFourArmyCpuSettings(),
+    controllers,
+    controlHistory: { initial: controllers, events: [] },
+    experience: fourArmyExperienceManifest(experience),
+    view: 'army3',
+    speed: 1,
+    archive: { format: 'ministr-four-army-save', schemaVersion: 5, ruleset: 'four-army-v5', payload: { map, state, commands } },
+  };
+  const saved = value(parseFourArmySpectatorSave(value(serializeFourArmySpectatorSave(save)))).archive.payload;
+  expect(saved.state).toEqual(state);
+  const replay = new FourArmyReplay(saved.map, saved.commands);
+  expect(await replay.seek(commands.length)).toEqual(state);
+  expect(await replay.seek(0)).toEqual(initial);
+  expect(value(createFourArmyState(saved.map))).toEqual(initial);
+  expect(value(createExpandedBattleMap({ ...options, siteArmies: [...siteArmies].reverse() })).players.army1.gold).toBe(map.players.army3.gold);
+  for (const field of ['gold', 'unit', 'city'] as const) {
+    const changed = structuredClone(save);
+    const altered = changed.archive.payload.map;
+    if (field === 'gold') altered.players.army3.gold++;
+    if (field === 'unit') altered.units.find((u) => u.owner === 'army3')!.hp = 99;
+    if (field === 'city') altered.board.terrain.flat().find((t) => t.owner === 'army3' && t.kind === 'city')!.owner = 'army2';
+    expect(parseFourArmySpectatorSave(value(encodeFourArmySpectatorSave(changed))).ok).toBe(false);
+    const counterfeit = value(createFourArmyState(altered));
+    expect(serializeFourArmyArchive(altered, [], counterfeit).ok).toBe(false);
+  }
+  for (const patch of [
+    { layoutVersion: 5 },
+    { layoutVersion: 7 },
+    { siteArmies: undefined },
+    { siteArmies: siteArmies.slice(1) },
+    { siteArmies: ['army3', 'army4', 'army2', 'army2'] },
+    { sharedVision: true },
+    { initiative: 'fixed' },
+  ]) {
+    expect(isSmallBattle({ ...map.match, ...patch })).toBe(false);
+  }
+  expect(createExpandedBattleMap({ sourceMapId: 'crown', participants: FOUR_ARMY_IDS.slice(0, 3) }).ok).toBe(false);
+});
+
+it('keeps crown CPU choices independent of an unseen enemy and its treasury', () => {
+  const map = value(createExpandedBattleMap({ sourceMapId: 'crown' }));
+  const state = value(createFourArmyState(map));
+  const observation = value(observeFourArmy(state, 'army1'));
+  const hidden = state.units.find((unit) => unit.owner !== 'army1' && !observation.units.some((visible) => visible.id === unit.id))!;
+  expect(hidden).toBeDefined();
+  const changed = structuredClone(state);
+  changed.players[hidden.owner].gold += 8000;
+  changed.units.find((unit) => unit.id === hidden.id)!.hp = 20;
+  const other = value(observeFourArmy(changed, 'army1'));
+  const options = defaultFourArmyCpuSettings().army1;
+  expect(other).toEqual(observation);
+  expect(chooseFourArmyCpuCommand(other, options, 'four-army-cpu-v7')).toEqual(chooseFourArmyCpuCommand(observation, options, 'four-army-cpu-v7'));
 });

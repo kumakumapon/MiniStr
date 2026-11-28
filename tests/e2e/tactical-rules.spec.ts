@@ -1,3 +1,4 @@
+import { openTitlePanel } from './helpers/titleNavigation';
 import { expect, test, type Page } from '@playwright/test';
 import { operation, valueOf } from '../../src/game/operations.fixture';
 import { createScenarioInitialState, applyGameCommand, saveGame, type GameCommand, type ScenarioDefinition, type SavedGame } from '../../src/game';
@@ -36,7 +37,9 @@ async function resume(page: Page, saved: SavedGame, locale: string) {
   );
   page.on('dialog', (dialog) => dialog.accept());
   await page.goto('/');
+  await openTitlePanel(page, 'settings');
   await expect(page.locator('#title-tactical-preset')).toBeChecked();
+  await openTitlePanel(page, 'home');
   await page.locator('#title-continue').click();
 }
 const tile = (page: Page, x: number, y: number) => page.locator(`.tile[data-x="${x}"][data-y="${y}"]`);
@@ -48,7 +51,9 @@ for (const width of [1280, 390])
       await page.addInitScript((locale) => localStorage.setItem('ministr.locale', locale), locale);
       page.on('dialog', (dialog) => dialog.accept());
       await page.goto('/');
+      await openTitlePanel(page, 'settings');
       await expect(page.locator('#title-tactical-preset')).toBeChecked();
+      await openTitlePanel(page, 'home');
       await page.locator('.title-map-card[data-map-id="skirmish"]').click();
       await expect(page.locator('#briefing-supply-mode option[value="unlimited"]')).toBeDisabled();
       await page.locator('#begin-operation').click();
@@ -72,8 +77,10 @@ for (const width of [1280, 390])
       await page.addInitScript((locale) => localStorage.setItem('ministr.locale', locale), locale);
       page.on('dialog', (dialog) => dialog.accept());
       await page.goto('/');
+      await openTitlePanel(page, 'settings');
       await expect(page.locator('#title-tactical-preset')).toBeChecked();
       await page.locator('#title-tactical-preset').uncheck();
+      await openTitlePanel(page, 'home');
       await page.locator('.title-map-card[data-map-id="skirmish"]').click();
       await page.locator('#begin-operation').click();
       await expect(page.locator('.tactics-status')).toHaveCount(0);
@@ -82,7 +89,9 @@ for (const width of [1280, 390])
       expect(before.initialState.ruleVersion).toBe(14);
       expect(before.initialState.scenarioSnapshot.tacticalOptions).toBeUndefined();
       await page.reload();
+      await openTitlePanel(page, 'settings');
       await expect(page.locator('#title-tactical-preset')).toBeChecked();
+      await openTitlePanel(page, 'home');
       await page.locator('#title-continue').click();
       await expect(page.locator('.tactics-status')).toHaveCount(0);
       await page.locator('#save').click();
@@ -308,8 +317,10 @@ for (const { width, locale } of [
     expect(off.gameState).toEqual(valueOf(applyGameCommand(saved.gameState, { type: 'attack', unitId: 'r1', targetId: 'b1' })));
     await page.evaluate((source) => localStorage.setItem('ministr.save.manual', JSON.stringify(source)), saved);
     await page.reload();
+    await openTitlePanel(page, 'settings');
     await expect(page.locator('#battle-scenes-twoArmy-title')).not.toBeChecked();
     await page.locator('#battle-scenes-twoArmy-title').check();
+    await openTitlePanel(page, 'home');
     await page.locator('#title-continue').click();
     await pauseBattleClock(page);
     await tile(page, 1, 1).click();

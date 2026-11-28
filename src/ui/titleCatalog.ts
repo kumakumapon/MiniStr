@@ -61,7 +61,7 @@ function renderCard(map: TitleMapCard, formats: CatalogFormat[], filters: Catalo
   const multiCount = chosen.multiplayer ? (chosen.armies.find((n) => String(n) === filters.armies) ?? chosen.armies.at(-1)) : undefined;
   const preview = (multiCount && chosen.preview?.(multiCount)) || map.preview;
   const alternate = chosen.multiplayer && map.formats?.some((format) => !format.multiplayer);
-  const funds = alternate ? '' : uiText.titleGold(map.startingGold) + ' · ';
+  const funds = alternate ? '' : (map.startingGoldLabel ?? uiText.titleGold(map.startingGold)) + ' · ';
   const rules = chosen.multiplayer ? label('規則を選択可', 'Configurable rules') : map.rules;
   const victory = alternate ? (chosen.victory ?? map.victory) : map.victory;
   const timing = (alternate ? chosen.timing : map.timing) ?? timingSummary({ deadline: map.turnLimit });

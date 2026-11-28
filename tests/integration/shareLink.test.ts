@@ -1,3 +1,4 @@
+import { openTitlePanel } from './titleNavigation';
 import { distributedSource } from './distributedSource';
 import { afterEach, describe, expect, it } from 'vitest';
 // @ts-expect-error The runtime is a dev dependency; production/test source does not require its optional declaration package.
@@ -157,6 +158,7 @@ describe('share link in the distributed application', () => {
     launch();
     await settle();
     // Editor
+    openTitlePanel(dom.window.document, 'records');
     click('#title-editor');
     await settle();
     await hashChange(VALID);
@@ -202,6 +204,7 @@ describe('share link in the distributed application', () => {
   it('replaces a waiting link with a newer valid one and keeps it through an invalid one', async () => {
     launch();
     await settle();
+    openTitlePanel(dom.window.document, 'records');
     click('#title-editor');
     await settle();
     await hashChange(VALID);
@@ -246,6 +249,7 @@ describe('share link in the distributed application', () => {
     const written: string[] = [];
     launch();
     Object.defineProperty(dom.window.navigator, 'clipboard', { value: { writeText: (value: string) => (written.push(value), Promise.resolve()) }, configurable: true });
+    openTitlePanel(dom.window.document, 'records');
     const select = q('#title-generator-size') as HTMLSelectElement;
     select.value = '24';
     select.dispatchEvent(new dom.window.Event('change', { bubbles: true }));

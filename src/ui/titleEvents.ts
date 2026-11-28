@@ -17,6 +17,7 @@ export interface TitleEventDeps {
   render: () => void;
   /** Remembers the control to focus after the next redraw. */
   setFocus: (selector: string) => void;
+  cancelRecordRead?: () => void;
   confirmReplaceMatch: () => boolean;
   scenarios: () => readonly ScenarioDefinition[];
   scenarioExists: (mapId: string) => boolean;
@@ -29,7 +30,7 @@ export interface TitleEventDeps {
   startMap: (mapId: string) => void;
   startDaily: () => void;
   continueSave: () => boolean;
-  openSaveList?: () => boolean;
+  continueOtherSave?: () => boolean;
   openMultiplayerMap?: (id: string, count?: ArmyCount) => boolean;
   /** The status line, which a failed load leaves explaining why. */
   message: () => string;
@@ -100,11 +101,23 @@ export function bindTitleEvents(app: HTMLElement, deps: TitleEventDeps): void {
     setFocus(selector);
     render();
   });
-  app.querySelector('#title-catalog-create')?.addEventListener('click', () => {
-    const records = app.querySelector<HTMLButtonElement>('#title-open-records');
-    if (records) records.click();
-    else app.querySelector<HTMLElement>('#title-generator summary')?.focus();
+  const openPanel = (panel: 'settings' | 'records', focus = '#title-panel-heading') => {
+    deps.cancelRecordRead?.();
+    state.panel = panel;
+    setFocus(focus);
+    render();
+  };
+  for (const panel of ['settings', 'records'] as const) {
+    app.querySelector(`#title-open-${panel}`)?.addEventListener('click', () => openPanel(panel));
+  }
+  app.querySelector('#title-catalog-create')?.addEventListener('click', () => openPanel('records', '#title-generator summary'));
+  app.querySelector('#title-home-back')?.addEventListener('click', () => {
+    deps.cancelRecordRead?.();
+    setFocus(`#title-open-${state.panel}`);
+    state.panel = 'home';
+    render();
   });
+  app.querySelector('#title-new-game')?.addEventListener('click', () => app.querySelector<HTMLElement>('#title-catalog-heading')?.focus());
   app.querySelector<HTMLDetailsElement>('#operation-records')?.addEventListener('toggle', (event) => {
     state.operationRecordsOpen = (event.currentTarget as HTMLDetailsElement).open;
   });
@@ -265,7 +278,7 @@ export function bindTitleEvents(app: HTMLElement, deps: TitleEventDeps): void {
     render();
   });
   document.querySelector<HTMLButtonElement>('#title-continue')?.addEventListener('click', () => {
-    if (deps.openSaveList?.()) return;
+    if (deps.continueOtherSave?.()) return;
     if (deps.continueSave()) state.leaveTitle();
     else state.notice = deps.message();
     render();

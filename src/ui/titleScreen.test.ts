@@ -155,6 +155,7 @@ describe('buildTitleOverlay', () => {
 
   it('defaults to combined tactics and honors an explicit OFF choice', () => {
     const { screens, state } = openTitle();
+    state.panel = 'settings';
     for (const locale of ['ja', 'en']) {
       setLocale(locale);
       expect(buildTitleOverlay(context(state, screens))).toMatch(/id="title-tactical-preset"[^>]*checked/);
@@ -185,6 +186,9 @@ describe('buildTitleOverlay', () => {
     expect(document.querySelectorAll('.title-map-card')).toHaveLength(maps.length);
     expect(document.querySelectorAll('.title-map-card[aria-current="true"]')).toHaveLength(1);
     expect(document.querySelector('.title-map-card[aria-current="true"]')?.getAttribute('data-map-id')).toBe(maps[1]!.id);
+    expect(document.querySelector('#stub-save-picker')).toBeNull();
+    state.panel = 'records';
+    document.body.innerHTML = buildTitleOverlay(context(state, screens));
     expect(document.querySelector('#stub-save-picker')).not.toBeNull();
     expect(document.querySelector('#daily-start')).not.toBeNull();
     expect(document.querySelector('#title-generator')).not.toBeNull();
@@ -236,22 +240,22 @@ describe('buildTitleOverlay', () => {
     const render = () => {
       document.body.innerHTML = buildTitleOverlay(context(state, screens, { dailyCatalog: records }));
     };
-    render();
-    for (const selector of ['#title-generator', '#title-music-settings', '#daily-records', '#operation-records']) {
-      expect(document.querySelector<HTMLDetailsElement>(selector)?.open).toBe(false);
-    }
-    state.generatorOpen = true;
-    state.musicOpen = true;
-    state.dailyRecordsOpen = true;
-    state.operationRecordsOpen = true;
-    render();
-    for (const selector of ['#title-generator', '#title-music-settings', '#daily-records', '#operation-records']) {
-      expect(document.querySelector<HTMLDetailsElement>(selector)?.open).toBe(true);
+    for (const open of [false, true]) {
+      state.generatorOpen = state.musicOpen = state.dailyRecordsOpen = state.operationRecordsOpen = open;
+      state.panel = 'settings';
+      render();
+      expect(document.querySelector<HTMLDetailsElement>('#title-music-settings')?.open).toBe(open);
+      state.panel = 'records';
+      render();
+      for (const selector of ['#title-generator', '#daily-records', '#operation-records']) {
+        expect(document.querySelector<HTMLDetailsElement>(selector)?.open).toBe(open);
+      }
     }
   });
 
   it('shows the generator form values and notice', () => {
     const { screens, state } = openTitle();
+    state.panel = 'records';
     state.generatorForm.seed = 'Seed-9';
     state.generatorForm.size = 24;
     state.generatorNotice = 'seedが不正です。';

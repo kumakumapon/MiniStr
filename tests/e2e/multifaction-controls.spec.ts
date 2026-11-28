@@ -1,3 +1,4 @@
+import { openTitlePanel } from './helpers/titleNavigation';
 import { expect, type Page } from '@playwright/test';
 import { test } from './helpers/engineTest';
 import { fourArmyBattleFixture } from './helpers/fourArmyBattleFixture';
@@ -46,7 +47,7 @@ for (const { width, locale } of [
     await page.locator('#cpu-speed').selectOption('2');
     await expect(page.locator('#cpu-speed')).toHaveValue('2');
 
-    expect(await page.evaluate(() => window.scrollY)).toBeGreaterThan(0);
+    await expect(page.locator('#classic-hud-menu')).toHaveAttribute('aria-current', 'true');
     await page.locator('#map').selectOption('islands');
     await page.locator('#begin-operation').click();
     await expect(board).toBeFocused();
@@ -71,6 +72,7 @@ for (const { width, locale } of [
     await expect(page.locator('#four-view')).toHaveValue('army1');
     await expect(page.locator('#four-toggle')).toBeHidden();
 
+    await page.locator('#four-army-screen [data-hud-menu]').click();
     await page.locator('.four-playback-options > summary').click();
     await page.locator('#four-menu').click();
     await expect(page.locator('#four-return')).toBeInViewport();
@@ -105,8 +107,10 @@ for (const { width, locale } of [
     const original = { muted: true, volume: 0.44, fieldTrack: 'dawn', armyTracks: true, blueFieldTrack: 'rock-blue' };
     await page.addInitScript((value) => localStorage.setItem('ministr.music.settings', JSON.stringify(value)), original);
     await title(page, locale);
+    await openTitlePanel(page, 'settings');
     await page.locator('#title-cpu-speed').selectOption('4');
     await page.locator('#title-board-zoom').selectOption('150');
+    await openTitlePanel(page, 'home');
     await page.locator('.title-map-card[data-map-id="skirmish"]').click();
     await page.locator('#briefing-match-variants label:has(input[value="4"])').click();
     await disclosures(page, '#four-music-settings');
@@ -164,7 +168,9 @@ test('visible enemy danger and tile information stay scoped to the viewed army a
   const fixture = fourArmyBattleFixture('army1');
   await page.setViewportSize({ width: 1280, height: 844 });
   await title(page, 'en');
+  await openTitlePanel(page, 'settings');
   await page.locator('#title-cpu-speed').selectOption('0.5');
+  await openTitlePanel(page, 'home');
   await page.locator('.title-map-card[data-map-id="skirmish"]').click();
   await page.locator('#briefing-match-variants label:has(input[value="4"])').click();
   await disclosures(page, '.four-tools');
@@ -213,7 +219,7 @@ test('one map card opens standard and multiplayer variants without replacing the
   await page.locator('#four-mobile-panel').click();
   await expect(page.locator('#four-command-panel')).toBeFocused();
   await page.locator('#four-title').click();
-  await expect(page.locator('#title-resume-multiplayer')).toBeFocused();
+  await expect(page.locator('#title-heading')).toBeFocused();
   await page.locator('#title-resume-multiplayer').click();
   await expect(page.locator('#four-army-info > *')).toHaveCount(2);
 });
@@ -224,7 +230,7 @@ test('the common map list includes water and both large layouts with their suppo
   await expect(page.locator('#four-start-summary')).toContainText('17 × 15');
   await expect(page.locator('#four-variants input')).toHaveCount(3);
   await page.locator('#four-close').click();
-  await expect(page.locator('.title-map-card[data-map-id="multiplayer:strait"]')).toBeFocused();
+  await expect(page.locator('#title-heading')).toBeFocused();
   await page.locator('.title-map-card[data-map-id="multiplayer:wide"]').click();
   await expect(page.locator('#four-start-summary')).toContainText('32 × 32');
   await expect(page.locator('#four-variants input')).toHaveCount(1);
@@ -246,17 +252,22 @@ test('continue and record import route verified old saves to the right match', a
     { normal, study: JSON.stringify(study), four },
   );
   await title(page, 'en');
-  const upload = async (raw: string) => page.locator('#title-replay-file').setInputFiles({ name: 'saved.json', mimeType: 'application/json', buffer: Buffer.from(raw) });
-  await page.locator('#title-continue').click();
-  await expect(page.locator('#title-saves-heading')).toBeFocused();
+  const upload = async (raw: string) => {
+    await openTitlePanel(page, 'records');
+    await page.locator('#title-replay-file').setInputFiles({ name: 'saved.json', mimeType: 'application/json', buffer: Buffer.from(raw) });
+  };
+  await openTitlePanel(page, 'records');
+  await expect(page.locator('#title-panel-heading')).toBeFocused();
   await page.locator('[data-multiplayer-save="ministr.fourArmy.save.1"]').click();
   await expect(page.locator('#four-turn')).toContainText('2 commands');
   await expect(page.locator('#four-toggle')).toHaveAttribute('aria-pressed', 'false');
   await page.locator('#four-title').click();
   await upload(JSON.stringify({ format: 'ministr-four-army-match', schemaVersion: 6 }));
   await expect(page.locator('.title-notice')).not.toContainText('Verifying');
+  await openTitlePanel(page, 'home');
   await expect(page.locator('#title-resume-multiplayer')).toBeVisible();
   await upload(four);
+  await openTitlePanel(page, 'records');
   await expect(page.locator('#title-record-replay')).toBeEnabled();
   await page.locator('#title-record-replay').click();
   await expect(page.locator('#four-replay-count')).toBeVisible();

@@ -1,3 +1,4 @@
+import { openTitlePanel } from './titleNavigation';
 import { afterEach, expect, it } from 'vitest';
 // @ts-expect-error Optional JSDOM declarations are not required by this project.
 import { JSDOM } from 'jsdom';
@@ -30,7 +31,9 @@ function snapshot() {
 afterEach(() => dom?.window.close());
 it.each(['cpu', 'hotseat', 'spectate'])('starts a fresh %s match with default tactics and the revised layout', (mode) => {
   const document = launch();
+  openTitlePanel(dom.window.document, 'settings');
   expect(document.querySelector('#title-tactical-preset').checked).toBe(true);
+  openTitlePanel(dom.window.document, 'home');
   click('.title-map-card[data-map-id="skirmish"]');
   click(`input[name="match-mode"][value="${mode}"]`);
   expect(document.querySelector('#briefing-supply-mode option[value="unlimited"]').disabled).toBe(true);
@@ -56,7 +59,9 @@ it.each(['cpu', 'hotseat', 'spectate'])('starts a fresh %s match with default ta
 });
 it('offers original rules and unlimited supplies when explicitly switched OFF', () => {
   const document = launch();
+  openTitlePanel(dom.window.document, 'settings');
   click('#title-tactical-preset');
+  openTitlePanel(dom.window.document, 'home');
   click('.title-map-card[data-map-id="skirmish"]');
   const supply = document.querySelector('#briefing-supply-mode');
   supply.value = 'unlimited';
@@ -90,7 +95,9 @@ it('loads an old OFF save unchanged while the new-match title remains ON', () =>
     ),
   );
   const document = launch(raw);
+  openTitlePanel(dom.window.document, 'settings');
   expect(document.querySelector('#title-tactical-preset').checked).toBe(true);
+  openTitlePanel(dom.window.document, 'home');
   click('#title-continue');
   const saved = snapshot();
   expect(saved.initialState).toEqual(JSON.parse(raw).initialState);

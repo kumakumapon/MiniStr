@@ -1,3 +1,4 @@
+import { openTitlePanel } from './helpers/titleNavigation';
 import { expect, test } from '@playwright/test';
 import { airliftData } from '../../src/game/airlift.fixture';
 for (const width of [1280, 390])
@@ -15,13 +16,16 @@ for (const width of [1280, 390])
             ['ministr.music.settings', JSON.stringify(music)],
           ],
         });
+      await openTitlePanel(page, 'records', true);
       await page.locator('#backup-import').setInputFiles({ name: 'backup.json', mimeType: 'application/json', buffer: Buffer.from(backup(settings)) });
+      await openTitlePanel(page, 'settings');
       await page.locator('#title-music-settings > summary').click();
       await expect(page.locator('#title-music-track')).toHaveValue('rock-red');
       await expect(page.locator('#title-music-blue-track')).toHaveValue('mist');
       await expect(page.locator('#title-music-blue-track')).toBeDisabled();
       await expect(page.locator('#title-music-volume')).toHaveValue('41');
       const before = await page.evaluate(() => localStorage.getItem('ministr.music.settings'));
+      await openTitlePanel(page, 'records', true);
       await page.locator('#backup-import').setInputFiles({ name: 'bad.json', mimeType: 'application/json', buffer: Buffer.from(backup({ ...settings, volume: 2 })) });
       await expect(page.locator('.title-notice')).toContainText(locale === 'en' ? 'Invalid BGM settings' : 'BGM設定が不正');
       expect(await page.evaluate(() => localStorage.getItem('ministr.music.settings'))).toBe(before);

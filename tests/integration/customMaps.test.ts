@@ -1,3 +1,4 @@
+import { openTitlePanel } from './titleNavigation';
 import { distributedSource } from './distributedSource';
 import { afterEach, expect, it } from 'vitest';
 // @ts-expect-error Optional JSDOM declarations are not required by this project.
@@ -30,9 +31,11 @@ afterEach(() => dom?.window.close());
 
 it.each(['ja', 'en'])('confirms deletion in %s and keeps the running match and saved state', (locale) => {
   const document = launch(locale);
+  openTitlePanel(dom.window.document, 'settings');
   click('#title-tactical-preset'); // This regression exercises the original custom snapshot.
   expect(document.querySelectorAll('[data-delete-custom-map]')).toHaveLength(2);
   expect(document.querySelector('#title-delete-skirmish')).toBeNull();
+  openTitlePanel(dom.window.document, 'home');
   click('.title-map-card[data-map-id="custom-delete"]');
   click('#begin-operation');
   click('#save');
@@ -78,7 +81,9 @@ it('keeps the map and reports an error when catalog persistence fails', () => {
 
 it.each(['finite', 'unlimited'])('records the chosen %s supply rule and restores it from a save', (mode) => {
   const document = launch('en');
+  openTitlePanel(dom.window.document, 'settings');
   click('#title-tactical-preset'); // Unlimited supplies remain available with tactics OFF.
+  openTitlePanel(dom.window.document, 'home');
   click('.title-map-card[data-map-id="custom-delete"]');
   const select = document.querySelector('#briefing-supply-mode');
   select.value = mode;

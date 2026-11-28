@@ -1,3 +1,4 @@
+import { openTitlePanel } from './helpers/titleNavigation';
 import { expect, test } from '@playwright/test';
 
 for (const locale of ['ja', 'en'] as const) {
@@ -24,8 +25,10 @@ for (const locale of ['ja', 'en'] as const) {
         await chooser.setFiles([]);
         await expect(action).toBeFocused();
       }
+      await openTitlePanel(page, 'records');
       await page.locator('.backup-actions').screenshot({ path: info.outputPath(`systems-save-actions-${viewport.width}-${locale}.png`) });
 
+      await openTitlePanel(page, 'home');
       const card = page.locator('.title-map-card[data-map-id="skirmish"]');
       await expect(card.locator('.title-map-name')).toHaveText(mapName);
       await card.click();

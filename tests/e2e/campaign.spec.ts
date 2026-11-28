@@ -1,3 +1,4 @@
+import { openTitlePanel } from './helpers/titleNavigation';
 import { expect, test, type Page } from '@playwright/test';
 import { playCampaignStage } from '../../scripts/campaignHarness';
 import { CAMPAIGN_STORAGE_KEY, campaignStages, createCampaignProgress, endTurn, replayCommands, saveGameToSlot, type CampaignProgress, type StorageLike } from '../../src/game';
@@ -42,17 +43,19 @@ for (const viewport of [
   test(`campaign orders and nearby turn controls at ${viewport.width}px`, async ({ page }, info) => {
     await page.setViewportSize(viewport);
     await page.goto('/');
+    await openTitlePanel(page, 'settings');
     await page.locator('#title-cpu-speed').selectOption('2');
     await page.locator('#title-board-zoom').selectOption('50');
+    await openTitlePanel(page, 'home');
     await page.locator('#title-campaign').click();
     await page.locator('.campaign-start[data-campaign-id="skirmish"]').click();
     await expect(page.locator('.briefing-overlay')).toContainText('地上部隊');
     await page.locator('#begin-operation').click();
     await expect(page.locator('#cpu-speed')).toHaveValue('2');
     await expect(page.locator('.board')).toHaveAttribute('data-zoom', '50');
-    await expect(page.locator('.map-turn-status')).toContainText('ターン終了');
-    await expect(page.locator('#board-end-turn')).toBeEnabled();
-    await page.locator('.map-turn-status').scrollIntoViewIfNeeded();
+    await expect(page.locator('.hud-status')).toContainText('ターン終了');
+    await expect(page.locator('#end')).toBeEnabled();
+    await page.locator('.hud-status').scrollIntoViewIfNeeded();
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true);
     await page.screenshot({ path: info.outputPath('campaign-turn-controls.png'), fullPage: true });
   });
@@ -75,12 +78,13 @@ test('resumes a saved blue campaign turn automatically and returns control to re
   const errors: string[] = [];
   page.on('pageerror', (error) => errors.push(error.message));
   await page.goto('/');
+  await openTitlePanel(page, 'records', true);
   await page.locator('.load-save-slot[data-save-slot="cpu-resume"]').click();
   await expect(page.locator('#skip-cpu')).toBeVisible();
   await expect(page.locator('#end')).toBeDisabled();
-  await expect(page.locator('#board-end-turn')).toHaveCount(0);
+  await expect(page.locator('.hud-status .end-turn')).toHaveCount(1);
   await page.locator('#skip-cpu').click();
-  await expect(page.locator('#board-end-turn')).toBeEnabled({ timeout: 15_000 });
+  await expect(page.locator('#end')).toBeEnabled({ timeout: 15_000 });
   await expect(page.locator('.turn-indicator')).toContainText('プレイヤー');
   expect(errors).toEqual([]);
   await page.screenshot({ path: info.outputPath('campaign-cpu-resumed.png'), fullPage: true });
@@ -108,10 +112,11 @@ for (const [index, stage] of campaignStages.entries()) {
     const errors: string[] = [];
     page.on('pageerror', (error) => errors.push(error.message));
     await page.goto('/');
+    await openTitlePanel(page, 'records', true);
     await page.locator('.load-save-slot[data-save-slot="finish"]').click();
     const last = result.commands.at(-1)!;
     if (prefix.value.activePlayer === 'red') {
-      if (last.type === 'endTurn') await page.locator('#board-end-turn').click();
+      if (last.type === 'endTurn') await page.locator('#end').click();
       else if (last.type === 'capture') {
         const capturer = prefix.value.units.find((unit) => unit.id === last.unitId)!;
         await page.locator(`.tile[data-x="${capturer.position!.x}"][data-y="${capturer.position!.y}"]`).click();
@@ -129,6 +134,7 @@ for (const [index, stage] of campaignStages.entries()) {
     await page.screenshot({ path: info.outputPath(`${stage.scenarioId}-victory.png`), fullPage: true });
 
     await page.goto('/');
+    await openTitlePanel(page, 'records');
     await page.locator('#title-replay-file').setInputFiles({ name: `${stage.scenarioId}.json`, mimeType: 'application/json', buffer: Buffer.from(result.replay) });
     await expect(page.locator('.replay-toolbar')).toBeVisible();
     await page.locator('#replay-seek').evaluate((input, length) => {

@@ -1,3 +1,4 @@
+import { openTitlePanel } from './helpers/titleNavigation';
 import { expect, test } from '@playwright/test';
 
 // Real clipboard permissions are granted by Chromium only; share-link.spec.ts covers the stubbed copy in every browser.
@@ -5,6 +6,7 @@ test('a copied link opens the same operation in a fresh browser context', async 
   const context = page.context();
   await context.grantPermissions(['clipboard-read', 'clipboard-write']);
   await page.goto('/');
+  await openTitlePanel(page, 'records');
   await page.locator('#title-generator summary').click();
   await page.locator('#title-generator-seed').fill('Round-1');
   await page.locator('#title-generator-copy-link').click();

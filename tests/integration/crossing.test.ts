@@ -1,3 +1,4 @@
+import { openTitlePanel } from './titleNavigation';
 import { distributedSource } from './distributedSource';
 import { afterEach, expect, it } from 'vitest';
 // @ts-expect-error jsdom is the runtime integration dependency used by startup.test.ts.
@@ -22,6 +23,7 @@ it('runs bridge construction through the shipped bundle and preserves costs, his
   };
   expect(document.querySelector('[data-map-id="supply-contest"]')).not.toBeNull();
   expect(document.querySelector('[data-map-id="supply-ridge"]')).not.toBeNull();
+  openTitlePanel(dom.window.document, 'records');
   click('#title-editor');
   const json = document.querySelector('#editor-json');
   json.value = JSON.stringify(crossingScenarioData());

@@ -1,3 +1,4 @@
+import { openTitlePanel } from './helpers/titleNavigation';
 import { expect, test, type Page } from '@playwright/test';
 import { chooseCpuAction } from '../../src/ai/rules';
 import { dailyScenario } from '../../src/game/dailyChallenge';
@@ -44,6 +45,7 @@ async function open(page: Page, storage: Record<string, string> = {}) {
 
 test('starts today from the title with one action and the keyboard alone, with fixed conditions', async ({ page }) => {
   await open(page);
+  await openTitlePanel(page, 'records');
   const card = page.locator('.daily-card');
   await expect(card).toBeVisible();
   await expect(card).toHaveAttribute('data-daily-date', DATE);
@@ -69,6 +71,7 @@ test('starts today from the title with one action and the keyboard alone, with f
 test('fits a phone screen and keeps every control reachable', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await open(page, { 'ministr.daily.records': records(DATE, '2026-02-02') });
+  await openTitlePanel(page, 'records');
   await expect(page.locator('.daily-card')).toBeVisible();
   const widths = await page.evaluate(() => ({
     page: document.documentElement.scrollWidth,
@@ -89,6 +92,7 @@ test('fits a phone screen and keeps every control reachable', async ({ page }) =
 test('shows records by date, deletes one, and resets all without touching operation records', async ({ page }) => {
   await open(page, { 'ministr.daily.records': records(DATE, '2026-02-02', '2026-02-01'), 'ministr.operations.records': JSON.stringify({ schemaVersion: 1, records: [] }) });
   await expect(page.locator('.daily-best')).toHaveText('最短10ターン・損失0');
+  await openTitlePanel(page, 'records');
   await page.locator('#title-daily-records-heading').click();
   await expect(page.locator('.daily-record-list li')).toHaveCount(3);
   page.once('dialog', (dialog) => dialog.accept());
@@ -125,6 +129,7 @@ test('records a red victory, copies the ID and retries the same battlefield', as
 
 test('restores records from a backup and reloads them in the title', async ({ page }) => {
   await open(page, { 'ministr.daily.records': records(DATE) });
+  await openTitlePanel(page, 'records');
   await page.locator('#title-daily-records-heading').click();
   await expect(page.locator('.daily-record-list li')).toHaveCount(1);
   const download = page.waitForEvent('download');
@@ -149,6 +154,7 @@ test('restores records from a backup and reloads them in the title', async ({ pa
 
 test('is available in English', async ({ page }) => {
   await open(page, { 'ministr.locale': 'en' });
+  await openTitlePanel(page, 'records');
   await expect(page.locator('.daily-card h3')).toHaveText("Today's battlefield");
   await expect(page.locator('#daily-start')).toContainText("Start today's battlefield");
   await expect(page.locator('.daily-card')).toContainText('09:00 in Japan');
