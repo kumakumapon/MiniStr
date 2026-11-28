@@ -1,3 +1,4 @@
+import { fourArmyObjective } from '../game/fourArmyObjective';
 import {
   needsFourArmyRecovery,
   healthyFourArmyCapturers,
@@ -129,8 +130,9 @@ export function chooseFourArmyCpuCommand(input: unknown, options: unknown, cpuVe
     .map((a) => o.capitals[a]);
   // The normal round-40 switch lies beyond these short matches' deadlines.
   const passAssault = encirclement ? o.round.round >= 5 : passMatch && o.round.round >= (centralPower ? 2 : threeWay ? 9 : 6);
-  const goals = [...hostileHomes, ...properties];
-  const combatGoals = modernSix && (improved || o.alive.length <= 2) && (passAssault || o.round.round >= 40) && hostileHomes.length ? hostileHomes : goals;
+  const hold = improved ? fourArmyObjective(o.match)?.position : undefined;
+  const goals = hold ? [hold, ...hostileHomes, ...properties] : [...hostileHomes, ...properties];
+  const combatGoals = hold ? [hold] : modernSix && (improved || o.alive.length <= 2) && (passAssault || o.round.round >= 40) && hostileHomes.length ? hostileHomes : goals;
   const danger = (u: Unit, p: Position): number => {
     const moved = { ...u, position: p };
     return enemies.reduce((sum, e) => {
@@ -244,6 +246,7 @@ export function chooseFourArmyCpuCommand(input: unknown, options: unknown, cpuVe
       if ((centralPower || encirclement) && passAssault && unitStats[u.kind].capturePower > 0 && !returning && Number.isFinite(currentDistance) && d < currentDistance)
         score += (encirclement ? 110 : 220) * (currentDistance - d);
       if (passAssault && unitStats[u.kind].capturePower > 0 && hostileHomes.some((h) => h.x === p.x && h.y === p.y)) score += 1400;
+      if (hold && p.x === hold.x && p.y === hold.y && unitStats[u.kind].capturePower > 0 && terrainAt(view.board, p)?.owner !== 'red') score += 600;
       if (options.policy === 'defensive' && enemies.some((e) => e.position && manhattanDistance(e.position, o.capitals[actor]) <= 5))
         score += (manhattanDistance(u.position, o.capitals[actor]) - manhattanDistance(p, o.capitals[actor])) * 25;
       if (retreating && isServiceTile(serviceView, p, u.kind, 'red')) score += 500;

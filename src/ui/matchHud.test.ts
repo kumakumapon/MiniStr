@@ -25,6 +25,7 @@ describe('shared match screen controls', () => {
       'multiplayer:ocean-alliance',
       'multiplayer:sandwiched-alliance',
       'multiplayer:four-homelands',
+      'multiplayer:canal-crossroads',
     ]);
     expect(classicVariant('crown')).toBeUndefined();
     expect(armyCountLabel('crown')).toBe('Fixed 4 armies');

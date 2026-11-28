@@ -1,4 +1,4 @@
-import { isAuthoredFourSource } from './asymmetricFourSites';
+import { authoredBattlefield, isAuthoredFourSource } from './asymmetricFourSites';
 import { createAsymmetricLayout, isAsymmetricSource, siteTeam } from './asymmetricBattlefield';
 import { FOUR_ARMY_IDS, type FourArmyId } from './fourArmyFoundation';
 import { createFourArmyState, type FourArmyMap, type FourArmyTerrain } from './fourArmyEngine';
@@ -27,7 +27,9 @@ export function expandedBattleDimensions(source: ExpandedBattle['sourceMapId']) 
 /** Layout 3 protects the northern neutral facilities from simultaneous flank pressure; callers loading historical snapshots keep layout 2. */
 export const latestExpandedBattleLayout = (source: ExpandedBattle['sourceMapId'], count: number): ExpandedBattle['layoutVersion'] =>
   isAuthoredFourSource(source)
-    ? 8
+    ? authoredBattlefield(source).objective
+      ? 9
+      : 8
     : source === 'encirclement'
       ? 7
       : source === 'crown'
@@ -50,7 +52,8 @@ export function createExpandedBattleMap(options: ExpandedBattleOptions = {}): Ga
   const participants: FourArmyId[] = [...(options.participants ?? FOUR_ARMY_IDS)],
     sourceMapId = options.sourceMapId ?? 'skirmish',
     seed = options.seed ?? 1522,
-    ending = options.ending ?? (sourceMapId === 'frontier' ? 'unlimited' : 'short');
+    objective = isAuthoredFourSource(sourceMapId) ? authoredBattlefield(sourceMapId).objective : undefined,
+    ending = options.ending ?? (sourceMapId === 'frontier' || objective ? 'unlimited' : 'short');
   const sites = options.siteArmies ?? participants;
   const team = (a: FourArmyId) => options.teams?.[a] ?? siteTeam(sourceMapId, sites, a);
   const match: ExpandedBattle = {
@@ -59,6 +62,7 @@ export function createExpandedBattleMap(options: ExpandedBattleOptions = {}): Ga
     layoutVersion: options.layoutVersion ?? (isAsymmetricSource(sourceMapId) ? latestExpandedBattleLayout(sourceMapId, participants.length) : 2),
     ...(isAsymmetricSource(sourceMapId) ? { siteArmies: [...sites] } : {}),
     participants,
+    ...(objective ? { objective: structuredClone(objective) } : {}),
     initialOrder: [...(options.order ?? participants)],
     initiative: participants.length === 2 ? 'fixed' : 'rotating',
     ending,

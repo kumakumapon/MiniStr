@@ -1,5 +1,6 @@
 import type { FourArmyId } from './fourArmyFoundation';
 import type { UnitKind } from './types';
+import type { FourArmyHoldObjective } from './fourArmyObjective';
 
 type Facility = 'factory' | 'city' | 'airport' | 'port';
 type SiteUnit = readonly [kind: UnitKind, x: number, y: number, embarked?: true];
@@ -18,6 +19,7 @@ interface Battlefield {
   teams?: readonly [number, number, number, number];
   teamNames?: readonly Copy[];
   theme: 'coastal' | 'temperate';
+  objective?: FourArmyHoldObjective;
   sites: readonly [NewSiteResources, NewSiteResources, NewSiteResources, NewSiteResources];
 }
 
@@ -319,6 +321,98 @@ export const authoredFourSites = {
           ['transportHelicopter', 16, 11],
           ['destroyer', 12, 11],
           ['bomber', 14, 10],
+        ],
+      },
+    ],
+  },
+  'canal-crossroads': {
+    title: ['運河の要衝', 'Canal Crossing'],
+    briefing: [
+      '運河を横断できる中央都市を占領し、ラウンド終了時に4回連続で所有した軍が勝利する。西岸の要衝に近い軍は領土が狭く、離れた3軍は中立都市を確保して攻められる。',
+      'Capture the city on the canal crossing and own it at four consecutive round endings to win. The closest army has little territory; the more distant armies can advance through neutral towns.',
+    ],
+    theme: 'coastal',
+    objective: { type: 'hold', position: { x: 8, y: 7 }, rounds: 4 },
+    regions: [
+      ['西岸中央・要衝への近道', 'Central west bank · closest to the crossing'],
+      ['北西・北西の街道網', 'Northwest · western highways'],
+      ['北東・東岸の都市', 'Northeast · eastern towns'],
+      ['南東・南の街道', 'Southeast · southern road'],
+    ],
+    terrain: [
+      '..+.....w.....+...',
+      '........w.........',
+      '..B.=...w...=.C...',
+      '....=c..w..c=.....',
+      '....==..w..==.....',
+      '..c..=..w..=..c...',
+      '....A==.w.=.==....',
+      '...=====c=====....',
+      '..c..=..w..=..c...',
+      '....==..w..==.....',
+      '.....c..w..c=.....',
+      '........w...=.....',
+      '........w...=.D...',
+      '..+.....w.....+...',
+    ],
+    sites: [
+      {
+        gold: 8000,
+        facilities: [
+          ['factory', 3, 6],
+          ['city', 4, 5],
+        ],
+        units: [
+          ['infantry', 5, 7],
+          ['heavyTank', 5, 6],
+          ['artillery', 4, 7],
+          ['recon', 4, 8],
+          ['infantry', 3, 8],
+        ],
+      },
+      {
+        gold: 6000,
+        facilities: [
+          ['factory', 3, 2],
+          ['city', 2, 3],
+          ['city', 4, 1],
+        ],
+        units: [
+          ['infantry', 4, 3],
+          ['infantry', 5, 3],
+          ['tank', 3, 4],
+          ['recon', 4, 4],
+          ['artillery', 1, 2],
+        ],
+      },
+      {
+        gold: 7500,
+        facilities: [
+          ['factory', 15, 2],
+          ['city', 14, 3],
+          ['city', 15, 4],
+        ],
+        units: [
+          ['infantry', 12, 3],
+          ['infantry', 11, 4],
+          ['tank', 12, 4],
+          ['recon', 12, 5],
+          ['artillery', 13, 4],
+        ],
+      },
+      {
+        gold: 8800,
+        facilities: [
+          ['factory', 15, 12],
+          ['city', 14, 11],
+          ['city', 13, 12],
+        ],
+        units: [
+          ['infantry', 12, 10],
+          ['mech', 11, 9],
+          ['tank', 12, 11],
+          ['recon', 12, 9],
+          ['artillery', 13, 10],
         ],
       },
     ],
