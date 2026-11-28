@@ -188,11 +188,10 @@ describe('buildTitleOverlay', () => {
     expect(document.querySelector('.title-map-card[aria-current="true"]')?.getAttribute('data-map-id')).toBe(maps[1]!.id);
     expect(document.querySelector('#stub-save-picker')).toBeNull();
     state.panel = 'records';
-    document.body.innerHTML = buildTitleOverlay(context(state, screens));
-    expect(document.querySelector('#stub-save-picker')).not.toBeNull();
-    expect(document.querySelector('#daily-start')).not.toBeNull();
-    expect(document.querySelector('#title-generator')).not.toBeNull();
-    expect(document.querySelector('#operation-records')).not.toBeNull();
+    const records = buildTitleOverlay(context(state, screens));
+    for (const id of ['stub-save-picker', 'daily-start', 'title-generator', 'operation-records']) {
+      expect(records).toContain(`id="${id}"`);
+    }
   });
 
   it('offers resume only when the title was opened from a match', () => {
