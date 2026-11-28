@@ -123,27 +123,23 @@ describe('share link in the distributed application', () => {
     expect(customIds()).toEqual(['generated-v2-16-none-Share-1']);
   });
 
-  it('refuses invalid, unsupported and daily-style links with a notice and changes nothing', async () => {
-    const hashes = [
-      '#ministr-gen1/1/16/none/standard/a',
-      '#ministr-gen1/2/17/none/standard/a',
-      '#ministr-gen1/2/16/none/standard/%41',
-      '#ministr-gen1/2/16/none/standard/D20260501',
-      `#ministr-gen1/2/16/none/standard/${'a'.repeat(5000)}`,
-      '#ministr-gen2/2/16/none/standard/a',
-    ];
-    for (const hash of hashes) {
-      launch(hash, seeded());
-      await settle();
-      expect(q('#share-link-title'), hash.slice(0, 40)).toBeNull();
-      expect(dialogs()).toBe(1);
-      expect(q('.title-notice')?.textContent).toMatch(/共有リンク|日替わり/);
-      expect(dom.window.location.hash).toBe('');
-      expect(snapshot()['ministr.scenarios.custom']).toBe(seeded()['ministr.scenarios.custom']);
-      expect(snapshot()['ministr.sample.unrelated']).toBe('keep-me');
-      expect(Object.keys(snapshot()).filter((key) => key.startsWith('ministr.save') || key.includes('daily'))).toEqual([]);
-      dom.window.close();
-    }
+  it.each([
+    ['unsupported version', '#ministr-gen1/1/16/none/standard/a'],
+    ['unsupported width', '#ministr-gen1/2/17/none/standard/a'],
+    ['encoded seed', '#ministr-gen1/2/16/none/standard/%41'],
+    ['daily-style seed', '#ministr-gen1/2/16/none/standard/D20260501'],
+    ['oversized seed', `#ministr-gen1/2/16/none/standard/${'a'.repeat(5000)}`],
+    ['unsupported format', '#ministr-gen2/2/16/none/standard/a'],
+  ])('refuses a share link with %s and preserves storage', async (_label, hash) => {
+    launch(hash, seeded());
+    await settle();
+    expect(q('#share-link-title')).toBeNull();
+    expect(dialogs()).toBe(1);
+    expect(q('.title-notice')?.textContent).toMatch(/共有リンク|日替わり/);
+    expect(dom.window.location.hash).toBe('');
+    expect(snapshot()['ministr.scenarios.custom']).toBe(seeded()['ministr.scenarios.custom']);
+    expect(snapshot()['ministr.sample.unrelated']).toBe('keep-me');
+    expect(Object.keys(snapshot()).filter((key) => key.startsWith('ministr.save') || key.includes('daily'))).toEqual([]);
   });
 
   it('ignores unrelated hashes and leaves them in the address bar', async () => {

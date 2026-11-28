@@ -42,37 +42,49 @@ function change(selector: string, value: string) {
 function expectEnglish(label: string, authored: readonly string[] = []) {
   const document = dom.window.document;
   const protectedContent = 'textarea,script,style,[data-user-content],.title-map-name,.briefing-copy,.save-slot-manager strong';
+  const untranslated: string[] = [];
   const walker = document.createTreeWalker(document.querySelector('#app'), dom.window.NodeFilter.SHOW_TEXT);
   while (walker.nextNode()) {
     const node = walker.currentNode;
     if (node.parentElement?.closest(protectedContent)) continue;
-    expect(
-      authored.reduce((text, name) => text.replaceAll(name, ''), node.textContent ?? ''),
-      `${label}: ${node.parentElement?.outerHTML}`,
-    ).not.toMatch(japanese);
+    const content = authored.reduce((value, name) => value.replaceAll(name, ''), node.textContent ?? '');
+    if (japanese.test(content)) untranslated.push(content + ' in ' + node.parentElement?.outerHTML);
   }
   for (const element of document.querySelectorAll('[aria-label],[title],[alt],[placeholder],[label]')) {
     if (element.closest('[data-user-content]')) continue;
+    const authoredAttributes = element.dataset.userAttributes?.split(' ');
     for (const attribute of ['aria-label', 'title', 'alt', 'placeholder', 'label']) {
-      if (element.dataset.userAttributes?.split(' ').includes(attribute)) continue;
-      expect(element.getAttribute(attribute) ?? '', `${label}: ${element.outerHTML}`).not.toMatch(japanese);
+      if (authoredAttributes?.includes(attribute)) continue;
+      const content = element.getAttribute(attribute) ?? '';
+      if (japanese.test(content)) untranslated.push(attribute + '=' + content + ' in ' + element.outerHTML);
     }
   }
+  expect(untranslated, label).toEqual([]);
 }
 afterEach(() => dom?.window.close());
 
+const builtInScenarios = [...maps, ...operationScenarios];
+const briefingBatches = Array.from({ length: Math.ceil(builtInScenarios.length / 6) }, (_, index) => {
+  const scenarios = builtInScenarios.slice(index * 6, (index + 1) * 6);
+  return { first: scenarios[0]!.id, scenarios };
+});
+
 describe('English distributed UI', () => {
-  it('keeps every built-in briefing and deployment panel in English', () => {
-    const document = launch();
-    expectEnglish('title');
-    for (const scenario of [...maps, ...operationScenarios]) {
-      click(`.title-map-card[data-map-id="${scenario.id}"]`);
-      expect(document.querySelector('#briefing-title')?.textContent, scenario.id).not.toMatch(japanese);
-      expect(document.querySelector('#briefing-copy')?.textContent, scenario.id).not.toMatch(japanese);
-      expectEnglish(scenario.id);
-      click('#briefing-back-to-title');
-    }
-  }, 45_000);
+  it.each(briefingBatches)(
+    'keeps built-in briefings and deployment panels in English from $first',
+    ({ scenarios }) => {
+      const document = launch();
+      expectEnglish('title');
+      for (const scenario of scenarios) {
+        click(`.title-map-card[data-map-id="${scenario.id}"]`);
+        expect(document.querySelector('#briefing-title')?.textContent, scenario.id).not.toMatch(japanese);
+        expect(document.querySelector('#briefing-copy')?.textContent, scenario.id).not.toMatch(japanese);
+        expectEnglish(scenario.id);
+        click('#briefing-back-to-title');
+      }
+    },
+    45_000,
+  );
 
   it('covers practice, unit information, production, saves, campaign and the editor', () => {
     const document = launch();
