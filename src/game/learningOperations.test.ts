@@ -30,7 +30,7 @@ const setups: Record<string, GameCommand[]> = {
 };
 
 it('preserves every released v1.4.6 scenario definition, including initial forces and briefings', () => {
-  const old = [...maps, ...operationScenarios, trainingScenario].filter((map) => !map.id.startsWith('tactics-'));
+  const old = [...maps, ...operationScenarios, trainingScenario].filter((map) => Object.hasOwn(v146CatalogHashes, map.id));
   expect(
     Object.fromEntries(
       old.map((map) => [

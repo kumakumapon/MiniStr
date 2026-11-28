@@ -1,3 +1,4 @@
+import { openTitlePanel } from './titleNavigation';
 import { afterEach, expect, it } from 'vitest';
 // @ts-expect-error Optional JSDOM declarations are not shipped by the application.
 import { JSDOM } from 'jsdom';
@@ -41,6 +42,7 @@ it('keeps the unit brief stable until the delayed touch compatibility click', as
 
 it.each(['ja', 'en'])('migrates preferences and synchronizes title and match controls in %s', (locale) => {
   const document = launch(locale);
+  openTitlePanel(dom.window.document, 'settings');
   expect(document.querySelector('#title-music-track').value).toBe('mist');
   expect(document.querySelector('#title-music-volume').value).toBe('37');
   expect(document.querySelector('#title-music-muted').checked).toBe(false);
@@ -74,6 +76,7 @@ it('reports storage failure while keeping the current settings and stored prefer
     if (key === 'ministr.music.settings') throw Error('QuotaExceededError');
     original.call(this, key, value);
   };
+  openTitlePanel(dom.window.document, 'settings');
   change('#title-music-track', 'rock-red');
   expect(document.querySelector('#music-track').value).toBe('rock-red');
   expect(document.querySelector('#title-music-settings .music-settings-notice').textContent).toContain('Unable to save BGM settings');
@@ -87,7 +90,9 @@ it('keeps the current game and its recorded rule when changing title BGM', () =>
   document.querySelector('#save').click();
   const before = JSON.parse(dom.window.localStorage.getItem('ministr.save.manual'));
   document.querySelector('#open-title').click();
+  openTitlePanel(dom.window.document, 'settings');
   change('#title-music-track', 'rock-red');
+  openTitlePanel(dom.window.document, 'home');
   document.querySelector('#title-resume').click();
   document.querySelector('#save').click();
   const after = JSON.parse(dom.window.localStorage.getItem('ministr.save.manual'));

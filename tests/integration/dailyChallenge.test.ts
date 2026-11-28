@@ -1,3 +1,4 @@
+import { openTitlePanel } from './titleNavigation';
 import { distributedSource } from './distributedSource';
 import { afterEach, describe, expect, it } from 'vitest';
 // @ts-expect-error Optional JSDOM declarations are not required by this project.
@@ -82,9 +83,11 @@ afterEach(() => dom?.window.close());
 describe('daily challenge in the distributed app', () => {
   it('starts from the title card with a full custom catalog, fixing the conditions', () => {
     const document = launch({ storage: { [catalogKey]: fullCatalog() } });
+    openTitlePanel(dom.window.document, 'records');
     const card = document.querySelector('.daily-card');
     expect(card?.getAttribute('data-daily-date')).toBe(DATE);
     expect(card?.textContent).toContain('D1-20260203-v3');
+    openTitlePanel(dom.window.document, 'home');
     expect(document.querySelectorAll('.title-map-card').length).toBe(document.querySelectorAll('.title-map-entry').length);
     expect(document.querySelectorAll('.title-map-card[data-map-id^="generated-"]')).toHaveLength(0);
     const customBefore = dom.window.localStorage.getItem(catalogKey);
@@ -157,7 +160,9 @@ describe('daily challenge in the distributed app', () => {
 
   it('gives the players own settings back when leaving the daily match', () => {
     const document = launch();
+    openTitlePanel(dom.window.document, 'settings');
     click('#title-tactical-preset'); // Preserve this original-layout regression fixture.
+    openTitlePanel(dom.window.document, 'home');
     click('.title-map-card[data-map-id="skirmish"]');
     change('#briefing-supply-mode', 'unlimited');
     click('#begin-operation');
@@ -210,8 +215,10 @@ describe('daily challenge in the distributed app', () => {
       ],
     });
     const document = launch({ locale: 'en', storage: { [DAILY_RECORDS_KEY]: records, 'ministr.operations.records': JSON.stringify({ schemaVersion: 1, records: [] }) } });
-    expect(document.querySelector('.daily-best')?.textContent).toBe('Fastest 9 rounds, 1 losses');
+    expect(document.querySelector('#daily-start')?.textContent).toBe("Today's battlefield");
+    openTitlePanel(document, 'records');
     expect(document.querySelector('#daily-start')?.textContent).toContain("Start today's battlefield");
+    expect(document.querySelector('.daily-best')?.textContent).toBe('Fastest 9 rounds, 1 losses');
     expect(document.querySelectorAll('[data-daily-delete]')).toHaveLength(2);
     click(`[data-daily-delete="${DATE}"]`);
     expect(JSON.parse(dom.window.localStorage.getItem(DAILY_RECORDS_KEY)!).records.map((record: { date: string }) => record.date)).toEqual(['2026-02-02']);
@@ -222,10 +229,13 @@ describe('daily challenge in the distributed app', () => {
 
   it('shows a corrupt record store as unreadable, refuses to overwrite it, and recovers through reset', () => {
     const document = launch({ storage: { [DAILY_RECORDS_KEY]: '{broken', [saveKey]: finishedDailySave() } });
+    openTitlePanel(document, 'records');
     expect(document.querySelector('.daily-notice')?.textContent).toContain('壊れています');
+    openTitlePanel(document, 'home');
     click('#title-continue');
     expect(dom.window.localStorage.getItem(DAILY_RECORDS_KEY)).toBe('{broken');
     click('#open-title');
+    openTitlePanel(dom.window.document, 'records');
     click('#daily-records-reset');
     expect(dom.window.localStorage.getItem(DAILY_RECORDS_KEY)).toBeNull();
   });
@@ -242,6 +252,7 @@ it.each(['ja', 'en'])('reports a discarded old victory truthfully in %s', (local
   }));
   const raw = JSON.stringify({ schemaVersion: 1, records });
   const document = launch({ locale, storage: { [saveKey]: finishedDailySave(), [DAILY_RECORDS_KEY]: raw } });
+  openTitlePanel(dom.window.document, 'home');
   click('#title-continue');
   const notice = document.querySelector('.daily-result')?.textContent ?? '';
   expect(notice).toContain(locale === 'en' ? 'result was not saved' : '記録は保存されませんでした');

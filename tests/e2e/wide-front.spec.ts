@@ -1,3 +1,4 @@
+import { openTitlePanel } from './helpers/titleNavigation';
 import { expect, test, type Page } from '@playwright/test';
 
 async function openTitle(page: Page, width: number, locale: string): Promise<void> {
@@ -62,6 +63,7 @@ for (const width of [1280, 390])
     test(`generates, persists and plays a 32×32 map in ${locale} at ${width}`, async ({ page }) => {
       await openTitle(page, width, locale);
       await test.step('generate and save a 32×32 custom map', async () => {
+        await openTitlePanel(page, 'records');
         await page.locator('#title-generator summary').click();
         await page.locator('#title-generator-size').selectOption('32');
         await page.locator('#title-generator-seed').fill('Wide-UI');

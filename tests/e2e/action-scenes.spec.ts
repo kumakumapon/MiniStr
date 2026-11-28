@@ -1,3 +1,4 @@
+import { openTitlePanel } from './helpers/titleNavigation';
 import { expect, type Page } from '@playwright/test';
 import { test } from './helpers/engineTest';
 import { fourArmyActionFixture } from './helpers/fourArmyActionFixture';
@@ -38,6 +39,9 @@ for (const { width, locale } of [
     await page.locator(`#four-board > [data-x="${unit.position!.x}"][data-y="${unit.position!.y}"]`).click();
     await page.locator('[data-human-action="capture"]').click();
     await expect(page.locator('.four-action-scene .action-scene-capture')).toBeVisible();
+    await expect(page.locator('.four-action-scene .army-emblem.army3')).toHaveText('◆');
+    const armyColor = await page.locator('#four-army-info .army-emblem.army3').evaluate((el) => getComputedStyle(el).color);
+    await expect(page.locator('.four-action-scene .army-emblem.army3')).toHaveCSS('color', armyColor);
     await expect(page.locator('.action-capture-progress')).toHaveAttribute('aria-valuenow', '100');
     await expect(page.locator('.action-scene')).toContainText(locale === 'ja' ? '第3軍' : 'Army 3');
     await expect(page.locator('#four-army-screen')).toHaveAttribute('inert', '');
@@ -159,21 +163,27 @@ for (const { width, locale } of [
     page.on('dialog', (d) => d.accept());
     await page.goto('/');
     await page.locator('#title-continue').click();
+    await page.locator('#match-options-link').click();
     await page.locator('#action-scenes-twoArmy').uncheck();
+    if (width === 390) await page.locator('[data-hud-close]').click();
+    else await page.locator('[data-hud-page="objectives"]').click();
     const capture = async () => {
       await page.locator('.tile[data-x="0"][data-y="1"]').click();
-      await page.locator('#capture').click();
+      await page.locator(width === 390 ? '#mobile-capture' : '#capture').click();
     };
     await capture();
     await expect(page.locator('.action-scene')).toHaveCount(0);
+    await page.locator('#match-options-link').click();
     await page.locator('#save').click();
     const off = await page.evaluate(() => JSON.parse(localStorage.getItem('ministr.save.manual')!));
     expect(off.gameState).toEqual(valueOf(applyGameCommand(initial, { type: 'capture', unitId: 'r1' })));
     await page.evaluate((saved) => localStorage.setItem('ministr.save.manual', JSON.stringify(saved)), saved);
     await page.reload();
+    await openTitlePanel(page, 'settings');
     await expect(page.locator('#action-scenes-twoArmy-title')).not.toBeChecked();
     await expect(page.locator('#battle-scenes-twoArmy-title')).toBeChecked();
     await page.locator('#action-scenes-twoArmy-title').check();
+    await openTitlePanel(page, 'home');
     await page.locator('#title-continue').click();
     await freeze(page);
     await capture();
@@ -181,6 +191,7 @@ for (const { width, locale } of [
     await page.screenshot({ path: info.outputPath(`systems-two-action-${width}.png`), animations: 'disabled' });
     await page.locator('#action-scenes-twoArmy-overlay').press('Space');
     await expect(page.locator('.action-scene')).toHaveCount(0);
+    await page.locator('#match-options-link').click();
     await page.locator('#save').click();
     const on = await page.evaluate(() => JSON.parse(localStorage.getItem('ministr.save.manual')!));
     expect(on.gameState).toEqual(off.gameState);

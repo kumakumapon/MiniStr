@@ -7,7 +7,7 @@ import { setLocale } from './locale';
 import { defaultMusicSettings } from './music';
 import { ScreenController } from './screenController';
 import { bindTitleEvents, installTitleDelegation, type TitleEventDeps } from './titleEvents';
-import { buildTitleOverlay, TitleState } from './titleScreen';
+import { buildTitleOverlay, TitleState, type TitlePanel } from './titleScreen';
 
 const custom: ScenarioDefinition = { ...maps[0]!, id: 'custom-a', name: 'Custom A' };
 const dailyRecords: DailyRecords = {
@@ -25,12 +25,13 @@ interface Harness {
   draw: () => void;
 }
 
-function harness(options: { resumable?: boolean; scenarios?: ScenarioDefinition[] } = {}): Harness {
+function harness(options: { resumable?: boolean; scenarios?: ScenarioDefinition[]; panel?: TitlePanel } = {}): Harness {
   document.body.innerHTML = '<div id="app"></div>';
   const app = document.querySelector<HTMLDivElement>('#app')!;
   const screens = new ScreenController();
   screens.open('title');
   const state = new TitleState(screens);
+  state.panel = options.panel ?? 'home';
   state.resumable = options.resumable ?? false;
   const focus: string[] = [];
   const message = { value: '' };
@@ -190,7 +191,7 @@ describe('custom map deletion', () => {
 
 describe('map generator', () => {
   it('keeps the form values and open state the player sets', () => {
-    const h = harness();
+    const h = harness({ panel: 'records' });
     toggle('#title-generator', true);
     change('#title-generator-size', '24');
     change('#title-generator-sea', 'ocean');
@@ -202,7 +203,7 @@ describe('map generator', () => {
   });
 
   it('saves the generated map and starts it', () => {
-    const h = harness({ resumable: true });
+    const h = harness({ resumable: true, panel: 'records' });
     h.state.generatorNotice = '前回のエラー';
     click('#title-generator-create');
     expect(h.deps.saveGeneratedMap).toHaveBeenCalledTimes(1);
@@ -214,7 +215,7 @@ describe('map generator', () => {
   });
 
   it('shows the generator error and focuses the seed when the form is rejected', () => {
-    const h = harness();
+    const h = harness({ panel: 'records' });
     h.state.generatorForm.seed = 'bad seed!';
     click('#title-generator-create');
     expect(h.state.generatorNotice).not.toBe('');
@@ -227,7 +228,7 @@ describe('map generator', () => {
   });
 
   it('shows the save error and focuses the create button when the map cannot be stored', () => {
-    const h = harness();
+    const h = harness({ panel: 'records' });
     vi.mocked(h.deps.saveGeneratedMap).mockReturnValue({ ok: false, error: '保存領域が足りません。' });
     click('#title-generator-create');
     expect(h.state.generatorNotice).toBe('保存領域が足りません。');
@@ -237,7 +238,7 @@ describe('map generator', () => {
   });
 
   it('does nothing when the player keeps the running match', () => {
-    const h = harness();
+    const h = harness({ panel: 'records' });
     vi.mocked(h.deps.confirmReplaceMatch).mockReturnValue(false);
     click('#title-generator-create');
     expect(h.deps.saveGeneratedMap).not.toHaveBeenCalled();
@@ -246,7 +247,7 @@ describe('map generator', () => {
   });
 
   it('ignores creation after the title closed', () => {
-    const h = harness();
+    const h = harness({ panel: 'records' });
     h.screens.titleOpen = false;
     click('#title-generator-create');
     expect(h.deps.confirmReplaceMatch).not.toHaveBeenCalled();
@@ -295,7 +296,7 @@ describe('title actions', () => {
   });
 
   it('opens the editor and comes back to the title afterwards', () => {
-    const h = harness();
+    const h = harness({ panel: 'records' });
     click('#title-editor');
     expect(h.deps.openEditor).toHaveBeenCalledTimes(1);
     expect(h.screens.titleOpen).toBe(false);
@@ -303,7 +304,7 @@ describe('title actions', () => {
   });
 
   it('opens the replay file chooser and hands the chosen file on', () => {
-    const h = harness();
+    const h = harness({ panel: 'records' });
     const input = document.querySelector<HTMLInputElement>('#title-replay-file')!;
     const picker = vi.spyOn(input, 'click');
     click('#title-import-replay');
@@ -319,7 +320,7 @@ describe('title actions', () => {
   });
 
   it('plays the army preview and remembers which one', () => {
-    const h = harness();
+    const h = harness({ panel: 'settings' });
     click('#title-music-preview-blue');
     expect(h.deps.previewMusic).toHaveBeenCalledWith('blue');
     expect(h.state.musicPreviewArmy).toBe('blue');
@@ -329,7 +330,7 @@ describe('title actions', () => {
   });
 
   it('remembers the sound panel being opened or closed', () => {
-    const h = harness();
+    const h = harness({ panel: 'settings' });
     toggle('#title-music-settings', true);
     expect(h.state.musicOpen).toBe(true);
     toggle('#title-music-settings', false);
@@ -370,7 +371,7 @@ describe('briefing back to the title', () => {
 
 describe('record panels', () => {
   it('hands the operation record buttons to the owner of the records', () => {
-    const h = harness();
+    const h = harness({ panel: 'records' });
     click('#operation-records-reset');
     expect(h.deps.operationRecords.reset).toHaveBeenCalledTimes(1);
     const button = document.createElement('button');
@@ -384,7 +385,7 @@ describe('record panels', () => {
   });
 
   it('hands the daily record buttons on and remembers the panel', () => {
-    const h = harness();
+    const h = harness({ panel: 'records' });
     click('#daily-records-reset');
     expect(h.deps.dailyRecords.reset).toHaveBeenCalledTimes(1);
     click('[data-daily-delete]');
@@ -405,8 +406,15 @@ describe('binding after every redraw', () => {
     h.screens.open('title');
     click('.title-map-card');
     h.screens.open('title');
+    h.state.panel = 'records';
+    h.draw();
     click('#title-generator-create');
+    h.screens.open('title');
+    h.state.panel = 'settings';
+    h.draw();
     click('#title-music-preview-red');
+    h.state.panel = 'home';
+    h.draw();
     click('#daily-start');
     expect(h.deps.continueSave).toHaveBeenCalledTimes(1);
     expect(h.deps.startMap).toHaveBeenCalledTimes(1);
@@ -433,11 +441,18 @@ describe('binding after every redraw', () => {
       '[data-delete-custom-map]',
       '[data-daily-delete]',
     ];
-    for (const selector of selectors) {
-      const found = document.querySelectorAll(selector);
-      expect(found.length, selector).toBeGreaterThan(0);
-      for (const element of found) expect(h.app.contains(element), selector).toBe(true);
+    const checked = new Set<string>();
+    const panels = ['home', 'settings', 'records'] as const;
+    for (const panel of panels) {
+      h.state.panel = panel;
+      h.draw();
+      for (const selector of selectors) {
+        const found = document.querySelectorAll(selector);
+        if (found.length > 0) checked.add(selector);
+        for (const element of found) expect(h.app.contains(element), selector).toBe(true);
+      }
     }
+    expect(checked).toEqual(new Set(selectors));
   });
 
   it('binds nothing when the title is not drawn', () => {
@@ -451,7 +466,7 @@ describe('binding after every redraw', () => {
 
 describe('installTitleDelegation', () => {
   it('keeps the typed seed across redraws, updated once per input', () => {
-    const h = harness();
+    const h = harness({ panel: 'records' });
     const writes: string[] = [];
     let seed = h.state.generatorForm.seed;
     Object.defineProperty(h.state.generatorForm, 'seed', {
@@ -473,7 +488,7 @@ describe('installTitleDelegation', () => {
   });
 
   it('ignores other inputs', () => {
-    const h = harness();
+    const h = harness({ panel: 'records' });
     installTitleDelegation(h.app, h.state);
     const other = document.createElement('input');
     other.id = 'something-else';
@@ -487,12 +502,12 @@ describe('installTitleDelegation', () => {
   });
 });
 
-it('shows the shared save list without resuming a normal save automatically', () => {
+it('resumes the newer research or multiplayer save through its own reader', () => {
   const h = harness();
-  h.deps.openSaveList = vi.fn(() => true);
+  h.deps.continueOtherSave = vi.fn(() => true);
   h.draw();
   h.app.querySelector<HTMLButtonElement>('#title-continue')?.click();
-  expect(h.deps.openSaveList).toHaveBeenCalledOnce();
+  expect(h.deps.continueOtherSave).toHaveBeenCalledOnce();
   expect(h.deps.continueSave).not.toHaveBeenCalled();
   expect(h.screens.titleOpen).toBe(true);
 });

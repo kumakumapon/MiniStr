@@ -42,6 +42,7 @@ function harness(options: { clipboard?: 'ok' | 'reject' | 'missing'; origin?: st
   const screens = new ScreenController();
   screens.open('title');
   const state = new TitleState(screens);
+  state.panel = 'records';
   const focus: string[] = [];
   const clear = vi.fn();
   const writeText = vi.fn(() => (options.clipboard === 'reject' ? Promise.reject(new Error('denied')) : Promise.resolve()));

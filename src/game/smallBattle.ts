@@ -16,7 +16,7 @@ export interface LegacySmallBattle {
 export interface ExpandedBattle {
   version: 2;
   sourceMapId: 'skirmish' | 'outpost' | 'strait' | 'frontier' | AsymmetricSource;
-  layoutVersion: 2 | 3 | 4 | 5;
+  layoutVersion: 2 | 3 | 4 | 5 | 6;
   /** Army assigned to each ordered authored site in authored layouts. */
   siteArmies?: FourArmyId[];
   participants: FourArmyId[];
@@ -50,9 +50,11 @@ export function isSmallBattle(v: unknown): v is SmallBattle {
     if (
       Object.keys(m).length !== names.length ||
       !names.every((k) => Object.hasOwn(m, k)) ||
-      (authored
-        ? m.layoutVersion !== 5 && !(m.layoutVersion === 4 && (m.sourceMapId === 'canyon' || m.sourceMapId === 'marsh'))
-        : m.layoutVersion !== 2 && !(m.layoutVersion === 3 && Array.isArray(ids) && ids.length === 3 && ['skirmish', 'outpost'].includes(String(m.sourceMapId)))) ||
+      (m.sourceMapId === 'crown'
+        ? m.layoutVersion !== 6 || !Array.isArray(ids) || ids.length !== 4 || m.initiative !== 'rotating' || m.sharedVision !== false
+        : authored
+          ? m.layoutVersion !== 5 && !(m.layoutVersion === 4 && (m.sourceMapId === 'canyon' || m.sourceMapId === 'marsh'))
+          : m.layoutVersion !== 2 && !(m.layoutVersion === 3 && Array.isArray(ids) && ids.length === 3 && ['skirmish', 'outpost'].includes(String(m.sourceMapId)))) ||
       (!authored && !['skirmish', 'outpost', 'strait', 'frontier'].includes(String(m.sourceMapId))) ||
       !Array.isArray(ids) ||
       ids.length < 2 ||

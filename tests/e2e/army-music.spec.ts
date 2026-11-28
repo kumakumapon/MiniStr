@@ -1,3 +1,4 @@
+import { openTitlePanel } from './helpers/titleNavigation';
 import { expect, type Page } from '@playwright/test';
 import { test } from './helpers/engineTest';
 import { operationData } from '../../src/game/operations.fixture';
@@ -144,6 +145,7 @@ const elementCount = (page: Page) => page.evaluate(() => (window as unknown as {
 const startCount = (page: Page) => page.evaluate(() => (window as unknown as { musicProbe: Probe }).musicProbe.started.length);
 
 async function startHotseat(page: Page, keyboard = false) {
+  await openTitlePanel(page, 'home');
   await page.locator('.title-map-card[data-map-id="army-music"]').click();
   await page.locator('input[name="match-mode"][value="hotseat"]').check();
   if (keyboard) await page.locator('#begin-operation').press('Enter');
@@ -160,6 +162,7 @@ async function expectSingleAudio(page: Page) {
 for (const width of [1280, 390]) {
   test(`configures, previews and persists title music at ${width}`, async ({ page }, testInfo) => {
     await prepareMusic(page, width);
+    await openTitlePanel(page, 'settings');
     await page.locator('#title-music-settings > summary').click();
     await page.locator('#title-music-track').selectOption('rock-red');
     await page.locator('#title-music-blue-track').selectOption('rock-blue');
@@ -176,6 +179,7 @@ for (const width of [1280, 390]) {
     const saved = await page.evaluate(() => JSON.parse(localStorage.getItem('ministr.music.settings')!));
     expect(saved).toMatchObject({ fieldTrack: 'rock-red', blueFieldTrack: 'rock-blue', armyTracks: false });
     await page.reload();
+    await openTitlePanel(page, 'settings');
     await page.locator('#title-music-settings > summary').click();
     await expect(page.locator('#title-music-track')).toHaveValue('rock-red');
     await expect(page.locator('#title-music-blue-track')).toHaveValue('rock-blue');

@@ -1,3 +1,4 @@
+import { openTitlePanel } from './helpers/titleNavigation';
 import { expect, type Page } from '@playwright/test';
 import { test } from './helpers/engineTest';
 import { fourArmyBattleFixture } from './helpers/fourArmyBattleFixture';
@@ -46,7 +47,7 @@ for (const { width, locale } of [
     await page.locator('#cpu-speed').selectOption('2');
     await expect(page.locator('#cpu-speed')).toHaveValue('2');
 
-    expect(await page.evaluate(() => window.scrollY)).toBeGreaterThan(0);
+    await expect(page.locator('#classic-hud-menu')).toHaveAttribute('aria-current', 'true');
     await page.locator('#map').selectOption('islands');
     await page.locator('#begin-operation').click();
     await expect(board).toBeFocused();
@@ -71,6 +72,7 @@ for (const { width, locale } of [
     await expect(page.locator('#four-view')).toHaveValue('army1');
     await expect(page.locator('#four-toggle')).toBeHidden();
 
+    await page.locator('#four-army-screen [data-hud-menu]').click();
     await page.locator('.four-playback-options > summary').click();
     await page.locator('#four-menu').click();
     await expect(page.locator('#four-return')).toBeInViewport();
@@ -105,8 +107,10 @@ for (const { width, locale } of [
     const original = { muted: true, volume: 0.44, fieldTrack: 'dawn', armyTracks: true, blueFieldTrack: 'rock-blue' };
     await page.addInitScript((value) => localStorage.setItem('ministr.music.settings', JSON.stringify(value)), original);
     await title(page, locale);
+    await openTitlePanel(page, 'settings');
     await page.locator('#title-cpu-speed').selectOption('4');
     await page.locator('#title-board-zoom').selectOption('150');
+    await openTitlePanel(page, 'home');
     await page.locator('.title-map-card[data-map-id="skirmish"]').click();
     await page.locator('#briefing-match-variants label:has(input[value="4"])').click();
     await disclosures(page, '#four-music-settings');
@@ -131,11 +135,15 @@ for (const { width, locale } of [
     await disclosures(page, '#four-tile-info');
     await expect(page.locator('#four-tile-rows')).toContainText(locale === 'ja' ? '移動コスト' : 'Move cost');
     await expect(page.locator('#four-tile-rows')).toContainText(locale === 'ja' ? '地形防御' : 'Terrain defense');
+    if (width === 390) await page.locator('#four-mobile-panel').click();
+    await page.locator('#four-tile-info').screenshot({ path: info.outputPath(`systems-v161-tile-${width}.png`), animations: 'disabled' });
+    if (width === 390) await page.locator('#four-command-panel [data-hud-close]').click();
+    await page.locator('[aria-controls="four-hud-menu"][data-hud-menu]').click();
     await disclosures(page, '#four-music-settings');
     await expect(page.locator('#four-music-army4')).toHaveValue('mist');
     await expect(page.locator('#four-music-volume')).toHaveValue('30');
     await page.locator('#four-music-settings').screenshot({ path: info.outputPath(`systems-v161-music-${width}.png`), animations: 'disabled' });
-    await page.locator('#four-tile-info').screenshot({ path: info.outputPath(`systems-v161-tile-${width}.png`), animations: 'disabled' });
+    if (width === 390) await page.locator('#four-command-panel [data-hud-close]').click();
     await page.evaluate(() => window.scrollTo(0, 0));
     await page.screenshot({ path: info.outputPath(`systems-v161-controls-${width}.png`), animations: 'disabled' });
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width + 1);
@@ -164,7 +172,9 @@ test('visible enemy danger and tile information stay scoped to the viewed army a
   const fixture = fourArmyBattleFixture('army1');
   await page.setViewportSize({ width: 1280, height: 844 });
   await title(page, 'en');
+  await openTitlePanel(page, 'settings');
   await page.locator('#title-cpu-speed').selectOption('0.5');
+  await openTitlePanel(page, 'home');
   await page.locator('.title-map-card[data-map-id="skirmish"]').click();
   await page.locator('#briefing-match-variants label:has(input[value="4"])').click();
   await disclosures(page, '.four-tools');
@@ -213,7 +223,7 @@ test('one map card opens standard and multiplayer variants without replacing the
   await page.locator('#four-mobile-panel').click();
   await expect(page.locator('#four-command-panel')).toBeFocused();
   await page.locator('#four-title').click();
-  await expect(page.locator('#title-resume-multiplayer')).toBeFocused();
+  await expect(page.locator('#title-heading')).toBeFocused();
   await page.locator('#title-resume-multiplayer').click();
   await expect(page.locator('#four-army-info > *')).toHaveCount(2);
 });
@@ -246,17 +256,22 @@ test('continue and record import route verified old saves to the right match', a
     { normal, study: JSON.stringify(study), four },
   );
   await title(page, 'en');
-  const upload = async (raw: string) => page.locator('#title-replay-file').setInputFiles({ name: 'saved.json', mimeType: 'application/json', buffer: Buffer.from(raw) });
-  await page.locator('#title-continue').click();
-  await expect(page.locator('#title-saves-heading')).toBeFocused();
+  const upload = async (raw: string) => {
+    await openTitlePanel(page, 'records');
+    await page.locator('#title-replay-file').setInputFiles({ name: 'saved.json', mimeType: 'application/json', buffer: Buffer.from(raw) });
+  };
+  await openTitlePanel(page, 'records');
+  await expect(page.locator('#title-panel-heading')).toBeFocused();
   await page.locator('[data-multiplayer-save="ministr.fourArmy.save.1"]').click();
   await expect(page.locator('#four-turn')).toContainText('2 commands');
   await expect(page.locator('#four-toggle')).toHaveAttribute('aria-pressed', 'false');
   await page.locator('#four-title').click();
   await upload(JSON.stringify({ format: 'ministr-four-army-match', schemaVersion: 6 }));
   await expect(page.locator('.title-notice')).not.toContainText('Verifying');
+  await openTitlePanel(page, 'home');
   await expect(page.locator('#title-resume-multiplayer')).toBeVisible();
   await upload(four);
+  await openTitlePanel(page, 'records');
   await expect(page.locator('#title-record-replay')).toBeEnabled();
   await page.locator('#title-record-replay').click();
   await expect(page.locator('#four-replay-count')).toBeVisible();

@@ -109,6 +109,28 @@ describe('versioned replay files', () => {
     expect(parsed).toEqual({ ok: true, value: replay });
   });
 
+  it('round trips the CPU player side and keeps older formats on their original perspective', () => {
+    const input = { mapId, difficulty: 'normal' as const, initialState: duel(), commands: [{ type: 'attack' as const, unitId: 'r1', targetId: 'b1' }] };
+    for (const humanPlayer of ['red', 'blue'] as const) {
+      const replay = createReplay({ ...input, humanPlayer });
+      if (!replay.ok) throw Error(replay.error);
+      const serialized = serializeReplay(replay.value);
+      if (!serialized.ok) throw Error(serialized.error);
+      expect(parseReplay(serialized.value)).toMatchObject({ ok: true, value: { humanPlayer, finalState: { winner: 'red' } } });
+    }
+    for (const schemaVersion of [1, 2, 3, 4]) {
+      const legacy = { ...finishedReplay(), schemaVersion };
+      const loaded = parseReplay(JSON.stringify(legacy));
+      expect(loaded.ok && (loaded.value.humanPlayer ?? 'red')).toBe('red');
+      expect(parseReplay(JSON.stringify({ ...legacy, humanPlayer: 'blue' })).ok).toBe(false);
+    }
+    const current = finishedReplay();
+    for (const extra of [{ humanPlayer: 'green' }, { humanPlayer: 'blue', redDifficulty: 'hard' }]) {
+      expect(parseReplay(JSON.stringify({ ...current, ...extra })).ok).toBe(false);
+      expect(createReplay({ ...input, ...extra } as never).ok).toBe(false);
+    }
+  });
+
   it('migrates a valid v1 replay before validating its command history', () => {
     const legacy = { ...finishedReplay(), schemaVersion: 1 };
     const parsed = parseReplay(JSON.stringify(legacy));

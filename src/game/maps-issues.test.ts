@@ -16,8 +16,8 @@ function unitSignature(kind: string, owner: PlayerId, x: number, y: number): str
 }
 
 describe('issues #85, #87, and #90 built-in map invariants', () => {
-  it('gives both sides an explicit idle airport on every built-in map', () => {
-    for (const scenario of maps) {
+  it('gives both sides an explicit idle airport on each original battlefield', () => {
+    for (const scenario of maps.filter(map => map.id !== 'highland-crossing')) {
       expect(scenario.productionRules).toBe('facility-v2');
       for (const owner of ['red', 'blue'] as const) {
         const position = scenario.board.terrain.flatMap((row, y) => row.flatMap((tile, x) => tile.kind === 'airport' && tile.owner === owner ? [{ x, y }] : []))[0]!;

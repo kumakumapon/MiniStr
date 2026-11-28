@@ -2,7 +2,7 @@ import type { GameState, PlayerId } from '../game';
 import { getLocale } from './locale';
 
 /**
- * 'cpu': the player (red) against the CPU (blue). 'hotseat': two people share one device.
+ * 'cpu': the chosen human side against the CPU. 'hotseat': two people share one device.
  * 'spectate': the CPU plays both sides while the person on the device watches.
  */
 export type MatchMode = 'cpu' | 'hotseat' | 'spectate';
@@ -19,6 +19,7 @@ export function parseMatchMode(value: string): MatchMode {
 
 export interface MatchContext {
   mode: MatchMode;
+  humanPlayer?: PlayerId;
   activePlayer: PlayerId;
   winner?: PlayerId;
   draw?: true;
@@ -32,15 +33,15 @@ export interface MatchContext {
  * The side whose view (fog, labels, resources) the screen shows. A spectator
  * follows the side whose turn it is, seeing what that CPU sees.
  */
-export function viewerFor(mode: MatchMode, activePlayer: PlayerId): PlayerId {
-  return mode === 'cpu' ? 'red' : activePlayer;
+export function viewerFor(mode: MatchMode, activePlayer: PlayerId, humanPlayer: PlayerId = 'red'): PlayerId {
+  return mode === 'cpu' ? humanPlayer : activePlayer;
 }
 
 /** Board commands (moves, attacks, production, end turn) for the side on the device. */
 export function commandAllowed(context: MatchContext): boolean {
   return context.mode !== 'spectate'
     && !context.replay && context.winner === undefined && !context.draw && !context.handoffPending && !context.cpuInProgress
-    && context.activePlayer === viewerFor(context.mode, context.activePlayer);
+    && context.activePlayer === viewerFor(context.mode, context.activePlayer, context.humanPlayer);
 }
 
 /**
@@ -52,9 +53,9 @@ export function menuAllowed(context: MatchContext): boolean {
   return !context.replay && !context.cpuInProgress && !context.handoffPending;
 }
 
-/** The CPU plays blue in CPU matches and both sides when spectating, while the match is still running. */
-export function cpuShouldRun(context: Pick<MatchContext, 'mode' | 'activePlayer' | 'winner' | 'draw' | 'replay'>): boolean {
-  const cpuSide = context.mode === 'spectate' || (context.mode === 'cpu' && context.activePlayer === 'blue');
+/** The CPU plays the opposing side in CPU matches and both sides when spectating, while the match is still running. */
+export function cpuShouldRun(context: Pick<MatchContext, 'mode' | 'activePlayer' | 'winner' | 'draw' | 'replay' | 'humanPlayer'>): boolean {
+  const cpuSide = context.mode === 'spectate' || (context.mode === 'cpu' && context.activePlayer !== (context.humanPlayer ?? 'red'));
   return cpuSide && context.winner === undefined && !context.draw && !context.replay;
 }
 
@@ -128,8 +129,8 @@ export function undoAllowed(mode: MatchMode): boolean {
 }
 
 /** How the screen names a side: relative to the player in CPU matches, by colour otherwise. */
-export function sideName(mode: MatchMode, player: PlayerId): string {
-  if (getLocale() === 'en') return mode === 'cpu' ? player === 'red' ? 'Player' : 'CPU' : player === 'red' ? 'Red' : 'Blue';
+export function sideName(mode: MatchMode, player: PlayerId, humanPlayer: PlayerId = 'red'): string {
+  if (getLocale() === 'en') return mode === 'cpu' ? player === humanPlayer ? 'Player' : 'CPU' : player === 'red' ? 'Red' : 'Blue';
   if (mode !== 'cpu') return player === 'red' ? '赤軍' : '青軍';
-  return player === 'red' ? 'プレイヤー' : 'CPU';
+  return player === humanPlayer ? 'プレイヤー' : 'CPU';
 }

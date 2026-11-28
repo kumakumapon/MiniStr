@@ -6,9 +6,9 @@ import type { Position, UnitKind } from './types';
 import { unitStats } from './units';
 import { weaponsForUnit } from './weapons';
 
-export type AsymmetricSource = 'canyon' | 'marsh' | 'river' | 'tundra';
+export type AsymmetricSource = 'crown' | 'canyon' | 'marsh' | 'river' | 'tundra';
 export function isAsymmetricSource(source: unknown): source is AsymmetricSource {
-  return source === 'canyon' || source === 'marsh' || source === 'river' || source === 'tundra';
+  return source === 'crown' || source === 'canyon' || source === 'marsh' || source === 'river' || source === 'tundra';
 }
 
 // A–D are permanent site identities within this layout. A row is west to east.
@@ -215,9 +215,77 @@ const forward = [
   { x: -1, y: 0 },
   { x: 0, y: -1 },
 ] as const;
+type SiteUnit = readonly [kind: UnitKind, side: number, front: number];
+type SiteFacility = readonly [kind: 'factory' | 'city', side: number, front: number];
+interface SiteResources {
+  readonly gold: number;
+  readonly units: readonly SiteUnit[];
+  readonly facilities: readonly SiteFacility[];
+}
+
+const standardSite: SiteResources = {
+  gold: 6000,
+  units: [
+    ['infantry', -1, 1],
+    ['infantry', 1, 1],
+    ['recon', 0, 2],
+    ['tank', 0, 1],
+  ],
+  facilities: [
+    ['factory', -1, 0],
+    ['city', 0, -1],
+  ],
+};
+const centralSite: SiteResources = {
+  gold: 8000,
+  units: [
+    ['infantry', -1, -1],
+    ['infantry', 1, 1],
+    ['rocket', 0, -1],
+    ['tank', 1, 0],
+    ['heavyTank', 0, 0],
+    ['mech', -1, 1],
+    ['tank', 0, 2],
+  ],
+  facilities: [...standardSite.facilities, ['city', -2, 0], ['city', 2, 0], ['city', -1, -1], ['city', 1, -1]],
+};
+
+export function startingSiteResources(source: AsymmetricSource, site: number): SiteResources {
+  return source === 'crown' && site === 0 ? centralSite : standardSite;
+}
+
+// Version 6 has four permanent sites. All relative offsets below refer to the site's approach direction.
+const crownRows = [
+  '++##..........##++',
+  '+.................',
+  '.....c......c.....',
+  '....B.=....=.C....',
+  '..c...=c..c=...c..',
+  '....===....===....',
+  '.....===A====.....',
+  '....=...=....=....',
+  '..c.=...=....=.c..',
+  '....==..=...==....',
+  '..+...........+...',
+  '...#.....D....#...',
+  '...+..........+...',
+  '....#...++...#....',
+] as const;
+
+function sitePosition(home: Position, site: number, side: number, front: number): Position {
+  const d = forward[site]!;
+  return { x: home.x + front * d.x + side * d.y, y: home.y + front * d.y - side * d.x };
+}
 export function asymmetricBoard(source: AsymmetricSource, siteArmies: readonly FourArmyId[], layoutVersion = 5) {
   const count = siteArmies.length === 3 ? 3 : 4;
-  const rows = source === 'tundra' ? layouts.tundra[3] : layoutVersion === 4 && source !== 'river' ? historicalLayouts[source][count] : layouts[source][count];
+  const rows =
+    source === 'crown'
+      ? crownRows
+      : source === 'tundra'
+        ? layouts.tundra[3]
+        : layoutVersion === 4 && source !== 'river'
+          ? historicalLayouts[source][count]
+          : layouts[source][count];
   const bridges: NonNullable<FourArmyMap['bridges']> = [];
   const homes = {} as FourArmyMap['capitals'];
   const terrain = rows.map((row, y) =>
@@ -234,10 +302,10 @@ export function asymmetricBoard(source: AsymmetricSource, siteArmies: readonly F
     }),
   );
   siteArmies.forEach((army, site) => {
-    const h = homes[army],
-      d = forward[site]!;
-    terrain[h.y + d.x]![h.x - d.y] = { kind: 'factory', owner: army, capturePoints: 20 };
-    terrain[h.y - d.y]![h.x - d.x] = { kind: 'city', owner: army, capturePoints: 20 };
+    for (const [kind, side, front] of startingSiteResources(source, site).facilities) {
+      const p = sitePosition(homes[army], site, side, front);
+      terrain[p.y]![p.x] = { kind, owner: army, capturePoints: 20 };
+    }
   });
   return { board: { width: rows[0].length, height: rows.length, terrain }, homes, bridges };
 }
@@ -248,21 +316,14 @@ export function createAsymmetricLayout(source: AsymmetricSource, match: Expanded
   const units: FourArmyMap['units'] = [];
   const players = {} as FourArmyMap['players'];
   const startZones = {} as NonNullable<FourArmyMap['setup']>['startZones'];
-  const starts: readonly [UnitKind, number, number][] = [
-    ['infantry', -1, 1],
-    ['infantry', 1, 1],
-    ['recon', 0, 2],
-    ['tank', 0, 1],
-  ];
   siteArmies.forEach((army, site) => {
-    const h = homes[army],
-      d = forward[site]!;
-    const local = (side: number, front: number): Position => ({ x: h.x + front * d.x + side * d.y, y: h.y + front * d.y - side * d.x });
+    const resources = startingSiteResources(source, site);
+    const local = (side: number, front: number) => sitePosition(homes[army], site, side, front);
     const first = local(-1, -1),
       last = local(1, 2);
     startZones[army] = { x: Math.min(first.x, last.x), y: Math.min(first.y, last.y), width: Math.abs(last.x - first.x) + 1, height: Math.abs(last.y - first.y) + 1 };
-    players[army] = { gold: 6000, income: 0 };
-    for (const [kind, side, front] of starts) {
+    players[army] = { gold: resources.gold, income: 0 };
+    for (const [kind, side, front] of resources.units) {
       const stats = unitStats[kind],
         secondary = weaponsForUnit(kind, { ruleVersion: 12 })[1];
       units.push({

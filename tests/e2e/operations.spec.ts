@@ -1,3 +1,4 @@
+import { openTitlePanel } from './helpers/titleNavigation';
 import { expect, test } from '@playwright/test';
 import { operationData } from '../../src/game/operations.fixture';
 import { unitStats } from '../../src/game/units';
@@ -10,7 +11,9 @@ for (const viewport of [
     await page.setViewportSize(viewport);
     page.on('dialog', (dialog) => dialog.accept());
     await page.goto('/');
+    await openTitlePanel(page, 'settings');
     await page.locator('#title-tactical-preset').uncheck(); // Keep this original-layout regression fixture.
+    await openTitlePanel(page, 'records');
     await page.locator('#title-editor').click();
     await page.locator('#editor-json').fill(JSON.stringify(operationData({ id: 'browser-withdrawal', name: '撤退の操作確認' })));
     await page.locator('#editor-import').click();
@@ -51,6 +54,7 @@ for (const viewport of [
     await page.locator('#evacuate-unit').click();
     await page.locator('#save').click();
     await page.locator('#open-title').click();
+    await openTitlePanel(page, 'records', true);
     await page.locator('.load-save-slot[data-save-slot="manual"]').click();
     await expect(page.locator('.title-overlay')).toHaveCount(0);
     await expect(page.locator('.tile[data-x="3"][data-y="1"]')).not.toContainText('歩');

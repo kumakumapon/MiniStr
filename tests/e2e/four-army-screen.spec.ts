@@ -140,10 +140,9 @@ for (const locale of ['ja', 'en'])
       await page.waitForTimeout(250);
       expect(await count(page)).toBe(paused);
       await page.locator('#four-view').selectOption('army1');
-      await page.locator('.four-armies summary').click();
+      await expect(page.locator('#four-army-info')).toBeVisible();
       await expect(page.locator('#four-army-info')).toContainText(locale === 'ja' ? '資金非公開' : 'Funds hidden');
       await expect(page.locator('#four-unit option')).toHaveCount(8);
-      await page.locator('.four-armies summary').click();
       await page.locator('#four-view').selectOption('all');
       await page.evaluate(() => scrollTo(0, 0));
       expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width + 1);
@@ -157,7 +156,7 @@ for (const locale of ['ja', 'en'])
       await page.locator('#four-menu').click();
       await page.locator('#four-return').click();
       await page.locator('#four-close').click();
-      await expect(page.locator('.title-map-card[data-map-id="skirmish"]')).toBeFocused();
+      await expect(page.locator('#title-heading')).toBeFocused();
     });
   }
 
@@ -565,8 +564,18 @@ for (const width of [1280, 390]) {
     await expect(page.locator('#four-handoff-title')).toContainText(width === 390 ? 'Army 1' : '第1軍');
     await page.locator('#four-handoff-start').click();
     await expect(page.locator('#four-board > button')).toHaveCount(1024);
-    await page.locator('#four-human-panel [data-human-action="endTurn"]').click();
-    for (const selector of ['.tile', '#four-unit-brief', '#four-human-panel', '.mobile-action-bar', '#four-selection', '#four-events', '#four-sightings'])
+    await page.locator('.hud-status [data-human-action="endTurn"]').click();
+    for (const selector of [
+      '.tile',
+      '#four-unit-brief',
+      '#four-human-panel',
+      '.mobile-action-bar',
+      '#four-selection',
+      '#four-events',
+      '#four-sightings',
+      '#four-army-info',
+      '.four-display-controls',
+    ])
       await expect(page.locator('#four-army-screen').locator(selector)).toHaveCount(0);
     await expect(page.locator('#four-handoff-title')).toContainText(width === 390 ? 'Army 2' : '第2軍');
     await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem('ministr.fourArmy.autosave') ?? '{}').view)).toBe('army2');
@@ -587,7 +596,7 @@ for (const width of [1280, 390]) {
     await expect(page.locator('.tile')).toHaveCount(0);
     await page.locator('#four-handoff-start').click();
     await expect(page.locator('#four-human-panel')).toContainText(width === 390 ? 'Army 2' : '第2軍');
-    await page.locator('#four-human-panel [data-human-action="endTurn"]').click();
+    await page.locator('.hud-status [data-human-action="endTurn"]').click();
     await expect(page.locator('.tile')).toHaveCount(0);
     await expect(page.locator('#four-toggle')).toBeVisible();
     await page.locator('#four-toggle').click();
@@ -737,6 +746,10 @@ for (const { width, locale, actor } of [
     await freezeSceneClock(page);
     await attack();
     await expect(page.locator('.four-battle-scene .battle-scene')).toBeVisible();
+    const boardEmblem = page.locator(`#four-army-info .army-emblem.${actor}`);
+    const battleEmblem = page.locator(`.four-battle-scene .battle-attacker .army-emblem.${actor}`);
+    await expect(battleEmblem).toHaveText((await boardEmblem.textContent())!);
+    await expect(battleEmblem).toHaveCSS('color', await boardEmblem.evaluate((el) => getComputedStyle(el).color));
     await expect(page.locator('#four-army-screen')).toHaveAttribute('inert', '');
     await expect(page.locator(`.battle-team-badge-${fixture.attacker.owner}`)).toContainText(locale === 'ja' ? `第${actor.slice(-1)}軍` : `Army ${actor.slice(-1)}`);
     const hp = fixture.after.units.find((u) => u.id === fixture.command.unitId)?.hp ?? 0;
@@ -745,7 +758,7 @@ for (const { width, locale, actor } of [
     await page.locator('#battle-scene-skip').press('Enter');
     await expect(page.locator('.battle-scene')).toHaveCount(0);
     await expect(page.locator('#four-army-screen')).not.toHaveAttribute('inert', '');
-    await expect(page.locator('#four-human-panel [data-human-action="endTurn"]')).toBeEnabled();
+    await expect(page.locator('.hud-status [data-human-action="endTurn"]')).toBeEnabled();
     expect(await count(page)).toBe(fixture.count + 1);
     expect(await page.evaluate(() => JSON.parse(localStorage.getItem('ministr.battleScene.settings')!))).toEqual({ twoArmy: false, multiArmy: true });
     await playbackControls(page);

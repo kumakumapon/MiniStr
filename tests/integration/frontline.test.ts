@@ -1,3 +1,4 @@
+import { openTitlePanel } from './titleNavigation';
 import { distributedSource } from './distributedSource';
 import { afterEach, expect, it } from 'vitest';
 // @ts-expect-error jsdom is the runtime integration dependency used by startup.test.ts.
@@ -22,6 +23,7 @@ it('runs engineering through the shipped bundle and preserves costs, history and
   };
   expect(document.querySelector('[data-map-id="supply-contest"]')).not.toBeNull();
   expect(document.querySelector('[data-map-id="supply-ridge"]')).not.toBeNull();
+  openTitlePanel(dom.window.document, 'records');
   click('#title-editor');
   const json = document.querySelector('#editor-json');
   json.value = JSON.stringify(frontlineScenarioData());
@@ -45,5 +47,6 @@ it('runs engineering through the shipped bundle and preserves costs, history and
   expect(saved.gameState.players.red.gold).toBe(saved.initialState.players.red.gold - 500);
   click('#undo');
   expect(document.querySelector('.fortification-marker')).toBeNull();
-  expect(document.querySelector('#unit-brief')?.nextElementSibling?.id).toBe('board-viewport');
+  expect(document.querySelector('#command-panel .hud-selection #unit-brief')).not.toBeNull();
+  expect(document.querySelector('.battlefield-wrap #board-viewport')).not.toBeNull();
 });

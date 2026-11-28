@@ -1,3 +1,4 @@
+import { openTitlePanel } from './helpers/titleNavigation';
 import { expect, test, type Page } from '@playwright/test';
 import { readFileSync } from 'node:fs';
 import { researchReplayFixture } from '../../src/game/research.fixture';
@@ -23,6 +24,7 @@ async function seed(page: Page, locale = 'ja', extra: Record<string, string> = {
   return protectedEntries;
 }
 async function importJson(page: Page, text: string, title = false) {
+  if (title) await openTitlePanel(page, 'records');
   await page.locator(title ? '#title-replay-file' : '#replay-file').setInputFiles({ name: 'research-test.json', mimeType: 'application/json', buffer: Buffer.from(text) });
 }
 async function seek(page: Page, index: number) {
@@ -70,6 +72,7 @@ for (const width of [1280, 390])
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
       await protectedData(page, entries);
       await page.reload();
+      await openTitlePanel(page, 'records', true);
       await page.locator(`[data-research-resume="${RESEARCH_MANUAL_KEY}"]`).click();
       await expect(page.locator('.research-status')).toBeVisible();
       await expect(page.locator('#undo')).toBeDisabled();
@@ -102,6 +105,7 @@ for (const kind of ['operation', 'daily', 'campaign'] as const) {
     await protectedData(page, entries);
     await page.locator('[data-research-save]').click();
     await page.reload();
+    await openTitlePanel(page, 'records', true);
     await page.locator(`[data-research-resume="${RESEARCH_MANUAL_KEY}"]`).click();
     await expect(page.locator('.game-over .research-status')).toBeVisible();
     await protectedData(page, entries);
@@ -125,7 +129,7 @@ test('returning to an ordinary save clears the research classification explicitl
   await page.locator('.tile[data-x="0"][data-y="2"]').click();
   await page.locator('#save').click();
   const normal = await page.evaluate(() => JSON.parse(localStorage.getItem('ministr.save.manual')!));
-  expect(normal.schemaVersion).toBe(4);
+  expect(normal.schemaVersion).toBe(5);
   expect(normal.commands).toHaveLength(1);
   expect(normal.format).toBeUndefined();
   expect(await page.evaluate((key) => localStorage.getItem(key), RESEARCH_MANUAL_KEY)).toBe(study);

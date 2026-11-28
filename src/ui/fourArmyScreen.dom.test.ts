@@ -568,7 +568,7 @@ describe('four-army spectator controller', () => {
     expect(query('#four-unit-brief').dataset.unitId).toBe('u1');
     const unitOptions = [...query<HTMLSelectElement>('#four-unit').options];
     expect(new Set(unitOptions.map((option) => option.text)).size).toBe(unitOptions.length);
-    expect(unitOptions.find((option) => option.value === 'u1')?.text).toBe('Army 1 Infantry 1');
+    expect(unitOptions.find((option) => option.value === 'u1')?.text).toBe('■ Army 1 Infantry 1');
     expect(query('#four-selection').textContent).toContain('Army 1 Infantry 1');
     expect(query('.four-human-source').textContent).toBe('Infantry 1');
     expect(query('#four-unit-brief h3').textContent).toBe('Army 1 · Infantry 1');
@@ -753,7 +753,7 @@ describe('four-army spectator controller', () => {
     expect(query('#four-handoff-title').textContent).toContain('Army 1');
     click('#four-handoff-start');
     expect(document.querySelectorAll('#four-board > button')).toHaveLength(1024);
-    click('#four-human-panel [data-human-action="endTurn"]');
+    click('.hud-status [data-human-action="endTurn"]');
     expect(document.querySelector('.tile')).toBeNull();
     expect(document.querySelector('#four-unit-brief')).toBeNull();
     expect(document.querySelector('.mobile-action-bar')).toBeNull();

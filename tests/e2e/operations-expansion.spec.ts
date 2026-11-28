@@ -1,3 +1,4 @@
+import { openTitlePanel } from './helpers/titleNavigation';
 import { expect, test } from '@playwright/test';
 import { finishedDefense, scanScenarioData } from '../operationsExpansion.fixture';
 import { OPERATION_RECORDS_KEY } from '../../src/game/operationRecords';
@@ -11,6 +12,7 @@ for (const viewport of [
     await page.setViewportSize(viewport);
     page.on('dialog', (dialog) => dialog.accept());
     await page.goto('/');
+    await openTitlePanel(page, 'records');
     await page.locator('#title-editor').click();
     await page.locator('#editor-json').fill(JSON.stringify(scanScenarioData()));
     await page.locator('#editor-import').click();
@@ -34,6 +36,7 @@ for (const viewport of [
     await page.locator('.tile[data-x="6"][data-y="2"]').click();
     await page.locator('#save').click();
     await page.reload();
+    await openTitlePanel(page, 'records', true);
     await page.locator('.load-save-slot[data-save-slot="manual"]').click();
     await expect(page.locator('#recon-target')).toContainText('残り1回');
     await expect(enemy).toBeVisible();
@@ -49,7 +52,8 @@ for (const viewport of [
     await expect(page.locator('.operation-challenges')).toContainText('追加チャレンジ');
     await page.locator('#begin-operation').click();
     await expect(page.locator('.control-score')).toContainText('赤 0 ／ 青 0');
-    await expect(page.locator('#unit-brief + #board-viewport')).toHaveCount(1);
+    await expect(page.locator('#command-panel .hud-selection #unit-brief')).toHaveCount(1);
+    await expect(page.locator('.battlefield-wrap #board-viewport')).toBeVisible();
     await page.locator('.control-score summary').click();
     await expect(page.locator('[data-control-x]')).toHaveCount(2);
     await expect(page.locator('.control-score')).toContainText('常駐は不要');
@@ -63,21 +67,25 @@ for (const viewport of [
       { key: MANUAL_SAVE_KEY, serialized: completed.serialized, recordsKey: OPERATION_RECORDS_KEY },
     );
     await page.reload();
+    await openTitlePanel(page, 'records', true);
     await page.locator('.load-save-slot[data-save-slot="manual"]').click();
     await expect(page.locator('.game-over .operation-challenges')).toContainText('✓ 達成');
     await page.locator('.game-over-card').screenshot({ path: testInfo.outputPath('systems-v7-result.png') });
     const record = await page.evaluate((key) => localStorage.getItem(key), OPERATION_RECORDS_KEY);
     expect(JSON.parse(record!).records).toHaveLength(1);
     await page.locator('#result-title-menu').click();
+    await openTitlePanel(page, 'records');
     await page.locator('#operation-records summary').first().click();
     await expect(page.locator('#operation-records')).toContainText('標準編成');
     await expect(page.locator('#operation-records')).toContainText('最短5ターン');
     await page.locator('#operation-records').screenshot({ path: testInfo.outputPath('systems-v7-records.png') });
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true);
     await page.reload();
+    await openTitlePanel(page, 'records', true);
     await page.locator('.load-save-slot[data-save-slot="manual"]').click();
     expect(await page.evaluate((key) => localStorage.getItem(key), OPERATION_RECORDS_KEY)).toBe(record);
     await page.locator('#result-title-menu').click();
+    await openTitlePanel(page, 'records');
     await page.locator('#operation-records summary').first().click();
     await page.locator('[data-record-delete="0"]').click();
     await expect(page.locator('#operation-records')).toContainText('まだありません');

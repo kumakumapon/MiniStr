@@ -1,3 +1,4 @@
+import { openTitlePanel } from './helpers/titleNavigation';
 import { expect, test } from '@playwright/test';
 import { crossingScenarioData } from '../crossing.fixture';
 
@@ -8,6 +9,7 @@ test('title speed, half-size map and disabled spectator skip work together', asy
   await page.clock.pauseAt(new Date(now.getTime() + 1_000));
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/');
+  await openTitlePanel(page, 'settings');
   await page.locator('#title-cpu-speed').focus();
   await page.locator('#title-cpu-speed').selectOption('4');
   await page.clock.runFor(50);
@@ -16,6 +18,7 @@ test('title speed, half-size map and disabled spectator skip work together', asy
   await page.locator('#title-board-zoom').selectOption('50');
   await page.clock.runFor(50);
   await expect(page.locator('#title-board-zoom')).toBeFocused();
+  await openTitlePanel(page, 'home');
   await page.locator('.title-map-card[data-map-id="skirmish"]').click();
   await page.locator('input[name="match-mode"][value="spectate"]').check();
   await page.locator('#begin-operation').click();
@@ -27,10 +30,12 @@ test('title speed, half-size map and disabled spectator skip work together', asy
   await expect(page.locator('.board')).toHaveAttribute('data-zoom', '50');
   expect((await page.locator('.tile').first().boundingBox())!.width).toBe(22);
   await page.locator('#open-title').click();
+  await openTitlePanel(page, 'settings');
   await expect(page.locator('#title-cpu-speed')).toHaveValue('4');
   await expect(page.locator('#title-board-zoom')).toHaveValue('50');
   await page.locator('#title-cpu-speed').selectOption('0.5');
   await page.locator('#title-board-zoom').selectOption('auto');
+  await openTitlePanel(page, 'home');
   await page.locator('#title-resume').click();
   await expect(page.locator('#cpu-speed')).toHaveValue('0.5');
   await expect(page.locator('.board')).toHaveAttribute('data-zoom', '100');
@@ -43,6 +48,7 @@ test('bridge keyboard confirmation and saved state survive reload', async ({ pag
   await page.setViewportSize({ width: 390, height: 844 });
   page.on('dialog', (dialog) => dialog.accept());
   await page.goto('/');
+  await openTitlePanel(page, 'records');
   await page.locator('#title-editor').click();
   await page.locator('#editor-json').fill(JSON.stringify(crossingScenarioData()));
   await page.locator('#editor-import').click();
@@ -60,6 +66,7 @@ test('bridge keyboard confirmation and saved state survive reload', async ({ pag
   await expect(page.locator('.bridge-marker')).toHaveCount(1);
   await page.locator('#save').click();
   await page.reload();
+  await openTitlePanel(page, 'records', true);
   await page.locator('.load-save-slot[data-save-slot="manual"]').click();
   await expect(page.locator('.bridge-marker')).toHaveCount(1);
   await expect(page.locator('.tile[data-x="8"][data-y="4"] .unit')).toHaveCount(0);
@@ -82,6 +89,7 @@ for (const viewport of [
     await page.locator('#save').click();
     await expect(page.locator('.status-message')).toContainText('セーブしました');
     await page.locator('#open-title').click();
+    await openTitlePanel(page, 'records', true);
     await page.locator('.load-save-slot[data-save-slot="manual"]').click();
     await expect(page.locator('.title-overlay')).toHaveCount(0);
     await expect(page.locator('.tile[data-x="0"][data-y="2"]')).toContainText('歩');
@@ -102,6 +110,7 @@ for (const viewport of [
     }));
     expect(overflow.scrollWidth, JSON.stringify(overflow)).toBeLessThanOrEqual(overflow.width + 1);
     await page.locator('#open-title').click();
+    await openTitlePanel(page, 'records');
     await page.locator('#title-editor').click();
     await page.locator('#editor-start').click();
     await expect(page.locator('.editor-notice')).toContainText('司令部');
@@ -116,12 +125,14 @@ for (const viewport of [
 
 test('keyboard navigation and enlarged text retain primary actions', async ({ page }) => {
   await page.goto('/');
+  await openTitlePanel(page, 'records');
   const beforeScale = Number.parseFloat(await page.locator('#title-editor').evaluate((element) => getComputedStyle(element).fontSize));
   await page.evaluate(() => {
     document.documentElement.style.fontSize = '200%';
   });
   const afterScale = Number.parseFloat(await page.locator('#title-editor').evaluate((element) => getComputedStyle(element).fontSize));
   expect(afterScale).toBeGreaterThanOrEqual(beforeScale * 1.9);
+  await openTitlePanel(page, 'home');
   await page.locator('.title-map-card[data-map-id="skirmish"]').focus();
   await page.keyboard.press('Enter');
   await page.locator('#begin-operation').focus();
@@ -191,6 +202,7 @@ test('modal keyboard focus stays inside and wraps in both directions', async ({ 
 
 test('editor text edits have live undo and export status is announced', async ({ page }) => {
   await page.goto('/');
+  await openTitlePanel(page, 'records');
   await page.locator('#title-editor').click();
   const name = page.locator('#editor-name');
   const original = await name.inputValue();
@@ -207,6 +219,7 @@ test('editor text edits have live undo and export status is announced', async ({
 test('editor resize rejects invalid dimensions and lists cropped hold objectives', async ({ page }) => {
   page.on('dialog', (dialog) => dialog.accept());
   await page.goto('/');
+  await openTitlePanel(page, 'records');
   await page.locator('#title-editor').click();
   const source = JSON.parse(await page.locator('#editor-json').inputValue()) as {
     board: { width: number; height: number; cells: unknown[] };
@@ -234,6 +247,7 @@ test('editor resize rejects invalid dimensions and lists cropped hold objectives
 test('dense 32×32 editor boards render within the interactive budget', async ({ page }) => {
   page.on('dialog', (dialog) => dialog.accept());
   await page.goto('/');
+  await openTitlePanel(page, 'records');
   await page.locator('#title-editor').click();
   const source = JSON.parse(await page.locator('#editor-json').inputValue()) as {
     board: { width: number; height: number; fill?: string; cells: unknown[] };

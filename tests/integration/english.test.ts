@@ -1,3 +1,4 @@
+import { openTitlePanel } from './titleNavigation';
 import { distributedSource } from './distributedSource';
 import { afterEach, describe, expect, it } from 'vitest';
 // @ts-expect-error jsdom does not require an optional declaration package in production.
@@ -87,9 +88,11 @@ describe('English distributed UI', () => {
     expectEnglish('manual save');
     click('#save-new-slot');
     click('#open-title');
+    openTitlePanel(dom.window.document, 'records');
     expect([...document.querySelectorAll('.save-slot-manager strong')].map((node) => node.textContent)).toContain('丘の隊');
     expect(document.querySelector('.status-message')?.textContent).toBe('Saved as "丘の隊".');
     expectEnglish('named save', ['丘の隊']);
+    openTitlePanel(dom.window.document, 'home');
     click('#title-campaign');
     expectEnglish('campaign', ['丘の隊']);
     click('.campaign-start:not([disabled])');
@@ -97,6 +100,7 @@ describe('English distributed UI', () => {
     expectEnglish('campaign briefing');
     click('#begin-operation');
     click('#open-title');
+    openTitlePanel(dom.window.document, 'records');
     click('#title-editor');
     expectEnglish('editor');
     for (const text of dialogs) expect(text).not.toMatch(japanese);
@@ -104,7 +108,9 @@ describe('English distributed UI', () => {
 
   it('keeps custom names, authored briefings and saved JSON unchanged across language changes', () => {
     const document = launch();
+    openTitlePanel(dom.window.document, 'settings');
     click('#title-tactical-preset'); // Preserve this original-layout regression fixture.
+    openTitlePanel(dom.window.document, 'records');
     click('#title-editor');
     const data = operationData({ id: 'custom-language', name: '占領', briefing: '利用者の作戦説明は翻訳しない' });
     const editorJson = document.querySelector('#editor-json');
@@ -124,12 +130,17 @@ describe('English distributed UI', () => {
       const key = dom.window.localStorage.key(index)!;
       if (key !== 'ministr.locale') before.set(key, dom.window.localStorage.getItem(key)!);
     }
+    openTitlePanel(dom.window.document, 'settings');
     change('.title-menu [data-locale]', 'ja');
     expect(document.documentElement.lang).toBe('ja');
+    openTitlePanel(dom.window.document, 'home');
     expect(document.querySelector('#title-training')?.textContent).toBe('基本操作を練習');
+    openTitlePanel(dom.window.document, 'settings');
     change('.title-menu [data-locale]', 'en');
+    openTitlePanel(dom.window.document, 'home');
     expect(document.querySelector('#title-training')?.textContent).toBe('Practice the basics');
     expect(document.querySelector('.title-map-card[data-map-id="custom-language"] .title-map-name')?.textContent).toContain(data.name);
+    openTitlePanel(dom.window.document, 'records');
     expect([...document.querySelectorAll('.save-slot-manager strong')].map((node) => node.textContent)).toContain('丘の隊');
     for (const [key, value] of before) expect(dom.window.localStorage.getItem(key), key).toBe(value);
     expectEnglish('English after round trip');
@@ -141,6 +152,7 @@ describe('English distributed UI', () => {
   it('localizes generated standard and frontline map metadata after saving and reopening', () => {
     const document = launch();
     for (const preset of ['standard', 'frontline']) {
+      openTitlePanel(dom.window.document, 'records');
       change('#title-generator-size', '16');
       change('#title-generator-preset', preset);
       document.querySelector('#title-generator-seed').value = `english-${preset}`;

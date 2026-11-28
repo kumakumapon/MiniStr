@@ -119,22 +119,24 @@
 .four-screen .four-site-marker {
   position: absolute;
   transform: translate(-50%, -50%);
-  display: grid;
-  place-content: center;
-  width: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  width: 40px;
   height: 32px;
   min-height: 32px;
   padding: 0;
-  color: #0c1913;
-  background: var(--army);
-  border: 2px solid #12251f;
+  color: #f5f4e8;
+  background: #15201e;
+  border: 2px solid #15201e;
   border-radius: 50%;
   box-shadow: 0 0 0 1px #fff5d7;
 }
 .four-screen .four-site-marker:hover,
 .four-screen .four-site-marker[aria-pressed='true'] {
-  color: #0c1913;
-  background: var(--army);
+  color: #f5f4e8;
+  background: #15201e;
   outline: 3px solid #fff5d7;
   outline-offset: 1px;
 }
@@ -163,6 +165,19 @@
   gap: 3px;
   padding-top: 6px;
   border-top: 1px solid var(--four-line);
+}
+.four-site-resources {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 2px 10px;
+  margin: 4px 0;
+  font-size: 0.82rem;
+}
+.four-site-resources dt {
+  color: var(--four-muted);
+}
+.four-site-resources dd {
+  margin: 0;
 }
 .four-start-sites select {
   width: 100%;
@@ -235,21 +250,6 @@
   align-items: center;
   padding: 10px 0;
   border-bottom: 1px solid #58736166;
-}
-.four-army-label {
-  --army: #ef8b7b;
-}
-.four-army-label.army2,
-.four-turn.army2 {
-  --army: #83bdf4;
-}
-.four-army-label.army3,
-.four-turn.army3 {
-  --army: #83d6ad;
-}
-.four-army-label.army4,
-.four-turn.army4 {
-  --army: #f0cf79;
 }
 .four-army-label strong,
 strong.four-army-label {
@@ -576,18 +576,6 @@ strong.four-army-label {
 .four-screen #four-board .tile.four-attack-target {
   outline: 2px solid #f18a73;
   outline-offset: -3px;
-}
-.four-screen .army1 {
-  --army: #ef8b7b;
-}
-.four-screen .army2 {
-  --army: #83bdf4;
-}
-.four-screen .army3 {
-  --army: #83d6ad;
-}
-.four-screen .army4 {
-  --army: #f0cf79;
 }
 .four-screen .unit {
   color: var(--army);
@@ -954,4 +942,120 @@ strong.four-army-label {
   min-height: 0;
   padding: 0;
   accent-color: #eed08c;
+}
+
+/* The opaque dark backing and light rim keep every emblem legible on snow, sand and fog. */
+.four-screen .army1,
+.four-action-scene .army1,
+.four-battle-scene .battle-team-army1,
+.army-emblem.army1,
+.battle-team-badge-army1 {
+  --army: #e69f00;
+}
+.four-screen .army2,
+.four-action-scene .army2,
+.four-battle-scene .battle-team-army2,
+.army-emblem.army2,
+.battle-team-badge-army2 {
+  --army: #56b4e9;
+}
+.four-screen .army3,
+.four-action-scene .army3,
+.four-battle-scene .battle-team-army3,
+.army-emblem.army3,
+.battle-team-badge-army3 {
+  --army: #48c49f;
+}
+.four-screen .army4,
+.four-action-scene .army4,
+.four-battle-scene .battle-team-army4,
+.army-emblem.army4,
+.battle-team-badge-army4 {
+  --army: #e59fc8;
+}
+.army-emblem {
+  display: inline-grid;
+  place-content: center;
+  width: 1.28em;
+  height: 1.28em;
+  background: #15201e;
+  color: var(--army);
+  border: 1px solid #f5f4e8;
+  border-radius: 3px;
+  line-height: 1;
+  font-style: normal;
+  font-weight: 800;
+}
+.four-screen .four-site-marker .army-emblem {
+  font-size: 15px;
+  width: 18px;
+  height: 19px;
+}
+.four-screen .unit .unit-owner-marker {
+  background: transparent;
+  border: 0;
+  font-size: 11px;
+  top: -5px;
+  left: -5px;
+}
+.four-screen .facility small .army-emblem {
+  font-size: 9px;
+}
+.four-action-scene .battle-team-badge[class*='-army'],
+.four-battle-scene .battle-team-badge[class*='-army'] {
+  background: #15201e;
+  color: #f5f4e8;
+  border-bottom: 2px solid var(--army);
+}
+.four-map-heading:has(.four-display-controls) {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 10px;
+}
+.four-display-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: start;
+  justify-content: flex-end;
+  gap: 0 12px;
+  margin-inline-start: auto;
+}
+.four-display-controls label.four-threat-control {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin: 0;
+}
+.four-display-controls > details {
+  margin: 0;
+  padding: 0 8px;
+  max-width: 100%;
+}
+.four-display-controls > details > summary {
+  min-height: 42px;
+  padding-block: 10px;
+}
+.four-armies .four-army-label {
+  gap: 1px;
+}
+.four-armies .four-army-label strong {
+  border: 0;
+  padding-left: 0;
+}
+
+.four-battle-scene .battle-combatant[class*='battle-team-army'] {
+  border-color: var(--army);
+  background: linear-gradient(color-mix(in srgb, var(--army) 27%, #17231e), #0c1512b8 70%);
+}
+.four-action-scene .action-capture-property[class*='army'] {
+  color: var(--army);
+  border-color: var(--army);
+  background: linear-gradient(145deg, color-mix(in srgb, var(--army) 32%, #15201e), #15201e);
+}
+.four-action-scene .action-capture-property[class*='army'] .action-capture-flag {
+  color: var(--army);
+}
+.four-action-scene .action-capture-progress-fill[class*='army'] {
+  background: var(--army);
 }

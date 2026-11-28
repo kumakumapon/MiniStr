@@ -5,6 +5,8 @@ import { isShareLinkCandidate, parseGeneratedShare, serializeGeneratedShare, sha
 import { translateText } from './locale';
 import { scenarioDisplayName } from './scenarioText';
 import type { ScreenController } from './screenController';
+import { bindTitleCatalog } from './titleCatalog';
+import type { ArmyCount } from './matchVariants';
 import { uiText } from './strings';
 import type { TitleState } from './titleScreen';
 
@@ -15,6 +17,7 @@ export interface TitleEventDeps {
   render: () => void;
   /** Remembers the control to focus after the next redraw. */
   setFocus: (selector: string) => void;
+  cancelRecordRead?: () => void;
   confirmReplaceMatch: () => boolean;
   scenarios: () => readonly ScenarioDefinition[];
   scenarioExists: (mapId: string) => boolean;
@@ -27,8 +30,8 @@ export interface TitleEventDeps {
   startMap: (mapId: string) => void;
   startDaily: () => void;
   continueSave: () => boolean;
-  openSaveList?: () => boolean;
-  openMultiplayerMap?: (id: string) => boolean;
+  continueOtherSave?: () => boolean;
+  openMultiplayerMap?: (id: string, count?: ArmyCount) => boolean;
   /** The status line, which a failed load leaves explaining why. */
   message: () => string;
   /** Opens the campaign menu, which redraws. */
@@ -94,6 +97,27 @@ function commitGeneratedMap(deps: TitleEventDeps, produce: () => GameResult<Scen
 /** Binds the title's controls in the DOM just drawn. Called after every redraw. */
 export function bindTitleEvents(app: HTMLElement, deps: TitleEventDeps): void {
   const { screens, state, render, setFocus } = deps;
+  bindTitleCatalog(app, state.catalogFilters, (selector) => {
+    setFocus(selector);
+    render();
+  });
+  const openPanel = (panel: 'settings' | 'records', focus = '#title-panel-heading') => {
+    deps.cancelRecordRead?.();
+    state.panel = panel;
+    setFocus(focus);
+    render();
+  };
+  for (const panel of ['settings', 'records'] as const) {
+    app.querySelector(`#title-open-${panel}`)?.addEventListener('click', () => openPanel(panel));
+  }
+  app.querySelector('#title-catalog-create')?.addEventListener('click', () => openPanel('records', '#title-generator summary'));
+  app.querySelector('#title-home-back')?.addEventListener('click', () => {
+    deps.cancelRecordRead?.();
+    setFocus(`#title-open-${state.panel}`);
+    state.panel = 'home';
+    render();
+  });
+  app.querySelector('#title-new-game')?.addEventListener('click', () => app.querySelector<HTMLElement>('#title-catalog-heading')?.focus());
   app.querySelector<HTMLDetailsElement>('#operation-records')?.addEventListener('toggle', (event) => {
     state.operationRecordsOpen = (event.currentTarget as HTMLDetailsElement).open;
   });
@@ -242,7 +266,8 @@ export function bindTitleEvents(app: HTMLElement, deps: TitleEventDeps): void {
   app.querySelectorAll<HTMLButtonElement>('.title-map-card').forEach((card) =>
     card.addEventListener('click', () => {
       const mapId = card.dataset.mapId ?? '';
-      if (!screens.titleOpen || deps.openMultiplayerMap?.(mapId) || !deps.scenarioExists(mapId) || !deps.confirmReplaceMatch()) return;
+      const count = ([2, 3, 4] as const).find((n) => String(n) === card.dataset.catalogArmies);
+      if (!screens.titleOpen || deps.openMultiplayerMap?.(mapId, count) || !deps.scenarioExists(mapId) || !deps.confirmReplaceMatch()) return;
       state.leaveTitle();
       deps.startMap(mapId);
       render();
@@ -253,7 +278,7 @@ export function bindTitleEvents(app: HTMLElement, deps: TitleEventDeps): void {
     render();
   });
   document.querySelector<HTMLButtonElement>('#title-continue')?.addEventListener('click', () => {
-    if (deps.openSaveList?.()) return;
+    if (deps.continueOtherSave?.()) return;
     if (deps.continueSave()) state.leaveTitle();
     else state.notice = deps.message();
     render();

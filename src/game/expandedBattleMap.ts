@@ -25,7 +25,7 @@ export function expandedBattleDimensions(source: ExpandedBattle['sourceMapId']) 
 }
 /** Layout 3 protects the northern neutral facilities from simultaneous flank pressure; callers loading historical snapshots keep layout 2. */
 export const latestExpandedBattleLayout = (source: ExpandedBattle['sourceMapId'], count: number): ExpandedBattle['layoutVersion'] =>
-  isAsymmetricSource(source) ? 5 : count === 3 && (source === 'skirmish' || source === 'outpost') ? 3 : 2;
+  source === 'crown' ? 6 : isAsymmetricSource(source) ? 5 : count === 3 && (source === 'skirmish' || source === 'outpost') ? 3 : 2;
 /** Authored snapshots. No legacy preset is edited or used as a mutable source. */
 export function createExpandedBattleMap(options: ExpandedBattleOptions = {}): GameResult<FourArmyMap> {
   if (
@@ -45,7 +45,7 @@ export function createExpandedBattleMap(options: ExpandedBattleOptions = {}): Ga
   const match: ExpandedBattle = {
     version: 2,
     sourceMapId,
-    layoutVersion: options.layoutVersion ?? (isAsymmetricSource(sourceMapId) ? 5 : 2),
+    layoutVersion: options.layoutVersion ?? (isAsymmetricSource(sourceMapId) ? latestExpandedBattleLayout(sourceMapId, participants.length) : 2),
     ...(isAsymmetricSource(sourceMapId) ? { siteArmies: [...sites] } : {}),
     participants,
     initialOrder: [...(options.order ?? participants)],

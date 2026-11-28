@@ -1,3 +1,4 @@
+import { openTitlePanel } from './helpers/titleNavigation';
 import { expect, test, type Page } from '@playwright/test';
 
 const LINK = '/#ministr-gen1/2/20/coast/standard/Share-E2E';
@@ -80,6 +81,7 @@ test('keeps Tab and Shift+Tab inside the confirmation and closes it with Escape'
 
 test('cancel returns focus to a title control', async ({ page }) => {
   await page.goto('/');
+  await openTitlePanel(page, 'records');
   await page.locator('#title-generator summary').click();
   await page.locator('#title-generator-seed').focus();
   await page.evaluate(() => {
@@ -150,6 +152,7 @@ test('copies a share link from the generator, with a manual fallback when copyin
     });
   });
   await page.goto('/');
+  await openTitlePanel(page, 'records');
   await page.locator('#title-generator summary').click();
   await page.locator('#title-generator-size').selectOption('24');
   await page.locator('#title-generator-sea').selectOption('ocean');

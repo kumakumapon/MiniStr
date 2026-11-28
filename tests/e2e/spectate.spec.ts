@@ -1,3 +1,4 @@
+import { openTitlePanel } from './helpers/titleNavigation';
 import { expect, test } from '@playwright/test';
 
 test('spectates a CPU-versus-CPU match with pause and resume (#129)', async ({ page }) => {
@@ -159,6 +160,7 @@ test('saves a paused spectated match to a slot and resumes it paused with both d
   await page.reload();
   await page.locator('.title-map-card[data-map-id="skirmish"]').click();
   await page.getByRole('button', { name: '作戦開始', exact: true }).click();
+  await openTitlePanel(page, 'records', true);
   const slot = page.locator('.save-slot-manager li', { hasText: '観戦テスト' });
   await expect(slot).toContainText('/ 観戦');
   await slot.locator('.load-save-slot').click();
@@ -206,6 +208,7 @@ test('cannot delete the player’s match saves while spectating, but can delete 
 
   // Named slots can still be tidied up one by one.
   await page.locator('#save').click();
+  await openTitlePanel(page, 'records', true);
   const slot = page.locator('.save-slot-manager li', { hasText: '削除テスト' });
   await expect(slot).toBeVisible();
   await slot.locator('.delete-save-slot').click();

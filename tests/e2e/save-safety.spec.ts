@@ -1,3 +1,4 @@
+import { openTitlePanel } from './helpers/titleNavigation';
 import { expect, test, type Page } from '@playwright/test';
 import { operationData } from '../../src/game/operations.fixture';
 
@@ -6,7 +7,9 @@ for (const width of [1280, 390])
     test(`preserves conflicting tabs and recovers a damaged backup at ${width}/${locale}`, async ({ page, context }, info) => {
       await page.setViewportSize({ width, height: 844 });
       await page.goto('/');
+      await openTitlePanel(page, 'settings');
       await page.locator('.title-overlay [data-locale]').selectOption(locale);
+      await openTitlePanel(page, 'home');
       await page.locator('.title-map-card').first().click();
       await page.locator('input[name="match-mode"][value="hotseat"]').check();
       await page.locator('#begin-operation').click();
@@ -17,6 +20,7 @@ for (const width of [1280, 390])
       const second = await context.newPage();
       await second.goto('/');
       await second.evaluate(() => localStorage.setItem('ministr.save.manual', '{broken-in-other-tab'));
+      await openTitlePanel(page, 'records', true);
       await expect(page.locator('#storage-session-export')).toBeVisible();
       const download = page.waitForEvent('download');
       await page.locator('#backup-export').click();
@@ -32,6 +36,7 @@ for (const width of [1280, 390])
       await page.screenshot({ path: info.outputPath('systems-storage-conflict.png'), fullPage: true });
       await second.close();
       await page.reload();
+      await openTitlePanel(page, 'records');
       await expect(page.locator('.export-save-slot[data-save-slot="manual"]')).toBeEnabled();
       page.on('dialog', (d) => d.accept());
       const recovery = JSON.stringify({
@@ -41,6 +46,7 @@ for (const width of [1280, 390])
           ['ministr.save.auto', '{broken'],
         ],
       });
+      await openTitlePanel(page, 'records', true);
       await page.locator('#save-recovery-import').setInputFiles({ name: 'damaged-backup.json', mimeType: 'application/json', buffer: Buffer.from(recovery) });
       await expect(page.locator('.load-save-slot:not([disabled])')).toHaveCount(1);
       expect(await page.evaluate(() => localStorage.getItem('ministr.save.manual'))).toBe('{broken-in-other-tab');
@@ -174,7 +180,9 @@ for (const width of [1280, 390])
       page.on('dialog', (dialog) => dialog.accept('Paused match'));
       await page.goto('/');
       await expect(page.locator('.storage-write-notice')).toHaveCount(0);
+      await openTitlePanel(page, 'settings');
       await page.locator('#title-cpu-speed').selectOption('4');
+      await openTitlePanel(page, 'home');
       await page.locator('.title-map-card[data-map-id="pause-combat"]').click();
       await page.locator('input[name="match-mode"][value="spectate"]').check();
       await page.locator('#begin-operation').click();
@@ -225,18 +233,22 @@ test('only one real tab can write, stale snapshots stay protected after taking o
   await second.goto('/');
   await expect(second.locator('.storage-write-notice')).toContainText('別のMiniStr');
   await expect(second.locator('.storage-write-notice')).toBeInViewport({ ratio: 1 });
+  await Promise.all([openTitlePanel(page, 'settings'), openTitlePanel(second, 'settings')]);
   await Promise.all([page.locator('.title-overlay [data-locale]').selectOption('en'), second.locator('.title-overlay [data-locale]').selectOption('en')]);
   expect(await page.evaluate(() => localStorage.getItem('ministr.locale'))).toBe('en');
   await second.locator('.title-overlay [data-locale]').selectOption('ja');
   expect(await page.evaluate(() => localStorage.getItem('ministr.locale'))).toBe('en');
   await page.close();
   await second.locator('[data-storage-write-retry]').click();
+  await openTitlePanel(second, 'records');
   await expect(second.locator('#storage-session-export')).toBeVisible();
   // A newly acquired lock does not make an old snapshot safe to overwrite with.
+  await openTitlePanel(second, 'settings');
   await second.locator('.title-overlay [data-locale]').selectOption('ja');
   expect(await second.evaluate(() => localStorage.getItem('ministr.locale'))).toBe('en');
   await second.reload();
   await expect(second.locator('.storage-write-notice')).toHaveCount(0);
+  await openTitlePanel(second, 'settings');
   await second.locator('.title-overlay [data-locale]').selectOption('ja');
   expect(await second.evaluate(() => localStorage.getItem('ministr.locale'))).toBe('ja');
 });
@@ -250,10 +262,12 @@ test('releases ownership on pagehide and permits an unchanged second tab to retr
   await page.evaluate(() => window.dispatchEvent(new PageTransitionEvent('pagehide', { persisted: true })));
   await second.locator('[data-storage-write-retry]').click();
   await expect(second.locator('.storage-write-notice')).toHaveCount(0);
+  await openTitlePanel(second, 'settings');
   await second.locator('.title-overlay [data-locale]').selectOption('en');
   expect(await second.evaluate(() => localStorage.getItem('ministr.locale'))).toBe('en');
   await page.evaluate(() => window.dispatchEvent(new PageTransitionEvent('pageshow', { persisted: true })));
   await expect(page.locator('.storage-write-notice')).toBeVisible();
+  await openTitlePanel(page, 'settings');
   await page.locator('.title-overlay [data-locale]').selectOption('ja');
   expect(await page.evaluate(() => localStorage.getItem('ministr.locale'))).toBe('en');
 });
@@ -320,7 +334,9 @@ test('ignores a cancelled fallback result after rapid pause and resume', async (
   );
   page.on('dialog', (dialog) => dialog.accept('Fallback pause'));
   await page.goto('/');
+  await openTitlePanel(page, 'settings');
   await page.locator('#title-cpu-speed').selectOption('4');
+  await openTitlePanel(page, 'home');
   await page.locator('.title-map-card[data-map-id="fallback-pause"]').click();
   await page.locator('input[name="match-mode"][value="spectate"]').check();
   await page.locator('#begin-operation').click();

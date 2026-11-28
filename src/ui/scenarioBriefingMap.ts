@@ -1,12 +1,13 @@
+import type { PlayerId } from '../game/types';
 import type { ScenarioDefinition } from '../game/maps';
 import { getLocale } from './locale';
 import { renderMapPreview } from './mapPreview';
 import { renderBriefingPreview } from './briefingShell';
 
-export function renderScenarioBriefingMap(map: ScenarioDefinition, showPlayerDeployment: boolean, zoomed: boolean): string {
+export function renderScenarioBriefingMap(map: ScenarioDefinition, showPlayerDeployment: boolean, zoomed: boolean, humanPlayer: PlayerId = 'red'): string {
   const { board } = map;
   // The shared device can be seen by both players. Show planned units only to a solo commander.
-  const units = showPlayerDeployment ? map.initialUnits.filter((unit) => unit.owner === 'red') : [];
+  const units = showPlayerDeployment ? map.initialUnits.filter((unit) => unit.owner === humanPlayer) : [];
   const english = getLocale() === 'en';
   const objectives = [...map.victoryConditions, ...map.defeatConditions].flatMap((condition) => ('positions' in condition ? condition.positions : []));
   const locations = new Map(objectives.map((position) => [`${position.x},${position.y}`, position]));

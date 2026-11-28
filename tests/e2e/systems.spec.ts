@@ -1,3 +1,4 @@
+import { openTitlePanel } from './helpers/titleNavigation';
 import { expect, test } from '@playwright/test';
 import { operationData } from '../../src/game/operations.fixture';
 
@@ -9,6 +10,7 @@ for (const viewport of [
     await page.setViewportSize(viewport);
     page.on('dialog', (dialog) => dialog.accept());
     await page.goto('/');
+    await openTitlePanel(page, 'records');
     await page.locator('#title-generator summary').click();
     await page.locator('#title-generator-size').selectOption('16');
     await page.locator('#title-generator-sea').selectOption('ocean');
@@ -55,7 +57,9 @@ for (const viewport of [
     await page.setViewportSize(viewport);
     page.on('dialog', (dialog) => dialog.accept());
     await page.goto('/');
+    await openTitlePanel(page, 'settings');
     await page.locator('#title-tactical-preset').uncheck(); // Keep this original-layout regression fixture.
+    await openTitlePanel(page, 'records');
     await page.locator('#title-editor').click();
     await page.locator('#editor-json').fill(
       JSON.stringify(
@@ -94,6 +98,7 @@ for (const viewport of [
     await moveObserver();
     await page.locator('#save').click();
     await page.locator('#open-title').click();
+    await openTitlePanel(page, 'records', true);
     await page.locator('.load-save-slot[data-save-slot="manual"]').click();
     await expect(marker).toBeVisible();
     await page.locator('#open-title').click();

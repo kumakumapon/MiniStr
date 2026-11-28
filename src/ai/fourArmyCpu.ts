@@ -91,13 +91,14 @@ export function chooseFourArmyCpuCommand(input: unknown, options: unknown, cpuVe
   };
   const actor = o.viewer,
     cautious = options.policy === 'defensive' ? 0.65 : options.policy === 'offensive' ? 0.2 : 0.4;
+  const shortMatch = improved && o.match?.version === 2 && o.match.ending === 'short' ? o.match : undefined;
+  const centralPower = shortMatch?.sourceMapId === 'crown' && shortMatch.layoutVersion === 6;
   const passMatch =
-    improved && o.match?.version === 2 && o.match.layoutVersion === 5 && o.match.ending === 'short' && (o.match.sourceMapId === 'canyon' || o.match.sourceMapId === 'marsh')
-      ? o.match
-      : undefined;
+    shortMatch && (centralPower || (shortMatch.layoutVersion === 5 && (shortMatch.sourceMapId === 'canyon' || shortMatch.sourceMapId === 'marsh'))) ? shortMatch : undefined;
   const threeWay = passMatch?.participants.length === 3;
-  // Following the initial order gives each living site one pursuer until the first elimination.
-  const assignedRival = threeWay && o.alive.length === 3 ? passMatch.initialOrder[(passMatch.initialOrder.indexOf(actor) + 1) % 3] : undefined;
+  // Each site has one pursuer while all participants are alive, including the exposed central site.
+  const openingOrder = passMatch && (threeWay || centralPower) && o.alive.length === passMatch.participants.length ? passMatch.initialOrder : undefined;
+  const assignedRival = openingOrder ? openingOrder[(openingOrder.indexOf(actor) + 1) % openingOrder.length] : undefined;
   const cyclic = cpuVersion === 'four-army-cpu-v5' || modernSix ? smallBattleFocus(o) : undefined;
   const ownership = (a: string) => o.board.terrain.flat().filter((t) => t.owner === a).length;
   const opponents = o.alive.filter((a) => !alliedArmies(o.match, a, actor));
@@ -121,7 +122,7 @@ export function chooseFourArmyCpuCommand(input: unknown, options: unknown, cpuVe
     .filter((a) => !alliedArmies(o.match, a, actor) && (!focus || a === focus) && o.board.terrain[o.capitals[a].y]![o.capitals[a].x]!.owner === a)
     .map((a) => o.capitals[a]);
   // The normal round-40 switch lies beyond these short matches' deadlines.
-  const passAssault = passMatch && o.round.round >= (threeWay ? 9 : 6);
+  const passAssault = passMatch && o.round.round >= (centralPower ? 2 : threeWay ? 9 : 6);
   const goals = [...hostileHomes, ...properties];
   const combatGoals = modernSix && (improved || o.alive.length <= 2) && (passAssault || o.round.round >= 40) && hostileHomes.length ? hostileHomes : goals;
   const danger = (u: Unit, p: Position): number => {
@@ -141,7 +142,7 @@ export function chooseFourArmyCpuCommand(input: unknown, options: unknown, cpuVe
       const shot = forecastCombat(view, u, target);
       if (!shot.ok || shot.value.damageToDefender <= 0) continue;
       const score =
-        300 +
+        (centralPower && target.position && manhattanDistance(target.position, o.capitals[actor]) === 0 ? 2500 : 300) +
         (shot.value.damageToDefender * unitStats[target.kind].cost) / 100 -
         ((shot.value.damageToAttacker * unitStats[u.kind].cost) / 100) * cautious +
         (shot.value.outgoing.min >= target.hp ? 500 : 0);
@@ -234,6 +235,8 @@ export function chooseFourArmyCpuCommand(input: unknown, options: unknown, cpuVe
         (!improved || ((threeWay || !passAssault) && o.round.round < 40) || !hostileHomes.length || d < currentDistance)
       )
         score += late ? 500 : 240;
+      if (centralPower && passAssault && unitStats[u.kind].capturePower > 0 && !returning && Number.isFinite(currentDistance) && d < currentDistance)
+        score += 220 * (currentDistance - d);
       if (passAssault && unitStats[u.kind].capturePower > 0 && hostileHomes.some((h) => h.x === p.x && h.y === p.y)) score += 1400;
       if (options.policy === 'defensive' && enemies.some((e) => e.position && manhattanDistance(e.position, o.capitals[actor]) <= 5))
         score += (manhattanDistance(u.position, o.capitals[actor]) - manhattanDistance(p, o.capitals[actor])) * 25;

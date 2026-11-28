@@ -7,6 +7,7 @@ export type MultiplayerMap = 'compact' | 'outpost' | 'strait' | 'frontier' | 'wi
 
 const names = localized(
   {
+    crown: '中央の大国',
     river: '渡河作戦',
     tundra: '凍土の防衛線',
     canyon: '峡谷の関門',
@@ -18,6 +19,7 @@ const names = localized(
     wide: '四方の前線',
   },
   {
+    crown: 'Central Power',
     river: 'River Crossing',
     tundra: 'Frozen Defense Line',
     canyon: 'Canyon Checkpoint',
@@ -32,6 +34,7 @@ const names = localized(
 
 const briefings = localized(
   {
+    crown: '中央は複数の都市と放射状の道路を持ち、三方が開けています。外縁の三国は森や山を背に、中央へ進路を取れます。',
     compact: '各軍の司令部の近くに工場と都市があります。近くの拠点から前線を広げます。',
     outpost: '森に囲まれた工場と、中央に集まる都市をめぐって争います。',
     canyon: '中央へ向かう街道と、山沿いの迂回路があります。峠を越える進路を出発地点から選びます。',
@@ -43,6 +46,7 @@ const briefings = localized(
     wide: '四隅の司令部を道路が結びます。各軍は工場と空港のある陣地から進みます。',
   },
   {
+    crown: 'The central power holds more cities and radial roads, with three exposed approaches. Three border powers can advance from the shelter of woods and mountains.',
     compact: 'Factories and cities stand near each headquarters. Expand the front from these nearby properties.',
     outpost: 'Fight for the factories near the woods and the cluster of cities at the center.',
     canyon: 'Choose a starting site along the central highway or a route around the mountain ridge.',
@@ -56,16 +60,18 @@ const briefings = localized(
 );
 export const multiplayerBriefing = (map: MultiplayerMap): string => briefings[map];
 
-export const multiplayerOnlyMaps = ['strait', 'frontier', 'wide'] as const;
+export const multiplayerOnlyMaps = ['strait', 'frontier', 'wide', 'crown'] as const;
 export const multiplayerName = (map: MultiplayerMap): string => names[map];
 export const multiplayerSize = (map: MultiplayerMap): { width: number; height: number } =>
   map === 'strait' ? { width: 17, height: 15 } : map === 'frontier' || map === 'wide' ? { width: 32, height: 32 } : { width: 18, height: 14 };
-export const classicVariant = (map: MultiplayerMap): string | undefined => (map === 'compact' ? 'skirmish' : map === 'outpost' || isAsymmetricSource(map) ? map : undefined);
-export const multiplayerVariant = (id: string): MultiplayerMap | undefined => (id === 'skirmish' ? 'compact' : id === 'outpost' || isAsymmetricSource(id) ? id : undefined);
+export const classicVariant = (map: MultiplayerMap): string | undefined =>
+  map === 'compact' ? 'skirmish' : map === 'outpost' || (map !== 'crown' && isAsymmetricSource(map)) ? map : undefined;
+export const multiplayerVariant = (id: string): MultiplayerMap | undefined =>
+  id === 'skirmish' ? 'compact' : id === 'outpost' || (id !== 'crown' && isAsymmetricSource(id)) ? id : undefined;
 export const multiplayerCardId = (map: MultiplayerMap): string => `multiplayer:${map}`;
 
 export function armyCountOptions(map: MultiplayerMap): readonly ArmyCount[] {
-  return map === 'wide' ? [4] : map === 'tundra' ? [3] : isAsymmetricSource(map) ? [3, 4] : [2, 3, 4];
+  return map === 'wide' || map === 'crown' ? [4] : map === 'tundra' ? [3] : isAsymmetricSource(map) ? [3, 4] : [2, 3, 4];
 }
 
 const labels = localized(
@@ -82,7 +88,7 @@ const labels = localized(
   },
 );
 
-export const armyCountLabel = (map: MultiplayerMap): string => (map === 'wide' ? labels.fixed : map === 'tundra' ? labels.defense : labels.range);
+export const armyCountLabel = (map: MultiplayerMap): string => (map === 'wide' || map === 'crown' ? labels.fixed : map === 'tundra' ? labels.defense : labels.range);
 
 export function renderMatchVariants(map: MultiplayerMap, current: 'standard' | ArmyCount, id: string): string {
   const variants: { value: string; label: string }[] = armyCountOptions(map).map((count) => ({

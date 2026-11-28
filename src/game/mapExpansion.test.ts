@@ -28,8 +28,8 @@ import {
 
 describe('expanded battlefields', () => {
   it('expands every existing battlefield and keeps initial units on legal terrain', () => {
-    for (const scenario of maps) {
-      const legacy = legacyBuiltInScenarioData.find((map) => map.id === scenario.id)!;
+    for (const legacy of legacyBuiltInScenarioData) {
+      const scenario = maps.find((map) => map.id === legacy.id)!;
       expect(scenario.board.width).toBeGreaterThan(legacy.board.width);
       expect(scenario.board.height).toBeGreaterThan(legacy.board.height);
       expect(scenario.board.width * scenario.board.height).toBeGreaterThanOrEqual(2 * legacy.board.width * legacy.board.height);
@@ -121,7 +121,7 @@ describe('old small-map persistence', () => {
   const commands: GameCommand[] = [{ type: 'endTurn' }, { type: 'endTurn' }];
   const withoutSnapshot = (state: GameState) => ({ ...state, scenarioSnapshot: undefined });
 
-  it.each(maps.map((map) => map.id))('restores a pre-snapshot save and replay of %s', (id) => {
+  it.each(legacyBuiltInScenarioData.map((map) => map.id))('restores a pre-snapshot save and replay of %s', (id) => {
     const old = scenarioHistory(id)[0]!;
     const initial = { ...createScenarioInitialState(old), ruleVersion: DECISION_RULE_VERSION };
     const replayed = replayCommands(initial, commands);

@@ -74,9 +74,10 @@ export interface PreviewUnit {
  */
 let previewSerial = 0;
 
-export function renderMapPreview(board: PreviewBoard, units: readonly PreviewUnit[], theme: ScenarioTheme): string {
+export function renderMapPreview(board: PreviewBoard, units: readonly PreviewUnit[], theme: ScenarioTheme, catalog = false): string {
   const { width, height } = board;
   if (!Number.isSafeInteger(width) || !Number.isSafeInteger(height) || width <= 0 || height <= 0 || width > 256 || height > 256) return '';
+  const simple = catalog && Math.max(width, height) >= 32;
   const colors = { ...terrainColors, ...themeColors[theme] };
   const tiles: string[] = [];
   const properties: string[] = [];
@@ -99,8 +100,8 @@ export function renderMapPreview(board: PreviewBoard, units: readonly PreviewUni
         runStart = x;
         runColor = color;
       }
-      if (x < width) patternKinds.add(kind);
-      if (x === width || kind !== textureKind) {
+      if (!simple && x < width) patternKinds.add(kind);
+      if (!simple && (x === width || kind !== textureKind)) {
         if (textureKind && x > textureStart)
           artwork.push(
             `<rect class="map-preview-terrain" data-terrain-art="${textureKind}" x="${textureStart}" y="${y}" width="${x - textureStart}" height="1" fill="url(#${patternId(textureKind)})" filter="${terrainFilter(textureKind, theme) === 'none' ? 'none' : `url(#${patternId(textureKind)}-color)`}"/>`,
@@ -114,7 +115,7 @@ export function renderMapPreview(board: PreviewBoard, units: readonly PreviewUni
       properties.push(`<rect class="map-preview-property" x="${x + inset}" y="${y + inset}" width="${1 - inset * 2}" height="${1 - inset * 2}" fill="${fill}"/>`);
     }
   }
-  const dots = units
+  const dots = (simple ? [] : units)
     .filter((unit) => Number.isInteger(unit.x) && Number.isInteger(unit.y) && unit.x >= 0 && unit.y >= 0 && unit.x < width && unit.y < height)
     .map(
       (unit) =>

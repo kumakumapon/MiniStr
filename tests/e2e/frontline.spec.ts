@@ -1,3 +1,4 @@
+import { openTitlePanel } from './helpers/titleNavigation';
 import { expect, test } from '@playwright/test';
 import { frontlineScenarioData } from '../frontline.fixture';
 import { MANUAL_SAVE_KEY } from '../../src/game/session';
@@ -12,6 +13,7 @@ for (const viewport of [
     await page.goto('/');
     await expect(page.locator('.title-map-card[data-map-id="supply-contest"]')).toBeVisible();
     await expect(page.locator('.title-map-card[data-map-id="supply-ridge"]')).toBeVisible();
+    await openTitlePanel(page, 'records');
     await page.locator('#title-editor').click();
     await page.locator('#editor-json').fill(JSON.stringify(frontlineScenarioData()));
     await page.locator('#editor-import').click();
@@ -21,7 +23,8 @@ for (const viewport of [
     await page.locator('.tile[data-x="2"][data-y="1"]').click();
     await expect(page.locator('#unit-brief')).toContainText('補給予定');
     await expect(page.locator('#unit-brief')).toContainText('HP修理なし');
-    await expect(page.locator('#unit-brief + #board-viewport')).toHaveCount(1);
+    await expect(page.locator('#command-panel .hud-selection #unit-brief')).toHaveCount(1);
+    await expect(page.locator('.battlefield-wrap #board-viewport')).toBeVisible();
     await page.locator('#supply-range').click();
     await expect(page.locator('.tile.supply-coverage')).toHaveCount(6);
     await expect(page.locator('.tile[data-x="8"][data-y="4"] .unit')).toHaveCount(0);
@@ -44,12 +47,14 @@ for (const viewport of [
     await page.locator('#undo').click();
     await expect(page.locator('.fortification-marker')).toHaveCount(0);
     await page.reload();
+    await openTitlePanel(page, 'records', true);
     await page.locator('.load-save-slot[data-save-slot="manual"]').click();
     await expect(page.locator('.fortification-marker')).toHaveCount(1);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true);
-    const gap = await page.evaluate(
-      () => document.querySelector('#board-viewport')!.getBoundingClientRect().top - document.querySelector('#unit-brief')!.getBoundingClientRect().bottom,
-    );
-    expect(gap).toBeLessThanOrEqual(12);
+    if (viewport.width === 390) {
+      await page.locator('#mobile-panel').click();
+      await expect(page.locator('#command-panel')).toHaveAttribute('data-sheet', 'open');
+    }
+    await expect(page.locator('#command-panel .hud-selection #unit-brief')).toBeVisible();
   });
 }

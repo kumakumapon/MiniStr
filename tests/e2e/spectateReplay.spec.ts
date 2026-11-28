@@ -1,3 +1,4 @@
+import { openTitlePanel } from './helpers/titleNavigation';
 // Imports the game and CPU modules on the Node side to build a real finished
 // replay. They must stay free of Vite-only features (import.meta.env, asset imports).
 import { expect, test, type Page } from '@playwright/test';
@@ -34,6 +35,7 @@ function spectatedReplayJson(red: CpuDifficulty | undefined, blue: CpuDifficulty
 async function importReplay(page: Page, json: string): Promise<void> {
   await page.goto('/');
   // Imported from the title screen (#143).
+  await openTitlePanel(page, 'records');
   await page.locator('#title-replay-file').setInputFiles({
     name: 'replay.json',
     mimeType: 'application/json',
@@ -48,15 +50,15 @@ test('shows both recorded CPU difficulties when replaying a spectated match (#13
   await expect(page.locator('#red-difficulty')).toBeDisabled();
   await expect(page.locator('#difficulty')).toHaveValue('hard');
   await expect(page.locator('#difficulty')).toBeDisabled();
-  await expect(page.locator('.command-bar')).toContainText('赤軍CPU');
-  await expect(page.locator('.command-bar')).toContainText('青軍CPU');
+  await expect(page.locator('#match-options')).toContainText('赤軍CPU');
+  await expect(page.locator('#match-options')).toContainText('青軍CPU');
 });
 
 test('keeps the single difficulty for replays without a red difficulty (#137)', async ({ page }) => {
   await importReplay(page, spectatedReplayJson(undefined, 'normal'));
   await expect(page.locator('#red-difficulty')).toHaveCount(0);
   await expect(page.locator('#difficulty')).toHaveValue('normal');
-  await expect(page.locator('.command-bar')).not.toContainText('赤軍CPU');
+  await expect(page.locator('#match-options')).not.toContainText('赤軍CPU');
 });
 
 test('returns to the title after a replay imported there ends (#143)', async ({ page }) => {
