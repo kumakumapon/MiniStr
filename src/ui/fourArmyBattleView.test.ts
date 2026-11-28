@@ -29,9 +29,9 @@ describe('shared four-army board rendering', () => {
     root.innerHTML = fourArmyBoardCells(fourArmyDisplay(state, 'all'), { x: 3, y: 3 }, undefined, []).join('');
     expect(root.querySelectorAll('.unit')).toHaveLength(32);
     expect(root.querySelectorAll('.fog')).toHaveLength(0);
-    for (const army of ['army1', 'army2', 'army3', 'army4']) {
-      expect(root.querySelector(`.unit.${army} .unit-owner-marker`)?.textContent).toBe(army.slice(-1));
-      expect(root.querySelector(`.facility.${army}`)).not.toBeNull();
+    for (const [army, shape] of Object.entries({ army1: '■', army2: '●', army3: '◆', army4: '▲' })) {
+      expect(root.querySelector(`.unit.${army} .unit-owner-marker`)?.textContent).toBe(shape);
+      expect(root.querySelector(`.facility.${army} .army-emblem`)?.textContent).toBe(shape);
     }
   });
 });

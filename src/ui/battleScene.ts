@@ -1,3 +1,4 @@
+import { armyEmblem } from './fourArmyEmblems';
 import type { PlayerId } from '../game';
 import type { FourArmyId } from '../game/fourArmyFoundation';
 import type { CombatParticipant, CombatSummary } from '../game/combatSummary';
@@ -66,7 +67,7 @@ export function renderBattleScene(scene: BattleScene, spectating = false): strin
   const combatant = (unit: BattleParticipant, role: 'attacker' | 'defender', incomingDamage: number): string => {
     const sideLabel = role === 'attacker' ? labels.attacker : labels.defender;
     const armyLabel = unit.owner === 'red' ? labels.red : unit.owner === 'blue' ? labels.blue : english ? `Army ${unit.owner.slice(-1)}` : `第${unit.owner.slice(-1)}軍`;
-    const marker = unit.owner === 'red' || unit.owner === 'army1' ? '■' : unit.owner === 'blue' || unit.owner === 'army2' ? '●' : unit.owner === 'army3' ? '◆' : '▲';
+    const marker = unit.owner === 'red' ? '■' : unit.owner === 'blue' ? '●' : armyEmblem(unit.owner);
     const before = clampedHp(unit.hpBefore);
     const after = clampedHp(unit.hpAfter);
     const name = unitNames[unit.kind];
