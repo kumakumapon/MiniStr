@@ -233,18 +233,22 @@ test('only one real tab can write, stale snapshots stay protected after taking o
   await second.goto('/');
   await expect(second.locator('.storage-write-notice')).toContainText('別のMiniStr');
   await expect(second.locator('.storage-write-notice')).toBeInViewport({ ratio: 1 });
+  await Promise.all([openTitlePanel(page, 'settings'), openTitlePanel(second, 'settings')]);
   await Promise.all([page.locator('.title-overlay [data-locale]').selectOption('en'), second.locator('.title-overlay [data-locale]').selectOption('en')]);
   expect(await page.evaluate(() => localStorage.getItem('ministr.locale'))).toBe('en');
   await second.locator('.title-overlay [data-locale]').selectOption('ja');
   expect(await page.evaluate(() => localStorage.getItem('ministr.locale'))).toBe('en');
   await page.close();
   await second.locator('[data-storage-write-retry]').click();
+  await openTitlePanel(second, 'records');
   await expect(second.locator('#storage-session-export')).toBeVisible();
   // A newly acquired lock does not make an old snapshot safe to overwrite with.
+  await openTitlePanel(second, 'settings');
   await second.locator('.title-overlay [data-locale]').selectOption('ja');
   expect(await second.evaluate(() => localStorage.getItem('ministr.locale'))).toBe('en');
   await second.reload();
   await expect(second.locator('.storage-write-notice')).toHaveCount(0);
+  await openTitlePanel(second, 'settings');
   await second.locator('.title-overlay [data-locale]').selectOption('ja');
   expect(await second.evaluate(() => localStorage.getItem('ministr.locale'))).toBe('ja');
 });
@@ -258,10 +262,12 @@ test('releases ownership on pagehide and permits an unchanged second tab to retr
   await page.evaluate(() => window.dispatchEvent(new PageTransitionEvent('pagehide', { persisted: true })));
   await second.locator('[data-storage-write-retry]').click();
   await expect(second.locator('.storage-write-notice')).toHaveCount(0);
+  await openTitlePanel(second, 'settings');
   await second.locator('.title-overlay [data-locale]').selectOption('en');
   expect(await second.evaluate(() => localStorage.getItem('ministr.locale'))).toBe('en');
   await page.evaluate(() => window.dispatchEvent(new PageTransitionEvent('pageshow', { persisted: true })));
   await expect(page.locator('.storage-write-notice')).toBeVisible();
+  await openTitlePanel(page, 'settings');
   await page.locator('.title-overlay [data-locale]').selectOption('ja');
   expect(await page.evaluate(() => localStorage.getItem('ministr.locale'))).toBe('en');
 });

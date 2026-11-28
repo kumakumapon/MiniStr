@@ -215,8 +215,9 @@ describe('daily challenge in the distributed app', () => {
       ],
     });
     const document = launch({ locale: 'en', storage: { [DAILY_RECORDS_KEY]: records, 'ministr.operations.records': JSON.stringify({ schemaVersion: 1, records: [] }) } });
-    expect(document.querySelector('#daily-start')?.textContent).toContain("Start today's battlefield");
+    expect(document.querySelector('#daily-start')?.textContent).toBe("Today's battlefield");
     openTitlePanel(document, 'records');
+    expect(document.querySelector('#daily-start')?.textContent).toContain("Start today's battlefield");
     expect(document.querySelector('.daily-best')?.textContent).toBe('Fastest 9 rounds, 1 losses');
     expect(document.querySelectorAll('[data-daily-delete]')).toHaveLength(2);
     click(`[data-daily-delete="${DATE}"]`);
