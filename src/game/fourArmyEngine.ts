@@ -1,4 +1,4 @@
-import { fourArmyObjective, heldObjectiveOutcome, isFourArmyHoldProgress, updateFourArmyHold, type FourArmyHoldProgress } from './fourArmyObjective';
+import { heldObjectiveOutcome, isFourArmyHoldProgress, updateFourArmyHold, type FourArmyHoldProgress } from './fourArmyObjective';
 import { combatSummaryForCommand, type CombatSummary } from './combatSummary';
 import {
   alliedArmies,
