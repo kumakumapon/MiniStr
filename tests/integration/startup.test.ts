@@ -88,7 +88,7 @@ describe('distributed application boundaries', () => {
     expect(document.querySelector('[data-injected]')).toBeNull();
   });
 
-  it('shares title zoom with operations, resume and board buttons, rejecting invalid values', () => {
+  it('shares title zoom with resume and board buttons, rejecting invalid values', () => {
     const document = launch();
     openTitlePanel(dom.window.document, 'settings');
     const titleZoom = () => (document.querySelector('#title-board-zoom') as HTMLSelectElement).value;
@@ -122,14 +122,21 @@ describe('distributed application boundaries', () => {
     click('#open-title');
     click('#title-continue');
     expect(boardZoom()).toBe('200');
-    click('#open-title');
+  });
+
+  it('applies the title zoom to a new operation and restores automatic fit on resume', () => {
+    const document = launch();
+    const boardZoom = () => document.querySelector('.board')!.getAttribute('data-zoom');
+    openTitlePanel(dom.window.document, 'settings');
+    change('#title-board-zoom', '200');
+    openTitlePanel(dom.window.document, 'home');
     click('.title-map-card[data-map-id="skirmish"]');
     click('#begin-operation');
     expect(boardZoom()).toBe('200');
     click('#open-title');
     openTitlePanel(dom.window.document, 'settings');
     change('#title-board-zoom', 'auto');
-    expect(titleZoom()).toBe('auto');
+    expect(document.querySelector<HTMLSelectElement>('#title-board-zoom')?.value).toBe('auto');
     openTitlePanel(dom.window.document, 'home');
     click('#title-resume');
     expect(Number(boardZoom())).toBeGreaterThanOrEqual(100);
