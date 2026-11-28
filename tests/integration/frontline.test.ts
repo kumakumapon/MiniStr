@@ -47,5 +47,6 @@ it('runs engineering through the shipped bundle and preserves costs, history and
   expect(saved.gameState.players.red.gold).toBe(saved.initialState.players.red.gold - 500);
   click('#undo');
   expect(document.querySelector('.fortification-marker')).toBeNull();
-  expect(document.querySelector('#unit-brief')?.nextElementSibling?.id).toBe('board-viewport');
+  expect(document.querySelector('#command-panel .hud-selection #unit-brief')).not.toBeNull();
+  expect(document.querySelector('.battlefield-wrap #board-viewport')).not.toBeNull();
 });

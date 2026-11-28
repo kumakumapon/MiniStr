@@ -33,9 +33,9 @@ it.each(['ja', 'en'])('confirms deletion in %s and keeps the running match and s
   const document = launch(locale);
   openTitlePanel(dom.window.document, 'settings');
   click('#title-tactical-preset'); // This regression exercises the original custom snapshot.
+  openTitlePanel(document, 'home');
   expect(document.querySelectorAll('[data-delete-custom-map]')).toHaveLength(2);
   expect(document.querySelector('#title-delete-skirmish')).toBeNull();
-  openTitlePanel(dom.window.document, 'home');
   click('.title-map-card[data-map-id="custom-delete"]');
   click('#begin-operation');
   click('#save');

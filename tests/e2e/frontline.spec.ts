@@ -50,9 +50,10 @@ for (const viewport of [
     await page.locator('.load-save-slot[data-save-slot="manual"]').click();
     await expect(page.locator('.fortification-marker')).toHaveCount(1);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true);
-    const gap = await page.evaluate(
-      () => document.querySelector('#board-viewport')!.getBoundingClientRect().top - document.querySelector('#unit-brief')!.getBoundingClientRect().bottom,
-    );
-    expect(gap).toBeLessThanOrEqual(12);
+    if (viewport.width === 390) {
+      await page.locator('#mobile-panel').click();
+      await expect(page.locator('#command-panel')).toHaveAttribute('data-sheet', 'open');
+    }
+    await expect(page.locator('#command-panel .hud-selection #unit-brief')).toBeVisible();
   });
 }

@@ -47,5 +47,6 @@ it('runs bridge construction through the shipped bundle and preserves costs, his
   expect(saved.gameState.players.red.gold).toBe(saved.initialState.players.red.gold - 1000);
   click('#undo');
   expect(document.querySelector('.bridge-marker')).toBeNull();
-  expect(document.querySelector('#unit-brief')?.nextElementSibling?.id).toBe('board-viewport');
+  expect(document.querySelector('#command-panel .hud-selection #unit-brief')).not.toBeNull();
+  expect(document.querySelector('.battlefield-wrap #board-viewport')).not.toBeNull();
 });

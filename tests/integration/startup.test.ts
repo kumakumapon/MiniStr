@@ -113,8 +113,8 @@ describe('distributed application boundaries', () => {
     click('#save');
     click('#board-zoom-in');
     click('#open-title');
-    expect(titleZoom()).toBe('75');
     openTitlePanel(dom.window.document, 'settings');
+    expect(titleZoom()).toBe('75');
     change('#title-board-zoom', '200');
     openTitlePanel(dom.window.document, 'home');
     click('#title-resume');
@@ -494,10 +494,12 @@ describe('distributed application boundaries', () => {
 
   it('switches primary screens and persists English without changing scenario identifiers', () => {
     const document = launch();
+    openTitlePanel(document, 'settings');
     const locale = document.querySelector('.title-overlay [data-locale]') as HTMLSelectElement;
     locale.value = 'en';
     locale.dispatchEvent(new dom.window.Event('change'));
     expect(document.documentElement.lang).toBe('en');
+    openTitlePanel(document, 'home');
     expect(document.querySelector('#title-training')?.textContent).toBe('Practice the basics');
     expect(dom.window.localStorage.getItem('ministr.locale')).toBe('en');
     click('.title-map-card[data-map-id="skirmish"]');

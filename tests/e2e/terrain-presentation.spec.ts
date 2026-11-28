@@ -46,6 +46,7 @@ for (const width of [1280, 390])
       await expect(page.locator('#terrain-legend')).toContainText(/Supply depot[\s\S]*Temporary bridge/);
       await page.locator('#end').focus();
       await page.mouse.move(0, 0);
+      await page.evaluate(() => window.scrollTo(0, 0));
       // Capture each live surface once. Repeated element screenshots exhausted
       // the shared 30s WebKit budget before the last terrain comparisons.
       const board = page.locator('.board');
