@@ -23,6 +23,6 @@ export function createReplayRuntime(file: ReplayFile): ReplayRuntime {
     playing: false,
     speed: 1,
     timeline: new ReplayTimeline(snapshot),
-    viewpoint: 'red',
+    viewpoint: snapshot.humanPlayer ?? 'red',
   };
 }

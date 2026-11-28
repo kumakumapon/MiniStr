@@ -1,0 +1,406 @@
+{
+  "mapId": "highland-crossing",
+  "ruleVersion": 14,
+  "games": [
+    {
+      "seed": 33911,
+      "redDifficulty": "normal",
+      "blueDifficulty": "normal",
+      "tactics": false,
+      "winner": "blue",
+      "reason": "decision",
+      "round": 41,
+      "commands": 1498
+    },
+    {
+      "seed": 33911,
+      "redDifficulty": "normal",
+      "blueDifficulty": "normal",
+      "tactics": true,
+      "winner": "red",
+      "reason": "eliminate",
+      "round": 35,
+      "commands": 1176
+    },
+    {
+      "seed": 33931,
+      "redDifficulty": "normal",
+      "blueDifficulty": "normal",
+      "tactics": false,
+      "winner": "blue",
+      "reason": "decision",
+      "round": 41,
+      "commands": 1572
+    },
+    {
+      "seed": 33931,
+      "redDifficulty": "normal",
+      "blueDifficulty": "normal",
+      "tactics": true,
+      "winner": "red",
+      "reason": "captureCapital",
+      "round": 39,
+      "commands": 1579
+    },
+    {
+      "seed": 33961,
+      "redDifficulty": "normal",
+      "blueDifficulty": "normal",
+      "tactics": false,
+      "winner": "red",
+      "reason": "decision",
+      "round": 41,
+      "commands": 1493
+    },
+    {
+      "seed": 33961,
+      "redDifficulty": "normal",
+      "blueDifficulty": "normal",
+      "tactics": true,
+      "winner": "blue",
+      "reason": "decision",
+      "round": 41,
+      "commands": 1628
+    },
+    {
+      "seed": 33997,
+      "redDifficulty": "normal",
+      "blueDifficulty": "normal",
+      "tactics": false,
+      "winner": "red",
+      "reason": "eliminate",
+      "round": 33,
+      "commands": 1174
+    },
+    {
+      "seed": 33997,
+      "redDifficulty": "normal",
+      "blueDifficulty": "normal",
+      "tactics": true,
+      "winner": "red",
+      "reason": "decision",
+      "round": 41,
+      "commands": 1540
+    },
+    {
+      "seed": 34019,
+      "redDifficulty": "normal",
+      "blueDifficulty": "normal",
+      "tactics": false,
+      "winner": "blue",
+      "reason": "captureCapital",
+      "round": 36,
+      "commands": 1300
+    },
+    {
+      "seed": 34019,
+      "redDifficulty": "normal",
+      "blueDifficulty": "normal",
+      "tactics": true,
+      "winner": "blue",
+      "reason": "decision",
+      "round": 41,
+      "commands": 1673
+    },
+    {
+      "seed": 34033,
+      "redDifficulty": "normal",
+      "blueDifficulty": "normal",
+      "tactics": false,
+      "winner": "blue",
+      "reason": "decision",
+      "round": 41,
+      "commands": 1441
+    },
+    {
+      "seed": 34033,
+      "redDifficulty": "normal",
+      "blueDifficulty": "normal",
+      "tactics": true,
+      "winner": "blue",
+      "reason": "decision",
+      "round": 41,
+      "commands": 1689
+    },
+    {
+      "seed": 34039,
+      "redDifficulty": "normal",
+      "blueDifficulty": "normal",
+      "tactics": false,
+      "winner": "blue",
+      "reason": "decision",
+      "round": 41,
+      "commands": 1608
+    },
+    {
+      "seed": 34039,
+      "redDifficulty": "normal",
+      "blueDifficulty": "normal",
+      "tactics": true,
+      "winner": "red",
+      "reason": "captureCapital",
+      "round": 32,
+      "commands": 1230
+    },
+    {
+      "seed": 34057,
+      "redDifficulty": "normal",
+      "blueDifficulty": "normal",
+      "tactics": false,
+      "winner": "red",
+      "reason": "captureCapital",
+      "round": 30,
+      "commands": 995
+    },
+    {
+      "seed": 34057,
+      "redDifficulty": "normal",
+      "blueDifficulty": "normal",
+      "tactics": true,
+      "winner": "red",
+      "reason": "captureCapital",
+      "round": 30,
+      "commands": 1086
+    },
+    {
+      "seed": 34061,
+      "redDifficulty": "normal",
+      "blueDifficulty": "normal",
+      "tactics": false,
+      "winner": "red",
+      "reason": "captureCapital",
+      "round": 34,
+      "commands": 1206
+    },
+    {
+      "seed": 34061,
+      "redDifficulty": "normal",
+      "blueDifficulty": "normal",
+      "tactics": true,
+      "winner": "blue",
+      "reason": "captureCapital",
+      "round": 32,
+      "commands": 1094
+    },
+    {
+      "seed": 34091,
+      "redDifficulty": "normal",
+      "blueDifficulty": "normal",
+      "tactics": false,
+      "winner": "red",
+      "reason": "captureCapital",
+      "round": 25,
+      "commands": 889
+    },
+    {
+      "seed": 34091,
+      "redDifficulty": "normal",
+      "blueDifficulty": "normal",
+      "tactics": true,
+      "winner": "red",
+      "reason": "captureCapital",
+      "round": 32,
+      "commands": 1085
+    },
+    {
+      "seed": 34123,
+      "redDifficulty": "normal",
+      "blueDifficulty": "normal",
+      "tactics": false,
+      "winner": "red",
+      "reason": "decision",
+      "round": 41,
+      "commands": 1507
+    },
+    {
+      "seed": 34123,
+      "redDifficulty": "normal",
+      "blueDifficulty": "normal",
+      "tactics": true,
+      "winner": "red",
+      "reason": "captureCapital",
+      "round": 37,
+      "commands": 1302
+    },
+    {
+      "seed": 34159,
+      "redDifficulty": "normal",
+      "blueDifficulty": "normal",
+      "tactics": false,
+      "winner": "red",
+      "reason": "eliminate",
+      "round": 40,
+      "commands": 1425
+    },
+    {
+      "seed": 34159,
+      "redDifficulty": "normal",
+      "blueDifficulty": "normal",
+      "tactics": true,
+      "winner": "red",
+      "reason": "decision",
+      "round": 41,
+      "commands": 1654
+    },
+    {
+      "seed": 33911,
+      "redDifficulty": "hard",
+      "blueDifficulty": "normal",
+      "tactics": false,
+      "winner": "red",
+      "reason": "captureCapital",
+      "round": 31,
+      "commands": 1094
+    },
+    {
+      "seed": 33911,
+      "redDifficulty": "hard",
+      "blueDifficulty": "normal",
+      "tactics": true,
+      "winner": "red",
+      "reason": "captureCapital",
+      "round": 30,
+      "commands": 1037
+    },
+    {
+      "seed": 33931,
+      "redDifficulty": "hard",
+      "blueDifficulty": "normal",
+      "tactics": false,
+      "winner": "red",
+      "reason": "captureCapital",
+      "round": 26,
+      "commands": 837
+    },
+    {
+      "seed": 33931,
+      "redDifficulty": "hard",
+      "blueDifficulty": "normal",
+      "tactics": true,
+      "winner": "blue",
+      "reason": "decision",
+      "round": 41,
+      "commands": 1360
+    },
+    {
+      "seed": 33961,
+      "redDifficulty": "hard",
+      "blueDifficulty": "normal",
+      "tactics": false,
+      "winner": "red",
+      "reason": "captureCapital",
+      "round": 21,
+      "commands": 671
+    },
+    {
+      "seed": 33961,
+      "redDifficulty": "hard",
+      "blueDifficulty": "normal",
+      "tactics": true,
+      "winner": "red",
+      "reason": "captureCapital",
+      "round": 32,
+      "commands": 1110
+    },
+    {
+      "seed": 33997,
+      "redDifficulty": "hard",
+      "blueDifficulty": "normal",
+      "tactics": false,
+      "winner": "red",
+      "reason": "eliminate",
+      "round": 24,
+      "commands": 808
+    },
+    {
+      "seed": 33997,
+      "redDifficulty": "hard",
+      "blueDifficulty": "normal",
+      "tactics": true,
+      "winner": "blue",
+      "reason": "decision",
+      "round": 41,
+      "commands": 1575
+    },
+    {
+      "seed": 33911,
+      "redDifficulty": "normal",
+      "blueDifficulty": "hard",
+      "tactics": false,
+      "winner": "blue",
+      "reason": "captureCapital",
+      "round": 24,
+      "commands": 837
+    },
+    {
+      "seed": 33911,
+      "redDifficulty": "normal",
+      "blueDifficulty": "hard",
+      "tactics": true,
+      "winner": "blue",
+      "reason": "decision",
+      "round": 41,
+      "commands": 1560
+    },
+    {
+      "seed": 33931,
+      "redDifficulty": "normal",
+      "blueDifficulty": "hard",
+      "tactics": false,
+      "winner": "blue",
+      "reason": "captureCapital",
+      "round": 21,
+      "commands": 679
+    },
+    {
+      "seed": 33931,
+      "redDifficulty": "normal",
+      "blueDifficulty": "hard",
+      "tactics": true,
+      "winner": "blue",
+      "reason": "decision",
+      "round": 41,
+      "commands": 1562
+    },
+    {
+      "seed": 33961,
+      "redDifficulty": "normal",
+      "blueDifficulty": "hard",
+      "tactics": false,
+      "winner": "blue",
+      "reason": "captureCapital",
+      "round": 26,
+      "commands": 916
+    },
+    {
+      "seed": 33961,
+      "redDifficulty": "normal",
+      "blueDifficulty": "hard",
+      "tactics": true,
+      "winner": "blue",
+      "reason": "eliminate",
+      "round": 37,
+      "commands": 1424
+    },
+    {
+      "seed": 33997,
+      "redDifficulty": "normal",
+      "blueDifficulty": "hard",
+      "tactics": false,
+      "winner": "blue",
+      "reason": "eliminate",
+      "round": 35,
+      "commands": 1239
+    },
+    {
+      "seed": 33997,
+      "redDifficulty": "normal",
+      "blueDifficulty": "hard",
+      "tactics": true,
+      "winner": "blue",
+      "reason": "decision",
+      "round": 41,
+      "commands": 1788
+    }
+  ]
+}

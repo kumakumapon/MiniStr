@@ -11,7 +11,7 @@ import { type GameResult, type GameState, type PlayerId } from './types';
  * replays remain valid.  Invalid cargo links are rejected by `isGameState` and
  * are never inferred or repaired while importing a replay.
  */
-export const REPLAY_SCHEMA_VERSION = 4 as const;
+export const REPLAY_SCHEMA_VERSION = 5 as const;
 export const MAX_REPLAY_BYTES = 1_000_000;
 const MAX_REPLAY_COMMANDS = 100_000;
 
@@ -36,6 +36,7 @@ export interface ReplayFile {
    * a replay carrying the key as an unknown field.
    */
   redDifficulty?: ReplayDifficulty;
+  humanPlayer?: PlayerId;
   initialState: GameState;
   commands: GameCommand[];
   finalState: GameState;
@@ -43,21 +44,11 @@ export interface ReplayFile {
   createdAt: string;
 }
 
-function migrateReplayV1ToV2(value: Record<string, unknown>): Record<string, unknown> {
-  return { ...value, schemaVersion: 2 };
-}
-function migrateReplayV2ToV3(value: Record<string, unknown>): Record<string, unknown> {
-  return { ...value, schemaVersion: 3 };
-}
-function migrateReplayV3ToV4(value: Record<string, unknown>): Record<string, unknown> {
-  return { ...value, schemaVersion: REPLAY_SCHEMA_VERSION };
-}
-
 function migrateReplay(value: Record<string, unknown>): Record<string, unknown> | undefined {
   if (value.schemaVersion === REPLAY_SCHEMA_VERSION) return value;
-  if (value.schemaVersion === 3) return migrateReplayV3ToV4(value);
-  if (value.schemaVersion === 2) return migrateReplayV3ToV4(migrateReplayV2ToV3(value));
-  if (value.schemaVersion === 1) return migrateReplayV3ToV4(migrateReplayV2ToV3(migrateReplayV1ToV2(value)));
+  // Older formats always assigned the human to red. Their optional fields remain intact.
+  if ([1, 2, 3, 4].some(version => value.schemaVersion === version) && !Object.hasOwn(value, 'humanPlayer'))
+    return { ...value, schemaVersion: REPLAY_SCHEMA_VERSION };
   return undefined;
 }
 
@@ -65,6 +56,7 @@ export interface ReplayInput {
   mapId: string;
   difficulty: ReplayDifficulty;
   redDifficulty?: ReplayDifficulty;
+  humanPlayer?: PlayerId;
   initialState: GameState;
   commands: readonly GameCommand[];
 }
@@ -82,6 +74,10 @@ function hasOnlyKeys(value: Record<string, unknown>, keys: readonly string[], op
 
 const isOptionalDifficulty = (value: unknown): boolean =>
   value === undefined || (typeof value === 'string' && difficulties.has(value as ReplayDifficulty));
+
+function validHumanPlayer(value: { humanPlayer?: unknown; redDifficulty?: unknown }): boolean {
+  return value.humanPlayer === undefined || (value.redDifficulty === undefined && (value.humanPlayer === 'red' || value.humanPlayer === 'blue'));
+}
 
 function isCountPair(value: unknown): value is Record<PlayerId, number> {
   return isRecord(value) && hasOnlyKeys(value, ['red', 'blue'])
@@ -147,11 +143,11 @@ function sameValue(left: unknown, right: unknown): boolean {
 function validateReplayShape(value: unknown): value is ReplayFile {
   const scenario = isRecord(value) && isRecord(value.initialState) ? scenarioForState(value.initialState as unknown as GameState) : undefined;
   if (!hasSafeJsonDepth(value) || !isRecord(value)
-    || !hasOnlyKeys(value, ['schemaVersion', 'mapId', 'difficulty', 'initialState', 'commands', 'finalState', 'summary', 'createdAt'], ['redDifficulty'])
+    || !hasOnlyKeys(value, ['schemaVersion', 'mapId', 'difficulty', 'initialState', 'commands', 'finalState', 'summary', 'createdAt'], ['redDifficulty', 'humanPlayer'])
     || value.schemaVersion !== REPLAY_SCHEMA_VERSION
     || typeof value.mapId !== 'string' || scenario === undefined || scenario.id !== value.mapId
     || typeof value.difficulty !== 'string' || !difficulties.has(value.difficulty as ReplayDifficulty)
-    || !isOptionalDifficulty(value.redDifficulty)
+    || !validHumanPlayer(value) || !isOptionalDifficulty(value.redDifficulty)
     || !isGameState(value.initialState) || !matchesScenarioInitialState(value.initialState, scenario) || !isGameState(value.finalState)
     || !Array.isArray(value.commands) || value.commands.length > MAX_REPLAY_COMMANDS
     || !value.commands.every(isGameCommand)
@@ -211,10 +207,10 @@ export function summarizeReplay(
 
 export function createReplay(input: ReplayInput): GameResult<ReplayFile> {
   const scenario = isRecord(input) && isRecord(input.initialState) ? scenarioForState(input.initialState as unknown as GameState) : undefined;
-  if (!isRecord(input) || !hasOnlyKeys(input, ['mapId', 'difficulty', 'initialState', 'commands'], ['redDifficulty'])
+  if (!isRecord(input) || !hasOnlyKeys(input, ['mapId', 'difficulty', 'initialState', 'commands'], ['redDifficulty', 'humanPlayer'])
     || typeof input.mapId !== 'string' || scenario === undefined || scenario.id !== input.mapId
     || typeof input.difficulty !== 'string' || !difficulties.has(input.difficulty as ReplayDifficulty)
-    || !isOptionalDifficulty(input.redDifficulty)
+    || !validHumanPlayer(input) || !isOptionalDifficulty(input.redDifficulty)
     || !isGameState(input.initialState) || !matchesScenarioInitialState(input.initialState, scenario) || !Array.isArray(input.commands)
     || input.commands.length > MAX_REPLAY_COMMANDS || !input.commands.every(isGameCommand))
     return { ok: false, error: 'リプレイデータの内容が不正です。' };
@@ -229,6 +225,7 @@ export function createReplay(input: ReplayInput): GameResult<ReplayFile> {
     difficulty: input.difficulty,
     // Omitted rather than undefined, so other replays serialize exactly as before.
     ...(input.redDifficulty === undefined ? {} : { redDifficulty: input.redDifficulty }),
+    ...(input.humanPlayer === undefined ? {} : { humanPlayer: input.humanPlayer }),
     initialState: structuredClone(input.initialState),
     commands: [...structuredClone(input.commands)],
     finalState: replayed.value,

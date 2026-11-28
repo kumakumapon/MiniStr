@@ -13,6 +13,7 @@ for (const locale of ['ja', 'en'] as const) {
       await page.setViewportSize(viewport);
       await page.addInitScript((value) => localStorage.setItem('ministr.locale', value), locale);
       await page.goto('/');
+      await openTitlePanel(page, 'records');
 
       for (const [id, label] of [
         ['backup-import', english ? 'Choose a backup to restore' : '復元するバックアップを選ぶ'],
@@ -25,7 +26,6 @@ for (const locale of ['ja', 'en'] as const) {
         await chooser.setFiles([]);
         await expect(action).toBeFocused();
       }
-      await openTitlePanel(page, 'records');
       await page.locator('.backup-actions').screenshot({ path: info.outputPath(`systems-save-actions-${viewport.width}-${locale}.png`) });
 
       await openTitlePanel(page, 'home');

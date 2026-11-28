@@ -6,6 +6,7 @@ import { MAX_EXPERIENCE } from './experience';
 import { hasSafeJsonStructure, parseBoundedJson } from './jsonBoundary';
 import { trainingData } from './training';
 import { learningOperationData } from './learningOperations';
+import { highlandCrossingData } from './highlandCrossing';
 import { expandedScenarioData } from './expandedMaps';
 import { specialOperationData } from './specialOperations';
 import { standaloneOperationData } from './standaloneOperations';
@@ -355,7 +356,7 @@ const rawBuiltInScenarioData = [
 
 /** Retain compact revisions for pre-snapshot saves; new matches use the wide catalog. */
 export const legacyBuiltInScenarioData = rawBuiltInScenarioData;
-export const builtInScenarioData = expandedScenarioData(rawBuiltInScenarioData);
+export const builtInScenarioData = [...expandedScenarioData(rawBuiltInScenarioData), highlandCrossingData];
 const legacyLoad = loadScenarioDefinitions(legacyBuiltInScenarioData, { defaultProductionRule });
 const legacyBuiltInScenarios = legacyLoad.ok ? legacyLoad.value : [];
 

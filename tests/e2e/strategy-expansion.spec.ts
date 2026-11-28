@@ -122,7 +122,7 @@ for (const width of [1280, 390])
       await page.locator('#begin-operation').click();
       await page.locator('#save').click();
       const saved = await page.evaluate(() => JSON.parse(localStorage.getItem('ministr.save.manual')!));
-      expect(saved.schemaVersion).toBe(4);
+      expect(saved.schemaVersion).toBe(5);
       expect(saved.initialState.units.find((u: { id: string }) => u.id === 'r1').position).toEqual({ x: 3, y: 4 });
       expect(saved.initialState.units.find((u: { id: string }) => u.id === 'b1').position).toEqual({ x: 16, y: 11 });
       expect(saved.initialState.units.find((u: { id: string }) => u.id === 'r5').position).toEqual({ x: 2, y: 1 });

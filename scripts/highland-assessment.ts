@@ -1,0 +1,46 @@
+import { chooseCpuAction, type CpuDifficulty } from '../src/ai/rules';
+import { applyGameCommand, createScenarioInitialState, isGameOver, scenarioById, tacticalScenario, victoryReason, type GameState } from '../src/game';
+import { LOGISTICS_RULE_VERSION } from '../src/game/logisticsOrders';
+
+// Run the same match initialization and CPU used for play, including the tactical map variant.
+const [seedList, red = 'normal', blue = 'normal'] = process.argv.slice(2);
+const difficulty = (name: string): CpuDifficulty => {
+  if (name === 'easy' || name === 'normal' || name === 'hard') return name;
+  throw Error('Expected easy, normal or hard');
+};
+const redDifficulty = difficulty(red);
+const blueDifficulty = difficulty(blue);
+if (!seedList) throw Error('Usage: highland-assessment.ts seed[,seed...] [red difficulty] [blue difficulty]');
+const seeds = seedList.split(',').map((input) => {
+  const seed = Number(input);
+  if (!/^\d+$/.test(input) || !Number.isSafeInteger(seed) || seed > 0xffffffff) throw Error('Invalid battle seed');
+  return seed;
+});
+const source = scenarioById('highland-crossing');
+if (!source) throw Error('Missing highland crossing');
+for (const seed of seeds) {
+  for (const tactics of [false, true]) {
+    const scenario = tactics ? tacticalScenario(source) : source;
+    let state: GameState = { ...createScenarioInitialState(scenario), ruleVersion: LOGISTICS_RULE_VERSION, rngSeed: seed };
+    let commands = 0;
+    while (!isGameOver(state) && state.turn <= 100 && commands < 12000) {
+      const action = chooseCpuAction(state, state.activePlayer === 'red' ? redDifficulty : blueDifficulty);
+      const next = applyGameCommand(state, action);
+      if (!next.ok) throw Error(`Illegal CPU action at seed ${seed} round ${state.turn}: ${next.error}`);
+      state = next.value;
+      commands++;
+    }
+    console.log(
+      JSON.stringify({
+        seed,
+        redDifficulty,
+        blueDifficulty,
+        tactics,
+        winner: state.winner ?? (state.draw ? 'draw' : 'cutoff'),
+        reason: victoryReason(state, scenario) ?? (state.draw ? 'draw' : 'cutoff'),
+        round: state.turn,
+        commands,
+      }),
+    );
+  }
+}

@@ -77,6 +77,7 @@ export function renderBriefingOverlay(options: {
   beginDisabled?: boolean;
   /** Offered outside campaigns; the chosen format applies when the operation starts. */
   matchMode?: MatchMode;
+  humanPlayer?: 'red' | 'blue';
   /** Headings for the two condition lists; default to victory and defeat. */
   conditionHeadings?: { victory: string; defeat: string };
   /** Spectating: each side's CPU difficulty, chosen before the CPUs start. */
@@ -103,6 +104,15 @@ export function renderBriefingOverlay(options: {
   const difficultyChoice =
     options.campaignRun || options.matchMode !== 'spectate' || !options.spectateDifficulties ? '' : renderSpectateDifficultyChoice(options.spectateDifficulties);
   const english = getLocale() === 'en';
+  const humanChoice =
+    options.matchMode === 'cpu' && options.humanPlayer
+      ? `<fieldset class="briefing-mode"><legend>${english ? 'Your side' : '担当陣営'}</legend>${(['red', 'blue'] as const)
+          .map(
+            (side) =>
+              `<label><input type="radio" id="briefing-human-${side}" name="human-player" value="${side}" ${side === options.humanPlayer ? 'checked' : ''}> ${english ? (side === 'red' ? 'Red (first)' : 'Blue (second)') : side === 'red' ? '赤軍（先手）' : '青軍（後手）'}</label>`,
+          )
+          .join('')}</fieldset>`
+      : '';
   const airliftHint = options.requiresAirlift
     ? `<p>${english ? 'Transport helicopters require the finite-supply rules.' : '輸送ヘリを含む編成では有限補給方式を使用します。'}</p>`
     : '';
@@ -120,7 +130,7 @@ export function renderBriefingOverlay(options: {
     variants: options.variants,
     preview: options.preview ?? '',
     describedBy: 'briefing-copy',
-    overview: `<p id="briefing-copy" class="briefing-copy">${escapeHtml(options.briefing)}</p><div class="briefing-objectives"><section><h3>${escapeHtml(headings.victory)}</h3><ul>${list(options.victoryConditions)}</ul></section><section><h3>${escapeHtml(headings.defeat)}</h3><ul>${list(options.defeatConditions)}</ul></section></div><div class="briefing-meta"><span>${uiText.startingGold} <strong>${Number(options.startingGold)}G</strong></span><span class="briefing-timing"><strong>${escapeHtml(options.timing ?? timingSummary({ deadline: options.turnLimit }))}</strong></span><span>${uiText.difficulty} <strong>${escapeHtml(options.difficultyName)}</strong></span></div>${preparation}${modeChoice}${difficultyChoice}${options.dailyNote ?? ''}`,
+    overview: `<p id="briefing-copy" class="briefing-copy">${escapeHtml(options.briefing)}</p><div class="briefing-objectives"><section><h3>${escapeHtml(headings.victory)}</h3><ul>${list(options.victoryConditions)}</ul></section><section><h3>${escapeHtml(headings.defeat)}</h3><ul>${list(options.defeatConditions)}</ul></section></div><div class="briefing-meta"><span>${uiText.startingGold} <strong>${Number(options.startingGold)}G</strong></span><span class="briefing-timing"><strong>${escapeHtml(options.timing ?? timingSummary({ deadline: options.turnLimit }))}</strong></span><span>${uiText.difficulty} <strong>${escapeHtml(options.difficultyName)}</strong></span></div>${preparation}${modeChoice}${humanChoice}${difficultyChoice}${options.dailyNote ?? ''}`,
     settings: `<details id="briefing-advanced" class="briefing-advanced" ${options.advancedOpen ? 'open' : ''}><summary id="briefing-advanced-summary">${english ? 'Advanced settings' : '詳細設定'}</summary>${supplyChoice}${airliftHint}${namedHint}${tacticalHint}${options.deployment ?? ''}</details>`,
     actions: `${options.backToTitle && !options.campaignRun ? `<button id="briefing-back-to-title" class="save-action">${uiText.titleBackFromBriefing}</button>` : ''}<button id="open-campaign-briefing" class="save-action">${uiText.campaign}</button><button id="begin-operation" class="end-turn briefing-start" ${options.beginDisabled ? 'disabled' : ''}>${options.campaignRun ? uiText.beginCampaignOperation : uiText.beginOperation} <span aria-hidden="true">→</span></button>`,
   });

@@ -1,3 +1,4 @@
+import { supportsDuelSideChoice } from './duelSide';
 import { setLogisticsOrder, setRepairReserve, usesLogisticsOrders, validLogisticsOrder, validRepairReserve, type LogisticsOrder } from './logisticsOrders';
 import { prepareAmbush, toggleDive } from './tacticalActions';
 import { validTacticalState } from './tactics';
@@ -8,7 +9,7 @@ import { MAX_EXPERIENCE } from './experience';
 import { isValidSupplyStock } from './supplyStock';
 import { isUnitKindAvailable } from './facilities';
 import { createScenarioInitialState, scenarioForState, scenarioHistory, scenarioDefinitionToData, scenarioCatalogRevision, type ScenarioDefinition } from './maps';
-import { ruleVersions, usesOperationsRules, terrainKindSet, type GameResult, type GameState, type Position, type UnitKind } from './types';
+import { ruleVersions, usesOperationsRules, terrainKindSet, type GameResult, type GameState, type PlayerId, type Position, type UnitKind } from './types';
 import { isEmbarkableUnit, isValidUnitAmmo, transportCapacity, unitKindSet } from './units';
 import { isValidSecondaryAmmo } from './weapons';
 import { evacuationObjectives } from './evacuation';
@@ -25,7 +26,7 @@ import { usesReconRules } from './types';
  * Schema v3 adds the explicit `wait` command. Malformed cargo is rejected
  * by `isGameState` instead of being repaired during load.
  */
-export const SAVE_SCHEMA_VERSION = 4 as const;
+export const SAVE_SCHEMA_VERSION = 5 as const;
 export const MAX_SAVE_BYTES = 1_000_000;
 export const MANUAL_SAVE_KEY = 'ministr.save.manual';
 export const AUTO_SAVE_KEY = 'ministr.save.auto';
@@ -66,6 +67,8 @@ export interface SavedGame {
   campaignScenarioId?: string;
   /** Match format; absent means a CPU match. Older app versions ignore it. */
   mode?: SavedMatchMode;
+  /** The human seat in a CPU match. Saves through v4 always use red. */
+  humanPlayer?: PlayerId;
   /**
    * Spectating only: red's CPU difficulty (`difficulty` is blue's). Absent means
    * red plays at `difficulty` too. Any other match format must not carry it.
@@ -110,14 +113,20 @@ function migrateSaveV2ToV3(value: Record<string, unknown>): Record<string, unkno
   return { ...value, schemaVersion: 3 };
 }
 function migrateSaveV3ToV4(value: Record<string, unknown>): Record<string, unknown> {
+  return { ...value, schemaVersion: 4 };
+}
+
+function migrateSaveV4ToV5(value: Record<string, unknown>): Record<string, unknown> | undefined {
+  if ('humanPlayer' in value) return undefined;
   return { ...value, schemaVersion: SAVE_SCHEMA_VERSION };
 }
 
 function migrateSavedGame(value: Record<string, unknown>): Record<string, unknown> | undefined {
   if (value.schemaVersion === SAVE_SCHEMA_VERSION) return value;
-  if (value.schemaVersion === 3) return migrateSaveV3ToV4(value);
-  if (value.schemaVersion === 2) return migrateSaveV3ToV4(migrateSaveV2ToV3(value));
-  if (value.schemaVersion === 1) return migrateSaveV3ToV4(migrateSaveV2ToV3(migrateSaveV1ToV2(value)));
+  if (value.schemaVersion === 4) return migrateSaveV4ToV5(value);
+  if (value.schemaVersion === 3) return migrateSaveV4ToV5(migrateSaveV3ToV4(value));
+  if (value.schemaVersion === 2) return migrateSaveV4ToV5(migrateSaveV3ToV4(migrateSaveV2ToV3(value)));
+  if (value.schemaVersion === 1) return migrateSaveV4ToV5(migrateSaveV3ToV4(migrateSaveV2ToV3(migrateSaveV1ToV2(value))));
   return undefined;
 }
 
@@ -396,6 +405,8 @@ function validateSavedGameShape(value: unknown): value is SavedGame {
     && (value.cpuPolicies === undefined || ((value.initialState.ruleVersion ?? 0) >= 12 && validArmyPolicies(value.cpuPolicies)))
     && (value.campaignScenarioId === undefined || value.campaignScenarioId === value.mapId)
     && (value.mode === undefined || value.mode === 'cpu' || value.mode === 'hotseat' || value.mode === 'spectate')
+    && (value.humanPlayer === undefined || ((value.mode === undefined || value.mode === 'cpu')
+      && (value.humanPlayer === 'red' || (value.humanPlayer === 'blue' && value.campaignScenarioId === undefined && supportsDuelSideChoice(value.mapId)))))
     // Campaigns are CPU battles only.
     && !((value.mode === 'hotseat' || value.mode === 'spectate') && value.campaignScenarioId !== undefined)
     && (value.redDifficulty === undefined

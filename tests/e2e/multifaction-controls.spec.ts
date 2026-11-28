@@ -135,11 +135,15 @@ for (const { width, locale } of [
     await disclosures(page, '#four-tile-info');
     await expect(page.locator('#four-tile-rows')).toContainText(locale === 'ja' ? '移動コスト' : 'Move cost');
     await expect(page.locator('#four-tile-rows')).toContainText(locale === 'ja' ? '地形防御' : 'Terrain defense');
+    if (width === 390) await page.locator('#four-mobile-panel').click();
+    await page.locator('#four-tile-info').screenshot({ path: info.outputPath(`systems-v161-tile-${width}.png`), animations: 'disabled' });
+    if (width === 390) await page.locator('[data-hud-close]').click();
+    await page.locator('[data-hud-menu]').click();
     await disclosures(page, '#four-music-settings');
     await expect(page.locator('#four-music-army4')).toHaveValue('mist');
     await expect(page.locator('#four-music-volume')).toHaveValue('30');
     await page.locator('#four-music-settings').screenshot({ path: info.outputPath(`systems-v161-music-${width}.png`), animations: 'disabled' });
-    await page.locator('#four-tile-info').screenshot({ path: info.outputPath(`systems-v161-tile-${width}.png`), animations: 'disabled' });
+    if (width === 390) await page.locator('[data-hud-close]').click();
     await page.evaluate(() => window.scrollTo(0, 0));
     await page.screenshot({ path: info.outputPath(`systems-v161-controls-${width}.png`), animations: 'disabled' });
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width + 1);
@@ -230,7 +234,7 @@ test('the common map list includes water and both large layouts with their suppo
   await expect(page.locator('#four-start-summary')).toContainText('17 × 15');
   await expect(page.locator('#four-variants input')).toHaveCount(3);
   await page.locator('#four-close').click();
-  await expect(page.locator('#title-heading')).toBeFocused();
+  await expect(page.locator('.title-map-card[data-map-id="multiplayer:strait"]')).toBeFocused();
   await page.locator('.title-map-card[data-map-id="multiplayer:wide"]').click();
   await expect(page.locator('#four-start-summary')).toContainText('32 × 32');
   await expect(page.locator('#four-variants input')).toHaveCount(1);

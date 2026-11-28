@@ -13,7 +13,7 @@ export interface ResearchOrigin {
   branchIndex: number;
 }
 /** The nested match deliberately has no ordinary save schema or campaign tag. */
-export type ResearchMatch = Omit<SavedGame, 'schemaVersion' | 'mode' | 'campaignScenarioId' | 'redDifficulty'>;
+export type ResearchMatch = Omit<SavedGame, 'schemaVersion' | 'mode' | 'campaignScenarioId' | 'redDifficulty' | 'humanPlayer'>;
 export interface ResearchFile {
   format: 'ministr-research';
   schemaVersion: 1;

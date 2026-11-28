@@ -42,6 +42,19 @@ describe('match control (#116 10.5)', () => {
     expect(menuAllowed(context({ mode: 'hotseat', handoffPending: true }))).toBe(false);
   });
 
+  it('gives the chosen blue commander the blue view, commands and labels while the CPU plays red', () => {
+    const blue = context({ humanPlayer: 'blue', activePlayer: 'blue' });
+    const red = { ...blue, activePlayer: 'red' as const };
+    expect(viewerFor('cpu', 'red', 'blue')).toBe('blue');
+    expect(commandAllowed(blue)).toBe(true);
+    expect(commandAllowed(red)).toBe(false);
+    expect(cpuShouldRun(blue)).toBe(false);
+    expect(cpuShouldRun(red)).toBe(true);
+    expect(cpuSkipAllowed({ ...red, cpuInProgress: true })).toBe(true);
+    expect(sideName('cpu', 'blue', 'blue')).toBe('プレイヤー');
+    expect(sideName('cpu', 'red', 'blue')).toBe('CPU');
+  });
+
   it('runs the CPU only for blue in unfinished CPU matches', () => {
     expect(cpuShouldRun({ mode: 'cpu', activePlayer: 'blue', replay: false })).toBe(true);
     expect(cpuShouldRun({ mode: 'hotseat', activePlayer: 'blue', replay: false })).toBe(false);

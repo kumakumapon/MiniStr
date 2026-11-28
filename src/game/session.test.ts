@@ -303,6 +303,20 @@ describe('versioned save persistence', () => {
       commands: [],
       gameState: initialState,
     };
+    const blue = saveGame(storage, 'blue', { ...base, mode: 'cpu', humanPlayer: 'blue' });
+    expect(blue.ok && parseSavedGame(storage.getItem('blue')!)).toMatchObject({ ok: true, value: { schemaVersion: 5, humanPlayer: 'blue' } });
+    const current = JSON.parse(storage.getItem('blue')!);
+    for (const version of [1, 2, 3, 4]) {
+      const legacy = { ...current, schemaVersion: version };
+      expect(parseSavedGame(JSON.stringify(legacy)).ok).toBe(false);
+      delete legacy.humanPlayer;
+      const restored = parseSavedGame(JSON.stringify(legacy));
+      expect(restored.ok).toBe(true);
+      if (restored.ok) expect(restored.value.humanPlayer ?? 'red').toBe('red');
+    }
+    for (const patch of [{ mode: 'hotseat' }, { mode: 'spectate' }, { humanPlayer: 'green' }, { campaignScenarioId: base.mapId }]) {
+      expect(parseSavedGame(JSON.stringify({ ...current, ...patch })).ok).toBe(false);
+    }
     const hotseat = saveGame(storage, 'hotseat', { ...base, mode: 'hotseat' });
     expect(hotseat.ok && parseSavedGame(storage.getItem('hotseat')!)).toMatchObject({ ok: true, value: { mode: 'hotseat' } });
     // Saves written before this field existed are CPU matches.

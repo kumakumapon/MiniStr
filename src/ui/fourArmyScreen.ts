@@ -2314,7 +2314,13 @@ export class FourArmyScreen {
     const endIndex = this.humanChoices.findIndex((choice) => choice.action === 'endTurn');
     end.hidden = !this.humanTurn || !!this.replay;
     end.disabled = !canAct || endIndex < 0;
-    end.dataset.humanChoice = String(endIndex);
+    if (end.hidden) {
+      delete end.dataset.humanAction;
+      delete end.dataset.humanChoice;
+    } else {
+      end.dataset.humanAction = 'endTurn';
+      end.dataset.humanChoice = String(endIndex);
+    }
     productionButton.disabled = !canAct;
     if (!this.humanArmy) {
       this.query('#four-ready-roster')!.replaceChildren();

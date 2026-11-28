@@ -224,7 +224,7 @@ describe('standalone canyon starting positions', () => {
       }),
     );
     const loaded = valueOf(parseSavedGame(JSON.stringify(saved)));
-    expect(loaded.schemaVersion).toBe(4);
+    expect(loaded.schemaVersion).toBe(5);
     expect(loaded.initialState).toEqual(initialState);
     expect(valueOf(replayCommands(loaded.initialState, loaded.commands))).toEqual(gameState);
     expect(scenarioDefinitionToData(prepared).initialUnits[0]).toMatchObject({ x: 3, y: 4 });

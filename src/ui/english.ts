@@ -2,6 +2,11 @@ import { japaneseUnitNames, englishUnitNames } from './unitNameText';
 
 /** English display resources. IDs, authored data and saved JSON stay unchanged. */
 export const englishResources: readonly (readonly [string, string])[] = [
+  ['高地と低地の渡河', 'Highland Crossing'],
+  [
+    '赤軍は北岸の高地に工場1か所と対空車両を持ち、近くの中立工場と空港を確保できる。青軍は南岸の平野に工場2か所と空港を持つ。渡河路は3か所。どちらの軍も敵司令部の占領または敵部隊の全滅で勝利する。',
+    'Red starts with one factory and an anti-air unit in the northern highlands. Nearby, a neutral factory and airport can be captured. Blue controls two factories and an airport on the southern plains. Three crossings link the banks. Either side wins by capturing the enemy headquarters or eliminating all enemy units.',
+  ],
   ['戦術演習・限られた物資', 'Tactical Exercise: Limited Supplies'],
   [
     '中央都市 (6, 4) を占領し、地上部隊で4回連続保持せよ。期限は30ターン。部隊・兵站一覧で補給優先と弾薬／燃料優先を指定し、損傷した部隊は都市へ戻す。修理を保留するか、修理後に残す資金を指定して工場の生産費を確保できる。補給所はHPを修理しない。指定は任意で、勝利条件は都市の保持のみ。',

@@ -101,6 +101,7 @@ import { exportBackup, previewBackupAsync, restoreBackup, MAX_BACKUP_BYTES } fro
 import { downloadJson } from './ui/download';
 import { createBrowserStorage } from './ui/storage';
 import { createStorageWriter, renderStorageWriterNotice } from './ui/storageWriter';
+import { supportsDuelSideChoice } from './game/duelSide';
 import { observedEnemy } from './game/fog';
 import { scenarioForState, type ScenarioDefinition } from './game/maps';
 import { campaignDeployment, campaignOperations, createCampaignScenario } from './game/campaignOperations';
@@ -248,6 +249,7 @@ let cpuActivity: string[] = [];
 let turnStartNotice = '';
 /** CPU match or two players on one device; chosen on the briefing (campaigns are CPU only). */
 let matchMode: MatchMode = 'cpu';
+let humanPlayer: PlayerId = 'red';
 /** Hotseat: the next side has not taken the device yet, so nothing with match data is drawn. */
 let handoffPending = false;
 let cpuSpeed: CommandSpeed = 1;
@@ -314,6 +316,7 @@ let campaignNotice = loadedCampaign.ok ? '' : loadedCampaign.error;
 const app = document.querySelector<HTMLDivElement>('#app')!;
 const titleRecordCodec = new FourArmyFileCodec();
 let titleRecordRevision: number | undefined;
+let multiplayerTitleCard: string | undefined;
 let pendingMultiplayerRecord: FourArmyFileResult | undefined;
 const exportDiagnostics = () => downloadJson('ministr-diagnostics.json', diagnosticReport({ persistent: localStorage.persistent, bytes: getStorageUsage(localStorage).bytes, locale: document.documentElement.lang, viewport: { width: window.innerWidth, height: window.innerHeight } }));
 const fourArmyScreen = new FourArmyScreen({
@@ -346,11 +349,13 @@ const fourArmyScreen = new FourArmyScreen({
     } else {
       if (screens.briefingOpen) titleState.openFromBriefing();
       titleState.panel = 'home';
-      focusSelector = '#title-heading';
+      focusSelector = multiplayerTitleCard ?? '#title-heading';
     }
+    multiplayerTitleCard = undefined;
     render();
   },
   onTitle: () => {
+    multiplayerTitleCard = undefined;
     showNormalScreen();
     if (screens.briefingOpen) titleState.openFromBriefing();
     else if (!screens.titleOpen) titleState.openFromMatch();
@@ -532,11 +537,11 @@ function matchDifficultyName(): string {
   return matchMode === 'spectate' ? uiText.spectateDifficulty(difficultyNames[redDifficulty], difficultyNames[difficulty]) : difficultyNames[difficulty];
 }
 function matchContext(): MatchContext {
-  return { mode: matchMode, activePlayer: game.activePlayer, winner: game.winner, draw: game.draw, replay: replay !== undefined, cpuInProgress, handoffPending };
+  return { mode: matchMode, humanPlayer, activePlayer: game.activePlayer, winner: game.winner, draw: game.draw, replay: replay !== undefined, cpuInProgress, handoffPending };
 }
-/** The side whose view the screen shows: always red in CPU matches and replays, the active side otherwise. */
+/** The selected commander sees their own fog even while the opposing CPU moves. */
 function viewer(): PlayerId {
-  return replay ? replay.viewpoint === 'blue' ? 'blue' : 'red' : viewerFor(matchMode, game.activePlayer);
+  return replay ? (replay.viewpoint === 'all' ? replay.file.humanPlayer ?? 'red' : replay.viewpoint) : viewerFor(matchMode, game.activePlayer, humanPlayer);
 }
 function fullBoardView(): boolean {
   return replay ? replay.viewpoint === 'all' : showsWholeBoard(matchMode, spectateWholeBoard, false);
@@ -614,15 +619,19 @@ function syncBoardZoom(boardWidth: number): void {
   if (boardZoomAuto) boardZoomIndex = defaultBoardZoomIndex(boardAreaWidth(window.innerWidth), boardWidth);
 }
 
-function positionDeploymentPlayers(): readonly PlayerId[] { return matchMode === 'cpu' ? ['red'] : ['red', 'blue']; }
+function canChooseHumanPlayer(): boolean {
+  return !campaignRun && !research && supportsDuelSideChoice(selectedMap.id);
+}
+function positionDeploymentPlayers(): readonly PlayerId[] { return matchMode === 'cpu' ? [humanPlayer] : ['red', 'blue']; }
 function canPositionDeployment(): boolean { return !!deploymentBase && !campaignRun && !dailyLocked() && supportsDeploymentPositions(deploymentBase); }
 
 function plannedDeployment(): GameResult<ScenarioDefinition> {
   if (!deploymentBase || deploymentBase.id === 'training') return { ok: true, value: selectedMap };
   if (canPositionDeployment()) return createPositionedDeploymentScenario(deploymentBase, deploymentChoices, deploymentPlacements, positionDeploymentPlayers());
   const veterans = campaignRun ? campaignDeployment(campaignProgress, campaignRun.scenarioId).veterans : undefined;
+  if (matchMode === 'cpu') return createDeploymentScenario(deploymentBase, deploymentChoices[humanPlayer], humanPlayer, veterans);
   const red = createDeploymentScenario(deploymentBase, deploymentChoices.red, 'red', veterans);
-  if (!red.ok || matchMode === 'cpu') return red;
+  if (!red.ok) return red;
   return createDeploymentScenario(red.value, deploymentChoices.blue, 'blue');
 }
 
@@ -637,7 +646,8 @@ function deleteCustomMapWithConfirmation(id: string): GameResult<void> | undefin
   return deleteCustomScenario(localStorage, id);
 }
 
-function resetGame(mapId: string, operation?: ScenarioDefinition): void {
+function resetGame(mapId: string, operation?: ScenarioDefinition, side: PlayerId = 'red'): void {
+  humanPlayer = side;
   research = undefined;
   applyDailyStartPolicy(operation?.id ?? mapId);
   weaponSelection = undefined;
@@ -716,7 +726,7 @@ function dispatch(command: GameCommand, undoable = false): boolean {
   // Only the upkeep of the side about to play is reported, and only to that side:
   // the CPU's repairs would reveal hidden units and funds. In hotseat the notice
   // is shown after the handoff, once the new player has the device.
-  if (command.type === 'endTurn' && (matchMode === 'hotseat' || (matchMode === 'cpu' && game.activePlayer === 'red'))) {
+  if (command.type === 'endTurn' && (matchMode === 'hotseat' || (matchMode === 'cpu' && game.activePlayer === humanPlayer))) {
     const repairs = summarizeRepairs(before, game, game.activePlayer);
     turnStartNotice = repairs.units === 0 ? '' : repairs.cost > 0
       ? `${repairs.units}部隊を修理しました（修理費 ${repairs.cost}G）。`
@@ -751,19 +761,19 @@ function dispatch(command: GameCommand, undoable = false): boolean {
 
 /** Keep CPU activity useful without naming units or places the player could not see. */
 function recordVisibleCpuAction(before: GameState, command: GameCommand): void {
-  const visible = new Set([...visiblePositions(before, 'red'), ...visiblePositions(game, 'red')].map(key));
+  const visible = new Set([...visiblePositions(before, humanPlayer), ...visiblePositions(game, humanPlayer)].map(key));
   const visibleUnit = (id: string) => {
     const prior = before.units.find(unit => unit.id === id);
     const current = game.units.find(unit => unit.id === id);
-    return [prior, current].find(unit => unit && isDeployedUnit(unit) && visible.has(key(unit.position)) && (unit.owner === 'red' || [before, game].some(s => visibleEnemies(s, 'red').some(e => e.id === unit.id))));
+    return [prior, current].find(unit => unit && isDeployedUnit(unit) && visible.has(key(unit.position)) && (unit.owner === humanPlayer || [before, game].some(s => visibleEnemies(s, humanPlayer).some(e => e.id === unit.id))));
   };
   let entry: string | undefined;
   if (command.type === 'attack') {
     const target = before.units.find(unit => unit.id === command.targetId);
     const attacker = visibleUnit(command.unitId);
-    entry = attacker && isDeployedUnit(attacker) && target?.owner === 'red'
+    entry = attacker && isDeployedUnit(attacker) && target?.owner === humanPlayer
       ? `敵の${japaneseUnitNames[attacker.kind]}が自軍の${japaneseUnitNames[target.kind]}を攻撃しました。`
-      : target?.owner === 'red' ? `自軍の${japaneseUnitNames[target.kind]}が攻撃を受けました。` : undefined;
+      : target?.owner === humanPlayer ? `自軍の${japaneseUnitNames[target.kind]}が攻撃を受けました。` : undefined;
   } else if (command.type === 'move') {
     const unit = visibleUnit(command.unitId);
     entry = unit && isDeployedUnit(unit) ? `敵の${japaneseUnitNames[unit.kind]}が視認範囲内で移動しました。` : undefined;
@@ -789,7 +799,7 @@ function savedMatch(): Omit<SavedGame, 'schemaVersion' | 'savedAt'> {
     mapId: selectedMap.id, difficulty, initialState, commands: commandHistory, gameState: game,
     campaignScenarioId: campaignRun?.scenarioId, mode: matchMode,
     ...((game.ruleVersion ?? 0) >= 12 ? { cpuPolicies: structuredClone(dailyLocked() ? defaultArmyPolicies() : cpuPolicies) } : {}),
-    ...(matchMode === 'spectate' ? { redDifficulty } : {}),
+    ...(matchMode === 'spectate' ? { redDifficulty } : matchMode === 'cpu' && humanPlayer === 'blue' ? { humanPlayer } : {}),
   };
 }
 function persist(key: string): boolean {
@@ -844,6 +854,7 @@ function restoreMatch(saved: SavedGame, origin?: ResearchOrigin, confirmed = fal
   difficulty = saved.difficulty;
   cpuPolicies = structuredClone(saved.cpuPolicies ?? defaultArmyPolicies());
   matchMode = saved.mode ?? 'cpu';
+  humanPlayer = saved.humanPlayer ?? 'red';
   // Only a spectated save sets red's CPU; other formats keep the viewer's last choice.
   if (matchMode === 'spectate') redDifficulty = saved.redDifficulty ?? difficulty;
   cpuActivity = [];
@@ -907,7 +918,7 @@ function completedReplay(): ReturnType<typeof createReplay> {
   if (research) return { ok: false, error: getLocale() === 'en' ? 'Export this match as research JSON.' : '研究対局は研究JSONとして書き出してください。' };
   return createReplay({
     mapId: selectedMap.id, difficulty, initialState, commands: commandHistory,
-    ...(matchMode === 'spectate' ? { redDifficulty } : {}),
+    ...(matchMode === 'spectate' ? { redDifficulty } : matchMode === 'cpu' && humanPlayer === 'blue' ? { humanPlayer } : {}),
   });
 }
 function beginReplay(file: ReplayFile): void {
@@ -1297,6 +1308,7 @@ const titleEventDeps: TitleEventDeps = {
   openMultiplayerMap: (id, count) => {
     const map = multiplayerOnlyMaps.find(candidate => multiplayerCardId(candidate) === id) ?? (count && multiplayerVariant(id));
     if (!map) return false;
+    multiplayerTitleCard = `.title-map-card[data-map-id="${CSS.escape(id)}"]`;
     fourArmyScreen.open({ map, count: count ?? 4, mode: 'cpu' });
     return true;
   },
@@ -1332,7 +1344,7 @@ function render(): void {
   if (!canCommand()) reconTargeting = false;
   if (!selected || selected !== fortifyPending || !canCommand()) fortifyPending = undefined;
   if (bridgePending && (!canCommand() || selected !== bridgePending.unitId || bridgeError(game, bridgePending.unitId))) bridgePending = undefined;
-  // A save can legitimately resume during blue's turn. Start only after its
+  // A save can legitimately resume during the CPU's turn. Start only after its
   // loading screen has closed; the in-progress guard prevents duplicate timers.
   if (screens.current === 'battle' && matchMode === 'cpu' && !localStorage.conflicted && !cpuInProgress
     && !activeTacticalScene && cpuShouldRun(matchContext())) runCpu(CPU_STEP_DELAY_MS / cpuSpeed);
@@ -1361,6 +1373,7 @@ function render(): void {
   const bridgeTargets = bridgePending ? new Set(bridgeDestinations(game, bridgePending.unitId).map(key)) : new Set<string>();
   const replayMode = replay !== undefined;
   const renderedGame = replay?.state ?? game;
+  const displayedHuman = replay ? (replay.file.humanPlayer ?? 'red') : humanPlayer;
   musicPlayer.setArmy(screens.titleOpen && !replay ? titleState.musicPreviewArmy : renderedGame.activePlayer);
   const renderedMap = replay ? scenarioForState(replay.state) ?? selectedMap : selectedMap;
   const productionRule = renderedMap.productionRules;
@@ -1449,7 +1462,7 @@ function render(): void {
       const ammoEmpty = unit && !hidden && unit.owner === me && unitStats[unit.kind].ammo > 0 && !hasUsableWeapon(renderedGame, unit, false);
       const ammoWarning = ammoEmpty ? `、${uiText.ammoEmpty}` : '';
       const rank = unit ? experienceRank(unit.experience) : 0;
-      const unitLabel = escapeHtml(translateGameText(unit && !hidden ? `${sideName(matchMode, unit.owner)}の${unitNames[unit.kind]}${rank ? `（${rankNames[rank]}）` : ''}、耐久 ${Number(unit.hp)}${cargo ? `、搭載 ${unitNames[cargo.kind]}` : ''}${fuelWarning}${ammoWarning}` : ''));
+      const unitLabel = escapeHtml(translateGameText(unit && !hidden ? `${sideName(matchMode, unit.owner, displayedHuman)}の${unitNames[unit.kind]}${rank ? `（${rankNames[rank]}）` : ''}、耐久 ${Number(unit.hp)}${cargo ? `、搭載 ${unitNames[cargo.kind]}` : ''}${fuelWarning}${ammoWarning}` : ''));
       const label = unit && !hidden
         ? `<span class="unit ${escapeHtml(unit.owner)} unit-${escapeHtml(unit.kind)}" aria-hidden="true"><span class="unit-art"></span><small>${Number(unit.hp)}</small><em>${escapeHtml(unitNames[unit.kind])}${cargo ? `・${escapeHtml(unitNames[cargo.kind])}搭載` : ''}</em><i class="unit-owner-marker">${unit.owner === me ? '自' : '敵'}</i>${cargo ? '<i class="cargo-marker">積</i>' : ''}${rank ? `<i class="rank-marker">${rankStars(rank)}</i>` : ''}${fuelWarning ? `<i class="fuel-warning">燃${fuelTurns}</i>` : ''}${ammoEmpty ? `<i class="ammo-warning">${uiText.ammo}0</i>` : ''}</span>`
         : contact ? renderReconMarker(contact) : '';
@@ -1502,7 +1515,7 @@ function render(): void {
     facilities: idleFacilities, target: targetFacility?.position, funds: renderedGame.players[me].gold,
     summary: productionSummary, units: production, notice: productionNotice,
   }) : '';
-  const activeLabel = sideName(matchMode, renderedGame.activePlayer);
+  const activeLabel = sideName(matchMode, renderedGame.activePlayer, displayedHuman);
   const selectedTerrain = selectedUnit && isDeployedUnit(selectedUnit) ? renderedGame.board.terrain[selectedUnit.position.y]?.[selectedUnit.position.x] : undefined;
   const canCapture = selectedUnit?.owner === renderedGame.activePlayer && isDeployedUnit(selectedUnit)
     && !selectedUnit.hasActed && unitStats[selectedUnit.kind].capturePower > 0 && selectedTerrain
@@ -1569,11 +1582,11 @@ function render(): void {
     campaignResult: (research ? renderResearchStatus(research, true) : '') + campaignResult + (operationOutcome ? renderOperationChallenges(renderedMap.id, operationOutcome) + `<p role="status">${escapeHtml(operationNotice)}</p>` : '') + (dailyOutcome && !campaignRun ? renderDailyResult({ ...dailyOutcome, copyNotice: dailyCopyNotice }) : ''),
     campaignActions: campaignResultActions,
     reasonLabel: victoryReason(renderedGame, renderedMap) === 'objectiveLost' ? '必要な作戦対象を失いました。' : victoryReason(renderedGame, renderedMap) === 'decision' ? uiText.decisionVictory : victoryReason(renderedGame, renderedMap) === 'control' ? '拠点支配得点で勝利しました。' : undefined,
-    sideNames: matchMode === 'cpu' ? undefined : { red: sideName(matchMode, 'red'), blue: sideName(matchMode, 'blue') },
+    sideNames: matchMode === 'cpu' && humanPlayer === 'red' ? undefined : { red: sideName(matchMode, 'red', humanPlayer), blue: sideName(matchMode, 'blue', humanPlayer) },
   });
   const commander = renderedGame.activePlayer === 'red'
-    ? { image: './assets/commander-red.webp', alt: '赤軍司令官の肖像', title: 'RED COMMAND', label: matchMode === 'cpu' ? '前線司令部' : '赤軍司令部' }
-    : { image: './assets/commander-blue.webp', alt: '青軍司令官の肖像', title: 'BLUE COMMAND', label: matchMode === 'cpu' ? '敵軍司令部' : '青軍司令部' };
+    ? { image: './assets/commander-red.webp', alt: '赤軍司令官の肖像', title: 'RED COMMAND', label: matchMode === 'cpu' ? (me === 'red' ? '前線司令部' : '敵軍司令部') : '赤軍司令部' }
+    : { image: './assets/commander-blue.webp', alt: '青軍司令官の肖像', title: 'BLUE COMMAND', label: matchMode === 'cpu' ? (me === 'blue' ? '前線司令部' : '敵軍司令部') : '青軍司令部' };
   const mapTheme = `theme-${renderedMap.theme}`;
   const tileInspectorPanel = renderTileInspector(renderedGame, productionRule);
   const unitBriefPanel = renderUnitBrief(renderedGame, me, visible, selected, focusedPosition, selectedWeaponSlot(), canCommand(), fullBoardView());
@@ -1581,8 +1594,8 @@ function render(): void {
     ? renderTurnProgress(
       `${replayMode ? (replay?.playing ? (getLocale() === 'en' ? 'Replaying' : 'リプレイ再生中') : (getLocale() === 'en' ? 'Replay paused' : 'リプレイ停止中'))
         : matchMode === 'spectate' ? (spectatePaused ? uiText.spectatePaused : (getLocale() === 'en' ? 'Spectating' : '観戦中'))
-        : matchMode === 'hotseat' ? sideName(matchMode, renderedGame.activePlayer)
-        : renderedGame.activePlayer === 'blue' ? cpuInProgress ? uiText.enemyTurnTitle : uiText.enemyTurnPausedTitle : uiText.playerTurnTitle} · ${Number(renderedGame.turn)}`,
+        : matchMode === 'hotseat' ? sideName(matchMode, renderedGame.activePlayer, displayedHuman)
+        : renderedGame.activePlayer !== humanPlayer ? cpuInProgress ? uiText.enemyTurnTitle : uiText.enemyTurnPausedTitle : uiText.playerTurnTitle} · ${Number(renderedGame.turn)}`,
       { tone: cpuInProgress ? 'enemy' : 'player',
         hint: localStorage.conflicted ? uiText.turnStopped : replayMode || matchMode !== 'cpu' ? undefined : cpuInProgress ? uiText.enemyTurnHint : uiText.playerTurnHint,
       }) : '';
@@ -1686,8 +1699,10 @@ function render(): void {
   const showBriefing = !screens.campaignMenuOpen && !screens.titleOpen && !replayMode && screens.briefingOpen;
   const briefingContent = app.querySelector<HTMLElement>('.briefing-content');
   const briefingScroll = briefingContent?.scrollTop ?? 0;
+  const briefingSide = matchMode === 'cpu' ? humanPlayer : 'red';
+  const briefingFoe = otherPlayer(briefingSide);
   const briefing = renderBriefingOverlay({
-    preview: showBriefing ? renderScenarioBriefingMap(deployment?.ok ? deployment.value : renderedMap, matchMode === 'cpu', briefingContent?.querySelector('.briefing-preview')?.getAttribute('data-zoomed') === 'true') : undefined,
+    preview: showBriefing ? renderScenarioBriefingMap(deployment?.ok ? deployment.value : renderedMap, matchMode === 'cpu', briefingContent?.querySelector('.briefing-preview')?.getAttribute('data-zoomed') === 'true', humanPlayer) : undefined,
     advancedOpen: !!briefingContent?.querySelector('#briefing-advanced[open]') || !!deployment && !deployment.ok,
     variants: briefingVariant ? renderMatchVariants(briefingVariant, 'standard', 'briefing-match-variants') : undefined,
     visible: showBriefing,
@@ -1698,17 +1713,18 @@ function render(): void {
     requiresAirlift: [...deploymentChoices.red, ...deploymentChoices.blue].includes('transportHelicopter'),
     fixedConditions: dailyLocked(),
     mapName: scenarioDisplayName(renderedMap),
-    deployment: ((game.ruleVersion ?? 0) >= 12 && !dailyLocked() && matchMode !== 'hotseat' ? renderArmyPolicies(cpuPolicies, matchMode === 'spectate') : '') + (deploymentBase && deploymentBase.id !== 'training' && screens.briefingOpen ? renderDeployment(deploymentBase, deploymentChoices, matchMode === 'cpu' ? ['red'] : ['red', 'blue'], deploymentOpen, deploymentNotice, { catalog: presetCatalog, notice: presetNotice, draftNames: presetDraftNames }, canPositionDeployment() ? { placements: deploymentPlacements } : undefined) + renderOperationChallenges(renderedMap.id) : ''),
+    deployment: ((game.ruleVersion ?? 0) >= 12 && !dailyLocked() && matchMode !== 'hotseat' ? renderArmyPolicies(cpuPolicies, matchMode === 'spectate', otherPlayer(humanPlayer)) : '') + (deploymentBase && deploymentBase.id !== 'training' && screens.briefingOpen ? renderDeployment(deploymentBase, deploymentChoices, matchMode === 'cpu' ? [humanPlayer] : ['red', 'blue'], deploymentOpen, deploymentNotice, { catalog: presetCatalog, notice: presetNotice, draftNames: presetDraftNames }, canPositionDeployment() ? { placements: deploymentPlacements } : undefined) + renderOperationChallenges(renderedMap.id) : ''),
     dailyNote: (dailyLocked() && screens.briefingOpen ? renderDailyBriefingNote({ conditions: dailyBriefingConditions(), standard: !!deployment?.ok && isStandardDailyDefinition(deployment.value) }) : ''),
     beginDisabled: deployment !== undefined && !deployment.ok,
     briefing: scenarioDisplayBriefing(renderedMap),
-    victoryConditions: [...renderedMap.victoryConditions.map(condition => scenarioConditionDescription(renderedMap, condition, 'red')), ...(renderedDecisionRound === undefined ? [] : [uiText.decisionRule(renderedDecisionRound)])],
+    victoryConditions: [...(briefingSide === 'red' ? renderedMap.victoryConditions : renderedMap.defeatConditions).map(condition => scenarioConditionDescription(renderedMap, condition, briefingSide)), ...(renderedDecisionRound === undefined ? [] : [uiText.decisionRule(renderedDecisionRound)])],
     matchMode: campaignRun ? undefined : matchMode,
+    humanPlayer: canChooseHumanPlayer() ? humanPlayer : undefined,
     conditionHeadings: campaignRun ? { victory: '勝利条件（いずれか達成）', defeat: '敗北条件（いずれか成立）' }
       : matchMode === 'cpu' ? undefined : { victory: '赤軍の勝利条件', defeat: '青軍の勝利条件' },
     spectateDifficulties: { red: redDifficulty, blue: difficulty, levels: cpuDifficulties.map(level => ({ value: level, label: difficultyNames[level] })) },
-    defeatConditions: renderedMap.defeatConditions.map(condition => scenarioConditionDescription(renderedMap, condition, 'blue', campaignRun || matchMode === 'cpu' ? 'red' : 'blue')),
-    startingGold: deployment?.ok ? createScenarioInitialState(deployment.value).players.red.gold : initialState.players.red.gold,
+    defeatConditions: (briefingFoe === 'blue' ? renderedMap.defeatConditions : renderedMap.victoryConditions).map(condition => scenarioConditionDescription(renderedMap, condition, briefingFoe, matchMode === 'cpu' ? briefingSide : briefingFoe)),
+    startingGold: (deployment?.ok ? createScenarioInitialState(deployment.value) : initialState).players[briefingSide].gold,
     timing: campaignRun ? campaignTimingSummary(campaignStages.find(stage => stage.scenarioId === campaignRun?.scenarioId)?.recommendedTurns ?? 0, renderedTiming) : timingSummary(renderedTiming),
     difficultyName: matchDifficultyName(),
     campaignRun: campaignRun !== undefined,
@@ -1723,7 +1739,7 @@ function render(): void {
   const reconControl = !replayMode ? renderReconControl(renderedGame, me, canAct, reconTargeting) : '';
   const battlefieldTools = `${renderFrontlineControls(renderedGame, me, selected, canAct && !replayMode, showSupplyRange, fortifyPending)}${renderBridgeControls(renderedGame, me, selected, canAct && !replayMode, bridgePending)}${renderTacticalControls(renderedGame, me, selected, canAct && !replayMode)}`;
   const armyPolicySummary = !replayMode && (renderedGame.ruleVersion ?? 0) >= 12 && matchMode !== 'hotseat'
-    ? renderArmyPolicySummary(dailyLocked() ? defaultArmyPolicies() : cpuPolicies, matchMode === 'spectate') : '';
+    ? renderArmyPolicySummary(dailyLocked() ? defaultArmyPolicies() : cpuPolicies, matchMode === 'spectate', otherPlayer(humanPlayer)) : '';
 
   const hudState = readContextPanel(app, boardCovered);
   const hudPanel = concealed ? '' : renderContextPanel('classic',
@@ -1916,7 +1932,7 @@ function render(): void {
     if (!screens.briefingOpen || !deploymentBase) return;
     const player = button.dataset.presetPlayer;
     const slot = Number(button.dataset.presetSlot);
-    if ((player !== 'red' && player !== 'blue') || (player === 'blue' && matchMode === 'cpu') || !Number.isInteger(slot) || slot < 0 || slot > 2) return;
+    if ((player !== 'red' && player !== 'blue') || (player !== humanPlayer && matchMode === 'cpu') || !Number.isInteger(slot) || slot < 0 || slot > 2) return;
     const action = button.dataset.presetAction;
     const loaded = loadDeploymentPresets(localStorage);
     if (!loaded.ok) { presetCatalog = undefined; presetNotice = loaded.error; deploymentOpen = true; focusSelector = `#briefing-presets-${player}-reset`; render(); return; }
@@ -2584,7 +2600,7 @@ function render(): void {
   document.querySelector<HTMLButtonElement>('#restart')?.addEventListener('click', guardMenu(() => {
     if (research) { retryCurrentResearch(); return; }
     if (!confirmReplaceMatch()) return;
-    resetGame(selectedMap.id, restartDefinition()); message = 'ユニットを選択して行動してください。'; render();
+    resetGame(selectedMap.id, restartDefinition(), humanPlayer); message = 'ユニットを選択して行動してください。'; render();
   }));
   document.querySelector<HTMLButtonElement>('#open-campaign')?.addEventListener('click', guardMenu(openCampaignMenu));
   document.querySelector<HTMLButtonElement>('#open-campaign-briefing')?.addEventListener('click', guardMenu(openCampaignMenu));
@@ -2665,6 +2681,13 @@ function render(): void {
     render();
   });
   document.querySelector<HTMLButtonElement>('#replay-exit')?.addEventListener('click', leaveReplay);
+  app.querySelectorAll<HTMLInputElement>('input[name="human-player"]').forEach(input => input.addEventListener('change', () => {
+    if (!screens.briefingOpen || commandHistory.length || matchMode !== 'cpu' || !canChooseHumanPlayer() || (input.value !== 'red' && input.value !== 'blue')) return;
+    humanPlayer = input.value;
+    focusSelector = `#${input.id}`;
+    render();
+  }));
+
   app.querySelectorAll<HTMLInputElement>('input[name="match-mode"]').forEach(input => input.addEventListener('change', () => {
     // The format can only change on the briefing, before any command is played.
     if (screens.briefingOpen && commandHistory.length === 0 && !campaignRun && !dailyLocked()) matchMode = parseMatchMode(input.value);
@@ -2700,7 +2723,7 @@ function render(): void {
   app.querySelector<HTMLDetailsElement>('#briefing-deployment')?.addEventListener('toggle', event => { deploymentOpen = (event.currentTarget as HTMLDetailsElement).open; });
   app.querySelectorAll<HTMLSelectElement>('[data-deployment-player]').forEach(control => control.addEventListener('change', () => {
     const player = control.dataset.deploymentPlayer;
-    if (player !== 'red' && player !== 'blue') return;
+    if ((player !== 'red' && player !== 'blue') || !positionDeploymentPlayers().includes(player)) return;
     const slot = Number(control.dataset.deploymentSlot);
     if (!deploymentBase || !Number.isInteger(slot) || slot < 0 || slot >= deploymentChoices[player].length) return;
     const definition = deploymentSlots(deploymentBase, player)[slot];
@@ -2742,11 +2765,15 @@ function render(): void {
     initialState = structuredClone(game);
     screens.briefingOpen = false;
     message = matchMode === 'hotseat' ? `2人対戦を開始しました。${sideName('hotseat', game.activePlayer)}から操作してください。`
-      : matchMode === 'spectate' ? uiText.spectateStarted : '作戦を開始しました。ユニットを選択してください。';
+      : matchMode === 'spectate' ? uiText.spectateStarted : game.activePlayer !== humanPlayer ? uiText.enemyTurnTitle : '作戦を開始しました。ユニットを選択してください。';
     const playerMatch = matchMode !== 'spectate';
     if (playerMatch) focusSelector = '#board-viewport';
     if (cpuShouldRun(matchContext())) runCpu();
     render();
+    if (matchMode === 'cpu' && humanPlayer === 'blue') {
+      const ownUnit = game.units.find(unit => unit.owner === humanPlayer && isDeployedUnit(unit));
+      if (ownUnit && isDeployedUnit(ownUnit)) centerBoardOnPosition(app, ownUnit.position);
+    }
     if (playerMatch && window.scrollY) window.scrollTo({ top: 0, behavior: 'instant' });
   });
   document.querySelector<HTMLButtonElement>('#handoff-start')?.addEventListener('click', beginHandoffTurn);

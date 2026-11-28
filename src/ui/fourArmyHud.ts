@@ -44,7 +44,7 @@ export function arrangeFourArmyHud(root: HTMLElement, state: ReturnType<typeof r
   move(header, '#four-toggle');
   header.insertAdjacentHTML(
     'beforeend',
-    `<strong id="four-hud-current" class="hud-current"></strong><span id="four-hud-funds" class="hud-funds"></span><button type="button" data-hud-menu aria-controls="four-hud-menu">${english ? 'Menu' : 'メニュー'}</button><button id="four-hud-end" class="end-turn" data-human-action="endTurn" hidden>${english ? 'End turn' : 'ターン終了'} →</button>`,
+    `<strong id="four-hud-current" class="hud-current"></strong><span id="four-hud-funds" class="hud-funds"></span><button type="button" data-hud-menu aria-controls="four-hud-menu">${english ? 'Menu' : 'メニュー'}</button><button id="four-hud-end" class="end-turn" hidden>${english ? 'End turn' : 'ターン終了'} →</button>`,
   );
   move(header, '.four-armies');
   root.querySelector('.four-playback-row')?.remove();

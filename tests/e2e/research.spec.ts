@@ -129,7 +129,7 @@ test('returning to an ordinary save clears the research classification explicitl
   await page.locator('.tile[data-x="0"][data-y="2"]').click();
   await page.locator('#save').click();
   const normal = await page.evaluate(() => JSON.parse(localStorage.getItem('ministr.save.manual')!));
-  expect(normal.schemaVersion).toBe(4);
+  expect(normal.schemaVersion).toBe(5);
   expect(normal.commands).toHaveLength(1);
   expect(normal.format).toBeUndefined();
   expect(await page.evaluate((key) => localStorage.getItem(key), RESEARCH_MANUAL_KEY)).toBe(study);
