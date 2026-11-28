@@ -2,11 +2,12 @@ import { DEFAULT_TACTICAL_PRESET, renderTacticalPreset } from './tactics';
 import { maps, operationScenarios, type PlayerId, type ScenarioTheme } from '../game';
 import type { ScenarioDefinition } from '../game/maps';
 import type { GeneratedShare } from '../game/shareLink';
-import { operationRevision } from '../game/operationRecords';
+import { learningOperationData } from '../game/learningOperations';
+import { operationIds, operationRevision } from '../game/operationRecords';
 import { dailyConditions, dailyDateKey } from '../game/dailyChallenge';
 import type { CommandSpeed } from './commandScheduler';
 import { renderDailyCard } from './dailyChallenge';
-import { localized } from './locale';
+import { getLocale, localized } from './locale';
 import type { MusicSettings } from './music';
 import { renderOperationRecords } from './operationsExpansion';
 import { renderTitleOverlay } from './overlays';
@@ -16,7 +17,29 @@ import type { ScreenController } from './screenController';
 import { renderMapGenerator, type GeneratorForm } from './standaloneSystems';
 import { uiText } from './strings';
 import type { TitleMapCard } from './overlays';
-import { armyCountLabel, multiplayerVariant } from './matchVariants';
+import { armyCountOptions, multiplayerSize, multiplayerVariant, type ArmyCount, type MultiplayerMap } from './matchVariants';
+import { defaultCatalogFilters, type CatalogFormat } from './titleCatalog';
+
+export function multiplayerCatalogFormat(map: MultiplayerMap, preview?: (count: ArmyCount) => string): CatalogFormat {
+  const en = getLocale() === 'en';
+  const terrain = map === 'strait' || map === 'river' ? 'water' : 'land';
+  return {
+    armies: armyCountOptions(map),
+    ...multiplayerSize(map),
+    terrain,
+    multiplayer: true,
+    preview,
+    victory:
+      map === 'tundra'
+        ? en
+          ? 'Keep the defender active through round 15, or eliminate it as the attackers.'
+          : '守備軍は第15ラウンドまで生存、攻撃側はそれまでに守備軍を脱落させる。'
+        : en
+          ? 'Last surviving army or team wins.'
+          : '最後まで生き残った軍・チームが勝利。',
+    timing: map === 'wide' ? (en ? 'No round limit' : '期限なし') : map === 'tundra' ? (en ? '15 rounds' : '15ラウンド') : en ? 'Short or unlimited' : '短期戦／期限なし',
+  };
+}
 
 const themeNames = localized<Record<ScenarioTheme, string>>(
   { temperate: '温帯', desert: '砂漠', snow: '雪原', urban: '市街地', coastal: '沿岸' },
@@ -45,6 +68,7 @@ export class TitleState {
   /** Whether that title could return to a match, restored along with it. */
   private returnResumable = false;
   readonly generatorForm: GeneratorForm = { size: 20, sea: 'coast', seed: 'MiniStr-1' };
+  readonly catalogFilters = defaultCatalogFilters();
   generatorOpen = false;
   generatorNotice = '';
   /** Outcome of the last "copy share link" press, announced beside the button. */
@@ -129,6 +153,7 @@ export interface TitleOverlayContext {
   scenarios: () => readonly ScenarioDefinition[];
   selectedMapId: string;
   canResumeMultiplayer?: boolean;
+  multiplayerPreview?: (map: MultiplayerMap, count: ArmyCount) => string;
   multiplayerCards?: () => readonly TitleMapCard[];
   mapPreview: (map: ScenarioDefinition) => string;
   operationCatalog: OperationCatalog;
@@ -157,24 +182,45 @@ export function buildTitleOverlay(context: TitleOverlayContext): string {
     maps: !titleVisible
       ? []
       : [
-          ...context.scenarios().map((map) => ({
-            id: map.id,
-            name: scenarioDisplayName(map),
-            theme: themeNames[map.theme],
-            width: map.board.width,
-            height: map.board.height,
-            startingGold: map.startingGold,
-            timing: timingSummary(scenarioTiming(map)),
-            victory:
-              map.victoryConditions.map((condition) => scenarioConditionDescription(map, condition, 'red')).join(' / ') +
-              (context.operationCatalog?.records.some((record) => record.scenarioId === map.id && record.revision === operationRevision(map)) ? ' ／ クリア記録あり' : ''),
-            custom: ![...maps, ...operationScenarios].some((builtIn) => builtIn.id === map.id),
-            selected: map.id === context.selectedMapId,
-            preview: context.mapPreview(map),
-            armyCount: multiplayerVariant(map.id) && armyCountLabel(multiplayerVariant(map.id)!),
-          })),
+          ...context.scenarios().map((map): TitleMapCard => {
+            const custom = ![...maps, ...operationScenarios].some((builtIn) => builtIn.id === map.id);
+            const variant = multiplayerVariant(map.id);
+            const cleared = context.operationCatalog?.records.some((record) => record.scenarioId === map.id && record.revision === operationRevision(map));
+            return {
+              id: map.id,
+              name: scenarioDisplayName(map),
+              theme: themeNames[map.theme],
+              width: map.board.width,
+              height: map.board.height,
+              startingGold: map.startingGold,
+              rules: map.tacticalOptions ? (getLocale() === 'en' ? 'Combined tactics' : '統合戦術') : getLocale() === 'en' ? 'Basic rules' : '基本規則',
+              timing: timingSummary(scenarioTiming(map)),
+              victory: map.victoryConditions.map((condition) => scenarioConditionDescription(map, condition, 'red')).join(' / '),
+              custom,
+              selected: map.id === context.selectedMapId,
+              preview: context.mapPreview(map),
+              category: custom
+                ? 'custom'
+                : learningOperationData.some((data) => data.id === map.id)
+                  ? 'exercise'
+                  : operationScenarios.some((data) => data.id === map.id)
+                    ? 'mission'
+                    : 'battle',
+              clear: cleared ? 'cleared' : operationIds.has(map.id) ? 'uncleared' : 'untracked',
+              formats: [
+                {
+                  armies: [2],
+                  width: map.board.width,
+                  height: map.board.height,
+                  terrain: map.board.terrain.some((row) => row.some((tile) => tile.kind === 'sea')) ? 'water' : 'land',
+                },
+                ...(variant ? [multiplayerCatalogFormat(variant, context.multiplayerPreview && ((count) => context.multiplayerPreview!(variant, count)))] : []),
+              ],
+            };
+          }),
           ...(context.multiplayerCards?.() ?? []),
         ],
+    catalogFilters: state.catalogFilters,
     cpuSpeed: context.cpuSpeed,
     boardZoom: context.boardZoom,
     musicSettings: context.musicSettings,

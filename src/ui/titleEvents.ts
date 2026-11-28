@@ -5,6 +5,8 @@ import { isShareLinkCandidate, parseGeneratedShare, serializeGeneratedShare, sha
 import { translateText } from './locale';
 import { scenarioDisplayName } from './scenarioText';
 import type { ScreenController } from './screenController';
+import { bindTitleCatalog } from './titleCatalog';
+import type { ArmyCount } from './matchVariants';
 import { uiText } from './strings';
 import type { TitleState } from './titleScreen';
 
@@ -28,7 +30,7 @@ export interface TitleEventDeps {
   startDaily: () => void;
   continueSave: () => boolean;
   openSaveList?: () => boolean;
-  openMultiplayerMap?: (id: string) => boolean;
+  openMultiplayerMap?: (id: string, count?: ArmyCount) => boolean;
   /** The status line, which a failed load leaves explaining why. */
   message: () => string;
   /** Opens the campaign menu, which redraws. */
@@ -94,6 +96,15 @@ function commitGeneratedMap(deps: TitleEventDeps, produce: () => GameResult<Scen
 /** Binds the title's controls in the DOM just drawn. Called after every redraw. */
 export function bindTitleEvents(app: HTMLElement, deps: TitleEventDeps): void {
   const { screens, state, render, setFocus } = deps;
+  bindTitleCatalog(app, state.catalogFilters, (selector) => {
+    setFocus(selector);
+    render();
+  });
+  app.querySelector('#title-catalog-create')?.addEventListener('click', () => {
+    const records = app.querySelector<HTMLButtonElement>('#title-open-records');
+    if (records) records.click();
+    else app.querySelector<HTMLElement>('#title-generator summary')?.focus();
+  });
   app.querySelector<HTMLDetailsElement>('#operation-records')?.addEventListener('toggle', (event) => {
     state.operationRecordsOpen = (event.currentTarget as HTMLDetailsElement).open;
   });
@@ -242,7 +253,8 @@ export function bindTitleEvents(app: HTMLElement, deps: TitleEventDeps): void {
   app.querySelectorAll<HTMLButtonElement>('.title-map-card').forEach((card) =>
     card.addEventListener('click', () => {
       const mapId = card.dataset.mapId ?? '';
-      if (!screens.titleOpen || deps.openMultiplayerMap?.(mapId) || !deps.scenarioExists(mapId) || !deps.confirmReplaceMatch()) return;
+      const count = ([2, 3, 4] as const).find((n) => String(n) === card.dataset.catalogArmies);
+      if (!screens.titleOpen || deps.openMultiplayerMap?.(mapId, count) || !deps.scenarioExists(mapId) || !deps.confirmReplaceMatch()) return;
       state.leaveTitle();
       deps.startMap(mapId);
       render();

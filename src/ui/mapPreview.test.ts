@@ -107,3 +107,14 @@ describe('map preview (#145)', () => {
     expect(renderMapPreview({ width: 2.5, height: 3, terrain: [] }, [], 'temperate')).toBe('');
   });
 });
+
+it('keeps terrain colors and property markers in wide catalog previews while excluding texture overlays and units', () => {
+  const board = createBoard(32, 32);
+  board.terrain[0]![0] = { kind: 'capital', owner: 'red' };
+  const units = [{ owner: 'red' as const, x: 0, y: 1 }];
+  const overview = renderMapPreview(board, units, 'temperate', true);
+  expect(coveredCells(overview)).toBe(32 * 32);
+  expect(overview).toContain('map-preview-property');
+  expect(overview).not.toMatch(/map-preview-unit|map-preview-terrain|<pattern/);
+  expect(renderMapPreview(board, units, 'temperate')).toContain('map-preview-unit');
+});

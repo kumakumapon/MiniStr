@@ -1343,3 +1343,27 @@ body.production-menu-open { overflow: hidden; }
 .briefing-advanced .army-policies p { margin: 0; font-size: .8rem; line-height: 1.6; }
 .briefing-advanced .army-policies label { display: grid; gap: 5px; }
 .briefing-advanced .army-policies select { width: 100%; min-height: 44px; padding: 7px; border: 1px solid #69856f; border-radius: 4px; background: #233a2e; color: #edf4eb; }
+
+#title-catalog { min-width: 0; }
+.catalog-tabs { display: flex; flex-wrap: wrap; gap: .35rem; margin-block: .5rem; }
+.catalog-tabs button, #title-catalog-filters summary { cursor: pointer; min-height: 44px; }
+.catalog-tabs button { padding: .4rem .75rem; color: #dce7de; background: #1a2b24; border: 1px solid #526d60; border-radius: .3rem; font: inherit; }
+.catalog-tabs [aria-selected="true"] { color: #ffe29a; border-color: #d7b563; background: #344237; }
+.catalog-tabs button:focus-visible, #title-catalog-filters :focus-visible { outline: 3px solid #ffe275; outline-offset: 2px; }
+#title-catalog-filters summary { width: fit-content; padding-block: .55rem; }
+.catalog-filter-fields { display: flex; align-items: end; flex-wrap: wrap; gap: .4rem .75rem; }
+.catalog-filter-fields label { display: grid; gap: .15rem; }
+.catalog-filter-fields select { min-height: 44px; max-width: 100%; }
+.catalog-count, .catalog-clear, .catalog-timing { color: #b6c8bc; font-size: .75rem; }
+.title-map-card { grid-template-rows: auto auto auto 1fr auto auto; align-content: start; overflow-wrap: anywhere; }
+.catalog-rule { padding-inline: .35em; border: 1px solid #50695a; border-radius: .25rem; }
+.catalog-armies { color: #e7d69a; font-weight: 700; }
+@media (max-width: 680px) {
+  #title-catalog .title-map-list { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .45rem; }
+  #title-catalog .title-map-card { padding: .55rem; gap: .35rem; }
+  #title-catalog .title-map-name { font-size: 1rem; line-height: 1.2; flex-wrap: wrap; }
+  #title-catalog .title-preview-slot { height: 64px; }
+  #title-catalog .map-preview { height: 62px; }
+  .catalog-tabs button { font-size: .82rem; padding-inline: .5rem; }
+  .catalog-filter-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
