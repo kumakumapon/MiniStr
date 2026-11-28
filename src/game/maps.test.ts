@@ -70,7 +70,7 @@ describe('expanded map roster', () => {
     expect(createScenarioInitialState(catalog.scenarios[0]!).units).toHaveLength(2);
   });
 
-  it('offers twelve distinct scenarios with map-owned starting forces', () => {
+  it('offers thirteen distinct scenarios with map-owned starting forces', () => {
     expect(maps.map((map) => map.id)).toEqual([
       'skirmish',
       'islands',
@@ -84,6 +84,7 @@ describe('expanded map roster', () => {
       'marsh',
       'admiralty',
       'highland-crossing',
+      'peninsula-neck',
     ]);
     for (const map of maps) {
       expect(map.initialUnits.some((unit) => unit.owner === 'red')).toBe(true);
@@ -149,10 +150,10 @@ describe('expanded map roster', () => {
       const state = createScenarioInitialState(map);
       expect(countProductionFacilities(state, 'red')).toBeGreaterThan(0);
       expect(countProductionFacilities(state, 'blue')).toBeGreaterThan(0);
-      // No built-in scenario deploys a starting unit on top of a facility, so at
-      // turn one every owned facility is still idle.
-      expect(idleProductionFacilities(state, 'red')).toHaveLength(countProductionFacilities(state, 'red'));
-      expect(idleProductionFacilities(state, 'blue')).toHaveLength(countProductionFacilities(state, 'blue'));
+      // The new coastal transports start at their respective port and airport.
+      const occupied = map.id === 'peninsula-neck' ? 1 : 0;
+      expect(idleProductionFacilities(state, 'red')).toHaveLength(countProductionFacilities(state, 'red') - occupied);
+      expect(idleProductionFacilities(state, 'blue')).toHaveLength(countProductionFacilities(state, 'blue') - occupied);
       const totalProductionTiles = map.board.terrain.flat().filter((tile) => tile.kind === 'factory' || tile.kind === 'port').length;
       expect(totalProductionTiles).toBeGreaterThanOrEqual(4);
     }

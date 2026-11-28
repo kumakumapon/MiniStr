@@ -1,4 +1,4 @@
-import { alliedArmies, battleOrder, isSmallBattle } from '../game/smallBattle';
+import { alliedArmies, battleOrder, fourArmyUnitLimit, isSmallBattle } from '../game/smallBattle';
 import { fourArmyRuleProjection, isFourArmyRules } from '../game/fourArmyRules';
 import { isGameState } from '../game/session';
 import { bridgeBanks } from '../game/bridges';
@@ -201,7 +201,7 @@ export function isFourArmyObservation(v: unknown): v is FourArmyObservation {
       return false;
   }
   const view = fourArmyPlanningView(o);
-  if (o.unitLimitPerArmy !== undefined && FOUR_ARMY_IDS.some((a) => o.units.filter((u) => u.owner === a).length > o.unitLimitPerArmy!)) return false;
+  if (o.unitLimitPerArmy !== undefined && FOUR_ARMY_IDS.some((a) => o.units.filter((u) => u.owner === a).length > fourArmyUnitLimit(o.match, o.unitLimitPerArmy!, a))) return false;
   if (!isGameState({ ...view, fortifications: undefined, bridges: undefined }) || !boundedInt(view.nextUnitId, 1, 1e9)) return false;
   if (
     o.units.some(

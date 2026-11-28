@@ -6,9 +6,13 @@ import type { Position, UnitKind } from './types';
 import { unitStats } from './units';
 import { weaponsForUnit } from './weapons';
 
-export type AsymmetricSource = 'crown' | 'canyon' | 'marsh' | 'river' | 'tundra';
+export type AsymmetricSource = 'encirclement' | 'crown' | 'canyon' | 'marsh' | 'river' | 'tundra';
 export function isAsymmetricSource(source: unknown): source is AsymmetricSource {
-  return source === 'crown' || source === 'canyon' || source === 'marsh' || source === 'river' || source === 'tundra';
+  return source === 'encirclement' || source === 'crown' || source === 'canyon' || source === 'marsh' || source === 'river' || source === 'tundra';
+}
+
+export function isFixedFourArmySource(source: unknown): source is 'crown' | 'encirclement' {
+  return source === 'crown' || source === 'encirclement';
 }
 
 // A–D are permanent site identities within this layout. A row is west to east.
@@ -216,7 +220,7 @@ const forward = [
   { x: 0, y: -1 },
 ] as const;
 type SiteUnit = readonly [kind: UnitKind, side: number, front: number];
-type SiteFacility = readonly [kind: 'factory' | 'city', side: number, front: number];
+type SiteFacility = readonly [kind: 'factory' | 'city' | 'airport', side: number, front: number];
 interface SiteResources {
   readonly gold: number;
   readonly units: readonly SiteUnit[];
@@ -250,8 +254,43 @@ const centralSite: SiteResources = {
   facilities: [...standardSite.facilities, ['city', -2, 0], ['city', 2, 0], ['city', -1, -1], ['city', 1, -1]],
 };
 
+export const encirclementHegemonLimit = 10;
+export const encirclementAllianceLimit = 6;
+
+const hegemonSite: SiteResources = {
+  gold: 16000,
+  units: [
+    ['infantry', -1, 1],
+    ['infantry', 1, 1],
+    ['rocket', 0, 0],
+    ['tank', 1, 0],
+    ['heavyTank', -1, 0],
+    ['heavyTank', 0, 2],
+    ['antiAir', 0, 1],
+    ['bomber', 0, -1],
+    ['mech', -1, 2],
+    ['heavyTank', 1, 2],
+  ],
+  facilities: [
+    ['factory', -2, 0],
+    ['factory', 2, 0],
+    ['airport', 0, -1],
+    ['city', -3, 0],
+    ['city', 3, 0],
+    ['city', -2, 2],
+    ['city', 2, 2],
+    ['city', -2, -1],
+    ['city', 2, -1],
+  ],
+};
+
+export function siteTeam(source: ExpandedBattle['sourceMapId'], sites: readonly FourArmyId[], army: FourArmyId): FourArmyId {
+  return (source === 'tundra' || source === 'encirclement') && army !== sites[0] ? sites[1]! : army;
+}
+
 export function startingSiteResources(source: AsymmetricSource, site: number): SiteResources {
-  return source === 'crown' && site === 0 ? centralSite : standardSite;
+  if (site !== 0) return standardSite;
+  return source === 'encirclement' ? hegemonSite : source === 'crown' ? centralSite : standardSite;
 }
 
 // Version 6 has four permanent sites. All relative offsets below refer to the site's approach direction.
@@ -272,6 +311,24 @@ const crownRows = [
   '....#...++...#....',
 ] as const;
 
+// Version 7 fixes the two teams to their sites. The ridge has three crossings.
+const encirclementRows = [
+  '..##..........##..',
+  '...+..........+...',
+  '........A.........',
+  '..====..=..=====..',
+  '..=..c..=..c...=..',
+  '###=####=#####=###',
+  '...=....=.....=...',
+  '..c=....=.....=c..',
+  '..B==...c...===C..',
+  '....====.=====....',
+  '......+.=.+.......',
+  '........D.........',
+  '...+..........+...',
+  '..................',
+] as const;
+
 function sitePosition(home: Position, site: number, side: number, front: number): Position {
   const d = forward[site]!;
   return { x: home.x + front * d.x + side * d.y, y: home.y + front * d.y - side * d.x };
@@ -279,13 +336,15 @@ function sitePosition(home: Position, site: number, side: number, front: number)
 export function asymmetricBoard(source: AsymmetricSource, siteArmies: readonly FourArmyId[], layoutVersion = 5) {
   const count = siteArmies.length === 3 ? 3 : 4;
   const rows =
-    source === 'crown'
-      ? crownRows
-      : source === 'tundra'
-        ? layouts.tundra[3]
-        : layoutVersion === 4 && source !== 'river'
-          ? historicalLayouts[source][count]
-          : layouts[source][count];
+    source === 'encirclement'
+      ? encirclementRows
+      : source === 'crown'
+        ? crownRows
+        : source === 'tundra'
+          ? layouts.tundra[3]
+          : layoutVersion === 4 && source !== 'river'
+            ? historicalLayouts[source][count]
+            : layouts[source][count];
   const bridges: NonNullable<FourArmyMap['bridges']> = [];
   const homes = {} as FourArmyMap['capitals'];
   const terrain = rows.map((row, y) =>
@@ -351,7 +410,7 @@ export function createAsymmetricLayout(source: AsymmetricSource, match: Expanded
     seed,
     pathVersion: 3,
     bridges,
-    setup: { version: 1, unitLimitPerArmy: 8, startZones },
+    setup: { version: 1, unitLimitPerArmy: source === 'encirclement' ? encirclementHegemonLimit : 8, startZones },
     ...(rules ? { rules: structuredClone(rules) } : {}),
   };
 }

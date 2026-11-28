@@ -1,4 +1,4 @@
-import { startingSiteResources } from './game/asymmetricBattlefield';
+import { isFixedFourArmySource, startingSiteResources } from './game/asymmetricBattlefield';
 import { createExpandedBattleMap, latestExpandedBattleLayout } from './game/expandedBattleMap';
 import { FOUR_ARMY_IDS } from './game/fourArmyFoundation';
 import { battlefieldTheme } from './ui/startingSites';
@@ -76,7 +76,7 @@ function multiplayerPreview(map: MultiplayerMap, count: 2 | 3 | 4): string {
   const made = source === 'wide' ? createFourArmyMap32() : createExpandedBattleMap({ sourceMapId: source, participants: FOUR_ARMY_IDS.slice(0, count), layoutVersion: latestExpandedBattleLayout(source, count) });
   if (!made.ok) return '';
   const { board, units } = made.value;
-  const preview = renderMapPreview(board, map === 'crown' ? [] : units.flatMap(unit => unit.position ? [{ ...unit.position, owner: unit.owner }] : []), map === 'strait' ? 'coastal' : battlefieldTheme(map), true);
+  const preview = renderMapPreview(board, isFixedFourArmySource(map) ? [] : units.flatMap(unit => unit.position ? [{ ...unit.position, owner: unit.owner }] : []), map === 'strait' ? 'coastal' : battlefieldTheme(map), true);
   multiplayerPreviews.set(key, preview);
   return preview;
 }
@@ -1673,10 +1673,10 @@ function render(): void {
     multiplayerCards: () => multiplayerOnlyMaps.map(map => ({
       id: multiplayerCardId(map), name: multiplayerName(map), ...multiplayerSize(map),
       category: 'battle', formats: [multiplayerCatalogFormat(map, count => titlePreviews.placeholder(multiplayerCardId(map), () => multiplayerPreview(map, count)))], clear: 'untracked',
-      theme: map === 'strait' ? (getLocale() === 'en' ? 'Coastal' : '沿岸') : (getLocale() === 'en' ? 'Temperate' : '温帯'), startingGold: map === 'crown' ? startingSiteResources(map, 0).gold : map === 'strait' ? 6000 : 10000,
-      ...(map === 'crown' ? { startingGoldLabel: getLocale() === 'en' ? 'Starting funds vary by site' : '初期資金は地点別' } : {}),
+      theme: map === 'strait' ? (getLocale() === 'en' ? 'Coastal' : '沿岸') : (getLocale() === 'en' ? 'Temperate' : '温帯'), startingGold: isFixedFourArmySource(map) ? startingSiteResources(map, 0).gold : map === 'strait' ? 6000 : 10000,
+      ...(isFixedFourArmySource(map) ? { startingGoldLabel: getLocale() === 'en' ? 'Starting funds vary by site' : '初期資金は地点別' } : {}),
       timing: map === 'wide' ? (getLocale() === 'en' ? 'No round limit' : '期限なし') : (getLocale() === 'en' ? 'Short or unlimited' : '短期戦／期限なし'),
-      victory: map === 'crown' ? (getLocale() === 'en' ? 'Last army standing' : '最後の生存軍が勝利') : getLocale() === 'en' ? 'Last army or team standing' : '最後の生存軍・チームが勝利',
+      victory: map === 'encirclement' ? (getLocale() === 'en' ? 'Fixed 1 vs 3 · last team standing wins' : '固定1対3・最後の生存チームが勝利') : map === 'crown' ? (getLocale() === 'en' ? 'Last army standing' : '最後の生存軍が勝利') : getLocale() === 'en' ? 'Last army or team standing' : '最後の生存軍・チームが勝利',
       custom: false, selected: false, preview: '',
     })),
     mapPreview: map => titlePreviews.placeholder(map.id, () => mapPreviews.get(map) ?? (() => {

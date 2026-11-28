@@ -14,7 +14,7 @@ import { canProduceUnit, isPropertyTerrainKind, productionKindsForRule, unitLimi
 import { isServiceTile, isGroundUnit, canServiceUnitAt } from '../game/logistics';
 import { isArmyPolicy, type ArmyPolicy } from '../game/armyPolicy';
 import { isFourArmyCommand, type FourArmyCommand, type FourArmyObservation } from '../game/fourArmyEngine';
-import { alliedArmies } from '../game/smallBattle';
+import { alliedArmies, fourArmyUnitLimit } from '../game/smallBattle';
 import { FOUR_ARMY_IDS } from '../game/fourArmyFoundation';
 import { isDeployedUnit, type Position, type Unit } from '../game/types';
 import { isEmbarkableUnit, transportCapacity, unitStats } from '../game/units';
@@ -47,7 +47,12 @@ export function isObservedFourArmyCommand(o: FourArmyObservation, command: unkno
   if (command.type === 'merge' && !o.units.some((u) => u.id === command.targetId && u.owner === o.viewer)) return false;
   if (command.type === 'produce' && o.board.terrain[command.factory.y]?.[command.factory.x]?.owner !== o.viewer) return false;
   if (['bridge', 'destroyBridge'].includes(command.type) && o.match?.version !== 2) return false;
-  if (command.type === 'produce' && o.unitLimitPerArmy !== undefined && o.units.filter((u) => u.owner === o.viewer).length >= o.unitLimitPerArmy) return false;
+  if (
+    command.type === 'produce' &&
+    o.unitLimitPerArmy !== undefined &&
+    o.units.filter((u) => u.owner === o.viewer).length >= fourArmyUnitLimit(o.match, o.unitLimitPerArmy, o.viewer)
+  )
+    return false;
   if (command.type === 'produce' && !canProduceUnit(o.board.terrain[command.factory.y]?.[command.factory.x]?.kind ?? 'plain', command.kind, 'facility-v2', o.rules ? 14 : 12))
     return false;
   const { actor, ...c } = command;
@@ -92,6 +97,7 @@ export function chooseFourArmyCpuCommand(input: unknown, options: unknown, cpuVe
   const actor = o.viewer,
     cautious = options.policy === 'defensive' ? 0.65 : options.policy === 'offensive' ? 0.2 : 0.4;
   const shortMatch = improved && o.match?.version === 2 && o.match.ending === 'short' ? o.match : undefined;
+  const encirclement = shortMatch?.sourceMapId === 'encirclement';
   const centralPower = shortMatch?.sourceMapId === 'crown' && shortMatch.layoutVersion === 6;
   const passMatch =
     shortMatch && (centralPower || (shortMatch.layoutVersion === 5 && (shortMatch.sourceMapId === 'canyon' || shortMatch.sourceMapId === 'marsh'))) ? shortMatch : undefined;
@@ -122,7 +128,7 @@ export function chooseFourArmyCpuCommand(input: unknown, options: unknown, cpuVe
     .filter((a) => !alliedArmies(o.match, a, actor) && (!focus || a === focus) && o.board.terrain[o.capitals[a].y]![o.capitals[a].x]!.owner === a)
     .map((a) => o.capitals[a]);
   // The normal round-40 switch lies beyond these short matches' deadlines.
-  const passAssault = passMatch && o.round.round >= (centralPower ? 2 : threeWay ? 9 : 6);
+  const passAssault = encirclement ? o.round.round >= 5 : passMatch && o.round.round >= (centralPower ? 2 : threeWay ? 9 : 6);
   const goals = [...hostileHomes, ...properties];
   const combatGoals = modernSix && (improved || o.alive.length <= 2) && (passAssault || o.round.round >= 40) && hostileHomes.length ? hostileHomes : goals;
   const danger = (u: Unit, p: Position): number => {
@@ -235,8 +241,8 @@ export function chooseFourArmyCpuCommand(input: unknown, options: unknown, cpuVe
         (!improved || ((threeWay || !passAssault) && o.round.round < 40) || !hostileHomes.length || d < currentDistance)
       )
         score += late ? 500 : 240;
-      if (centralPower && passAssault && unitStats[u.kind].capturePower > 0 && !returning && Number.isFinite(currentDistance) && d < currentDistance)
-        score += 220 * (currentDistance - d);
+      if ((centralPower || encirclement) && passAssault && unitStats[u.kind].capturePower > 0 && !returning && Number.isFinite(currentDistance) && d < currentDistance)
+        score += (encirclement ? 110 : 220) * (currentDistance - d);
       if (passAssault && unitStats[u.kind].capturePower > 0 && hostileHomes.some((h) => h.x === p.x && h.y === p.y)) score += 1400;
       if (options.policy === 'defensive' && enemies.some((e) => e.position && manhattanDistance(e.position, o.capitals[actor]) <= 5))
         score += (manhattanDistance(u.position, o.capitals[actor]) - manhattanDistance(p, o.capitals[actor])) * 25;
@@ -286,9 +292,10 @@ export function chooseFourArmyCpuCommand(input: unknown, options: unknown, cpuVe
     }
   }
   const scale = options.difficulty === 'easy' ? 0.45 : options.difficulty === 'normal' ? 0.7 : 1;
-  const limit = Math.max(4, Math.floor((o.unitLimitPerArmy ?? unitLimit(view.board, 12)) * scale));
+  const rosterLimit = fourArmyUnitLimit(o.match, o.unitLimitPerArmy ?? unitLimit(view.board, 12), actor);
+  const limit = Math.max(4, Math.floor(rosterLimit * scale));
   const healthyCapturers = improved ? healthyFourArmyCapturers(own) : own.filter((u) => unitStats[u.kind].capturePower > 0).length;
-  const captureReinforcement = improved && healthyCapturers < 2 && own.length < (o.unitLimitPerArmy ?? unitLimit(view.board, 12));
+  const captureReinforcement = improved && healthyCapturers < 2 && own.length < rosterLimit;
   if ((own.length < limit || captureReinforcement) && o.units.length < 128)
     for (let y = 0; y < o.board.height; y++)
       for (let x = 0; x < o.board.width; x++) {

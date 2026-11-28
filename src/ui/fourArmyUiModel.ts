@@ -1,6 +1,7 @@
 import { productionKindsForRule } from '../game/facilities';
 import { isObservedFourArmyCommand } from '../ai/fourArmyCpu';
 import type { FourArmyObservation } from '../game/fourArmyEngine';
+import { fourArmyUnitLimit } from '../game/smallBattle';
 import type { Position } from '../game/types';
 import { unitStats } from '../game/units';
 
@@ -21,7 +22,7 @@ export function fourArmyProductionFacilities(o: FourArmyObservation): Position[]
 
 export function fourArmyProductionOptions(o: FourArmyObservation, factory: Position) {
   const tile = o.board.terrain[factory.y]?.[factory.x];
-  const full = o.units.filter((u) => u.owner === o.viewer).length >= (o.unitLimitPerArmy ?? 16);
+  const full = o.units.filter((u) => u.owner === o.viewer).length >= fourArmyUnitLimit(o.match, o.unitLimitPerArmy ?? 16, o.viewer);
   return (productionKindsForRule('facility-v2', o.rules ? 14 : 12)[tile?.kind ?? 'plain'] ?? []).map((kind) => ({
     kind,
     cost: unitStats[kind].cost,

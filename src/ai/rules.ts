@@ -1,3 +1,4 @@
+import { peninsulaMainlandEdge, peninsulaNeckId } from '../game/peninsulaNeck';
 import { logisticsOrder, usesLogisticsOrders } from '../game/logisticsOrders';
 import { missionGuardsPending, missionSafeAt, usesMissionSafety } from './missionSafety';
 import { clearMissionExit } from './missionLane';
@@ -626,6 +627,32 @@ function supplyVehicleValue(state: GameState, player: PlayerId, unit: DeployedUn
   return Math.min(2, served) * 30;
 }
 
+/** The western peninsula's land connection still leaves coastal landings useful. */
+function peninsulaLandingAction(state: GameState, player: PlayerId, visibleEnemies: readonly Unit[]): CpuAction | undefined {
+  if (state.scenarioId !== peninsulaNeckId || player !== 'red') return undefined;
+  const units = orderedUnits(state, player);
+  const ship = units.find(unit => unit.kind === 'landingShip' && !unit.hasActed && unit.position.x < peninsulaMainlandEdge);
+  if (!ship) return undefined;
+  const cargo = state.units.find(unit => unit.embarkedIn === ship.id);
+  if (!cargo) {
+    const passenger = units.find(unit => isEmbarkableUnit(unit.kind) && !unit.hasActed && isAdjacent(unit.position, ship.position));
+    return !ship.hasMoved && passenger ? { type: 'embark', unitId: passenger.id, transportId: ship.id } : undefined;
+  }
+
+  const mainland = (p: Position) => p.x >= peninsulaMainlandEdge && Number.isFinite(unitMovementCost(state, p, cargo.kind));
+  const landing = adjacentPositions(ship.position).find(p => mainland(p) && !knownUnitAt(state, player, p, visibleEnemies));
+  if (landing && (!ship.hasMoved || (state.ruleVersion ?? 0) >= TACTICAL_RULE_VERSION)) return { type: 'disembark', transportId: ship.id, destination: landing };
+  if (!ship.hasMoved) {
+    const coast = Array.from({ length: state.board.height }, (_, y) => ({ x: peninsulaMainlandEdge, y })).filter(mainland);
+    const distance = (p: Position) => Math.min(...coast.map(target => manhattanDistance(p, target)));
+    const destination = reachablePositionsForPlayer(state, ship.id, player)
+      .filter(p => p.x < peninsulaMainlandEdge && distance(p) < distance(ship.position) && transportSafeAt(state, ship, p, visibleEnemies))
+      .sort((a, b) => distance(a) - distance(b) || a.y - b.y || b.x - a.x)[0];
+    if (destination) return { type: 'move', unitId: ship.id, destination };
+  }
+  return { type: 'wait', unitId: ship.id };
+}
+
 /** Choose one transport step before ordinary movement so island objectives are never stranded. */
 function transportAction(state: GameState, player: PlayerId, targets: readonly Position[], components: ReadonlyMap<string, number>, visibleEnemies: readonly Unit[], adaptTactics = true): CpuAction | undefined {
   targets = targets.filter(target => components.has(`${target.x},${target.y}`));
@@ -1068,6 +1095,7 @@ function chooseOrientedCpuAction(state: GameState, difficulty: CpuDifficulty, pl
     }) : undefined)
     ?? clearNavalServiceLane(state, player, readyUnits)
     ?? chooseAirliftAction(state, player, context.targets, context.landComponents, context.visibleEnemies, adaptTactics)
+    ?? (adaptTactics ? peninsulaLandingAction(state, player, context.visibleEnemies) : undefined)
     ?? transportAction(state, player, context.targets, context.landComponents, context.visibleEnemies, adaptTactics)
     ?? productionAction(state, player, config, context)
     ?? moveAction(state, player, config, context)

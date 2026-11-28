@@ -1,4 +1,4 @@
-import { createAsymmetricLayout, isAsymmetricSource } from './asymmetricBattlefield';
+import { createAsymmetricLayout, isAsymmetricSource, siteTeam } from './asymmetricBattlefield';
 import { FOUR_ARMY_IDS, type FourArmyId } from './fourArmyFoundation';
 import { createFourArmyState, type FourArmyMap, type FourArmyTerrain } from './fourArmyEngine';
 import { isFourArmyRules, type FourArmyRules } from './fourArmyRules';
@@ -25,7 +25,7 @@ export function expandedBattleDimensions(source: ExpandedBattle['sourceMapId']) 
 }
 /** Layout 3 protects the northern neutral facilities from simultaneous flank pressure; callers loading historical snapshots keep layout 2. */
 export const latestExpandedBattleLayout = (source: ExpandedBattle['sourceMapId'], count: number): ExpandedBattle['layoutVersion'] =>
-  source === 'crown' ? 6 : isAsymmetricSource(source) ? 5 : count === 3 && (source === 'skirmish' || source === 'outpost') ? 3 : 2;
+  source === 'encirclement' ? 7 : source === 'crown' ? 6 : isAsymmetricSource(source) ? 5 : count === 3 && (source === 'skirmish' || source === 'outpost') ? 3 : 2;
 /** Authored snapshots. No legacy preset is edited or used as a mutable source. */
 export function createExpandedBattleMap(options: ExpandedBattleOptions = {}): GameResult<FourArmyMap> {
   if (
@@ -41,7 +41,7 @@ export function createExpandedBattleMap(options: ExpandedBattleOptions = {}): Ga
     seed = options.seed ?? 1522,
     ending = options.ending ?? (sourceMapId === 'frontier' ? 'unlimited' : 'short');
   const sites = options.siteArmies ?? participants;
-  const team = (a: FourArmyId) => options.teams?.[a] ?? (sourceMapId === 'tundra' && a !== sites[0] ? sites[1]! : a);
+  const team = (a: FourArmyId) => options.teams?.[a] ?? siteTeam(sourceMapId, sites, a);
   const match: ExpandedBattle = {
     version: 2,
     sourceMapId,

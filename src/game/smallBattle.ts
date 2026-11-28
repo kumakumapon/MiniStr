@@ -1,4 +1,4 @@
-import { isAsymmetricSource, type AsymmetricSource } from './asymmetricBattlefield';
+import { encirclementAllianceLimit, isAsymmetricSource, siteTeam, type AsymmetricSource } from './asymmetricBattlefield';
 import { FOUR_ARMY_IDS, type FourArmyId, type FourArmyOutcome } from './fourArmyFoundation';
 import type { FourArmyMap, FourArmyState } from './fourArmyEngine';
 import { isPropertyTerrainKind } from './facilities';
@@ -16,7 +16,7 @@ export interface LegacySmallBattle {
 export interface ExpandedBattle {
   version: 2;
   sourceMapId: 'skirmish' | 'outpost' | 'strait' | 'frontier' | AsymmetricSource;
-  layoutVersion: 2 | 3 | 4 | 5 | 6;
+  layoutVersion: 2 | 3 | 4 | 5 | 6 | 7;
   /** Army assigned to each ordered authored site in authored layouts. */
   siteArmies?: FourArmyId[];
   participants: FourArmyId[];
@@ -30,6 +30,10 @@ export interface ExpandedBattle {
 export type SmallBattle = LegacySmallBattle | ExpandedBattle;
 export const alliedArmies = (match: SmallBattle | undefined, a: FourArmyId, b: FourArmyId): boolean =>
   a === b || (match?.version === 2 && match.participants.includes(a) && match.participants.includes(b) && match.teams[a] === match.teams[b]);
+/** The Encirclement roster shares a base limit, with lower ceilings at the three allied sites. */
+export function fourArmyUnitLimit(match: SmallBattle | undefined, limit: number, army: FourArmyId): number {
+  return match?.version === 2 && match.sourceMapId === 'encirclement' && match.siteArmies?.[0] !== army ? Math.min(limit, encirclementAllianceLimit) : limit;
+}
 export const matchTeams = (match?: SmallBattle) => (match?.version === 2 ? match.teams : undefined);
 export function battleWinners(s: Pick<FourArmyState, 'match' | 'outcome'>): FourArmyId[] {
   return s.outcome.type === 'victory' ? fourArmyParticipants(s).filter((a) => alliedArmies(s.match, a, s.outcome.type === 'victory' ? s.outcome.winner : a)) : [];
@@ -50,8 +54,12 @@ export function isSmallBattle(v: unknown): v is SmallBattle {
     if (
       Object.keys(m).length !== names.length ||
       !names.every((k) => Object.hasOwn(m, k)) ||
-      (m.sourceMapId === 'crown'
-        ? m.layoutVersion !== 6 || !Array.isArray(ids) || ids.length !== 4 || m.initiative !== 'rotating' || m.sharedVision !== false
+      (m.sourceMapId === 'crown' || m.sourceMapId === 'encirclement'
+        ? m.layoutVersion !== (m.sourceMapId === 'encirclement' ? 7 : 6) ||
+          !Array.isArray(ids) ||
+          ids.length !== 4 ||
+          m.initiative !== 'rotating' ||
+          m.sharedVision !== (m.sourceMapId === 'encirclement')
         : authored
           ? m.layoutVersion !== 5 && !(m.layoutVersion === 4 && (m.sourceMapId === 'canyon' || m.sourceMapId === 'marsh'))
           : m.layoutVersion !== 2 && !(m.layoutVersion === 3 && Array.isArray(ids) && ids.length === 3 && ['skirmish', 'outpost'].includes(String(m.sourceMapId)))) ||
@@ -81,9 +89,8 @@ export function isSmallBattle(v: unknown): v is SmallBattle {
         m.siteArmies.length !== ids.length ||
         new Set(m.siteArmies).size !== ids.length ||
         !m.siteArmies.every((a) => ids.includes(a)) ||
-        (m.sourceMapId === 'tundra'
-          ? ids.length !== 3 || m.ending !== 'short' || !m.siteArmies.every((army, i, sites) => teams[army] === sites[i === 0 ? 0 : 1])
-          : ids.some((a) => teams[a] !== a)))
+        (m.sourceMapId === 'tundra' && (ids.length !== 3 || m.ending !== 'short')) ||
+        !m.siteArmies.every((army, _, sites) => teams[army] === siteTeam(m.sourceMapId as AsymmetricSource, sites, army)))
     )
       return false;
     if (!ids.every((a) => Object.hasOwn(teams, a) && FOUR_ARMY_IDS.includes(teams[a] as FourArmyId)) || new Set(Object.values(teams)).size < 2) return false;

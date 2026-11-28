@@ -4,6 +4,7 @@ import {
   battleOrder,
   matchTeams,
   fourArmyParticipants,
+  fourArmyUnitLimit,
   isSmallBattle,
   smallBattleDecision,
   smallBattleMapShape,
@@ -477,7 +478,7 @@ export function isFourArmyState(value: unknown): value is FourArmyState {
     )
   )
     return false;
-  if (s.setup && FOUR_ARMY_IDS.some((a) => s.units.filter((u) => u.owner === a).length > s.setup!.unitLimitPerArmy)) return false;
+  if (s.setup && FOUR_ARMY_IDS.some((a) => s.units.filter((u) => u.owner === a).length > fourArmyUnitLimit(s.match, s.setup!.unitLimitPerArmy, a))) return false;
   if (
     s.engineVersion === 3 || ((s.engineVersion === 4 || s.engineVersion === 5) && s.rules)
       ? !validFourArmyExtensions(s)
@@ -633,7 +634,7 @@ function resolveFourArmyCommand(input: unknown, command: unknown, includeCombat:
     if (
       command.type === 'produce' &&
       (input.units.length >= 128 ||
-        (input.setup && input.units.filter((u) => u.owner === command.actor).length >= input.setup.unitLimitPerArmy) ||
+        (input.setup && input.units.filter((u) => u.owner === command.actor).length >= fourArmyUnitLimit(input.match, input.setup.unitLimitPerArmy, command.actor)) ||
         !canProduceUnit(input.board.terrain[command.factory.y]?.[command.factory.x]?.kind ?? 'plain', command.kind, 'facility-v2', input.rules ? 14 : 12))
     )
       return fail('対応する生産施設または部隊枠が必要です。');
