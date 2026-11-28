@@ -1,3 +1,6 @@
+import { authoredArrival, fourArmyArrival, type FourArmyArrival } from '../game/fourArmyArrival';
+import { fourArmyArchiveRuleset } from '../game/fourArmyArchive';
+import { isExpandedBattle } from '../game/smallBattle';
 import { fourArmyObjective, type FourArmyHoldObjective } from '../game/fourArmyObjective';
 import { authoredBattlefield, authoredFourSources, isAuthoredFourSource } from '../game/asymmetricFourSites';
 import { armyEmblem, armyShapes } from './fourArmyEmblems';
@@ -106,7 +109,7 @@ import type { SoundEvent } from './presentationEffects';
 const text = (ja: string, en: string) => (getLocale() === 'en' ? en : ja);
 export function canReplayFourArmySave(saved: FourArmySpectatorSave): boolean {
   if (saved.archive.payload.state.outcome.type !== 'ongoing') return true;
-  if (saved.format === 'ministr-four-army-configurable' && saved.schemaVersion === 6 && saved.controlHistory.events.length > 0) return false;
+  if (saved.format === 'ministr-four-army-configurable' && (saved.schemaVersion === 6 || saved.schemaVersion === 7) && saved.controlHistory.events.length > 0) return false;
   const humans = fourArmyHumanArmies(savedFourArmyControllers(saved));
   return humans.length <= 1 || !humans.some((army) => saved.archive.payload.state.alive.includes(army));
 }
@@ -160,6 +163,9 @@ export class FourArmyScreen {
     const state = this.replay?.state ?? this.session?.state;
     const actor = state?.round.order[state.round.index];
     return humans.length === 1 ? humans[0] : actor && humans.includes(actor) ? actor : (humans.find((a) => state?.alive.includes(a)) ?? humans[0]);
+  }
+  private awaitingArrival(state: FourArmyState, army: FourArmyId | undefined): boolean {
+    return army !== undefined && state.outcome.type === 'ongoing' && state.arrivedAt === undefined && fourArmyArrival(state.match)?.army === army;
   }
   private get rawHumanTurn(): boolean {
     const state = this.session?.state;
@@ -406,7 +412,7 @@ export class FourArmyScreen {
   }
   private get lockedView(): boolean {
     const state = this.session?.state;
-    return !!state && state.outcome.type === 'ongoing' && fourArmyHumanArmies(this.controllers).some((a) => state.alive.includes(a));
+    return !!state && state.outcome.type === 'ongoing' && fourArmyHumanArmies(this.controllers).some((a) => state.alive.includes(a) || this.awaitingArrival(state, a));
   }
   private clearHuman(): void {
     this.humanSource = undefined;
@@ -635,6 +641,7 @@ export class FourArmyScreen {
       ? text('あなたの手番です。自軍の部隊または施設を選択してください。', 'Your turn. Select your unit or facility.')
       : text('CPUは停止中です。CPU進行または1手進めるを選んでください。', 'CPUs are paused. Choose Run CPUs or Step.');
     this.shell();
+    if (fourArmyArrival(state.value.match)) this.ensureAutosave();
     if (this.map?.match) this.locate();
     if (fourArmyHumanArmies(this.controllers).length > 0 && !this.rawHumanTurn) void this.play();
   }
@@ -829,8 +836,15 @@ export class FourArmyScreen {
     return {
       format: 'ministr-four-army-configurable',
       controllers: structuredClone(this.controllers),
-      schemaVersion: ['four-army-cpu-v6', FOUR_ARMY_LATEST_CPU_VERSION].includes(this.cpuVersion) || this.controlHistory.events.length > 0 ? 6 : this.map.match ? 5 : 4,
-      ...(['four-army-cpu-v6', FOUR_ARMY_LATEST_CPU_VERSION].includes(this.cpuVersion) || this.controlHistory.events.length > 0
+      schemaVersion:
+        this.session.state.engineVersion === 6
+          ? 7
+          : ['four-army-cpu-v6', FOUR_ARMY_LATEST_CPU_VERSION].includes(this.cpuVersion) || this.controlHistory.events.length > 0
+            ? 6
+            : this.map.match
+              ? 5
+              : 4,
+      ...(this.session.state.engineVersion === 6 || ['four-army-cpu-v6', FOUR_ARMY_LATEST_CPU_VERSION].includes(this.cpuVersion) || this.controlHistory.events.length > 0
         ? { controlHistory: structuredClone(this.controlHistory) }
         : {}),
       experience: fourArmyExperienceManifest(this.experience),
@@ -843,16 +857,7 @@ export class FourArmyScreen {
       archive: {
         format: 'ministr-four-army-save',
         schemaVersion: this.session.state.engineVersion,
-        ruleset:
-          this.session.state.engineVersion === 1
-            ? 'four-army-v1'
-            : this.session.state.engineVersion === 2
-              ? 'four-army-v2'
-              : this.session.state.engineVersion === 3
-                ? 'four-army-v3'
-                : this.session.state.engineVersion === 4
-                  ? 'four-army-v4'
-                  : 'four-army-v5',
+        ruleset: fourArmyArchiveRuleset(this.session.state.engineVersion),
         payload: { map: this.map, commands: [...this.prefix, ...this.session.commands], state: this.session.state },
       },
     } as FourArmySpectatorSave;
@@ -865,8 +870,12 @@ export class FourArmyScreen {
     return `${state.round.round}:${state.round.index}:${state.round.order[state.round.index]}`;
   }
   private ensureAutosave(): void {
-    if (!this.active || this.phase !== 'watch' || this.replay || !this.session || !this.rawHumanTurn) return;
-    const turn = this.turnKey(this.session.state);
+    if (!this.active || this.phase !== 'watch' || this.replay || !this.session) return;
+    const state = this.session.state;
+    const reserve = fourArmyArrival(state.match);
+    const waiting = reserve && this.controllers[reserve.army] === 'human' && state.arrivedAt === undefined;
+    if (!this.rawHumanTurn && !waiting) return;
+    const turn = waiting ? 'arrival:' + state.round.round : this.turnKey(state);
     if (turn === this.autoTurn) return;
     this.autoTurn = turn;
     this.autoSnapshot = this.snapshot();
@@ -1173,17 +1182,17 @@ export class FourArmyScreen {
     const match = saved.archive.payload.map.match;
     this.setupParticipants = [...fourArmyParticipants(saved.archive.payload.map)];
     this.setupCount = this.setupParticipants.length as 2 | 3 | 4;
-    this.setupMap = match?.version === 2 ? (match.sourceMapId === 'skirmish' ? 'compact' : match.sourceMapId) : match ? 'compact' : 'wide';
-    this.siteArmies = match?.version === 2 && match.siteArmies ? [...match.siteArmies] : [...this.setupArmies];
+    this.setupMap = isExpandedBattle(match) ? (match.sourceMapId === 'skirmish' ? 'compact' : match.sourceMapId) : match ? 'compact' : 'wide';
+    this.siteArmies = isExpandedBattle(match) && match.siteArmies ? [...match.siteArmies] : [...this.setupArmies];
     this.setupEnding = match?.ending ?? 'unlimited';
-    this.setupTeamMode = match?.version === 2 && !isAsymmetricSource(this.setupMap) && new Set(Object.values(match.teams)).size < match.participants.length;
-    if (match?.version === 2) this.setupTeams = { ...this.setupTeams, ...match.teams };
+    this.setupTeamMode = isExpandedBattle(match) && !isAsymmetricSource(this.setupMap) && new Set(Object.values(match.teams)).size < match.participants.length;
+    if (isExpandedBattle(match)) this.setupTeams = { ...this.setupTeams, ...match.teams };
 
     this.expandedRules = !!saved.archive.payload.map.rules;
     this.tacticalRules = saved.archive.payload.map.rules?.tactics ?? false;
     this.install(saved.archive.payload.map, saved.archive.payload.state, saved.archive.payload.commands, record.checkpoints, saved.cpuVersion, incomingControllers, {
       experience: record.experience,
-      controlHistory: saved.format === 'ministr-four-army-configurable' && saved.schemaVersion === 6 ? saved.controlHistory : undefined,
+      controlHistory: saved.format === 'ministr-four-army-configurable' && (saved.schemaVersion === 6 || saved.schemaVersion === 7) ? saved.controlHistory : undefined,
     });
     this.view = saved.view;
     this.prepareHandoff();
@@ -1354,6 +1363,7 @@ export class FourArmyScreen {
       return;
     }
     if (id === 'four-human-watch') {
+      if (this.lockedView) return;
       this.view = 'all';
       this.paint();
       await this.play();
@@ -1908,6 +1918,15 @@ export class FourArmyScreen {
     return fixedTeamFormat(this.setupMap) !== undefined || (this.setupMap !== 'wide' && this.setupTeamMode);
   }
 
+  private arrivalCopy(reserve: FourArmyArrival): string {
+    const { x, y, width, height } = reserve.zone;
+    const area = `(${x + 1}, ${y + 1})–(${x + width}, ${y + height})`;
+    return text(
+      `南の予約区域 ${area}。第${reserve.round}ラウンドから空き次第参入します。`,
+      `Southern reserve area ${area}. The army may enter from round ${reserve.round} once it is clear.`,
+    );
+  }
+
   private holdObjectiveCopy(objective: FourArmyHoldObjective): string {
     const point = '(' + (objective.position.x + 1) + ', ' + (objective.position.y + 1) + ')';
     return text(
@@ -1918,6 +1937,7 @@ export class FourArmyScreen {
 
   private setupObjectives(hasHuman: boolean): string {
     const objective = isAuthoredFourSource(this.setupMap) ? authoredBattlefield(this.setupMap).objective : undefined;
+    const reserve = authoredArrival(this.setupMap, this.siteArmies);
     const win = objective
       ? this.holdObjectiveCopy(objective)
       : this.setupMap === 'tundra'
@@ -1935,15 +1955,16 @@ export class FourArmyScreen {
             `After round ${this.setupCount === 3 ? 21 : 20}, properties decide the winner, then remaining HP. A tie is a draw.`,
           )
         : '';
-    return `<div class="briefing-objectives"><section><h3>${uiText.victoryConditions}</h3><p>${win}</p>${decision ? `<p>${decision}</p>` : ''}</section><section><h3>${uiText.defeatConditions}</h3><p>${loss}</p></section></div>`;
+    return `<div class="briefing-objectives"><section><h3>${uiText.victoryConditions}</h3><p>${win}</p>${reserve ? `<p>${this.arrivalCopy(reserve)}</p>` : ''}${decision ? `<p>${decision}</p>` : ''}</section><section><h3>${uiText.defeatConditions}</h3><p>${loss}</p></section></div>`;
   }
 
   private renderObjectives(): string {
     const match = this.map?.match;
     if (match?.sourceMapId === 'tundra')
       return `<details class="four-objectives"><summary>${text('作戦目標', 'Objectives')}</summary><p>${armyName(match.siteArmies![0]!)} · ${this.defenseObjective}</p></details>`;
-    const teams = match?.version === 2 && new Set(match.participants.map((army) => match.teams[army])).size < match.participants.length;
+    const teams = isExpandedBattle(match) && new Set(match.participants.map((army) => match.teams[army])).size < match.participants.length;
     const objective = fourArmyObjective(match);
+    const reserve = fourArmyArrival(match);
     const win = objective
       ? this.holdObjectiveCopy(objective)
       : teams
@@ -1956,7 +1977,7 @@ export class FourArmyScreen {
             `After round ${match.roundLimit}, compare properties, then remaining HP. A tie is a draw.`,
           )
         : '';
-    return `<details class="four-objectives"><summary>${text('作戦目標', 'Objectives')}</summary><p>${win}</p>${objective ? '<p id="four-hold-progress"></p>' : ''}<p>${text('司令部または全部隊を失うと脱落します。', 'An army is eliminated if it loses its headquarters or all of its units.')}</p>${decision ? `<p>${decision}</p>` : ''}</details>`;
+    return `<details class="four-objectives"><summary>${text('作戦目標', 'Objectives')}</summary><p>${win}</p>${objective ? '<p id="four-hold-progress"></p>' : ''}${reserve ? '<p id="four-arrival-status"></p>' : ''}<p>${text('司令部または全部隊を失うと脱落します。', 'An army is eliminated if it loses its headquarters or all of its units.')}</p>${decision ? `<p>${decision}</p>` : ''}</details>`;
   }
 
   private shell(): void {
@@ -2092,6 +2113,19 @@ export class FourArmyScreen {
     this.paintControls();
     if (this.phase !== 'watch' || !this.session) return;
     const state = this.replay?.state ?? this.session.state;
+    const reserve = fourArmyArrival(state.match);
+    const arrivalStatus = this.query('#four-arrival-status');
+    if (reserve && arrivalStatus) {
+      const message =
+        state.arrivedAt !== undefined
+          ? text(`第${state.arrivedAt}ラウンドに参入しました`, `Entered in round ${state.arrivedAt}`)
+          : state.outcome.type !== 'ongoing'
+            ? text('終局までに参入しませんでした', 'Match ended before arrival')
+            : state.round.round >= reserve.round
+              ? text('予約区域が空くまで参入保留', 'Arrival postponed until the reserved area is clear')
+              : text(`第${reserve.round}ラウンドから参入予定`, `Scheduled to enter from round ${reserve.round}`);
+      arrivalStatus.textContent = `${armyName(reserve.army)} · ${message}`;
+    }
     const hold = fourArmyObjective(state.match);
     const holdProgress = this.query('#four-hold-progress');
     if (holdProgress && hold && state.objectiveHold) {
@@ -2115,11 +2149,13 @@ export class FourArmyScreen {
         armyName(this.humanArmy) +
         (state.outcome.type === 'victory' && battleWinners(state).includes(this.humanArmy)
           ? text('（あなたの勝利）', ' (You win)')
-          : !state.alive.includes(this.humanArmy)
-            ? text('（あなたは敗北）', ' (You lost)')
-            : this.humanTurn
-              ? text('（あなたの手番）', ' (Your turn)')
-              : text('（あなた）', ' (You)'));
+          : this.awaitingArrival(state, this.humanArmy)
+            ? text('（あなたの軍は参入待ち）', ' (Your army is awaiting arrival)')
+            : !state.alive.includes(this.humanArmy)
+              ? text('（あなたは敗北）', ' (You lost)')
+              : this.humanTurn
+                ? text('（あなたの手番）', ' (Your turn)')
+                : text('（あなた）', ' (You)'));
     if (turn.dataset.status !== status) {
       turn.innerHTML = armyEmblem(actor);
       turn.append(' ' + status);
@@ -2136,13 +2172,13 @@ export class FourArmyScreen {
       }),
     );
     const participants = fourArmyParticipants(state);
-    const teams = state.match?.version === 2 ? state.match.teams : undefined;
+    const teams = isExpandedBattle(state.match) ? state.match.teams : undefined;
     const teamBattle = teams && new Set(participants.map((army) => teams[army])).size < participants.length;
     this.query('#four-army-info')!.innerHTML = participants
       .map((army) => {
         const player = display.players[army];
         const restricted = !player;
-        const site = state.match?.version === 2 ? (state.match.siteArmies?.indexOf(army) ?? -1) : -1;
+        const site = isExpandedBattle(state.match) ? (state.match.siteArmies?.indexOf(army) ?? -1) : -1;
         const map = state.match?.sourceMapId;
         const namedTeam = map === 'encirclement' ? encirclementTeamName(site === 0) : authoredTeamLabel(map, site);
         const team = namedTeam ? ' · ' + namedTeam : teamBattle ? ' · ' + text('チーム ', 'Team ') + String.fromCharCode(64 + Number(teams[army].slice(-1))) : '';
@@ -2151,7 +2187,13 @@ export class FourArmyScreen {
           ? text('視認部隊', 'Seen units') + ' ' + units
           : text('部隊', 'Units') + ' ' + units + '/' + fourArmyUnitLimit(state.match, state.setup?.unitLimitPerArmy ?? 16, army);
         const facilitiesLabel = restricted ? text('視認施設', 'Visible facilities') : text('施設', 'Facilities');
-        const life = state.alive.includes(army) ? text('生存', 'Active') : text('脱落', 'Eliminated');
+        const life = state.alive.includes(army)
+          ? text('生存', 'Active')
+          : reserve?.army === army && state.arrivedAt === undefined
+            ? state.outcome.type === 'ongoing'
+              ? text('参入待ち', 'Awaiting arrival')
+              : text('未参入', 'Did not enter')
+            : text('脱落', 'Eliminated');
         return `<div class="four-army-label ${army}"><span><strong>${armyEmblem(army)} ${armyName(army)}${team}${army === actor ? ' ◀' : ''}</strong> · ${life}</span>
         <span>${facilitiesLabel} ${facilities[army]} · ${unitCount}</span><span>${player ? `${player.gold.toLocaleString()} G · +${player.income.toLocaleString()}` : text('資金非公開', 'Funds hidden')}</span></div>`;
       })
@@ -2380,6 +2422,7 @@ export class FourArmyScreen {
     let roster = '';
     let html = `<p class="card-kicker">COMMAND</p><h2 tabindex="-1">${escapeHtml(armyName(this.humanArmy))} · ${text('あなた', 'You')}</h2>`;
     if (this.replay) html += `<p>${text('リプレイ中は命令できません。', 'Commands are disabled during replay.')}</p>`;
+    else if (this.awaitingArrival(state, this.humanArmy)) html += `<p>${this.arrivalCopy(fourArmyArrival(state.match)!)}</p>`;
     else if (!state.alive.includes(this.humanArmy))
       html += `<p>${text('自軍は脱落しました。記録を保存するか、残りの対局を観戦できます。', 'Your army was eliminated. Save the record or watch the remaining match.')}</p>${state.outcome.type === 'ongoing' ? `<button id="four-human-watch">${text('残りを観戦', 'Watch the remaining match')}</button>` : ''}`;
     else if (state.outcome.type !== 'ongoing') html += `<p>${text('対局は終了しました。', 'The match has ended.')}</p>`;
@@ -2428,22 +2471,21 @@ export class FourArmyScreen {
           .join('')}</section>`;
     }
     if (observed.value.rules) {
-      const ownView: GameState =
-        observed.value.match?.version === 2
-          ? {
-              ...projection,
-              units: observed.value.units.map((unit) => ({ ...unit, owner: unit.owner === viewer ? 'red' : 'blue' })),
-              board: {
-                ...projection.board,
-                terrain: projection.board.terrain.map((row, y) =>
-                  row.map((t, x) => ({
-                    ...t,
-                    owner: observed.value.board.terrain[y]![x]!.owner === undefined ? undefined : observed.value.board.terrain[y]![x]!.owner === viewer ? 'red' : 'blue',
-                  })),
-                ),
-              },
-            }
-          : projection;
+      const ownView: GameState = isExpandedBattle(observed.value.match)
+        ? {
+            ...projection,
+            units: observed.value.units.map((unit) => ({ ...unit, owner: unit.owner === viewer ? 'red' : 'blue' })),
+            board: {
+              ...projection.board,
+              terrain: projection.board.terrain.map((row, y) =>
+                row.map((t, x) => ({
+                  ...t,
+                  owner: observed.value.board.terrain[y]![x]!.owner === undefined ? undefined : observed.value.board.terrain[y]![x]!.owner === viewer ? 'red' : 'blue',
+                })),
+              ),
+            },
+          }
+        : projection;
       roster += renderLogisticsRoster(ownView, 'red', canAct, unit?.id, 'four-', names);
     }
     const unacted = canAct ? fourArmyReadyUnits(observed.value) : [];

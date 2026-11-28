@@ -74,14 +74,14 @@ it.each(authoredFourSources)('round-trips and validates four ordered sites in %s
   const order = ['army2', 'army4', 'army3', 'army1'] as const;
   const map = value(createExpandedBattleMap({ sourceMapId, siteArmies: sites, order, rules: { version: 1, tactics: true } }));
   const spec = authoredBattlefield(sourceMapId);
-  expect(map.match).toMatchObject({ layoutVersion: spec.objective ? 9 : 8, siteArmies: sites, initialOrder: order });
+  expect(map.match).toMatchObject({ layoutVersion: spec.arrival ? 10 : spec.objective ? 9 : 8, siteArmies: sites, initialOrder: order });
   for (const [i, army] of sites.entries()) {
     expect(map.players[army].gold).toBe(spec.sites[i]!.gold);
     for (const [kind, x, y] of spec.sites[i]!.facilities) expect(map.board.terrain[y]![x]).toMatchObject({ kind, owner: army });
     for (const [j, other] of sites.entries()) expect(alliedArmies(map.match, army, other)).toBe(i === j || (!!spec.teams && spec.teams[i] === spec.teams[j]));
   }
   const state = value(createFourArmyState(map));
-  const observation = value(observeFourArmy(state, order[0]));
+  const observation = value(observeFourArmy(state, state.round.order[state.round.index]!));
   const action = chooseFourArmyCpuCommand(observation, { difficulty: 'normal', policy: 'balanced' }, 'four-army-cpu-v7')!;
   expect(isObservedFourArmyCommand(observation, action)).toBe(true);
   const next = value(applyFourArmyCommand(state, action));

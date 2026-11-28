@@ -92,7 +92,7 @@ export class FourArmyFileCodec {
           return finish({ ok: false, error: '4軍ファイルの応答が不正です。' });
         const checkpoints = v.checkpoints;
         if (
-          (v.save.schemaVersion === 4 || v.save.schemaVersion === 5 || v.save.schemaVersion === 6) &&
+          (v.save.schemaVersion === 4 || v.save.schemaVersion === 5 || v.save.schemaVersion === 6 || v.save.schemaVersion === 7) &&
           (!isFourArmyExperience(v.experience, v.save.archive.payload.commands.length) ||
             JSON.stringify(fourArmyExperienceManifest(v.experience)) !== JSON.stringify(v.save.format === 'ministr-four-army-configurable' ? v.save.experience : undefined))
         )
@@ -109,7 +109,7 @@ export class FourArmyFileCodec {
             text: v.text,
             save: v.save,
             checkpoints,
-            ...(v.save.schemaVersion === 4 || v.save.schemaVersion === 5 || v.save.schemaVersion === 6
+            ...(v.save.schemaVersion === 4 || v.save.schemaVersion === 5 || v.save.schemaVersion === 6 || v.save.schemaVersion === 7
               ? { experience: v.experience as import('../game/fourArmyExperience').FourArmyExperience }
               : {}),
           },

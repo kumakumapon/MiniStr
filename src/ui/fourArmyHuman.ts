@@ -1,3 +1,4 @@
+import { isExpandedBattle } from '../game/smallBattle';
 import { isObservedFourArmyCommand } from '../ai/fourArmyCpu';
 import { fourArmyPlanningView } from '../ai/fourArmyObservation';
 import { reachablePositionsForPlayer } from '../game/commands';
@@ -77,7 +78,7 @@ export function fourArmyHumanChoices(o: FourArmyObservation, selected: Position)
       [0, -1],
     ]) {
       const destination = { x: selected.x + dx!, y: selected.y + dy! };
-      if (o.match?.version === 2) {
+      if (isExpandedBattle(o.match)) {
         add('bridge', { actor, type: 'bridge', unitId: unit.id, destination }, destination);
         add('destroyBridge', { actor, type: 'destroyBridge', unitId: unit.id, destination }, destination);
       }

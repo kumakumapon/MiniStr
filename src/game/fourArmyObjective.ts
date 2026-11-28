@@ -1,3 +1,4 @@
+import { isExpandedBattle } from './smallBattle';
 import type { FourArmyState } from './fourArmyEngine';
 import type { FourArmyId, FourArmyOutcome } from './fourArmyFoundation';
 import type { SmallBattle } from './smallBattle';
@@ -16,7 +17,7 @@ export interface FourArmyHoldProgress {
 
 type ObjectiveState = Pick<FourArmyState, 'board' | 'match' | 'alive' | 'objectiveHold' | 'round'>;
 
-export const fourArmyObjective = (match?: SmallBattle): FourArmyHoldObjective | undefined => (match?.version === 2 ? match.objective : undefined);
+export const fourArmyObjective = (match?: SmallBattle): FourArmyHoldObjective | undefined => (isExpandedBattle(match) ? match.objective : undefined);
 
 function holdingArmy(state: ObjectiveState, objective: FourArmyHoldObjective): FourArmyId | undefined {
   const { x, y } = objective.position;

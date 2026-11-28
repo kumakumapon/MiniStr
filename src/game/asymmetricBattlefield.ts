@@ -393,6 +393,7 @@ export function createAsymmetricLayout(source: AsymmetricSource, match: Expanded
         y = Math.min(...ys);
       startZones[army] = { x, y, width: Math.max(...xs) - x + 1, height: Math.max(...ys) - y + 1 };
     }
+    if (match.arrival?.army === army) startZones[army] = { ...match.arrival.zone };
     players[army] = { gold: resources.gold, income: 0 };
     for (const [kind, side, front, embarked] of resources.units) {
       const position = local(side, front);

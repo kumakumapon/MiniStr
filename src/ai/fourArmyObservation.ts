@@ -1,3 +1,5 @@
+import { validArrivalProgress, fourArmyArrival } from '../game/fourArmyArrival';
+import { isExpandedBattle } from '../game/smallBattle';
 import { heldObjectiveOutcome, isFourArmyHoldProgress } from '../game/fourArmyObjective';
 import { alliedArmies, battleOrder, fourArmyUnitLimit, isSmallBattle } from '../game/smallBattle';
 import { fourArmyRuleProjection, isFourArmyRules } from '../game/fourArmyRules';
@@ -31,7 +33,7 @@ export function fourArmyPlanningView(o: FourArmyObservation): GameState {
     turn: o.round.round,
     ...fourArmyRuleProjection(o.rules, o.extensions, o.viewer),
     ...(o.bridges ? { bridges: o.bridges.map((b) => ({ ...b, owner: b.owner === o.viewer ? ('red' as const) : ('blue' as const) })) } : {}),
-    ...(o.match?.version === 2 && o.extensions
+    ...(isExpandedBattle(o.match) && o.extensions
       ? { fortifications: o.extensions.fortifications.map((b) => ({ ...b, owner: alliedArmies(o.match, b.owner, o.viewer) ? ('red' as const) : ('blue' as const) })) }
       : {}),
     rngSeed: 0,
@@ -45,7 +47,7 @@ export function isFourArmyObservation(v: unknown): v is FourArmyObservation {
     !exactKeys(
       v,
       ['viewer', 'board', 'capitals', 'units', 'player', 'visible', 'round', 'alive', 'outcome'],
-      ['unitLimitPerArmy', 'rules', 'extensions', 'match', 'decision', 'bridges', 'objectiveHold'],
+      ['unitLimitPerArmy', 'rules', 'extensions', 'match', 'decision', 'bridges', 'objectiveHold', 'arrivedAt'],
     ) ||
     !isArmy(v.viewer)
   )
@@ -102,20 +104,22 @@ export function isFourArmyObservation(v: unknown): v is FourArmyObservation {
     (v.outcome.type === 'victory' &&
       (!isArmy(v.outcome.winner) ||
         !alive.includes(v.outcome.winner) ||
-        (!deadline && held?.type !== 'victory' && new Set(alive.map((a) => (isSmallBattle(v.match) && v.match.version === 2 ? v.match.teams[a as FourArmyId] : a))).size !== 1))) ||
+        (!deadline &&
+          held?.type !== 'victory' &&
+          new Set(alive.map((a) => (isSmallBattle(v.match) && isExpandedBattle(v.match) ? v.match.teams[a as FourArmyId] : a))).size !== 1))) ||
     (v.outcome.type === 'draw' && !deadline && alive.length !== 0) ||
-    (v.outcome.type === 'ongoing' && new Set(alive.map((a) => (isSmallBattle(v.match) && v.match.version === 2 ? v.match.teams[a as FourArmyId] : a))).size < 2)
+    (v.outcome.type === 'ongoing' && new Set(alive.map((a) => (isSmallBattle(v.match) && isExpandedBattle(v.match) ? v.match.teams[a as FourArmyId] : a))).size < 2)
   )
     return false;
   if (deadline && v.outcome.type === 'ongoing') return false;
   const o = v as unknown as FourArmyObservation;
   if (
     o.match &&
-    (o.board.width !== (o.match.version === 2 && o.match.sourceMapId === 'frontier' ? 32 : o.match.version === 2 && o.match.sourceMapId === 'strait' ? 17 : 18) ||
-      o.board.height !== (o.match.version === 2 && o.match.sourceMapId === 'frontier' ? 32 : o.match.version === 2 && o.match.sourceMapId === 'strait' ? 15 : 14))
+    (o.board.width !== (isExpandedBattle(o.match) && o.match.sourceMapId === 'frontier' ? 32 : isExpandedBattle(o.match) && o.match.sourceMapId === 'strait' ? 17 : 18) ||
+      o.board.height !== (isExpandedBattle(o.match) && o.match.sourceMapId === 'frontier' ? 32 : isExpandedBattle(o.match) && o.match.sourceMapId === 'strait' ? 15 : 14))
   )
     return false;
-  if (o.match?.version === 2 && JSON.stringify(o.round.order) !== JSON.stringify(battleOrder(o.match, o.round.round))) return false;
+  if (isExpandedBattle(o.match) && JSON.stringify(o.round.order) !== JSON.stringify(battleOrder(o.match, o.round.round, o.arrivedAt))) return false;
   if (
     !o.board.terrain.every(
       (row) =>
@@ -205,6 +209,8 @@ export function isFourArmyObservation(v: unknown): v is FourArmyObservation {
   }
   const view = fourArmyPlanningView(o);
   if (o.unitLimitPerArmy !== undefined && FOUR_ARMY_IDS.some((a) => o.units.filter((u) => u.owner === a).length > fourArmyUnitLimit(o.match, o.unitLimitPerArmy!, a))) return false;
+  const reserve = fourArmyArrival(o.match);
+  if (!validArrivalProgress(o) || (reserve?.army === o.viewer && o.arrivedAt === undefined && (p.gold !== 0 || p.income !== 0 || o.visible.length))) return false;
   if (!isFourArmyHoldProgress(o) || (held?.type === 'victory' && (o.outcome.type !== 'victory' || held.winner !== o.outcome.winner))) return false;
   if (!isGameState({ ...view, fortifications: undefined, bridges: undefined }) || !boundedInt(view.nextUnitId, 1, 1e9)) return false;
   if (
@@ -215,7 +221,7 @@ export function isFourArmyObservation(v: unknown): v is FourArmyObservation {
     )
   )
     return false;
-  if (o.match?.version === 2) {
+  if (isExpandedBattle(o.match)) {
     if (
       !Array.isArray(o.bridges) ||
       o.bridges.length > 8 ||

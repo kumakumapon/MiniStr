@@ -1,3 +1,4 @@
+import { isExpandedBattle } from './smallBattle';
 import { createAsymmetricLayout, isFixedFourArmySource } from './asymmetricBattlefield';
 import { FOUR_ARMY_ARCHIVES } from './fourArmyFoundation';
 import { applyFourArmyCommand, createFourArmyState, isFourArmyCommand, isFourArmyState, type FourArmyCommand, type FourArmyMap, type FourArmyState } from './fourArmyEngine';
@@ -6,10 +7,11 @@ import type { GameResult } from './types';
 
 export interface FourArmyArchive {
   format: typeof FOUR_ARMY_ARCHIVES.saveFormat;
-  schemaVersion: 1 | 2 | 3 | 4 | 5;
-  ruleset: typeof FOUR_ARMY_ARCHIVES.ruleset | 'four-army-v2' | 'four-army-v3' | 'four-army-v4' | 'four-army-v5';
+  schemaVersion: 1 | 2 | 3 | 4 | 5 | 6;
+  ruleset: typeof FOUR_ARMY_ARCHIVES.ruleset | 'four-army-v2' | 'four-army-v3' | 'four-army-v4' | 'four-army-v5' | 'four-army-v6';
   payload: { map: FourArmyMap; commands: FourArmyCommand[]; state: FourArmyState };
 }
+export const fourArmyArchiveRuleset = (version: FourArmyState['engineVersion']): FourArmyArchive['ruleset'] => `four-army-v${version}`;
 const fail = (error: string): GameResult<never> => ({ ok: false, error });
 const record = (v: unknown): v is Record<string, unknown> => !!v && typeof v === 'object' && !Array.isArray(v);
 const exact = (v: Record<string, unknown>, keys: string[]) => Object.keys(v).sort().join() === [...keys].sort().join();
@@ -35,16 +37,7 @@ export function serializeFourArmyArchive(map: FourArmyMap, commands: readonly Fo
     const text = JSON.stringify({
       format: FOUR_ARMY_ARCHIVES.saveFormat,
       schemaVersion: state.engineVersion,
-      ruleset:
-        state.engineVersion === 1
-          ? FOUR_ARMY_ARCHIVES.ruleset
-          : state.engineVersion === 2
-            ? 'four-army-v2'
-            : state.engineVersion === 3
-              ? 'four-army-v3'
-              : state.engineVersion === 4
-                ? 'four-army-v4'
-                : 'four-army-v5',
+      ruleset: fourArmyArchiveRuleset(state.engineVersion),
       payload: { map, commands, state },
     });
     const checked = parseFourArmyArchive(text);
@@ -83,7 +76,8 @@ export function* verifyFourArmyArchive(
       (v.schemaVersion === 2 && v.ruleset === 'four-army-v2') ||
       (v.schemaVersion === 3 && v.ruleset === 'four-army-v3') ||
       (v.schemaVersion === 4 && v.ruleset === 'four-army-v4') ||
-      (v.schemaVersion === 5 && v.ruleset === 'four-army-v5')
+      (v.schemaVersion === 5 && v.ruleset === 'four-army-v5') ||
+      (v.schemaVersion === 6 && v.ruleset === 'four-army-v6')
     ) ||
     !record(v.payload) ||
     !exact(v.payload, ['map', 'commands', 'state'])
@@ -96,7 +90,7 @@ export function* verifyFourArmyArchive(
   if (!replayed.ok) return replayed;
   const map = p.map as FourArmyMap;
   if (
-    map.match?.version === 2 &&
+    isExpandedBattle(map.match) &&
     isFixedFourArmySource(map.match.sourceMapId) &&
     canonical(map) !== canonical(createAsymmetricLayout(map.match.sourceMapId, map.match, map.seed, map.rules))
   ) {
