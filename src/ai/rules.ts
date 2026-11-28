@@ -629,7 +629,7 @@ function supplyVehicleValue(state: GameState, player: PlayerId, unit: DeployedUn
 
 /** The western peninsula's land connection still leaves coastal landings useful. */
 function peninsulaLandingAction(state: GameState, player: PlayerId, visibleEnemies: readonly Unit[]): CpuAction | undefined {
-  if (state.scenarioId !== peninsulaNeckId || player !== 'red') return undefined;
+  if (state.scenarioId !== peninsulaNeckId || !scenarioForState(state)?.initialUnits.some(unit => unit.owner === player && unit.kind === 'landingShip')) return undefined;
   const units = orderedUnits(state, player);
   const ship = units.find(unit => unit.kind === 'landingShip' && !unit.hasActed && unit.position.x < peninsulaMainlandEdge);
   if (!ship) return undefined;
