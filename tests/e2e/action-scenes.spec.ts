@@ -163,13 +163,17 @@ for (const { width, locale } of [
     page.on('dialog', (d) => d.accept());
     await page.goto('/');
     await page.locator('#title-continue').click();
+    await page.locator('#match-options-link').click();
     await page.locator('#action-scenes-twoArmy').uncheck();
+    if (width === 390) await page.locator('[data-hud-close]').click();
+    else await page.locator('[data-hud-page="objectives"]').click();
     const capture = async () => {
       await page.locator('.tile[data-x="0"][data-y="1"]').click();
-      await page.locator('#capture').click();
+      await page.locator(width === 390 ? '#mobile-capture' : '#capture').click();
     };
     await capture();
     await expect(page.locator('.action-scene')).toHaveCount(0);
+    await page.locator('#match-options-link').click();
     await page.locator('#save').click();
     const off = await page.evaluate(() => JSON.parse(localStorage.getItem('ministr.save.manual')!));
     expect(off.gameState).toEqual(valueOf(applyGameCommand(initial, { type: 'capture', unitId: 'r1' })));
@@ -187,6 +191,7 @@ for (const { width, locale } of [
     await page.screenshot({ path: info.outputPath(`systems-two-action-${width}.png`), animations: 'disabled' });
     await page.locator('#action-scenes-twoArmy-overlay').press('Space');
     await expect(page.locator('.action-scene')).toHaveCount(0);
+    await page.locator('#match-options-link').click();
     await page.locator('#save').click();
     const on = await page.evaluate(() => JSON.parse(localStorage.getItem('ministr.save.manual')!));
     expect(on.gameState).toEqual(off.gameState);

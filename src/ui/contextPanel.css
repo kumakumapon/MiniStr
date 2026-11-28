@@ -243,6 +243,15 @@
   .hud-selection {
     max-height: 21dvh;
   }
+  .hud-status .four-armies #four-army-info {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 4px;
+  }
+  .hud-status .four-armies .four-army-label {
+    padding: 4px;
+    font-size: 0.66rem;
+    line-height: 1.2;
+  }
 }
 .four-screen .hud-status.command-bar {
   margin-bottom: 4px;
@@ -274,9 +283,6 @@
 }
 .hud-selection #four-notice {
   margin: 0;
-}
-.hud-panel:has([data-hud-section='menu'][aria-current='true']) .hud-selection {
-  display: none;
 }
 .hud-panel .match-options .save-controls {
   order: -1;

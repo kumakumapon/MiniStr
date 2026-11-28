@@ -173,6 +173,7 @@ describe('share link in the distributed application', () => {
     click('#share-link-cancel');
     await settle();
     // Campaign menu
+    openTitlePanel(dom.window.document, 'home');
     click('#title-campaign');
     await settle();
     await hashChange(FRONT);

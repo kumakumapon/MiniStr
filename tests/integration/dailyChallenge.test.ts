@@ -215,12 +215,12 @@ describe('daily challenge in the distributed app', () => {
       ],
     });
     const document = launch({ locale: 'en', storage: { [DAILY_RECORDS_KEY]: records, 'ministr.operations.records': JSON.stringify({ schemaVersion: 1, records: [] }) } });
-    expect(document.querySelector('.daily-best')?.textContent).toBe('Fastest 9 rounds, 1 losses');
     expect(document.querySelector('#daily-start')?.textContent).toContain("Start today's battlefield");
+    openTitlePanel(document, 'records');
+    expect(document.querySelector('.daily-best')?.textContent).toBe('Fastest 9 rounds, 1 losses');
     expect(document.querySelectorAll('[data-daily-delete]')).toHaveLength(2);
     click(`[data-daily-delete="${DATE}"]`);
     expect(JSON.parse(dom.window.localStorage.getItem(DAILY_RECORDS_KEY)!).records.map((record: { date: string }) => record.date)).toEqual(['2026-02-02']);
-    openTitlePanel(dom.window.document, 'records');
     click('#daily-records-reset');
     expect(dom.window.localStorage.getItem(DAILY_RECORDS_KEY)).toBeNull();
     expect(dom.window.localStorage.getItem('ministr.operations.records')).not.toBeNull();
@@ -228,7 +228,9 @@ describe('daily challenge in the distributed app', () => {
 
   it('shows a corrupt record store as unreadable, refuses to overwrite it, and recovers through reset', () => {
     const document = launch({ storage: { [DAILY_RECORDS_KEY]: '{broken', [saveKey]: finishedDailySave() } });
+    openTitlePanel(document, 'records');
     expect(document.querySelector('.daily-notice')?.textContent).toContain('壊れています');
+    openTitlePanel(document, 'home');
     click('#title-continue');
     expect(dom.window.localStorage.getItem(DAILY_RECORDS_KEY)).toBe('{broken');
     click('#open-title');

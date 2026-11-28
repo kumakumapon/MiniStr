@@ -97,6 +97,7 @@ export function bindContextPanel(root: HTMLElement, state: ReturnType<typeof rea
   const close = panel.querySelector<HTMLButtonElement>('[data-hud-close]');
   const dismiss = () => {
     sheet(false);
+    if (regions.some((region) => region.dataset.hudSection === 'menu' && region.getAttribute('aria-current') === 'true')) activate('objectives');
     (root.querySelector<HTMLElement>('#mobile-panel, #four-mobile-panel') ?? showInfo ?? menu)?.focus({ preventScroll: true });
   };
   if (close) close.onclick = dismiss;

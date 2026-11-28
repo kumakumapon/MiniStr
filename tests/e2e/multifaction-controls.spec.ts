@@ -137,13 +137,13 @@ for (const { width, locale } of [
     await expect(page.locator('#four-tile-rows')).toContainText(locale === 'ja' ? '地形防御' : 'Terrain defense');
     if (width === 390) await page.locator('#four-mobile-panel').click();
     await page.locator('#four-tile-info').screenshot({ path: info.outputPath(`systems-v161-tile-${width}.png`), animations: 'disabled' });
-    if (width === 390) await page.locator('[data-hud-close]').click();
-    await page.locator('[data-hud-menu]').click();
+    if (width === 390) await page.locator('#four-command-panel [data-hud-close]').click();
+    await page.locator('[aria-controls="four-hud-menu"][data-hud-menu]').click();
     await disclosures(page, '#four-music-settings');
     await expect(page.locator('#four-music-army4')).toHaveValue('mist');
     await expect(page.locator('#four-music-volume')).toHaveValue('30');
     await page.locator('#four-music-settings').screenshot({ path: info.outputPath(`systems-v161-music-${width}.png`), animations: 'disabled' });
-    if (width === 390) await page.locator('[data-hud-close]').click();
+    if (width === 390) await page.locator('#four-command-panel [data-hud-close]').click();
     await page.evaluate(() => window.scrollTo(0, 0));
     await page.screenshot({ path: info.outputPath(`systems-v161-controls-${width}.png`), animations: 'disabled' });
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width + 1);

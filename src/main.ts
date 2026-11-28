@@ -2246,12 +2246,12 @@ function render(): void {
     focusSelector = '#title-board-zoom';
     render();
   });
-  document.querySelector<HTMLSelectElement>('#map')!.onchange = guardMenu(() => {
+  app.querySelector<HTMLSelectElement>('#map')?.addEventListener('change', guardMenu(() => {
     if (!confirmReplaceMatch()) { render(); return; }
     campaignRun = undefined; campaignOutcome = undefined;
     resetGame(document.querySelector<HTMLSelectElement>('#map')!.value);
     message = '作戦ブリーフィングを確認してください。'; render();
-  });
+  }));
   // Red's CPU is set from the header while paused, or on the briefing before the CPUs start.
   const bindDifficulty = (selector: string, apply: (level: CpuDifficulty) => void, allowed: () => boolean) => {
     const select = app.querySelector<HTMLSelectElement>(selector);
@@ -2279,12 +2279,12 @@ function render(): void {
     });
   }
   document.querySelector<HTMLButtonElement>('#end')!.onclick = guardCommand(endPlayerTurn);
-  document.querySelector<HTMLButtonElement>('#continue')!.onclick = guardMenu(() => { continueSavedGame(); render(); });
-  document.querySelector<HTMLButtonElement>('#save')!.onclick = guardMenu(() => {
+  app.querySelector<HTMLButtonElement>('#continue')?.addEventListener('click', guardMenu(() => { continueSavedGame(); render(); }));
+  app.querySelector<HTMLButtonElement>('#save')?.addEventListener('click', guardMenu(() => {
     if (research) { saveResearchManually(); return; } else if (manualSaveTarget(matchMode) === 'slot') saveNamedSlot(); else if (!localStorage.getItem(MANUAL_SAVE_KEY) || window.confirm(translateText('手動セーブを上書きしますか？'))) persist(MANUAL_SAVE_KEY);
     render();
-  });
-  document.querySelector<HTMLButtonElement>('#delete-save')!.onclick = guardMenu(() => { if (research || !matchSaveDeletionAllowed(matchMode) || !window.confirm(translateText('手動セーブとオートセーブを削除しますか？'))) return; const result = deleteSaves(localStorage); message = result.ok ? 'セーブデータを削除しました。' : result.error; render(); });
+  }));
+  app.querySelector<HTMLButtonElement>('#delete-save')?.addEventListener('click', guardMenu(() => { if (research || !matchSaveDeletionAllowed(matchMode) || !window.confirm(translateText('手動セーブとオートセーブを削除しますか？'))) return; const result = deleteSaves(localStorage); message = result.ok ? 'セーブデータを削除しました。' : result.error; render(); }));
   document.querySelector<HTMLButtonElement>('#save-new-slot')?.addEventListener('click', guardMenu(() => { saveNamedSlot(); render(); }));
   app.querySelectorAll<HTMLButtonElement>('.load-save-slot').forEach(button => button.addEventListener('click', () => {
     if (!screens.titleOpen && !menuAllowed(matchContext())) return;
@@ -2299,8 +2299,8 @@ function render(): void {
     message = result.ok ? 'セーブスロットを削除しました。' : result.error;
     render();
   }));
-  document.querySelector<HTMLButtonElement>('#undo')!.onclick = guardCommand(() => {
-    if (!undoAllowed(matchMode)) return; const checkpoint = undoStack.pop(); if (checkpoint) { game = checkpoint.state; commandHistory.length = checkpoint.commandCount; selected = undefined; message = '1手戻しました。'; } render(); });
+  app.querySelector<HTMLButtonElement>('#undo')?.addEventListener('click', guardCommand(() => {
+    if (!undoAllowed(matchMode)) return; const checkpoint = undoStack.pop(); if (checkpoint) { game = checkpoint.state; commandHistory.length = checkpoint.commandCount; selected = undefined; message = '1手戻しました。'; } render(); }));
   document.querySelector<HTMLButtonElement>('#open-editor')?.addEventListener('click', guardMenu(() => {
     screens.editorOpen = true; editorNotice = '編集したシナリオはJSONとして書き出せます。'; render();
   }));
@@ -2641,8 +2641,8 @@ function render(): void {
     beginReplay(created.value);
   }));
   document.querySelector<HTMLButtonElement>('#export-replay')?.addEventListener('click', guardMenu(downloadReplay));
-  document.querySelector<HTMLButtonElement>('#import-replay')!.onclick = guardMenu(() => document.querySelector<HTMLInputElement>('#replay-file')!.click());
-  document.querySelector<HTMLInputElement>('#replay-file')!.onchange = chooseReplayFile;
+  app.querySelector<HTMLButtonElement>('#import-replay')?.addEventListener('click', guardMenu(() => document.querySelector<HTMLInputElement>('#replay-file')!.click()));
+  app.querySelector<HTMLInputElement>('#replay-file')?.addEventListener('change', chooseReplayFile);
   document.querySelector<HTMLButtonElement>('#replay-toggle')?.addEventListener('click', () => {
     if (!replay) return;
     if (replay.playing) {
