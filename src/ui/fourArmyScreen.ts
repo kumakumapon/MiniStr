@@ -1,4 +1,5 @@
-import { authoredFourSources } from '../game/asymmetricFourSites';
+import { fourArmyObjective, type FourArmyHoldObjective } from '../game/fourArmyObjective';
+import { authoredBattlefield, authoredFourSources, isAuthoredFourSource } from '../game/asymmetricFourSites';
 import { armyEmblem, armyShapes } from './fourArmyEmblems';
 import { encirclementAllianceLimit, encirclementHegemonLimit, isAsymmetricSource, isFixedFourArmySource } from '../game/asymmetricBattlefield';
 import { battlefieldTheme, renderStartingSites } from './startingSites';
@@ -375,7 +376,7 @@ export class FourArmyScreen {
   open(setup?: { map: MultiplayerMap; count: ArmyCount; mode?: 'cpu' | 'spectate' | 'hotseat' }): void {
     if (setup) {
       this.setupMap = setup.map;
-      if (isAsymmetricSource(setup.map)) this.setupEnding = 'short';
+      if (isAsymmetricSource(setup.map)) this.setupEnding = setup.map === 'canal-crossroads' ? 'unlimited' : 'short';
       const counts = armyCountOptions(setup.map);
       this.setArmyCount(counts.includes(setup.count) ? setup.count : counts[0]!);
       if (setup.mode) {
@@ -1576,7 +1577,7 @@ export class FourArmyScreen {
       this.setupMap = input.value as typeof this.setupMap;
       if (isAsymmetricSource(this.setupMap)) {
         this.setupTeamMode = false;
-        this.setupEnding = 'short';
+        this.setupEnding = this.setupMap === 'canal-crossroads' ? 'unlimited' : 'short';
       }
       const counts = armyCountOptions(this.setupMap);
       if (!counts.includes(this.setupCount)) this.setArmyCount(counts[0]!);
@@ -1907,9 +1908,19 @@ export class FourArmyScreen {
     return fixedTeamFormat(this.setupMap) !== undefined || (this.setupMap !== 'wide' && this.setupTeamMode);
   }
 
+  private holdObjectiveCopy(objective: FourArmyHoldObjective): string {
+    const point = '(' + (objective.position.x + 1) + ', ' + (objective.position.y + 1) + ')';
+    return text(
+      `要衝都市 ${point} を占領し、ラウンド終了時に${objective.rounds}回連続で所有するか、最後の生存軍になると勝利します。`,
+      `Capture the crossing city ${point} and own it at ${objective.rounds} consecutive round endings, or be the last surviving army to win.`,
+    );
+  }
+
   private setupObjectives(hasHuman: boolean): string {
-    const win =
-      this.setupMap === 'tundra'
+    const objective = isAuthoredFourSource(this.setupMap) ? authoredBattlefield(this.setupMap).objective : undefined;
+    const win = objective
+      ? this.holdObjectiveCopy(objective)
+      : this.setupMap === 'tundra'
         ? this.defenseObjective
         : this.setupIsTeamBattle
           ? text('最後まで残ったチームが勝利します。', 'The last team standing wins.')
@@ -1932,7 +1943,12 @@ export class FourArmyScreen {
     if (match?.sourceMapId === 'tundra')
       return `<details class="four-objectives"><summary>${text('作戦目標', 'Objectives')}</summary><p>${armyName(match.siteArmies![0]!)} · ${this.defenseObjective}</p></details>`;
     const teams = match?.version === 2 && new Set(match.participants.map((army) => match.teams[army])).size < match.participants.length;
-    const win = teams ? text('最後の生存チームが勝利', 'The last team standing wins') : text('最後の生存軍が勝利', 'The last army standing wins');
+    const objective = fourArmyObjective(match);
+    const win = objective
+      ? this.holdObjectiveCopy(objective)
+      : teams
+        ? text('最後の生存チームが勝利', 'The last team standing wins')
+        : text('最後の生存軍が勝利', 'The last army standing wins');
     const decision =
       match?.ending === 'short'
         ? text(
@@ -1940,7 +1956,7 @@ export class FourArmyScreen {
             `After round ${match.roundLimit}, compare properties, then remaining HP. A tie is a draw.`,
           )
         : '';
-    return `<details class="four-objectives"><summary>${text('作戦目標', 'Objectives')}</summary><p>${win}</p><p>${text('司令部または全部隊を失うと脱落します。', 'An army is eliminated if it loses its headquarters or all of its units.')}</p>${decision ? `<p>${decision}</p>` : ''}</details>`;
+    return `<details class="four-objectives"><summary>${text('作戦目標', 'Objectives')}</summary><p>${win}</p>${objective ? '<p id="four-hold-progress"></p>' : ''}<p>${text('司令部または全部隊を失うと脱落します。', 'An army is eliminated if it loses its headquarters or all of its units.')}</p>${decision ? `<p>${decision}</p>` : ''}</details>`;
   }
 
   private shell(): void {
@@ -2075,8 +2091,14 @@ export class FourArmyScreen {
     this.paintAutosave();
     this.paintControls();
     if (this.phase !== 'watch' || !this.session) return;
-    const state = this.replay?.state ?? this.session.state,
-      display = fourArmyDisplay(state, this.view),
+    const state = this.replay?.state ?? this.session.state;
+    const hold = fourArmyObjective(state.match);
+    const holdProgress = this.query('#four-hold-progress');
+    if (holdProgress && hold && state.objectiveHold) {
+      const owner = state.objectiveHold.army ? armyName(state.objectiveHold.army) : text('中立', 'Neutral');
+      holdProgress.textContent = `${owner} · ${state.objectiveHold.rounds}/${hold.rounds}`;
+    }
+    const display = fourArmyDisplay(state, this.view),
       actor = state.round.order[state.round.index]!;
     const round = state.decision?.round ?? state.round.round;
     const limit = state.match?.ending === 'short' ? state.match.roundLimit : undefined;

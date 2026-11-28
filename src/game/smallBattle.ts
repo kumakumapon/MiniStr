@@ -1,3 +1,4 @@
+import type { FourArmyHoldObjective } from './fourArmyObjective';
 import { authoredBattlefield, isAuthoredFourSource } from './asymmetricFourSites';
 import { encirclementAllianceLimit, isAsymmetricSource, isFixedFourArmySource, siteTeam, type AsymmetricSource } from './asymmetricBattlefield';
 import { FOUR_ARMY_IDS, type FourArmyId, type FourArmyOutcome } from './fourArmyFoundation';
@@ -17,7 +18,8 @@ export interface LegacySmallBattle {
 export interface ExpandedBattle {
   version: 2;
   sourceMapId: 'skirmish' | 'outpost' | 'strait' | 'frontier' | AsymmetricSource;
-  layoutVersion: 2 | 3 | 4 | 5 | 6 | 7 | 8;
+  layoutVersion: 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9;
+  objective?: FourArmyHoldObjective;
   /** Army assigned to each ordered authored site in authored layouts. */
   siteArmies?: FourArmyId[];
   participants: FourArmyId[];
@@ -44,19 +46,35 @@ export function battleOrder(match: ExpandedBattle, round: number): FourArmyId[] 
   return [...match.initialOrder.slice(offset), ...match.initialOrder.slice(0, offset)];
 }
 export const fourArmyParticipants = (v: { match?: SmallBattle }): readonly FourArmyId[] => v.match?.participants ?? FOUR_ARMY_IDS;
+function exactHoldObjective(value: unknown, expected: FourArmyHoldObjective): boolean {
+  if (!value || typeof value !== 'object') return false;
+  const v = value as Partial<FourArmyHoldObjective>;
+  return (
+    Object.keys(v).length === 3 &&
+    v.type === 'hold' &&
+    v.rounds === expected.rounds &&
+    !!v.position &&
+    typeof v.position === 'object' &&
+    Object.keys(v.position).length === 2 &&
+    v.position.x === expected.position.x &&
+    v.position.y === expected.position.y
+  );
+}
 export function isSmallBattle(v: unknown): v is SmallBattle {
   if (!v || typeof v !== 'object' || Array.isArray(v)) return false;
   const m = v as Record<string, unknown>,
     expected = ['version', 'sourceMapId', 'layoutVersion', 'participants', 'ending', ...(m.ending === 'short' ? ['roundLimit'] : [])];
   if (m.version === 2) {
     const authored = isAsymmetricSource(m.sourceMapId);
-    const names = [...expected, ...(authored ? ['siteArmies'] : []), 'initialOrder', 'initiative', 'teams', 'sharedVision'];
+    const objective = isAuthoredFourSource(m.sourceMapId) ? authoredBattlefield(m.sourceMapId).objective : undefined;
+    const names = [...expected, ...(authored ? ['siteArmies'] : []), ...(objective ? ['objective'] : []), 'initialOrder', 'initiative', 'teams', 'sharedVision'];
     const ids = m.participants;
     if (
       Object.keys(m).length !== names.length ||
       !names.every((k) => Object.hasOwn(m, k)) ||
+      (objective !== undefined && !exactHoldObjective(m.objective, objective)) ||
       (isFixedFourArmySource(m.sourceMapId)
-        ? m.layoutVersion !== (isAuthoredFourSource(m.sourceMapId) ? 8 : m.sourceMapId === 'encirclement' ? 7 : 6) ||
+        ? m.layoutVersion !== (objective ? 9 : isAuthoredFourSource(m.sourceMapId) ? 8 : m.sourceMapId === 'encirclement' ? 7 : 6) ||
           !Array.isArray(ids) ||
           ids.length !== 4 ||
           m.initiative !== 'rotating' ||

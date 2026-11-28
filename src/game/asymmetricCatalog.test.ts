@@ -73,8 +73,8 @@ it.each(authoredFourSources)('round-trips and validates four ordered sites in %s
   const sites = ['army3', 'army1', 'army4', 'army2'] as const;
   const order = ['army2', 'army4', 'army3', 'army1'] as const;
   const map = value(createExpandedBattleMap({ sourceMapId, siteArmies: sites, order, rules: { version: 1, tactics: true } }));
-  expect(map.match).toMatchObject({ layoutVersion: 8, siteArmies: sites, initialOrder: order });
   const spec = authoredBattlefield(sourceMapId);
+  expect(map.match).toMatchObject({ layoutVersion: spec.objective ? 9 : 8, siteArmies: sites, initialOrder: order });
   for (const [i, army] of sites.entries()) {
     expect(map.players[army].gold).toBe(spec.sites[i]!.gold);
     for (const [kind, x, y] of spec.sites[i]!.facilities) expect(map.board.terrain[y]![x]).toMatchObject({ kind, owner: army });

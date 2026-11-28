@@ -1,3 +1,4 @@
+import { heldObjectiveOutcome, isFourArmyHoldProgress, updateFourArmyHold, type FourArmyHoldProgress } from './fourArmyObjective';
 import { combatSummaryForCommand, type CombatSummary } from './combatSummary';
 import {
   alliedArmies,
@@ -55,6 +56,7 @@ export interface FourArmyMap {
   setup?: FourArmySetup;
 }
 export interface FourArmyState {
+  objectiveHold?: FourArmyHoldProgress;
   match?: SmallBattle;
   decision?: { round: 15 | 20 | 21 };
   /** Omission preserves the absolute-coordinate path rule of existing recordings. */
@@ -78,6 +80,7 @@ export interface FourArmyState {
   paused: boolean;
 }
 export interface FourArmyObservation {
+  objectiveHold?: FourArmyHoldProgress;
   match?: SmallBattle;
   decision?: { round: 15 | 20 | 21 };
   bridges?: { owner: FourArmyId; position: Position }[];
@@ -257,22 +260,26 @@ function settle(state: FourArmyState): FourArmyState {
   const kept = new Set(battlefield.units.map((u) => u.id));
   const removed = state.units.filter((u) => !kept.has(u.id) && u.position).map((u) => positionKey(u.position!));
   const owners = new Map(battlefield.facilities.map((f) => [f.id, f.owner]));
-  return clean({
-    ...state,
-    alive: battlefield.alive,
-    ...(state.extensions ? { extensions: { ...state.extensions, fortifications: state.extensions.fortifications.filter((site) => battlefield.alive.includes(site.owner)) } } : {}),
-    outcome,
-    eliminations: [...state.eliminations, ...state.alive.filter((a) => !battlefield.alive.includes(a)).map((army) => ({ army, round: state.round.round }))],
-    units: state.units.filter((u) => kept.has(u.id)),
-    board: {
-      ...state.board,
-      terrain: state.board.terrain.map((row, y) =>
-        row.map((tile, x) =>
-          isPropertyTerrainKind(tile.kind) ? { ...tile, owner: owners.get(`p${x}_${y}`), ...(removed.includes(`${x},${y}`) ? { capturePoints: 20 } : {}) } : tile,
+  return clean(
+    updateFourArmyHold({
+      ...state,
+      alive: battlefield.alive,
+      ...(state.extensions
+        ? { extensions: { ...state.extensions, fortifications: state.extensions.fortifications.filter((site) => battlefield.alive.includes(site.owner)) } }
+        : {}),
+      outcome,
+      eliminations: [...state.eliminations, ...state.alive.filter((a) => !battlefield.alive.includes(a)).map((army) => ({ army, round: state.round.round }))],
+      units: state.units.filter((u) => kept.has(u.id)),
+      board: {
+        ...state.board,
+        terrain: state.board.terrain.map((row, y) =>
+          row.map((tile, x) =>
+            isPropertyTerrainKind(tile.kind) ? { ...tile, owner: owners.get(`p${x}_${y}`), ...(removed.includes(`${x},${y}`) ? { capturePoints: 20 } : {}) } : tile,
+          ),
         ),
-      ),
-    },
-  });
+      },
+    }),
+  );
 }
 
 /** Advance atomically through a start-of-turn fuel death, including skipped slots and round boundaries. */
@@ -320,6 +327,12 @@ function advance(state: FourArmyState): GameResult<FourArmyState> {
     const order = battleOrder(state.match, finished.value.round.round);
     finished.value.round = { ...finished.value.round, order, index: order.findIndex((a) => state.alive.includes(a)) };
   }
+  if (finished.value.completedRound !== undefined) {
+    const atBoundary = updateFourArmyHold({ ...state, round: finished.value.round }, true);
+    const won = heldObjectiveOutcome(atBoundary);
+    if (won) return { ok: true, value: { ...atBoundary, outcome: won, paused: false } };
+    state = atBoundary;
+  }
   if (state.match?.ending === 'short' && finished.value.completedRound === state.match.roundLimit) {
     const decided = { ...state, round: finished.value.round, paused: false, decision: { round: state.match.roundLimit! } };
     return { ok: true, value: { ...decided, outcome: smallBattleDecision(decided) } };
@@ -333,7 +346,7 @@ export function isFourArmyState(value: unknown): value is FourArmyState {
     !keys(
       value,
       ['engineVersion', 'board', 'capitals', 'units', 'players', 'round', 'alive', 'eliminations', 'outcome', 'rngSeed', 'nextUnitId', 'paused'],
-      ['setup', 'pathVersion', 'rules', 'extensions', 'match', 'decision', 'bridges'],
+      ['setup', 'pathVersion', 'rules', 'extensions', 'match', 'decision', 'bridges', 'objectiveHold'],
     ) ||
     ![1, 2, 3, 4, 5].includes(value.engineVersion as number)
   )
@@ -516,10 +529,12 @@ export function isFourArmyState(value: unknown): value is FourArmyState {
     s.alive.length >= 2 &&
     s.decision?.round === s.match.roundLimit &&
     Object.keys(s.decision!).join() === 'round';
-  if (s.decision && !deadline) return false;
+  if (!isFourArmyHoldProgress(s) || (s.decision && !deadline)) return false;
+  const held = heldObjectiveOutcome(s);
+  if (s.decision && held) return false;
   if (deadline && s.match?.sourceMapId === 'tundra' && (!resolved.ok || resolved.value.outcome.type !== 'ongoing')) return false;
-  if (s.match?.ending === 'short' && (s.round.round > s.match.roundLimit! + 1 || (s.round.round === s.match.roundLimit! + 1 && !deadline))) return false;
-  const expectedOutcome = deadline ? smallBattleDecision(s) : resolved.ok ? resolved.value.outcome : undefined;
+  if (s.match?.ending === 'short' && (s.round.round > s.match.roundLimit! + 1 || (s.round.round === s.match.roundLimit! + 1 && !deadline && !held))) return false;
+  const expectedOutcome = held ?? (deadline ? smallBattleDecision(s) : resolved.ok ? resolved.value.outcome : undefined);
   if (
     !resolved.ok ||
     resolved.value.battlefield.alive.length !== s.alive.length ||
@@ -597,15 +612,16 @@ export function createFourArmyState(input: unknown): GameResult<FourArmyState> {
     nextUnitId: Math.max(0, ...numericIds) + 1,
     paused: false,
   };
+  const prepared = updateFourArmyHold(initial as FourArmyState);
   if (
-    !isFourArmyState(initial) ||
+    !isFourArmyState(prepared) ||
     initial.units.some((u) => u.hasMoved || u.hasActed) ||
     (initial.setup &&
       initial.units.some((u) => !inFourArmyStartZone((u.position ?? initial.units.find((c) => c.id === u.embarkedIn)!.position)!, initial.setup!.startZones[u.owner]))) ||
     !participants.every((a) => initial.board.terrain[initial.capitals[a].y]![initial.capitals[a].x]!.owner === a)
   )
     return fail('4軍の初期盤面が不正です。');
-  const started = startNext({ ...clean(initial as FourArmyState), round: round.value });
+  const started = startNext({ ...clean(prepared), round: round.value });
   return started.ok && !isFourArmyState(started.value) ? fail('4軍の初期状態上限を超えました。') : started;
 }
 
@@ -698,6 +714,7 @@ export function observeFourArmy(input: unknown, viewer: FourArmyId): GameResult<
       ...(input.bridges ? { bridges: input.bridges } : {}),
       ...(input.match ? { match: input.match } : {}),
       ...(input.decision ? { decision: input.decision } : {}),
+      ...(input.objectiveHold ? { objectiveHold: input.objectiveHold } : {}),
       ...(input.rules && input.extensions
         ? {
             rules: input.rules,

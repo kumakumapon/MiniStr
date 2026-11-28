@@ -1,3 +1,4 @@
+import { heldObjectiveOutcome, isFourArmyHoldProgress } from '../game/fourArmyObjective';
 import { alliedArmies, battleOrder, fourArmyUnitLimit, isSmallBattle } from '../game/smallBattle';
 import { fourArmyRuleProjection, isFourArmyRules } from '../game/fourArmyRules';
 import { isGameState } from '../game/session';
@@ -44,7 +45,7 @@ export function isFourArmyObservation(v: unknown): v is FourArmyObservation {
     !exactKeys(
       v,
       ['viewer', 'board', 'capitals', 'units', 'player', 'visible', 'round', 'alive', 'outcome'],
-      ['unitLimitPerArmy', 'rules', 'extensions', 'match', 'decision', 'bridges'],
+      ['unitLimitPerArmy', 'rules', 'extensions', 'match', 'decision', 'bridges', 'objectiveHold'],
     ) ||
     !isArmy(v.viewer)
   )
@@ -95,11 +96,13 @@ export function isFourArmyObservation(v: unknown): v is FourArmyObservation {
     !['ongoing', 'victory', 'draw'].some((t) => t === (v.outcome as Record<string, unknown>).type)
   )
     return false;
+  const observed = v as unknown as FourArmyObservation;
+  const held = heldObjectiveOutcome(observed);
   if (
     (v.outcome.type === 'victory' &&
       (!isArmy(v.outcome.winner) ||
         !alive.includes(v.outcome.winner) ||
-        (!deadline && new Set(alive.map((a) => (isSmallBattle(v.match) && v.match.version === 2 ? v.match.teams[a as FourArmyId] : a))).size !== 1))) ||
+        (!deadline && held?.type !== 'victory' && new Set(alive.map((a) => (isSmallBattle(v.match) && v.match.version === 2 ? v.match.teams[a as FourArmyId] : a))).size !== 1))) ||
     (v.outcome.type === 'draw' && !deadline && alive.length !== 0) ||
     (v.outcome.type === 'ongoing' && new Set(alive.map((a) => (isSmallBattle(v.match) && v.match.version === 2 ? v.match.teams[a as FourArmyId] : a))).size < 2)
   )
@@ -202,6 +205,7 @@ export function isFourArmyObservation(v: unknown): v is FourArmyObservation {
   }
   const view = fourArmyPlanningView(o);
   if (o.unitLimitPerArmy !== undefined && FOUR_ARMY_IDS.some((a) => o.units.filter((u) => u.owner === a).length > fourArmyUnitLimit(o.match, o.unitLimitPerArmy!, a))) return false;
+  if (!isFourArmyHoldProgress(o) || (held?.type === 'victory' && (o.outcome.type !== 'victory' || held.winner !== o.outcome.winner))) return false;
   if (!isGameState({ ...view, fortifications: undefined, bridges: undefined }) || !boundedInt(view.nextUnitId, 1, 1e9)) return false;
   if (
     o.units.some(
