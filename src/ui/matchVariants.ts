@@ -30,6 +30,32 @@ const names = localized(
   },
 );
 
+const briefings = localized(
+  {
+    compact: '各軍の司令部の近くに工場と都市があります。近くの拠点から前線を広げます。',
+    outpost: '森に囲まれた工場と、中央に集まる都市をめぐって争います。',
+    canyon: '中央へ向かう街道と、山沿いの迂回路があります。峠を越える進路を出発地点から選びます。',
+    marsh: '湿地を横切る近道と、外周の乾いた道では部隊の進みやすさが異なります。',
+    river: '各岸の司令部から川に向かって進みます。橋を押さえると対岸の拠点へ進めます。',
+    tundra: '北の守備軍に対し、西と東の攻撃軍がチームを組んで両側の峠から進みます。',
+    strait: '各軍は港から出発できます。橋を渡る陸路と、海峡を進む航路を使い分けます。',
+    frontier: '広い戦域に司令部が点在します。前線の工場や都市を押さえながら進みます。',
+    wide: '四隅の司令部を道路が結びます。各軍は工場と空港のある陣地から進みます。',
+  },
+  {
+    compact: 'Factories and cities stand near each headquarters. Expand the front from these nearby properties.',
+    outpost: 'Fight for the factories near the woods and the cluster of cities at the center.',
+    canyon: 'Choose a starting site along the central highway or a route around the mountain ridge.',
+    marsh: 'The shortcut across the wetlands and the dry perimeter road favor different approaches.',
+    river: 'Advance from the banks toward the river. Control a bridge to reach properties on the opposite bank.',
+    tundra: 'The western and eastern attackers advance through the passes together against the northern defender.',
+    strait: 'Each army has a port. Cross the bridges with land units or take the sea route through the strait.',
+    frontier: 'Headquarters are spread across a wide battlefield. Use forward factories and cities as you advance.',
+    wide: 'Roads connect the four corners. Each army starts with a factory and an airport near headquarters.',
+  },
+);
+export const multiplayerBriefing = (map: MultiplayerMap): string => briefings[map];
+
 export const multiplayerOnlyMaps = ['strait', 'frontier', 'wide'] as const;
 export const multiplayerName = (map: MultiplayerMap): string => names[map];
 export const multiplayerSize = (map: MultiplayerMap): { width: number; height: number } =>
@@ -64,5 +90,6 @@ export function renderMatchVariants(map: MultiplayerMap, current: 'standard' | A
     label: count === 2 ? labels.two : count === 3 ? labels.three : labels.four,
   }));
   if (classicVariant(map)) variants.unshift({ value: 'standard', label: labels.standard });
-  return `<label class="match-variants">${labels.label}<select id="${escapeHtml(id)}">${variants.map(({ value, label }) => `<option value="${value}" ${value === String(current) ? 'selected' : ''}>${label}</option>`).join('')}</select></label>`;
+  const group = escapeHtml(id);
+  return `<fieldset id="${group}" class="match-variants"><legend>${labels.label}</legend>${variants.map(({ value, label }) => `<label><input type="radio" id="${group}-${value}" name="${group}" data-match-variant="${value}" value="${value}" ${value === String(current) ? 'checked' : ''}><span>${label}</span></label>`).join('')}</fieldset>`;
 }

@@ -57,13 +57,12 @@ for (const { width, locale } of [
     await page.setViewportSize({ width, height: 844 });
     await title(page, locale);
     await page.locator('.title-map-card[data-map-id="skirmish"]').click();
-    await page.locator('#briefing-match-variants').selectOption('4');
+    await page.locator('#briefing-match-variants label:has(input[value="4"])').click();
 
     const start = page.locator('#four-start');
     const details = page.locator('#four-setup-options');
     const summary = page.locator('#four-start-summary');
     await expect(start).toBeInViewport({ ratio: 1 });
-    await expect(page.locator('#four-setup-summary')).toBeInViewport({ ratio: 1 });
     await expect(details).toHaveJSProperty('open', false);
     await expect(summary).toContainText(locale === 'ja' ? '第1軍を操作・CPU 3軍' : 'Play as Army 1 · 3 CPUs');
     await page.screenshot({ path: info.outputPath(`systems-start-multi-army-${width}.png`) });
@@ -81,7 +80,7 @@ for (const { width, locale } of [
     await map.selectOption('outpost');
     await expect(map).toBeFocused();
     await expect(details).toHaveJSProperty('open', true);
-    await page.locator('#four-count').selectOption('3');
+    await page.locator('#four-variants label:has(input[value="3"])').click();
     await page.locator('#four-team-mode').check();
     await page.locator('[data-team="army2"]').selectOption('army1');
     await page.locator('#four-mode').selectOption('spectator');
@@ -109,7 +108,7 @@ for (const { width, locale } of [
     await page.locator('#title-cpu-speed').selectOption('4');
     await page.locator('#title-board-zoom').selectOption('150');
     await page.locator('.title-map-card[data-map-id="skirmish"]').click();
-    await page.locator('#briefing-match-variants').selectOption('4');
+    await page.locator('#briefing-match-variants label:has(input[value="4"])').click();
     await disclosures(page, '#four-music-settings');
     await expect(page.locator('#four-music-on')).not.toBeChecked();
     await expect(page.locator('#four-music-army4')).toBeDisabled();
@@ -151,7 +150,7 @@ for (const { width, locale } of [
     }
     await page.reload();
     await page.locator('.title-map-card[data-map-id="skirmish"]').click();
-    await page.locator('#briefing-match-variants').selectOption('4');
+    await page.locator('#briefing-match-variants label:has(input[value="4"])').click();
     await disclosures(page, '#four-music-settings');
     await expect(page.locator('#four-music-by-army')).toBeChecked();
     await expect(page.locator('#four-music-army4')).toHaveValue('mist');
@@ -167,7 +166,7 @@ test('visible enemy danger and tile information stay scoped to the viewed army a
   await title(page, 'en');
   await page.locator('#title-cpu-speed').selectOption('0.5');
   await page.locator('.title-map-card[data-map-id="skirmish"]').click();
-  await page.locator('#briefing-match-variants').selectOption('4');
+  await page.locator('#briefing-match-variants label:has(input[value="4"])').click();
   await disclosures(page, '.four-tools');
   await page.locator('#four-file').setInputFiles({ name: 'front.json', mimeType: 'application/json', buffer: Buffer.from(fixture.text) });
   await expect(page.locator('#four-notice')).toHaveText('Loaded and paused.');
@@ -194,19 +193,19 @@ test('one map card opens standard and multiplayer variants without replacing the
   const card = page.locator('.title-map-card[data-map-id="outpost"]');
   await expect(card).toContainText('2〜4軍');
   await card.click();
-  await expect(page.locator('#briefing-match-variants')).toHaveValue('standard');
-  await page.locator('#briefing-match-variants').selectOption('3');
-  await expect(page.locator('#four-start-map')).toContainText('前哨基地強襲');
+  await expect(page.locator('#briefing-match-variants input[value="standard"]')).toBeChecked();
+  await page.locator('#briefing-match-variants label:has(input[value="3"])').click();
+  await expect(page.locator('#briefing-title')).toContainText('前哨基地強襲');
   await expect(page.locator('#four-start-summary')).toContainText('21ラウンド判定');
-  await page.locator('#four-variants').selectOption('standard');
-  await expect(page.locator('#briefing-match-variants')).toBeFocused();
+  await page.locator('#four-variants label:has(input[value="standard"])').click();
+  await expect(page.locator('#briefing-match-variants input:checked')).toBeFocused();
   await page.locator('#begin-operation').click();
   await expect(page.locator('#board-viewport')).toBeFocused();
   await expect(page.locator('#app .map-turn-status')).toBeVisible();
   await expect(page.locator('#mobile-end')).toBeEnabled();
   await page.locator('#open-title').click();
   await card.click();
-  await page.locator('#briefing-match-variants').selectOption('2');
+  await page.locator('#briefing-match-variants label:has(input[value="2"])').click();
   await page.locator('#four-start').click();
   await expect(page.locator('#four-army-info > *')).toHaveCount(2);
   await expect(page.locator('#four-turn')).toContainText('/20');
@@ -223,15 +222,15 @@ test('the common map list includes water and both large layouts with their suppo
   await title(page, 'en');
   await page.locator('.title-map-card[data-map-id="multiplayer:strait"]').click();
   await expect(page.locator('#four-start-summary')).toContainText('17 × 15');
-  await expect(page.locator('#four-variants option')).toHaveCount(3);
+  await expect(page.locator('#four-variants input')).toHaveCount(3);
   await page.locator('#four-close').click();
   await expect(page.locator('.title-map-card[data-map-id="multiplayer:strait"]')).toBeFocused();
   await page.locator('.title-map-card[data-map-id="multiplayer:wide"]').click();
   await expect(page.locator('#four-start-summary')).toContainText('32 × 32');
-  await expect(page.locator('#four-variants option')).toHaveCount(1);
+  await expect(page.locator('#four-variants input')).toHaveCount(1);
   await page.locator('#four-close').click();
   await page.locator('.title-map-card[data-map-id="multiplayer:frontier"]').click();
-  await expect(page.locator('#four-variants option')).toHaveCount(3);
+  await expect(page.locator('#four-variants input')).toHaveCount(3);
 });
 
 test('continue and record import route verified old saves to the right match', async ({ page }) => {

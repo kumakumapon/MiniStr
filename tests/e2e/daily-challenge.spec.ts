@@ -56,11 +56,11 @@ test('starts today from the title with one action and the keyboard alone, with f
   await page.keyboard.press('Enter');
   await expect(page.locator('#briefing-title')).toBeVisible();
   await expect(page.locator('.daily-briefing')).toContainText(CODE);
-  await expect(page.locator('#begin-operation')).toBeFocused();
+  await expect(page.locator('#briefing-title')).toBeFocused();
   await expect(page.locator('#briefing-supply-mode')).toBeDisabled();
   await expect(page.locator('input[name="match-mode"]').first()).toBeDisabled();
   await expect(page.locator('#difficulty')).toBeDisabled();
-  await page.keyboard.press('Enter');
+  await page.locator('#begin-operation').press('Enter');
   await expect(page.locator('.board')).toBeVisible();
   await expect(page.locator('#difficulty')).toBeDisabled();
   await expect(page.locator('#map')).toHaveValue(/generated-v3-frontline-16-coast-D20260203/);

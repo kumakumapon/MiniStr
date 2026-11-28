@@ -17,8 +17,8 @@ for (const [source, name, count] of [
   test(`starts standard ${source} in two clicks`, async ({ page }) => {
     await page.goto('/');
     await page.locator(`.title-map-card[data-map-id="${source}"]`).click();
-    await expect(page.locator('#briefing-match-variants')).toHaveValue('standard');
-    await expect(page.locator('#briefing-match-variants option')).toHaveCount(source === 'tundra' ? 2 : 3);
+    await expect(page.locator('#briefing-match-variants input[value="standard"]')).toBeChecked();
+    await expect(page.locator('#briefing-match-variants input')).toHaveCount(source === 'tundra' ? 2 : 3);
     await page.getByRole('button', { name: '作戦開始', exact: true }).click();
     await expect(page.locator('.battlefield-heading h2')).toContainText(name);
   });
@@ -28,7 +28,7 @@ for (const [source, name, count] of [
     page.on('dialog', (d) => d.accept());
     await page.goto('/');
     await page.locator(`.title-map-card[data-map-id="${source}"]`).click();
-    await page.locator('#briefing-match-variants').selectOption(String(count));
+    await page.locator(`#briefing-match-variants label:has(input[value="${count}"])`).click();
     if (source === 'tundra') {
       await page.locator('#four-setup-summary').click();
       await page.locator('#four-reserve').selectOption('army2');
@@ -39,9 +39,9 @@ for (const [source, name, count] of [
     }
     await page.locator('#four-site-army1').selectOption(String(count - 1));
     await expect(page.locator(`#four-site-army${count}`)).toHaveValue('0');
-    await expect(page.locator('.four-start-sites .map-preview-unit')).toHaveCount(0);
+    await expect(page.locator('.briefing-card .map-preview-unit')).toHaveCount(0);
     await expect(page.locator('#four-site-army1 option:checked')).toContainText(count === 3 ? '東' : '南');
-    await page.locator('.four-start-card').screenshot({ path: info.outputPath(`systems-asymmetric-${source}-${width}.png`), animations: 'disabled' });
+    await page.locator('.briefing-card').screenshot({ path: info.outputPath(`systems-asymmetric-${source}-${width}.png`), animations: 'disabled' });
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width + 1);
     await page.locator('#four-start').click();
     await expect(page.locator('#four-board > button')).toHaveCount(252);
@@ -70,7 +70,7 @@ for (const [source, name, count] of [
     });
     await page.reload();
     await page.locator(`.title-map-card[data-map-id="${source}"]`).click();
-    await page.locator('#briefing-match-variants').selectOption(String(count));
+    await page.locator(`#briefing-match-variants label:has(input[value="${count}"])`).click();
     await page.locator('.four-tools').evaluate((e) => {
       (e as HTMLDetailsElement).open = true;
     });
@@ -139,7 +139,7 @@ test('the eliminated marsh commander can watch the remaining armies and rematch 
   page.on('dialog', (d) => d.accept());
   await page.goto('/');
   await page.locator('[data-map-id="marsh"]').click();
-  await page.locator('#briefing-match-variants').selectOption('3');
+  await page.locator('#briefing-match-variants label:has(input[value="3"])').click();
   const importFile = () => page.locator('#four-file').setInputFiles({ name: 'marsh.json', mimeType: 'application/json', buffer: Buffer.from(file()) });
   await importFile();
   await page.locator('#four-human-watch').click();

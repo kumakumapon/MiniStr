@@ -55,7 +55,7 @@ async function setup(page: Page) {
   page.on('dialog', (d) => d.accept());
   await page.goto('/');
   await page.locator('.title-map-card[data-map-id="skirmish"]').click();
-  await page.locator('#briefing-match-variants').selectOption('4');
+  await page.locator('#briefing-match-variants label:has(input[value="4"])').click();
 }
 const count = (page: Page) => page.locator('#four-army-screen').getAttribute('data-record-count').then(Number);
 async function fileTools(page: Page) {
@@ -125,7 +125,7 @@ test('maximum record: lossless import, checkpoint seeks, persistence, export and
   expect(beforeReloadWorkers.active).toBe(0);
   await page.reload();
   await page.locator('.title-map-card[data-map-id="skirmish"]').click();
-  await page.locator('#briefing-match-variants').selectOption('4');
+  await page.locator('#briefing-match-variants label:has(input[value="4"])').click();
   await fileTools(page);
   await page.locator('[data-load-slot="0"]').click();
   await expect(page.locator('#four-notice')).toHaveText('Loaded and paused.', { timeout: 300000 });

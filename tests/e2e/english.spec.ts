@@ -53,6 +53,7 @@ for (const viewport of [
     await page.locator('.title-map-card[data-map-id="bridgehead"]').click();
     await expect(page.locator('#briefing-title')).toHaveText('Establish a Bridgehead');
     await expect(page.locator('#briefing-copy')).toContainText('1000G');
+    await page.locator('#briefing-advanced > summary').click();
     await page.locator('#briefing-deployment summary').click();
     await expect(page.locator('#briefing-preset-red-0-name')).toHaveValue('Deployment 1');
     await expectEnglish(page);

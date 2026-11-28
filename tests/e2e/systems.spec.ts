@@ -20,6 +20,7 @@ for (const viewport of [
     await page.locator('#title-generator').screenshot({ path: testInfo.outputPath('systems-generator.png') });
     await page.locator('#title-generator-create').click();
     await expect(page.locator('#briefing-title')).toContainText(`browser-${viewport.width}`);
+    await page.locator('#briefing-advanced > summary').click();
     await page.locator('#briefing-deployment summary').click();
     await page.locator('#briefing-deployment-red-2').selectOption('infantry');
     await page.locator('#briefing-preset-red-0-name').fill('機動部隊');
@@ -41,6 +42,7 @@ for (const viewport of [
     expect(state.initialState.board.width).toBe(16);
     await page.reload();
     await page.locator(`.title-map-card[data-map-id="generated-v2-16-ocean-browser-${viewport.width}"]`).click();
+    await page.locator('#briefing-advanced > summary').click();
     await page.locator('#briefing-deployment summary').click();
     await expect(page.locator('#briefing-preset-red-0-name')).toHaveValue('機動部隊');
     await page.locator('#briefing-preset-red-0-apply').click();

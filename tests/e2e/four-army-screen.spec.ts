@@ -15,10 +15,10 @@ async function open(page: Page, locale = 'en', mode: 'spectator' | 'human' = 'sp
   page.on('dialog', (dialog) => dialog.accept());
   await page.goto('/');
   await page.locator('.title-map-card[data-map-id="skirmish"]').click();
-  await page.locator('#briefing-match-variants').selectOption('4');
+  await page.locator('#briefing-match-variants label:has(input[value="4"])').click();
   await page.locator('#four-setup-summary').click();
   await page.locator('#four-map').selectOption('wide');
-  await expect(page.locator('#four-heading')).toBeVisible();
+  await expect(page.locator('#briefing-title')).toBeVisible();
   await expect(page.locator('main')).toHaveCount(1);
   await expect(page.locator('#four-army-screen')).toHaveAttribute('role', 'main');
   await expect(page.locator('#four-mode')).toHaveValue('human');
@@ -199,7 +199,7 @@ test('four-army dedicated saves, JSON and replay preserve current state and lega
   expect(await count(page)).toBe(1);
   await page.reload();
   await page.locator('.title-map-card[data-map-id="skirmish"]').click();
-  await page.locator('#briefing-match-variants').selectOption('4');
+  await page.locator('#briefing-match-variants label:has(input[value="4"])').click();
   await page.locator('#four-setup-summary').click();
   await page.locator('#four-map').selectOption('wide');
   await tools(page);
@@ -728,7 +728,8 @@ for (const { width, locale, actor } of [
     expect(first.value.archive.payload.state).toEqual(fixture.after);
     await page.reload();
     await page.locator('.title-map-card[data-map-id="skirmish"]').click();
-    await page.locator('#briefing-match-variants').selectOption('4');
+    await page.locator('#briefing-match-variants label:has(input[value="4"])').click();
+    await page.locator('#four-setup-summary').click();
     await expect(page.locator('#battle-scenes-multiArmy')).not.toBeChecked();
     await page.locator('#battle-scenes-multiArmy').check();
     await importMatch(page, fixture.text);

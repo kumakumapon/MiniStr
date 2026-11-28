@@ -101,7 +101,6 @@
   background: #253d30;
   margin: 8px 0;
 }
-.four-start-card,
 .four-setup-options,
 .four-setup-tools {
   padding: 16px;
@@ -109,47 +108,75 @@
   border-radius: 8px;
   background: var(--four-panel);
 }
-.four-start-card {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px 20px;
-  border-left: 3px solid var(--four-gold);
+.four-site-map {
+  position: relative;
 }
-.four-start-choices {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: end;
-  gap: 8px 14px;
+.four-site-map .map-preview {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+.four-screen .four-site-marker {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  display: grid;
+  place-content: center;
+  width: 32px;
+  height: 32px;
+  min-height: 32px;
+  padding: 0;
+  color: #0c1913;
+  background: var(--army);
+  border: 2px solid #12251f;
+  border-radius: 50%;
+  box-shadow: 0 0 0 1px #fff5d7;
+}
+.four-screen .four-site-marker:hover,
+.four-screen .four-site-marker[aria-pressed='true'] {
+  color: #0c1913;
+  background: var(--army);
+  outline: 3px solid #fff5d7;
+  outline-offset: 1px;
+}
+.four-screen .four-site-marker:focus-visible {
+  outline: 4px double #07150e;
+  outline-offset: 2px;
 }
 .four-start-sites {
   display: grid;
-  flex: 1 0 100%;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr));
-  gap: 8px 14px;
+  gap: 8px;
   min-width: 0;
+  margin: 10px 0 0;
+  padding: 10px;
   border: 1px solid var(--four-line);
+  border-radius: 6px;
 }
-.four-start-sites .map-preview {
-  grid-row: span 2;
-  align-self: center;
+.four-start-sites ul {
+  display: grid;
+  gap: 6px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.four-start-sites li {
+  display: grid;
+  gap: 3px;
+  padding-top: 6px;
+  border-top: 1px solid var(--four-line);
 }
 .four-start-sites select {
   width: 100%;
 }
-.four-start-choices .match-variants {
-  margin-block: 0;
+.four-screen .four-map-description {
+  margin-top: 8px;
 }
-.four-start-card .four-primary {
-  min-width: 10rem;
+.four-mode-choice {
+  margin-top: 10px;
 }
-.four-start-card .four-primary:hover:not(:disabled) {
-  background: #ffe1a1;
-}
-.four-start-card p {
-  margin-top: 4px;
-  color: var(--four-muted);
+.four-screen .briefing-objectives p {
+  color: var(--four-ink);
+  font-size: 0.8125rem;
+  line-height: 1.55;
 }
 .four-setup-options,
 .four-setup-tools {
@@ -460,17 +487,10 @@ strong.four-army-label {
   .four-toolbar label {
     flex: 1 1 40%;
   }
-  .four-start-card,
   .four-setup-options,
   .four-setup-tools,
   .four-setup > section {
     padding: 12px;
-  }
-  .four-start-card .four-buttons {
-    width: 100%;
-  }
-  .four-start-card .four-buttons > button {
-    flex: 1;
   }
   .four-slot {
     grid-template-columns: minmax(0, 1fr) auto;

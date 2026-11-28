@@ -130,6 +130,8 @@ import { loadSoundSettings, ProceduralSoundPlayer, saveSoundSettings, type Sound
 import { BackgroundMusicPlayer, FIELD_TRACKS, loadMusicSettings, saveMusicSettings, type MusicSettings } from './ui/music';
 import { commandErrorMessage, escapeHtml, uiText } from './ui/strings';
 import { renderSaveSlotManager } from './ui/saveSlots';
+import { renderScenarioBriefingMap } from './ui/scenarioBriefingMap';
+import { toggleBriefingPreview } from './ui/briefingShell';
 import { renderMapPreview } from './ui/mapPreview';
 /** Previews per scenario object; a changed custom map is a new object, so it is redrawn. */
 const mapPreviews = new WeakMap<object, string>();
@@ -320,6 +322,7 @@ const fourArmyScreen = new FourArmyScreen({
     commandScheduler.cancel(); cpuRunGeneration += 1; cpuInProgress = false; fileReadGate.invalidate();
     titleRecordCodec.cancel(); titleRecordRevision = undefined; pendingMultiplayerRecord = undefined;
     pauseSpectate(false); dismissTacticalScene(false);
+    app.querySelector('.briefing-overlay')?.remove();
     app.hidden = true; app.inert = true;
   },
   allowClassicMap: map => screens.briefingOpen && selectedMap.id === map || confirmReplaceMatch(),
@@ -331,7 +334,7 @@ const fourArmyScreen = new FourArmyScreen({
         campaignRun = undefined; campaignOutcome = undefined;
         resetGame(classicMap);
       }
-      focusSelector = '#briefing-match-variants';
+      focusSelector = '#briefing-match-variants input:checked';
     } else {
       if (screens.briefingOpen) titleState.openFromBriefing();
       focusSelector = `.title-map-card[data-map-id="${multiplayerReturnMap}"]`;
@@ -1620,9 +1623,14 @@ function render(): void {
   });
   const deployment = screens.briefingOpen ? plannedDeployment() : undefined;
   const briefingVariant = !campaignRun && !dailyLocked() ? multiplayerVariant(renderedMap.id) : undefined;
+  const showBriefing = !screens.campaignMenuOpen && !screens.titleOpen && !replayMode && screens.briefingOpen;
+  const briefingContent = app.querySelector<HTMLElement>('.briefing-content');
+  const briefingScroll = briefingContent?.scrollTop ?? 0;
   const briefing = renderBriefingOverlay({
+    preview: showBriefing ? renderScenarioBriefingMap(deployment?.ok ? deployment.value : renderedMap, matchMode === 'cpu', briefingContent?.querySelector('.briefing-preview')?.getAttribute('data-zoomed') === 'true') : undefined,
+    advancedOpen: !!briefingContent?.querySelector('#briefing-advanced[open]') || !!deployment && !deployment.ok,
     variants: briefingVariant ? renderMatchVariants(briefingVariant, 'standard', 'briefing-match-variants') : undefined,
-    visible: !screens.campaignMenuOpen && !screens.titleOpen && !replayMode && screens.briefingOpen,
+    visible: showBriefing,
     backToTitle: true,
     finiteSupplies,
     requiresStrategy: game.units.some(unit => unit.callsign !== undefined),
@@ -1630,7 +1638,8 @@ function render(): void {
     requiresAirlift: [...deploymentChoices.red, ...deploymentChoices.blue].includes('transportHelicopter'),
     fixedConditions: dailyLocked(),
     mapName: scenarioDisplayName(renderedMap),
-    deployment: ((game.ruleVersion ?? 0) >= 12 && !dailyLocked() && matchMode !== 'hotseat' ? renderArmyPolicies(cpuPolicies, matchMode === 'spectate') : '') + (dailyLocked() && screens.briefingOpen ? renderDailyBriefingNote({ conditions: dailyBriefingConditions(), standard: !!deployment?.ok && isStandardDailyDefinition(deployment.value) }) : '') + (deploymentBase && deploymentBase.id !== 'training' && screens.briefingOpen ? renderDeployment(deploymentBase, deploymentChoices, matchMode === 'cpu' ? ['red'] : ['red', 'blue'], deploymentOpen, deploymentNotice, { catalog: presetCatalog, notice: presetNotice, draftNames: presetDraftNames }, canPositionDeployment() ? { placements: deploymentPlacements } : undefined) + renderOperationChallenges(renderedMap.id) : ''),
+    deployment: ((game.ruleVersion ?? 0) >= 12 && !dailyLocked() && matchMode !== 'hotseat' ? renderArmyPolicies(cpuPolicies, matchMode === 'spectate') : '') + (deploymentBase && deploymentBase.id !== 'training' && screens.briefingOpen ? renderDeployment(deploymentBase, deploymentChoices, matchMode === 'cpu' ? ['red'] : ['red', 'blue'], deploymentOpen, deploymentNotice, { catalog: presetCatalog, notice: presetNotice, draftNames: presetDraftNames }, canPositionDeployment() ? { placements: deploymentPlacements } : undefined) + renderOperationChallenges(renderedMap.id) : ''),
+    dailyNote: (dailyLocked() && screens.briefingOpen ? renderDailyBriefingNote({ conditions: dailyBriefingConditions(), standard: !!deployment?.ok && isStandardDailyDefinition(deployment.value) }) : ''),
     beginDisabled: deployment !== undefined && !deployment.ok,
     briefing: scenarioDisplayBriefing(renderedMap),
     victoryConditions: [...renderedMap.victoryConditions.map(condition => scenarioConditionDescription(renderedMap, condition, 'red')), ...(renderedDecisionRound === undefined ? [] : [uiText.decisionRule(renderedDecisionRound)])],
@@ -1680,6 +1689,7 @@ function render(): void {
   syncFocusedTile();
   app.insertAdjacentHTML('beforeend', gameOverOverlay);
   app.insertAdjacentHTML('beforeend', briefing);
+  if (briefing && briefingScroll) app.querySelector<HTMLElement>('.briefing-content')!.scrollTop = briefingScroll;
   app.insertAdjacentHTML('beforeend', titleOverlay);
   titlePreviews.connect(app);
   app.insertAdjacentHTML('beforeend', shareDialog);
@@ -1762,7 +1772,7 @@ function render(): void {
         const fallback = app.querySelector<HTMLElement>('#production-facility:not(:disabled), #production-menu-close');
         (target && !('disabled' in target && target.disabled) ? target : fallback)?.focus({ preventScroll: true });
       });
-    } else window.setTimeout(() => focusRestoreGuard.isCurrent(focusTicket, renderGeneration) && document.querySelector<HTMLElement>(activeTacticalScene ? (matchMode === 'spectate' && !replay ? '#spectate-scene-pause' : 'attacker' in activeTacticalScene ? '#battle-scene-skip' : '#tactical-scene-skip') : gameOverOverlay ? '#result-title' : editorOverlay ? '#editor-close' : campaignOverlay ? '#campaign-close' : titleOverlay ? titleFocus ?? (app.querySelector('.storage-write-notice') ? '.storage-write-notice' : titleState.resumable ? '#title-resume' : '.title-map-card[aria-current="true"]') : concealed ? '#handoff-start' : shareDialog ? (previousProductionFocus?.startsWith('#share-link-') ? previousProductionFocus : '#share-link-cancel') : briefingFocus ?? '#begin-operation')?.focus(), 0);
+    } else window.setTimeout(() => focusRestoreGuard.isCurrent(focusTicket, renderGeneration) && document.querySelector<HTMLElement>(activeTacticalScene ? (matchMode === 'spectate' && !replay ? '#spectate-scene-pause' : 'attacker' in activeTacticalScene ? '#battle-scene-skip' : '#tactical-scene-skip') : gameOverOverlay ? '#result-title' : editorOverlay ? '#editor-close' : campaignOverlay ? '#campaign-close' : titleOverlay ? titleFocus ?? (app.querySelector('.storage-write-notice') ? '.storage-write-notice' : titleState.resumable ? '#title-resume' : '.title-map-card[aria-current="true"]') : concealed ? '#handoff-start' : shareDialog ? (previousProductionFocus?.startsWith('#share-link-') ? previousProductionFocus : '#share-link-cancel') : briefingFocus ?? '#briefing-title')?.focus({ preventScroll: !!briefing }), 0);
   }
   else if (focusSelector) {
     const previousSelector = focusSelector;
@@ -2218,15 +2228,17 @@ function render(): void {
     titleState.openFromMatch(); render();
   }));
   bindTitleEvents(app, titleEventDeps);
-  app.querySelector<HTMLSelectElement>('#briefing-match-variants')?.addEventListener('change', event => {
+  const briefingZoom = app.querySelector<HTMLButtonElement>('[data-briefing-zoom]');
+  briefingZoom?.addEventListener('click', () => toggleBriefingPreview(briefingZoom));
+  app.querySelectorAll<HTMLInputElement>('input[name="briefing-match-variants"]').forEach(input => input.addEventListener('change', () => {
     if (!screens.briefingOpen || campaignRun || dailyLocked()) return;
     const map = multiplayerVariant(selectedMap.id);
-    const count = map && armyCountOptions(map).find(value => String(value) === (event.currentTarget as HTMLSelectElement).value);
+    const count = map && armyCountOptions(map).find(value => String(value) === input.value);
     if (!map || !count) return;
     multiplayerReturnMap = selectedMap.id;
     fourArmyScreen.open({ map, count, mode: matchMode });
-    fourArmyScreen.root.querySelector<HTMLElement>('#four-variants')?.focus();
-  });
+    fourArmyScreen.root.querySelector<HTMLElement>('#four-variants input:checked')?.focus({ preventScroll: true });
+  }));
   app.querySelector<HTMLButtonElement>('#title-resume-multiplayer')?.addEventListener('click', () => {
     if (screens.titleOpen) fourArmyScreen.resumeFromTitle();
   });
