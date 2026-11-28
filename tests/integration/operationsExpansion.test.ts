@@ -89,9 +89,9 @@ describe('distributed recon, control and operation records', () => {
     const first = dom.window.localStorage.getItem(OPERATION_RECORDS_KEY)!;
     expect(JSON.parse(first).records).toHaveLength(1);
     click('#result-title-menu');
-    expect(document.querySelector('.title-map-card[data-map-id="frontier-defense"]')?.textContent).not.toContain('クリア記録あり');
+    expect(document.querySelector('.title-map-card[data-map-id="frontier-defense"] .catalog-clear')?.textContent).toBe('未クリア');
     click('#title-tactical-preset'); // Historical OFF records belong to the original layout.
-    expect(document.querySelector('.title-map-card[data-map-id="frontier-defense"]')?.textContent).toContain('クリア記録あり');
+    expect(document.querySelector('.title-map-card[data-map-id="frontier-defense"] .catalog-clear')?.textContent).toBe('クリア済み');
     click('#operation-records summary');
     expect(document.querySelector('#operation-records')?.textContent).toContain('標準編成');
     const values = stored();
