@@ -17,14 +17,21 @@ for (const viewport of [
     // Inspecting an empty destination must keep the selected unit's quick information.
     await page.locator('.tile[data-x="3"][data-y="2"]').focus();
     await expect(brief).toHaveAttribute('data-unit-id', selected!);
-    const layout = await page.evaluate(() => {
-      const brief = document.querySelector('#unit-brief')!.getBoundingClientRect();
-      const map = document.querySelector('#board-viewport')!.getBoundingClientRect();
-      return { gap: map.top - brief.bottom, document: document.documentElement.scrollWidth, viewport: window.innerWidth };
-    });
-    expect(layout.gap).toBeGreaterThanOrEqual(0);
-    expect(layout.gap).toBeLessThanOrEqual(12);
-    expect(layout.document).toBeLessThanOrEqual(layout.viewport + 1);
-    await page.locator('.battlefield-stage').screenshot({ path: testInfo.outputPath('unit-information-near-map.png') });
+    if (viewport.width === 390) {
+      await page.locator('#mobile-panel').click();
+      await expect(page.locator('#command-panel')).toHaveAttribute('data-sheet', 'open');
+      await expect(brief).toBeInViewport();
+    } else {
+      const layout = await page.evaluate(() => {
+        const brief = document.querySelector('#unit-brief')!.getBoundingClientRect();
+        const map = document.querySelector('#board-viewport')!.getBoundingClientRect();
+        return { gap: brief.left - map.right, overlap: Math.min(map.bottom, brief.bottom) - Math.max(map.top, brief.top) };
+      });
+      expect(layout.gap).toBeGreaterThanOrEqual(0);
+      expect(layout.gap).toBeLessThanOrEqual(32);
+      expect(layout.overlap).toBeGreaterThan(0);
+    }
+    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(viewport.width + 1);
+    await page.screenshot({ path: testInfo.outputPath('unit-information-near-map.png') });
   });
 }

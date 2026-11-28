@@ -24,8 +24,10 @@ for (const viewport of [
     expect((await page.locator('.tile').first().boundingBox())!.width).toBe(22);
     await page.locator('#board-zoom-in').click();
     await page.locator('#open-title').click();
+    await openTitlePanel(page, 'settings');
     await expect(select).toHaveValue('75');
     await select.selectOption('200');
+    await openTitlePanel(page, 'home');
     await page.locator('#title-resume').click();
     await expect(page.locator('.board')).toHaveAttribute('data-zoom', '200');
     await expect(page.locator('#board-zoom-in')).toBeDisabled();
@@ -33,7 +35,9 @@ for (const viewport of [
     await page.setViewportSize({ width: 430, height: 844 });
     await expect(page.locator('.board')).toHaveAttribute('data-zoom', '200');
     await page.locator('#open-title').click();
+    await openTitlePanel(page, 'settings');
     await select.selectOption('auto');
+    await openTitlePanel(page, 'home');
     await page.locator('#title-training').click();
     await page.locator('#begin-operation').click();
     // Six training columns at 55px plus the 56px gutter fit the 410px board area.
@@ -43,9 +47,11 @@ for (const viewport of [
     await page.setViewportSize({ width: 1440, height: 900 });
     await expect(page.locator('.board')).toHaveAttribute('data-zoom', '150');
     await page.locator('#open-title').click();
+    await openTitlePanel(page, 'settings');
     await expect(select).toHaveValue('auto');
     await select.selectOption('50');
     await page.reload();
+    await openTitlePanel(page, 'settings');
     await expect(select).toHaveValue('auto');
   });
 
