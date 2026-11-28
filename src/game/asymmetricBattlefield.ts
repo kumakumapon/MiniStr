@@ -1,3 +1,4 @@
+import { authoredBattlefield, authoredSiteTeam, isAuthoredFourSource, type AuthoredFourSource } from './asymmetricFourSites';
 import type { FourArmyMap, FourArmyTerrain } from './fourArmyEngine';
 import type { FourArmyId } from './fourArmyFoundation';
 import type { ExpandedBattle } from './smallBattle';
@@ -6,13 +7,13 @@ import type { Position, UnitKind } from './types';
 import { unitStats } from './units';
 import { weaponsForUnit } from './weapons';
 
-export type AsymmetricSource = 'encirclement' | 'crown' | 'canyon' | 'marsh' | 'river' | 'tundra';
+export type AsymmetricSource = 'encirclement' | 'crown' | 'canyon' | 'marsh' | 'river' | 'tundra' | AuthoredFourSource;
 export function isAsymmetricSource(source: unknown): source is AsymmetricSource {
-  return source === 'encirclement' || source === 'crown' || source === 'canyon' || source === 'marsh' || source === 'river' || source === 'tundra';
+  return isFixedFourArmySource(source) || source === 'canyon' || source === 'marsh' || source === 'river' || source === 'tundra';
 }
 
-export function isFixedFourArmySource(source: unknown): source is 'crown' | 'encirclement' {
-  return source === 'crown' || source === 'encirclement';
+export function isFixedFourArmySource(source: unknown): source is 'crown' | 'encirclement' | AuthoredFourSource {
+  return source === 'crown' || source === 'encirclement' || isAuthoredFourSource(source);
 }
 
 // A–D are permanent site identities within this layout. A row is west to east.
@@ -219,8 +220,8 @@ const forward = [
   { x: -1, y: 0 },
   { x: 0, y: -1 },
 ] as const;
-type SiteUnit = readonly [kind: UnitKind, side: number, front: number];
-type SiteFacility = readonly [kind: 'factory' | 'city' | 'airport', side: number, front: number];
+type SiteUnit = readonly [kind: UnitKind, side: number, front: number, embarked?: true];
+type SiteFacility = readonly [kind: 'factory' | 'city' | 'airport' | 'port', side: number, front: number];
 interface SiteResources {
   readonly gold: number;
   readonly units: readonly SiteUnit[];
@@ -285,10 +286,12 @@ const hegemonSite: SiteResources = {
 };
 
 export function siteTeam(source: ExpandedBattle['sourceMapId'], sites: readonly FourArmyId[], army: FourArmyId): FourArmyId {
+  if (isAuthoredFourSource(source)) return authoredSiteTeam(source, sites, army);
   return (source === 'tundra' || source === 'encirclement') && army !== sites[0] ? sites[1]! : army;
 }
 
 export function startingSiteResources(source: AsymmetricSource, site: number): SiteResources {
+  if (isAuthoredFourSource(source)) return authoredBattlefield(source).sites[site]!;
   if (site !== 0) return standardSite;
   return source === 'encirclement' ? hegemonSite : source === 'crown' ? centralSite : standardSite;
 }
@@ -335,8 +338,9 @@ function sitePosition(home: Position, site: number, side: number, front: number)
 }
 export function asymmetricBoard(source: AsymmetricSource, siteArmies: readonly FourArmyId[], layoutVersion = 5) {
   const count = siteArmies.length === 3 ? 3 : 4;
-  const rows =
-    source === 'encirclement'
+  const rows = isAuthoredFourSource(source)
+    ? authoredBattlefield(source).terrain
+    : source === 'encirclement'
       ? encirclementRows
       : source === 'crown'
         ? crownRows
@@ -362,11 +366,11 @@ export function asymmetricBoard(source: AsymmetricSource, siteArmies: readonly F
   );
   siteArmies.forEach((army, site) => {
     for (const [kind, side, front] of startingSiteResources(source, site).facilities) {
-      const p = sitePosition(homes[army], site, side, front);
+      const p = isAuthoredFourSource(source) ? { x: side, y: front } : sitePosition(homes[army], site, side, front);
       terrain[p.y]![p.x] = { kind, owner: army, capturePoints: 20 };
     }
   });
-  return { board: { width: rows[0].length, height: rows.length, terrain }, homes, bridges };
+  return { board: { width: rows[0]!.length, height: rows.length, terrain }, homes, bridges };
 }
 
 export function createAsymmetricLayout(source: AsymmetricSource, match: ExpandedBattle, seed: number, rules?: FourArmyRules): FourArmyMap {
@@ -377,19 +381,30 @@ export function createAsymmetricLayout(source: AsymmetricSource, match: Expanded
   const startZones = {} as NonNullable<FourArmyMap['setup']>['startZones'];
   siteArmies.forEach((army, site) => {
     const resources = startingSiteResources(source, site);
-    const local = (side: number, front: number) => sitePosition(homes[army], site, side, front);
+    const local = (side: number, front: number) => (isAuthoredFourSource(source) ? { x: side, y: front } : sitePosition(homes[army], site, side, front));
     const first = local(-1, -1),
       last = local(1, 2);
     startZones[army] = { x: Math.min(first.x, last.x), y: Math.min(first.y, last.y), width: Math.abs(last.x - first.x) + 1, height: Math.abs(last.y - first.y) + 1 };
+    if (isAuthoredFourSource(source)) {
+      const positions = [homes[army], ...resources.units.map(([, x, y]) => ({ x, y }))];
+      const xs = positions.map((p) => p.x),
+        ys = positions.map((p) => p.y);
+      const x = Math.min(...xs),
+        y = Math.min(...ys);
+      startZones[army] = { x, y, width: Math.max(...xs) - x + 1, height: Math.max(...ys) - y + 1 };
+    }
     players[army] = { gold: resources.gold, income: 0 };
-    for (const [kind, side, front] of resources.units) {
+    for (const [kind, side, front, embarked] of resources.units) {
+      const position = local(side, front);
+      const carrier = embarked ? units.find((u) => u.owner === army && u.kind === 'landingShip' && u.position?.x === position.x && u.position.y === position.y) : undefined;
+      if (embarked && !carrier) throw Error('Missing starting landing ship');
       const stats = unitStats[kind],
         secondary = weaponsForUnit(kind, { ruleVersion: 12 })[1];
       units.push({
         id: `u${units.length + 1}`,
         owner: army,
         kind,
-        position: local(side, front),
+        ...(carrier ? { embarkedIn: carrier.id } : { position }),
         hp: 100,
         fuel: stats.fuel,
         ammo: stats.ammo,

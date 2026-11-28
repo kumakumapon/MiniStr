@@ -1,3 +1,4 @@
+import { authoredBattlefield, isAuthoredFourSource } from '../game/asymmetricFourSites';
 import { armyEmblem } from './fourArmyEmblems';
 import {
   asymmetricBoard,
@@ -5,13 +6,14 @@ import {
   encirclementHegemonLimit,
   isAsymmetricSource,
   isFixedFourArmySource,
+  type AsymmetricSource,
   startingSiteResources,
 } from '../game/asymmetricBattlefield';
 import type { FourArmyId } from '../game/fourArmyFoundation';
 import type { FourArmyControllers } from '../game/fourArmyControl';
 import { createExpandedBattleMap, latestExpandedBattleLayout } from '../game/expandedBattleMap';
 import { createFourArmyMap32 } from '../game/fourArmyMap32';
-import { encirclementTeamName, type MultiplayerMap } from './matchVariants';
+import { authoredTeamLabel, encirclementTeamName, type MultiplayerMap } from './matchVariants';
 import { terrainNames, unitNames } from './labels';
 import { getLocale } from './locale';
 import { renderMapPreview } from './mapPreview';
@@ -53,7 +55,7 @@ const copy = {
   ],
 } as const;
 export function battlefieldTheme(source: unknown) {
-  return source === 'tundra' ? 'snow' : source === 'canyon' ? 'desert' : 'temperate';
+  return isAuthoredFourSource(source) ? authoredBattlefield(source).theme : source === 'tundra' ? 'snow' : source === 'canyon' ? 'desert' : 'temperate';
 }
 const cardinalNames = [
   ['北', 'North'],
@@ -87,7 +89,7 @@ function countedNames(names: readonly string[]): string {
   return [...counts].map(([name, count]) => `${name} ×${count}`).join(' · ');
 }
 
-function siteResources(source: 'crown' | 'encirclement', site: number, en: boolean): string {
+function siteResources(source: AsymmetricSource, site: number, en: boolean): string {
   const { gold, units, facilities } = startingSiteResources(source, site);
   const initialUnits = countedNames(units.map(([kind]) => unitNames[kind]));
   const buildings = countedNames([terrainNames.capital, ...facilities.map(([kind]) => terrainNames[kind])]);
@@ -115,6 +117,7 @@ export function renderStartingSites(
   const armyName = (army: FourArmyId) => (en ? `Army ${army.slice(-1)}` : `第${army.slice(-1)}軍`);
   const authored = isAsymmetricSource(source);
   const names = armies.map((army, i) => {
+    if (isAuthoredFourSource(source)) return authoredBattlefield(source).regions[i]![loc];
     if (authored) return copy[source][i]![loc];
     if (armies.length === 3) return cardinalNames[i]![loc];
     const { x, y } = homes[army];
@@ -123,6 +126,8 @@ export function renderStartingSites(
   const teamLabel = (army: FourArmyId, i: number) => {
     if (source === 'encirclement') return encirclementTeamName(i === 0);
     if (source === 'tundra') return i === 0 ? (en ? 'Defender' : '守備側') : en ? 'Attackers' : '攻撃側';
+    const named = authoredTeamLabel(source, i);
+    if (named) return named;
     if (!teams) return en ? 'Free-for-all' : '個人戦';
     const team = String.fromCharCode(64 + Number(teams[army].slice(-1)));
     return en ? `Team ${team}` : `チーム${team}`;

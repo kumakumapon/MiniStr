@@ -7,6 +7,7 @@ import { hasSafeJsonStructure, parseBoundedJson } from './jsonBoundary';
 import { trainingData } from './training';
 import { learningOperationData } from './learningOperations';
 import { highlandCrossingData } from './highlandCrossing';
+import { asymmetricDuelData } from './asymmetricDuels';
 import { peninsulaNeckData } from './peninsulaNeck';
 import { expandedScenarioData } from './expandedMaps';
 import { specialOperationData } from './specialOperations';
@@ -357,7 +358,7 @@ const rawBuiltInScenarioData = [
 
 /** Retain compact revisions for pre-snapshot saves; new matches use the wide catalog. */
 export const legacyBuiltInScenarioData = rawBuiltInScenarioData;
-export const builtInScenarioData = [...expandedScenarioData(rawBuiltInScenarioData), highlandCrossingData, peninsulaNeckData];
+export const builtInScenarioData = [...expandedScenarioData(rawBuiltInScenarioData), highlandCrossingData, peninsulaNeckData, ...asymmetricDuelData];
 const legacyLoad = loadScenarioDefinitions(legacyBuiltInScenarioData, { defaultProductionRule });
 const legacyBuiltInScenarios = legacyLoad.ok ? legacyLoad.value : [];
 

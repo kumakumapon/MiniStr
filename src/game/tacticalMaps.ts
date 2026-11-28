@@ -1,4 +1,5 @@
 import { loadScenarioDefinitions, scenarioDefinitionToData, type ScenarioDefinition } from './maps';
+import { isAuthoredDuel } from './asymmetricDuels';
 import { peninsulaNeckId } from './peninsulaNeck';
 import { combinedTactics, type TacticalOptions } from './tactics';
 
@@ -10,8 +11,8 @@ export function tacticalScenario(source: ScenarioDefinition, reviseLayout = true
   if (reviseLayout && !options && variants.has(source)) return variants.get(source)!;
   const data = scenarioDefinitionToData(source);
   data.tacticalOptions = { ...(options ?? combinedTactics) };
-  // Keep the authored coastal detour and single land crossing in either ruleset.
-  if (reviseLayout && !source.tacticalOptions && source.id !== peninsulaNeckId) {
+  // Keep authored routes and properties across tactical rulesets.
+  if (reviseLayout && !source.tacticalOptions && source.id !== peninsulaNeckId && !isAuthoredDuel(source.id)) {
     const { width: w, height: h } = source.board;
     const reserved = new Set(source.initialUnits.map((u) => `${u.x},${u.y}`));
     for (const c of [...source.victoryConditions, ...source.defeatConditions]) if ('positions' in c) for (const p of c.positions) reserved.add(`${p.x},${p.y}`);

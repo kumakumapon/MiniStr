@@ -1,9 +1,12 @@
+import { authoredBattlefield, authoredFourSources, isAuthoredFourSource } from '../game/asymmetricFourSites';
 import { isAsymmetricSource, isFixedFourArmySource, type AsymmetricSource } from '../game/asymmetricBattlefield';
-import { localized } from './locale';
+import { getLocale, localized } from './locale';
 import { escapeHtml } from './strings';
 
 export type ArmyCount = 2 | 3 | 4;
 export type MultiplayerMap = 'compact' | 'outpost' | 'strait' | 'frontier' | 'wide' | AsymmetricSource;
+
+const displayLanguage = () => (getLocale() === 'en' ? 1 : 0);
 
 const names = localized(
   {
@@ -63,13 +66,23 @@ const briefings = localized(
     wide: 'Roads connect the four corners. Each army starts with a factory and an airport near headquarters.',
   },
 );
-export const multiplayerBriefing = (map: MultiplayerMap): string => briefings[map];
+export const multiplayerBriefing = (map: MultiplayerMap): string => (isAuthoredFourSource(map) ? authoredBattlefield(map).briefing[displayLanguage()] : briefings[map]);
 
-export const multiplayerOnlyMaps = ['strait', 'frontier', 'wide', 'crown', 'encirclement'] as const;
+export const multiplayerOnlyMaps = ['strait', 'frontier', 'wide', 'crown', 'encirclement', ...authoredFourSources] as const;
 export const multiplayerMaps = ['compact', 'outpost', 'canyon', 'marsh', 'river', 'tundra', ...multiplayerOnlyMaps] as const;
 export const encirclementTeamName = (hegemon: boolean) => (hegemon ? encirclementTeams.hegemon : encirclementTeams.alliance);
 const encirclementTeams = localized({ hegemon: '覇権国', alliance: '包囲同盟' }, { hegemon: 'Hegemon', alliance: 'Encircling alliance' });
-export const multiplayerName = (map: MultiplayerMap): string => names[map];
+export const multiplayerName = (map: MultiplayerMap): string => (isAuthoredFourSource(map) ? authoredBattlefield(map).title[displayLanguage()] : names[map]);
+
+export const authoredTeamLabel = (map: unknown, site: number): string | undefined =>
+  isAuthoredFourSource(map) ? authoredBattlefield(map).teamNames?.[site]?.[displayLanguage()] : undefined;
+export const fixedTeamFormat = (map: unknown): string | undefined => {
+  const language = displayLanguage();
+  if (map === 'encirclement') return ['覇権国1軍・包囲同盟3軍', '1 hegemon vs 3 allied armies'][language];
+  if (map === 'ocean-alliance') return ['海洋同盟2軍・大陸同盟2軍', '2 oceanic vs 2 continental armies'][language];
+  if (map === 'sandwiched-alliance') return ['単独2軍・同盟2軍（1対1対2）', 'Two independent armies vs a two-army alliance'][language];
+  return undefined;
+};
 export const multiplayerSize = (map: MultiplayerMap): { width: number; height: number } =>
   map === 'strait' ? { width: 17, height: 15 } : map === 'frontier' || map === 'wide' ? { width: 32, height: 32 } : { width: 18, height: 14 };
 export const classicVariant = (map: MultiplayerMap): string | undefined =>

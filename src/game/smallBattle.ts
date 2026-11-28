@@ -1,4 +1,5 @@
-import { encirclementAllianceLimit, isAsymmetricSource, siteTeam, type AsymmetricSource } from './asymmetricBattlefield';
+import { authoredBattlefield, isAuthoredFourSource } from './asymmetricFourSites';
+import { encirclementAllianceLimit, isAsymmetricSource, isFixedFourArmySource, siteTeam, type AsymmetricSource } from './asymmetricBattlefield';
 import { FOUR_ARMY_IDS, type FourArmyId, type FourArmyOutcome } from './fourArmyFoundation';
 import type { FourArmyMap, FourArmyState } from './fourArmyEngine';
 import { isPropertyTerrainKind } from './facilities';
@@ -16,7 +17,7 @@ export interface LegacySmallBattle {
 export interface ExpandedBattle {
   version: 2;
   sourceMapId: 'skirmish' | 'outpost' | 'strait' | 'frontier' | AsymmetricSource;
-  layoutVersion: 2 | 3 | 4 | 5 | 6 | 7;
+  layoutVersion: 2 | 3 | 4 | 5 | 6 | 7 | 8;
   /** Army assigned to each ordered authored site in authored layouts. */
   siteArmies?: FourArmyId[];
   participants: FourArmyId[];
@@ -54,12 +55,12 @@ export function isSmallBattle(v: unknown): v is SmallBattle {
     if (
       Object.keys(m).length !== names.length ||
       !names.every((k) => Object.hasOwn(m, k)) ||
-      (m.sourceMapId === 'crown' || m.sourceMapId === 'encirclement'
-        ? m.layoutVersion !== (m.sourceMapId === 'encirclement' ? 7 : 6) ||
+      (isFixedFourArmySource(m.sourceMapId)
+        ? m.layoutVersion !== (isAuthoredFourSource(m.sourceMapId) ? 8 : m.sourceMapId === 'encirclement' ? 7 : 6) ||
           !Array.isArray(ids) ||
           ids.length !== 4 ||
           m.initiative !== 'rotating' ||
-          m.sharedVision !== (m.sourceMapId === 'encirclement')
+          m.sharedVision !== (isAuthoredFourSource(m.sourceMapId) ? authoredBattlefield(m.sourceMapId).teams !== undefined : m.sourceMapId === 'encirclement')
         : authored
           ? m.layoutVersion !== 5 && !(m.layoutVersion === 4 && (m.sourceMapId === 'canyon' || m.sourceMapId === 'marsh'))
           : m.layoutVersion !== 2 && !(m.layoutVersion === 3 && Array.isArray(ids) && ids.length === 3 && ['skirmish', 'outpost'].includes(String(m.sourceMapId)))) ||
