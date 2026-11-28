@@ -1,6 +1,8 @@
 import type { FourArmyId } from './fourArmyFoundation';
 import type { UnitKind } from './types';
 import type { FourArmyHoldObjective } from './fourArmyObjective';
+import type { FourArmyStartZone } from './fourArmySetup';
+import type { Position } from './types';
 
 type Facility = 'factory' | 'city' | 'airport' | 'port';
 type SiteUnit = readonly [kind: UnitKind, x: number, y: number, embarked?: true];
@@ -20,6 +22,7 @@ interface Battlefield {
   teamNames?: readonly Copy[];
   theme: 'coastal' | 'temperate';
   objective?: FourArmyHoldObjective;
+  arrival?: { site: number; round: number; zone: FourArmyStartZone; capital: Position };
   sites: readonly [NewSiteResources, NewSiteResources, NewSiteResources, NewSiteResources];
 }
 
@@ -413,6 +416,94 @@ export const authoredFourSites = {
           ['tank', 12, 11],
           ['recon', 12, 9],
           ['artillery', 13, 10],
+        ],
+      },
+    ],
+  },
+  'delayed-power': {
+    title: ['遅れて来る列強', 'The Late-Arriving Power'],
+    briefing: [
+      '北・西・東の3軍が先に開戦する。南軍は第8ラウンドから、南の予約区域が空いていれば資金と増援を持って参入する。区域が他軍に占有されている間は次のラウンドへ延期する。',
+      'North, west and east begin the war. At round eight the southern power can bring in its starting forces and funds if its reserved area is clear. Occupation postpones its arrival until a later round.',
+    ],
+    theme: 'temperate',
+    arrival: { site: 3, round: 8, zone: { x: 5, y: 12, width: 9, height: 2 }, capital: { x: 9, y: 13 } },
+    regions: [
+      ['北・北の街道', 'North · northern highways'],
+      ['西・西の迂回路', 'West · western approach'],
+      ['東・東の都市群', 'East · eastern towns'],
+      ['南・第8ラウンドから参入', 'South · arrives from round eight'],
+    ],
+    terrain: [
+      '...+.........+....',
+      '.....====A===.....',
+      '..=..c...=...c.=..',
+      '..=...#.===.#..=..',
+      '..=..##.=.=.##.=..',
+      '..B==c..=.=..c=C..',
+      '.....=..=.=..=....',
+      '..c..========..c..',
+      '......+..=.+......',
+      '....c....=..c.....',
+      '....##=#####=##...',
+      '.....c==...=c.....',
+      '....+........+....',
+      '.........D........',
+    ],
+    sites: [
+      {
+        gold: 6000,
+        facilities: [
+          ['factory', 7, 1],
+          ['city', 9, 0],
+        ],
+        units: [
+          ['infantry', 8, 2],
+          ['infantry', 10, 2],
+          ['tank', 9, 2],
+          ['artillery', 9, 3],
+        ],
+      },
+      {
+        gold: 6000,
+        facilities: [
+          ['factory', 2, 4],
+          ['city', 1, 5],
+        ],
+        units: [
+          ['infantry', 3, 4],
+          ['infantry', 3, 6],
+          ['tank', 3, 5],
+          ['recon', 4, 6],
+        ],
+      },
+      {
+        gold: 6000,
+        facilities: [
+          ['factory', 15, 4],
+          ['city', 16, 5],
+        ],
+        units: [
+          ['infantry', 14, 4],
+          ['infantry', 14, 6],
+          ['tank', 14, 5],
+          ['recon', 13, 6],
+        ],
+      },
+      {
+        gold: 15000,
+        facilities: [
+          ['factory', 7, 13],
+          ['city', 10, 13],
+          ['city', 11, 13],
+        ],
+        units: [
+          ['infantry', 7, 12],
+          ['infantry', 11, 12],
+          ['tank', 8, 12],
+          ['heavyTank', 9, 12],
+          ['artillery', 10, 12],
+          ['apc', 12, 13],
         ],
       },
     ],

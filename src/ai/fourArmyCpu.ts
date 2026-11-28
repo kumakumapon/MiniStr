@@ -1,3 +1,4 @@
+import { isExpandedBattle } from '../game/smallBattle';
 import { fourArmyObjective } from '../game/fourArmyObjective';
 import {
   needsFourArmyRecovery,
@@ -47,7 +48,7 @@ export function isObservedFourArmyCommand(o: FourArmyObservation, command: unkno
   if ('transportId' in command && !o.units.some((u) => u.id === command.transportId && u.owner === o.viewer)) return false;
   if (command.type === 'merge' && !o.units.some((u) => u.id === command.targetId && u.owner === o.viewer)) return false;
   if (command.type === 'produce' && o.board.terrain[command.factory.y]?.[command.factory.x]?.owner !== o.viewer) return false;
-  if (['bridge', 'destroyBridge'].includes(command.type) && o.match?.version !== 2) return false;
+  if (['bridge', 'destroyBridge'].includes(command.type) && !isExpandedBattle(o.match)) return false;
   if (
     command.type === 'produce' &&
     o.unitLimitPerArmy !== undefined &&
@@ -73,7 +74,7 @@ export function chooseFourArmyCpuCommand(input: unknown, options: unknown, cpuVe
     own = view.units.filter((u) => o.units.some((original) => original.id === u.id && original.owner === o.viewer)),
     enemies = view.units.filter((u) => u.owner === 'blue' && isDeployedUnit(u));
   const serviceView =
-    o.match?.version === 2 && o.alive.some((a) => a !== o.viewer && alliedArmies(o.match, a, o.viewer))
+    isExpandedBattle(o.match) && o.alive.some((a) => a !== o.viewer && alliedArmies(o.match, a, o.viewer))
       ? {
           ...view,
           board: {
@@ -97,7 +98,7 @@ export function chooseFourArmyCpuCommand(input: unknown, options: unknown, cpuVe
   };
   const actor = o.viewer,
     cautious = options.policy === 'defensive' ? 0.65 : options.policy === 'offensive' ? 0.2 : 0.4;
-  const shortMatch = improved && o.match?.version === 2 && o.match.ending === 'short' ? o.match : undefined;
+  const shortMatch = improved && isExpandedBattle(o.match) && o.match.ending === 'short' ? o.match : undefined;
   const encirclement = shortMatch?.sourceMapId === 'encirclement';
   const centralPower = shortMatch?.sourceMapId === 'crown' && shortMatch.layoutVersion === 6;
   const passMatch =
@@ -170,7 +171,7 @@ export function chooseFourArmyCpuCommand(input: unknown, options: unknown, cpuVe
       if (u.hp < 70 && !u.logistics?.priority)
         add({ actor, type: 'logistics', unitId: u.id, order: { priority: true, resource: (u.fuel ?? unitStats[u.kind].fuel) < 10 ? 'fuel' : 'ammo', repair: true } }, 270);
     }
-    if (modernSix && o.match?.version === 2 && !u.hasMoved && u.kind === 'engineer')
+    if (modernSix && isExpandedBattle(o.match) && !u.hasMoved && u.kind === 'engineer')
       for (const destination of bridgeDestinations(view, u.id)) {
         const benefit = improved ? fourArmyBridgeBenefit(view, destination, own, goals) : 1;
         if (benefit > 0) add({ actor, type: 'bridge', unitId: u.id, destination }, 280);

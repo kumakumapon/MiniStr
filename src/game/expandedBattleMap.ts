@@ -1,3 +1,4 @@
+import { authoredArrival } from './fourArmyArrival';
 import { authoredBattlefield, isAuthoredFourSource } from './asymmetricFourSites';
 import { createAsymmetricLayout, isAsymmetricSource, siteTeam } from './asymmetricBattlefield';
 import { FOUR_ARMY_IDS, type FourArmyId } from './fourArmyFoundation';
@@ -27,9 +28,11 @@ export function expandedBattleDimensions(source: ExpandedBattle['sourceMapId']) 
 /** Layout 3 protects the northern neutral facilities from simultaneous flank pressure; callers loading historical snapshots keep layout 2. */
 export const latestExpandedBattleLayout = (source: ExpandedBattle['sourceMapId'], count: number): ExpandedBattle['layoutVersion'] =>
   isAuthoredFourSource(source)
-    ? authoredBattlefield(source).objective
-      ? 9
-      : 8
+    ? authoredBattlefield(source).arrival
+      ? 10
+      : authoredBattlefield(source).objective
+        ? 9
+        : 8
     : source === 'encirclement'
       ? 7
       : source === 'crown'
@@ -55,9 +58,11 @@ export function createExpandedBattleMap(options: ExpandedBattleOptions = {}): Ga
     objective = isAuthoredFourSource(sourceMapId) ? authoredBattlefield(sourceMapId).objective : undefined,
     ending = options.ending ?? (sourceMapId === 'frontier' || objective ? 'unlimited' : 'short');
   const sites = options.siteArmies ?? participants;
+  const arrival = authoredArrival(sourceMapId, sites);
   const team = (a: FourArmyId) => options.teams?.[a] ?? siteTeam(sourceMapId, sites, a);
   const match: ExpandedBattle = {
-    version: 2,
+    version: arrival ? 3 : 2,
+    ...(arrival ? { arrival } : {}),
     sourceMapId,
     layoutVersion: options.layoutVersion ?? (isAsymmetricSource(sourceMapId) ? latestExpandedBattleLayout(sourceMapId, participants.length) : 2),
     ...(isAsymmetricSource(sourceMapId) ? { siteArmies: [...sites] } : {}),

@@ -1,3 +1,6 @@
+import { createAsymmetricLayout, isAsymmetricSource } from './asymmetricBattlefield';
+import { enterReservedArmy, fourArmyArrival, isCanonicalArrival, validArrivalProgress, withoutReserve } from './fourArmyArrival';
+import { isExpandedBattle } from './smallBattle';
 import { heldObjectiveOutcome, isFourArmyHoldProgress, updateFourArmyHold, type FourArmyHoldProgress } from './fourArmyObjective';
 import { combatSummaryForCommand, type CombatSummary } from './combatSummary';
 import {
@@ -56,6 +59,7 @@ export interface FourArmyMap {
   setup?: FourArmySetup;
 }
 export interface FourArmyState {
+  arrivedAt?: number;
   objectiveHold?: FourArmyHoldProgress;
   match?: SmallBattle;
   decision?: { round: 15 | 20 | 21 };
@@ -63,7 +67,7 @@ export interface FourArmyState {
   pathVersion?: 1 | 2 | 3;
   bridges?: { owner: FourArmyId; position: Position }[];
   /** v1 retains legacy checkpoints; v2 adds immutable setup and a per-army ceiling. Combat/logistics remain v12. */
-  engineVersion: 1 | 2 | 3 | 4 | 5;
+  engineVersion: 1 | 2 | 3 | 4 | 5 | 6;
   rules?: FourArmyRules;
   extensions?: FourArmyExtensions;
   setup?: FourArmySetup;
@@ -80,6 +84,7 @@ export interface FourArmyState {
   paused: boolean;
 }
 export interface FourArmyObservation {
+  arrivedAt?: number;
   objectiveHold?: FourArmyHoldProgress;
   match?: SmallBattle;
   decision?: { round: 15 | 20 | 21 };
@@ -197,7 +202,7 @@ function restore(before: FourArmyState, next: GameState, actor: FourArmyId): Fou
           ...tile,
           owner:
             tile.owner === 'red'
-              ? before.match?.version === 2 && before.board.terrain[y]![x]!.owner && alliedArmies(before.match, actor, before.board.terrain[y]![x]!.owner!)
+              ? isExpandedBattle(before.match) && before.board.terrain[y]![x]!.owner && alliedArmies(before.match, actor, before.board.terrain[y]![x]!.owner!)
                 ? before.board.terrain[y]![x]!.owner
                 : actor
               : tile.owner === 'blue'
@@ -323,8 +328,11 @@ function advance(state: FourArmyState): GameResult<FourArmyState> {
   }
   const finished = finishFourArmyTurn(state.round, state.alive, fourArmyParticipants(state));
   if (!finished.ok) return finished;
-  if (state.match?.version === 2 && finished.value.completedRound !== undefined) {
-    const order = battleOrder(state.match, finished.value.round.round);
+  if (isExpandedBattle(state.match) && finished.value.completedRound !== undefined) {
+    const adjudication = state.match.ending === 'short' && finished.value.completedRound === state.match.roundLimit;
+    const arrived = adjudication ? state : enterReservedArmy(state, finished.value.round.round);
+    const order = battleOrder(state.match, finished.value.round.round, arrived.arrivedAt);
+    state = arrived;
     finished.value.round = { ...finished.value.round, order, index: order.findIndex((a) => state.alive.includes(a)) };
   }
   if (finished.value.completedRound !== undefined) {
@@ -346,13 +354,13 @@ export function isFourArmyState(value: unknown): value is FourArmyState {
     !keys(
       value,
       ['engineVersion', 'board', 'capitals', 'units', 'players', 'round', 'alive', 'eliminations', 'outcome', 'rngSeed', 'nextUnitId', 'paused'],
-      ['setup', 'pathVersion', 'rules', 'extensions', 'match', 'decision', 'bridges', 'objectiveHold'],
+      ['setup', 'pathVersion', 'rules', 'extensions', 'match', 'decision', 'bridges', 'objectiveHold', 'arrivedAt'],
     ) ||
-    ![1, 2, 3, 4, 5].includes(value.engineVersion as number)
+    ![1, 2, 3, 4, 5, 6].includes(value.engineVersion as number)
   )
     return false;
-  if (value.engineVersion === 4 || value.engineVersion === 5) {
-    if (!isSmallBattle(value.match) || value.match.version !== (value.engineVersion === 5 ? 2 : 1)) return false;
+  if (value.engineVersion === 4 || value.engineVersion === 5 || value.engineVersion === 6) {
+    if (!isSmallBattle(value.match) || value.match.version !== Number(value.engineVersion) - 3) return false;
   } else if (Object.hasOwn(value, 'match') || Object.hasOwn(value, 'decision') || Object.hasOwn(value, 'bridges')) return false;
   const participants = isSmallBattle(value.match) ? value.match.participants : FOUR_ARMY_IDS;
   if (
@@ -366,7 +374,7 @@ export function isFourArmyState(value: unknown): value is FourArmyState {
     return false;
   if (
     Object.hasOwn(value, 'pathVersion') &&
-    (value.engineVersion === 5
+    (Number(value.engineVersion) >= 5
       ? value.pathVersion !== 3
       : value.engineVersion === 4
         ? value.pathVersion !== 2
@@ -404,24 +412,34 @@ export function isFourArmyState(value: unknown): value is FourArmyState {
     return false;
   if (!Array.isArray(aliveData) || aliveData.length > 4 || !aliveData.every((a) => army(a) && participants.includes(a)) || new Set(aliveData).size !== aliveData.length)
     return false;
+  const s = value as unknown as FourArmyState;
+  const pending = fourArmyArrival(s.match)?.army;
+  const awaiting = pending !== undefined && s.arrivedAt === undefined;
+  if (!validArrivalProgress(s) || (awaiting && (s.players[pending].gold !== 0 || s.players[pending].income !== 0))) return false;
   if (
     !Array.isArray(value.eliminations) ||
-    value.eliminations.length !== participants.length - aliveData.length ||
+    value.eliminations.length !== participants.length - aliveData.length - Number(awaiting) ||
     !value.eliminations.every(
-      (e) => record(e) && keys(e, ['army', 'round']) && army(e.army) && participants.includes(e.army) && !aliveData.includes(e.army) && integer(e.round, 1, roundData.round),
+      (e) =>
+        record(e) &&
+        keys(e, ['army', 'round']) &&
+        army(e.army) &&
+        participants.includes(e.army) &&
+        !aliveData.includes(e.army) &&
+        (!awaiting || e.army !== pending) &&
+        integer(e.round, 1, roundData.round),
     ) ||
     new Set(value.eliminations.map((e) => e.army)).size !== value.eliminations.length
   )
     return false;
-  const s = value as unknown as FourArmyState;
   if (s.engineVersion === 4 && (!s.match || s.pathVersion !== 2 || s.board.width !== 18 || s.board.height !== 14)) return false;
-  if (s.engineVersion === 5) {
+  if (s.engineVersion >= 5) {
     if (
-      s.match?.version !== 2 ||
+      !isExpandedBattle(s.match) ||
       s.pathVersion !== 3 ||
       s.board.width !== (s.match.sourceMapId === 'frontier' ? 32 : s.match.sourceMapId === 'strait' ? 17 : 18) ||
       s.board.height !== (s.match.sourceMapId === 'frontier' ? 32 : s.match.sourceMapId === 'strait' ? 15 : 14) ||
-      JSON.stringify(s.round.order) !== JSON.stringify(battleOrder(s.match, s.round.round))
+      JSON.stringify(s.round.order) !== JSON.stringify(battleOrder(s.match, s.round.round, s.arrivedAt))
     )
       return false;
   } else if (Object.hasOwn(s, 'bridges')) return false;
@@ -437,7 +455,7 @@ export function isFourArmyState(value: unknown): value is FourArmyState {
     )
   )
     return false;
-  if (s.engineVersion === 5) {
+  if (s.engineVersion >= 5) {
     if (
       !Array.isArray(s.bridges) ||
       s.bridges.length > 8 ||
@@ -477,7 +495,7 @@ export function isFourArmyState(value: unknown): value is FourArmyState {
             'secondaryAmmo',
             'supplyStock',
             'experience',
-            ...(value.engineVersion === 3 || ((value.engineVersion === 4 || value.engineVersion === 5) && value.rules) ? ['ambush', 'logistics'] : []),
+            ...(value.engineVersion === 3 || ((value.engineVersion === 4 || Number(value.engineVersion) >= 5) && value.rules) ? ['ambush', 'logistics'] : []),
           ],
         ) &&
         id(u.id) &&
@@ -493,7 +511,7 @@ export function isFourArmyState(value: unknown): value is FourArmyState {
     return false;
   if (s.setup && FOUR_ARMY_IDS.some((a) => s.units.filter((u) => u.owner === a).length > fourArmyUnitLimit(s.match, s.setup!.unitLimitPerArmy, a))) return false;
   if (
-    s.engineVersion === 3 || ((s.engineVersion === 4 || s.engineVersion === 5) && s.rules)
+    s.engineVersion === 3 || ((s.engineVersion === 4 || s.engineVersion >= 5) && s.rules)
       ? !validFourArmyExtensions(s)
       : Object.hasOwn(s, 'rules') || Object.hasOwn(s, 'extensions')
   )
@@ -504,7 +522,7 @@ export function isFourArmyState(value: unknown): value is FourArmyState {
   if (s.units.some((u) => u.fuel !== undefined && u.fuel > unitStats[u.kind].fuel)) return false;
   if (
     s.units.some(
-      (u) => u.position && !Number.isFinite(s.engineVersion === 5 ? unitMovementCost(validationView, u.position, u.kind) : movementCost(validationView.board, u.position, u.kind)),
+      (u) => u.position && !Number.isFinite(s.engineVersion >= 5 ? unitMovementCost(validationView, u.position, u.kind) : movementCost(validationView.board, u.position, u.kind)),
     )
   )
     return false;
@@ -588,24 +606,35 @@ export function createFourArmyState(input: unknown): GameResult<FourArmyState> {
   const map = input as unknown as FourArmyMap;
   if (!Array.isArray(map.units) || map.units.length > 128) return fail('4軍の部隊数が不正です。');
   if (Object.hasOwn(input, 'match') && !smallBattleMapShape(map)) return fail('小型マップの契約が不正です。');
-  if (Object.hasOwn(input, 'bridges') && map.match?.version !== 2) return fail('従来の対局に橋は追加できません。');
+  if (Object.hasOwn(input, 'bridges') && !isExpandedBattle(map.match)) return fail('従来の対局に橋は追加できません。');
   const participants = fourArmyParticipants(map);
-  const round = createFourArmyRound(map.order, participants);
+  const reserve = fourArmyArrival(map.match);
+  if (
+    reserve &&
+    isExpandedBattle(map.match) &&
+    isAsymmetricSource(map.match.sourceMapId) &&
+    !isCanonicalArrival(map, createAsymmetricLayout(map.match.sourceMapId, map.match, map.seed, map.rules))
+  )
+    return fail('参入予約の初期盤面が不正です。');
+  const order = reserve && isExpandedBattle(map.match) ? battleOrder(map.match, 1) : map.order;
+  const alive = reserve ? participants.filter((a) => a !== reserve.army) : [...participants];
+  const round = createFourArmyRound(order, participants);
+  const materialized = withoutReserve(map);
   if (!round.ok) return round;
   const numericIds = Array.isArray(map.units) ? map.units.filter((u) => record(u) && typeof u.id === 'string' && /^u[0-9]+$/.test(u.id)).map((u) => Number(u.id.slice(1))) : [];
   const initial = {
     ...(Object.hasOwn(input, 'pathVersion') ? { pathVersion: input.pathVersion } : {}),
     ...(map.match ? { match: map.match } : {}),
-    ...(map.match?.version === 2 ? { bridges: map.bridges ?? [] } : {}),
-    engineVersion: map.match?.version === 2 ? 5 : map.match ? 4 : map.rules ? 3 : Object.hasOwn(input, 'setup') ? 2 : 1,
+    ...(isExpandedBattle(map.match) ? { bridges: map.bridges ?? [] } : {}),
+    engineVersion: isExpandedBattle(map.match) ? (reserve ? 6 : 5) : map.match ? 4 : map.rules ? 3 : Object.hasOwn(input, 'setup') ? 2 : 1,
     ...(map.rules ? { rules: map.rules, extensions: initialFourArmyExtensions(map.seed, participants) } : {}),
     ...(Object.hasOwn(input, 'setup') ? { setup: map.setup } : {}),
-    board: map.board,
+    board: materialized.board,
     capitals: map.capitals,
-    units: map.units,
-    players: map.players,
+    units: materialized.units,
+    players: materialized.players,
     round: { ...round.value, phase: 'active', startedArmies: [round.value.order[0]!] },
-    alive: [...participants],
+    alive,
     eliminations: [],
     outcome: { type: 'ongoing' },
     rngSeed: map.seed,
@@ -618,7 +647,7 @@ export function createFourArmyState(input: unknown): GameResult<FourArmyState> {
     initial.units.some((u) => u.hasMoved || u.hasActed) ||
     (initial.setup &&
       initial.units.some((u) => !inFourArmyStartZone((u.position ?? initial.units.find((c) => c.id === u.embarkedIn)!.position)!, initial.setup!.startZones[u.owner]))) ||
-    !participants.every((a) => initial.board.terrain[initial.capitals[a].y]![initial.capitals[a].x]!.owner === a)
+    !alive.every((a) => initial.board.terrain[initial.capitals[a].y]![initial.capitals[a].x]!.owner === a)
   )
     return fail('4軍の初期盤面が不正です。');
   const started = startNext({ ...clean(prepared), round: round.value });
@@ -636,7 +665,7 @@ export function applyFourArmyCommandWithCombat(input: unknown, command: unknown)
 function resolveFourArmyCommand(input: unknown, command: unknown, includeCombat: boolean): GameResult<FourArmyState> & { combat?: CombatSummary<FourArmyId> } {
   if (!isFourArmyState(input) || !isFourArmyCommand(command)) return fail('4軍の状態または命令が不正です。');
   if (!input.rules && ['fortify', 'recon', 'ambush', 'logistics', 'repairReserve'].includes(command.type)) return fail('この対局の規則では使えない命令です。');
-  if (['bridge', 'destroyBridge'].includes(command.type) && input.engineVersion !== 5) return fail('この対局では架橋操作を使えません。');
+  if (['bridge', 'destroyBridge'].includes(command.type) && input.engineVersion < 5) return fail('この対局では架橋操作を使えません。');
   if (input.outcome.type !== 'ongoing') return fail('対局は終了しています。');
   if (command.actor !== input.round.order[input.round.index]) return fail('行動中の軍ではありません。');
   if (command.type === 'resume') return input.paused ? startNext({ ...structuredClone(input), paused: false }) : fail('一時停止していません。');
@@ -655,14 +684,14 @@ function resolveFourArmyCommand(input: unknown, command: unknown, includeCombat:
     )
       return fail('対応する生産施設または部隊枠が必要です。');
     const { actor, ...legacy } = command;
-    if (input.engineVersion === 5) {
+    if (input.engineVersion >= 5) {
       for (const key of ['unitId', 'transportId', ...(command.type === 'merge' ? ['targetId'] : [])]) {
         const value = (command as unknown as Record<string, unknown>)[key];
         if (value !== undefined && !input.units.some((u) => u.id === value && u.owner === actor)) return fail('自軍の部隊を指定してください。');
       }
       if (command.type === 'produce' && input.board.terrain[command.factory.y]?.[command.factory.x]?.owner !== actor) return fail('自軍の施設を指定してください。');
     }
-    const view = project(input, actor, input.engineVersion === 5 && command.type !== 'produce' && command.type !== 'fortify');
+    const view = project(input, actor, input.engineVersion >= 5 && command.type !== 'produce' && command.type !== 'fortify');
     const changed =
       command.type === 'move' && input.pathVersion !== undefined
         ? moveUnit(view, command.unitId, command.destination, (a, b) =>
@@ -703,7 +732,7 @@ function resolveFourArmyCommand(input: unknown, command: unknown, includeCombat:
 /** Observations omit hidden contacts, enemy funds/cargo/logistics, and the combat RNG stream. */
 export function observeFourArmy(input: unknown, viewer: FourArmyId): GameResult<FourArmyObservation> {
   if (!isFourArmyState(input) || !fourArmyParticipants(input).includes(viewer)) return fail('4軍の視点が不正です。');
-  const view = project(input, viewer, input.match?.version === 2);
+  const view = project(input, viewer, isExpandedBattle(input.match));
   const contacts = new Set(visibleEnemies(view, 'red').map((u) => u.id));
   const visible = visiblePositions(view, 'red');
   const seen = new Set(visible.map(positionKey));
@@ -715,6 +744,7 @@ export function observeFourArmy(input: unknown, viewer: FourArmyId): GameResult<
       ...(input.match ? { match: input.match } : {}),
       ...(input.decision ? { decision: input.decision } : {}),
       ...(input.objectiveHold ? { objectiveHold: input.objectiveHold } : {}),
+      ...(input.arrivedAt === undefined ? {} : { arrivedAt: input.arrivedAt }),
       ...(input.rules && input.extensions
         ? {
             rules: input.rules,

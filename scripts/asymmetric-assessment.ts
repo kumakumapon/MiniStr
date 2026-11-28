@@ -135,6 +135,8 @@ for (const source of sources.filter((s) => sourceList.split(',').includes(s)))
               landed: [...landed],
               crossed: [...crossed],
               farBankCapture: [...farBankCapture],
+              ...(source === 'delayed-power' ? { arrivedAt: state.arrivedAt ?? null } : {}),
+              ...(source === 'canal-crossroads' ? { heldRounds: state.objectiveHold?.rounds ?? 0 } : {}),
               eliminated: state.eliminations.length,
               round: state.decision?.round ?? state.round.round,
               commands,

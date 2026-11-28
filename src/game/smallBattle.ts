@@ -1,3 +1,4 @@
+import { authoredArrival, isCanonicalArrival, fourArmyArrival, type FourArmyArrival } from './fourArmyArrival';
 import type { FourArmyHoldObjective } from './fourArmyObjective';
 import { authoredBattlefield, isAuthoredFourSource } from './asymmetricFourSites';
 import { encirclementAllianceLimit, isAsymmetricSource, isFixedFourArmySource, siteTeam, type AsymmetricSource } from './asymmetricBattlefield';
@@ -16,9 +17,10 @@ export interface LegacySmallBattle {
   roundLimit?: 20;
 }
 export interface ExpandedBattle {
-  version: 2;
+  version: 2 | 3;
+  arrival?: FourArmyArrival;
   sourceMapId: 'skirmish' | 'outpost' | 'strait' | 'frontier' | AsymmetricSource;
-  layoutVersion: 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9;
+  layoutVersion: 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10;
   objective?: FourArmyHoldObjective;
   /** Army assigned to each ordered authored site in authored layouts. */
   siteArmies?: FourArmyId[];
@@ -31,19 +33,23 @@ export interface ExpandedBattle {
   sharedVision: boolean;
 }
 export type SmallBattle = LegacySmallBattle | ExpandedBattle;
+export const isExpandedBattle = (match?: SmallBattle): match is ExpandedBattle => match?.version === 2 || match?.version === 3;
 export const alliedArmies = (match: SmallBattle | undefined, a: FourArmyId, b: FourArmyId): boolean =>
-  a === b || (match?.version === 2 && match.participants.includes(a) && match.participants.includes(b) && match.teams[a] === match.teams[b]);
+  a === b || (isExpandedBattle(match) && match.participants.includes(a) && match.participants.includes(b) && match.teams[a] === match.teams[b]);
 /** The Encirclement roster shares a base limit, with lower ceilings at the three allied sites. */
 export function fourArmyUnitLimit(match: SmallBattle | undefined, limit: number, army: FourArmyId): number {
-  return match?.version === 2 && match.sourceMapId === 'encirclement' && match.siteArmies?.[0] !== army ? Math.min(limit, encirclementAllianceLimit) : limit;
+  return isExpandedBattle(match) && match.sourceMapId === 'encirclement' && match.siteArmies?.[0] !== army ? Math.min(limit, encirclementAllianceLimit) : limit;
 }
-export const matchTeams = (match?: SmallBattle) => (match?.version === 2 ? match.teams : undefined);
+export const matchTeams = (match?: SmallBattle) => (isExpandedBattle(match) ? match.teams : undefined);
 export function battleWinners(s: Pick<FourArmyState, 'match' | 'outcome'>): FourArmyId[] {
   return s.outcome.type === 'victory' ? fourArmyParticipants(s).filter((a) => alliedArmies(s.match, a, s.outcome.type === 'victory' ? s.outcome.winner : a)) : [];
 }
-export function battleOrder(match: ExpandedBattle, round: number): FourArmyId[] {
-  const offset = match.initiative === 'rotating' ? (round - 1) % match.participants.length : 0;
-  return [...match.initialOrder.slice(offset), ...match.initialOrder.slice(0, offset)];
+export function battleOrder(match: ExpandedBattle, round: number, arrivedAt?: number): FourArmyId[] {
+  const reserve = fourArmyArrival(match);
+  const pending = reserve && (arrivedAt === undefined || round < arrivedAt) ? reserve.army : undefined;
+  const order = pending ? match.initialOrder.filter((army) => army !== pending) : match.initialOrder;
+  const offset = match.initiative === 'rotating' ? (round - 1) % order.length : 0;
+  return [...order.slice(offset), ...order.slice(0, offset), ...(pending ? [pending] : [])];
 }
 export const fourArmyParticipants = (v: { match?: SmallBattle }): readonly FourArmyId[] => v.match?.participants ?? FOUR_ARMY_IDS;
 function exactHoldObjective(value: unknown, expected: FourArmyHoldObjective): boolean {
@@ -64,17 +70,28 @@ export function isSmallBattle(v: unknown): v is SmallBattle {
   if (!v || typeof v !== 'object' || Array.isArray(v)) return false;
   const m = v as Record<string, unknown>,
     expected = ['version', 'sourceMapId', 'layoutVersion', 'participants', 'ending', ...(m.ending === 'short' ? ['roundLimit'] : [])];
-  if (m.version === 2) {
+  if (m.version === 2 || m.version === 3) {
     const authored = isAsymmetricSource(m.sourceMapId);
     const objective = isAuthoredFourSource(m.sourceMapId) ? authoredBattlefield(m.sourceMapId).objective : undefined;
-    const names = [...expected, ...(authored ? ['siteArmies'] : []), ...(objective ? ['objective'] : []), 'initialOrder', 'initiative', 'teams', 'sharedVision'];
+    const reserve = isAuthoredFourSource(m.sourceMapId) ? authoredBattlefield(m.sourceMapId).arrival : undefined;
+    if ((m.version === 3) !== !!reserve) return false;
+    const names = [
+      ...expected,
+      ...(authored ? ['siteArmies'] : []),
+      ...(objective ? ['objective'] : []),
+      ...(reserve ? ['arrival'] : []),
+      'initialOrder',
+      'initiative',
+      'teams',
+      'sharedVision',
+    ];
     const ids = m.participants;
     if (
       Object.keys(m).length !== names.length ||
       !names.every((k) => Object.hasOwn(m, k)) ||
       (objective !== undefined && !exactHoldObjective(m.objective, objective)) ||
       (isFixedFourArmySource(m.sourceMapId)
-        ? m.layoutVersion !== (objective ? 9 : isAuthoredFourSource(m.sourceMapId) ? 8 : m.sourceMapId === 'encirclement' ? 7 : 6) ||
+        ? m.layoutVersion !== (reserve ? 10 : objective ? 9 : isAuthoredFourSource(m.sourceMapId) ? 8 : m.sourceMapId === 'encirclement' ? 7 : 6) ||
           !Array.isArray(ids) ||
           ids.length !== 4 ||
           m.initiative !== 'rotating' ||
@@ -108,6 +125,7 @@ export function isSmallBattle(v: unknown): v is SmallBattle {
         m.siteArmies.length !== ids.length ||
         new Set(m.siteArmies).size !== ids.length ||
         !m.siteArmies.every((a) => ids.includes(a)) ||
+        (reserve !== undefined && !isCanonicalArrival(m.arrival, authoredArrival(m.sourceMapId, m.siteArmies))) ||
         (m.sourceMapId === 'tundra' && (ids.length !== 3 || m.ending !== 'short')) ||
         !m.siteArmies.every((army, _, sites) => teams[army] === siteTeam(m.sourceMapId as AsymmetricSource, sites, army)))
     )
@@ -155,7 +173,7 @@ export function smallBattleStandings(s: Pick<FourArmyState, 'match' | 'alive' | 
     .sort((a, b) => Number(b.alive) - Number(a.alive) || b.properties - a.properties || b.hp - a.hp);
 }
 export function smallBattleDecision(s: Pick<FourArmyState, 'match' | 'alive' | 'board' | 'units'>): FourArmyOutcome {
-  if (s.match?.version === 2) {
+  if (isExpandedBattle(s.match)) {
     if (s.match.sourceMapId === 'tundra') return { type: 'victory', winner: s.match.siteArmies![0]! };
     const groups = new Map<FourArmyId, { army: FourArmyId; properties: number; hp: number }>();
     for (const row of smallBattleStandings(s).filter((r) => r.alive)) {
@@ -178,7 +196,7 @@ export function fourArmyRoster<T>(ids: readonly FourArmyId[], make: (id: FourArm
   return Object.fromEntries(ids.map((id, i) => [id, make(id, i)])) as Record<FourArmyId, T>;
 }
 export function smallBattleMapShape(m: FourArmyMap): boolean {
-  if (m.match?.version === 2)
+  if (isExpandedBattle(m.match))
     return (
       isSmallBattle(m.match) &&
       m.pathVersion === 3 &&
